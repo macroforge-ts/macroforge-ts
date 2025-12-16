@@ -25,14 +25,6 @@ a standard way to create "zero" or "empty" instances of types.
 | Interface | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal |
 | Type Alias | `defaultValueTypeName(): TypeName` | Standalone function with type-appropriate default |
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeDefaultValue`)
-- `"suffix"`: Suffixes with type name (e.g., `defaultValueMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `defaultValue<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
-
 ## Default Values by Type
 
 The macro uses Rust-like default semantics:

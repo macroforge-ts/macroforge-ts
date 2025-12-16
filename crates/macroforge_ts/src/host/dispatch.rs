@@ -309,7 +309,6 @@ mod tests {
                 members: vec![],
             }),
             target_source: "class Test {}".to_string(),
-            function_naming_style: Default::default(),
         };
 
         let result = dispatcher.dispatch(ctx);

@@ -25,14 +25,6 @@ compared with a guaranteed ordering relationship.
 | Interface | `compareInterfaceName(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
 | Type Alias | `compareTypeName(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeCompare`)
-- `"suffix"`: Suffixes with type name (e.g., `compareMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `compare<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
-
 ## Return Values
 
 Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values

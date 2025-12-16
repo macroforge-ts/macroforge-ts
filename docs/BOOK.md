@@ -749,14 +749,6 @@ reverse lookup on numeric enums.
 **Type Aliases**: Generates a standalone function using JSON.stringify for
 complex types, or field enumeration for object types.
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeToString`)
-- `"suffix"`: Suffixes with type name (e.g., `toStringMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `toString<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
-
 ## Field-Level Options
 
 The `@debug` decorator supports:
@@ -831,15 +823,6 @@ independent copies of values.
 | Enum       | `cloneEnumName(value: EnumName): EnumName`                | Standalone function (enums are primitives, returns value as-is) |
 | Interface  | `cloneInterfaceName(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal               |
 | Type Alias | `cloneTypeName(value: TypeName): TypeName`                | Standalone function with spread copy for objects                |
-
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeClone`)
-- `"suffix"`: Suffixes with type name (e.g., `cloneMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `clone<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
 
 ## Cloning Strategy
 
@@ -925,15 +908,6 @@ a standard way to create "zero" or "empty" instances of types.
 | Enum       | `defaultValueEnumName(): EnumName`           | Standalone function returning marked variant      |
 | Interface  | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal      |
 | Type Alias | `defaultValueTypeName(): TypeName`           | Standalone function with type-appropriate default |
-
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeDefaultValue`)
-- `"suffix"`: Suffixes with type name (e.g., `defaultValueMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `defaultValue<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
 
 ## Default Values by Type
 
@@ -1186,15 +1160,6 @@ objects to be used as keys in hash-based collections.
 | Interface  | `hashCodeInterfaceName(value: InterfaceName): number` | Standalone function computing hash             |
 | Type Alias | `hashCodeTypeName(value: TypeName): number`           | Standalone function computing hash             |
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeHashCode`)
-- `"suffix"`: Suffixes with type name (e.g., `hashCodeMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `hashCode<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
-
 ## Hash Algorithm
 
 Uses the standard polynomial rolling hash algorithm:
@@ -1353,15 +1318,6 @@ compared with a guaranteed ordering relationship.
 | Interface  | `compareInterfaceName(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields                 |
 | Type Alias | `compareTypeName(a: TypeName, b: TypeName): number`                | Standalone function with type-appropriate comparison |
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeCompare`)
-- `"suffix"`: Suffixes with type name (e.g., `compareMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `compare<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
-
 ## Return Values
 
 Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values
@@ -1512,15 +1468,6 @@ enabling value-based equality semantics instead of reference equality.
 | Enum       | `equalsEnumName(a: EnumName, b: EnumName): boolean`                | Standalone function using strict equality            |
 | Interface  | `equalsInterfaceName(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields                 |
 | Type Alias | `equalsTypeName(a: TypeName, b: TypeName): boolean`                | Standalone function with type-appropriate comparison |
-
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeEquals`)
-- `"suffix"`: Suffixes with type name (e.g., `equalsMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `equals<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
 
 ## Comparison Strategy
 
@@ -2179,15 +2126,6 @@ between values where some pairs may be incomparable.
 | Interface  | `partialCompareInterfaceName(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option      |
 | Type Alias | `partialCompareTypeName(a: TypeName, b: TypeName): Option<number>`                | Standalone function with Option      |
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypePartialCompare`)
-- `"suffix"`: Suffixes with type name (e.g., `partialCompareMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `partialCompare<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
-
 ## Return Values
 
 Unlike `Ord`, `PartialOrd` returns an `Option<number>` to handle incomparable values:
@@ -2324,15 +2262,6 @@ including circular references.
 | Enum       | `myEnumSerialize(value)`, `myEnumSerializeWithContext` | Standalone functions |
 | Interface  | `myInterfaceSerialize(value)`, etc.           | Standalone functions |
 | Type Alias | `myTypeSerialize(value)`, etc.                | Standalone functions |
-
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeSerialize`)
-- `"suffix"`: Suffixes with type name (e.g., `serializeMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `serialize<T extends MyType>`)
-- `"namespace"`: Namespace wrapping (e.g., `MyType.serialize`)
 
 ## Cycle Detection Protocol
 
@@ -2524,15 +2453,6 @@ safe parsing of complex JSON structures including circular references.
 | Enum       | `myEnumDeserialize(input)`, `myEnumDeserializeWithContext(data)`, `myEnumIs(value)` | Standalone functions   |
 | Interface  | `myInterfaceDeserialize(input)`, etc.                                               | Standalone functions   |
 | Type Alias | `myTypeDeserialize(input)`, etc.                                                    | Standalone functions   |
-
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeDeserialize`)
-- `"suffix"`: Suffixes with type name (e.g., `deserializeMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `deserialize<T extends MyType>`)
-- `"namespace"`: Namespace wrapping (e.g., `MyType.deserialize`)
 
 ## Return Type
 

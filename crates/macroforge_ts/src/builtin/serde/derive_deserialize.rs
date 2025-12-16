@@ -13,14 +13,6 @@
 //! | Interface | `myInterfaceDeserialize(input)`, etc. | Standalone functions |
 //! | Type Alias | `myTypeDeserialize(input)`, etc. | Standalone functions |
 //!
-//! ## Configuration
-//!
-//! The `functionNamingStyle` option in `macroforge.json` controls naming:
-//! - `"prefix"` (default): Prefixes with type name (e.g., `myTypeDeserialize`)
-//! - `"suffix"`: Suffixes with type name (e.g., `deserializeMyType`)
-//! - `"generic"`: Uses TypeScript generics (e.g., `deserialize<T extends MyType>`)
-//! - `"namespace"`: Namespace wrapping (e.g., `MyType.deserialize`)
-//!
 //! ## Return Type
 //!
 //! All public deserialization methods return `Result<T, Array<{ field: string; message: string }>>`:
