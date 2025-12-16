@@ -20,6 +20,7 @@
 //!   "allowNativeMacros": false,
 //!   "keepDecorators": false,
 //!   "functionNamingStyle": "prefix",
+//!   "generateConvenienceConst": true,
 //!   "limits": {
 //!     "maxExecutionTimeMs": 5000,
 //!     "maxMemoryBytes": 104857600,
@@ -58,6 +59,8 @@ const LEGACY_CONFIG_FILENAME: &str = "macroforge.config.json";
 /// - No external macro packages (only built-in macros)
 /// - Native macros disabled
 /// - Decorators stripped from output
+/// - Prefix function naming style
+/// - Convenience const generation enabled
 /// - Standard resource limits
 ///
 /// # Example
@@ -73,7 +76,6 @@ const LEGACY_CONFIG_FILENAME: &str = "macroforge.config.json";
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[derive(Default)]
 pub struct MacroConfig {
     /// List of macro packages to load (e.g., `["@my-org/macros"]`).
     ///
@@ -117,6 +119,30 @@ pub struct MacroConfig {
     /// Default: `Prefix` (e.g., `myTypeClone`)
     #[serde(default)]
     pub function_naming_style: FunctionNamingStyle,
+
+    /// Whether to generate a convenience const for non-class types.
+    ///
+    /// When `true` (default), generates an `export const TypeName = { ... } as const;`
+    /// that groups all generated functions for a type into a single namespace-like object.
+    /// For example: `export const User = { clone: userClone, serialize: userSerialize } as const;`
+    ///
+    /// When `false`, only the standalone functions are generated without the grouping const.
+    #[serde(default = "default_generate_convenience_const")]
+    pub generate_convenience_const: bool,
+}
+
+impl Default for MacroConfig {
+    fn default() -> Self {
+        Self {
+            macro_packages: Vec::new(),
+            allow_native_macros: false,
+            macro_runtime_overrides: Default::default(),
+            limits: Default::default(),
+            keep_decorators: false,
+            function_naming_style: FunctionNamingStyle::default(),
+            generate_convenience_const: default_generate_convenience_const(),
+        }
+    }
 }
 
 /// Runtime mode for macro execution.
@@ -217,6 +243,11 @@ fn default_max_output_size() -> usize {
 /// Returns the default maximum diagnostics (100).
 fn default_max_diagnostics() -> usize {
     100
+}
+
+/// Returns the default for generate_convenience_const (true).
+fn default_generate_convenience_const() -> bool {
+    true
 }
 
 impl MacroConfig {
@@ -370,6 +401,7 @@ mod tests {
             limits: Default::default(),
             keep_decorators: false,
             function_naming_style: FunctionNamingStyle::Suffix,
+            generate_convenience_const: false,
         };
 
         let json = serde_json::to_string(&config).unwrap();
@@ -378,12 +410,40 @@ mod tests {
         assert_eq!(config.macro_packages, parsed.macro_packages);
         assert_eq!(config.allow_native_macros, parsed.allow_native_macros);
         assert_eq!(config.function_naming_style, parsed.function_naming_style);
+        assert_eq!(
+            config.generate_convenience_const,
+            parsed.generate_convenience_const
+        );
     }
 
     #[test]
     fn test_function_naming_style_default() {
         let config = MacroConfig::default();
         assert_eq!(config.function_naming_style, FunctionNamingStyle::Prefix);
+    }
+
+    #[test]
+    fn test_generate_convenience_const_default() {
+        let config = MacroConfig::default();
+        assert!(config.generate_convenience_const);
+    }
+
+    #[test]
+    fn test_generate_convenience_const_deserialization() {
+        // Default should be true when not specified
+        let json = r#"{}"#;
+        let config: MacroConfig = serde_json::from_str(json).unwrap();
+        assert!(config.generate_convenience_const);
+
+        // Explicit false
+        let json = r#"{"generateConvenienceConst": false}"#;
+        let config: MacroConfig = serde_json::from_str(json).unwrap();
+        assert!(!config.generate_convenience_const);
+
+        // Explicit true
+        let json = r#"{"generateConvenienceConst": true}"#;
+        let config: MacroConfig = serde_json::from_str(json).unwrap();
+        assert!(config.generate_convenience_const);
     }
 
     #[test]

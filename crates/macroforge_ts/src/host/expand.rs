@@ -747,13 +747,12 @@ impl MacroExpander {
                 collector.add_type_patches(result.type_patches);
             }
 
-            // Generate convenience const for non-class types (Prefix and Suffix styles only)
-            // Skip if there's already a namespace or const with the same name in the source
+            // Generate convenience const for non-class types (Prefix style only)
+            // Skip if disabled in config or there's already a namespace or const with the same name
             if let Some(type_name) = get_derive_target_name(&target.target_ir) {
-                if matches!(
-                    self.config.function_naming_style,
-                    FunctionNamingStyle::Prefix | FunctionNamingStyle::Suffix
-                ) && !has_existing_namespace_or_const(source, type_name)
+                if self.config.generate_convenience_const
+                    && self.config.function_naming_style == FunctionNamingStyle::Prefix
+                    && !has_existing_namespace_or_const(source, type_name)
                 {
                     let new_patches = collector.runtime_patches_slice(patches_start);
                     let functions = extract_function_names_from_patches(
