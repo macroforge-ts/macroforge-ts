@@ -13,9 +13,19 @@
 //!
 //! ## Example
 //!
-//! ```ignore
-//! // In your macro package:
+//! ```rust,no_run
 //! use macroforge_ts::register_macro_package;
+//! use macroforge_ts::host::{MacroRegistry, Macroforge, Result};
+//! use macroforge_ts_syn::{TsStream, MacroKind, MacroResult};
+//! use std::sync::Arc;
+//!
+//! struct MyMacro;
+//!
+//! impl Macroforge for MyMacro {
+//!     fn name(&self) -> &str { "MyMacro" }
+//!     fn kind(&self) -> MacroKind { MacroKind::Derive }
+//!     fn run(&self, _: TsStream) -> MacroResult { MacroResult::default() }
+//! }
 //!
 //! fn register_my_macros(registry: &MacroRegistry) -> Result<()> {
 //!     registry.register("my-module", "MyMacro", Arc::new(MyMacro))?;
@@ -67,9 +77,15 @@ inventory::collect!(MacroPackageRegistration);
 ///
 /// # Usage
 ///
-/// ```ignore
-/// for registration in registrars() {
-///     (registration.registrar)(registry)?;
+/// ```rust,no_run
+/// use macroforge_ts::host::package_registry::registrars;
+/// use macroforge_ts::host::{MacroRegistry, Result};
+///
+/// fn register_all(registry: &MacroRegistry) -> Result<()> {
+///     for registration in registrars() {
+///         (registration.registrar)(registry)?;
+///     }
+///     Ok(())
 /// }
 /// ```
 pub fn registrars() -> Vec<&'static MacroPackageRegistration> {

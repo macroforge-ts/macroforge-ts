@@ -74,7 +74,7 @@
 //! ```
 
 /// Clone macro implementation (deep copy).
-mod derive_clone;
+pub mod derive_clone;
 
 /// Shared utilities for comparison macros.
 mod derive_common;
@@ -86,16 +86,16 @@ mod derive_debug;
 mod derive_default;
 
 /// Hash macro implementation (hashCode).
-mod derive_hash;
+pub mod derive_hash;
 
 /// Ord macro implementation (total ordering).
 mod derive_ord;
 
 /// PartialEq macro implementation (equals).
-mod derive_partial_eq;
+pub mod derive_partial_eq;
 
 /// PartialOrd macro implementation (partial ordering).
 mod derive_partial_ord;
 
 /// Serialization macros (Serialize, Deserialize).
-mod serde;
+pub mod serde;

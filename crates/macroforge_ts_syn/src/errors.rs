@@ -16,10 +16,10 @@
 //!
 //! ### Returning Errors from Macros
 //!
-//! ```rust,ignore
-//! use macroforge_ts_syn::{MacroforgeError, MacroResult};
+//! ```rust
+//! use macroforge_ts_syn::{MacroforgeError, MacroResult, DeriveInput, SpanIR};
 //!
-//! fn my_macro(input: DeriveInput) -> Result<MacroResult, MacroforgeError> {
+//! fn my_macro(input: &DeriveInput, some_condition: bool, other_condition: bool) -> Result<MacroResult, MacroforgeError> {
 //!     // Error with source span
 //!     if some_condition {
 //!         return Err(MacroforgeError::new(
@@ -42,14 +42,24 @@
 //! Both [`MacroforgeError`] and [`MacroforgeErrors`] implement `Into<MacroResult>`,
 //! allowing direct conversion:
 //!
-//! ```rust,ignore
+//! ```rust
+//! use macroforge_ts_syn::{MacroforgeError, MacroforgeErrors, MacroResult, Diagnostic, DiagnosticLevel, SpanIR};
+//!
 //! // Single error
+//! let span = SpanIR::new(0, 10);
 //! let error = MacroforgeError::new(span, "Something went wrong");
-//! let result: MacroResult = error.into();
+//! let _result: MacroResult = error.into();
 //!
 //! // Multiple errors
+//! let diagnostics = vec![Diagnostic {
+//!     level: DiagnosticLevel::Error,
+//!     message: "First error".into(),
+//!     span: None,
+//!     notes: vec![],
+//!     help: None,
+//! }];
 //! let errors = MacroforgeErrors::new(diagnostics);
-//! let result: MacroResult = errors.into();
+//! let _result: MacroResult = errors.into();
 //! ```
 
 use crate::abi::{Diagnostic, DiagnosticLevel, MacroResult, SpanIR};
@@ -68,17 +78,16 @@ use thiserror::Error;
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// fn parse_something(input: &str) -> Result<Module, TsSynError> {
-///     let module = parse_ts_module(input, "input.ts")?;
+/// ```rust
+/// use macroforge_ts_syn::TsSynError;
 ///
-///     if !is_supported(&module) {
+/// fn check_feature(is_supported: bool) -> Result<(), TsSynError> {
+///     if !is_supported {
 ///         return Err(TsSynError::Unsupported(
 ///             "Async generators are not supported".into()
 ///         ));
 ///     }
-///
-///     Ok(module)
+///     Ok(())
 /// }
 /// ```
 #[derive(Error, Debug)]
@@ -100,31 +109,38 @@ pub enum TsSynError {
 ///
 /// # Creating Errors
 ///
-/// ```rust,ignore
+/// ```rust
+/// use macroforge_ts_syn::{MacroforgeError, SpanIR};
+///
 /// // With a span (preferred for user-facing errors)
-/// let error = MacroforgeError::new(
-///     field.span,
-///     format!("Field '{}' has unsupported type", field.name)
+/// let field_span = SpanIR::new(10, 25);
+/// let field_name = "email";
+/// let _error = MacroforgeError::new(
+///     field_span,
+///     format!("Field '{}' has unsupported type", field_name)
 /// );
 ///
 /// // Without a span (for internal/configuration errors)
-/// let error = MacroforgeError::new_global("Missing required configuration");
+/// let _error = MacroforgeError::new_global("Missing required configuration");
 /// ```
 ///
 /// # Converting to MacroResult
 ///
 /// `MacroforgeError` implements `Into<MacroResult>` for easy error returns:
 ///
-/// ```rust,ignore
-/// fn my_macro(input: DeriveInput) -> Result<MacroResult, MacroforgeError> {
-///     if some_error_condition {
+/// ```rust
+/// use macroforge_ts_syn::{MacroforgeError, MacroResult, SpanIR};
+///
+/// fn my_macro(has_error: bool) -> Result<MacroResult, MacroforgeError> {
+///     if has_error {
+///         let span = SpanIR::new(0, 10);
 ///         return Err(MacroforgeError::new(span, "Something went wrong"));
 ///     }
 ///     Ok(MacroResult::default())
 /// }
 ///
 /// // Or convert directly:
-/// let result: MacroResult = MacroforgeError::new_global("Error").into();
+/// let _result: MacroResult = MacroforgeError::new_global("Error").into();
 /// ```
 #[derive(Debug)]
 pub struct MacroforgeError {
@@ -205,8 +221,8 @@ impl std::error::Error for MacroforgeError {}
 ///
 /// # Example: Field Validation
 ///
-/// ```rust,ignore
-/// use macroforge_ts_syn::{MacroforgeErrors, Diagnostic, DiagnosticLevel};
+/// ```rust
+/// use macroforge_ts_syn::{MacroforgeErrors, Diagnostic, DiagnosticLevel, FieldIR, SpanIR, Visibility};
 ///
 /// fn validate_fields(fields: &[FieldIR]) -> Result<(), MacroforgeErrors> {
 ///     let mut diagnostics = Vec::new();
@@ -233,9 +249,18 @@ impl std::error::Error for MacroforgeError {}
 ///
 /// # Converting to MacroResult
 ///
-/// ```rust,ignore
+/// ```rust
+/// use macroforge_ts_syn::{MacroforgeErrors, MacroResult, Diagnostic, DiagnosticLevel};
+///
+/// let diagnostics = vec![Diagnostic {
+///     level: DiagnosticLevel::Error,
+///     message: "Some error".into(),
+///     span: None,
+///     notes: vec![],
+///     help: None,
+/// }];
 /// let errors = MacroforgeErrors::new(diagnostics);
-/// let result: MacroResult = errors.into();
+/// let _result: MacroResult = errors.into();
 /// // result.diagnostics contains all the errors
 /// ```
 #[derive(Debug)]

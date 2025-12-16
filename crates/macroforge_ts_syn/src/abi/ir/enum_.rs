@@ -127,7 +127,7 @@ impl EnumValue {
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::{EnumIR, EnumValue};
 ///
 /// fn is_string_enum(enum_ir: &EnumIR) -> bool {

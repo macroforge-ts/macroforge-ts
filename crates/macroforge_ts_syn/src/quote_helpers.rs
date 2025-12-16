@@ -16,17 +16,15 @@
 //!
 //! Use `proto_method!` to generate `Class.prototype.method = function() {...}`:
 //!
-//! ```rust,ignore
-//! use macroforge_ts_syn::{proto_method, ident, stmt_vec};
+//! ```rust
+//! use macroforge_ts_syn::{proto_method, ident};
+//! use macroforge_ts_syn::swc_ecma_ast::Stmt;
 //!
 //! // Generate: User.prototype.toJSON = function() { return {...}; }
 //! let class_name = ident!("User");
-//! let body = stmt_vec![
-//!     ts_quote!( const result = {}; as Stmt ),
-//!     ts_quote!( return result; as Stmt ),
-//! ];
+//! let body: Vec<Stmt> = vec![];
 //!
-//! let stmt = proto_method!(class_name, "toJSON", body);
+//! let _stmt = proto_method!(class_name, "toJSON", body);
 //! ```
 //!
 //! ## Related Macros
@@ -55,15 +53,14 @@
 ///
 /// # Example: Basic Usage
 ///
-/// ```rust,ignore
+/// ```rust
 /// use macroforge_ts_syn::{proto_method, ident};
+/// use macroforge_ts_syn::swc_ecma_ast::Stmt;
 ///
 /// // Generate: MyClass.prototype.toString = function() { return "MyClass"; }
-/// let body_stmts = vec![
-///     ts_quote!( return "MyClass"; as Stmt ),
-/// ];
+/// let body_stmts: Vec<Stmt> = vec![];
 ///
-/// let stmt = proto_method!(ident!("MyClass"), "toString", body_stmts);
+/// let _stmt = proto_method!(ident!("MyClass"), "toString", body_stmts);
 /// ```
 ///
 /// # Example: In a Derive Macro

@@ -173,15 +173,15 @@ fn to_camel_case(name: &str) -> String {
 /// Each field that participates in equality checking is represented by this struct,
 /// which captures both the field name (for access) and its TypeScript type
 /// (to select the appropriate comparison strategy).
-struct EqField {
+pub struct EqField {
     /// The field name as it appears in the source TypeScript class.
     /// Used to generate property access expressions like `this.name`.
-    name: String,
+    pub name: String,
 
     /// The TypeScript type annotation for this field.
     /// Used to determine which comparison strategy to apply
     /// (e.g., strict equality for primitives, recursive equals for objects).
-    ts_type: String,
+    pub ts_type: String,
 }
 
 /// Generates JavaScript code that compares a single class field for equality.
@@ -278,11 +278,14 @@ fn generate_field_equality(field: &EqField) -> String {
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust
+/// use macroforge_ts::builtin::derive_partial_eq::{EqField, generate_field_equality_for_interface};
+///
+/// let field = EqField { name: "name".to_string(), ts_type: "string".to_string() };
 /// let code = generate_field_equality_for_interface(&field, "self", "other");
-/// // Generates: "self.name === other.name"
+/// assert_eq!(code, "self.name === other.name");
 /// ```
-fn generate_field_equality_for_interface(
+pub fn generate_field_equality_for_interface(
     field: &EqField,
     self_var: &str,
     other_var: &str,

@@ -15,18 +15,21 @@
 //!
 //! ## Basic Usage
 //!
-//! ```rust,ignore
-//! use macroforge_ts_syn::{TsStream, parse_ts_str};
+//! ```rust,no_run
+//! use macroforge_ts_syn::{TsStream, parse_ts_str, TsSynError};
 //! use swc_core::ecma::ast::{Expr, Stmt, Module};
 //!
-//! // Parse individual constructs
-//! let expr: Box<Expr> = parse_ts_str("x + y")?;
-//! let stmt: Stmt = parse_ts_str("const x = 5;")?;
-//! let module: Module = parse_ts_str("export class Foo {}")?;
+//! fn main() -> Result<(), TsSynError> {
+//!     // Parse individual constructs
+//!     let expr: Box<Expr> = parse_ts_str("x + y")?;
+//!     let stmt: Stmt = parse_ts_str("const x = 5;")?;
+//!     let module: Module = parse_ts_str("export class Foo {}")?;
 //!
-//! // Or use TsStream directly
-//! let mut stream = TsStream::new("const x = 5;", "input.ts")?;
-//! let stmt = stream.parse_stmt()?;
+//!     // Or use TsStream directly
+//!     let mut stream = TsStream::new("const x = 5;", "input.ts")?;
+//!     let stmt = stream.parse_stmt()?;
+//!     Ok(())
+//! }
 //! ```
 //!
 //! ## Macro Context
@@ -34,11 +37,15 @@
 //! When used within the macro system, [`TsStream`] carries context information
 //! about the macro invocation:
 //!
-//! ```rust,ignore
-//! // In a macro implementation
-//! let ctx = stream.context().expect("macro context");
-//! let decorator_span = ctx.decorator_span;
-//! let target = &ctx.target;
+//! ```rust,no_run
+//! use macroforge_ts_syn::TsStream;
+//!
+//! fn example(stream: TsStream) {
+//!     // In a macro implementation
+//!     let ctx = stream.context().expect("macro context");
+//!     let decorator_span = ctx.decorator_span;
+//!     let _target = &ctx.target;
+//! }
 //! ```
 //!
 //! ## Adding Imports
@@ -46,17 +53,23 @@
 //! [`TsStream`] provides helpers for adding imports that will be inserted
 //! at the top of the file:
 //!
-//! ```rust,ignore
-//! let mut stream = TsStream::new(source, "input.ts")?;
+//! ```rust,no_run
+//! use macroforge_ts_syn::{TsStream, TsSynError};
 //!
-//! // Add a runtime import
-//! stream.add_import("deserialize", "./runtime");
+//! fn main() -> Result<(), TsSynError> {
+//!     let source = "class Foo {}";
+//!     let mut stream = TsStream::new(source, "input.ts")?;
 //!
-//! // Add a type-only import
-//! stream.add_type_import("Options", "./types");
+//!     // Add a runtime import
+//!     stream.add_import("deserialize", "./runtime");
 //!
-//! // Convert to result
-//! let result = stream.into_result();
+//!     // Add a type-only import
+//!     stream.add_type_import("Options", "./types");
+//!
+//!     // Convert to result
+//!     let _result = stream.into_result();
+//!     Ok(())
+//! }
 //! ```
 //!
 //! ## ParseTs Implementations
@@ -90,41 +103,61 @@ use crate::TsSynError;
 ///
 /// # Creating a TsStream
 ///
+/// ```rust
+/// use macroforge_ts_syn::{TsStream, TsSynError};
+///
+/// fn main() -> Result<(), TsSynError> {
+///     // From source code
+///     let _stream = TsStream::new("const x = 5;", "input.ts")?;
+///
+///     // From an owned string
+///     let generated_code = "const y = 10;".to_string();
+///     let _stream = TsStream::from_string(generated_code);
+///     Ok(())
+/// }
+/// ```
+///
+/// With macro context (typically used by the host system):
+///
 /// ```rust,ignore
-/// // From source code
-/// let stream = TsStream::new("const x = 5;", "input.ts")?;
+/// use macroforge_ts_syn::{TsStream, TsSynError, MacroContextIR, SpanIR, ClassIR};
 ///
-/// // With macro context (used by the host system)
+/// // MacroContextIR requires a target type - this is typically provided by the host
+/// let source = "class Foo {}";
+/// let ctx = MacroContextIR::new_derive_class(/* ... */);
 /// let stream = TsStream::with_context(source, "input.ts", ctx)?;
-///
-/// // From an owned string
-/// let stream = TsStream::from_string(generated_code);
 /// ```
 ///
 /// # Parsing
 ///
-/// ```rust,ignore
-/// // Parse specific constructs
-/// let ident = stream.parse_ident()?;
-/// let stmt = stream.parse_stmt()?;
-/// let expr = stream.parse_expr()?;
-/// let module = stream.parse_module()?;
+/// ```rust,no_run
+/// use macroforge_ts_syn::{TsStream, TsSynError};
 ///
-/// // Generic parsing (requires ParseTs implementation)
-/// let value: MyType = stream.parse()?;
+/// fn main() -> Result<(), TsSynError> {
+///     let mut stream = TsStream::new("const x = 5;", "input.ts")?;
+///     // Parse specific constructs
+///     let _stmt = stream.parse_stmt()?;
+///     Ok(())
+/// }
 /// ```
 ///
 /// # Working with Imports
 ///
-/// ```rust,ignore
-/// let mut stream = TsStream::new(source, "file.ts")?;
+/// ```rust,no_run
+/// use macroforge_ts_syn::{TsStream, TsSynError};
 ///
-/// // These imports will be added to the file
-/// stream.add_import("deserialize", "./runtime");
-/// stream.add_type_import("Options", "./types");
+/// fn main() -> Result<(), TsSynError> {
+///     let source = "class Foo {}";
+///     let mut stream = TsStream::new(source, "file.ts")?;
 ///
-/// // Get the result with accumulated patches
-/// let result = stream.into_result();
+///     // These imports will be added to the file
+///     stream.add_import("deserialize", "./runtime");
+///     stream.add_type_import("Options", "./types");
+///
+///     // Get the result with accumulated patches
+///     let _result = stream.into_result();
+///     Ok(())
+/// }
 /// ```
 #[cfg(feature = "swc")]
 pub struct TsStream {
@@ -151,10 +184,13 @@ pub struct TsStream {
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust
+/// use macroforge_ts_syn::format_ts_source;
+///
 /// let messy = "function foo(){return 42}";
 /// let formatted = format_ts_source(messy);
-/// // Returns: "function foo() {\n    return 42;\n}"
+/// assert!(formatted.contains("function foo()"));
+/// assert!(formatted.contains("return 42"));
 /// ```
 ///
 /// # Fallback
@@ -401,8 +437,8 @@ impl TsStream {
 ///
 /// # Implementing ParseTs
 ///
-/// ```rust,ignore
-/// use macroforge_ts_syn::{ParseTs, TsStream, TsSynError};
+/// ```rust,no_run
+/// use macroforge_ts_syn::{ParseTs, TsStream, TsSynError, parse_ts_str};
 ///
 /// struct MyType {
 ///     name: String,
@@ -415,7 +451,7 @@ impl TsStream {
 ///         let ident = input.parse_ident()?;
 ///
 ///         // Or parse sub-expressions
-///         let expr = input.parse_expr()?;
+///         let _expr = input.parse_expr()?;
 ///
 ///         // Return the parsed type
 ///         Ok(MyType {
@@ -425,8 +461,11 @@ impl TsStream {
 ///     }
 /// }
 ///
-/// // Now you can use it with parse_ts_str
-/// let my_value: MyType = parse_ts_str("identifier")?;
+/// fn main() -> Result<(), TsSynError> {
+///     // Now you can use it with parse_ts_str
+///     let _my_value: MyType = parse_ts_str("identifier")?;
+///     Ok(())
+/// }
 /// ```
 ///
 /// # Using with DeriveInput

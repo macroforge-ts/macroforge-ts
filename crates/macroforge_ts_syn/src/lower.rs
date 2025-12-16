@@ -26,25 +26,24 @@
 //!
 //! ## Example
 //!
-//! ```rust,ignore
-//! use macroforge_ts_syn::{lower_classes, parse_ts_module};
+//! ```rust
+//! use macroforge_ts_syn::{lower_classes, parse_ts_module, TsSynError};
 //!
-//! let source = r#"
-//!     /** @derive(Debug) */
-//!     class User {
-//!         name: string;
-//!         age: number;
-//!     }
-//! "#;
+//! fn main() -> Result<(), TsSynError> {
+//!     let source = r#"
+//!         class User {
+//!             name: string;
+//!             age: number;
+//!         }
+//!     "#;
 //!
-//! let module = parse_ts_module(source, "input.ts")?;
-//! let classes = lower_classes(&module, source)?;
+//!     let module = parse_ts_module(source)?;
+//!     let classes = lower_classes(&module, source)?;
 //!
-//! for class in classes {
-//!     println!("Found class: {}", class.name);
-//!     for field in &class.fields {
-//!         println!("  Field: {} ({})", field.name, field.ts_type);
-//!     }
+//!     assert_eq!(classes.len(), 1);
+//!     assert_eq!(classes[0].name, "User");
+//!     assert_eq!(classes[0].fields.len(), 2);
+//!     Ok(())
 //! }
 //! ```
 //!
@@ -76,18 +75,23 @@ use crate::TsSynError;
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// use macroforge_ts_syn::{lower_targets, LoweredTarget};
+/// ```rust
+/// use macroforge_ts_syn::{lower_targets, parse_ts_module, LoweredTarget, TsSynError};
 ///
-/// let targets = lower_targets(&module, source)?;
+/// fn main() -> Result<(), TsSynError> {
+///     let source = "class Foo {} interface Bar {}";
+///     let module = parse_ts_module(source)?;
+///     let targets = lower_targets(&module, source)?;
 ///
-/// for target in targets {
-///     match target {
-///         LoweredTarget::Class(c) => println!("Class: {}", c.name),
-///         LoweredTarget::Interface(i) => println!("Interface: {}", i.name),
-///         LoweredTarget::Enum(e) => println!("Enum: {}", e.name),
-///         LoweredTarget::TypeAlias(t) => println!("Type alias: {}", t.name),
+///     for target in targets {
+///         match target {
+///             LoweredTarget::Class(c) => println!("Class: {}", c.name),
+///             LoweredTarget::Interface(i) => println!("Interface: {}", i.name),
+///             LoweredTarget::Enum(e) => println!("Enum: {}", e.name),
+///             LoweredTarget::TypeAlias(t) => println!("Type alias: {}", t.name),
+///         }
 ///     }
+///     Ok(())
 /// }
 /// ```
 #[derive(Clone, Debug)]
@@ -129,15 +133,18 @@ use swc_core::ecma::visit::{Visit, VisitWith};
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// use macroforge_ts_syn::{lower_classes, parse_ts_module};
+/// ```rust
+/// use macroforge_ts_syn::{lower_classes, parse_ts_module, TsSynError};
 ///
-/// let source = "class User { name: string; }";
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let classes = lower_classes(&module, source)?;
+/// fn main() -> Result<(), TsSynError> {
+///     let source = "class User { name: string; }";
+///     let module = parse_ts_module(source)?;
+///     let classes = lower_classes(&module, source)?;
 ///
-/// assert_eq!(classes.len(), 1);
-/// assert_eq!(classes[0].name, "User");
+///     assert_eq!(classes.len(), 1);
+///     assert_eq!(classes[0].name, "User");
+///     Ok(())
+/// }
 /// ```
 #[cfg(feature = "swc")]
 pub fn lower_classes(module: &Module, source: &str) -> Result<Vec<ClassIR>, TsSynError> {
@@ -164,14 +171,19 @@ pub fn lower_classes(module: &Module, source: &str) -> Result<Vec<ClassIR>, TsSy
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// let source = "interface User { name: string; greet(): void; }";
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let interfaces = lower_interfaces(&module, source)?;
+/// ```rust
+/// use macroforge_ts_syn::{lower_interfaces, parse_ts_module, TsSynError};
 ///
-/// assert_eq!(interfaces[0].name, "User");
-/// assert_eq!(interfaces[0].fields.len(), 1);
-/// assert_eq!(interfaces[0].methods.len(), 1);
+/// fn main() -> Result<(), TsSynError> {
+///     let source = "interface User { name: string; greet(): void; }";
+///     let module = parse_ts_module(source)?;
+///     let interfaces = lower_interfaces(&module, source)?;
+///
+///     assert_eq!(interfaces[0].name, "User");
+///     assert_eq!(interfaces[0].fields.len(), 1);
+///     assert_eq!(interfaces[0].methods.len(), 1);
+///     Ok(())
+/// }
 /// ```
 #[cfg(feature = "swc")]
 pub fn lower_interfaces(module: &Module, source: &str) -> Result<Vec<InterfaceIR>, TsSynError> {
@@ -196,19 +208,24 @@ pub fn lower_interfaces(module: &Module, source: &str) -> Result<Vec<InterfaceIR
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// let source = r#"
-///     class User { }
-///     interface IUser { }
-///     enum Status { Active }
-///     type ID = string;
-/// "#;
+/// ```rust
+/// use macroforge_ts_syn::{lower_targets, parse_ts_module, TsSynError};
 ///
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let targets = lower_targets(&module, source)?;
+/// fn main() -> Result<(), TsSynError> {
+///     let source = r#"
+///         class User { }
+///         interface IUser { }
+///         enum Status { Active }
+///         type ID = string;
+///     "#;
 ///
-/// // targets contains all 4 declarations
-/// assert_eq!(targets.len(), 4);
+///     let module = parse_ts_module(source)?;
+///     let targets = lower_targets(&module, source)?;
+///
+///     // targets contains all 4 declarations
+///     assert_eq!(targets.len(), 4);
+///     Ok(())
+/// }
 /// ```
 #[cfg(feature = "swc")]
 pub fn lower_targets(module: &Module, source: &str) -> Result<Vec<LoweredTarget>, TsSynError> {
@@ -235,20 +252,24 @@ pub fn lower_targets(module: &Module, source: &str) -> Result<Vec<LoweredTarget>
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// let source = r#"
-///     /** @derive(Debug) */
-///     enum Status {
-///         Active = "ACTIVE",
-///         Inactive = "INACTIVE",
-///     }
-/// "#;
+/// ```rust
+/// use macroforge_ts_syn::{lower_enums, parse_ts_module, TsSynError};
 ///
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let enums = lower_enums(&module, source)?;
+/// fn main() -> Result<(), TsSynError> {
+///     let source = r#"
+///         enum Status {
+///             Active = "ACTIVE",
+///             Inactive = "INACTIVE",
+///         }
+///     "#;
 ///
-/// assert_eq!(enums[0].name, "Status");
-/// assert_eq!(enums[0].variants.len(), 2);
+///     let module = parse_ts_module(source)?;
+///     let enums = lower_enums(&module, source)?;
+///
+///     assert_eq!(enums[0].name, "Status");
+///     assert_eq!(enums[0].variants.len(), 2);
+///     Ok(())
+/// }
 /// ```
 #[cfg(feature = "swc")]
 pub fn lower_enums(module: &Module, source: &str) -> Result<Vec<EnumIR>, TsSynError> {
@@ -288,28 +309,22 @@ pub fn lower_enums(module: &Module, source: &str) -> Result<Vec<EnumIR>, TsSynEr
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// let source = r#"
-///     /** @derive(Default, Deserialize) */
-///     type Status = "active" | "inactive" | "pending";
+/// ```rust
+/// use macroforge_ts_syn::{lower_type_aliases, parse_ts_module, TypeBody, TsSynError};
 ///
-///     /** @derive(Serialize) */
-///     type Point = { x: number; y: number };
+/// fn main() -> Result<(), TsSynError> {
+///     let source = r#"
+///         type Status = "active" | "inactive" | "pending";
+///         type Point = { x: number; y: number };
+///     "#;
 ///
-///     type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
-/// "#;
+///     let module = parse_ts_module(source)?;
+///     let type_aliases = lower_type_aliases(&module, source)?;
 ///
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let type_aliases = lower_type_aliases(&module, source)?;
-///
-/// for alias in &type_aliases {
-///     println!("Type alias: {}", alias.name);
-///     match &alias.body {
-///         TypeBody::Union(members) => println!("  Union with {} variants", members.len()),
-///         TypeBody::Object { fields } => println!("  Object with {} fields", fields.len()),
-///         TypeBody::Alias(s) => println!("  Simple alias to {}", s),
-///         _ => {}
-///     }
+///     assert_eq!(type_aliases.len(), 2);
+///     assert_eq!(type_aliases[0].name, "Status");
+///     assert!(matches!(&type_aliases[0].body, TypeBody::Union(_)));
+///     Ok(())
 /// }
 /// ```
 ///

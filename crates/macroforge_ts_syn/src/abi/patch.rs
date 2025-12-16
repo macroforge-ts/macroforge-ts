@@ -25,7 +25,7 @@
 //!
 //! ## Example
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use macroforge_ts_syn::{Patch, PatchCode, SpanIR, MacroResult};
 //!
 //! fn add_method_to_class(body_span: SpanIR) -> MacroResult {
@@ -68,7 +68,7 @@ use swc_core::common::{DUMMY_SP, SyntaxContext};
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::{Patch, SpanIR};
 ///
 /// // Insert new code
@@ -220,14 +220,15 @@ impl Patch {
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust
 /// use macroforge_ts_syn::PatchCode;
 ///
 /// // From a string
-/// let text_code: PatchCode = "myMethod() {}".into();
+/// let _text_code: PatchCode = "myMethod() {}".into();
 ///
-/// // From an AST node
-/// let ast_code: PatchCode = some_class_member.into();
+/// // From a String
+/// let method_code = "toString() { return 'MyClass'; }".to_string();
+/// let _code: PatchCode = method_code.into();
 /// ```
 #[derive(Clone, Debug, PartialEq)]
 pub enum PatchCode {
@@ -359,7 +360,7 @@ impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::{MacroResult, Patch, Diagnostic, DiagnosticLevel};
 ///
 /// fn my_macro() -> MacroResult {
@@ -417,7 +418,7 @@ pub struct MacroResult {
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::{Diagnostic, DiagnosticLevel, SpanIR};
 ///
 /// let error = Diagnostic {
@@ -469,25 +470,18 @@ pub enum DiagnosticLevel {
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust
 /// use macroforge_ts_syn::{DiagnosticCollector, SpanIR};
 ///
 /// let mut collector = DiagnosticCollector::new();
 ///
 /// // Add diagnostics as you encounter issues
-/// for field in fields {
-///     if field.ts_type == "any" {
-///         collector.warning(field.span, "Avoid using 'any' type");
-///     }
-/// }
+/// collector.warning(SpanIR::new(10, 20), "Avoid using 'any' type");
+/// collector.warning(SpanIR::new(30, 40), "Consider using strict mode");
 ///
-/// // Check for errors before continuing
-/// if collector.has_errors() {
-///     return MacroResult {
-///         diagnostics: collector.into_vec(),
-///         ..Default::default()
-///     };
-/// }
+/// // Convert to a vector for MacroResult
+/// let diagnostics = collector.into_vec();
+/// assert_eq!(diagnostics.len(), 2);
 /// ```
 #[derive(Default, Clone, Debug)]
 pub struct DiagnosticCollector {
