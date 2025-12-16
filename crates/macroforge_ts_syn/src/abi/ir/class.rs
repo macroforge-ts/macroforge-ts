@@ -53,7 +53,7 @@ use crate::abi::{DecoratorIR, SpanIR, swc_ast};
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::ClassIR;
 ///
 /// fn generate_debug(class: &ClassIR) -> String {

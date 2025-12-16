@@ -34,7 +34,7 @@
 //!
 //! ## Example
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use macroforge_ts_syn::{ClassIR, FieldIR, Visibility};
 //!
 //! fn process_class(class: &ClassIR) {

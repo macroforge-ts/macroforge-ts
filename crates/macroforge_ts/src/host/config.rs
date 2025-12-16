@@ -61,14 +61,17 @@ const LEGACY_CONFIG_FILENAME: &str = "macroforge.config.json";
 ///
 /// # Example
 ///
-/// ```ignore
-/// use macroforge_ts::host::MacroConfig;
+/// ```rust,no_run
+/// use macroforge_ts::host::{MacroConfig, Result};
 ///
-/// // Load from file
-/// let config = MacroConfig::from_file("macroforge.json")?;
+/// fn example() -> Result<()> {
+///     // Load from file
+///     let config = MacroConfig::from_file("macroforge.json")?;
 ///
-/// // Or find automatically
-/// let config = MacroConfig::find_and_load()?.unwrap_or_default();
+///     // Or find automatically
+///     let config = MacroConfig::find_and_load()?.unwrap_or_default();
+///     Ok(())
+/// }
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -271,10 +274,15 @@ impl MacroConfig {
     ///
     /// # Example
     ///
-    /// ```ignore
-    /// if let Some((config, project_root)) = MacroConfig::find_with_root()? {
-    ///     println!("Found config in: {:?}", project_root);
-    ///     println!("Macro packages: {:?}", config.macro_packages);
+    /// ```rust,no_run
+    /// use macroforge_ts::host::{MacroConfig, Result};
+    ///
+    /// fn example() -> Result<()> {
+    ///     if let Some((config, project_root)) = MacroConfig::find_with_root()? {
+    ///         println!("Found config in: {:?}", project_root);
+    ///         println!("Macro packages: {:?}", config.macro_packages);
+    ///     }
+    ///     Ok(())
     /// }
     /// ```
     pub fn find_with_root() -> Result<Option<(Self, std::path::PathBuf)>> {

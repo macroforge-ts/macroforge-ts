@@ -43,31 +43,42 @@
 //!
 //! ## Example Usage
 //!
-//! ```ignore
+//! ```rust,no_run
 //! use macroforge_ts::host::patch_applicator::{PatchApplicator, PatchCollector};
+//! use macroforge_ts::host::Result;
 //! use macroforge_ts::ts_syn::abi::{Patch, SpanIR};
 //!
-//! let source = "class Foo {}";
+//! fn example() -> Result<()> {
+//!     let source = "class Foo {}";
 //!
-//! // Using PatchApplicator directly
-//! let patch = Patch::Insert {
-//!     at: SpanIR { start: 12, end: 12 },  // 1-based position
-//!     code: " bar: string;".into(),
-//!     source_macro: Some("Test".to_string()),
-//! };
+//!     // Using PatchApplicator directly
+//!     let patch = Patch::Insert {
+//!         at: SpanIR { start: 12, end: 12 },  // 1-based position
+//!         code: " bar: string;".into(),
+//!         source_macro: Some("Test".to_string()),
+//!     };
 //!
-//! let applicator = PatchApplicator::new(source, vec![patch]);
-//! let result = applicator.apply_with_mapping(None)?;
+//!     let applicator = PatchApplicator::new(source, vec![patch]);
+//!     let result = applicator.apply_with_mapping(None)?;
 //!
-//! assert_eq!(result.code, "class Foo { bar: string;}");
-//! assert!(!result.mapping.is_empty());
+//!     assert_eq!(result.code, "class Foo { bar: string;}");
+//!     assert!(!result.mapping.is_empty());
 //!
-//! // Using PatchCollector for multiple macros
-//! let mut collector = PatchCollector::new();
-//! collector.add_runtime_patches(patches_from_macro_1);
-//! collector.add_type_patches(patches_for_dts);
+//!     // Using PatchCollector for multiple macros
+//!     let mut collector = PatchCollector::new();
 //!
-//! let runtime_result = collector.apply_runtime_patches_with_mapping(source, None)?;
+//!     // Add patches from different macros
+//!     let debug_patch = Patch::Insert {
+//!         at: SpanIR { start: 12, end: 12 },
+//!         code: " toString() { return 'Foo'; }".into(),
+//!         source_macro: Some("Debug".to_string()),
+//!     };
+//!     collector.add_runtime_patches(vec![debug_patch]);
+//!
+//!     // Apply all collected patches
+//!     let runtime_result = collector.apply_runtime_patches_with_mapping(source, None)?;
+//!     Ok(())
+//! }
 //! ```
 
 use super::error::{MacroError, Result};

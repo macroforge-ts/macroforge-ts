@@ -12,7 +12,7 @@
 //!
 //! To create a custom macro, implement the [`Macroforge`] trait:
 //!
-//! ```ignore
+//! ```rust,no_run
 //! use macroforge_ts::host::Macroforge;
 //! use macroforge_ts::ts_syn::{TsStream, abi::{MacroKind, MacroResult}};
 //!
@@ -58,9 +58,9 @@ use crate::ts_syn::abi::{MacroKind, MacroResult};
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust,no_run
 /// use macroforge_ts::host::Macroforge;
-/// use macroforge_ts::ts_syn::{TsStream, abi::{MacroKind, MacroResult, Patch}};
+/// use macroforge_ts_syn::{TsStream, MacroKind, MacroResult, TargetIR, Patch, SpanIR};
 ///
 /// struct GreetMacro;
 ///
@@ -69,15 +69,33 @@ use crate::ts_syn::abi::{MacroKind, MacroResult};
 ///     fn kind(&self) -> MacroKind { MacroKind::Derive }
 ///
 ///     fn run(&self, input: TsStream) -> MacroResult {
-///         let class_name = input.class_name().unwrap_or("Unknown");
+///         // Get the macro context (contains class/enum info)
+///         let ctx = match input.context() {
+///             Some(ctx) => ctx,
+///             None => return MacroResult::default(),
+///         };
+///
+///         // Extract the class name and body span
+///         let (class_name, body_span) = match &ctx.target {
+///             TargetIR::Class(class) => (&class.name, class.body_span),
+///             _ => return MacroResult::default(),
+///         };
+///
+///         // Generate a greeting method
 ///         let method = format!(
 ///             "greet(): string {{ return \"Hello from {}!\"; }}",
 ///             class_name
 ///         );
 ///
+///         // Return a patch to insert the method into the class body
 ///         MacroResult {
-///             patches: vec![Patch::insert_method(method)],
-///             diagnostics: vec![],
+///             runtime_patches: vec![Patch::InsertRaw {
+///                 at: body_span,
+///                 code: method,
+///                 context: Some("method".to_string()),
+///                 source_macro: Some("Greet".to_string()),
+///             }],
+///             ..Default::default()
 ///         }
 ///     }
 /// }
@@ -173,9 +191,28 @@ pub trait Macroforge: Send + Sync {
 ///
 /// # Example
 ///
-/// ```ignore
-/// use macroforge_ts::host::{MacroPackage, Macroforge};
+/// ```rust,no_run
+/// use macroforge_ts::host::Macroforge;
+/// use macroforge_ts::host::traits::MacroPackage;
+/// use macroforge_ts_syn::{TsStream, MacroKind, MacroResult};
 ///
+/// // Define some macros
+/// struct DebugMacro;
+/// struct CloneMacro;
+///
+/// impl Macroforge for DebugMacro {
+///     fn name(&self) -> &str { "Debug" }
+///     fn kind(&self) -> MacroKind { MacroKind::Derive }
+///     fn run(&self, _: TsStream) -> MacroResult { MacroResult::default() }
+/// }
+///
+/// impl Macroforge for CloneMacro {
+///     fn name(&self) -> &str { "Clone" }
+///     fn kind(&self) -> MacroKind { MacroKind::Derive }
+///     fn run(&self, _: TsStream) -> MacroResult { MacroResult::default() }
+/// }
+///
+/// // Create a package containing multiple macros
 /// struct MyPackage;
 ///
 /// impl MacroPackage for MyPackage {
@@ -183,9 +220,8 @@ pub trait Macroforge: Send + Sync {
 ///
 ///     fn macros(&self) -> Vec<Box<dyn Macroforge>> {
 ///         vec![
-///             Box::new(MacroA),
-///             Box::new(MacroB),
-///             Box::new(MacroC),
+///             Box::new(DebugMacro),
+///             Box::new(CloneMacro),
 ///         ]
 ///     }
 ///

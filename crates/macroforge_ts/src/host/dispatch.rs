@@ -62,13 +62,44 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResul
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust,no_run
+/// use macroforge_ts::host::{MacroRegistry, MacroDispatcher, DiagnosticLevel};
+/// use macroforge_ts_syn::{MacroContextIR, MacroKind, SpanIR, TargetIR, ClassIR};
+///
 /// let registry = MacroRegistry::new();
-/// // ... register macros ...
+/// // ... register macros in the registry ...
 ///
 /// let dispatcher = MacroDispatcher::new(registry);
 ///
-/// // Dispatch a macro call from expansion context
+/// // Create a macro context (normally built by the expander)
+/// let class_ir = ClassIR {
+///     name: "User".to_string(),
+///     span: SpanIR::new(10, 50),
+///     body_span: SpanIR::new(20, 49),
+///     is_abstract: false,
+///     type_params: vec![],
+///     heritage: vec![],
+///     decorators: vec![],
+///     decorators_ast: vec![],
+///     fields: vec![],
+///     methods: vec![],
+///     members: vec![],
+/// };
+///
+/// let macro_context = MacroContextIR {
+///     abi_version: 1,
+///     macro_kind: MacroKind::Derive,
+///     macro_name: "Debug".to_string(),
+///     module_path: "builtin".to_string(),
+///     decorator_span: SpanIR::new(0, 10),
+///     macro_name_span: None,
+///     target_span: SpanIR::new(10, 50),
+///     file_name: "test.ts".to_string(),
+///     target: TargetIR::Class(class_ir),
+///     target_source: "class User {}".to_string(),
+/// };
+///
+/// // Dispatch the macro call
 /// let result = dispatcher.dispatch(macro_context);
 ///
 /// // Handle diagnostics

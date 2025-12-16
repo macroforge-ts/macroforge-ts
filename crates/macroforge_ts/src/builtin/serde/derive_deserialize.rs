@@ -1920,14 +1920,17 @@ fn extract_base_type(type_ref: &str) -> String {
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust
+/// use macroforge_ts::builtin::serde::Validator;
+/// use macroforge_ts::builtin::serde::derive_deserialize::generate_validation_condition;
+///
 /// let condition = generate_validation_condition(&Validator::Email, "email");
-/// // Returns: "!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)"
+/// assert!(condition.contains("test(email)"));
 ///
 /// let condition = generate_validation_condition(&Validator::MaxLength(100), "name");
-/// // Returns: "name.length > 100"
+/// assert_eq!(condition, "name.length > 100");
 /// ```
-fn generate_validation_condition(validator: &Validator, value_var: &str) -> String {
+pub fn generate_validation_condition(validator: &Validator, value_var: &str) -> String {
     match validator {
         // String validators
         Validator::Email => {

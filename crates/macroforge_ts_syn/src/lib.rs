@@ -43,8 +43,9 @@
 //! Here's how to use this crate in a derive macro:
 //!
 //! ```rust,ignore
-//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, MacroResult, Patch};
+//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, MacroResult, Patch, Data, MacroContextIR};
 //!
+//! // This function signature shows a typical derive macro entry point
 //! pub fn my_derive_macro(ctx: MacroContextIR) -> MacroResult {
 //!     // Parse the input using the syn-like API
 //!     let input = parse_ts_macro_input!(ctx);
@@ -59,13 +60,13 @@
 //!                 println!("Field: {}", field.name);
 //!             }
 //!         }
-//!         Data::Interface(iface) => {
+//!         Data::Interface(_iface) => {
 //!             // Handle interface...
 //!         }
-//!         Data::Enum(enum_) => {
+//!         Data::Enum(_enum_) => {
 //!             // Handle enum...
 //!         }
-//!         Data::TypeAlias(alias) => {
+//!         Data::TypeAlias(_alias) => {
 //!             // Handle type alias...
 //!         }
 //!     }
@@ -139,7 +140,7 @@ pub use swc_core::ecma::ast as swc_ecma_ast;
 ///
 /// Simple identifier:
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::ident;
 ///
 /// let id = ident!("myVariable");
@@ -148,7 +149,7 @@ pub use swc_core::ecma::ast as swc_ecma_ast;
 ///
 /// Formatted identifier:
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::ident;
 ///
 /// let field_name = "age";
@@ -158,7 +159,7 @@ pub use swc_core::ecma::ast as swc_ecma_ast;
 ///
 /// Using in code generation:
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::{ident, quote};
 ///
 /// let class_name = ident!("MyClass");
@@ -188,7 +189,7 @@ macro_rules! ident {
 ///
 /// Creating a unique temporary variable:
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::private_ident;
 ///
 /// // Each call creates a unique identifier that won't clash
@@ -199,7 +200,7 @@ macro_rules! ident {
 ///
 /// Generating internal helper code:
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::{private_ident, quote};
 ///
 /// let internal_var = private_ident!("__internal");
@@ -242,8 +243,9 @@ macro_rules! private_ident {
 ///
 /// Using with generated code:
 ///
-/// ```rust,ignore
+/// ```rust
 /// use macroforge_ts_syn::stmt_block;
+/// use macroforge_ts_syn::swc_ecma_ast::Stmt;
 ///
 /// fn wrap_in_block(statements: Vec<Stmt>) -> Stmt {
 ///     stmt_block!(statements)
@@ -268,14 +270,17 @@ macro_rules! stmt_block {
 ///
 /// # Examples
 ///
-/// ```rust,ignore
+/// ```rust
 /// use macroforge_ts_syn::{StmtVec, stmt_vec};
-/// use swc_core::ecma::ast::Stmt;
+/// use macroforge_ts_syn::swc_ecma_ast::Stmt;
 ///
-/// let statements: Vec<Stmt> = vec![/* ... */];
-/// let wrapped = StmtVec(statements);
-/// // Or using the macro:
-/// let wrapped = stmt_vec!(statements);
+/// // Create directly with constructor
+/// let statements1: Vec<Stmt> = vec![];
+/// let _wrapped1 = StmtVec(statements1);
+///
+/// // Or using the macro
+/// let statements2: Vec<Stmt> = vec![];
+/// let _wrapped2 = stmt_vec!(statements2);
 /// ```
 #[cfg(feature = "swc")]
 pub struct StmtVec(pub Vec<swc_core::ecma::ast::Stmt>);
@@ -288,7 +293,7 @@ pub struct StmtVec(pub Vec<swc_core::ecma::ast::Stmt>);
 ///
 /// # Examples
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::stmt_vec;
 /// use swc_core::ecma::ast::Stmt;
 ///
@@ -317,7 +322,7 @@ macro_rules! stmt_vec {
 ///
 /// # Examples
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::{stmt_block_from_vec, quote};
 /// use swc_core::ecma::ast::Stmt;
 ///
@@ -372,6 +377,7 @@ macro_rules! stmt_block_from_vec {
 /// ```rust,ignore
 /// use macroforge_ts_syn::{fn_expr, ident};
 /// use swc_core::ecma::ast::{Param, Pat, Stmt};
+/// use swc_core::common::DUMMY_SP;
 ///
 /// let params = vec![
 ///     Param {
@@ -380,7 +386,7 @@ macro_rules! stmt_block_from_vec {
 ///         pat: Pat::Ident(ident!("x").into()),
 ///     }
 /// ];
-/// let body: Vec<Stmt> = vec![/* ... */];
+/// let body: Vec<Stmt> = vec![];
 ///
 /// let func = fn_expr!(params, body);
 /// // Generates: function(x) { ... }
@@ -446,7 +452,8 @@ macro_rules! fn_expr {
 ///
 /// ```rust,ignore
 /// use macroforge_ts_syn::{member_expr, ident};
-/// use swc_core::ecma::ast::Expr;
+/// use swc_core::ecma::ast::{Expr, ThisExpr};
+/// use swc_core::common::DUMMY_SP;
 ///
 /// let this_expr = Expr::This(ThisExpr { span: DUMMY_SP });
 /// let access = member_expr!(this_expr, "name");
@@ -455,22 +462,23 @@ macro_rules! fn_expr {
 ///
 /// Chaining member access:
 ///
-/// ```rust,ignore
+/// ```rust
 /// use macroforge_ts_syn::{member_expr, ident};
-/// use swc_core::ecma::ast::Expr;
+/// use macroforge_ts_syn::swc_ecma_ast::Expr;
 ///
 /// let obj = Expr::Ident(ident!("obj"));
-/// let nested = member_expr!(member_expr!(obj, "foo"), "bar");
+/// let _nested = member_expr!(member_expr!(obj, "foo"), "bar");
 /// // Generates: obj.foo.bar
 /// ```
 ///
 /// Accessing prototype:
 ///
-/// ```rust,ignore
+/// ```rust
 /// use macroforge_ts_syn::{member_expr, ident};
+/// use macroforge_ts_syn::swc_ecma_ast::Expr;
 ///
 /// let class = Expr::Ident(ident!("MyClass"));
-/// let proto = member_expr!(class, "prototype");
+/// let _proto = member_expr!(class, "prototype");
 /// // Generates: MyClass.prototype
 /// ```
 #[cfg(feature = "swc")]
@@ -506,7 +514,8 @@ macro_rules! member_expr {
 ///
 /// ```rust,ignore
 /// use macroforge_ts_syn::{assign_stmt, ident};
-/// use swc_core::ecma::ast::{AssignTarget, SimpleAssignTarget, Expr};
+/// use swc_core::ecma::ast::{AssignTarget, SimpleAssignTarget, Expr, Lit, Number};
+/// use swc_core::common::DUMMY_SP;
 ///
 /// let target = AssignTarget::Simple(SimpleAssignTarget::Ident(ident!("x").into()));
 /// let value = Expr::Lit(Lit::Num(Number { span: DUMMY_SP, value: 42.0, raw: None }));
@@ -519,7 +528,8 @@ macro_rules! member_expr {
 ///
 /// ```rust,ignore
 /// use macroforge_ts_syn::{assign_stmt, member_expr, ident};
-/// use swc_core::ecma::ast::{AssignTarget, SimpleAssignTarget};
+/// use swc_core::ecma::ast::{AssignTarget, SimpleAssignTarget, Expr, Lit, ThisExpr};
+/// use swc_core::common::DUMMY_SP;
 ///
 /// let this_name = member_expr!(Expr::This(ThisExpr { span: DUMMY_SP }), "name");
 /// let target = /* convert to AssignTarget */;
@@ -568,15 +578,15 @@ macro_rules! assign_stmt {
 ///
 /// Adding a method to a prototype (no params):
 ///
-/// ```rust,ignore
+/// ```rust
 /// use macroforge_ts_syn::{fn_assign, ident, member_expr};
-/// use swc_core::ecma::ast::{Expr, Stmt};
+/// use macroforge_ts_syn::swc_ecma_ast::{Expr, Stmt};
 ///
 /// let class_expr = Expr::Ident(ident!("MyClass"));
 /// let proto = member_expr!(class_expr, "prototype");
 ///
-/// let body: Vec<Stmt> = vec![/* return statements */];
-/// let stmt = fn_assign!(proto, "toString", body);
+/// let body: Vec<Stmt> = vec![];
+/// let _stmt = fn_assign!(proto, "toString", body);
 /// // Generates: MyClass.prototype.toString = function() { ... };
 /// ```
 ///
@@ -585,6 +595,7 @@ macro_rules! assign_stmt {
 /// ```rust,ignore
 /// use macroforge_ts_syn::{fn_assign, ident, member_expr};
 /// use swc_core::ecma::ast::{Expr, Param, Pat, Stmt};
+/// use swc_core::common::DUMMY_SP;
 ///
 /// let class_expr = Expr::Ident(ident!("MyClass"));
 /// let proto = member_expr!(class_expr, "prototype");
@@ -592,7 +603,7 @@ macro_rules! assign_stmt {
 /// let params = vec![
 ///     Param { span: DUMMY_SP, decorators: vec![], pat: Pat::Ident(ident!("value").into()) }
 /// ];
-/// let body: Vec<Stmt> = vec![/* method body */];
+/// let body: Vec<Stmt> = vec![];
 ///
 /// let stmt = fn_assign!(proto, "setValue", params, body);
 /// // Generates: MyClass.prototype.setValue = function(value) { ... };

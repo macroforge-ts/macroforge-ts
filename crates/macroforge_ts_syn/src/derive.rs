@@ -28,13 +28,14 @@
 //! ## Example: Basic Derive Macro
 //!
 //! ```rust,ignore
-//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, Data, MacroResult};
+//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, Data, MacroResult, TsStream};
 //!
+//! // This function signature shows how derive macros receive input
 //! pub fn my_macro(mut input: TsStream) -> MacroResult {
 //!     let input = parse_ts_macro_input!(input as DeriveInput);
 //!
 //!     // Get the type name
-//!     let name = input.name();
+//!     let _name = input.name();
 //!
 //!     match &input.data {
 //!         Data::Class(class) => {
@@ -70,15 +71,16 @@
 //! ## Example: Accessing Decorators
 //!
 //! ```rust,ignore
-//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput};
+//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, MacroResult, TsStream};
 //!
+//! // This function signature shows how derive macros receive input
 //! pub fn my_macro(mut input: TsStream) -> MacroResult {
 //!     let input = parse_ts_macro_input!(input as DeriveInput);
 //!
 //!     // Check for a specific decorator
 //!     for attr in &input.attrs {
 //!         if attr.name() == "serde" {
-//!             let args = attr.args(); // e.g., "rename = \"user\""
+//!             let _args = attr.args(); // e.g., "rename = \"user\""
 //!             // Parse and handle decorator arguments
 //!         }
 //!     }
@@ -130,32 +132,46 @@ use crate::TsStream;
 /// a `DeriveInput`:
 ///
 /// ```rust,ignore
-/// let input = parse_ts_macro_input!(stream as DeriveInput);
+/// use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, TsStream};
+///
+/// // This requires a TsStream with macro context
+/// fn example(mut stream: TsStream) {
+///     let _input = parse_ts_macro_input!(stream as DeriveInput);
+/// }
 /// ```
 ///
 /// Or create one directly from a [`MacroContextIR`]:
 ///
-/// ```rust,ignore
-/// let input = DeriveInput::from_context(ctx)?;
+/// ```rust,no_run
+/// use macroforge_ts_syn::{DeriveInput, MacroContextIR, TsSynError};
+///
+/// fn example(ctx: MacroContextIR) -> Result<(), TsSynError> {
+///     let _input = DeriveInput::from_context(ctx)?;
+///     Ok(())
+/// }
 /// ```
 ///
 /// # Accessing Type Data
 ///
 /// Use the `data` field or convenience methods to access type-specific information:
 ///
-/// ```rust,ignore
-/// // Using pattern matching
-/// match &input.data {
-///     Data::Class(class) => { /* ... */ }
-///     Data::Enum(enum_) => { /* ... */ }
-///     Data::Interface(iface) => { /* ... */ }
-///     Data::TypeAlias(alias) => { /* ... */ }
-/// }
+/// ```rust,no_run
+/// use macroforge_ts_syn::{DeriveInput, Data};
 ///
-/// // Using convenience methods
-/// if let Some(class) = input.as_class() {
-///     for field in class.fields() {
-///         // ...
+/// fn example(input: DeriveInput) {
+///     // Using pattern matching
+///     match &input.data {
+///         Data::Class(_class) => { /* ... */ }
+///         Data::Enum(_enum_) => { /* ... */ }
+///         Data::Interface(_iface) => { /* ... */ }
+///         Data::TypeAlias(_alias) => { /* ... */ }
+///     }
+///
+///     // Using convenience methods
+///     if let Some(class) = input.as_class() {
+///         for _field in class.fields() {
+///             // ...
+///         }
 ///     }
 /// }
 /// ```
@@ -193,7 +209,9 @@ pub struct DeriveInput {
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust
+/// use macroforge_ts_syn::{Ident, SpanIR};
+///
 /// let ident = Ident::new("MyClass", SpanIR::new(0, 7));
 /// assert_eq!(ident.as_str(), "MyClass");
 /// assert_eq!(format!("{}", ident), "MyClass");
@@ -203,10 +221,16 @@ pub struct DeriveInput {
 ///
 /// `Ident` implements `Display`, `AsRef<str>`, and provides `as_str()`:
 ///
-/// ```rust,ignore
+/// ```rust
+/// use macroforge_ts_syn::{Ident, SpanIR};
+///
+/// let ident = Ident::new("MyClass", SpanIR::new(0, 7));
 /// let name: &str = ident.as_str();
-/// let name: &str = ident.as_ref();
-/// let name: String = ident.to_string();
+/// let name2: &str = ident.as_ref();
+/// let name3: String = ident.to_string();
+/// assert_eq!(name, "MyClass");
+/// assert_eq!(name2, "MyClass");
+/// assert_eq!(name3, "MyClass");
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Ident {
@@ -254,17 +278,21 @@ impl AsRef<str> for Ident {
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// for attr in &input.attrs {
-///     match attr.name() {
-///         "serde" => {
-///             // Parse serde options from attr.args()
-///             let args = attr.args(); // e.g., "rename = \"user_id\""
+/// ```rust,no_run
+/// use macroforge_ts_syn::DeriveInput;
+///
+/// fn example(input: DeriveInput) {
+///     for attr in &input.attrs {
+///         match attr.name() {
+///             "serde" => {
+///                 // Parse serde options from attr.args()
+///                 let _args = attr.args(); // e.g., "rename = \"user_id\""
+///             }
+///             "validate" => {
+///                 // Handle validation decorator
+///             }
+///             _ => {}
 ///         }
-///         "validate" => {
-///             // Handle validation decorator
-///         }
-///         _ => {}
 ///     }
 /// }
 /// ```
@@ -312,33 +340,40 @@ impl Attribute {
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// match &input.data {
-///     Data::Class(class) => {
-///         // Generate methods for a class
-///         let body_span = class.body_span();
-///         for field in class.fields() {
-///             // Access field.name, field.ts_type, field.optional, etc.
+/// ```rust
+/// use macroforge_ts_syn::{DeriveInput, Data};
+///
+/// fn process_input(input: &DeriveInput) {
+///     match &input.data {
+///         Data::Class(class) => {
+///             // Generate methods for a class
+///             let _body_span = class.body_span();
+///             for field in class.fields() {
+///                 // Access field.name, field.ts_type, field.optional, etc.
+///                 let _ = &field.name;
+///             }
 ///         }
-///     }
-///     Data::Enum(enum_) => {
-///         // Generate match arms or utility functions
-///         for variant in enum_.variants() {
-///             // Access variant.name, variant.value
+///         Data::Enum(enum_) => {
+///             // Generate match arms or utility functions
+///             for variant in enum_.variants() {
+///                 // Access variant.name, variant.value
+///                 let _ = &variant.name;
+///             }
 ///         }
-///     }
-///     Data::Interface(iface) => {
-///         // Generate class implementing the interface
-///         for field in iface.fields() {
-///             // Access field.name, field.ts_type, field.optional
+///         Data::Interface(iface) => {
+///             // Generate class implementing the interface
+///             for field in iface.fields() {
+///                 // Access field.name, field.ts_type, field.optional
+///                 let _ = &field.name;
+///             }
 ///         }
-///     }
-///     Data::TypeAlias(alias) => {
-///         // Handle different alias structures
-///         if let Some(union) = alias.as_union() {
-///             // Handle union type
-///         } else if let Some(fields) = alias.as_object() {
-///             // Handle object type
+///         Data::TypeAlias(alias) => {
+///             // Handle different alias structures
+///             if let Some(_union) = alias.as_union() {
+///                 // Handle union type
+///             } else if let Some(_fields) = alias.as_object() {
+///                 // Handle object type
+///             }
 ///         }
 ///     }
 /// }
@@ -363,28 +398,32 @@ pub enum Data {
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// if let Data::Class(class) = &input.data {
-///     // Iterate over fields
-///     for field in class.fields() {
-///         println!("Field: {} ({})", field.name, field.ts_type);
-///         if field.optional {
-///             println!("  (optional)");
+/// ```rust
+/// use macroforge_ts_syn::{DeriveInput, Data};
+///
+/// fn process_class(input: &DeriveInput) {
+///     if let Data::Class(class) = &input.data {
+///         // Iterate over fields
+///         for field in class.fields() {
+///             println!("Field: {} ({})", field.name, field.ts_type);
+///             if field.optional {
+///                 println!("  (optional)");
+///             }
 ///         }
-///     }
 ///
-///     // Check for specific fields
-///     if let Some(id_field) = class.field("id") {
-///         // Handle id field specifically
-///     }
+///         // Check for specific fields
+///         if let Some(_id_field) = class.field("id") {
+///             // Handle id field specifically
+///         }
 ///
-///     // Access methods
-///     for method in class.methods() {
-///         println!("Method: {}({})", method.name, method.params_src);
-///     }
+///         // Access methods
+///         for method in class.methods() {
+///             println!("Method: {}({})", method.name, method.params_src);
+///         }
 ///
-///     // Get the body span for inserting generated code
-///     let body = class.body_span();
+///         // Get the body span for inserting generated code
+///         let _body = class.body_span();
+///     }
 /// }
 /// ```
 #[derive(Debug, Clone)]
@@ -447,26 +486,30 @@ impl DataClass {
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// if let Data::Enum(enum_) = &input.data {
-///     // Iterate over variants
-///     for variant in enum_.variants() {
-///         println!("Variant: {}", variant.name);
-///         match &variant.value {
-///             EnumValue::String(s) => println!("  = \"{}\"", s),
-///             EnumValue::Number(n) => println!("  = {}", n),
-///             EnumValue::Auto => println!("  (auto)"),
-///             EnumValue::Expr(e) => println!("  = {}", e),
+/// ```rust
+/// use macroforge_ts_syn::{DeriveInput, Data, EnumValue};
+///
+/// fn process_enum(input: &DeriveInput) {
+///     if let Data::Enum(enum_) = &input.data {
+///         // Iterate over variants
+///         for variant in enum_.variants() {
+///             println!("Variant: {}", variant.name);
+///             match &variant.value {
+///                 EnumValue::String(s) => println!("  = \"{}\"", s),
+///                 EnumValue::Number(n) => println!("  = {}", n),
+///                 EnumValue::Auto => println!("  (auto)"),
+///                 EnumValue::Expr(e) => println!("  = {}", e),
+///             }
 ///         }
-///     }
 ///
-///     // Get specific variant
-///     if let Some(active) = enum_.variant("Active") {
-///         // Handle Active variant
-///     }
+///         // Get specific variant
+///         if let Some(_active) = enum_.variant("Active") {
+///             // Handle Active variant
+///         }
 ///
-///     // Get all variant names
-///     let names: Vec<_> = enum_.variant_names().collect();
+///         // Get all variant names
+///         let _names: Vec<_> = enum_.variant_names().collect();
+///     }
 /// }
 /// ```
 #[derive(Debug, Clone)]
@@ -500,22 +543,26 @@ impl DataEnum {
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// if let Data::Interface(iface) = &input.data {
-///     // Iterate over properties
-///     for field in iface.fields() {
-///         let opt = if field.optional { "?" } else { "" };
-///         let ro = if field.readonly { "readonly " } else { "" };
-///         println!("{}{}{}: {}", ro, field.name, opt, field.ts_type);
-///     }
+/// ```rust
+/// use macroforge_ts_syn::{DeriveInput, Data};
 ///
-///     // Access method signatures
-///     for method in iface.methods() {
-///         println!("{}({}): {}", method.name, method.params_src, method.return_type_src);
-///     }
+/// fn process_interface(input: &DeriveInput) {
+///     if let Data::Interface(iface) = &input.data {
+///         // Iterate over properties
+///         for field in iface.fields() {
+///             let opt = if field.optional { "?" } else { "" };
+///             let ro = if field.readonly { "readonly " } else { "" };
+///             println!("{}{}{}: {}", ro, field.name, opt, field.ts_type);
+///         }
 ///
-///     // Get body span for inserting code (useful for generating companion class)
-///     let body = iface.body_span();
+///         // Access method signatures
+///         for method in iface.methods() {
+///             println!("{}({}): {}", method.name, method.params_src, method.return_type_src);
+///         }
+///
+///         // Get body span for inserting code (useful for generating companion class)
+///         let _body = iface.body_span();
+///     }
 /// }
 /// ```
 ///
@@ -583,33 +630,37 @@ impl DataInterface {
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// if let Data::TypeAlias(alias) = &input.data {
-///     // Check the type structure
-///     if let Some(union) = alias.as_union() {
-///         println!("Union with {} members", union.len());
-///         for member in union {
-///             // Each member may have decorators like @default
-///             if member.has_decorator("default") {
-///                 println!("  Default: {:?}", member.kind);
-///             }
-///         }
-///     } else if let Some(fields) = alias.as_object() {
-///         println!("Object type with {} fields", fields.len());
-///         for field in fields {
-///             println!("  {}: {}", field.name, field.ts_type);
-///         }
-///     } else if alias.is_tuple() {
-///         let elements = alias.as_tuple().unwrap();
-///         println!("Tuple: [{}]", elements.join(", "));
-///     } else if let Some(aliased) = alias.as_alias() {
-///         println!("Simple alias to: {}", aliased);
-///     }
+/// ```rust
+/// use macroforge_ts_syn::{DeriveInput, Data};
 ///
-///     // Access type parameters
-///     let params = alias.type_params();
-///     if !params.is_empty() {
-///         println!("Generic: <{}>", params.join(", "));
+/// fn process_type_alias(input: &DeriveInput) {
+///     if let Data::TypeAlias(alias) = &input.data {
+///         // Check the type structure
+///         if let Some(union) = alias.as_union() {
+///             println!("Union with {} members", union.len());
+///             for member in union {
+///                 // Each member may have decorators like @default
+///                 if member.has_decorator("default") {
+///                     println!("  Default: {:?}", member.kind);
+///                 }
+///             }
+///         } else if let Some(fields) = alias.as_object() {
+///             println!("Object type with {} fields", fields.len());
+///             for field in fields {
+///                 println!("  {}: {}", field.name, field.ts_type);
+///             }
+///         } else if alias.is_tuple() {
+///             let elements = alias.as_tuple().unwrap();
+///             println!("Tuple: [{}]", elements.join(", "));
+///         } else if let Some(aliased) = alias.as_alias() {
+///             println!("Simple alias to: {}", aliased);
+///         }
+///
+///         // Access type parameters
+///         let params = alias.type_params();
+///         if !params.is_empty() {
+///             println!("Generic: <{}>", params.join(", "));
+///         }
 ///     }
 /// }
 /// ```

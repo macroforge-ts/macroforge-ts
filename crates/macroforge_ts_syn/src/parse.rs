@@ -11,20 +11,24 @@
 //!
 //! ## Example
 //!
-//! ```rust,ignore
-//! use macroforge_ts_syn::parse_ts_module;
+//! ```rust,no_run
+//! use macroforge_ts_syn::parse::parse_ts_module;
+//! use macroforge_ts_syn::lower_classes;
 //!
-//! let source = r#"
-//!     class User {
-//!         name: string;
-//!         age: number;
-//!     }
-//! "#;
+//! fn example() -> Result<(), macroforge_ts_syn::TsSynError> {
+//!     let source = r#"
+//!         class User {
+//!             name: string;
+//!             age: number;
+//!         }
+//!     "#;
 //!
-//! let module = parse_ts_module(source, "input.ts")?;
+//!     let module = parse_ts_module(source, "input.ts")?;
 //!
-//! // Now you can use the module with lowering functions
-//! let classes = lower_classes(&module, source)?;
+//!     // Now you can use the module with lowering functions
+//!     let _classes = lower_classes(&module, source)?;
+//!     Ok(())
+//! }
 //! ```
 //!
 //! ## File Type Detection
@@ -67,29 +71,40 @@ use crate::TsSynError;
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// use macroforge_ts_syn::parse_ts_module;
+/// ```rust,no_run
+/// use macroforge_ts_syn::parse::parse_ts_module;
+/// use macroforge_ts_syn::TsSynError;
 ///
-/// // Parse TypeScript
-/// let module = parse_ts_module("const x: number = 5;", "input.ts")?;
+/// fn example() -> Result<(), TsSynError> {
+///     // Parse TypeScript
+///     let _module = parse_ts_module("const x: number = 5;", "input.ts")?;
 ///
-/// // Parse TSX (JSX in TypeScript)
-/// let module = parse_ts_module(
-///     "const el = <div>Hello</div>;",
-///     "component.tsx"
-/// )?;
+///     // Parse TSX (JSX in TypeScript)
+///     let _module = parse_ts_module(
+///         "const el = <div>Hello</div>;",
+///         "component.tsx"
+///     )?;
+///     Ok(())
+/// }
 /// ```
 ///
 /// # Integration with Lowering
 ///
 /// The returned `Module` can be passed to the lowering functions:
 ///
-/// ```rust,ignore
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let classes = lower_classes(&module, source)?;
-/// let interfaces = lower_interfaces(&module, source)?;
-/// let enums = lower_enums(&module, source)?;
-/// let type_aliases = lower_type_aliases(&module, source)?;
+/// ```rust,no_run
+/// use macroforge_ts_syn::parse::parse_ts_module;
+/// use macroforge_ts_syn::{lower_classes, lower_interfaces, lower_enums, lower_type_aliases, TsSynError};
+///
+/// fn example() -> Result<(), TsSynError> {
+///     let source = "class User {}";
+///     let module = parse_ts_module(source, "input.ts")?;
+///     let _classes = lower_classes(&module, source)?;
+///     let _interfaces = lower_interfaces(&module, source)?;
+///     let _enums = lower_enums(&module, source)?;
+///     let _type_aliases = lower_type_aliases(&module, source)?;
+///     Ok(())
+/// }
 /// ```
 #[cfg(feature = "swc")]
 pub fn parse_ts_module(source: &str, file_name: &str) -> Result<Module, TsSynError> {
