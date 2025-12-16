@@ -21,7 +21,7 @@ safe parsing of complex JSON structures including circular references.
 | Type | Generated Code | Description |
 |------|----------------|-------------|
 | Class | `static deserialize()`, `static deserializeWithContext()` | Static factory methods |
-| Enum | `myEnumDeserialize(input)`, `myEnumDeserializeWithContext(data)`, `myEnumIs(value)` | Standalone functions |
+| Enum | `myEnumDeserialize(input)`, `myEnumdeserializeWithContext(data)`, `myEnumIs(value)` | Standalone functions |
 | Interface | `myInterfaceDeserialize(input)`, etc. | Standalone functions |
 | Type Alias | `myTypeDeserialize(input)`, etc. | Standalone functions |
 
@@ -101,7 +101,7 @@ For unions containing primitive types (`string | number`), the deserializer uses
 
 ### Class/Interface Unions
 For unions of serializable types (`User | Admin`), the deserializer requires a
-`__type` field in the JSON to dispatch to the correct type's `DeserializeWithContext` method.
+`__type` field in the JSON to dispatch to the correct type's `deserializeWithContext` method.
 
 ### Generic Type Parameters
 For generic unions like `type Result<T> = T | Error`, the generic type parameter `T`
