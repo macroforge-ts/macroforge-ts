@@ -5,16 +5,19 @@
  *
  * Parses JSDoc comments from TypeScript packages
  * and outputs structured JSON for website/README generation.
- *
- * Usage: node scripts/extract-ts-docs.cjs [output-dir]
- * Output defaults to: website/static/api-data/typescript/
  */
 
+const { program } = require('commander');
 const fs = require('fs');
 const path = require('path');
 
 const packagesRoot = path.join(__dirname, '..', 'packages');
 const defaultOutput = path.join(__dirname, '..', 'website', 'static', 'api-data', 'typescript');
+
+program
+	.name('extract-ts-docs')
+	.description('Extract documentation from TypeScript source files into JSON')
+	.argument('[output-dir]', 'Output directory for JSON files', defaultOutput);
 
 // Packages to process (in order)
 const PACKAGES = [
@@ -286,8 +289,7 @@ function processPackage(pkgConfig) {
 /**
  * Main entry point.
  */
-function main() {
-	const outputDir = process.argv[2] || defaultOutput;
+function main(outputDir) {
 
 	// Ensure output directory exists
 	fs.mkdirSync(outputDir, { recursive: true });
@@ -336,4 +338,5 @@ function main() {
 	console.log(`\nTotal: ${allDocs.reduce((sum, d) => sum + d.items.length, 0)} documented items`);
 }
 
-main();
+program.action(main);
+program.parse();

@@ -5,18 +5,20 @@
  *
  * Reads from prerendered HTML (website/build/prerendered/) to get
  * all dynamic content including API data loaded at build time.
- *
- * Usage: node scripts/build-docs-book.cjs [output-path]
- *
- * Output defaults to: docs/BOOK.md
  */
 
+const { program } = require('commander');
 const fs = require('fs');
 const path = require('path');
 
 const websiteRoot = path.join(__dirname, '..', 'website');
 const prerenderedDir = path.join(websiteRoot, 'build', 'prerendered');
 const defaultOutput = path.join(__dirname, '..', 'docs', 'BOOK.md');
+
+program
+	.name('build-docs-book')
+	.description('Build a markdown book from website documentation pages')
+	.argument('[output-path]', 'Output file path', defaultOutput);
 
 // Navigation structure (mirrored from website/src/lib/config/navigation.ts)
 const navigation = [
@@ -386,8 +388,7 @@ function htmlToMarkdown(html) {
 /**
  * Build the markdown book
  */
-function buildBook() {
-  const outputPath = process.argv[2] || defaultOutput;
+function buildBook(outputPath) {
 
   // Check if prerendered directory exists
   if (!fs.existsSync(prerenderedDir)) {
@@ -471,5 +472,5 @@ function buildBook() {
   console.log(`Total size: ${(bookContent.length / 1024).toFixed(1)} KB`);
 }
 
-// Run
-buildBook();
+program.action(buildBook);
+program.parse();

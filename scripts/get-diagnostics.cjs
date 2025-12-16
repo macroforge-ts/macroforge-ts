@@ -1,8 +1,10 @@
+#!/usr/bin/env node
+
 /**
  * Get TypeScript diagnostics using the @macroforge/typescript-plugin
- * Usage: node scripts/get-diagnostics.cjs [file-path]
  */
 
+const { program } = require('commander');
 const ts = require('typescript');
 const path = require('path');
 const fs = require('fs');
@@ -10,8 +12,12 @@ const fs = require('fs');
 // Get the project root (where this script is located)
 const scriptDir = __dirname;
 const projectRoot = path.dirname(scriptDir);
-const targetFile = process.argv[2] || 'playground/svelte/src/lib/demo/macro-user.ts';
-const absoluteTargetFile = path.isAbsolute(targetFile) ? targetFile : path.join(projectRoot, targetFile);
+const defaultTargetFile = 'playground/svelte/src/lib/demo/macro-user.ts';
+
+program
+	.name('get-diagnostics')
+	.description('Get TypeScript diagnostics using the @macroforge/typescript-plugin')
+	.argument('[file-path]', 'File to check for diagnostics', defaultTargetFile);
 
 // Find tsconfig.json
 function findTsConfig(startDir) {
@@ -26,109 +32,116 @@ function findTsConfig(startDir) {
   return null;
 }
 
-const tsConfigPath = findTsConfig(path.dirname(absoluteTargetFile));
-if (!tsConfigPath) {
-  console.error('Could not find tsconfig.json');
-  process.exit(1);
+function main(targetFile) {
+  const absoluteTargetFile = path.isAbsolute(targetFile) ? targetFile : path.join(projectRoot, targetFile);
+
+  const tsConfigPath = findTsConfig(path.dirname(absoluteTargetFile));
+  if (!tsConfigPath) {
+    console.error('Could not find tsconfig.json');
+    process.exit(1);
+  }
+
+  console.log('Using tsconfig:', tsConfigPath);
+  console.log('Target file:', absoluteTargetFile);
+  console.log('');
+
+  // Read tsconfig
+  const configFile = ts.readConfigFile(tsConfigPath, ts.sys.readFile);
+  if (configFile.error) {
+    console.error('Error reading tsconfig:', configFile.error.messageText);
+    process.exit(1);
+  }
+
+  const parsedConfig = ts.parseJsonConfigFileContent(
+    configFile.config,
+    ts.sys,
+    path.dirname(tsConfigPath)
+  );
+
+  // Create language service host
+  const files = new Map();
+  const fileVersions = new Map();
+
+  const servicesHost = {
+    getScriptFileNames: () => [absoluteTargetFile, ...parsedConfig.fileNames],
+    getScriptVersion: (fileName) => fileVersions.get(fileName) || '0',
+    getScriptSnapshot: (fileName) => {
+      if (!fs.existsSync(fileName)) {
+        return undefined;
+      }
+      return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, 'utf8'));
+    },
+    getCurrentDirectory: () => path.dirname(tsConfigPath),
+    getCompilationSettings: () => parsedConfig.options,
+    getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
+    fileExists: ts.sys.fileExists,
+    readFile: ts.sys.readFile,
+    readDirectory: ts.sys.readDirectory,
+    directoryExists: ts.sys.directoryExists,
+    getDirectories: ts.sys.getDirectories,
+  };
+
+  // Create language service
+  const languageService = ts.createLanguageService(servicesHost, ts.createDocumentRegistry());
+
+  // Check if file exists
+  if (!fs.existsSync(absoluteTargetFile)) {
+    console.error('File not found:', absoluteTargetFile);
+    process.exit(1);
+  }
+
+  // Get diagnostics
+  console.log('=== Semantic Diagnostics ===');
+  let semanticDiagnostics = [];
+  try {
+    semanticDiagnostics = languageService.getSemanticDiagnostics(absoluteTargetFile);
+  } catch (e) {
+    console.log('Error getting semantic diagnostics:', e.message);
+  }
+
+  if (semanticDiagnostics.length === 0) {
+    console.log('No semantic errors found!');
+  } else {
+    semanticDiagnostics.forEach((diag) => {
+      const message = ts.flattenDiagnosticMessageText(diag.messageText, '\n');
+      if (diag.file && diag.start !== undefined) {
+        const { line, character } = diag.file.getLineAndCharacterOfPosition(diag.start);
+        console.log(`${diag.file.fileName}(${line + 1},${character + 1}): error TS${diag.code}: ${message}`);
+      } else {
+        console.log(`error TS${diag.code}: ${message}`);
+      }
+    });
+  }
+
+  console.log('');
+  console.log('=== Syntactic Diagnostics ===');
+  let syntacticDiagnostics = [];
+  try {
+    syntacticDiagnostics = languageService.getSyntacticDiagnostics(absoluteTargetFile);
+  } catch (e) {
+    console.log('Error getting syntactic diagnostics:', e.message);
+  }
+
+  if (syntacticDiagnostics.length === 0) {
+    console.log('No syntactic errors found!');
+  } else {
+    syntacticDiagnostics.forEach((diag) => {
+      const message = ts.flattenDiagnosticMessageText(diag.messageText, '\n');
+      if (diag.file && diag.start !== undefined) {
+        const { line, character } = diag.file.getLineAndCharacterOfPosition(diag.start);
+        console.log(`${diag.file.fileName}(${line + 1},${character + 1}): error TS${diag.code}: ${message}`);
+      } else {
+        console.log(`error TS${diag.code}: ${message}`);
+      }
+    });
+  }
+
+  // Output summary
+  console.log('');
+  console.log('=== Summary ===');
+  console.log(`Semantic errors: ${semanticDiagnostics.length}`);
+  console.log(`Syntactic errors: ${syntacticDiagnostics.length}`);
 }
 
-console.log('Using tsconfig:', tsConfigPath);
-console.log('Target file:', absoluteTargetFile);
-console.log('');
-
-// Read tsconfig
-const configFile = ts.readConfigFile(tsConfigPath, ts.sys.readFile);
-if (configFile.error) {
-  console.error('Error reading tsconfig:', configFile.error.messageText);
-  process.exit(1);
-}
-
-const parsedConfig = ts.parseJsonConfigFileContent(
-  configFile.config,
-  ts.sys,
-  path.dirname(tsConfigPath)
-);
-
-// Create language service host
-const files = new Map();
-const fileVersions = new Map();
-
-const servicesHost = {
-  getScriptFileNames: () => [absoluteTargetFile, ...parsedConfig.fileNames],
-  getScriptVersion: (fileName) => fileVersions.get(fileName) || '0',
-  getScriptSnapshot: (fileName) => {
-    if (!fs.existsSync(fileName)) {
-      return undefined;
-    }
-    return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, 'utf8'));
-  },
-  getCurrentDirectory: () => path.dirname(tsConfigPath),
-  getCompilationSettings: () => parsedConfig.options,
-  getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
-  fileExists: ts.sys.fileExists,
-  readFile: ts.sys.readFile,
-  readDirectory: ts.sys.readDirectory,
-  directoryExists: ts.sys.directoryExists,
-  getDirectories: ts.sys.getDirectories,
-};
-
-// Create language service
-const languageService = ts.createLanguageService(servicesHost, ts.createDocumentRegistry());
-
-// Check if file exists
-if (!fs.existsSync(absoluteTargetFile)) {
-  console.error('File not found:', absoluteTargetFile);
-  process.exit(1);
-}
-
-// Get diagnostics
-console.log('=== Semantic Diagnostics ===');
-let semanticDiagnostics = [];
-try {
-  semanticDiagnostics = languageService.getSemanticDiagnostics(absoluteTargetFile);
-} catch (e) {
-  console.log('Error getting semantic diagnostics:', e.message);
-}
-
-if (semanticDiagnostics.length === 0) {
-  console.log('No semantic errors found!');
-} else {
-  semanticDiagnostics.forEach((diag) => {
-    const message = ts.flattenDiagnosticMessageText(diag.messageText, '\n');
-    if (diag.file && diag.start !== undefined) {
-      const { line, character } = diag.file.getLineAndCharacterOfPosition(diag.start);
-      console.log(`${diag.file.fileName}(${line + 1},${character + 1}): error TS${diag.code}: ${message}`);
-    } else {
-      console.log(`error TS${diag.code}: ${message}`);
-    }
-  });
-}
-
-console.log('');
-console.log('=== Syntactic Diagnostics ===');
-let syntacticDiagnostics = [];
-try {
-  syntacticDiagnostics = languageService.getSyntacticDiagnostics(absoluteTargetFile);
-} catch (e) {
-  console.log('Error getting syntactic diagnostics:', e.message);
-}
-
-if (syntacticDiagnostics.length === 0) {
-  console.log('No syntactic errors found!');
-} else {
-  syntacticDiagnostics.forEach((diag) => {
-    const message = ts.flattenDiagnosticMessageText(diag.messageText, '\n');
-    if (diag.file && diag.start !== undefined) {
-      const { line, character } = diag.file.getLineAndCharacterOfPosition(diag.start);
-      console.log(`${diag.file.fileName}(${line + 1},${character + 1}): error TS${diag.code}: ${message}`);
-    } else {
-      console.log(`error TS${diag.code}: ${message}`);
-    }
-  });
-}
-
-// Output summary
-console.log('');
-console.log('=== Summary ===');
-console.log(`Semantic errors: ${semanticDiagnostics.length}`);
-console.log(`Syntactic errors: ${syntacticDiagnostics.length}`);
+program.action(main);
+program.parse();

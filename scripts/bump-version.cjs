@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 
+const { program } = require('commander');
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
 const root = path.resolve(__dirname, "..");
-const version = process.argv[2];
 
-if (!version) {
-  console.error("Usage: node scripts/bump-version.cjs <version>");
-  console.error("Example: node scripts/bump-version.cjs 0.1.4");
-  process.exit(1);
-}
+program
+	.name('bump-version')
+	.description('Update version numbers across all packages, crates, and config files')
+	.argument('<version>', 'Version string (e.g., 0.1.4)');
 
-console.log(`Bumping all packages to version ${version}...\n`);
+function main(version) {
+  console.log(`Bumping all packages to version ${version}...\n`);
 
 // Helper to update package.json
 function updatePackageJson(pkgPath, updates) {
@@ -166,3 +166,7 @@ fs.writeFileSync(macroforgeTsCargoPath, macroforgeTsCargo);
 console.log(`  Updated crates/macroforge_ts/Cargo.toml`);
 
 console.log(`\nDone! All packages updated to ${version}`);
+}
+
+program.action(main);
+program.parse();
