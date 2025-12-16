@@ -8,10 +8,10 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `compareTo(other): number` | Instance method returning -1, 0, or 1 |
-//! | Enum | `compareEnumName(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
-//! | Interface | `compareInterfaceName(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
-//! | Type Alias | `compareTypeName(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
+//! | Class | `classNameCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
+//! | Enum | `enumNameCompare(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
+//! | Interface | `interfaceNameCompare(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
+//! | Type Alias | `typeNameCompare(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
 //!
 //! ## Configuration
 //!
@@ -26,11 +26,11 @@
 //! Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values
 //! can be compared:
 //!
-//! - **-1**: `this` is less than `other`
-//! - **0**: `this` is equal to `other`
-//! - **1**: `this` is greater than `other`
+//! - **-1**: `a` is less than `b`
+//! - **0**: `a` is equal to `b`
+//! - **1**: `a` is greater than `b`
 //!
-//! The method **never returns null** - all values must be comparable.
+//! The function **never returns null** - all values must be comparable.
 //!
 //! ## Comparison Strategy
 //!
@@ -72,21 +72,24 @@
 //! Generated output:
 //!
 //! ```typescript
+//! export function versionCompare(a: Version, b: Version): number {
+//!     if (a === b) return 0;
+//!     const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+//!     if (cmp0 !== 0) return cmp0;
+//!     const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+//!     if (cmp1 !== 0) return cmp1;
+//!     const cmp2 = a.patch < b.patch ? -1 : a.patch > b.patch ? 1 : 0;
+//!     if (cmp2 !== 0) return cmp2;
+//!     return 0;
+//! }
+//!
 //! class Version {
 //!     major: number;
 //!     minor: number;
 //!     patch: number;
-//! 
-//!     compareTo(other: Version): number {
-//!         if (this === other) return 0;
-//!         const typedOther = other;
-//!         const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
-//!         if (cmp0 !== 0) return cmp0;
-//!         const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
-//!         if (cmp1 !== 0) return cmp1;
-//!         const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
-//!         if (cmp2 !== 0) return cmp2;
-//!         return 0;
+//!
+//!     static compareTo(a: Version, b: Version): number {
+//!         return versionCompare(a, b);
 //!     }
 //! }
 //! ```
@@ -294,6 +297,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             // Collect fields for comparison
             let ord_fields: Vec<OrdField> = class
@@ -313,7 +317,15 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 
             let has_fields = !ord_fields.is_empty();
 
-            // Build comparison logic - lexicographic by field order
+            // Generate function name based on naming style
+            let fn_name = match naming_style {
+                FunctionNamingStyle::Prefix => format!("{}Compare", to_camel_case(class_name)),
+                FunctionNamingStyle::Suffix => format!("compare{}", class_name),
+                FunctionNamingStyle::Generic => "compare".to_string(),
+                FunctionNamingStyle::Namespace => format!("{}.compareTo", class_name),
+            };
+
+            // Build comparison logic using a and b parameters
             let compare_body = if has_fields {
                 ord_fields
                     .iter()
@@ -322,7 +334,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         let var_name = format!("cmp{}", i);
                         format!(
                             "const {var_name} = {};\n                    if ({var_name} !== 0) return {var_name};",
-                            generate_field_compare(f)
+                            generate_field_compare_for_interface(f, "a", "b")
                         )
                     })
                     .collect::<Vec<_>>()
@@ -331,16 +343,32 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 String::new()
             };
 
-            Ok(body! {
-                compareTo(other: @{class_name}): number {
-                    if (this === other) return 0;
-                    const typedOther = other;
+            // Generate standalone function with two parameters
+            let standalone = ts_template! {
+                export function @{fn_name}(a: @{class_name}, b: @{class_name}): number {
+                    if (a === b) return 0;
                     {#if has_fields}
                         @{compare_body}
                     {/if}
                     return 0;
                 }
-            })
+            };
+
+            // Generate static wrapper method that delegates to standalone function
+            let class_body = body! {
+                static compareTo(a: @{class_name}, b: @{class_name}): number {
+                    return @{fn_name}(a, b);
+                }
+            };
+
+            // Combine standalone function with class body by concatenating sources
+            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
+            let mut combined = TsStream::from_string(combined_source);
+            combined.runtime_patches = standalone.runtime_patches;
+            combined.runtime_patches.extend(class_body.runtime_patches);
+
+            Ok(combined)
         }
         Data::Enum(_) => {
             let enum_name = input.name();

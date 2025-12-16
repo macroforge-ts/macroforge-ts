@@ -8,10 +8,10 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `equals(other: unknown): boolean` | Instance method with instanceof check |
-//! | Enum | `equalsEnumName(a: EnumName, b: EnumName): boolean` | Standalone function using strict equality |
-//! | Interface | `equalsInterfaceName(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields |
-//! | Type Alias | `equalsTypeName(a: TypeName, b: TypeName): boolean` | Standalone function with type-appropriate comparison |
+//! | Class | `classNameEquals(a, b)` + `static equals(a, b)` | Standalone function + static wrapper method |
+//! | Enum | `enumNameEquals(a: EnumName, b: EnumName): boolean` | Standalone function using strict equality |
+//! | Interface | `interfaceNameEquals(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields |
+//! | Type Alias | `typeNameEquals(a: TypeName, b: TypeName): boolean` | Standalone function with type-appropriate comparison |
 //!
 //! ## Configuration
 //!
@@ -25,9 +25,8 @@
 //!
 //! The generated equality check:
 //!
-//! 1. **Identity check**: `this === other` returns true immediately
-//! 2. **Type check**: For classes, uses `instanceof`; returns false if wrong type
-//! 3. **Field comparison**: Compares each non-skipped field
+//! 1. **Identity check**: `a === b` returns true immediately
+//! 2. **Field comparison**: Compares each non-skipped field
 //!
 //! ## Type-Specific Comparisons
 //!
@@ -62,40 +61,23 @@
 //! Generated output:
 //!
 //! ```typescript
+//! export function userEquals(a: User, b: User): boolean {
+//!     if (a === b) return true;
+//!     return a.id === b.id && a.name === b.name;
+//! }
+//!
 //! class User {
 //!     id: number;
 //!     name: string;
-//! 
 //!     cachedScore: number;
-//! 
-//!     equals(other: unknown): boolean {
-//!         if (this === other) return true;
-//!         if (!(other instanceof User)) return false;
-//!         const typedOther = other as User;
-//!         return this.id === typedOther.id && this.name === typedOther.name;
-//!     }
-//! 
-//!     hashCode(): number {
-//!         let hash = 17;
-//!         hash =
-//!             (hash * 31 +
-//!                 (Number.isInteger(this.id)
-//!                     ? this.id | 0
-//!                     : this.id
-//!                           .toString()
-//!                           .split('')
-//!                           .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-//!             0;
-//!         hash =
-//!             (hash * 31 +
-//!                 (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
-//!             0;
-//!         return hash;
+//!
+//!     static equals(a: User, b: User): boolean {
+//!         return userEquals(a, b);
 //!     }
 //! }
 //! ```
 //!
-//! Generated output:
+//! ## Equality Contract
 //!
 //! ```typescript
 //! class User {
@@ -668,6 +650,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             // Collect fields that should be included in equality comparison
             let eq_fields: Vec<EqField> = class
@@ -685,25 +668,48 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 })
                 .collect();
 
-            // Build comparison expression
+            // Generate function name based on naming style
+            let fn_name = match naming_style {
+                FunctionNamingStyle::Prefix => format!("{}Equals", to_camel_case(class_name)),
+                FunctionNamingStyle::Suffix => format!("equals{}", class_name),
+                FunctionNamingStyle::Generic => "equals".to_string(),
+                FunctionNamingStyle::Namespace => format!("{}.equals", class_name),
+            };
+
+            // Build comparison expression using a and b parameters
             let comparison = if eq_fields.is_empty() {
                 "true".to_string()
             } else {
                 eq_fields
                     .iter()
-                    .map(generate_field_equality)
+                    .map(|f| generate_field_equality_for_interface(f, "a", "b"))
                     .collect::<Vec<_>>()
                     .join(" && ")
             };
 
-            Ok(body! {
-                equals(other: unknown): boolean {
-                    if (this === other) return true;
-                    if (!(other instanceof @{class_name})) return false;
-                    const typedOther = other as @{class_name};
+            // Generate standalone function with two parameters
+            let standalone = ts_template! {
+                export function @{fn_name}(a: @{class_name}, b: @{class_name}): boolean {
+                    if (a === b) return true;
                     return @{comparison};
                 }
-            })
+            };
+
+            // Generate static wrapper method that delegates to standalone function
+            let class_body = body! {
+                static equals(a: @{class_name}, b: @{class_name}): boolean {
+                    return @{fn_name}(a, b);
+                }
+            };
+
+            // Combine standalone function with class body by concatenating sources
+            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
+            let mut combined = TsStream::from_string(combined_source);
+            combined.runtime_patches = standalone.runtime_patches;
+            combined.runtime_patches.extend(class_body.runtime_patches);
+
+            Ok(combined)
         }
         Data::Enum(_) => {
             // Enums: direct comparison with ===
