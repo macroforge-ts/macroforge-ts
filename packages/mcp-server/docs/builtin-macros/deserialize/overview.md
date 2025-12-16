@@ -8,10 +8,10 @@ safe parsing of complex JSON structures including circular references.
 
 | Type | Generated Code | Description |
 |------|----------------|-------------|
-| Class | `static deserialize()`, `static deserializeWithContext()` | Static factory methods |
-| Enum | `myEnumDeserialize(input)`, `myEnumDeserializeWithContext(data)`, `myEnumIs(value)` | Standalone functions |
-| Interface | `myInterfaceDeserialize(input)`, etc. | Standalone functions |
-| Type Alias | `myTypeDeserialize(input)`, etc. | Standalone functions |
+| Class | `classNameDeserialize(input)` + `static deserialize(input)` | Standalone function + static factory method |
+| Enum | `enumNameDeserialize(input)`, `enumNameDeserializeWithContext(data)`, `enumNameIs(value)` | Standalone functions |
+| Interface | `interfaceNameDeserialize(input)`, etc. | Standalone functions |
+| Type Alias | `typeNameDeserialize(input)`, etc. | Standalone functions |
 
 ## Return Type
 

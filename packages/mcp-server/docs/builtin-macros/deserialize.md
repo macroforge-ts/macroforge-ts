@@ -8,10 +8,10 @@ safe parsing of complex JSON structures including circular references.
 
 | Type | Generated Code | Description |
 |------|----------------|-------------|
-| Class | `static deserialize()`, `static deserializeWithContext()` | Static factory methods |
-| Enum | `myEnumDeserialize(input)`, `myEnumdeserializeWithContext(data)`, `myEnumIs(value)` | Standalone functions |
-| Interface | `myInterfaceDeserialize(input)`, etc. | Standalone functions |
-| Type Alias | `myTypeDeserialize(input)`, etc. | Standalone functions |
+| Class | `classNameDeserialize(input)` + `static deserialize(input)` | Standalone function + static factory method |
+| Enum | `enumNameDeserialize(input)`, `enumNameDeserializeWithContext(data)`, `enumNameIs(value)` | Standalone functions |
+| Interface | `interfaceNameDeserialize(input)`, etc. | Standalone functions |
+| Type Alias | `typeNameDeserialize(input)`, etc. | Standalone functions |
 
 ## Return Type
 
@@ -97,7 +97,7 @@ Mixed unions (e.g., `string | Date | User`) check in order:
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(Deserialize) @serde({ denyUnknownFields: true }) */
 class User {
     id: number;
@@ -109,6 +109,18 @@ class User {
     name: string;
 
     /** @serde({ validate: { positive: true } }) */
+    age?: number;
+}
+```
+
+```typescript after
+class User {
+    id: number;
+
+    email: string;
+
+    name: string;
+
     age?: number;
 }
 ```
