@@ -25,14 +25,6 @@ independent copies of values.
 | Interface | `cloneInterfaceName(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
 | Type Alias | `cloneTypeName(value: TypeName): TypeName` | Standalone function with spread copy for objects |
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeClone`)
-- `"suffix"`: Suffixes with type name (e.g., `cloneMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `clone<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
-
 ## Cloning Strategy
 
 The generated clone performs a **shallow copy** of all fields:

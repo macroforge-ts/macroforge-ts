@@ -25,14 +25,6 @@ objects to be used as keys in hash-based collections.
 | Interface | `hashCodeInterfaceName(value: InterfaceName): number` | Standalone function computing hash |
 | Type Alias | `hashCodeTypeName(value: TypeName): number` | Standalone function computing hash |
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeHashCode`)
-- `"suffix"`: Suffixes with type name (e.g., `hashCodeMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `hashCode<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
-
 ## Hash Algorithm
 
 Uses the standard polynomial rolling hash algorithm:

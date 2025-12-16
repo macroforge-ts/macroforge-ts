@@ -25,14 +25,6 @@ between values where some pairs may be incomparable.
 | Interface | `partialCompareInterfaceName(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option |
 | Type Alias | `partialCompareTypeName(a: TypeName, b: TypeName): Option<number>` | Standalone function with Option |
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypePartialCompare`)
-- `"suffix"`: Suffixes with type name (e.g., `partialCompareMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `partialCompare<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
-
 ## Return Values
 
 Unlike `Ord`, `PartialOrd` returns an `Option<number>` to handle incomparable values:
