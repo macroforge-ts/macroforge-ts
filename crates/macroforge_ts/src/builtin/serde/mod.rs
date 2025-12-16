@@ -7,13 +7,12 @@
 //!
 //! ### Serialize
 //!
-//! - `toStringifiedJSON(): string` - Serialize to JSON string
-//! - `toObject(): Record<string, unknown>` - Serialize to plain object
+//! - `serialize(): string` - Serialize to JSON string
 //! - `__serialize(ctx): Record<string, unknown>` - Internal method with cycle detection
 //!
 //! ### Deserialize
 //!
-//! - `static fromStringifiedJSON(json: string): T` - Parse JSON and validate
+//! - `static deserialize(input: unknown): Result<T, Error[]>` - Parse and validate (auto-detects string vs object)
 //! - `static __deserialize(value, ctx): T` - Internal method with cycle resolution
 //!
 //! ## Cycle Detection
@@ -37,8 +36,8 @@
 //! | Option | Description |
 //! |--------|-------------|
 //! | `skip` | Skip both serialization and deserialization |
-//! | `skip_serializing` | Skip only during serialization |
-//! | `skip_deserializing` | Skip only during deserialization |
+//! | `skipSerializing` | Skip only during serialization |
+//! | `skipDeserializing` | Skip only during deserialization |
 //! | `rename = "name"` | Use a different JSON key |
 //! | `default` | Use type's default if missing |
 //! | `default = "expr"` | Use specific expression if missing |
@@ -48,12 +47,12 @@
 //!
 //! | Option | Description |
 //! |--------|-------------|
-//! | `rename_all = "camelCase"` | Apply naming convention to all fields |
-//! | `deny_unknown_fields` | Reject JSON with extra fields |
+//! | `renameAll = "camelCase"` | Apply naming convention to all fields |
+//! | `denyUnknownFields` | Reject JSON with extra fields |
 //!
 //! ## Naming Conventions
 //!
-//! Supported values for `rename_all`:
+//! Supported values for `renameAll`:
 //! - `camelCase` - `user_name` → `userName`
 //! - `snake_case` - `userName` → `user_name`
 //! - `SCREAMING_SNAKE_CASE` - `userName` → `USER_NAME`
@@ -85,8 +84,8 @@
 //!
 //! ### Date Validators
 //! - `validDate` - Must be valid Date
-//! - `greaterThanDate("2020-01-01")`, `lessThanDate("2030-01-01")`
-//! - `betweenDate("start", "end")`
+//! - `afterDate("2020-01-01")`, `beforeDate("2030-01-01")`
+//! - `betweenDates("start", "end")`
 //!
 //! ### Custom Validators
 //! - `custom(functionName)` - Call custom validation function
@@ -95,7 +94,7 @@
 //!
 //! ```typescript
 //! @derive(Serialize, Deserialize)
-//! @serde(rename_all = "camelCase")
+//! @serde(renameAll = "camelCase")
 //! class User {
 //!     @serde(email)
 //!     emailAddress: string;
@@ -103,7 +102,7 @@
 //!     @serde(minLength(3), maxLength(50))
 //!     username: string;
 //!
-//!     @serde(skip_serializing)
+//!     @serde(skipSerializing)
 //!     password: string;
 //!
 //!     @serde(default)
@@ -174,13 +173,13 @@ impl SerdeContainerOptions {
             }
             let args = decorator.args_src.trim();
 
-            if let Some(rename_all) = extract_named_string(args, "rename_all")
+            if let Some(rename_all) = extract_named_string(args, "renameAll")
                 && let Some(convention) = RenameAll::from_str(&rename_all)
             {
                 opts.rename_all = convention;
             }
 
-            if has_flag(args, "deny_unknown_fields") {
+            if has_flag(args, "denyUnknownFields") {
                 opts.deny_unknown_fields = true;
             }
         }
@@ -224,10 +223,10 @@ impl SerdeFieldOptions {
             if has_flag(args, "skip") {
                 opts.skip = true;
             }
-            if has_flag(args, "skip_serializing") {
+            if has_flag(args, "skipSerializing") {
                 opts.skip_serializing = true;
             }
-            if has_flag(args, "skip_deserializing") {
+            if has_flag(args, "skipDeserializing") {
                 opts.skip_deserializing = true;
             }
             if has_flag(args, "flatten") {
@@ -578,7 +577,8 @@ fn flag_explicit_false(args: &str, flag: &str) -> bool {
 
 pub fn extract_named_string(args: &str, name: &str) -> Option<String> {
     let lower = args.to_ascii_lowercase();
-    let idx = lower.find(name)?;
+    let name_lower = name.to_ascii_lowercase();
+    let idx = lower.find(&name_lower)?;
     let remainder = &args[idx + name.len()..];
     let remainder = remainder.trim_start();
 
@@ -646,8 +646,8 @@ fn find_top_level_comma(s: &str) -> Option<usize> {
 /// Known options that are NOT validators (to avoid false positives)
 const KNOWN_OPTIONS: &[&str] = &[
     "skip",
-    "skip_serializing",
-    "skip_deserializing",
+    "skipSerializing",
+    "skipDeserializing",
     "flatten",
     "default",
     "rename",
@@ -1268,7 +1268,7 @@ mod tests {
 
     #[test]
     fn test_field_skip_serializing() {
-        let decorator = make_decorator("skip_serializing");
+        let decorator = make_decorator("skipSerializing");
         let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
         let opts = result.options;
         assert!(opts.skip_serializing);
@@ -1312,14 +1312,14 @@ mod tests {
 
     #[test]
     fn test_container_rename_all() {
-        let decorator = make_decorator(r#"{ rename_all: "camelCase" }"#);
+        let decorator = make_decorator(r#"{ renameAll: "camelCase" }"#);
         let opts = SerdeContainerOptions::from_decorators(&[decorator]);
         assert_eq!(opts.rename_all, RenameAll::CamelCase);
     }
 
     #[test]
     fn test_container_deny_unknown_fields() {
-        let decorator = make_decorator("deny_unknown_fields");
+        let decorator = make_decorator("denyUnknownFields");
         let opts = SerdeContainerOptions::from_decorators(&[decorator]);
         assert!(opts.deny_unknown_fields);
     }

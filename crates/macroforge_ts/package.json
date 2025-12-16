@@ -61,7 +61,7 @@
     "js"
   ],
   "dependencies": {
-    "@rydshift/mirror": "^0.1.4"
+    "@rydshift/mirror": "^0.1.5"
   },
   "engines": {
     "node": ">= 18"
