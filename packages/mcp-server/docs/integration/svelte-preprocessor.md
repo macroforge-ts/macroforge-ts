@@ -1,10 +1,10 @@
 # Svelte Preprocessor
- *The Svelte preprocessor expands Macroforge macros in `<script>` blocks before Svelte compilation, enabling seamless macro usage in Svelte components.*
+ *The Svelte preprocessor expands Macroforge macros in <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;script<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;</code> blocks before Svelte compilation, enabling seamless macro usage in Svelte components.*
  ## Installation
  ```
 npm install -D @macroforge/svelte-preprocessor
 ``` ## Configuration
- Add the preprocessor to your `svelte.config.js`:
+ Add the preprocessor to your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">svelte.config.js</code>:
  ```
 import adapter from '@sveltejs/adapter-auto';
 import &#123; vitePreprocess &#125; from '@sveltejs/vite-plugin-svelte';
@@ -23,8 +23,8 @@ const config = &#123;
 &#125;;
 
 export default config;
-```  **Warning Always place `macroforgePreprocess()` **before** other preprocessors like `vitePreprocess()`. This ensures macros are expanded before TypeScript compilation. ## Usage
- Use `@derive` decorators directly in your Svelte component scripts:
+```  **Warning Always place **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">macroforgePreprocess<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code> **before** other preprocessors like <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">vitePreprocess<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code>. This ensures macros are expanded before TypeScript compilation. ## Usage
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators directly in your Svelte component scripts:
  ```
 &#x3C;script lang="ts">
   /** @derive(Debug, Clone) */
@@ -55,16 +55,16 @@ macroforgePreprocess(&#123;
 ``` ### Option Reference
  | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `keepDecorators` | `boolean` | `false` | Keep decorators in output |
-| `processJavaScript` | `boolean` | `false` | Process `<script>` blocks without `lang="ts"` |
+| keepDecorators | boolean | false | Keep decorators in output |
+| processJavaScript | boolean | false | Process &lt;script&gt; blocks without lang="ts" |
  ## How It Works
  The preprocessor:
- 1. Intercepts `<script lang="ts">` blocks in `.svelte` files
- 2. Checks for `@derive` decorators (skips files without them)
+ 1. Intercepts <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;script lang<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">=<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"ts"<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;</code> blocks in <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">.svelte</code> files
+ 2. Checks for <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators (skips files without them)
  3. Expands macros using the native Macroforge binary
  4. Returns the transformed code for Svelte compilation
-  ****Tip Files without `@derive` decorators are passed through unchanged with zero overhead. ## SvelteKit Integration
- For SvelteKit projects, you can use both the preprocessor (for `.svelte` files) and the Vite plugin (for standalone `.ts` files):
+  **Tip Files without **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators are passed through unchanged with zero overhead. ## SvelteKit Integration
+ For SvelteKit projects, you can use both the preprocessor (for <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">.svelte</code> files) and the Vite plugin (for standalone <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">.ts</code> files):
  ```
 // svelte.config.js
 import &#123; macroforgePreprocess &#125; from '@macroforge/svelte-preprocessor';
@@ -109,7 +109,7 @@ export default defineConfig(&#123;
   &#125;
 &#125;);
 ``` ## Svelte 5 Runes Compatibility
- The preprocessor is fully compatible with Svelte 5 runes (`$state`, `$derived`, `$props`, etc.). Files using runes but without `@derive` decorators are skipped entirely.
+ The preprocessor is fully compatible with Svelte 5 runes (<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">$state</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">$derived</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">$props</code>, etc.). Files using runes but without <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators are skipped entirely.
  ```
 &#x3C;script lang="ts">
   // Runes work normally
@@ -125,4 +125,4 @@ export default defineConfig(&#123;
     &#125;
   &#125;
 &#x3C;/script>
-```**
+```

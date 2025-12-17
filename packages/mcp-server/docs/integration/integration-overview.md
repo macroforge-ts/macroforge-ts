@@ -3,8 +3,8 @@
  ## Overview
  | Integration | Purpose | Package |
 | --- | --- | --- |
-| TypeScript Plugin | IDE support (errors, completions) | `@macroforge/typescript-plugin` |
-| Vite Plugin | Build-time macro expansion | `@macroforge/vite-plugin` |
+| TypeScript Plugin | IDE support (errors, completions) | @macroforge/typescript-plugin |
+| Vite Plugin | Build-time macro expansion | @macroforge/vite-plugin |
  ## Recommended Setup
  For the best development experience, use both integrations:
  1. **TypeScript Plugin**: Provides real-time feedback in your IDE

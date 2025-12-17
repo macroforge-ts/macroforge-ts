@@ -71,4 +71,4 @@ class MacroforgeLanguageService &#123;
   &#125;
 &#125;
 ``` ## Thread Safety
- The `NativePlugin` class is thread-safe and can be used from multiple async contexts. Each file is processed in an isolated thread with its own stack space.
+ The <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">NativePlugin</code> class is thread-safe and can be used from multiple async contexts. Each file is processed in an isolated thread with its own stack space.

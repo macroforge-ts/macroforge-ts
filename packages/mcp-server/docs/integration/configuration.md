@@ -1,7 +1,7 @@
 # Configuration
- *Macroforge can be configured with a `macroforge.json` file in your project root.*
+ *Macroforge can be configured with a <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge.json</code> file in your project root.*
  ## Configuration File
- Create a `macroforge.json` file:
+ Create a <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge.json</code> file:
  ```
 &#123;
   "allowNativeMacros": true,
@@ -16,12 +16,12 @@
 &#125;
 ``` ## Options Reference
  ### allowNativeMacros
- | Type | `boolean` |
-| Default | `true` |
- Enable or disable native (Rust) macro packages. Set to `false` to only allow built-in macros.
+ | Type | boolean |
+| Default | true |
+ Enable or disable native (Rust) macro packages. Set to <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">false</code> to only allow built-in macros.
  ### macroPackages
- | Type | `string[]` |
-| Default | `[]` |
+ | Type | string[] |
+| Default | [] |
  List of npm packages that provide macros. Macroforge will look for macros in these packages.
  ```
 &#123;
@@ -31,9 +31,9 @@
   ]
 &#125;
 ``` ### keepDecorators
- | Type | `boolean` |
-| Default | `false` |
- Keep `@derive` decorators in the output. Useful for debugging.
+ | Type | boolean |
+| Default | false |
+ Keep <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators in the output. Useful for debugging.
  ### limits
  Configure resource limits for macro expansion:
  ```
@@ -66,8 +66,8 @@
  Some settings can be overridden with environment variables:
  | Variable | Description |
 | --- | --- |
-| `MACROFORGE_DEBUG` | Enable debug logging |
-| `MACROFORGE_LOG_FILE` | Write logs to a file |
+| MACROFORGE_DEBUG | Enable debug logging |
+| MACROFORGE_LOG_FILE | Write logs to a file |
  ```
 MACROFORGE_DEBUG=1 npm run dev
 ```**

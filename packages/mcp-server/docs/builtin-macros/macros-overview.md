@@ -3,17 +3,17 @@
  ## Overview
  | Macro | Generates | Description |
 | --- | --- | --- |
-| [`Debug`](../docs/builtin-macros/debug) | `toString(): string` | Human-readable string representation |
-| [`Clone`](../docs/builtin-macros/clone) | `clone(): T` | Creates a deep copy of the object |
-| [`Default`](../docs/builtin-macros/default) | `static default(): T` | Creates an instance with default values |
-| [`Hash`](../docs/builtin-macros/hash) | `hashCode(): number` | Generates a hash code for the object |
-| [`PartialEq`](../docs/builtin-macros/partial-eq) | `equals(other: T): boolean` | Value equality comparison |
-| [`Ord`](../docs/builtin-macros/ord) | `compare(other: T): number` | Total ordering comparison (-1, 0, 1) |
-| [`PartialOrd`](../docs/builtin-macros/partial-ord) | `partialCompare(other: T): number | null` | Partial ordering comparison |
-| [`Serialize`](../docs/builtin-macros/serialize) | `toJSON(): Record<string, unknown>` | JSON serialization with type handling |
-| [`Deserialize`](../docs/builtin-macros/deserialize) | `static fromJSON(data: unknown): T` | JSON deserialization with validation |
+| [Debug](../docs/builtin-macros/debug) | toString(): string | Human-readable string representation |
+| [Clone](../docs/builtin-macros/clone) | clone():T | Creates a deep copy of the object |
+| [Default](../docs/builtin-macros/default) | staticdefault():T | Creates an instance with default values |
+| [Hash](../docs/builtin-macros/hash) | hashCode(): number | Generates a hash code for the object |
+| [PartialEq](../docs/builtin-macros/partial-eq) | equals(other:T): boolean | Value equality comparison |
+| [Ord](../docs/builtin-macros/ord) | compare(other:T): number | Total ordering comparison (-1, 0, 1) |
+| [PartialOrd](../docs/builtin-macros/partial-ord) | partialCompare(other:T): number|null | Partial ordering comparison |
+| [Serialize](../docs/builtin-macros/serialize) | toJSON(): Record&lt;string, unknown&gt; | JSON serialization with type handling |
+| [Deserialize](../docs/builtin-macros/deserialize) | staticfromJSON(data: unknown):T | JSON deserialization with validation |
  ## Using Built-in Macros
- Built-in macros don't require imports. Just use them with `@derive`:
+ Built-in macros don't require imports. Just use them with <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code>:
  ```
 /** @derive(Debug, Clone, PartialEq) */
 class User &#123;
@@ -26,7 +26,7 @@ class User &#123;
   &#125;
 &#125;
 ``` ## Interface Support
- All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
+ All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">self</code> as the first parameter:
  ```
 /** @derive(Debug, Clone, PartialEq) */
 interface Point &#123;

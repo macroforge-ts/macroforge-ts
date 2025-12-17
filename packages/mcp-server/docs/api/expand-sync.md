@@ -10,9 +10,9 @@ function expandSync(
 ``` ## Parameters
  | Parameter | Type | Description |
 | --- | --- | --- |
-| `code` | `string` | TypeScript source code to transform |
-| `filepath` | `string` | File path (used for error reporting) |
-| `options` | `ExpandOptions` | Optional configuration |
+| code | string | TypeScript source code to transform |
+| filepath | string | File path (used for error reporting) |
+| options | ExpandOptions | Optional configuration |
  ## ExpandOptions
  ```
 interface ExpandOptions &#123;
@@ -80,7 +80,7 @@ if (result.diagnostics.length > 0) {
   }
 }
 ``` ## Error Handling
- Syntax errors and macro errors are returned in the `diagnostics` array, not thrown as exceptions:
+ Syntax errors and macro errors are returned in the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">diagnostics</code> array, not thrown as exceptions:
  ```
 const result = expandSync(invalidCode, "file.ts");
 

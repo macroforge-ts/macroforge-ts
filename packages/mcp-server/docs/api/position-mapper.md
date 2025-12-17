@@ -25,7 +25,7 @@ originalToExpanded(pos: number): number
  Map a position from expanded to original code:
  ```
 expandedToOriginal(pos: number): number | null
-``` Returns `null` if the position is in generated code.
+``` Returns <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">null</code> if the position is in generated code.
  ### isInGenerated()
  Check if a position is in macro-generated code:
  ```

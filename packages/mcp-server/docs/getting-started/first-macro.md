@@ -1,7 +1,7 @@
 # Your First Macro
  *Let's create a class that uses Macroforge's derive macros to automatically generate useful methods.*
  ## Creating a Class with Derive Macros
- Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate methods.
+ Start by creating a simple <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">User</code> class. We'll use the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorator to automatically generate methods.
  **Before:**
 ```
 /** @derive(Debug, Clone, PartialEq) */

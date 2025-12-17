@@ -3,7 +3,7 @@
  ## Prerequisites
  - Rust toolchain (1.88 or later)
  - Node.js 24 or later
- - NAPI-RS CLI: `cargo install macroforge_ts`
+ - NAPI-RS CLI: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">cargo<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">install<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">macroforge_ts</code>
  ## Create the Project
  ```
 # Create a new directory
@@ -13,7 +13,7 @@ cd my-macros
 # Initialize with NAPI-RS
 napi new --platform --name my-macros
 ``` ## Configure Cargo.toml
- Update your `Cargo.toml` with the required dependencies:
+ Update your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#FDAEB7;--shiki-dark-font-style:italic;--shiki-light:#B31D28;--shiki-light-font-style:italic">Cargo.toml</code> with the required dependencies:
  ```
 [package]
 name = "my-macros"

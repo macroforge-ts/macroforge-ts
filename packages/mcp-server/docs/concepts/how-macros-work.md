@@ -3,7 +3,7 @@
  ## Compile-Time Expansion
  Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at compile time:
  1. **Parse**: Your TypeScript code is parsed into an AST using SWC
- 2. **Find**: Macroforge finds `@derive` decorators and their associated items
+ 2. **Find**: Macroforge finds <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators and their associated items
  3. **Expand**: Each macro generates new code based on the class structure
  4. **Output**: The transformed TypeScript is written out, ready for normal compilation
  **Before:**
