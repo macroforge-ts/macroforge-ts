@@ -988,6 +988,8 @@ export interface LoadConfigResult {
   hasForeignTypes: boolean
   /** Number of foreign types configured. */
   foreignTypeCount: number
+  /** Return types mode: "vanilla", "custom", or "effect". */
+  returnTypes: string
 }
 
 /**

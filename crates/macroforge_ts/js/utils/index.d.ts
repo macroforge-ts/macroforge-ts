@@ -41,6 +41,73 @@
  */
 export { Result, Option } from "@rydshift/mirror/declarative";
 /**
+ * Represents a successful deserialization result.
+ * Used when `returnTypes: 'vanilla'` is configured.
+ */
+export interface DeserializeSuccess<T> {
+    readonly success: true;
+    readonly value: T;
+}
+/**
+ * Represents a failed deserialization result with field errors.
+ * Used when `returnTypes: 'vanilla'` is configured.
+ */
+export interface DeserializeFailure {
+    readonly success: false;
+    readonly errors: Array<{
+        field: string;
+        message: string;
+    }>;
+}
+/**
+ * A simple discriminated union for deserialization results.
+ * Used when `returnTypes: 'vanilla'` is configured.
+ *
+ * @example
+ * ```typescript
+ * const result = userDeserialize(json);
+ * if (result.success) {
+ *   const user = result.value;
+ * } else {
+ *   console.error(result.errors);
+ * }
+ * ```
+ */
+export type DeserializeResult<T> = DeserializeSuccess<T> | DeserializeFailure;
+/**
+ * Namespace with helper functions for working with vanilla DeserializeResult.
+ * These mirror the Result API for familiarity.
+ */
+export declare namespace DeserializeResult {
+    /**
+     * Creates a successful result.
+     */
+    function ok<T>(value: T): DeserializeResult<T>;
+    /**
+     * Creates a failed result with errors.
+     */
+    function err<T>(errors: Array<{
+        field: string;
+        message: string;
+    }>): DeserializeResult<T>;
+    /**
+     * Type guard to check if the result is successful.
+     */
+    function isOk<T>(result: DeserializeResult<T>): result is DeserializeSuccess<T>;
+    /**
+     * Type guard to check if the result is a failure.
+     */
+    function isErr<T>(result: DeserializeResult<T>): result is DeserializeFailure;
+    /**
+     * Unwraps the value or throws an error.
+     */
+    function unwrap<T>(result: DeserializeResult<T>): T;
+    /**
+     * Unwraps the value or returns a default.
+     */
+    function unwrapOr<T>(result: DeserializeResult<T>, defaultValue: T): T;
+}
+/**
  *
  *
  * // Option types

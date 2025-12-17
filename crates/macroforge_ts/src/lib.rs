@@ -1220,6 +1220,8 @@ pub struct LoadConfigResult {
     pub has_foreign_types: bool,
     /// Number of foreign types configured.
     pub foreign_type_count: u32,
+    /// Return types mode: "vanilla", "custom", or "effect".
+    pub return_types: String,
 }
 
 /// Load and parse a macroforge configuration file.
@@ -1269,6 +1271,11 @@ pub fn load_config(content: String, filepath: String) -> Result<LoadConfigResult
         generate_convenience_const: config.generate_convenience_const,
         has_foreign_types: !config.foreign_types.is_empty(),
         foreign_type_count: config.foreign_types.len() as u32,
+        return_types: match config.return_types {
+            crate::host::ReturnTypesMode::Vanilla => "vanilla".to_string(),
+            crate::host::ReturnTypesMode::Custom => "custom".to_string(),
+            crate::host::ReturnTypesMode::Effect => "effect".to_string(),
+        },
     })
 }
 
