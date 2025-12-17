@@ -230,16 +230,18 @@
 /* Shiki syntax highlighting - dual theme support with CSS variables */
 /* With defaultColor: false, Shiki outputs only CSS variables (no inline colors) */
 /* Each span has both --shiki-light and --shiki-dark variables for theme switching */
-.shiki,
-.shiki span {
-  color: var(--shiki-light);
-  background-color: var(--shiki-light-bg);
-}
+@layer components {
+  .shiki,
+  .shiki span {
+    color: var(--shiki-light);
+    background-color: var(--shiki-light-bg);
+  }
 
-.dark .shiki,
-.dark .shiki span {
-  color: var(--shiki-dark);
-  background-color: var(--shiki-dark-bg);
+  .dark .shiki,
+  .dark .shiki span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
 }
 
 /* Shiki code block styling */
@@ -256,12 +258,19 @@
   @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
 }
 
-.shiki-inline span {
-  color: var(--shiki-light);
+@layer components {
+  .shiki-inline span {
+    color: var(--shiki-light);
+  }
+
+  .dark .shiki-inline span {
+    color: var(--shiki-dark);
+  }
 }
 
-.dark .shiki-inline span {
-  color: var(--shiki-dark);
+/* Shiki wrapper styling for CodeBlock/MacroExample components */
+.shiki-wrapper .shiki {
+  @apply rounded-none border-none;
 }
 
 /* Code block wrapper styling for mdsvex output */
