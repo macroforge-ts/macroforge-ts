@@ -117,15 +117,15 @@ jobs:
                   name: bindings-x86_64-unknown-linux-gnu
                   path: crates/macroforge_ts
 
-            - name: Link local macroforge package
-              run: |
-                  cd crates/macroforge_ts
-                  npm link
-                  cd ../../packages/typescript-plugin
-                  npm link macroforge
-                  npm install --ignore-scripts
+            - name: Install workspace dependencies
+              run: npm install
+              working-directory: packages
 
-            - name: Build plugin
+            - name: Build shared package
+              run: npm run build
+              working-directory: packages/shared
+
+            - name: Build typescript-plugin
               run: npm run build
               working-directory: packages/typescript-plugin
 
@@ -183,6 +183,16 @@ jobs:
             - name: Publish macroforge
               run: npm publish --access public
               working-directory: crates/macroforge_ts
+
+            - name: Install shared dependencies
+              run: npm install
+              working-directory: packages/shared
+
+            - name: Build and publish @macroforge/shared
+              run: |
+                  npm run build
+                  npm publish --access public
+              working-directory: packages/shared
 
             - name: Install plugin dependencies
               run: npm install
