@@ -85,6 +85,8 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command;
 
+use convert_case::{Case, Casing};
+
 use crate::ts_syn::abi::{
     ClassIR, Diagnostic, DiagnosticLevel, EnumIR, InterfaceIR, MacroContextIR, MacroResult, Patch,
     PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
@@ -1521,14 +1523,6 @@ pub fn collect_import_sources(module: &Module, source: &str) -> HashMap<String, 
     import_map
 }
 
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
-
 /// Extracts exported function names from patch code.
 /// Returns a vector of (full_fn_name, short_name) pairs.
 fn extract_function_names_from_patches(
@@ -1536,7 +1530,7 @@ fn extract_function_names_from_patches(
     type_name: &str,
 ) -> Vec<(String, String)> {
     let mut functions = Vec::new();
-    let camel_type_name = to_camel_case(type_name);
+    let camel_type_name = type_name.to_case(Case::Camel);
 
     for patch in patches {
         let code = match patch {
@@ -1585,7 +1579,7 @@ fn extract_short_name(full_name: &str, camel_type_name: &str) -> Option<String> 
             return None;
         }
         // Convert first char to lowercase (UserClone prefix removed, rest is Clone -> clone)
-        Some(to_camel_case(rest))
+        Some(rest.to_case(Case::Camel))
     } else {
         None
     }
@@ -1814,7 +1808,7 @@ fn external_type_function_import_patches(
             continue;
         }
 
-        let camel = to_camel_case(type_name);
+        let camel = type_name.to_case(Case::Camel);
         let candidates = vec![
             format!("{camel}SerializeWithContext"),
             format!("{camel}DeserializeWithContext"),
