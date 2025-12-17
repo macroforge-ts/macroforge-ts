@@ -61,7 +61,7 @@ function createHost(tsModule, fileName, fileText, cwd) {
 
 function initPluginForFile({ fileName, fileText }) {
   const pluginPath = path.resolve(repoRoot, "packages/typescript-plugin/dist/index.js");
-  const tsPluginInit = require(pluginPath);
+  const tsPluginInit = require(pluginPath).default;
   const pluginFactory = tsPluginInit({ typescript: ts });
 
   const cwd = repoRoot;
