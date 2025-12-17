@@ -111,7 +111,7 @@ pub use config::{
 };
 pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};
-pub use expand::{MacroExpander, MacroExpansion, collect_import_sources};
+pub use expand::{ImportCollectionResult, MacroExpander, MacroExpansion, collect_import_sources};
 pub use package_registry::MacroPackageRegistration;
 pub use patch_applicator::{PatchApplicator, PatchCollector};
 pub use registry::MacroRegistry;
