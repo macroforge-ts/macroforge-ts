@@ -42,7 +42,7 @@
 </script>
 
 <div
-    class="relative group my-4 rounded-lg overflow-hidden border border-border"
+    class="relative group my-4 overflow-hidden border border-border rounded-lg"
 >
     {#if filename}
         <div
@@ -67,7 +67,11 @@
     {/if}
     {#if html}
         <!-- Render pre-highlighted Shiki HTML -->
-        <div class="shiki-wrapper overflow-x-auto text-sm {filename ? '' : 'pt-8'}">
+        <div
+            class="shiki-wrapper overflow-x-auto text-sm {filename
+                ? ''
+                : 'pt-8'}"
+        >
             {@html html}
         </div>
     {:else}
