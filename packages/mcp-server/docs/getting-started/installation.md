@@ -6,40 +6,40 @@
  ## Install the Package
  Install Macroforge using your preferred package manager:
  ```
-npm install macroforge
+npm&nbsp;install&nbsp;macroforge
 ``` ```
-bun add macroforge
+bun&nbsp;add&nbsp;macroforge
 ``` ```
-pnpm add macroforge
+pnpm&nbsp;add&nbsp;macroforge
 ```  **Info Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64). ## Basic Usage
  The simplest way to use Macroforge is with the built-in derive macros. Add a **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> comment decorator to your class:
  ```
-/** @derive(Debug, Clone, PartialEq) */
-class User &#123;
-  name: string;
-  age: number;
+/**&nbsp;@derive(Debug,&nbsp;Clone,&nbsp;PartialEq)&nbsp;*/
+class&nbsp;User&nbsp;&#123;
+&nbsp;&nbsp;name:&nbsp;string;
+&nbsp;&nbsp;age:&nbsp;number;
 
-  constructor(name: string, age: number) &#123;
-    this.name = name;
-    this.age = age;
-  &#125;
+&nbsp;&nbsp;constructor(name:&nbsp;string,&nbsp;age:&nbsp;number)&nbsp;&#123;
+&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;
+&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;
+&nbsp;&nbsp;&#125;
 &#125;
 
-// After macro expansion, User has:
-// - toString(): string              (from Debug)
-// - clone(): User                   (from Clone)
-// - equals(other: unknown): boolean (from PartialEq)
+//&nbsp;After&nbsp;macro&nbsp;expansion,&nbsp;User&nbsp;has:
+//&nbsp;-&nbsp;toString():&nbsp;string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(from&nbsp;Debug)
+//&nbsp;-&nbsp;clone():&nbsp;User&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(from&nbsp;Clone)
+//&nbsp;-&nbsp;equals(other:&nbsp;unknown):&nbsp;boolean&nbsp;(from&nbsp;PartialEq)
 ``` ## IDE Integration
  For the best development experience, add the TypeScript plugin to your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsconfig.json</code>:
  ```
 &#123;
-  "compilerOptions": &#123;
-    "plugins": [
-      &#123;
-        "name": "@macroforge/typescript-plugin"
-      &#125;
-    ]
-  &#125;
+&nbsp;&nbsp;"compilerOptions":&nbsp;&#123;
+&nbsp;&nbsp;&nbsp;&nbsp;"plugins":&nbsp;[
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#123;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"name":&nbsp;"@macroforge/typescript-plugin"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;
+&nbsp;&nbsp;&nbsp;&nbsp;]
+&nbsp;&nbsp;&#125;
 &#125;
 ``` This enables features like:
  - Accurate error positions in your source code
@@ -48,16 +48,16 @@ class User &#123;
  ## Build Integration (Vite)
  If you're using Vite, add the plugin to your config for automatic macro expansion during build:
  ```
-import macroforge from "@macroforge/vite-plugin";
-import &#123; defineConfig &#125; from "vite";
+import&nbsp;macroforge&nbsp;from&nbsp;"@macroforge/vite-plugin";
+import&nbsp;&#123;&nbsp;defineConfig&nbsp;&#125;&nbsp;from&nbsp;"vite";
 
-export default defineConfig(&#123;
-  plugins: [
-    macroforge(&#123;
-      generateTypes: true,
-      typesOutputDir: ".macroforge/types"
-    &#125;)
-  ]
+export&nbsp;default&nbsp;defineConfig(&#123;
+&nbsp;&nbsp;plugins:&nbsp;[
+&nbsp;&nbsp;&nbsp;&nbsp;macroforge(&#123;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;generateTypes:&nbsp;true,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;typesOutputDir:&nbsp;".macroforge/types"
+&nbsp;&nbsp;&nbsp;&nbsp;&#125;)
+&nbsp;&nbsp;]
 &#125;);
 ``` ## Next Steps
  Now that you have Macroforge installed, learn how to use it:

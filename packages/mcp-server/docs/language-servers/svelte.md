@@ -10,20 +10,20 @@
  ## Installation
  ### 1. Clone the Repository
  ```
-git clone https://github.com/rymskip/macroforge-ts.git
-cd macroforge-ts
+git&nbsp;clone&nbsp;https://github.com/rymskip/macroforge-ts.git
+cd&nbsp;macroforge-ts
 ``` ### 2. Build the Language Server
  ```
-# Install dependencies
-npm install
+#&nbsp;Install&nbsp;dependencies
+npm&nbsp;install
 
-# Build the Svelte language server
-cd packages/svelte-language-server
-npm run build
+#&nbsp;Build&nbsp;the&nbsp;Svelte&nbsp;language&nbsp;server
+cd&nbsp;packages/svelte-language-server
+npm&nbsp;run&nbsp;build
 ``` ### 3. Configure Your Editor
  The language server exposes a **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">svelteserver</code> binary that implements the Language Server Protocol (LSP). Configure your editor to use it:
  ```
-# The binary is located at:
+#&nbsp;The&nbsp;binary&nbsp;is&nbsp;located&nbsp;at:
 ./packages/svelte-language-server/bin/server.js
 ``` ## Package Info
  | Package | @macroforge/svelte-language-server |

@@ -2,11 +2,11 @@
   *Synchronously expands macros in TypeScript code. This is the standalone macro expansion function that doesn't use caching. For cached expansion, use [`NativePlugin::process_file`] instead.*
  ## Signature
  ```
-function expandSync(
-  code: string,
-  filepath: string,
-  options?: ExpandOptions
-): ExpandResult
+function&nbsp;expandSync(
+&nbsp;&nbsp;code:&nbsp;string,
+&nbsp;&nbsp;filepath:&nbsp;string,
+&nbsp;&nbsp;options?:&nbsp;ExpandOptions
+):&nbsp;ExpandResult
 ``` ## Parameters
  | Parameter | Type | Description |
 | --- | --- | --- |
@@ -15,37 +15,37 @@ function expandSync(
 | options | ExpandOptions | Optional configuration |
  ## ExpandOptions
  ```
-interface ExpandOptions &#123;
-  // Keep @derive decorators in output (default: false)
-  keepDecorators?: boolean;
+interface&nbsp;ExpandOptions&nbsp;&#123;
+&nbsp;&nbsp;//&nbsp;Keep&nbsp;@derive&nbsp;decorators&nbsp;in&nbsp;output&nbsp;(default:&nbsp;false)
+&nbsp;&nbsp;keepDecorators?:&nbsp;boolean;
 &#125;
 ``` ## ExpandResult
  ```
-interface ExpandResult &#123;
-  // Transformed TypeScript code
-  code: string;
+interface&nbsp;ExpandResult&nbsp;&#123;
+&nbsp;&nbsp;//&nbsp;Transformed&nbsp;TypeScript&nbsp;code
+&nbsp;&nbsp;code:&nbsp;string;
 
-  // Generated type declarations (.d.ts content)
-  types?: string;
+&nbsp;&nbsp;//&nbsp;Generated&nbsp;type&nbsp;declarations&nbsp;(.d.ts&nbsp;content)
+&nbsp;&nbsp;types?:&nbsp;string;
 
-  // Macro expansion metadata (JSON string)
-  metadata?: string;
+&nbsp;&nbsp;//&nbsp;Macro&nbsp;expansion&nbsp;metadata&nbsp;(JSON&nbsp;string)
+&nbsp;&nbsp;metadata?:&nbsp;string;
 
-  // Warnings and errors from macro expansion
-  diagnostics: MacroDiagnostic[];
+&nbsp;&nbsp;//&nbsp;Warnings&nbsp;and&nbsp;errors&nbsp;from&nbsp;macro&nbsp;expansion
+&nbsp;&nbsp;diagnostics:&nbsp;MacroDiagnostic[];
 
-  // Position mapping data for source maps
-  sourceMapping?: SourceMappingResult;
+&nbsp;&nbsp;//&nbsp;Position&nbsp;mapping&nbsp;data&nbsp;for&nbsp;source&nbsp;maps
+&nbsp;&nbsp;sourceMapping?:&nbsp;SourceMappingResult;
 &#125;
 ``` ## MacroDiagnostic
  ```
-interface MacroDiagnostic &#123;
-  message: string;
-  severity: "error" | "warning" | "info";
-  span: &#123;
-    start: number;
-    end: number;
-  &#125;;
+interface&nbsp;MacroDiagnostic&nbsp;&#123;
+&nbsp;&nbsp;message:&nbsp;string;
+&nbsp;&nbsp;severity:&nbsp;"error"&nbsp;|&nbsp;"warning"&nbsp;|&nbsp;"info";
+&nbsp;&nbsp;span:&nbsp;&#123;
+&nbsp;&nbsp;&nbsp;&nbsp;start:&nbsp;number;
+&nbsp;&nbsp;&nbsp;&nbsp;end:&nbsp;number;
+&nbsp;&nbsp;&#125;;
 &#125;
 ``` ## Example
  ```

@@ -6,28 +6,29 @@
  2. **Find**: Macroforge finds <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators and their associated items
  3. **Expand**: Each macro generates new code based on the class structure
  4. **Output**: The transformed TypeScript is written out, ready for normal compilation
- **Before:**
+ <div><div class="flex items-center justify-between gap-2 px-4 py-2 bg-muted rounded-t-lg border border-b-0 border-border"> 
+**Before:**
 ```
 /** @derive(Debug) */
-class User {
+class User &#123;
     name: string;
-}
-```  
+&#125;
+``` <div class="flex items-center justify-between gap-2 px-4 py-2 bg-muted rounded-t-lg border border-b-0 border-border"> 
 **After:**
 ```
-class User {
+class User &#123;
     name: string;
 
-    static toString(value: User): string {
+    static toString(value: User): string &#123;
         return userToString(value);
-    }
-}
+    &#125;
+&#125;
 
-export function userToString(value: User): string {
+export function userToString(value: User): string &#123;
     const parts: string[] = [];
     parts.push('name: ' + value.name);
-    return 'User { ' + parts.join(', ') + ' }';
-}
+    return 'User &#123; ' + parts.join(', ') + ' &#125;';
+&#125;
 ``` ## Zero Runtime Overhead
  Because code generation happens at compile time, there's no:
  - Runtime reflection or metadata

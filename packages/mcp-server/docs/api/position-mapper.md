@@ -2,51 +2,51 @@
   *Bidirectional position mapper for translating between original and expanded source positions. This mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with macro-expanded code by translating positions between the original source (what the user wrote) and the expanded source (what the compiler sees).*
  ## Getting a Mapper
  ```
-import &#123; NativePlugin, PositionMapper &#125; from "macroforge";
+import&nbsp;&#123;&nbsp;NativePlugin,&nbsp;PositionMapper&nbsp;&#125;&nbsp;from&nbsp;"macroforge";
 
-const plugin = new NativePlugin();
-const result = plugin.processFile("user.ts", code, &#123; version: "1" &#125;);
+const&nbsp;plugin&nbsp;=&nbsp;new&nbsp;NativePlugin();
+const&nbsp;result&nbsp;=&nbsp;plugin.processFile("user.ts",&nbsp;code,&nbsp;&#123;&nbsp;version:&nbsp;"1"&nbsp;&#125;);
 
-// Get the mapper for this file
-const mapper = plugin.getMapper("user.ts");
-if (mapper) &#123;
-  // Use the mapper...
+//&nbsp;Get&nbsp;the&nbsp;mapper&nbsp;for&nbsp;this&nbsp;file
+const&nbsp;mapper&nbsp;=&nbsp;plugin.getMapper("user.ts");
+if&nbsp;(mapper)&nbsp;&#123;
+&nbsp;&nbsp;//&nbsp;Use&nbsp;the&nbsp;mapper...
 &#125;
 ``` ## Methods
  ### isEmpty()
  Check if the mapper has any mappings:
  ```
-isEmpty(): boolean
+isEmpty():&nbsp;boolean
 ``` ### originalToExpanded()
  Map a position from original to expanded code:
  ```
-originalToExpanded(pos: number): number
+originalToExpanded(pos:&nbsp;number):&nbsp;number
 ``` ### expandedToOriginal()
  Map a position from expanded to original code:
  ```
-expandedToOriginal(pos: number): number | null
+expandedToOriginal(pos:&nbsp;number):&nbsp;number&nbsp;|&nbsp;null
 ``` Returns <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">null</code> if the position is in generated code.
  ### isInGenerated()
  Check if a position is in macro-generated code:
  ```
-isInGenerated(pos: number): boolean
+isInGenerated(pos:&nbsp;number):&nbsp;boolean
 ``` ### generatedBy()
  Get the name of the macro that generated code at a position:
  ```
-generatedBy(pos: number): string | null
+generatedBy(pos:&nbsp;number):&nbsp;string&nbsp;|&nbsp;null
 ``` ### mapSpanToOriginal()
  Map a span (range) from expanded to original code:
  ```
-mapSpanToOriginal(start: number, length: number): SpanResult | null
+mapSpanToOriginal(start:&nbsp;number,&nbsp;length:&nbsp;number):&nbsp;SpanResult&nbsp;|&nbsp;null
 
-interface SpanResult &#123;
-  start: number;
-  length: number;
+interface&nbsp;SpanResult&nbsp;&#123;
+&nbsp;&nbsp;start:&nbsp;number;
+&nbsp;&nbsp;length:&nbsp;number;
 &#125;
 ``` ### mapSpanToExpanded()
  Map a span from original to expanded code:
  ```
-mapSpanToExpanded(start: number, length: number): SpanResult
+mapSpanToExpanded(start:&nbsp;number,&nbsp;length:&nbsp;number):&nbsp;SpanResult
 ``` ## Example: Error Position Mapping
  ```
 import { NativePlugin } from "macroforge";
