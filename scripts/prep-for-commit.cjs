@@ -26,7 +26,8 @@ const root = path.resolve(__dirname, "..");
 program
   .name('prep-for-commit')
   .description('Prepare a release: bump version, build, test, and sync documentation')
-  .argument('[version]', 'Version string (e.g., 0.1.4). If not provided, auto-increments patch version');
+  .argument('[version]', 'Version string (e.g., 0.1.4). If not provided, auto-increments patch version')
+  .option('--dry-run', 'Run build and tests without bumping version');
 const websiteDir = path.join(root, "website");
 
 /**
@@ -110,20 +111,25 @@ function run(cmd, cwd = root) {
   execSync(cmd, { cwd, stdio: "inherit" });
 }
 
-function main(versionArg) {
+function main(versionArg, options) {
+  const dryRun = options.dryRun || false;
+  const currentVersion = getCurrentVersion();
   let version = versionArg;
 
-  if (!version) {
-    const current = getCurrentVersion();
-    version = incrementPatch(current);
-    console.log(`No version specified, incrementing ${current} -> ${version}`);
+  if (dryRun) {
+    version = currentVersion;
+    console.log("=".repeat(60));
+    console.log(`DRY RUN: Testing build/tests with current version ${version}`);
+    console.log("=".repeat(60));
+  } else {
+    if (!version) {
+      version = incrementPatch(currentVersion);
+      console.log(`No version specified, incrementing ${currentVersion} -> ${version}`);
+    }
+    console.log("=".repeat(60));
+    console.log(`Preparing release ${version}`);
+    console.log("=".repeat(60));
   }
-
-  const currentVersion = getCurrentVersion();
-
-  console.log("=".repeat(60));
-  console.log(`Preparing release ${version}`);
-  console.log("=".repeat(60));
 
   let bumped = false;
   let externalConfigAdded = false;
@@ -168,10 +174,14 @@ process.on("SIGTERM", () => {
   process.exit(1);
 });
 
-// Step 1: Bump version
-console.log("\n[1/7] Bumping version...");
-run(`node scripts/bump-version.cjs ${version}`);
-bumped = true;
+// Step 1: Bump version (skip in dry-run mode)
+if (dryRun) {
+  console.log("\n[1/7] Skipping version bump (dry-run)...");
+} else {
+  console.log("\n[1/7] Bumping version...");
+  run(`node scripts/bump-version.cjs ${version}`);
+  bumped = true;
+}
 
 try {
   // Step 2: Extract API documentation from source files
@@ -217,22 +227,33 @@ try {
 }
 
 // Step 7: Final notes
-// The website uses file:../crates/macroforge_ts during local builds (set by bump-version.cjs)
-// CI will update it to registry version and regenerate package-lock.json after npm publish
 console.log("\n[7/7] Done!");
-console.log("  Website uses local macroforge for build (file:../crates/macroforge_ts)");
-console.log("  CI will update to registry version after npm publish");
 
-console.log("\n" + "=".repeat(60));
-console.log(`Done! Ready to commit version ${version}`);
-console.log("=".repeat(60));
-console.log(`
+if (dryRun) {
+  console.log("\n" + "=".repeat(60));
+  console.log("DRY RUN COMPLETE - no version changes were made");
+  console.log("=".repeat(60));
+  console.log(`
+All builds and tests passed. To do a real release, run:
+  node scripts/prep-for-commit.cjs
+`);
+} else {
+  // The website uses file:../crates/macroforge_ts during local builds (set by bump-version.cjs)
+  // CI will update it to registry version and regenerate package-lock.json after npm publish
+  console.log("  Website uses local macroforge for build (file:../crates/macroforge_ts)");
+  console.log("  CI will update to registry version after npm publish");
+
+  console.log("\n" + "=".repeat(60));
+  console.log(`Done! Ready to commit version ${version}`);
+  console.log("=".repeat(60));
+  console.log(`
 Next steps:
   git add -A
   git commit -m "Bump version to ${version}"
   git tag v${version}
   git push && git push --tags
 `);
+}
 }
 
 program.action(main);
