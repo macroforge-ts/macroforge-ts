@@ -49,10 +49,22 @@
  */
 
 import type ts from "typescript/lib/tsserverlibrary";
-import type { ExpandResult, MacroManifest, MacroManifestEntry, DecoratorManifestEntry } from "macroforge";
+import type { ExpandResult, MacroManifestEntry, DecoratorManifestEntry } from "macroforge";
 import { NativePlugin, PositionMapper, __macroforgeGetManifest } from "macroforge";
+import { createRequire } from "module";
 import path from "path";
 import fs from "fs";
+import {
+  parseMacroImportComments,
+  getExternalManifest,
+  getExternalMacroInfo,
+  getExternalDecoratorInfo,
+  loadMacroConfig,
+  type MacroConfig,
+} from "@macroforge/shared";
+
+// Create require for external package loading
+const moduleRequire = createRequire(import.meta.url);
 
 /**
  * Cached macro manifest for hover information.
@@ -106,124 +118,6 @@ function getMacroManifest() {
   } catch {
     return null;
   }
-}
-
-/**
- * Parses macro import comments to extract macro name to module path mappings.
- *
- * Macroforge supports importing external macros using a special JSDoc comment syntax:
- * `/** import macro {MacroName, Another} from "@scope/package"; *​/`
- *
- * @param text - The source text to search for import comments
- * @returns A Map of macro name to module path
- *
- * @example
- * ```typescript
- * const text = `/** import macro {Gigaform, CustomMacro} from "@playground/macro"; *​/`;
- * parseMacroImportComments(text);
- * // => Map { "Gigaform" => "@playground/macro", "CustomMacro" => "@playground/macro" }
- * ```
- */
-function parseMacroImportComments(text: string): Map<string, string> {
-  const imports = new Map<string, string>();
-  const pattern =
-    /\/\*\*\s*import\s+macro\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/gi;
-  let match: RegExpExecArray | null;
-
-  while ((match = pattern.exec(text)) !== null) {
-    const names = match[1]
-      .split(",")
-      .map((n) => n.trim())
-      .filter(Boolean);
-    const modulePath = match[2];
-    for (const name of names) {
-      imports.set(name, modulePath);
-    }
-  }
-  return imports;
-}
-
-/**
- * Cache for external macro package manifests.
- * Maps package path to its manifest (or null if failed to load).
- */
-const externalManifestCache = new Map<
-  string,
-  MacroManifest | null
->();
-
-/**
- * Attempts to load the manifest from an external macro package.
- *
- * External macro packages (like `@playground/macro`) export their own
- * `__macroforgeGetManifest()` function that provides macro metadata
- * including descriptions.
- *
- * @param modulePath - The package path (e.g., "@playground/macro")
- * @returns The macro manifest, or null if loading failed
- */
-function getExternalManifest(modulePath: string): MacroManifest | null {
-  if (externalManifestCache.has(modulePath)) {
-    return externalManifestCache.get(modulePath) ?? null;
-  }
-
-  try {
-    // Try to require the external package
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pkg = require(modulePath);
-    if (typeof pkg.__macroforgeGetManifest === "function") {
-      const manifest: MacroManifest = pkg.__macroforgeGetManifest();
-      externalManifestCache.set(modulePath, manifest);
-      return manifest;
-    }
-  } catch {
-    // Package not found or doesn't export manifest
-  }
-
-  externalManifestCache.set(modulePath, null);
-  return null;
-}
-
-/**
- * Looks up macro info from an external package manifest.
- *
- * @param macroName - The macro name to look up
- * @param modulePath - The package path
- * @returns The macro manifest entry, or null if not found
- */
-function getExternalMacroInfo(
-  macroName: string,
-  modulePath: string,
-): MacroManifestEntry | null {
-  const manifest = getExternalManifest(modulePath);
-  if (!manifest) return null;
-
-  return (
-    manifest.macros.find(
-      (m) => m.name.toLowerCase() === macroName.toLowerCase(),
-    ) ?? null
-  );
-}
-
-/**
- * Looks up decorator info from an external package manifest.
- *
- * @param decoratorName - The decorator name to look up
- * @param modulePath - The package path
- * @returns The decorator manifest entry, or null if not found
- */
-function getExternalDecoratorInfo(
-  decoratorName: string,
-  modulePath: string,
-): DecoratorManifestEntry | null {
-  const manifest = getExternalManifest(modulePath);
-  if (!manifest) return null;
-
-  return (
-    manifest.decorators.find(
-      (d) => d.export.toLowerCase() === decoratorName.toLowerCase(),
-    ) ?? null
-  );
 }
 
 /**
@@ -589,6 +483,7 @@ function getMacroHoverInfo(
       const externalMacroInfo = getExternalMacroInfo(
         deriveMatch.macroName,
         modulePath,
+        moduleRequire,
       );
       const description = externalMacroInfo?.description
         ? externalMacroInfo.description
@@ -699,7 +594,7 @@ function getMacroHoverInfo(
         const modulePath = externalMacros.get(likelySourceMacro);
         // Try to get detailed decorator info from the external package
         const externalDecoratorInfo = modulePath
-          ? getExternalDecoratorInfo(decoratorMatch.name, modulePath)
+          ? getExternalDecoratorInfo(decoratorMatch.name, modulePath, moduleRequire)
           : null;
         const description = externalDecoratorInfo?.docs
           ? externalDecoratorInfo.docs
@@ -828,138 +723,6 @@ function hasMacroDirectives(text: string) {
     /\/\*\*\s*@derive\s*\(/i.test(text) ||
     /\/\*\*\s*import\s+macro\b/i.test(text)
   );
-}
-
-/**
- * Supported config file names in order of precedence.
- * @internal
- */
-const CONFIG_FILES = [
-  "macroforge.config.ts",
-  "macroforge.config.mts",
-  "macroforge.config.js",
-  "macroforge.config.mjs",
-  "macroforge.config.cjs",
-];
-
-/**
- * Configuration options loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).
- *
- * @remarks
- * This configuration affects how macros are expanded and what artifacts
- * are preserved in the output.
- */
-type MacroConfig = {
-  /**
-   * Whether to preserve decorator syntax in the expanded output.
-   *
-   * When `true`, decorators like `@serde` are kept in the expanded code
-   * (useful for runtime decorator processing). When `false`, they are
-   * stripped during expansion.
-   *
-   * @default false
-   */
-  keepDecorators: boolean;
-
-  /**
-   * Path to the config file (used to cache and retrieve foreign types).
-   */
-  configPath?: string;
-
-  /**
-   * Whether the config has foreign type handlers defined.
-   */
-  hasForeignTypes?: boolean;
-};
-
-/**
- * Finds a macroforge config file in the directory tree.
- *
- * @param startDir - The directory to start searching from
- * @returns The path to the config file, or null if not found
- *
- * @internal
- */
-function findConfigFile(startDir: string): string | null {
-  let current = startDir;
-
-  while (true) {
-    for (const filename of CONFIG_FILES) {
-      const candidate = path.join(current, filename);
-      if (fs.existsSync(candidate)) {
-        return candidate;
-      }
-    }
-
-    // Stop at package.json boundary
-    if (fs.existsSync(path.join(current, "package.json"))) {
-      break;
-    }
-
-    const parent = path.dirname(current);
-    if (parent === current) break;
-    current = parent;
-  }
-
-  return null;
-}
-
-/**
- * Loads Macroforge configuration from `macroforge.config.js` (or .ts/.mjs/.cjs).
- *
- * Starting from the given directory, this function walks up the filesystem hierarchy
- * looking for a macroforge config file. The first one found is parsed by the Rust
- * binary using SWC, which extracts configuration including foreign type handlers.
- *
- * @param startDir - The directory to start searching from (typically the project root)
- * @returns The parsed configuration, or default values if no config file is found
- *
- * @remarks
- * The search stops when:
- * - A config file is found and successfully parsed
- * - A package.json boundary is reached
- * - The filesystem root is reached
- *
- * This allows monorepo setups where a root `macroforge.config.js` can configure
- * all packages, while individual packages can override with their own config.
- *
- * @example
- * ```typescript
- * // With /project/macroforge.config.js containing:
- * // export default { keepDecorators: true }
- * loadMacroConfig('/project/src/components');
- * // => { keepDecorators: true, configPath: '/project/macroforge.config.js' }
- * ```
- */
-function loadMacroConfig(startDir: string): MacroConfig {
-  const fallback: MacroConfig = { keepDecorators: false };
-
-  const configPath = findConfigFile(startDir);
-  if (!configPath) {
-    return fallback;
-  }
-
-  // Try to use the Rust binary to parse the config
-  try {
-    const content = fs.readFileSync(configPath, "utf8");
-    const result = (NativePlugin as any).loadConfig?.(content, configPath);
-
-    if (result) {
-      return {
-        keepDecorators: result.keepDecorators,
-        configPath,
-        hasForeignTypes: result.hasForeignTypes,
-      };
-    }
-  } catch {
-    // Fall through to fallback
-  }
-
-  // Fallback: just mark the path but use defaults
-  return {
-    ...fallback,
-    configPath,
-  };
 }
 
 /**
@@ -1099,7 +862,17 @@ function init(modules: { typescript: typeof ts }) {
       info.languageServiceHost.getCurrentDirectory?.() ??
       process.cwd();
 
-    const macroConfig = loadMacroConfig(getCurrentDirectory());
+    // Create a config loader using the native plugin
+    const configLoader = (content: string, filepath: string) => {
+      const result = (NativePlugin as any).loadConfig?.(content, filepath);
+      return result ?? {
+        keepDecorators: false,
+        generateConvenienceConst: false,
+        hasForeignTypes: false,
+        foreignTypeCount: 0,
+      };
+    };
+    const macroConfig = loadMacroConfig(getCurrentDirectory(), configLoader);
     const keepDecorators = macroConfig.keepDecorators;
 
     /**
@@ -3053,4 +2826,4 @@ function init(modules: { typescript: typeof ts }) {
   return { create };
 }
 
-export = init;
+export default init;
