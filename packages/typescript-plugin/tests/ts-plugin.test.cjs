@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const ts = require("typescript/lib/tsserverlibrary");
-const initPlugin = require("../dist/index.js");
+const initPlugin = require("../dist/index.js").default;
 
 function createSnapshot(source) {
   return ts.ScriptSnapshot.fromString(source);

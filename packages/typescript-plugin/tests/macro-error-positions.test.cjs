@@ -7,7 +7,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const ts = require("typescript/lib/tsserverlibrary");
-const initPlugin = require("../dist/index.js");
+const initPlugin = require("../dist/index.js").default;
 
 function createSnapshot(source) {
   return ts.ScriptSnapshot.fromString(source);

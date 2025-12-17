@@ -46,7 +46,7 @@ test("TS Language Plugin augments types", async () => {
     "packages/typescript-plugin/dist/index.js",
   );
   const require = createRequire(import.meta.url);
-  const tsPluginInit = require(pluginPath);
+  const tsPluginInit = require(pluginPath).default;
   const ts = require("typescript");
 
   // Mock Info for TS Server Plugin with all required methods
@@ -114,7 +114,7 @@ test("TS Language Plugin detects external macro packages", async () => {
     "packages/typescript-plugin/dist/index.js",
   );
   const require = createRequire(import.meta.url);
-  const tsPluginInit = require(pluginPath);
+  const tsPluginInit = require(pluginPath).default;
   const ts = require("typescript");
 
   // Code that imports from an external macro package
