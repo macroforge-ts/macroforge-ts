@@ -1,22 +1,43 @@
 <script lang="ts">
     import MacroExample from "$lib/components/ui/MacroExample.svelte";
+    import CopyButton from "$lib/components/ui/CopyButton.svelte";
     import { siteConfig } from "$lib/config/site";
-    import { base } from "$app/paths";
+    import { resolve } from "$app/paths";
 
     let { data } = $props();
 
+    const packageManagers = [
+        { id: "npm", label: "npm", command: "npm install macroforge" },
+        { id: "pnpm", label: "pnpm", command: "pnpm add macroforge" },
+        { id: "yarn", label: "yarn", command: "yarn add macroforge" },
+        { id: "bun", label: "bun", command: "bun add macroforge" },
+        { id: "deno", label: "deno", command: "deno add npm:macroforge" },
+    ];
+
+    let selectedPm = $state("npm");
+    let currentCommand = $derived(
+        packageManagers.find((pm) => pm.id === selectedPm)?.command ??
+            packageManagers[0].command,
+    );
+
     const features = [
+        {
+            title: "Zero Runtime Cost",
+            description:
+                "All code generation happens at build time. Ship only the code you need.",
+            icon: "M13 10V3L4 14h7v7l9-11h-7z",
+        },
+        {
+            title: "Type-Safe Generation",
+            description:
+                "Catch errors during compilation, not at runtime. Full TypeScript integration.",
+            icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+        },
         {
             title: "Built-in Macros",
             description:
-                "Debug, Clone, and Eq macros ready to use out of the box.",
+                "Debug, Clone, Serialize, and more ready to use out of the box.",
             icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-        },
-        {
-            title: "Custom Macros in Rust",
-            description:
-                "Write your own derive macros using the full power of Rust.",
-            icon: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",
         },
         {
             title: "IDE Integration",
@@ -25,21 +46,16 @@
             icon: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
         },
         {
-            title: "Zero Runtime",
-            description:
-                "All code is generated at compile time. No runtime overhead.",
-            icon: "M13 10V3L4 14h7v7l9-11h-7z",
-        },
-        {
             title: "Source Maps",
             description:
                 "Accurate position mapping from expanded code back to source.",
             icon: "M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7",
         },
         {
-            title: "Powered by SWC",
-            description: "Lightning-fast parsing and code generation with SWC.",
-            icon: "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z",
+            title: "Extensible",
+            description:
+                "Write custom macros in TypeScript or Rust to fit your needs.",
+            icon: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",
         },
     ];
 </script>
@@ -53,49 +69,48 @@
     class="relative overflow-hidden bg-gradient-to-b from-secondary to-background pt-16 pb-20 sm:pt-24 sm:pb-28"
 >
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto">
+        <div class="text-center max-w-3xl mx-auto flex flex-col items-center">
             <h1
                 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground"
             >
                 TypeScript Macros,
-                <span class="text-primary">Powered by Rust</span>
+                <span class="text-primary">Generated at Build Time</span>
             </h1>
             <p
                 class="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto"
             >
-                Compile-time code generation with a Rust-like derive system.
-                Eliminate boilerplate and generate type-safe code automatically.
+                Push code generation to compile time for faster runtime and
+                safer code. Eliminate boilerplate with zero runtime overhead.
             </p>
 
             <!-- Install Command -->
-            <div class="mt-8 flex justify-center">
+            <div class="mt-8 flex flex-col items-center">
+                <!-- Package Manager Tabs -->
                 <div
-                    class="inline-flex items-center gap-3 bg-card rounded-lg px-4 py-3 text-sm font-mono text-card-foreground border border-border"
+                    class="flex w-full justify-around gap-1 p-1 bg-muted rounded-t-lg border border-b-0 border-border"
                 >
-                    <span class="text-muted-foreground">$</span>
-                    <span>npm install macroforge</span>
-                    <button
-                        onclick={() =>
-                            navigator.clipboard.writeText(
-                                "npm install macroforge",
-                            )}
-                        class="p-1 hover:bg-accent rounded transition-colors"
-                        aria-label="Copy install command"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4 text-muted-foreground"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
+                    {#each packageManagers as pm}
+                        <button
+                            onclick={() => (selectedPm = pm.id)}
+                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors {selectedPm ===
+                            pm.id
+                                ? 'bg-background text-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground'}"
                         >
-                            <path
-                                d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
-                            />
-                            <path
-                                d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
-                            />
-                        </svg>
-                    </button>
+                            {pm.label}
+                        </button>
+                    {/each}
+                </div>
+                <!-- Command -->
+                <div
+                    class="flex justify-around w-full items-center gap-3 bg-card rounded-b-lg pr-4 pl-2 py-3 text-sm font-mono text-card-foreground border border-border"
+                >
+                    <div class="flex w-full justify-start">
+                        <span class="text-muted-foreground mr-3">$</span>
+                        <span>{currentCommand}</span>
+                    </div>
+
+                    <CopyButton text={currentCommand} />
                 </div>
             </div>
 
@@ -104,7 +119,7 @@
                 class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4"
             >
                 <a
-                    href="{base}/docs/getting-started"
+                    href={resolve('/docs/getting-started')}
                     class="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition-colors"
                 >
                     Get Started
@@ -151,7 +166,8 @@
         <div class="text-center max-w-2xl mx-auto mb-12">
             <h2 class="text-3xl font-bold text-foreground">Why Macroforge?</h2>
             <p class="mt-4 text-lg text-muted-foreground">
-                Bring the power of Rust-style derive macros to TypeScript
+                Move work from runtime to build time for better performance and
+                safety
             </p>
         </div>
 
@@ -204,12 +220,14 @@
             <MacroExample
                 before={data.heroExample.before}
                 after={data.heroExample.after}
+                beforeHtml={data.heroExample.beforeHtml}
+                afterHtml={data.heroExample.afterHtml}
             />
         </div>
 
         <div class="text-center mt-10">
             <a
-                href="{base}/docs/getting-started"
+                href={resolve('/docs/getting-started')}
                 class="inline-flex items-center text-primary font-medium hover:underline"
             >
                 Learn more about derive macros
@@ -230,141 +248,221 @@
     </div>
 </section>
 
-<!-- Architecture Section -->
+<!-- Build Time vs Runtime Section -->
 <section class="py-16 sm:py-24 bg-background">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-2xl mx-auto mb-12">
             <h2 class="text-3xl font-bold text-foreground">
-                Built on Solid Foundations
+                Build Time, Not Runtime
             </h2>
             <p class="mt-4 text-lg text-muted-foreground">
-                Native performance with familiar tooling
+                Generate code once during build, run it everywhere with zero
+                overhead
             </p>
         </div>
 
-        <div class="max-w-3xl mx-auto">
-            <!-- Architecture Diagram -->
-            <div class="bg-card rounded-xl border border-border p-8">
-                <div class="space-y-4">
-                    <!-- Layer 1 -->
-                    <div
-                        class="text-center p-4 bg-muted rounded-lg border border-border"
-                    >
-                        <span class="text-sm font-medium text-muted-foreground"
-                            >Node.js / Vite / TypeScript Language Server</span
-                        >
-                    </div>
-
-                    <!-- Arrow -->
-                    <div class="flex justify-center">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6 text-muted-foreground"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                            />
-                        </svg>
-                    </div>
-
-                    <!-- Layer 2 -->
-                    <div
-                        class="text-center p-4 bg-primary/10 rounded-lg border border-primary/20"
-                    >
-                        <span class="text-sm font-medium text-primary"
-                            >NAPI-RS Bindings</span
-                        >
-                    </div>
-
-                    <!-- Arrow -->
-                    <div class="flex justify-center">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6 text-muted-foreground"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                            />
-                        </svg>
-                    </div>
-
-                    <!-- Layer 3 -->
-                    <div class="grid grid-cols-3 gap-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Build Time -->
+                <div class="bg-card rounded-xl border border-border p-6">
+                    <div class="flex items-center gap-3 mb-4">
                         <div
-                            class="text-center p-4 bg-warning/10 rounded-lg border border-warning/20 truncate"
+                            class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"
                         >
-                            <span
-                                class="text-xs font-medium text-warning-foreground"
-                                >macroforge_ts_syn</span
-                            >
-                            <p class="text-xs text-warning-foreground/80 mt-1">
-                                Parsing
-                            </p>
-                        </div>
-                        <div
-                            class="text-center p-4 bg-warning/10 rounded-lg border border-warning/20 truncate"
-                        >
-                            <span
-                                class="text-xs font-medium text-warning-foreground"
-                                >macroforge_ts_quote</span
-                            >
-                            <p class="text-xs text-warning-foreground/80 mt-1">
-                                Templating
-                            </p>
-                        </div>
-                        <div
-                            class="text-center p-4 bg-warning/10 rounded-lg border border-warning/20 truncate"
-                        >
-                            <span
-                                class="text-xs font-medium text-warning-foreground"
-                                >macroforge_ts_macros</span
-                            >
-                            <p class="text-xs text-warning-foreground/80 mt-1">
-                                Proc Macro
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Arrow -->
-                    <div class="flex justify-center">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6 text-muted-foreground"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 text-primary"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
                                 stroke-width="2"
-                                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                            />
-                        </svg>
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                                />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-foreground">
+                            At Build Time
+                        </h3>
                     </div>
-
-                    <!-- Layer 4 -->
-                    <div class="text-center p-4 bg-foreground rounded-lg">
-                        <span class="text-sm font-medium text-background"
-                            >SWC Core</span
-                        >
-                        <p class="text-xs text-background/70 mt-1">
-                            TypeScript parsing & code generation
-                        </p>
-                    </div>
+                    <ul class="space-y-3 text-sm text-muted-foreground">
+                        <li class="flex items-start gap-2">
+                            <svg
+                                class="h-5 w-5 text-primary flex-shrink-0 mt-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                            <span>Parse decorators and type definitions</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg
+                                class="h-5 w-5 text-primary flex-shrink-0 mt-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                            <span
+                                >Generate serializers, validators, and utilities</span
+                            >
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg
+                                class="h-5 w-5 text-primary flex-shrink-0 mt-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                            <span>Validate types and catch errors early</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg
+                                class="h-5 w-5 text-primary flex-shrink-0 mt-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                            <span>Output optimized, tree-shakeable code</span>
+                        </li>
+                    </ul>
                 </div>
+
+                <!-- Runtime -->
+                <div class="bg-card rounded-xl border border-border p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 text-primary"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                                />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-foreground">
+                            At Runtime
+                        </h3>
+                    </div>
+                    <ul class="space-y-3 text-sm text-muted-foreground">
+                        <li class="flex items-start gap-2">
+                            <svg
+                                class="h-5 w-5 text-primary flex-shrink-0 mt-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                            <span>No reflection or metadata overhead</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg
+                                class="h-5 w-5 text-primary flex-shrink-0 mt-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                            <span>No decorator libraries to bundle</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg
+                                class="h-5 w-5 text-primary flex-shrink-0 mt-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                            <span
+                                >Plain JavaScript functions, fully inlineable</span
+                            >
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg
+                                class="h-5 w-5 text-primary flex-shrink-0 mt-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                            <span
+                                >Errors caught at build time, not in production</span
+                            >
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Comparison note -->
+            <div class="mt-8 text-center">
+                <p class="text-sm text-muted-foreground">
+                    Unlike runtime decorator libraries that use reflection,
+                    Macroforge generates plain TypeScript that compiles to
+                    efficient JavaScript with no hidden costs.
+                </p>
             </div>
         </div>
     </div>
@@ -380,7 +478,7 @@
             Install Macroforge and start generating code in minutes.
         </p>
         <a
-            href="{base}/docs/getting-started"
+            href={resolve('/docs/getting-started')}
             class="inline-flex items-center justify-center px-6 py-3 bg-background text-foreground font-medium rounded-lg hover:bg-background/90 transition-colors"
         >
             Read the Documentation

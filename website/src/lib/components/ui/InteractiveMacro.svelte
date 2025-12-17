@@ -1,31 +1,37 @@
 <script lang="ts">
     import CodeBlock from "./CodeBlock.svelte";
-    import { base } from "$app/paths";
+    import { resolve } from "$app/paths";
     import { slide } from "svelte/transition";
 
     interface Props {
         code: string;
         expanded?: string;
+        codeHtml?: string;
+        expandedHtml?: string;
     }
 
-    let { code, expanded }: Props = $props();
+    let { code, expanded, codeHtml, expandedHtml }: Props = $props();
 
     let showExpanded = $state(false);
     let fetchedCode = $state<string | null>(null);
+    let fetchedCodeHtml = $state<string | null>(null);
+    let fetchedExpandedHtml = $state<string | null>(null);
     let isLoading = $state(false);
     let error = $state<string | null>(null);
 
     // Use prop if provided, otherwise use fetched result
     let expandedCode = $derived(expanded ?? fetchedCode);
+    let sourceHtml = $derived(codeHtml ?? fetchedCodeHtml);
+    let generatedHtml = $derived(expandedHtml ?? fetchedExpandedHtml);
 
     async function fetchExpanded() {
-        if (expandedCode !== null) return;
+        if (fetchedCode !== null) return;
 
         isLoading = true;
         error = null;
 
         try {
-            const response = await fetch(`${base}/api/expand`, {
+            const response = await fetch(resolve('/api/expand'), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code }),
@@ -38,6 +44,8 @@
             }
 
             fetchedCode = result.code;
+            fetchedCodeHtml = result.codeHtml;
+            fetchedExpandedHtml = result.expandedHtml;
         } catch (e) {
             error = e instanceof Error ? e.message : "Expansion failed";
         } finally {
@@ -93,7 +101,7 @@
                 {/if}
             </button>
         </div>
-        <CodeBlock {code} lang="typescript" />
+        <CodeBlock {code} lang="typescript" html={sourceHtml ?? undefined} />
     </div>
 
     {#if showExpanded}
@@ -135,7 +143,7 @@
                             >Generated</span
                         >
                     </div>
-                    <CodeBlock code={expandedCode} lang="typescript" />
+                    <CodeBlock code={expandedCode} lang="typescript" html={generatedHtml ?? undefined} />
                 </div>
             {/if}
         </div>

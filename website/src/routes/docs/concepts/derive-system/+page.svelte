@@ -3,7 +3,7 @@
 	import MacroExample from '$lib/components/ui/MacroExample.svelte';
 	import InteractiveMacro from '$lib/components/ui/InteractiveMacro.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 
 	let { data } = $props();
 </script>
@@ -31,10 +31,12 @@
 	The <code>@derive</code> decorator triggers macro expansion on a class or interface:
 </p>
 
-<InteractiveMacro code={`/** @derive(Debug) */
-class MyClass {
-  value: string;
-}`} />
+<InteractiveMacro
+	code={data.examples.deriveBasic.before}
+	expanded={data.examples.deriveBasic.after}
+	codeHtml={data.examples.deriveBasic.beforeHtml}
+	expandedHtml={data.examples.deriveBasic.afterHtml}
+/>
 
 <p>Syntax rules:</p>
 
@@ -45,11 +47,12 @@ class MyClass {
 	<li>Multiple <code>@derive</code> statements can be stacked</li>
 </ul>
 
-<InteractiveMacro code={`/** @derive(Debug, Clone) */
-class User {
-  name: string;
-  email: string;
-}`} />
+<InteractiveMacro
+	code={data.examples.deriveMultiple.before}
+	expanded={data.examples.deriveMultiple.after}
+	codeHtml={data.examples.deriveMultiple.beforeHtml}
+	expandedHtml={data.examples.deriveMultiple.afterHtml}
+/>
 
 <h3 id="import-macro">The import macro Statement</h3>
 
@@ -87,7 +90,7 @@ class User {
 	Macros can define field-level attributes to customize behavior per field:
 </p>
 
-<MacroExample before={data.examples.fieldAttributes.before} after={data.examples.fieldAttributes.after} />
+<MacroExample before={data.examples.fieldAttributes.before} after={data.examples.fieldAttributes.after} beforeHtml={data.examples.fieldAttributes.beforeHtml} afterHtml={data.examples.fieldAttributes.afterHtml} />
 
 <p>Syntax rules:</p>
 
@@ -191,6 +194,6 @@ class User {
 <h2 id="next-steps">Next Steps</h2>
 
 <ul>
-	<li><a href="{base}/docs/builtin-macros">Explore built-in macros</a></li>
-	<li><a href="{base}/docs/custom-macros">Create custom macros</a></li>
+	<li><a href={resolve('/docs/builtin-macros')}>Explore built-in macros</a></li>
+	<li><a href={resolve('/docs/custom-macros')}>Create custom macros</a></li>
 </ul>
