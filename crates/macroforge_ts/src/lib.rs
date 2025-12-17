@@ -1272,6 +1272,27 @@ pub fn load_config(content: String, filepath: String) -> Result<LoadConfigResult
     })
 }
 
+/// Clears the configuration cache.
+///
+/// This is useful for testing to ensure each test starts with a clean state.
+/// In production, clearing the cache will force configs to be re-parsed on next access.
+///
+/// # Example
+///
+/// ```javascript
+/// const { clearConfigCache, loadConfig } = require('macroforge-ts');
+///
+/// // Clear cache before each test
+/// clearConfigCache();
+///
+/// // Now load a fresh config
+/// const result = loadConfig(configContent, configPath);
+/// ```
+#[napi]
+pub fn clear_config_cache() {
+    crate::host::clear_config_cache();
+}
+
 /// Synchronously transforms TypeScript code through the macro expansion system.
 ///
 /// This is similar to [`expand_sync`] but returns a [`TransformResult`] which
@@ -1472,6 +1493,7 @@ fn expand_inner(
 
             // Clean up foreign types before returning
             crate::builtin::serde::clear_foreign_types();
+            crate::builtin::serde::clear_import_sources();
 
             // Return a "no-op" expansion result: original code unchanged,
             // with an informational diagnostic explaining why.
@@ -1491,11 +1513,16 @@ fn expand_inner(
         }
     };
 
+    // Extract import sources for foreign type validation
+    let import_sources = extract_import_sources(&program);
+    crate::builtin::serde::set_import_sources(import_sources);
+
     // Run macro expansion on the parsed AST
     let expansion_result = macro_host.expand(code, &program, filepath);
 
-    // Clean up foreign types after expansion (before error propagation)
+    // Clean up foreign types and import sources after expansion (before error propagation)
     crate::builtin::serde::clear_foreign_types();
+    crate::builtin::serde::clear_import_sources();
 
     // Now propagate any error
     let expansion = expansion_result.map_err(|err| {
@@ -1744,6 +1771,59 @@ fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Result<()> {
         }
     }
     Ok(())
+}
+
+/// Extracts import sources from a parsed program.
+///
+/// Maps imported identifiers to their module sources, which is used for
+/// foreign type import source validation.
+///
+/// # Arguments
+///
+/// * `program` - The parsed TypeScript/JavaScript program
+///
+/// # Returns
+///
+/// A HashMap where keys are imported identifier names and values are the module sources.
+///
+/// # Example
+///
+/// For `import { DateTime } from 'effect'`, this returns `{"DateTime": "effect"}`.
+/// For `import type { DateTime } from 'effect'`, this also returns `{"DateTime": "effect"}`.
+fn extract_import_sources(program: &Program) -> std::collections::HashMap<String, String> {
+    use swc_core::ecma::ast::{ImportSpecifier, ModuleDecl, ModuleItem};
+
+    let mut sources = std::collections::HashMap::new();
+
+    let module = match program {
+        Program::Module(m) => m,
+        Program::Script(_) => return sources,
+    };
+
+    for item in &module.body {
+        if let ModuleItem::ModuleDecl(ModuleDecl::Import(import)) = item {
+            let source = String::from_utf8_lossy(import.src.value.as_bytes()).to_string();
+
+            for specifier in &import.specifiers {
+                match specifier {
+                    ImportSpecifier::Named(named) => {
+                        let local = named.local.sym.to_string();
+                        sources.insert(local, source.clone());
+                    }
+                    ImportSpecifier::Default(default) => {
+                        let local = default.local.sym.to_string();
+                        sources.insert(local, source.clone());
+                    }
+                    ImportSpecifier::Namespace(ns) => {
+                        let local = ns.local.sym.to_string();
+                        sources.insert(local, source.clone());
+                    }
+                }
+            }
+        }
+    }
+
+    sources
 }
 
 // ============================================================================
