@@ -283,7 +283,19 @@ export interface NapiMacrosPluginOptions {
 }
 
 /**
- * Internal configuration loaded from `macroforge.json`.
+ * Supported config file names in order of precedence.
+ * @internal
+ */
+const CONFIG_FILES = [
+  "macroforge.config.ts",
+  "macroforge.config.mts",
+  "macroforge.config.js",
+  "macroforge.config.mjs",
+  "macroforge.config.cjs",
+];
+
+/**
+ * Internal configuration loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).
  *
  * @remarks
  * This configuration controls macro expansion behavior at the project level.
@@ -314,47 +326,40 @@ interface MacroConfig {
    * When `false`, only the standalone functions are generated without the grouping const.
    */
   generateConvenienceConst?: boolean;
+
+  /**
+   * Path to the config file (used to cache and retrieve foreign types).
+   */
+  configPath?: string;
+
+  /**
+   * Whether the config has foreign type handlers defined.
+   */
+  hasForeignTypes?: boolean;
 }
 
 /**
- * Loads Macroforge configuration from `macroforge.json`.
+ * Finds a macroforge config file in the project directory tree.
  *
- * @remarks
- * Searches for `macroforge.json` starting from `projectRoot` and traversing up the
- * directory tree until found or the filesystem root is reached. This allows monorepo
- * setups where the config may be at the workspace root rather than the package root.
- *
- * If the config file is found but cannot be parsed (invalid JSON), returns the
- * default configuration rather than throwing an error.
- *
- * @param projectRoot - The directory to start searching from (usually Vite's resolved root)
- *
- * @returns The loaded configuration, or a default config if no file is found
- *
- * @example
- * ```typescript
- * // macroforge.json
- * {
- *   "keepDecorators": true
- * }
- * ```
+ * @param projectRoot - The directory to start searching from
+ * @returns The path to the config file, or null if not found
  *
  * @internal
  */
-function loadMacroConfig(projectRoot: string): MacroConfig {
+function findConfigFile(projectRoot: string): string | null {
   let current = projectRoot;
-  const fallback: MacroConfig = { keepDecorators: false };
 
   while (true) {
-    const candidate = path.join(current, "macroforge.json");
-    if (fs.existsSync(candidate)) {
-      try {
-        const raw = fs.readFileSync(candidate, "utf8");
-        const parsed = JSON.parse(raw);
-        return { keepDecorators: Boolean(parsed.keepDecorators) };
-      } catch {
-        return fallback;
+    for (const filename of CONFIG_FILES) {
+      const candidate = path.join(current, filename);
+      if (fs.existsSync(candidate)) {
+        return candidate;
       }
+    }
+
+    // Stop at package.json boundary
+    if (fs.existsSync(path.join(current, "package.json"))) {
+      break;
     }
 
     const parent = path.dirname(current);
@@ -362,7 +367,87 @@ function loadMacroConfig(projectRoot: string): MacroConfig {
     current = parent;
   }
 
-  return fallback;
+  return null;
+}
+
+/**
+ * Loads Macroforge configuration from `macroforge.config.js` (or .ts/.mjs/.cjs).
+ *
+ * @remarks
+ * Searches for a macroforge config file starting from `projectRoot` and traversing up the
+ * directory tree until found or a package.json is reached. This allows monorepo
+ * setups where the config may be at the workspace root rather than the package root.
+ *
+ * The config is parsed by the Rust binary using SWC, which extracts configuration
+ * including foreign type handlers directly from the JavaScript AST.
+ *
+ * @param projectRoot - The directory to start searching from (usually Vite's resolved root)
+ * @param rustTransformer - Reference to the loaded Rust binary (for loadConfig)
+ *
+ * @returns The loaded configuration, or a default config if no file is found
+ *
+ * @example
+ * ```typescript
+ * // macroforge.config.js
+ * export default {
+ *   keepDecorators: true,
+ *   foreignTypes: {
+ *     DateTime: {
+ *       from: ["effect"],
+ *       serialize: (v, ctx) => v.toJSON(),
+ *       deserialize: (raw, ctx) => DateTime.fromJSON(raw),
+ *       default: () => DateTime.now()
+ *     }
+ *   }
+ * }
+ * ```
+ *
+ * @internal
+ */
+function loadMacroConfig(
+  projectRoot: string,
+  rustTransformer?: {
+    loadConfig?: (content: string, filepath: string) => {
+      keepDecorators: boolean;
+      generateConvenienceConst: boolean;
+      hasForeignTypes: boolean;
+      foreignTypeCount: number;
+    };
+  },
+): MacroConfig {
+  const fallback: MacroConfig = { keepDecorators: false };
+
+  const configPath = findConfigFile(projectRoot);
+  if (!configPath) {
+    return fallback;
+  }
+
+  // If Rust transformer is available, use it to parse the config
+  if (rustTransformer?.loadConfig) {
+    try {
+      const content = fs.readFileSync(configPath, "utf8");
+      const result = rustTransformer.loadConfig(content, configPath);
+
+      return {
+        keepDecorators: result.keepDecorators,
+        generateConvenienceConst: result.generateConvenienceConst,
+        configPath,
+        hasForeignTypes: result.hasForeignTypes,
+      };
+    } catch (error) {
+      console.warn(
+        `[@macroforge/vite-plugin] Failed to parse config at ${configPath}:`,
+        error,
+      );
+      return fallback;
+    }
+  }
+
+  // Fallback: just check if the file exists and mark the path
+  return {
+    ...fallback,
+    configPath,
+  };
 }
 
 /**
@@ -664,6 +749,12 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
           filepath: string,
           options?: ExpandOptions,
         ) => ExpandResult;
+        loadConfig?: (content: string, filepath: string) => {
+          keepDecorators: boolean;
+          generateConvenienceConst: boolean;
+          hasForeignTypes: boolean;
+          foreignTypeCount: number;
+        };
       }
     | undefined;
 
@@ -828,9 +919,8 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
      */
     configResolved(config) {
       projectRoot = config.root;
-      macroConfig = loadMacroConfig(projectRoot);
 
-      // Load the Rust binary
+      // Load the Rust binary first
       try {
         rustTransformer = moduleRequire("macroforge");
       } catch (error) {
@@ -838,6 +928,16 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
           "[@macroforge/vite-plugin] Rust binary not found. Please run `npm run build:rust` first.",
         );
         console.warn(error);
+      }
+
+      // Load config (passing Rust transformer for foreign type parsing)
+      macroConfig = loadMacroConfig(projectRoot, rustTransformer);
+
+      if (macroConfig.hasForeignTypes) {
+        console.log(
+          "[@macroforge/vite-plugin] Loaded config with foreign types from:",
+          macroConfig.configPath,
+        );
       }
     },
 
@@ -896,6 +996,7 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
         const result: ExpandResult = rustTransformer.expandSync(code, id, {
           keepDecorators: macroConfig.keepDecorators,
           externalDecoratorModules,
+          configPath: macroConfig.configPath,
         });
 
         // Report diagnostics from macro expansion
