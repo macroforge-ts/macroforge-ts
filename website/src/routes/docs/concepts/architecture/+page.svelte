@@ -2,7 +2,7 @@
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import ArchitectureDiagram from '$lib/components/ui/ArchitectureDiagram.svelte';
 	import Flowchart from '$lib/components/ui/Flowchart.svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -117,6 +117,6 @@ use macroforge_ts::swc_ecma_ast;`} lang="rust" />
 <h2 id="next-steps">Next Steps</h2>
 
 <ul>
-	<li><a href="{base}/docs/custom-macros">Write custom macros</a></li>
-	<li><a href="{base}/docs/api">Explore the API reference</a></li>
+	<li><a href={resolve('/docs/custom-macros')}>Write custom macros</a></li>
+	<li><a href={resolve('/docs/api')}>Explore the API reference</a></li>
 </ul>

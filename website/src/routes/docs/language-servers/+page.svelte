@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Alert from '$lib/components/ui/Alert.svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -21,7 +21,7 @@
 <h2 id="overview">Overview</h2>
 
 <p>
-	While the <a href="{base}/docs/integration/typescript-plugin">TypeScript Plugin</a> provides macro support in any TypeScript-aware editor, dedicated language servers offer deeper integration for specific frameworks and editors.
+	While the <a href={resolve('/docs/integration/typescript-plugin')}>TypeScript Plugin</a> provides macro support in any TypeScript-aware editor, dedicated language servers offer deeper integration for specific frameworks and editors.
 </p>
 
 <table>
@@ -34,12 +34,12 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td><a href="{base}/docs/language-servers/svelte">Svelte Language Server</a></td>
+			<td><a href={resolve('/docs/language-servers/svelte')}>Svelte Language Server</a></td>
 			<td>Full Svelte support with macroforge</td>
 			<td>Working (dev install)</td>
 		</tr>
 		<tr>
-			<td><a href="{base}/docs/language-servers/zed">Zed Extensions</a></td>
+			<td><a href={resolve('/docs/language-servers/zed')}>Zed Extensions</a></td>
 			<td>VTSLS and Svelte for Zed editor</td>
 			<td>Working (dev install)</td>
 		</tr>
@@ -77,6 +77,6 @@
 <h2 id="next-steps">Detailed Guides</h2>
 
 <ul>
-	<li><a href="{base}/docs/language-servers/svelte">Svelte Language Server</a> - Full Svelte IDE support</li>
-	<li><a href="{base}/docs/language-servers/zed">Zed Extensions</a> - VTSLS and Svelte for Zed</li>
+	<li><a href={resolve('/docs/language-servers/svelte')}>Svelte Language Server</a> - Full Svelte IDE support</li>
+	<li><a href={resolve('/docs/language-servers/zed')}>Zed Extensions</a> - VTSLS and Svelte for Zed</li>
 </ul>

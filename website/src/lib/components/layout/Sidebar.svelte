@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { navigation, type NavSection } from '$lib/config/navigation';
 	import { page } from '$app/state';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 
-	const getHref = (href: string) => `${base}${href}`;
+	const getHref = (href: string) => resolve(href);
 	const isActive = (href: string) => page.url.pathname === getHref(href);
 	const isSectionActive = (section: NavSection) => section.items.some((item) => isActive(item.href));
 </script>

@@ -2,7 +2,7 @@
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import MacroExample from '$lib/components/ui/MacroExample.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 
 	let { data } = $props();
 </script>
@@ -24,7 +24,7 @@
 	Start by creating a simple <code>User</code> class. We'll use the <code>@derive</code> decorator to automatically generate methods.
 </p>
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} beforeHtml={data.examples.basic.beforeHtml} afterHtml={data.examples.basic.afterHtml} />
 
 <h2 id="using-generated-methods">Using the Generated Methods</h2>
 
@@ -50,7 +50,7 @@ console.log(user.equals(different)); // false`} lang="typescript" />
 	You can customize how macros work using field-level decorators. For example, with the Debug macro:
 </p>
 
-<MacroExample before={data.examples.customizing.before} after={data.examples.customizing.after} />
+<MacroExample before={data.examples.customizing.before} after={data.examples.customizing.after} beforeHtml={data.examples.customizing.beforeHtml} afterHtml={data.examples.customizing.afterHtml} />
 
 <CodeBlock code={`const user = new User(42, "Alice", "secret123");
 console.log(user.toString());
@@ -64,7 +64,7 @@ console.log(user.toString());
 <h2 id="next-steps">Next Steps</h2>
 
 <ul>
-	<li><a href="{base}/docs/concepts">Learn how macros work under the hood</a></li>
-	<li><a href="{base}/docs/builtin-macros/debug">Explore all Debug options</a></li>
-	<li><a href="{base}/docs/custom-macros">Create your own custom macros</a></li>
+	<li><a href={resolve('/docs/concepts')}>Learn how macros work under the hood</a></li>
+	<li><a href={resolve('/docs/builtin-macros/debug')}>Explore all Debug options</a></li>
+	<li><a href={resolve('/docs/custom-macros')}>Create your own custom macros</a></li>
 </ul>

@@ -3,7 +3,7 @@
 	import Logo from '$lib/components/ui/Logo.svelte';
 	import { siteConfig } from '$lib/config/site';
 	import { page } from '$app/state';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 
 	interface Props {
 		onMenuClick?: () => void;
@@ -11,7 +11,7 @@
 
 	let { onMenuClick }: Props = $props();
 
-	const isDocsPage = $derived(page.url.pathname.startsWith(`${base}/docs`));
+	const isDocsPage = $derived(page.url.pathname.startsWith(resolve('/docs')));
 </script>
 
 <header
@@ -33,7 +33,7 @@
 					</button>
 				{/if}
 
-				<a href="{base}/">
+				<a href={resolve('/')}>
 					<Logo />
 				</a>
 			</div>
@@ -41,7 +41,7 @@
 			<!-- Desktop Navigation -->
 			<nav class="hidden md:flex items-center gap-6">
 				<a
-					href="{base}/docs/getting-started"
+					href={resolve('/docs/getting-started')}
 					class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
 					class:text-primary={isDocsPage}
 				>
