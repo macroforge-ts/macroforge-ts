@@ -251,6 +251,19 @@
   @apply block;
 }
 
+/* Inline code with Shiki highlighting */
+.shiki-inline {
+  @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.shiki-inline span {
+  color: var(--shiki-light);
+}
+
+.dark .shiki-inline span {
+  color: var(--shiki-dark);
+}
+
 /* Code block wrapper styling for mdsvex output */
 .code-block-wrapper {
   @apply relative my-4 rounded-lg overflow-hidden border border-border;
