@@ -1,5 +1,5 @@
 # ts_macro_derive
- *The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.*
+ *The <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#[ts_macro_derive]</code> attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.*
  ## Basic Syntax
  ```
 use macroforge_ts::macros::ts_macro_derive;
@@ -11,7 +11,7 @@ pub fn my_macro(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError> &
 &#125;
 ``` ## Attribute Options
  ### Name (Required)
- The first argument is the macro name that users will reference in `@derive()`:
+ The first argument is the macro name that users will reference in <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">derive<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code>:
  ```
 #[ts_macro_derive(JSON)]  // Users write: @derive(JSON)
 pub fn derive_json(...)
@@ -32,15 +32,15 @@ pub fn derive_json(...)
     attributes(debug)  // Allows @debug(&#123; ... &#125;) on fields
 )]
 pub fn derive_debug(...)
-``` > **Note:** Declared attributes become available as @attributeName({ options }) decorators in TypeScript. ## Function Signature
+``` > **Note:** Declared attributes become available as @attributeName(&#123; options&#125;) decorators in TypeScript. ## Function Signature
  ```
 pub fn my_macro(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError>
 ``` | Parameter | Description |
 | --- | --- |
-| `input: TsStream` | Token stream containing the class/interface AST |
-| `Result<TsStream, MacroforgeError>` | Returns generated code or an error with source location |
+| input: TsStream | Token stream containing the class/interface AST |
+| Result&lt;TsStream, MacroforgeError&gt; | Returns generated code or an error with source location |
  ## Parsing Input
- Use `parse_ts_macro_input!` to convert the token stream:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">parse_ts_macro_input!</code> to convert the token stream:
  ```
 use macroforge_ts::ts_syn::&#123;Data, DeriveInput, parse_ts_macro_input&#125;;
 
@@ -161,7 +161,7 @@ struct DecoratorIR &#123;
     pub span: SpanIR,
 &#125;
 ``` > **Note:** To check for decorators, iterate through field.decorators and check decorator.name. For parsing options, you can write helper functions like the built-in macros do. ## Adding Imports
- If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
+ If your macro generates code that requires imports, use the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">add_import</code> method on <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">TsStream</code>:
  ```
 // Add an import to be inserted at the top of the file
 let mut output = body! &#123;
@@ -176,7 +176,7 @@ output.add_import("ValidationResult", "my-validation-lib");
 
 Ok(output)
 ``` > **Note:** Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again. ## Returning Errors
- Use `MacroforgeError` to report errors with source locations:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">MacroforgeError</code> to report errors with source locations:
  ```
 #[ts_macro_derive(ClassOnly)]
 pub fn class_only(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError> &#123;

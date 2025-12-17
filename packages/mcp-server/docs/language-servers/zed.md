@@ -3,8 +3,8 @@
   **Developer Installation Required These extensions are not yet in the Zed extension registry. You'll need to install them as developer extensions. ## Available Extensions
  | Extension | Description | Location |
 | --- | --- | --- |
-| `vtsls-macroforge` | VTSLS with macroforge support for TypeScript | `crates/extensions/vtsls-macroforge` |
-| `svelte-macroforge` | Svelte language support with macroforge | `crates/extensions/svelte-macroforge` |
+| vtsls-macroforge | VTSLS with macroforge support for TypeScript | crates/extensions/vtsls-macroforge |
+| svelte-macroforge | Svelte language support with macroforge | crates/extensions/svelte-macroforge |
  ## Installation
  ### 1. Clone the Repository
  ```
@@ -34,7 +34,7 @@ ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/ex
  - Accurate error positions in original source
  - Completions for macro-generated methods
  ## svelte-macroforge
- This extension provides Svelte support using the `@macroforge/svelte-language-server`. It includes:
+ This extension provides Svelte support using the **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@macroforge<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">svelte<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">-<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">language<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">-<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">server</code>. It includes:
  - Svelte component syntax support
  - HTML, CSS, and TypeScript features
  - Macroforge integration in script blocks
@@ -42,5 +42,4 @@ ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/ex
  ### Extension not loading
  Make sure you've restarted Zed after installing the extension. Check the Zed logs for any error messages.
  ### Macros not expanding
- Ensure your project has the `macroforge` package installed and a valid `tsconfig.json` with the TypeScript plugin configured.
-**
+ Ensure your project has the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge</code> package installed and a valid <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsconfig.json</code> with the TypeScript plugin configured.

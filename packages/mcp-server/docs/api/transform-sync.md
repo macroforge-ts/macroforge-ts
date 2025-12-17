@@ -9,8 +9,8 @@ function transformSync(
 ``` ## Parameters
  | Parameter | Type | Description |
 | --- | --- | --- |
-| `code` | `string` | TypeScript source code to transform |
-| `filepath` | `string` | File path (used for error reporting) |
+| code | string | TypeScript source code to transform |
+| filepath | string | File path (used for error reporting) |
  ## TransformResult
  ```
 interface TransformResult &#123;
@@ -27,7 +27,7 @@ interface TransformResult &#123;
   metadata?: string;
 &#125;
 ``` ## Comparison with expandSync()
- | Feature | `expandSync` | `transformSync` |
+ | Feature | expandSync | transformSync |
 | --- | --- | --- |
 | Options | Yes | No |
 | Diagnostics | Yes | No |
@@ -59,8 +59,8 @@ if (result.metadata) &#123;
   console.log("Macros expanded:", meta);
 &#125;
 ``` ## When to Use
- Use `transformSync` when:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">transformSync</code> when:
  - Building custom integrations
  - You need raw output without diagnostics
  - You're implementing a build tool plugin
- Use `expandSync` for most other use cases, as it provides better error handling.
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">expandSync</code> for most other use cases, as it provides better error handling.

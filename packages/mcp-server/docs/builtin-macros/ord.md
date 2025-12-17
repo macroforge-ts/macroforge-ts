@@ -53,12 +53,35 @@ The `@ord` decorator supports:
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(Ord) */
 class Version {
     major: number;
     minor: number;
     patch: number;
+}
+```
+
+```typescript after
+class Version {
+    major: number;
+    minor: number;
+    patch: number;
+
+    static compareTo(a: Version, b: Version): number {
+        return versionCompare(a, b);
+    }
+}
+
+export function versionCompare(a: Version, b: Version): number {
+    if (a === b) return 0;
+    const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = a.patch < b.patch ? -1 : a.patch > b.patch ? 1 : 0;
+    if (cmp2 !== 0) return cmp2;
+    return 0;
 }
 ```
 
