@@ -106,6 +106,10 @@
 use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
+use crate::builtin::return_types::{
+    is_none_check, partial_ord_import, partial_ord_return_type, unwrap_option_or_null, wrap_none,
+    wrap_some,
+};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
@@ -177,7 +181,8 @@ fn generate_field_compare_for_interface(
     } else if is_primitive_type(ts_type) {
         format!("({self_var}.{field_name} === {other_var}.{field_name} ? 0 : {null_return})")
     } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
-        // Handle nested compareTo calls that return Option<number>
+        // Handle nested compareTo calls that return Option<number> or number | null
+        let unwrap_opt = unwrap_option_or_null("optResult");
         format!(
             "(() => {{ \
                 const a = {self_var}.{field_name}; \
@@ -188,7 +193,7 @@ fn generate_field_compare_for_interface(
                     let cmp: number | null; \
                     if (typeof (a[i] as any)?.compareTo === 'function') {{ \
                         const optResult = (a[i] as any).compareTo(b[i]); \
-                        cmp = Option.isNone(optResult) ? null : optResult.value; \
+                        cmp = {unwrap_opt}; \
                     }} else {{ \
                         cmp = a[i] < b[i] ? -1 : a[i] > b[i] ? 1 : 0; \
                     }} \
@@ -210,12 +215,14 @@ fn generate_field_compare_for_interface(
             }})()"
         )
     } else {
-        // For objects, check for compareTo method that returns Option<number>
+        // For objects, check for compareTo method that returns Option<number> or number | null
+        let unwrap_opt = unwrap_option_or_null("optResult");
+        let is_none = is_none_check("optResult");
         format!(
             "(() => {{ \
                 if (typeof ({self_var}.{field_name} as any)?.compareTo === 'function') {{ \
                     const optResult = ({self_var}.{field_name} as any).compareTo({other_var}.{field_name}); \
-                    return Option.isNone(optResult) ? {null_return} : optResult.value; \
+                    return {is_none} ? {null_return} : {unwrap_opt}; \
                 }} \
                 return {self_var}.{field_name} === {other_var}.{field_name} ? 0 : {null_return}; \
             }})()"
@@ -256,6 +263,11 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             // Generate function name (always prefix style)
             let fn_name = format!("{}PartialCompare", class_name.to_case(Case::Camel));
 
+            // Get mode-specific return type and wrappers
+            let return_type = partial_ord_return_type();
+            let some_zero = wrap_some("0");
+            let none_val = wrap_none();
+
             // Build comparison logic using a and b parameters
             let compare_body = if has_fields {
                 ord_fields
@@ -263,8 +275,9 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     .enumerate()
                     .map(|(i, f)| {
                         let var_name = format!("cmp{}", i);
+                        let some_var = wrap_some(&var_name);
                         format!(
-                            "const {var_name} = {};\n                    if ({var_name} === null) return Option.none();\n                    if ({var_name} !== 0) return Option.some({var_name});",
+                            "const {var_name} = {};\n                    if ({var_name} === null) return {none_val};\n                    if ({var_name} !== 0) return {some_var};",
                             generate_field_compare_for_interface(f, "a", "b", true)
                         )
                     })
@@ -276,19 +289,23 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             // Generate standalone function with two parameters
             let mut standalone = ts_template! {
-                export function @{fn_name}(a: @{class_name}, b: @{class_name}): Option<number> {
-                    if (a === b) return Option.some(0);
+                export function @{fn_name}(a: @{class_name}, b: @{class_name}): @{return_type} {
+                    if (a === b) return @{some_zero};
                     {#if has_fields}
                         @{compare_body}
                     {/if}
-                    return Option.some(0);
+                    return @{some_zero};
                 }
             };
-            standalone.add_import("Option", "macroforge/utils");
+
+            // Add import based on mode
+            if let Some((import_name, import_path)) = partial_ord_import() {
+                standalone.add_import(import_name, import_path);
+            }
 
             // Generate static wrapper method that delegates to standalone function
             let class_body = body! {
-                static compareTo(a: @{class_name}, b: @{class_name}): Option<number> {
+                static compareTo(a: @{class_name}, b: @{class_name}): @{return_type} {
                     return @{fn_name}(a, b);
                 }
             };
@@ -299,7 +316,11 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let mut combined = TsStream::from_string(combined_source);
             combined.runtime_patches = standalone.runtime_patches;
             combined.runtime_patches.extend(class_body.runtime_patches);
-            combined.add_import("Option", "macroforge/utils");
+
+            // Add import based on mode
+            if let Some((import_name, import_path)) = partial_ord_import() {
+                combined.add_import(import_name, import_path);
+            }
 
             Ok(combined)
         }
@@ -307,19 +328,31 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let enum_name = input.name();
             let fn_name = format!("{}PartialCompare", enum_name.to_case(Case::Camel));
 
+            // Get mode-specific return type and wrappers
+            let return_type = partial_ord_return_type();
+            let some_zero = wrap_some("0");
+            let some_cmp_num = wrap_some("a < b ? -1 : a > b ? 1 : 0");
+            let some_locale = wrap_some("a.localeCompare(b)");
+            let none_val = wrap_none();
+
             let mut result = ts_template! {
-                export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): Option<number> {
+                export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): @{return_type} {
                     // For enums, compare by value (numeric enums) or string
                     if (typeof a === "number" && typeof b === "number") {
-                        return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                        return @{some_cmp_num};
                     }
                     if (typeof a === "string" && typeof b === "string") {
-                        return Option.some(a.localeCompare(b));
+                        return @{some_locale};
                     }
-                    return a === b ? Option.some(0) : Option.none();
+                    return a === b ? @{some_zero} : @{none_val};
                 }
             };
-            result.add_import("Option", "macroforge/utils");
+
+            // Add import based on mode
+            if let Some((import_name, import_path)) = partial_ord_import() {
+                result.add_import(import_name, import_path);
+            }
+
             Ok(result)
         }
         Data::Interface(interface) => {
@@ -342,14 +375,20 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             let has_fields = !ord_fields.is_empty();
 
+            // Get mode-specific return type and wrappers
+            let return_type = partial_ord_return_type();
+            let some_zero = wrap_some("0");
+            let none_val = wrap_none();
+
             let compare_body = if has_fields {
                 ord_fields
                     .iter()
                     .enumerate()
                     .map(|(i, f)| {
                         let var_name = format!("cmp{}", i);
+                        let some_var = wrap_some(&var_name);
                         format!(
-                            "const {var_name} = {};\n                        if ({var_name} === null) return Option.none();\n                        if ({var_name} !== 0) return Option.some({var_name});",
+                            "const {var_name} = {};\n                        if ({var_name} === null) return {none_val};\n                        if ({var_name} !== 0) return {some_var};",
                             generate_field_compare_for_interface(f, "a", "b", true)
                         )
                     })
@@ -362,19 +401,29 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let fn_name = format!("{}PartialCompare", interface_name.to_case(Case::Camel));
 
             let mut result = ts_template! {
-                export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): Option<number> {
-                    if (a === b) return Option.some(0);
+                export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): @{return_type} {
+                    if (a === b) return @{some_zero};
                     {#if has_fields}
                         @{compare_body}
                     {/if}
-                    return Option.some(0);
+                    return @{some_zero};
                 }
             };
-            result.add_import("Option", "macroforge/utils");
+
+            // Add import based on mode
+            if let Some((import_name, import_path)) = partial_ord_import() {
+                result.add_import(import_name, import_path);
+            }
+
             Ok(result)
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
+
+            // Get mode-specific return type and wrappers
+            let return_type = partial_ord_return_type();
+            let some_zero = wrap_some("0");
+            let none_val = wrap_none();
 
             if type_alias.is_object() {
                 let ord_fields: Vec<OrdField> = type_alias
@@ -401,8 +450,9 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         .enumerate()
                         .map(|(i, f)| {
                             let var_name = format!("cmp{}", i);
+                            let some_var = wrap_some(&var_name);
                             format!(
-                                "const {var_name} = {};\n                        if ({var_name} === null) return Option.none();\n                        if ({var_name} !== 0) return Option.some({var_name});",
+                                "const {var_name} = {};\n                        if ({var_name} === null) return {none_val};\n                        if ({var_name} !== 0) return {some_var};",
                                 generate_field_compare_for_interface(f, "a", "b", true)
                             )
                         })
@@ -415,34 +465,46 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let fn_name = format!("{}PartialCompare", type_name.to_case(Case::Camel));
 
                 let mut result = ts_template! {
-                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): Option<number> {
-                        if (a === b) return Option.some(0);
+                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): @{return_type} {
+                        if (a === b) return @{some_zero};
                         {#if has_fields}
                             @{compare_body}
                         {/if}
-                        return Option.some(0);
+                        return @{some_zero};
                     }
                 };
-                result.add_import("Option", "macroforge/utils");
+
+                // Add import based on mode
+                if let Some((import_name, import_path)) = partial_ord_import() {
+                    result.add_import(import_name, import_path);
+                }
+
                 Ok(result)
             } else {
                 // Union, tuple, or simple alias: limited comparison
                 let fn_name = format!("{}PartialCompare", type_name.to_case(Case::Camel));
+                let some_cmp_num = wrap_some("a < b ? -1 : a > b ? 1 : 0");
+                let some_locale = wrap_some("a.localeCompare(b)");
 
                 let mut result = ts_template! {
-                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): Option<number> {
-                        if (a === b) return Option.some(0);
+                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): @{return_type} {
+                        if (a === b) return @{some_zero};
                         // For unions/tuples, try primitive comparison
                         if (typeof a === "number" && typeof b === "number") {
-                            return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                            return @{some_cmp_num};
                         }
                         if (typeof a === "string" && typeof b === "string") {
-                            return Option.some(a.localeCompare(b));
+                            return @{some_locale};
                         }
-                        return Option.none();
+                        return @{none_val};
                     }
                 };
-                result.add_import("Option", "macroforge/utils");
+
+                // Add import based on mode
+                if let Some((import_name, import_path)) = partial_ord_import() {
+                    result.add_import(import_name, import_path);
+                }
+
                 Ok(result)
             }
         }
@@ -452,36 +514,43 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::builtin::serde::{clear_return_types_mode, set_return_types_mode};
+    use crate::host::config::ReturnTypesMode;
     use crate::macros::body;
 
     #[test]
-    fn test_partial_ord_macro_output() {
+    fn test_partial_ord_macro_output_vanilla() {
+        clear_return_types_mode();
         let ord_fields: Vec<OrdField> = vec![OrdField {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         }];
         let has_fields = !ord_fields.is_empty();
 
+        let none_val = wrap_none();
         let compare_body = ord_fields
             .iter()
             .enumerate()
             .map(|(i, f)| {
                 let var_name = format!("cmp{}", i);
+                let some_var = wrap_some(&var_name);
                 format!(
-                    "const {var_name} = {};\n                    if ({var_name} === null) return Option.none();\n                    if ({var_name} !== 0) return Option.some({var_name});",
+                    "const {var_name} = {};\n                    if ({var_name} === null) return {none_val};\n                    if ({var_name} !== 0) return {some_var};",
                     generate_field_compare_for_interface(f, "a", "b", true)
                 )
             })
             .collect::<Vec<_>>()
             .join("\n                    ");
 
+        let return_type = partial_ord_return_type();
+        let some_zero = wrap_some("0");
         let output = body! {
-            compareTo(other: unknown): Option<number> {
-                if (a === b) return Option.some(0);
+            compareTo(other: unknown): @{return_type} {
+                if (a === b) return @{some_zero};
                 {#if has_fields}
                     @{compare_body}
                 {/if}
-                return Option.some(0);
+                return @{some_zero};
             }
         };
 
@@ -499,14 +568,26 @@ mod tests {
             source.contains("compareTo"),
             "Should contain compareTo method"
         );
+        // In vanilla mode, return type is "number | null"
         assert!(
-            source.contains("Option<number>"),
-            "Should have Option<number> return type"
+            source.contains("number | null"),
+            "Should have number | null return type in vanilla mode"
         );
     }
 
     #[test]
+    fn test_partial_ord_macro_output_custom() {
+        set_return_types_mode(ReturnTypesMode::Custom);
+        let return_type = partial_ord_return_type();
+        assert_eq!(return_type, "Option<number>");
+        assert_eq!(wrap_some("0"), "Option.some(0)");
+        assert_eq!(wrap_none(), "Option.none()");
+        clear_return_types_mode();
+    }
+
+    #[test]
     fn test_field_compare_number() {
+        clear_return_types_mode();
         let field = OrdField {
             name: "id".to_string(),
             ts_type: "number".to_string(),
@@ -518,6 +599,7 @@ mod tests {
 
     #[test]
     fn test_field_compare_string() {
+        clear_return_types_mode();
         let field = OrdField {
             name: "name".to_string(),
             ts_type: "string".to_string(),
@@ -528,6 +610,7 @@ mod tests {
 
     #[test]
     fn test_field_compare_boolean() {
+        clear_return_types_mode();
         let field = OrdField {
             name: "active".to_string(),
             ts_type: "boolean".to_string(),
@@ -540,6 +623,7 @@ mod tests {
 
     #[test]
     fn test_field_compare_date() {
+        clear_return_types_mode();
         let field = OrdField {
             name: "createdAt".to_string(),
             ts_type: "Date".to_string(),
@@ -549,24 +633,55 @@ mod tests {
     }
 
     #[test]
-    fn test_field_compare_object() {
+    fn test_field_compare_object_vanilla() {
+        clear_return_types_mode();
         let field = OrdField {
             name: "user".to_string(),
             ts_type: "User".to_string(),
         };
         let result = generate_field_compare_for_interface(&field, "a", "b", true);
         assert!(result.contains("compareTo"));
-        assert!(result.contains("Option.isNone"));
+        // In vanilla mode, we check for null directly
+        assert!(result.contains("=== null"));
     }
 
     #[test]
-    fn test_field_compare_array() {
+    fn test_field_compare_object_custom() {
+        set_return_types_mode(ReturnTypesMode::Custom);
+        let field = OrdField {
+            name: "user".to_string(),
+            ts_type: "User".to_string(),
+        };
+        let result = generate_field_compare_for_interface(&field, "a", "b", true);
+        assert!(result.contains("compareTo"));
+        // In custom mode, we use Option.isNone
+        assert!(result.contains("Option.isNone"));
+        clear_return_types_mode();
+    }
+
+    #[test]
+    fn test_field_compare_array_vanilla() {
+        clear_return_types_mode();
         let field = OrdField {
             name: "items".to_string(),
             ts_type: "Item[]".to_string(),
         };
         let result = generate_field_compare_for_interface(&field, "a", "b", true);
-        assert!(result.contains("Option.isNone"));
+        // In vanilla mode, optResult is already the value
+        assert!(result.contains("cmp = optResult"));
+    }
+
+    #[test]
+    fn test_field_compare_array_custom() {
+        set_return_types_mode(ReturnTypesMode::Custom);
+        let field = OrdField {
+            name: "items".to_string(),
+            ts_type: "Item[]".to_string(),
+        };
+        let result = generate_field_compare_for_interface(&field, "a", "b", true);
+        // In custom mode, we unwrap the Option
+        assert!(result.contains("Option.isNone(optResult)"));
         assert!(result.contains("optResult.value"));
+        clear_return_types_mode();
     }
 }
