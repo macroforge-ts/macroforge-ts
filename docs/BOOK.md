@@ -70,7 +70,7 @@ bun add macroforge
 ``` ```
 pnpm add macroforge
 ```  **Info Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64). ## Basic Usage
- The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
+ The simplest way to use Macroforge is with the built-in derive macros. Add a **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> comment decorator to your class:
  ```
 /** @derive(Debug, Clone, PartialEq) */
 class User &#123;
@@ -88,7 +88,7 @@ class User &#123;
 // - clone(): User                   (from Clone)
 // - equals(other: unknown): boolean (from PartialEq)
 ``` ## IDE Integration
- For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
+ For the best development experience, add the TypeScript plugin to your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsconfig.json</code>:
  ```
 &#123;
   "compilerOptions": &#123;
@@ -122,14 +122,13 @@ export default defineConfig(&#123;
  - [Create your first macro](../docs/getting-started/first-macro)
  - [Understand how macros work](../docs/concepts)
  - [Explore built-in macros](../docs/builtin-macros)
-**
 
 ---
 
 # Your First Macro
  *Let's create a class that uses Macroforge's derive macros to automatically generate useful methods.*
  ## Creating a Class with Derive Macros
- Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate methods.
+ Start by creating a simple <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">User</code> class. We'll use the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorator to automatically generate methods.
  
 **Before:**
 ```
@@ -277,7 +276,7 @@ console.log(user.toString());
  ## Compile-Time Expansion
  Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at compile time:
  1. **Parse**: Your TypeScript code is parsed into an AST using SWC
- 2. **Find**: Macroforge finds `@derive` decorators and their associated items
+ 2. **Find**: Macroforge finds <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators and their associated items
  3. **Expand**: Each macro generates new code based on the class structure
  4. **Output**: The transformed TypeScript is written out, ready for normal compilation
  
@@ -334,11 +333,11 @@ export function userToString(value: User): string {
 ---
 
 # The Derive System
- *The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`.*
+ *The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code>.*
  ## Syntax Reference
  Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
  ### The @derive Statement
- The `@derive` decorator triggers macro expansion on a class or interface:
+ The <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorator triggers macro expansion on a class or interface:
  
 **Source:**
 ```
@@ -347,10 +346,10 @@ class MyClass {
   value: string;
 }
 ```  Syntax rules:
- - Must be inside a JSDoc comment (`/** */`)
+ - Must be inside a JSDoc comment (<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#6A737D;--shiki-light:#6A737D">/** */</code>)
  - Must appear immediately before the class/interface declaration
- - Multiple macros can be comma-separated: `@derive(A, B, C)`
- - Multiple `@derive` statements can be stacked
+ - Multiple macros can be comma-separated: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">derive<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">(<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">A<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">,<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">B<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">,<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">C<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">)</code>
+ - Multiple <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> statements can be stacked
  
 **Source:**
 ```
@@ -360,13 +359,13 @@ class User {
   email: string;
 }
 ```  ### The import macro Statement
- To use macros from external packages, you must declare them with `import macro`:
+ To use macros from external packages, you must declare them with <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">import<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macro</code>:
  ```
 /** import macro &#123; MacroName &#125; from "package-name"; */
 ``` Syntax rules:
- - Must be inside a JSDoc comment (`/** */`)
+ - Must be inside a JSDoc comment (<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#6A737D;--shiki-light:#6A737D">/** */</code>)
  - Can appear anywhere in the file (typically at the top)
- - Multiple macros can be imported: `import macro { A, B } from "pkg";`
+ - Multiple macros can be imported: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">import<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macro &#123; A, B &#125;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">from<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"pkg"<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  - Multiple import statements can be used for different packages
  ```
 /** import macro &#123; JSON, Validate &#125; from "@my/macros"; */
@@ -444,20 +443,20 @@ export function userToString(value: User): string {const parts: string[]= []; pa
 @param ctx - The serialization context */export function userSerializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "User" , __id,}; result["user_id" ]= value.id; result["name" ]= value.name; {const __flattened = record<string, unknown>SerializeWithContext(value.metadata, ctx); const {__type: _, __id: __,...rest}= __flattened as any; Object.assign(result, rest);}return result;}
 ``` Syntax rules:
  - Must be inside a JSDoc comment immediately before the field
- - Options use object literal syntax: `@attr({ key: value })`
- - Boolean options: `@attr({ skip: true })`
- - String options: `@attr({ rename: "newName" })`
+ - Options use object literal syntax: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">attr<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">(<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">; key: value<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;)</code>
+ - Boolean options: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">attr<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">(<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">; skip:<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">true<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;)</code>
+ - String options: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">attr<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">(<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">; rename:<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"newName"<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;)</code>
  - Multiple attributes can be on separate lines or combined
  Common field attributes by macro:
  | Macro | Attribute | Options |
 | --- | --- | --- |
-| Debug | `@debug` | `skip`, `rename` |
-| Clone | `@clone` | `skip`, `clone_with` |
-| Serialize/Deserialize | `@serde` | `skip`, `rename`, `flatten`, `default` |
-| Hash | `@hash` | `skip` |
-| PartialEq/Ord | `@eq`, `@ord` | `skip` |
+| Debug | @debug | skip, rename |
+| Clone | @clone | skip, clone_with |
+| Serialize/Deserialize | @serde | skip, rename, flatten, default |
+| Hash | @hash | skip |
+| PartialEq/Ord | @eq, @ord | skip |
  ## How It Works
- 1. **Declaration**: You write `@derive(MacroName)` before a class
+ 1. **Declaration**: You write <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">derive<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">(MacroName)</code> before a class
  2. **Discovery**: Macroforge finds all derive decorators in your code
  3. **Expansion**: Each named macro receives the class AST and generates code
  4. **Injection**: Generated methods/properties are added to the class
@@ -468,7 +467,7 @@ export function userToString(value: User): string {const parts: string[]= []; pa
  - **Enums**: Macros generate namespace functions for enum values
  - **Type aliases**: Both object types and union types are supported
  ## Built-in vs Custom Macros
- Macroforge comes with built-in macros that work out of the box. You can also create custom macros in Rust and use them via the `import macro` statement.
+ Macroforge comes with built-in macros that work out of the box. You can also create custom macros in Rust and use them via the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">import<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macro</code> statement.
  | Type | Import Required | Examples |
 | --- | --- | --- |
 | Built-in | No | Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize |
@@ -494,28 +493,28 @@ export function userToString(value: User): string {const parts: string[]= []; pa
  - Parsing utilities for macro input
  - Derive input structures (class fields, decorators, etc.)
  ### macroforge_ts_quote
- Template-based code generation similar to Rust's `quote!`:
- - `ts_template!` - Generate TypeScript code from templates
- - `body!` - Generate class body members
- - Control flow: `{#for}`, `{#if}`, `{$let}`
+ Template-based code generation similar to Rust's <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">quote!</code>:
+ - <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_template!</code> - Generate TypeScript code from templates
+ - <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">body!</code> - Generate class body members
+ - Control flow: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">{<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"{#for}"<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">}</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">{<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"{#if}"<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">}</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">{<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"{$let}"<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">}</code>
  ### macroforge_ts_macros
  The procedural macro attribute for defining derive macros:
- - `#[ts_macro_derive(Name)]` attribute
+ - <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#[<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_macro_derive<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">(Name)]</code> attribute
  - Automatic registration with the macro system
  - Error handling and span tracking
  ### NAPI-RS Bindings
  Bridges Rust and Node.js:
- - Exposes `expandSync`, `transformSync`, etc.
- - Provides the `NativePlugin` class for caching
+ - Exposes <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">expandSync</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">transformSync</code>, etc.
+ - Provides the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">NativePlugin</code> class for caching
  - Handles data marshaling between Rust and JavaScript
  ## Data Flow
   TypeScript with @derive   receives JavaScript string   parses to AST   finds @derive decorators   extract data, run macro, generate AST nodes   generated nodes into AST   generates source code   to JavaScript with source mapping  ## Performance Characteristics
  - **Thread-safe**: Each expansion runs in an isolated thread with a 32MB stack
- - **Caching**: `NativePlugin` caches results by file version
+ - **Caching**: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">NativePlugin</code> caches results by file version
  - **Binary search**: Position mapping uses O(log n) lookups
  - **Zero-copy**: SWC's arena allocator minimizes allocations
  ## Re-exported Crates
- For custom macro development, `macroforge_ts` re-exports everything you need:
+ For custom macro development, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge_ts</code> re-exports everything you need:
  ```
 // Convenient re-exports for macro development
 use macroforge_ts::macros::&#123;ts_macro_derive, body, ts_template, above, below, signature&#125;;
@@ -538,17 +537,17 @@ use macroforge_ts::swc_ecma_ast;
  ## Overview
  | Macro | Generates | Description |
 | --- | --- | --- |
-| [`Debug`](../docs/builtin-macros/debug) | `toString(): string` | Human-readable string representation |
-| [`Clone`](../docs/builtin-macros/clone) | `clone(): T` | Creates a deep copy of the object |
-| [`Default`](../docs/builtin-macros/default) | `static default(): T` | Creates an instance with default values |
-| [`Hash`](../docs/builtin-macros/hash) | `hashCode(): number` | Generates a hash code for the object |
-| [`PartialEq`](../docs/builtin-macros/partial-eq) | `equals(other: T): boolean` | Value equality comparison |
-| [`Ord`](../docs/builtin-macros/ord) | `compare(other: T): number` | Total ordering comparison (-1, 0, 1) |
-| [`PartialOrd`](../docs/builtin-macros/partial-ord) | `partialCompare(other: T): number | null` | Partial ordering comparison |
-| [`Serialize`](../docs/builtin-macros/serialize) | `toJSON(): Record<string, unknown>` | JSON serialization with type handling |
-| [`Deserialize`](../docs/builtin-macros/deserialize) | `static fromJSON(data: unknown): T` | JSON deserialization with validation |
+| [Debug](../docs/builtin-macros/debug) | toString(): string | Human-readable string representation |
+| [Clone](../docs/builtin-macros/clone) | clone():T | Creates a deep copy of the object |
+| [Default](../docs/builtin-macros/default) | staticdefault():T | Creates an instance with default values |
+| [Hash](../docs/builtin-macros/hash) | hashCode(): number | Generates a hash code for the object |
+| [PartialEq](../docs/builtin-macros/partial-eq) | equals(other:T): boolean | Value equality comparison |
+| [Ord](../docs/builtin-macros/ord) | compare(other:T): number | Total ordering comparison (-1, 0, 1) |
+| [PartialOrd](../docs/builtin-macros/partial-ord) | partialCompare(other:T): number|null | Partial ordering comparison |
+| [Serialize](../docs/builtin-macros/serialize) | toJSON(): Record&lt;string, unknown&gt; | JSON serialization with type handling |
+| [Deserialize](../docs/builtin-macros/deserialize) | staticfromJSON(data: unknown):T | JSON deserialization with validation |
  ## Using Built-in Macros
- Built-in macros don't require imports. Just use them with `@derive`:
+ Built-in macros don't require imports. Just use them with <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code>:
  ```
 /** @derive(Debug, Clone, PartialEq) */
 class User &#123;
@@ -561,7 +560,7 @@ class User &#123;
   &#125;
 &#125;
 ``` ## Interface Support
- All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
+ All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">self</code> as the first parameter:
  ```
 /** @derive(Debug, Clone, PartialEq) */
 interface Point &#123;
@@ -3581,8 +3580,8 @@ The generated code automatically imports:
  ## Overview
  Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
  1. Creating a Rust crate with NAPI bindings
- 2. Defining macro functions with `#[ts_macro_derive]`
- 3. Using `macroforge_ts_quote` to generate TypeScript code
+ 2. Defining macro functions with <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#[ts_macro_derive]</code>
+ 3. Using <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge_ts_quote</code> to generate TypeScript code
  4. Building and publishing as an npm package
  ## Quick Example
  ```
@@ -3632,7 +3631,7 @@ class User &#123;
 
 const user = new User("Alice", 30);
 console.log(user.toJSON()); // &#123; name: "Alice", age: 30 &#125;
-``` > **Note:** The import macro comment tells Macroforge which package provides the macro. ## Getting Started
+``` > **Note:** The importmacro comment tells Macroforge which package provides the macro. ## Getting Started
  Follow these guides to create your own macros:
  - [Set up a Rust macro crate](../docs/custom-macros/rust-setup)
  - [Learn the #[ts_macro_derive] attribute](../docs/custom-macros/ts-macro-derive)
@@ -3645,7 +3644,7 @@ console.log(user.toJSON()); // &#123; name: "Alice", age: 30 &#125;
  ## Prerequisites
  - Rust toolchain (1.88 or later)
  - Node.js 24 or later
- - NAPI-RS CLI: `cargo install macroforge_ts`
+ - NAPI-RS CLI: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">cargo<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">install<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">macroforge_ts</code>
  ## Create the Project
  ```
 # Create a new directory
@@ -3655,7 +3654,7 @@ cd my-macros
 # Initialize with NAPI-RS
 napi new --platform --name my-macros
 ``` ## Configure Cargo.toml
- Update your `Cargo.toml` with the required dependencies:
+ Update your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#FDAEB7;--shiki-dark-font-style:italic;--shiki-light:#B31D28;--shiki-light-font-style:italic">Cargo.toml</code> with the required dependencies:
  ```
 [package]
 name = "my-macros"
@@ -3756,7 +3755,7 @@ npm run build
 ---
 
 # ts_macro_derive
- *The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.*
+ *The <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#[ts_macro_derive]</code> attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.*
  ## Basic Syntax
  ```
 use macroforge_ts::macros::ts_macro_derive;
@@ -3768,7 +3767,7 @@ pub fn my_macro(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError> &
 &#125;
 ``` ## Attribute Options
  ### Name (Required)
- The first argument is the macro name that users will reference in `@derive()`:
+ The first argument is the macro name that users will reference in <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">derive<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code>:
  ```
 #[ts_macro_derive(JSON)]  // Users write: @derive(JSON)
 pub fn derive_json(...)
@@ -3789,15 +3788,15 @@ pub fn derive_json(...)
     attributes(debug)  // Allows @debug(&#123; ... &#125;) on fields
 )]
 pub fn derive_debug(...)
-``` > **Note:** Declared attributes become available as @attributeName({ options }) decorators in TypeScript. ## Function Signature
+``` > **Note:** Declared attributes become available as @attributeName(&#123; options&#125;) decorators in TypeScript. ## Function Signature
  ```
 pub fn my_macro(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError>
 ``` | Parameter | Description |
 | --- | --- |
-| `input: TsStream` | Token stream containing the class/interface AST |
-| `Result<TsStream, MacroforgeError>` | Returns generated code or an error with source location |
+| input: TsStream | Token stream containing the class/interface AST |
+| Result&lt;TsStream, MacroforgeError&gt; | Returns generated code or an error with source location |
  ## Parsing Input
- Use `parse_ts_macro_input!` to convert the token stream:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">parse_ts_macro_input!</code> to convert the token stream:
  ```
 use macroforge_ts::ts_syn::&#123;Data, DeriveInput, parse_ts_macro_input&#125;;
 
@@ -3918,7 +3917,7 @@ struct DecoratorIR &#123;
     pub span: SpanIR,
 &#125;
 ``` > **Note:** To check for decorators, iterate through field.decorators and check decorator.name. For parsing options, you can write helper functions like the built-in macros do. ## Adding Imports
- If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
+ If your macro generates code that requires imports, use the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">add_import</code> method on <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">TsStream</code>:
  ```
 // Add an import to be inserted at the top of the file
 let mut output = body! &#123;
@@ -3933,7 +3932,7 @@ output.add_import("ValidationResult", "my-validation-lib");
 
 Ok(output)
 ``` > **Note:** Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again. ## Returning Errors
- Use `MacroforgeError` to report errors with source locations:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">MacroforgeError</code> to report errors with source locations:
  ```
 #[ts_macro_derive(ClassOnly)]
 pub fn class_only(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError> &#123;
@@ -4001,36 +4000,36 @@ pub fn derive_validate(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeE
 ---
 
 # Template Syntax
- *The `macroforge_ts_quote` crate provides template-based code generation for TypeScript. The `ts_template!` macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.*
+ *The <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge_ts_quote</code> crate provides template-based code generation for TypeScript. The <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_template!</code> macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.*
  ## Available Macros
  | Macro | Output | Use Case |
 | --- | --- | --- |
-| `ts_template!` | Any TypeScript code | General code generation |
-| `body!` | Class body members | Methods and properties |
+| ts_template! | Any TypeScript code | General code generation |
+| body! | Class body members | Methods and properties |
  ## Quick Reference
  | Syntax | Description |
 | --- | --- |
-| `@{expr}` | Interpolate a Rust expression (adds space after) |
-| `{| content |}` | Ident block: concatenates without spaces (e.g., `{|get@{name}|}` → `getUser`) |
-| `{> "comment" <}` | Block comment: outputs `/* comment */` (string preserves whitespace) |
-| `{>> "doc" <<}` | Doc comment: outputs `/** doc */` (string preserves whitespace) |
-| `@@{` | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`) |
-| `"text @{expr}"` | String interpolation (auto-detected) |
-| `"'^template ${js}^'"` | JS backtick template literal (outputs ``template ${js}``) |
-| `{#if cond}...{/if}` | Conditional block |
+| @&#123;expr&#125; | Interpolate a Rust expression (adds space after) |
+| &#123;|content|&#125; | Ident block: concatenates without spaces (e.g., `{|get@{name}|}` → getUser) |
+| &#123;&gt;"comment"&lt;&#125; | Block comment: outputs /* comment */ (string preserves whitespace) |
+| &#123;&gt;&gt;"doc"&lt;&lt;&#125; | Doc comment: outputs /** doc */ (string preserves whitespace) |
+| @@&#123; | Escape for literal @&#123; (e.g., "@@&#123;foo&#125;" → @&#123;foo&#125;) |
+| "text @&#123;expr&#125;" | String interpolation (auto-detected) |
+| "'^template $&#123;js&#125;^'" | JS backtick template literal (outputs ``template ${js}``) |
+| &#123;#ifcond&#125;...&#123;/if&#125; | Conditional block |
 | `{#if cond}...{:else}...{/if}` | Conditional with else |
 | {#if a}...{:else if b}...{:else}...{/if} | Full if/else-if/else chain |
 | `{#if let pattern = expr}...{/if}` | Pattern matching if-let |
 | {#match expr}{:case pattern}...{/match} | Match expression with case arms |
 | `{#for item in list}...{/for}` | Iterate over a collection |
-| `{#while cond}...{/while}` | While loop |
+| &#123;#whilecond&#125;...&#123;/while&#125; | While loop |
 | `{#while let pattern = expr}...{/while}` | While-let pattern matching loop |
-| `{$let name = expr}` | Define a local constant |
-| `{$let mut name = expr}` | Define a mutable local variable |
-| `{$do expr}` | Execute a side-effectful expression |
-| `{$typescript stream}` | Inject a TsStream, preserving its source and runtime_patches (imports) |
- **Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works as expected).
- ## Interpolation: `@{expr}`
+| &#123;$let name=expr&#125; | Define a local constant |
+| &#123;$let mut name=expr&#125; | Define a mutable local variable |
+| &#123;$do expr&#125; | Execute a side-effectful expression |
+| &#123;$typescript stream&#125; | Inject a TsStream, preserving its source and runtime_patches (imports) |
+ **Note:** A single <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@</code> not followed by <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> passes through unchanged (e.g., <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">email@domain.com</code> works as expected).
+ ## Interpolation: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;expr<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Insert Rust expressions into the generated TypeScript:
  ```
 let class_name = "User";
@@ -4046,8 +4045,8 @@ let code = ts_template! &#123;
 User.prototype.toString = function () &#123;
   return "User instance";
 &#125;;
-``` ## Identifier Concatenation: `{| content |}`
- When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `{| |}` is concatenated without spaces:
+``` ## Identifier Concatenation: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">content<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ When you need to build identifiers dynamically (like <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">getUser</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">setName</code>), use the ident block syntax. Everything inside <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> is concatenated without spaces:
  ```
 let field_name = "User";
 
@@ -4061,7 +4060,7 @@ let code = ts_template! &#123;
 function getUser() &#123;
   return this.user;
 &#125;
-``` Without ident blocks, `@{}` always adds a space after for readability. Use `{| |}` when you explicitly want concatenation:
+``` Without ident blocks, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> always adds a space after for readability. Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> when you explicitly want concatenation:
  ```
 let name = "Status";
 
@@ -4076,10 +4075,10 @@ let entity = "user";
 let action = "create";
 
 ts_template! &#123; &#123;|@&#123;entity&#125;_@&#123;action&#125;|&#125; &#125;  // → "user_create"
-``` ## Comments: `{> "..." <}` and `{>> "..." <<}`
+``` ## Comments: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"..."<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> and <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"..."<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
  ### Block Comments
- Use `{> "comment" <}` for block comments:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"comment"<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> for block comments:
  ```
 let code = ts_template! &#123;
     &#123;> "This is a block comment" &#x3C;&#125;
@@ -4090,7 +4089,7 @@ let code = ts_template! &#123;
 /* This is a block comment */
 const x = 42;
 ``` ### Doc Comments (JSDoc)
- Use `{>> "doc" <<}` for JSDoc comments:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"doc"<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> for JSDoc comments:
  ```
 let code = ts_template! &#123;
     &#123;>> "@param &#123;string&#125; name - The user's name" &#x3C;&#x3C;&#125;
@@ -4107,7 +4106,7 @@ function greet(name: string): string &#123;
     return "Hello, " + name;
 &#125;
 ``` ### Comments with Interpolation
- Use `format!()` or similar to build dynamic comment strings:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">format<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">!<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code> or similar to build dynamic comment strings:
  ```
 let param_name = "userId";
 let param_type = "number";
@@ -4121,7 +4120,7 @@ let code = ts_template! &#123;
  ```
 /** @param &#123;number&#125; userId - The user ID */
 function getUser(userId: number) &#123;&#125;
-``` ## String Interpolation: `"text @{expr}"`
+``` ## String Interpolation: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"text @&#123;expr&#125;"</code>
  Interpolation works automatically inside string literals - no `format!()` needed:
  ```
 let name = "World";
@@ -4142,8 +4141,8 @@ let field = "username";
 let code = ts_template! &#123;
     throw new Error("Invalid @&#123;field.to_uppercase()&#125;");
 &#125;;
-``` ## Backtick Template Literals: `"'^...^'"`
- For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through `$${}` for JS interpolation:
+``` ## Backtick Template Literals: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"'^...^'"</code>
+ For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">${<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"${}"<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">}</code> for JS interpolation:
  ```
 let tag_name = "div";
 
@@ -4153,7 +4152,7 @@ let code = ts_template! {
 ``` **Generates:**
  ```
 const html = `${content}`;
-``` You can mix Rust `@{}` interpolation (evaluated at macro expansion time) with JS `$${}` interpolation (evaluated at runtime):
+``` You can mix Rust <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> interpolation (evaluated at macro expansion time) with JS <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">${<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"${}"<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">}</code> interpolation (evaluated at runtime):
  ```
 let class_name = "User";
 
@@ -4163,7 +4162,7 @@ let code = ts_template! {
 ``` **Generates:**
  ```
 `Hello $&#123;this.name&#125;, you are a User`
-``` ## Conditionals: `{#if}...{/if}`
+``` ## Conditionals: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">if&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">...&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/if&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Basic conditional:
  ```
 let needs_validation = true;
@@ -4200,8 +4199,8 @@ let code = ts_template! &#123;
         console.log("Other level");
     &#123;/if&#125;
 &#125;;
-``` ## Pattern Matching: `{#if let}`
- Use `if let` for pattern matching on `Option`, `Result`, or other Rust enums:
+``` ## Pattern Matching: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">if<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">let<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">&#125;</code>
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">if<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">let</code> for pattern matching on <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Option</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Result</code>, or other Rust enums:
  ```
 let maybe_name: Option&#x3C;&#x26;str> = Some("Alice");
 
@@ -4224,8 +4223,8 @@ let code = ts_template! &#123;
         this.@&#123;field.name&#125; = undefined;
     &#123;/if&#125;
 &#125;;
-``` ## Match Expressions: `{#match}`
- Use `match` for exhaustive pattern matching:
+``` ## Match Expressions: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#match<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">match</code> for exhaustive pattern matching:
  ```
 enum Visibility &#123; Public, Private, Protected &#125;
 let visibility = Visibility::Public;
@@ -4270,7 +4269,7 @@ let code = ts_template! &#123;
             console.log("many");
     &#123;/match&#125;
 &#125;;
-``` ## Iteration: `{#for}`
+``` ## Iteration: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#for<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  ```
 let fields = vec!["name", "email", "age"];
 
@@ -4319,8 +4318,8 @@ ts_template! &#123;
         &#125;;
     &#123;/for&#125;
 &#125;
-``` ## While Loops: `{#while}`
- Use `while` for loops that need to continue until a condition is false:
+``` ## While Loops: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">while&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">while</code> for loops that need to continue until a condition is false:
  ```
 let items = get_items();
 let mut idx = 0;
@@ -4333,7 +4332,7 @@ let code = ts_template! &#123;
     &#123;/while&#125;
 &#125;;
 ``` ### While-Let Pattern Matching
- Use `while let` for iterating with pattern matching, similar to `if let`:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">while<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">let</code> for iterating with pattern matching, similar to <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">if<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">let</code>:
  ```
 let mut items = vec!["a", "b", "c"].into_iter();
 
@@ -4354,7 +4353,7 @@ let code = ts_template! &#123;
         result.@&#123;next_field.name&#125; = this.@&#123;next_field.name&#125;;
     &#123;/while&#125;
 &#125;;
-``` ## Local Constants: `{$let}`
+``` ## Local Constants: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$let<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Define local variables within the template scope:
  ```
 let items = vec![("user", "User"), ("post", "Post")];
@@ -4367,8 +4366,8 @@ let code = ts_template! &#123;
     &#123;/for&#125;
 &#125;;
 ``` This is useful for computing derived values inside loops without cluttering the Rust code.
- ## Mutable Variables: `{$let mut}`
- When you need to modify a variable within the template (e.g., in a `while` loop), use `{$let mut}`:
+ ## Mutable Variables: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$let mut<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ When you need to modify a variable within the template (e.g., in a `while` loop), use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$let mut<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>:
  ```
 let code = ts_template! &#123;
     &#123;$let mut count = 0&#125;
@@ -4378,7 +4377,7 @@ let code = ts_template! &#123;
     &#123;/for&#125;
     console.log("Total: @&#123;count&#125;");
 &#125;;
-``` ## Side Effects: `{$do}`
+``` ## Side Effects: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
  ```
 let code = ts_template! &#123;
@@ -4388,13 +4387,13 @@ let code = ts_template! &#123;
     &#123;/for&#125;
     return [@&#123;results.join(", ")&#125;];
 &#125;;
-``` Common uses for `{$do}`:
- - Incrementing counters: `{$do i += 1}`
- - Building collections: `{$do vec.push(item)}`
- - Setting flags: `{$do found = true}`
+``` Common uses for <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>:
+ - Incrementing counters: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do i<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">+=<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">1<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ - Building collections: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do vec.<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">push<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">(item)<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ - Setting flags: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do found<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">=<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">true<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  - Any mutating operation
- ## TsStream Injection: `{$typescript}`
- Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
+ ## TsStream Injection: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$typescript<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">add_import<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code>):
  ```
 // Create a helper method with its own import
 let mut helper = body! &#123;
@@ -4431,7 +4430,7 @@ body! &#123;
     &#123;/if&#125;
 &#125;
 ``` ## Escape Syntax
- If you need a literal `@{` in your output (not interpolation), use `@@{`:
+ If you need a literal <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> in your output (not interpolation), use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>:
  ```
 ts_template! &#123;
     // This outputs a literal @&#123;foo&#125;
@@ -4442,7 +4441,7 @@ ts_template! &#123;
 // This outputs a literal @&#123;foo&#125;
 const example = "Use @&#123;foo&#125; for templates";
 ``` ## Complete Example: JSON Derive Macro
- Here's a comparison showing how `ts_template!` simplifies code generation:
+ Here's a comparison showing how <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_template!</code> simplifies code generation:
  ### Before (Manual AST Building)
  ```
 pub fn derive_json_macro(input: TsStream) -> MacroResult &#123;
@@ -4501,9 +4500,9 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult &#123;
  1. **Compile-Time:** The template is parsed during macro expansion
  2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
  3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
- 4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
+ 4. **Result:** Returns <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Stmt</code> that can be used in <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">MacroResult</code> patches
  ## Return Type
- `ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
+ <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_template!</code> returns a <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Result<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;Stmt, TsSynError<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;</code> by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
  ```
 Failed to parse generated TypeScript:
 User.prototype.toJSON = function( &#123;
@@ -4512,7 +4511,7 @@ User.prototype.toJSON = function( &#123;
 ``` This shows you exactly what was generated, making debugging easy!
  ## Nesting and Regular TypeScript
  You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
- - **Template tags** if they start with `#`, `$`, `:`, or `/`
+ - **Template tags** if they start with <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">$</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">:</code>, or <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/</code>
  - **Regular TypeScript blocks** otherwise
  ```
 ts_template! &#123;
@@ -4528,12 +4527,12 @@ ts_template! &#123;
 ``` ## Comparison with Alternatives
  | Approach | Pros | Cons |
 | --- | --- | --- |
-| `ts_quote!` | Compile-time validation, type-safe | Can't handle Vec<Stmt>, verbose |
-| `parse_ts_str()` | Maximum flexibility | Runtime parsing, less readable |
-| `ts_template!` | Readable, handles loops/conditions | Small runtime parsing overhead |
+| ts_quote! | Compile-time validation, type-safe | Can't handle Vec<Stmt>, verbose |
+| parse_ts_str() | Maximum flexibility | Runtime parsing, less readable |
+| ts_template! | Readable, handles loops/conditions | Small runtime parsing overhead |
  ## Best Practices
- 1. Use `ts_template!` for complex code generation with loops/conditions
- 2. Use `ts_quote!` for simple, static statements
+ 1. Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_template!</code> for complex code generation with loops/conditions
+ 2. Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_quote!</code> for simple, static statements
  3. Keep templates readable - extract complex logic into variables
  4. Don't nest templates too deeply - split into helper functions
 
@@ -4546,8 +4545,8 @@ ts_template! &#123;
  ## Overview
  | Integration | Purpose | Package |
 | --- | --- | --- |
-| TypeScript Plugin | IDE support (errors, completions) | `@macroforge/typescript-plugin` |
-| Vite Plugin | Build-time macro expansion | `@macroforge/vite-plugin` |
+| TypeScript Plugin | IDE support (errors, completions) | @macroforge/typescript-plugin |
+| Vite Plugin | Build-time macro expansion | @macroforge/vite-plugin |
  ## Recommended Setup
  For the best development experience, use both integrations:
  1. **TypeScript Plugin**: Provides real-time feedback in your IDE
@@ -4581,14 +4580,14 @@ macroforge expand &#x3C;input> [options]
 ``` #### Arguments
  | Argument | Description |
 | --- | --- |
-| `<input>` | Path to the TypeScript or TSX file to expand |
+| &lt;input&gt; | Path to the TypeScript or TSX file to expand |
  #### Options
  | Option | Description |
 | --- | --- |
-| `--out <path>` | Write the expanded JavaScript/TypeScript to a file |
-| `--types-out <path>` | Write the generated `.d.ts` declarations to a file |
-| `--print` | Print output to stdout even when `--out` is specified |
-| `--builtin-only` | Use only built-in Rust macros (faster, but no external macro support) |
+| --out&lt;path&gt; | Write the expanded JavaScript/TypeScript to a file |
+| --types-out&lt;path&gt; | Write the generated .d.ts declarations to a file |
+| --print | Print output to stdout even when --out is specified |
+| --builtin-only | Use only built-in Rust macros (faster, but no external macro support) |
  #### Examples
  Expand a file and print to stdout:
  ```
@@ -4603,13 +4602,13 @@ macroforge expand src/user.ts --out dist/user.js --types-out dist/user.d.ts
  ```
 macroforge expand src/user.ts --builtin-only
 ``` > **Note:** By default, the CLI uses Node.js for full macro support (including external macros). It must be run from your project's root directory where macroforge and any external macro packages are installed in node_modules. ### macroforge tsc
- Runs TypeScript type checking with macro expansion. This wraps `tsc --noEmit` and expands macros before type checking, so your generated methods are properly type-checked.
+ Runs TypeScript type checking with macro expansion. This wraps <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsc<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">--<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">noEmit</code> and expands macros before type checking, so your generated methods are properly type-checked.
  ```
 macroforge tsc [options]
 ``` #### Options
  | Option | Description |
 | --- | --- |
-| `-p, --project <path>` | Path to `tsconfig.json` (defaults to `tsconfig.json` in current directory) |
+| -p,--project&lt;path&gt; | Path to tsconfig.json (defaults to tsconfig.json in current directory) |
  #### Examples
  Type check with default tsconfig.json:
  ```
@@ -4653,7 +4652,7 @@ class User {
 [macroforge] warning at src/user.ts:10:3: Field 'unused' is never used
 ``` ## Use Cases
  ### CI/CD Type Checking
- Use `macroforge tsc` in your CI pipeline to type-check with macro expansion:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">macroforge<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">tsc</code> in your CI pipeline to type-check with macro expansion:
  ```
 # package.json
 &#123;
@@ -4662,7 +4661,7 @@ class User {
   &#125;
 &#125;
 ``` ### Debugging Macro Output
- Use `macroforge expand` to inspect what code your macros generate:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">macroforge<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">expand</code> to inspect what code your macros generate:
  ```
 macroforge expand src/models/user.ts | less
 ``` ### Build Pipeline
@@ -4674,13 +4673,13 @@ for file in src/**/*.ts; do
   macroforge expand "$file" --out "$outfile"
 done
 ``` ## Built-in vs Full Mode
- By default, the CLI uses Node.js for full macro support including external macros. Use `--builtin-only` for faster expansion when you only need built-in macros:
- | Feature | Default (Node.js) | `--builtin-only` (Rust) |
+ By default, the CLI uses Node.js for full macro support including external macros. Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">--<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">builtin<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">-<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">only</code> for faster expansion when you only need built-in macros:
+ | Feature | Default (Node.js) | --builtin-only (Rust) |
 | --- | --- | --- |
 | Built-in macros | Yes | Yes |
 | External macros | Yes | No |
 | Performance | Standard | Faster |
-| Dependencies | Requires `macroforge` in node_modules | None |
+| Dependencies | Requires macroforge in node_modules | None |
 
 ---
 
@@ -4690,7 +4689,7 @@ done
  ```
 npm install -D @macroforge/typescript-plugin
 ``` ## Configuration
- Add the plugin to your `tsconfig.json`:
+ Add the plugin to your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsconfig.json</code>:
  ```
 &#123;
   "compilerOptions": &#123;
@@ -4703,16 +4702,16 @@ npm install -D @macroforge/typescript-plugin
 &#125;
 ``` ## VS Code Setup
  VS Code uses its own TypeScript version by default. To use the workspace version (which includes plugins):
- 1. Open the Command Palette (`Cmd/Ctrl + Shift + P`)
+ 1. Open the Command Palette (<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Cmd<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Ctrl<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">+<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Shift<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">+<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">P</code>)
  2. Search for "TypeScript: Select TypeScript Version"
  3. Choose "Use Workspace Version"
-  **Tip Add this setting to your `.vscode/settings.json` to make it permanent: ```
+  **Tip Add this setting to your **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">.vscode/settings.json</code> to make it permanent: ```
 &#123;
   "typescript.tsdk": "node_modules/typescript/lib"
 &#125;
 ``` ## Features
  ### Error Reporting
- Errors in macro-generated code are reported at the `@derive` decorator position:
+ Errors in macro-generated code are reported at the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorator position:
  ```
 /** @derive(Debug) */  // &#x3C;- Errors appear here
 class User &#123;
@@ -4733,12 +4732,11 @@ const copy = user.clone();
  ### Plugin Not Loading
  1. Ensure you're using the workspace TypeScript version
  2. Restart the TypeScript server (Command Palette → "TypeScript: Restart TS Server")
- 3. Check that the plugin is listed in `tsconfig.json`
+ 3. Check that the plugin is listed in <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsconfig.json</code>
  ### Errors Not Showing
  If errors from macros aren't appearing:
  1. Make sure the Vite plugin is also installed (for source file watching)
  2. Check that your file is saved (plugins process on save)
-**
 
 ---
 
@@ -4748,7 +4746,7 @@ const copy = user.clone();
  ```
 npm install -D @macroforge/vite-plugin
 ``` ## Configuration
- Add the plugin to your `vite.config.ts`:
+ Add the plugin to your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">vite.config.ts</code>:
  ```
 import macroforge from "@macroforge/vite-plugin";
 import &#123; defineConfig &#125; from "vite";
@@ -4780,10 +4778,10 @@ macroforge(&#123;
 ``` ### Option Reference
  | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `generateTypes` | `boolean` | `true` | Generate .d.ts files |
-| `typesOutputDir` | `string` | `.macroforge/types` | Where to write type files |
-| `emitMetadata` | `boolean` | `false` | Emit macro metadata files |
-| `keepDecorators` | `boolean` | `false` | Keep decorators in output |
+| generateTypes | boolean | true | Generate .d.ts files |
+| typesOutputDir | string | .macroforge/types | Where to write type files |
+| emitMetadata | boolean | false | Emit macro metadata files |
+| keepDecorators | boolean | false | Keep decorators in output |
  ## Framework Integration
  ### React (Vite)
  ```
@@ -4818,14 +4816,14 @@ export default defineConfig(&#123;
  During production builds, the plugin:
  - Expands all macros in the source files
  - Generates type declaration files
- - Strips `@derive` decorators from output
+ - Strips <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators from output
 
 ---
 
 # Configuration
- *Macroforge can be configured with a `macroforge.json` file in your project root.*
+ *Macroforge can be configured with a <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge.json</code> file in your project root.*
  ## Configuration File
- Create a `macroforge.json` file:
+ Create a <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge.json</code> file:
  ```
 &#123;
   "allowNativeMacros": true,
@@ -4840,12 +4838,12 @@ export default defineConfig(&#123;
 &#125;
 ``` ## Options Reference
  ### allowNativeMacros
- | Type | `boolean` |
-| Default | `true` |
- Enable or disable native (Rust) macro packages. Set to `false` to only allow built-in macros.
+ | Type | boolean |
+| Default | true |
+ Enable or disable native (Rust) macro packages. Set to <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">false</code> to only allow built-in macros.
  ### macroPackages
- | Type | `string[]` |
-| Default | `[]` |
+ | Type | string[] |
+| Default | [] |
  List of npm packages that provide macros. Macroforge will look for macros in these packages.
  ```
 &#123;
@@ -4855,9 +4853,9 @@ export default defineConfig(&#123;
   ]
 &#125;
 ``` ### keepDecorators
- | Type | `boolean` |
-| Default | `false` |
- Keep `@derive` decorators in the output. Useful for debugging.
+ | Type | boolean |
+| Default | false |
+ Keep <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators in the output. Useful for debugging.
  ### limits
  Configure resource limits for macro expansion:
  ```
@@ -4890,8 +4888,8 @@ export default defineConfig(&#123;
  Some settings can be overridden with environment variables:
  | Variable | Description |
 | --- | --- |
-| `MACROFORGE_DEBUG` | Enable debug logging |
-| `MACROFORGE_LOG_FILE` | Write logs to a file |
+| MACROFORGE_DEBUG | Enable debug logging |
+| MACROFORGE_LOG_FILE | Write logs to a file |
  ```
 MACROFORGE_DEBUG=1 npm run dev
 ```**
@@ -4927,7 +4925,7 @@ MACROFORGE_DEBUG=1 npm run dev
 ---
 
 # Svelte Language Server
- *`@macroforge/svelte-language-server` provides full Svelte IDE support with macroforge integration.*
+ *<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@macroforge<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">svelte<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">-<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">language<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">-<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">server</code> provides full Svelte IDE support with macroforge integration.*
   **Developer Installation Required This package is not yet published as an official extension. You'll need to build and install it manually. ## Features
  - **Svelte syntax diagnostics** - Errors and warnings in .svelte files
  - **HTML support** - Hover info, autocompletions, Emmet, outline symbols
@@ -4949,24 +4947,23 @@ npm install
 cd packages/svelte-language-server
 npm run build
 ``` ### 3. Configure Your Editor
- The language server exposes a `svelteserver` binary that implements the Language Server Protocol (LSP). Configure your editor to use it:
+ The language server exposes a **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">svelteserver</code> binary that implements the Language Server Protocol (LSP). Configure your editor to use it:
  ```
 # The binary is located at:
 ./packages/svelte-language-server/bin/server.js
 ``` ## Package Info
- | Package | `@macroforge/svelte-language-server` |
+ | Package | @macroforge/svelte-language-server |
 | Version | 0.1.7 |
-| CLI Command | `svelteserver` |
+| CLI Command | svelteserver |
 | Node Version | >= 18.0.0 |
  ## How It Works
  The Svelte language server extends the standard Svelte language tooling with macroforge integration:
- 1. Parses `.svelte` files and extracts TypeScript/JavaScript blocks
- 2. Expands macros using the `@macroforge/typescript-plugin`
+ 1. Parses <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">.svelte</code> files and extracts TypeScript/JavaScript blocks
+ 2. Expands macros using the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@macroforge<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">typescript<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">-<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">plugin</code>
  3. Maps diagnostics back to original source positions
  4. Provides completions for macro-generated methods
  ## Using with Zed
- For Zed editor, see the [Zed Extensions](../../docs/language-servers/zed) page for the dedicated `svelte-macroforge` extension.
-**
+ For Zed editor, see the [Zed Extensions](../../docs/language-servers/zed) page for the dedicated <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">svelte<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">-<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge</code> extension.
 
 ---
 
@@ -4975,8 +4972,8 @@ npm run build
   **Developer Installation Required These extensions are not yet in the Zed extension registry. You'll need to install them as developer extensions. ## Available Extensions
  | Extension | Description | Location |
 | --- | --- | --- |
-| `vtsls-macroforge` | VTSLS with macroforge support for TypeScript | `crates/extensions/vtsls-macroforge` |
-| `svelte-macroforge` | Svelte language support with macroforge | `crates/extensions/svelte-macroforge` |
+| vtsls-macroforge | VTSLS with macroforge support for TypeScript | crates/extensions/vtsls-macroforge |
+| svelte-macroforge | Svelte language support with macroforge | crates/extensions/svelte-macroforge |
  ## Installation
  ### 1. Clone the Repository
  ```
@@ -5006,7 +5003,7 @@ ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/ex
  - Accurate error positions in original source
  - Completions for macro-generated methods
  ## svelte-macroforge
- This extension provides Svelte support using the `@macroforge/svelte-language-server`. It includes:
+ This extension provides Svelte support using the **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@macroforge<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">svelte<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">-<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">language<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">-<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">server</code>. It includes:
  - Svelte component syntax support
  - HTML, CSS, and TypeScript features
  - Macroforge integration in script blocks
@@ -5014,8 +5011,7 @@ ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/ex
  ### Extension not loading
  Make sure you've restarted Zed after installing the extension. Check the Zed logs for any error messages.
  ### Macros not expanding
- Ensure your project has the `macroforge` package installed and a valid `tsconfig.json` with the TypeScript plugin configured.
-**
+ Ensure your project has the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge</code> package installed and a valid <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsconfig.json</code> with the TypeScript plugin configured.
 
 ---
 
@@ -5036,15 +5032,15 @@ import &#123;
 ``` ## Core Functions
  | Function | Description |
 | --- | --- |
-| [`expandSync()`](../docs/api/expand-sync) | Expand macros synchronously |
-| [`transformSync()`](../docs/api/transform-sync) | Transform code with additional metadata |
-| `checkSyntax()` | Validate TypeScript syntax |
-| `parseImportSources()` | Extract import information |
+| [expandSync()](../docs/api/expand-sync) | Expand macros synchronously |
+| [transformSync()](../docs/api/transform-sync) | Transform code with additional metadata |
+| checkSyntax() | Validate TypeScript syntax |
+| parseImportSources() | Extract import information |
  ## Classes
  | Class | Description |
 | --- | --- |
-| [`NativePlugin`](../docs/api/native-plugin) | Stateful plugin with caching |
-| [`PositionMapper`](../docs/api/position-mapper) | Maps positions between original and expanded code |
+| [NativePlugin](../docs/api/native-plugin) | Stateful plugin with caching |
+| [PositionMapper](../docs/api/position-mapper) | Maps positions between original and expanded code |
  ## Quick Example
  ```
 import &#123; expandSync &#125; from "macroforge";
@@ -5070,10 +5066,10 @@ if (result.diagnostics.length > 0) &#123;
   console.error("Errors:", result.diagnostics);
 &#125;
 ``` ## Detailed Reference
- - [`expandSync()`](../docs/api/expand-sync) - Full options and return types
- - [`transformSync()`](../docs/api/transform-sync) - Transform with source maps
- - [`NativePlugin`](../docs/api/native-plugin) - Caching for language servers
- - [`PositionMapper`](../docs/api/position-mapper) - Position mapping utilities
+ - [<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">expandSync<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code>](../docs/api/expand-sync) - Full options and return types
+ - [<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">transformSync<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code>](../docs/api/transform-sync) - Transform with source maps
+ - [<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">NativePlugin</code>](../docs/api/native-plugin) - Caching for language servers
+ - [<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">PositionMapper</code>](../docs/api/position-mapper) - Position mapping utilities
 
 ---
 
@@ -5089,9 +5085,9 @@ function expandSync(
 ``` ## Parameters
  | Parameter | Type | Description |
 | --- | --- | --- |
-| `code` | `string` | TypeScript source code to transform |
-| `filepath` | `string` | File path (used for error reporting) |
-| `options` | `ExpandOptions` | Optional configuration |
+| code | string | TypeScript source code to transform |
+| filepath | string | File path (used for error reporting) |
+| options | ExpandOptions | Optional configuration |
  ## ExpandOptions
  ```
 interface ExpandOptions &#123;
@@ -5159,7 +5155,7 @@ if (result.diagnostics.length > 0) {
   }
 }
 ``` ## Error Handling
- Syntax errors and macro errors are returned in the `diagnostics` array, not thrown as exceptions:
+ Syntax errors and macro errors are returned in the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">diagnostics</code> array, not thrown as exceptions:
  ```
 const result = expandSync(invalidCode, "file.ts");
 
@@ -5183,8 +5179,8 @@ function transformSync(
 ``` ## Parameters
  | Parameter | Type | Description |
 | --- | --- | --- |
-| `code` | `string` | TypeScript source code to transform |
-| `filepath` | `string` | File path (used for error reporting) |
+| code | string | TypeScript source code to transform |
+| filepath | string | File path (used for error reporting) |
  ## TransformResult
  ```
 interface TransformResult &#123;
@@ -5201,7 +5197,7 @@ interface TransformResult &#123;
   metadata?: string;
 &#125;
 ``` ## Comparison with expandSync()
- | Feature | `expandSync` | `transformSync` |
+ | Feature | expandSync | transformSync |
 | --- | --- | --- |
 | Options | Yes | No |
 | Diagnostics | Yes | No |
@@ -5233,11 +5229,11 @@ if (result.metadata) &#123;
   console.log("Macros expanded:", meta);
 &#125;
 ``` ## When to Use
- Use `transformSync` when:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">transformSync</code> when:
  - Building custom integrations
  - You need raw output without diagnostics
  - You're implementing a build tool plugin
- Use `expandSync` for most other use cases, as it provides better error handling.
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">expandSync</code> for most other use cases, as it provides better error handling.
 
 ---
 
@@ -5314,7 +5310,7 @@ class MacroforgeLanguageService &#123;
   &#125;
 &#125;
 ``` ## Thread Safety
- The `NativePlugin` class is thread-safe and can be used from multiple async contexts. Each file is processed in an isolated thread with its own stack space.
+ The <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">NativePlugin</code> class is thread-safe and can be used from multiple async contexts. Each file is processed in an isolated thread with its own stack space.
 
 ---
 
@@ -5345,7 +5341,7 @@ originalToExpanded(pos: number): number
  Map a position from expanded to original code:
  ```
 expandedToOriginal(pos: number): number | null
-``` Returns `null` if the position is in generated code.
+``` Returns <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">null</code> if the position is in generated code.
  ### isInGenerated()
  Check if a position is in macro-generated code:
  ```
