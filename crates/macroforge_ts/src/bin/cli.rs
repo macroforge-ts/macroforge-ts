@@ -39,6 +39,42 @@
 //! macroforge tsc -p tsconfig.build.json
 //! ```
 //!
+//! ## Configuration
+//!
+//! The CLI automatically searches for a configuration file starting from the input file's
+//! directory, walking up to the nearest `package.json` (project root). Configuration files
+//! are searched in this order:
+//!
+//! 1. `macroforge.config.ts`
+//! 2. `macroforge.config.mts`
+//! 3. `macroforge.config.js`
+//! 4. `macroforge.config.mjs`
+//! 5. `macroforge.config.cjs`
+//!
+//! ### Foreign Types
+//!
+//! Configuration files can define foreign type handlers for external types like Effect's
+//! `DateTime`. When a matching type is found during expansion, the configured handlers
+//! are used automatically:
+//!
+//! ```javascript
+//! // macroforge.config.ts
+//! import { DateTime } from "effect";
+//!
+//! export default {
+//!   foreignTypes: {
+//!     "DateTime.DateTime": {
+//!       from: ["effect"],
+//!       serialize: (v) => DateTime.formatIso(v),
+//!       deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+//!       default: () => DateTime.unsafeNow()
+//!     }
+//!   }
+//! }
+//! ```
+//!
+//! See the [Configuration](crate::host::config) module for full documentation.
+//!
 //! ## Output File Naming
 //!
 //! By default, expanded files are written with `.expanded` inserted before the extension:
@@ -57,6 +93,9 @@
 //! By default, the CLI uses Node.js to support external/custom macros from npm packages.
 //! Use `--builtin-only` for fast expansion with only the built-in Rust macros (Debug, Clone,
 //! PartialEq, Hash, Ord, PartialOrd, Default, Serialize, Deserialize).
+//!
+//! Both modes load and respect `macroforge.config.ts/js` for foreign type configuration.
+//! The config is parsed natively using SWC, so foreign types work without Node.js.
 
 use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
@@ -330,19 +369,41 @@ fn try_expand_file(
 /// This is the fast path that doesn't require Node.js. It only supports
 /// the built-in macros (Debug, Clone, PartialEq, Hash, Ord, PartialOrd,
 /// Default, Serialize, Deserialize).
+///
+/// ## Configuration Loading
+///
+/// This function searches for and loads `macroforge.config.ts/js` to enable
+/// foreign type handlers. The config is parsed natively using SWC without
+/// requiring Node.js.
 fn try_expand_file_builtin(
     input: PathBuf,
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
     print: bool,
 ) -> Result<bool> {
-    let expander = MacroExpander::new().context("failed to initialize macro expander")?;
+    use macroforge_ts::host::MacroforgeConfig;
+
+    // Load config if available (for foreign types support)
+    if let Ok(Some(config)) = MacroforgeConfig::find_and_load() {
+        macroforge_ts::builtin::serde::set_foreign_types(config.foreign_types.clone());
+    }
+
     let source = fs::read_to_string(&input)
         .with_context(|| format!("failed to read {}", input.display()))?;
+
+    // Extract import sources from the input file for foreign type matching
+    let import_sources = extract_import_sources_from_code(&source, &input);
+    macroforge_ts::builtin::serde::set_import_sources(import_sources);
+
+    let expander = MacroExpander::new().context("failed to initialize macro expander")?;
 
     let expansion = expander
         .expand_source(&source, &input.display().to_string())
         .map_err(|err| anyhow!(format!("{err:?}")))?;
+
+    // Clean up thread-local state
+    macroforge_ts::builtin::serde::clear_foreign_types();
+    macroforge_ts::builtin::serde::clear_import_sources();
 
     if !expansion.changed {
         return Ok(false);
@@ -355,11 +416,95 @@ fn try_expand_file_builtin(
     Ok(true)
 }
 
+/// Extract import sources from TypeScript/TSX code.
+///
+/// Returns a map of import name -> source module, e.g., `{"DateTime": "effect"}`.
+fn extract_import_sources_from_code(
+    source: &str,
+    filepath: &Path,
+) -> std::collections::HashMap<String, String> {
+    use swc_core::{
+        common::{FileName, SourceMap, sync::Lrc},
+        ecma::{
+            ast::{EsVersion, ImportSpecifier, ModuleDecl, ModuleItem, Program},
+            parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer},
+        },
+    };
+
+    let mut sources = std::collections::HashMap::new();
+
+    let cm: Lrc<SourceMap> = Default::default();
+    let fm = cm.new_source_file(
+        FileName::Custom(filepath.display().to_string()).into(),
+        source.to_string(),
+    );
+
+    let is_tsx = filepath
+        .extension()
+        .map(|e| e == "tsx")
+        .unwrap_or(false);
+
+    let lexer = Lexer::new(
+        Syntax::Typescript(TsSyntax {
+            tsx: is_tsx,
+            decorators: true,
+            ..Default::default()
+        }),
+        EsVersion::latest(),
+        StringInput::from(&*fm),
+        None,
+    );
+
+    let mut parser = Parser::new_from(lexer);
+    let program = match parser.parse_program() {
+        Ok(p) => p,
+        Err(_) => return sources,
+    };
+
+    let module = match &program {
+        Program::Module(m) => m,
+        Program::Script(_) => return sources,
+    };
+
+    for item in &module.body {
+        if let ModuleItem::ModuleDecl(ModuleDecl::Import(import)) = item {
+            let source_module = String::from_utf8_lossy(import.src.value.as_bytes()).to_string();
+
+            for specifier in &import.specifiers {
+                match specifier {
+                    ImportSpecifier::Named(named) => {
+                        let local = named.local.sym.to_string();
+                        sources.insert(local, source_module.clone());
+                    }
+                    ImportSpecifier::Default(default) => {
+                        let local = default.local.sym.to_string();
+                        sources.insert(local, source_module.clone());
+                    }
+                    ImportSpecifier::Namespace(ns) => {
+                        let local = ns.local.sym.to_string();
+                        sources.insert(local, source_module.clone());
+                    }
+                }
+            }
+        }
+    }
+
+    sources
+}
+
 /// Attempts to expand macros by invoking Node.js with the macroforge npm package.
 ///
 /// This function writes a temporary Node.js script that calls `macroforge.expandSync()`,
 /// then parses the JSON result. This approach supports external macros from npm packages
 /// but requires Node.js and the macroforge package to be installed.
+///
+/// ## Configuration Loading
+///
+/// The function automatically searches for a `macroforge.config.ts/js` file starting from
+/// the input file's directory, walking up to the nearest `package.json`. If found, the
+/// configuration is loaded and passed to `expandSync`, enabling foreign type handlers.
+///
+/// ## Module Resolution
 ///
 /// The function tries to resolve macroforge from:
 /// 1. The current working directory
@@ -371,6 +516,7 @@ fn try_expand_file_builtin(
 /// * `out` - Optional output path for expanded code
 /// * `types_out` - Optional output path for type declarations
 /// * `print` - Whether to print output to stdout
+/// * `is_scanning` - Whether this is part of a directory scan (affects warning output)
 ///
 /// # Returns
 ///
@@ -392,9 +538,12 @@ const path = require('path');
 // Create require from the cwd to resolve modules properly
 const cwdRequire = createRequire(process.cwd() + '/package.json');
 
-let expandSync;
+let expandSync, loadConfig, clearConfigCache;
 try {
-  expandSync = cwdRequire('macroforge').expandSync;
+  const macroforge = cwdRequire('macroforge');
+  expandSync = macroforge.expandSync;
+  loadConfig = macroforge.loadConfig;
+  clearConfigCache = macroforge.clearConfigCache;
 } catch {
   // macroforge not installed - output fallback marker for Rust to detect
   console.log(JSON.stringify({ fallback: true }));
@@ -404,8 +553,48 @@ try {
 const inputPath = process.argv[2];
 const code = fs.readFileSync(inputPath, 'utf8');
 
+// Search for macroforge.config.ts/js starting from input file's directory
+const CONFIG_FILES = [
+  'macroforge.config.ts',
+  'macroforge.config.mts',
+  'macroforge.config.js',
+  'macroforge.config.mjs',
+  'macroforge.config.cjs',
+];
+
+function findConfigFile(startDir) {
+  let dir = startDir;
+  while (dir) {
+    for (const configName of CONFIG_FILES) {
+      const configPath = path.join(dir, configName);
+      if (fs.existsSync(configPath)) {
+        return configPath;
+      }
+    }
+    // Stop at package.json (project root)
+    if (fs.existsSync(path.join(dir, 'package.json'))) {
+      break;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+
 try {
-  const result = expandSync(code, inputPath, null);
+  const inputDir = path.dirname(path.resolve(inputPath));
+  const configPath = findConfigFile(inputDir);
+
+  let options = {};
+  if (configPath) {
+    // Load config and pass the path to expandSync
+    const configContent = fs.readFileSync(configPath, 'utf8');
+    loadConfig(configContent, configPath);
+    options.configPath = configPath;
+  }
+
+  const result = expandSync(code, inputPath, options);
 
   // Output as JSON for the Rust CLI to parse
   console.log(JSON.stringify({
@@ -785,5 +974,262 @@ fn get_expanded_path(input: &Path) -> PathBuf {
         dir.join(format!("{}.expanded{}", name_without_ext, extensions))
     } else {
         dir.join(format!("{}.expanded", basename))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // =========================================================================
+    // get_expanded_path tests
+    // =========================================================================
+
+    #[test]
+    fn test_get_expanded_path_simple_ts() {
+        let input = Path::new("src/User.ts");
+        let result = get_expanded_path(input);
+        assert_eq!(result, PathBuf::from("src/User.expanded.ts"));
+    }
+
+    #[test]
+    fn test_get_expanded_path_svelte_ts() {
+        let input = Path::new("src/lib/demo/types/appointment.svelte.ts");
+        let result = get_expanded_path(input);
+        assert_eq!(
+            result,
+            PathBuf::from("src/lib/demo/types/appointment.expanded.svelte.ts")
+        );
+    }
+
+    #[test]
+    fn test_get_expanded_path_tsx() {
+        let input = Path::new("components/Button.tsx");
+        let result = get_expanded_path(input);
+        assert_eq!(result, PathBuf::from("components/Button.expanded.tsx"));
+    }
+
+    #[test]
+    fn test_get_expanded_path_no_extension() {
+        let input = Path::new("src/Makefile");
+        let result = get_expanded_path(input);
+        assert_eq!(result, PathBuf::from("src/Makefile.expanded"));
+    }
+
+    #[test]
+    fn test_get_expanded_path_multiple_dots() {
+        let input = Path::new("lib/config.test.spec.ts");
+        let result = get_expanded_path(input);
+        assert_eq!(result, PathBuf::from("lib/config.expanded.test.spec.ts"));
+    }
+
+    #[test]
+    fn test_get_expanded_path_root_file() {
+        let input = Path::new("index.ts");
+        let result = get_expanded_path(input);
+        assert_eq!(result, PathBuf::from("index.expanded.ts"));
+    }
+
+    // =========================================================================
+    // offset_to_line_col tests
+    // =========================================================================
+
+    #[test]
+    fn test_offset_to_line_col_first_char() {
+        let source = "hello\nworld";
+        assert_eq!(offset_to_line_col(source, 0), (1, 1));
+    }
+
+    #[test]
+    fn test_offset_to_line_col_same_line() {
+        let source = "hello\nworld";
+        assert_eq!(offset_to_line_col(source, 3), (1, 4)); // 'l' in hello
+    }
+
+    #[test]
+    fn test_offset_to_line_col_second_line() {
+        let source = "hello\nworld";
+        assert_eq!(offset_to_line_col(source, 6), (2, 1)); // 'w' in world
+    }
+
+    #[test]
+    fn test_offset_to_line_col_second_line_middle() {
+        let source = "hello\nworld";
+        assert_eq!(offset_to_line_col(source, 9), (2, 4)); // 'l' in world
+    }
+
+    #[test]
+    fn test_offset_to_line_col_multiple_lines() {
+        let source = "line1\nline2\nline3";
+        assert_eq!(offset_to_line_col(source, 12), (3, 1)); // 'l' in line3
+    }
+
+    #[test]
+    fn test_offset_to_line_col_empty_lines() {
+        let source = "a\n\nb";
+        assert_eq!(offset_to_line_col(source, 2), (2, 1)); // empty line
+        assert_eq!(offset_to_line_col(source, 3), (3, 1)); // 'b'
+    }
+
+    // =========================================================================
+    // extract_import_sources_from_code tests
+    // =========================================================================
+
+    #[test]
+    fn test_extract_imports_named() {
+        let code = r#"import { DateTime } from 'effect';"#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_multiple_named() {
+        let code = r#"import { DateTime, Duration } from 'effect';"#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
+        assert_eq!(imports.get("Duration"), Some(&"effect".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_type_import() {
+        let code = r#"import type { DateTime } from 'effect';"#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_default() {
+        let code = r#"import React from 'react';"#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("React"), Some(&"react".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_namespace() {
+        let code = r#"import * as Effect from 'effect';"#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("Effect"), Some(&"effect".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_scoped_package() {
+        let code = r#"import { Schema } from '@effect/schema';"#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("Schema"), Some(&"@effect/schema".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_subpath() {
+        let code = r#"import { DateTime } from 'effect/DateTime';"#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("DateTime"), Some(&"effect/DateTime".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_multiple_statements() {
+        let code = r#"
+            import { DateTime } from 'effect';
+            import { ZonedDateTime } from '@internationalized/date';
+            import type { Site } from './site.svelte';
+        "#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
+        assert_eq!(
+            imports.get("ZonedDateTime"),
+            Some(&"@internationalized/date".to_string())
+        );
+        assert_eq!(imports.get("Site"), Some(&"./site.svelte".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_tsx_file() {
+        let code = r#"
+            import React from 'react';
+            import { useState } from 'react';
+
+            export function App() {
+                return <div>Hello</div>;
+            }
+        "#;
+        let path = Path::new("test.tsx");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("React"), Some(&"react".to_string()));
+        assert_eq!(imports.get("useState"), Some(&"react".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_empty_code() {
+        let code = "";
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert!(imports.is_empty());
+    }
+
+    #[test]
+    fn test_extract_imports_no_imports() {
+        let code = r#"
+            const x = 1;
+            export function foo() { return x; }
+        "#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert!(imports.is_empty());
+    }
+
+    #[test]
+    fn test_extract_imports_with_jsdoc_decorators() {
+        // JSDoc-style decorators (comments) don't affect parsing
+        let code = r#"
+            import type { DateTime } from 'effect';
+
+            /** @derive(Serialize) */
+            interface Event {
+                /** @serde({ validate: ["nonEmpty"] }) */
+                name: string;
+                begins: DateTime.DateTime;
+            }
+        "#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
+    }
+
+    #[test]
+    fn test_extract_imports_with_real_decorators() {
+        // Real TypeScript decorators on classes
+        let code = r#"
+            import type { DateTime } from 'effect';
+            import { Component } from '@angular/core';
+
+            @Component({ selector: 'app-root' })
+            class AppComponent {
+                begins: DateTime.DateTime;
+            }
+        "#;
+        let path = Path::new("test.ts");
+        let imports = extract_import_sources_from_code(code, path);
+
+        assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
+        assert_eq!(imports.get("Component"), Some(&"@angular/core".to_string()));
     }
 }
