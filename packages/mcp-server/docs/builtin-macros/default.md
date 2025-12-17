@@ -43,7 +43,7 @@ The `@default` decorator allows specifying explicit default values:
 
 ## Example
 
-```typescript before
+```typescript
 /** @derive(Default) */
 class UserSettings {
     /** @default("light") */
@@ -52,25 +52,7 @@ class UserSettings {
     /** @default(10) */
     pageSize: number;
 
-    notifications: boolean; // Uses type default: false
-}
-```
-
-```typescript after
-class UserSettings {
-    theme: string;
-
-    pageSize: number;
-
-    notifications: boolean; // Uses type default: false
-
-    static defaultValue(): UserSettings {
-        const instance = new UserSettings();
-        instance.theme = 'light';
-        instance.pageSize = 10;
-        instance.notifications = false;
-        return instance;
-    }
+    notifications: boolean;  // Uses type default: false
 }
 ```
 
@@ -98,30 +80,13 @@ class UserSettings {
 
 For enums, mark one variant with `@default`:
 
-```typescript before
+```typescript
 /** @derive(Default) */
 enum Status {
     /** @default */
     Pending,
     Active,
     Completed
-}
-```
-
-```typescript after
-enum Status {
-    /** @default */
-    Pending,
-    Active,
-    Completed
-}
-
-export function statusDefaultValue(): Status {
-    return Status.Pending;
-}
-
-namespace Status {
-    export const defaultValue = statusDefaultValue;
 }
 ```
 
