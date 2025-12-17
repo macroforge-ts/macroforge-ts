@@ -39,7 +39,7 @@ The `@partialEq` decorator supports:
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(PartialEq, Hash) */
 class User {
     id: number;
@@ -47,6 +47,46 @@ class User {
 
     /** @partialEq({ skip: true }) @hash({ skip: true }) */
     cachedScore: number;
+}
+```
+
+```typescript after
+class User {
+    id: number;
+    name: string;
+
+    cachedScore: number;
+
+    static equals(a: User, b: User): boolean {
+        return userEquals(a, b);
+    }
+
+    static hashCode(value: User): number {
+        return userHashCode(value);
+    }
+}
+
+export function userEquals(a: User, b: User): boolean {
+    if (a === b) return true;
+    return a.id === b.id && a.name === b.name;
+}
+
+export function userHashCode(value: User): number {
+    let hash = 17;
+    hash =
+        (hash * 31 +
+            (Number.isInteger(value.id)
+                ? value.id | 0
+                : value.id
+                      .toString()
+                      .split('')
+                      .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        0;
+    hash =
+        (hash * 31 +
+            (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        0;
+    return hash;
 }
 ```
 
@@ -102,7 +142,7 @@ When implementing `PartialEq`, consider also implementing `Hash`:
 
 To maintain the hash contract, skip the same fields in both `PartialEq` and `Hash`:
 
-```typescript
+```typescript before
 /** @derive(PartialEq, Hash) */
 class User {
     id: number;
@@ -110,6 +150,46 @@ class User {
 
     /** @partialEq({ skip: true }) @hash({ skip: true }) */
     cachedScore: number;
+}
+```
+
+```typescript after
+class User {
+    id: number;
+    name: string;
+
+    cachedScore: number;
+
+    static equals(a: User, b: User): boolean {
+        return userEquals(a, b);
+    }
+
+    static hashCode(value: User): number {
+        return userHashCode(value);
+    }
+}
+
+export function userEquals(a: User, b: User): boolean {
+    if (a === b) return true;
+    return a.id === b.id && a.name === b.name;
+}
+
+export function userHashCode(value: User): number {
+    let hash = 17;
+    hash =
+        (hash * 31 +
+            (Number.isInteger(value.id)
+                ? value.id | 0
+                : value.id
+                      .toString()
+                      .split('')
+                      .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        0;
+    hash =
+        (hash * 31 +
+            (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        0;
+    return hash;
 }
 ```
 

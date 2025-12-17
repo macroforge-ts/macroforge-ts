@@ -4,7 +4,7 @@
  ```
 npm install -D @macroforge/vite-plugin
 ``` ## Configuration
- Add the plugin to your `vite.config.ts`:
+ Add the plugin to your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">vite.config.ts</code>:
  ```
 import macroforge from "@macroforge/vite-plugin";
 import &#123; defineConfig &#125; from "vite";
@@ -36,10 +36,10 @@ macroforge(&#123;
 ``` ### Option Reference
  | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `generateTypes` | `boolean` | `true` | Generate .d.ts files |
-| `typesOutputDir` | `string` | `.macroforge/types` | Where to write type files |
-| `emitMetadata` | `boolean` | `false` | Emit macro metadata files |
-| `keepDecorators` | `boolean` | `false` | Keep decorators in output |
+| generateTypes | boolean | true | Generate .d.ts files |
+| typesOutputDir | string | .macroforge/types | Where to write type files |
+| emitMetadata | boolean | false | Emit macro metadata files |
+| keepDecorators | boolean | false | Keep decorators in output |
  ## Framework Integration
  ### React (Vite)
  ```
@@ -74,4 +74,4 @@ export default defineConfig(&#123;
  During production builds, the plugin:
  - Expands all macros in the source files
  - Generates type declaration files
- - Strips `@derive` decorators from output
+ - Strips <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorators from output

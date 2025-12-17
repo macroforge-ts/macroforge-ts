@@ -4,7 +4,7 @@
  ```
 npm install -D @macroforge/typescript-plugin
 ``` ## Configuration
- Add the plugin to your `tsconfig.json`:
+ Add the plugin to your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsconfig.json</code>:
  ```
 &#123;
   "compilerOptions": &#123;
@@ -17,16 +17,16 @@ npm install -D @macroforge/typescript-plugin
 &#125;
 ``` ## VS Code Setup
  VS Code uses its own TypeScript version by default. To use the workspace version (which includes plugins):
- 1. Open the Command Palette (`Cmd/Ctrl + Shift + P`)
+ 1. Open the Command Palette (<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Cmd<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Ctrl<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">+<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Shift<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">+<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">P</code>)
  2. Search for "TypeScript: Select TypeScript Version"
  3. Choose "Use Workspace Version"
-  **Tip Add this setting to your `.vscode/settings.json` to make it permanent: ```
+  **Tip Add this setting to your **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">.vscode/settings.json</code> to make it permanent: ```
 &#123;
   "typescript.tsdk": "node_modules/typescript/lib"
 &#125;
 ``` ## Features
  ### Error Reporting
- Errors in macro-generated code are reported at the `@derive` decorator position:
+ Errors in macro-generated code are reported at the <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> decorator position:
  ```
 /** @derive(Debug) */  // &#x3C;- Errors appear here
 class User &#123;
@@ -47,9 +47,8 @@ const copy = user.clone();
  ### Plugin Not Loading
  1. Ensure you're using the workspace TypeScript version
  2. Restart the TypeScript server (Command Palette → "TypeScript: Restart TS Server")
- 3. Check that the plugin is listed in `tsconfig.json`
+ 3. Check that the plugin is listed in <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsconfig.json</code>
  ### Errors Not Showing
  If errors from macros aren't appearing:
  1. Make sure the Vite plugin is also installed (for source file watching)
  2. Check that your file is saved (plugins process on save)
-**

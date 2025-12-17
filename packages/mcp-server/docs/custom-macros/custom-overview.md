@@ -3,8 +3,8 @@
  ## Overview
  Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
  1. Creating a Rust crate with NAPI bindings
- 2. Defining macro functions with `#[ts_macro_derive]`
- 3. Using `macroforge_ts_quote` to generate TypeScript code
+ 2. Defining macro functions with <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#[ts_macro_derive]</code>
+ 3. Using <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge_ts_quote</code> to generate TypeScript code
  4. Building and publishing as an npm package
  ## Quick Example
  ```
@@ -54,7 +54,7 @@ class User &#123;
 
 const user = new User("Alice", 30);
 console.log(user.toJSON()); // &#123; name: "Alice", age: 30 &#125;
-``` > **Note:** The import macro comment tells Macroforge which package provides the macro. ## Getting Started
+``` > **Note:** The importmacro comment tells Macroforge which package provides the macro. ## Getting Started
  Follow these guides to create your own macros:
  - [Set up a Rust macro crate](../docs/custom-macros/rust-setup)
  - [Learn the #[ts_macro_derive] attribute](../docs/custom-macros/ts-macro-derive)

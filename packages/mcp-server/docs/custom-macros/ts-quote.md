@@ -1,34 +1,34 @@
 # Template Syntax
- *The `macroforge_ts_quote` crate provides template-based code generation for TypeScript. The `ts_template!` macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.*
+ *The <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge_ts_quote</code> crate provides template-based code generation for TypeScript. The <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_template!</code> macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.*
  ## Available Macros
  | Macro | Output | Use Case |
 | --- | --- | --- |
-| `ts_template!` | Any TypeScript code | General code generation |
-| `body!` | Class body members | Methods and properties |
+| ts_template! | Any TypeScript code | General code generation |
+| body! | Class body members | Methods and properties |
  ## Quick Reference
  | Syntax | Description |
 | --- | --- |
-| `@{expr}` | Interpolate a Rust expression (adds space after) |
-| `{| content |}` | Ident block: concatenates without spaces (e.g., `{|get@{name}|}` → `getUser`) |
-| `{> "comment" <}` | Block comment: outputs `/* comment */` (string preserves whitespace) |
-| `{>> "doc" <<}` | Doc comment: outputs `/** doc */` (string preserves whitespace) |
-| `@@{` | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`) |
-| `"text @{expr}"` | String interpolation (auto-detected) |
-| `"'^template ${js}^'"` | JS backtick template literal (outputs ``template ${js}``) |
-| `{#if cond}...{/if}` | Conditional block |
+| @&#123;expr&#125; | Interpolate a Rust expression (adds space after) |
+| &#123;|content|&#125; | Ident block: concatenates without spaces (e.g., `{|get@{name}|}` → getUser) |
+| &#123;&gt;"comment"&lt;&#125; | Block comment: outputs /* comment */ (string preserves whitespace) |
+| &#123;&gt;&gt;"doc"&lt;&lt;&#125; | Doc comment: outputs /** doc */ (string preserves whitespace) |
+| @@&#123; | Escape for literal @&#123; (e.g., "@@&#123;foo&#125;" → @&#123;foo&#125;) |
+| "text @&#123;expr&#125;" | String interpolation (auto-detected) |
+| "'^template $&#123;js&#125;^'" | JS backtick template literal (outputs ``template ${js}``) |
+| &#123;#ifcond&#125;...&#123;/if&#125; | Conditional block |
 | `{#if cond}...{:else}...{/if}` | Conditional with else |
 | {#if a}...{:else if b}...{:else}...{/if} | Full if/else-if/else chain |
 | `{#if let pattern = expr}...{/if}` | Pattern matching if-let |
 | {#match expr}{:case pattern}...{/match} | Match expression with case arms |
 | `{#for item in list}...{/for}` | Iterate over a collection |
-| `{#while cond}...{/while}` | While loop |
+| &#123;#whilecond&#125;...&#123;/while&#125; | While loop |
 | `{#while let pattern = expr}...{/while}` | While-let pattern matching loop |
-| `{$let name = expr}` | Define a local constant |
-| `{$let mut name = expr}` | Define a mutable local variable |
-| `{$do expr}` | Execute a side-effectful expression |
-| `{$typescript stream}` | Inject a TsStream, preserving its source and runtime_patches (imports) |
- **Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works as expected).
- ## Interpolation: `@{expr}`
+| &#123;$let name=expr&#125; | Define a local constant |
+| &#123;$let mut name=expr&#125; | Define a mutable local variable |
+| &#123;$do expr&#125; | Execute a side-effectful expression |
+| &#123;$typescript stream&#125; | Inject a TsStream, preserving its source and runtime_patches (imports) |
+ **Note:** A single <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@</code> not followed by <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> passes through unchanged (e.g., <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">email@domain.com</code> works as expected).
+ ## Interpolation: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;expr<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Insert Rust expressions into the generated TypeScript:
  ```
 let class_name = "User";
@@ -44,8 +44,8 @@ let code = ts_template! &#123;
 User.prototype.toString = function () &#123;
   return "User instance";
 &#125;;
-``` ## Identifier Concatenation: `{| content |}`
- When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `{| |}` is concatenated without spaces:
+``` ## Identifier Concatenation: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">content<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ When you need to build identifiers dynamically (like <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">getUser</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">setName</code>), use the ident block syntax. Everything inside <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> is concatenated without spaces:
  ```
 let field_name = "User";
 
@@ -59,7 +59,7 @@ let code = ts_template! &#123;
 function getUser() &#123;
   return this.user;
 &#125;
-``` Without ident blocks, `@{}` always adds a space after for readability. Use `{| |}` when you explicitly want concatenation:
+``` Without ident blocks, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> always adds a space after for readability. Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">|&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> when you explicitly want concatenation:
  ```
 let name = "Status";
 
@@ -74,10 +74,10 @@ let entity = "user";
 let action = "create";
 
 ts_template! &#123; &#123;|@&#123;entity&#125;_@&#123;action&#125;|&#125; &#125;  // → "user_create"
-``` ## Comments: `{> "..." <}` and `{>> "..." <<}`
+``` ## Comments: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"..."<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> and <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"..."<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
  ### Block Comments
- Use `{> "comment" <}` for block comments:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"comment"<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> for block comments:
  ```
 let code = ts_template! &#123;
     &#123;> "This is a block comment" &#x3C;&#125;
@@ -88,7 +88,7 @@ let code = ts_template! &#123;
 /* This is a block comment */
 const x = 42;
 ``` ### Doc Comments (JSDoc)
- Use `{>> "doc" <<}` for JSDoc comments:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"doc"<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> for JSDoc comments:
  ```
 let code = ts_template! &#123;
     &#123;>> "@param &#123;string&#125; name - The user's name" &#x3C;&#x3C;&#125;
@@ -105,7 +105,7 @@ function greet(name: string): string &#123;
     return "Hello, " + name;
 &#125;
 ``` ### Comments with Interpolation
- Use `format!()` or similar to build dynamic comment strings:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">format<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">!<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code> or similar to build dynamic comment strings:
  ```
 let param_name = "userId";
 let param_type = "number";
@@ -119,7 +119,7 @@ let code = ts_template! &#123;
  ```
 /** @param &#123;number&#125; userId - The user ID */
 function getUser(userId: number) &#123;&#125;
-``` ## String Interpolation: `"text @{expr}"`
+``` ## String Interpolation: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"text @&#123;expr&#125;"</code>
  Interpolation works automatically inside string literals - no `format!()` needed:
  ```
 let name = "World";
@@ -140,8 +140,8 @@ let field = "username";
 let code = ts_template! &#123;
     throw new Error("Invalid @&#123;field.to_uppercase()&#125;");
 &#125;;
-``` ## Backtick Template Literals: `"'^...^'"`
- For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through `$${}` for JS interpolation:
+``` ## Backtick Template Literals: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"'^...^'"</code>
+ For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">${<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"${}"<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">}</code> for JS interpolation:
  ```
 let tag_name = "div";
 
@@ -151,7 +151,7 @@ let code = ts_template! {
 ``` **Generates:**
  ```
 const html = `${content}`;
-``` You can mix Rust `@{}` interpolation (evaluated at macro expansion time) with JS `$${}` interpolation (evaluated at runtime):
+``` You can mix Rust <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> interpolation (evaluated at macro expansion time) with JS <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">${<span style="--shiki-dark:#9ECBFF;--shiki-light:#032F62">"${}"<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">}</code> interpolation (evaluated at runtime):
  ```
 let class_name = "User";
 
@@ -161,7 +161,7 @@ let code = ts_template! {
 ``` **Generates:**
  ```
 `Hello $&#123;this.name&#125;, you are a User`
-``` ## Conditionals: `{#if}...{/if}`
+``` ## Conditionals: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">if&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">...&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/if&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Basic conditional:
  ```
 let needs_validation = true;
@@ -198,8 +198,8 @@ let code = ts_template! &#123;
         console.log("Other level");
     &#123;/if&#125;
 &#125;;
-``` ## Pattern Matching: `{#if let}`
- Use `if let` for pattern matching on `Option`, `Result`, or other Rust enums:
+``` ## Pattern Matching: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">if<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">let<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">&#125;</code>
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">if<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">let</code> for pattern matching on <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Option</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Result</code>, or other Rust enums:
  ```
 let maybe_name: Option&#x3C;&#x26;str> = Some("Alice");
 
@@ -222,8 +222,8 @@ let code = ts_template! &#123;
         this.@&#123;field.name&#125; = undefined;
     &#123;/if&#125;
 &#125;;
-``` ## Match Expressions: `{#match}`
- Use `match` for exhaustive pattern matching:
+``` ## Match Expressions: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#match<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">match</code> for exhaustive pattern matching:
  ```
 enum Visibility &#123; Public, Private, Protected &#125;
 let visibility = Visibility::Public;
@@ -268,7 +268,7 @@ let code = ts_template! &#123;
             console.log("many");
     &#123;/match&#125;
 &#125;;
-``` ## Iteration: `{#for}`
+``` ## Iteration: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#for<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  ```
 let fields = vec!["name", "email", "age"];
 
@@ -317,8 +317,8 @@ ts_template! &#123;
         &#125;;
     &#123;/for&#125;
 &#125;
-``` ## While Loops: `{#while}`
- Use `while` for loops that need to continue until a condition is false:
+``` ## While Loops: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;#<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">while&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">while</code> for loops that need to continue until a condition is false:
  ```
 let items = get_items();
 let mut idx = 0;
@@ -331,7 +331,7 @@ let code = ts_template! &#123;
     &#123;/while&#125;
 &#125;;
 ``` ### While-Let Pattern Matching
- Use `while let` for iterating with pattern matching, similar to `if let`:
+ Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">while<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">let</code> for iterating with pattern matching, similar to <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">if<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">let</code>:
  ```
 let mut items = vec!["a", "b", "c"].into_iter();
 
@@ -352,7 +352,7 @@ let code = ts_template! &#123;
         result.@&#123;next_field.name&#125; = this.@&#123;next_field.name&#125;;
     &#123;/while&#125;
 &#125;;
-``` ## Local Constants: `{$let}`
+``` ## Local Constants: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$let<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Define local variables within the template scope:
  ```
 let items = vec![("user", "User"), ("post", "Post")];
@@ -365,8 +365,8 @@ let code = ts_template! &#123;
     &#123;/for&#125;
 &#125;;
 ``` This is useful for computing derived values inside loops without cluttering the Rust code.
- ## Mutable Variables: `{$let mut}`
- When you need to modify a variable within the template (e.g., in a `while` loop), use `{$let mut}`:
+ ## Mutable Variables: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$let mut<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ When you need to modify a variable within the template (e.g., in a `while` loop), use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$let mut<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>:
  ```
 let code = ts_template! &#123;
     &#123;$let mut count = 0&#125;
@@ -376,7 +376,7 @@ let code = ts_template! &#123;
     &#123;/for&#125;
     console.log("Total: @&#123;count&#125;");
 &#125;;
-``` ## Side Effects: `{$do}`
+``` ## Side Effects: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
  ```
 let code = ts_template! &#123;
@@ -386,13 +386,13 @@ let code = ts_template! &#123;
     &#123;/for&#125;
     return [@&#123;results.join(", ")&#125;];
 &#125;;
-``` Common uses for `{$do}`:
- - Incrementing counters: `{$do i += 1}`
- - Building collections: `{$do vec.push(item)}`
- - Setting flags: `{$do found = true}`
+``` Common uses for <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>:
+ - Incrementing counters: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do i<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">+=<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">1<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ - Building collections: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do vec.<span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">push<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">(item)<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ - Setting flags: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$do found<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">=<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">true<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
  - Any mutating operation
- ## TsStream Injection: `{$typescript}`
- Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
+ ## TsStream Injection: <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;$typescript<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">125<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>
+ Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">add_import<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code>):
  ```
 // Create a helper method with its own import
 let mut helper = body! &#123;
@@ -429,7 +429,7 @@ body! &#123;
     &#123;/if&#125;
 &#125;
 ``` ## Escape Syntax
- If you need a literal `@{` in your output (not interpolation), use `@@{`:
+ If you need a literal <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code> in your output (not interpolation), use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@@<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#<span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">123<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">;</code>:
  ```
 ts_template! &#123;
     // This outputs a literal @&#123;foo&#125;
@@ -440,7 +440,7 @@ ts_template! &#123;
 // This outputs a literal @&#123;foo&#125;
 const example = "Use @&#123;foo&#125; for templates";
 ``` ## Complete Example: JSON Derive Macro
- Here's a comparison showing how `ts_template!` simplifies code generation:
+ Here's a comparison showing how <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_template!</code> simplifies code generation:
  ### Before (Manual AST Building)
  ```
 pub fn derive_json_macro(input: TsStream) -> MacroResult &#123;
@@ -499,9 +499,9 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult &#123;
  1. **Compile-Time:** The template is parsed during macro expansion
  2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
  3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
- 4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
+ 4. **Result:** Returns <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Stmt</code> that can be used in <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">MacroResult</code> patches
  ## Return Type
- `ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
+ <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_template!</code> returns a <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">Result<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">lt;Stmt, TsSynError<span style="--shiki-dark:#F97583;--shiki-light:#D73A49">&<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">gt;</code> by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
  ```
 Failed to parse generated TypeScript:
 User.prototype.toJSON = function( &#123;
@@ -510,7 +510,7 @@ User.prototype.toJSON = function( &#123;
 ``` This shows you exactly what was generated, making debugging easy!
  ## Nesting and Regular TypeScript
  You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
- - **Template tags** if they start with `#`, `$`, `:`, or `/`
+ - **Template tags** if they start with <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">#</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">$</code>, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">:</code>, or <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#F97583;--shiki-light:#D73A49">/</code>
  - **Regular TypeScript blocks** otherwise
  ```
 ts_template! &#123;
@@ -526,11 +526,11 @@ ts_template! &#123;
 ``` ## Comparison with Alternatives
  | Approach | Pros | Cons |
 | --- | --- | --- |
-| `ts_quote!` | Compile-time validation, type-safe | Can't handle Vec<Stmt>, verbose |
-| `parse_ts_str()` | Maximum flexibility | Runtime parsing, less readable |
-| `ts_template!` | Readable, handles loops/conditions | Small runtime parsing overhead |
+| ts_quote! | Compile-time validation, type-safe | Can't handle Vec<Stmt>, verbose |
+| parse_ts_str() | Maximum flexibility | Runtime parsing, less readable |
+| ts_template! | Readable, handles loops/conditions | Small runtime parsing overhead |
  ## Best Practices
- 1. Use `ts_template!` for complex code generation with loops/conditions
- 2. Use `ts_quote!` for simple, static statements
+ 1. Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_template!</code> for complex code generation with loops/conditions
+ 2. Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">ts_quote!</code> for simple, static statements
  3. Keep templates readable - extract complex logic into variables
  4. Don't nest templates too deeply - split into helper functions

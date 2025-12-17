@@ -12,7 +12,7 @@ bun add macroforge
 ``` ```
 pnpm add macroforge
 ```  **Info Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64). ## Basic Usage
- The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
+ The simplest way to use Macroforge is with the built-in derive macros. Add a **<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">@derive</code> comment decorator to your class:
  ```
 /** @derive(Debug, Clone, PartialEq) */
 class User &#123;
@@ -30,7 +30,7 @@ class User &#123;
 // - clone(): User                   (from Clone)
 // - equals(other: unknown): boolean (from PartialEq)
 ``` ## IDE Integration
- For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
+ For the best development experience, add the TypeScript plugin to your <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">tsconfig.json</code>:
  ```
 &#123;
   "compilerOptions": &#123;
@@ -64,4 +64,3 @@ export default defineConfig(&#123;
  - [Create your first macro](../docs/getting-started/first-macro)
  - [Understand how macros work](../docs/concepts)
  - [Explore built-in macros](../docs/builtin-macros)
-**
