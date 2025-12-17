@@ -2256,8 +2256,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     } else {
                         // Check if the field's type matches a configured foreign type
                         let foreign_types = get_foreign_types();
-                        TypeCategory::match_foreign_type(&field.ts_type, &foreign_types)
-                            .and_then(|ft| ft.deserialize_expr.clone())
+                        let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                        // Error if import source mismatch (type matches but wrong import)
+                        if let Some(error) = ft_match.error {
+                            all_diagnostics.error(field.span, error);
+                        }
+                        // Log warning for informational hints
+                        if let Some(warning) = ft_match.warning {
+                            all_diagnostics.warning(field.span, warning);
+                        }
+                        ft_match.config.and_then(|ft| ft.deserialize_expr.clone())
                     };
 
                     Some(DeserializeField {
@@ -2421,10 +2429,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 // Custom deserialization function (deserializeWith)
                                 {#if field.optional}
                                     if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                                        instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                        instance.@{field.field_name} = (@{fn_name})(obj["@{field.json_key}"]);
                                     }
                                 {:else}
-                                    instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                    instance.@{field.field_name} = (@{fn_name})(obj["@{field.json_key}"]);
                                 {/if}
                             {:else}
                             {#if field.optional}
@@ -2856,8 +2864,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     } else {
                         // Check if the field's type matches a configured foreign type
                         let foreign_types = get_foreign_types();
-                        TypeCategory::match_foreign_type(&field.ts_type, &foreign_types)
-                            .and_then(|ft| ft.deserialize_expr.clone())
+                        let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                        // Error if import source mismatch (type matches but wrong import)
+                        if let Some(error) = ft_match.error {
+                            all_diagnostics.error(field.span, error);
+                        }
+                        // Log warning for informational hints
+                        if let Some(warning) = ft_match.warning {
+                            all_diagnostics.warning(field.span, warning);
+                        }
+                        ft_match.config.and_then(|ft| ft.deserialize_expr.clone())
                     };
 
                     Some(DeserializeField {
@@ -3015,10 +3031,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     // Custom deserialization function (deserializeWith)
                                     {#if field.optional}
                                         if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                                            instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                            instance.@{field.field_name} = (@{fn_name})(obj["@{field.json_key}"]);
                                         }
                                     {:else}
-                                        instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                        instance.@{field.field_name} = (@{fn_name})(obj["@{field.json_key}"]);
                                     {/if}
                                 {:else}
                                 {#if field.optional}
@@ -3470,10 +3486,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         // Custom deserialization function (deserializeWith)
                                         {#if field.optional}
                                             if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                                                instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                                instance.@{field.field_name} = (@{fn_name})(obj["@{field.json_key}"]);
                                             }
                                         {:else}
-                                            instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                            instance.@{field.field_name} = (@{fn_name})(obj["@{field.json_key}"]);
                                         {/if}
                                     {:else}
                                     {#if field.optional}
