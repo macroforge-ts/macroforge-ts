@@ -1715,7 +1715,7 @@ use crate::ts_syn::{
     Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input,
 };
 
-use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec};
+use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec, get_foreign_types};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
 fn to_camel_case(name: &str) -> String {
@@ -2250,6 +2250,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         _ => None,
                     };
 
+                    // Check for foreign type deserializer if no explicit deserialize_with
+                    let deserialize_with = if opts.deserialize_with.is_some() {
+                        opts.deserialize_with.clone()
+                    } else {
+                        // Check if the field's type matches a configured foreign type
+                        let foreign_types = get_foreign_types();
+                        TypeCategory::match_foreign_type(&field.ts_type, &foreign_types)
+                            .and_then(|ft| ft.deserialize_expr.clone())
+                    };
+
                     Some(DeserializeField {
                         json_key,
                         field_name: field.name.clone(),
@@ -2263,7 +2273,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         nullable_inner_kind,
                         array_elem_kind,
                         nullable_serializable_type,
-                        deserialize_with: opts.deserialize_with.clone(),
+                        deserialize_with,
                     })
                 })
                 .collect();
@@ -2840,6 +2850,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         _ => None,
                     };
 
+                    // Check for foreign type deserializer if no explicit deserialize_with
+                    let deserialize_with = if opts.deserialize_with.is_some() {
+                        opts.deserialize_with.clone()
+                    } else {
+                        // Check if the field's type matches a configured foreign type
+                        let foreign_types = get_foreign_types();
+                        TypeCategory::match_foreign_type(&field.ts_type, &foreign_types)
+                            .and_then(|ft| ft.deserialize_expr.clone())
+                    };
+
                     Some(DeserializeField {
                         json_key,
                         field_name: field.name.clone(),
@@ -2853,7 +2873,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         nullable_inner_kind,
                         array_elem_kind,
                         nullable_serializable_type,
-                        deserialize_with: opts.deserialize_with.clone(),
+                        deserialize_with,
                     })
                 })
                 .collect();

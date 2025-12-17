@@ -831,7 +831,19 @@ function hasMacroDirectives(text: string) {
 }
 
 /**
- * Configuration options loaded from `macroforge.json`.
+ * Supported config file names in order of precedence.
+ * @internal
+ */
+const CONFIG_FILES = [
+  "macroforge.config.ts",
+  "macroforge.config.mts",
+  "macroforge.config.js",
+  "macroforge.config.mjs",
+  "macroforge.config.cjs",
+];
+
+/**
+ * Configuration options loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).
  *
  * @remarks
  * This configuration affects how macros are expanded and what artifacts
@@ -848,52 +860,40 @@ type MacroConfig = {
    * @default false
    */
   keepDecorators: boolean;
+
+  /**
+   * Path to the config file (used to cache and retrieve foreign types).
+   */
+  configPath?: string;
+
+  /**
+   * Whether the config has foreign type handlers defined.
+   */
+  hasForeignTypes?: boolean;
 };
 
 /**
- * Loads Macroforge configuration by searching for `macroforge.json` up the directory tree.
+ * Finds a macroforge config file in the directory tree.
  *
- * Starting from the given directory, this function walks up the filesystem hierarchy
- * looking for a `macroforge.json` configuration file. The first one found is parsed
- * and its settings are returned.
+ * @param startDir - The directory to start searching from
+ * @returns The path to the config file, or null if not found
  *
- * @param startDir - The directory to start searching from (typically the project root)
- * @returns The parsed configuration, or default values if no config file is found
- *
- * @remarks
- * The search stops when:
- * - A `macroforge.json` file is found and successfully parsed
- * - The filesystem root is reached
- * - A parse error occurs (falls back to defaults)
- *
- * This allows monorepo setups where a root `macroforge.json` can configure
- * all packages, while individual packages can override with their own config.
- *
- * @example
- * ```typescript
- * // With /project/macroforge.json containing: { "keepDecorators": true }
- * loadMacroConfig('/project/src/components');
- * // => { keepDecorators: true }
- *
- * // With no macroforge.json found:
- * loadMacroConfig('/some/other/path');
- * // => { keepDecorators: false }
- * ```
+ * @internal
  */
-function loadMacroConfig(startDir: string): MacroConfig {
+function findConfigFile(startDir: string): string | null {
   let current = startDir;
-  const fallback: MacroConfig = { keepDecorators: false };
 
   while (true) {
-    const candidate = path.join(current, "macroforge.json");
-    if (fs.existsSync(candidate)) {
-      try {
-        const raw = fs.readFileSync(candidate, "utf8");
-        const parsed = JSON.parse(raw);
-        return { keepDecorators: Boolean(parsed.keepDecorators) };
-      } catch {
-        return fallback;
+    for (const filename of CONFIG_FILES) {
+      const candidate = path.join(current, filename);
+      if (fs.existsSync(candidate)) {
+        return candidate;
       }
+    }
+
+    // Stop at package.json boundary
+    if (fs.existsSync(path.join(current, "package.json"))) {
+      break;
     }
 
     const parent = path.dirname(current);
@@ -901,7 +901,65 @@ function loadMacroConfig(startDir: string): MacroConfig {
     current = parent;
   }
 
-  return fallback;
+  return null;
+}
+
+/**
+ * Loads Macroforge configuration from `macroforge.config.js` (or .ts/.mjs/.cjs).
+ *
+ * Starting from the given directory, this function walks up the filesystem hierarchy
+ * looking for a macroforge config file. The first one found is parsed by the Rust
+ * binary using SWC, which extracts configuration including foreign type handlers.
+ *
+ * @param startDir - The directory to start searching from (typically the project root)
+ * @returns The parsed configuration, or default values if no config file is found
+ *
+ * @remarks
+ * The search stops when:
+ * - A config file is found and successfully parsed
+ * - A package.json boundary is reached
+ * - The filesystem root is reached
+ *
+ * This allows monorepo setups where a root `macroforge.config.js` can configure
+ * all packages, while individual packages can override with their own config.
+ *
+ * @example
+ * ```typescript
+ * // With /project/macroforge.config.js containing:
+ * // export default { keepDecorators: true }
+ * loadMacroConfig('/project/src/components');
+ * // => { keepDecorators: true, configPath: '/project/macroforge.config.js' }
+ * ```
+ */
+function loadMacroConfig(startDir: string): MacroConfig {
+  const fallback: MacroConfig = { keepDecorators: false };
+
+  const configPath = findConfigFile(startDir);
+  if (!configPath) {
+    return fallback;
+  }
+
+  // Try to use the Rust binary to parse the config
+  try {
+    const content = fs.readFileSync(configPath, "utf8");
+    const result = (NativePlugin as any).loadConfig?.(content, configPath);
+
+    if (result) {
+      return {
+        keepDecorators: result.keepDecorators,
+        configPath,
+        hasForeignTypes: result.hasForeignTypes,
+      };
+    }
+  } catch {
+    // Fall through to fallback
+  }
+
+  // Fallback: just mark the path but use defaults
+  return {
+    ...fallback,
+    configPath,
+  };
 }
 
 /**
@@ -1236,6 +1294,7 @@ function init(modules: { typescript: typeof ts }) {
         const result = nativePlugin.processFile(fileName, content, {
           keepDecorators,
           version,
+          configPath: macroConfig.configPath,
         });
 
         // Update virtual .d.ts files
