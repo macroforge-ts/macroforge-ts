@@ -43,6 +43,95 @@
 // Re-export Result and Option from @rydshift/mirror for use in generated code
 export { Result, Option } from "@rydshift/mirror/declarative";
 
+// ============================================================================
+// Vanilla Return Types
+// ============================================================================
+// These types are used when `returnTypes: 'vanilla'` is configured.
+// They provide simple discriminated unions without requiring external dependencies.
+
+/**
+ * Represents a successful deserialization result.
+ * Used when `returnTypes: 'vanilla'` is configured.
+ */
+export interface DeserializeSuccess<T> {
+  readonly success: true;
+  readonly value: T;
+}
+
+/**
+ * Represents a failed deserialization result with field errors.
+ * Used when `returnTypes: 'vanilla'` is configured.
+ */
+export interface DeserializeFailure {
+  readonly success: false;
+  readonly errors: Array<{ field: string; message: string }>;
+}
+
+/**
+ * A simple discriminated union for deserialization results.
+ * Used when `returnTypes: 'vanilla'` is configured.
+ *
+ * @example
+ * ```typescript
+ * const result = userDeserialize(json);
+ * if (result.success) {
+ *   const user = result.value;
+ * } else {
+ *   console.error(result.errors);
+ * }
+ * ```
+ */
+export type DeserializeResult<T> = DeserializeSuccess<T> | DeserializeFailure;
+
+/**
+ * Namespace with helper functions for working with vanilla DeserializeResult.
+ * These mirror the Result API for familiarity.
+ */
+export namespace DeserializeResult {
+  /**
+   * Creates a successful result.
+   */
+  export function ok<T>(value: T): DeserializeResult<T> {
+    return { success: true, value };
+  }
+
+  /**
+   * Creates a failed result with errors.
+   */
+  export function err<T>(errors: Array<{ field: string; message: string }>): DeserializeResult<T> {
+    return { success: false, errors };
+  }
+
+  /**
+   * Type guard to check if the result is successful.
+   */
+  export function isOk<T>(result: DeserializeResult<T>): result is DeserializeSuccess<T> {
+    return result.success;
+  }
+
+  /**
+   * Type guard to check if the result is a failure.
+   */
+  export function isErr<T>(result: DeserializeResult<T>): result is DeserializeFailure {
+    return !result.success;
+  }
+
+  /**
+   * Unwraps the value or throws an error.
+   */
+  export function unwrap<T>(result: DeserializeResult<T>): T {
+    if (result.success) return result.value;
+    throw new Error(`Deserialization failed: ${JSON.stringify(result.errors)}`);
+  }
+
+  /**
+   * Unwraps the value or returns a default.
+   */
+  export function unwrapOr<T>(result: DeserializeResult<T>, defaultValue: T): T {
+    return result.success ? result.value : defaultValue;
+  }
+}
+
 /**
  *
  *

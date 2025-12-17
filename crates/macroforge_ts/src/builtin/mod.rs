@@ -99,3 +99,6 @@ mod derive_partial_ord;
 
 /// Serialization macros (Serialize, Deserialize).
 pub mod serde;
+
+/// Return type code generation helpers for configurable return types.
+pub mod return_types;
