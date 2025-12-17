@@ -117,18 +117,11 @@
 //! - An enum has no variant marked with `@default`
 //! - A union type has no `@default` on a variant
 
+use convert_case::{Case, Casing};
+
 use crate::builtin::derive_common::{DefaultFieldOptions, get_type_default, has_known_default};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
-
-/// Convert a PascalCase name to camelCase (for prefix naming style)
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
 
 /// Contains field information needed for default value generation.
 ///
@@ -228,7 +221,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             };
 
             // Also generate standalone function for consistency
-            let fn_name = format!("{}DefaultValue", to_camel_case(class_name));
+            let fn_name = format!("{}DefaultValue", class_name.to_case(Case::Camel));
             let sibling = ts_template! {
                 export function @{fn_name}(): @{class_name} {
                     return @{class_name}.defaultValue();
@@ -251,7 +244,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             match default_variant {
                 Some(variant) => {
                     let variant_name = &variant.name;
-                    let fn_name = format!("{}DefaultValue", to_camel_case(enum_name));
+                    let fn_name = format!("{}DefaultValue", enum_name.to_case(Case::Camel));
                     Ok(ts_template! {
                         export function @{fn_name}(): @{enum_name} {
                             return @{enum_name}.@{variant_name};
@@ -331,7 +324,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 String::new()
             };
 
-            let fn_name = format!("{}DefaultValue", to_camel_case(interface_name));
+            let fn_name = format!("{}DefaultValue", interface_name.to_case(Case::Camel));
             Ok(ts_template! {
                 export function @{fn_name}(): @{interface_name} {
                     return {
@@ -417,7 +410,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     String::new()
                 };
 
-                let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
+                let fn_name = format!("{}DefaultValue", type_name.to_case(Case::Camel));
                 Ok(ts_template! {
                     export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
                         return {
@@ -509,7 +502,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         type_name.to_string()
                     };
 
-                    let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
+                    let fn_name = format!("{}DefaultValue", type_name.to_case(Case::Camel));
                     Ok(ts_template! {
                         export function @{fn_name}@{generic_params}(): @{return_type} {
                             return @{default_expr};
@@ -536,7 +529,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 );
 
                 if let Some(default_variant) = default_opts.value {
-                    let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
+                    let fn_name = format!("{}DefaultValue", type_name.to_case(Case::Camel));
                     Ok(ts_template! {
                         export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
                             return @{default_variant};
