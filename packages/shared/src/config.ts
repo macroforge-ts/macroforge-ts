@@ -43,7 +43,8 @@ export interface ConfigLoadResult {
   generateConvenienceConst: boolean;
   hasForeignTypes: boolean;
   foreignTypeCount: number;
-  returnTypes: ReturnTypesMode;
+  /** Return types mode as a string. Will be "vanilla", "custom", or "effect". */
+  returnTypes: string;
 }
 
 /**
@@ -196,7 +197,7 @@ export function loadMacroConfig(
         generateConvenienceConst: result.generateConvenienceConst,
         configPath,
         hasForeignTypes: result.hasForeignTypes,
-        returnTypes: result.returnTypes,
+        returnTypes: result.returnTypes as ReturnTypesMode,
       };
     } catch {
       // Fall through to fallback
