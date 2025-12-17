@@ -1,12 +1,12 @@
 import { expandExample } from '$lib/server/macroforge';
 import { getBuiltinMacro, getVersion } from '$lib/server/api-docs';
 
-export function load() {
+export async function load() {
 	return {
 		version: getVersion('rust', 'macroforge_ts'),
 		macro: getBuiltinMacro('serialize'),
 		examples: {
-			basic: expandExample(`/** @derive(Serialize) */
+			basic: await expandExample(`/** @derive(Serialize) */
 class User {
   name: string;
   age: number;
@@ -18,7 +18,7 @@ class User {
     this.createdAt = new Date();
   }
 }`),
-			rename: expandExample(`/** @derive(Serialize) */
+			rename: await expandExample(`/** @derive(Serialize) */
 class User {
   /** @serde({ rename: "user_id" }) */
   id: string;
@@ -26,7 +26,7 @@ class User {
   /** @serde({ rename: "full_name" }) */
   name: string;
 }`),
-			skip: expandExample(`/** @derive(Serialize) */
+			skip: await expandExample(`/** @derive(Serialize) */
 class User {
   name: string;
   email: string;
@@ -37,19 +37,19 @@ class User {
   /** @serde({ skip_serializing: true }) */
   internalId: string;
 }`),
-			interface: expandExample(`/** @derive(Serialize) */
+			interface: await expandExample(`/** @derive(Serialize) */
 interface ApiResponse {
   status: number;
   message: string;
   timestamp: Date;
 }`),
-			enum: expandExample(`/** @derive(Serialize) */
+			enum: await expandExample(`/** @derive(Serialize) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
   Pending = "pending",
 }`),
-			typeAlias: expandExample(`/** @derive(Serialize) */
+			typeAlias: await expandExample(`/** @derive(Serialize) */
 type UserProfile = {
   id: string;
   name: string;

@@ -1,12 +1,12 @@
 import { expandExample } from '$lib/server/macroforge';
 import { getBuiltinMacro, getVersion } from '$lib/server/api-docs';
 
-export function load() {
+export async function load() {
 	return {
 		version: getVersion('rust', 'macroforge_ts'),
 		macro: getBuiltinMacro('clone'),
 		examples: {
-			basic: expandExample(`/** @derive(Clone) */
+			basic: await expandExample(`/** @derive(Clone) */
 class Point {
   x: number;
   y: number;
@@ -16,7 +16,7 @@ class Point {
     this.y = y;
   }
 }`),
-			nested: expandExample(`/** @derive(Clone) */
+			nested: await expandExample(`/** @derive(Clone) */
 class User {
   name: string;
   address: { city: string; zip: string };
@@ -26,17 +26,17 @@ class User {
     this.address = address;
   }
 }`),
-			interface: expandExample(`/** @derive(Clone) */
+			interface: await expandExample(`/** @derive(Clone) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`/** @derive(Clone) */
+			enum: await expandExample(`/** @derive(Clone) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
 }`),
-			typeAlias: expandExample(`/** @derive(Clone) */
+			typeAlias: await expandExample(`/** @derive(Clone) */
 type Point = {
   x: number;
   y: number;

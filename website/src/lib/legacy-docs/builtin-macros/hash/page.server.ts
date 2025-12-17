@@ -1,12 +1,12 @@
 import { expandExample } from '$lib/server/macroforge';
 import { getBuiltinMacro, getVersion } from '$lib/server/api-docs';
 
-export function load() {
+export async function load() {
 	return {
 		version: getVersion('rust', 'macroforge_ts'),
 		macro: getBuiltinMacro('hash'),
 		examples: {
-			basic: expandExample(`/** @derive(Hash) */
+			basic: await expandExample(`/** @derive(Hash) */
 class Point {
   x: number;
   y: number;
@@ -16,7 +16,7 @@ class Point {
     this.y = y;
   }
 }`),
-			skip: expandExample(`/** @derive(Hash) */
+			skip: await expandExample(`/** @derive(Hash) */
 class User {
   id: number;
   name: string;
@@ -30,18 +30,18 @@ class User {
     this.lastLogin = lastLogin;
   }
 }`),
-			interface: expandExample(`/** @derive(Hash) */
+			interface: await expandExample(`/** @derive(Hash) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`/** @derive(Hash) */
+			enum: await expandExample(`/** @derive(Hash) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
   Pending = "pending",
 }`),
-			typeAlias: expandExample(`/** @derive(Hash) */
+			typeAlias: await expandExample(`/** @derive(Hash) */
 type Coordinates = {
   lat: number;
   lng: number;
