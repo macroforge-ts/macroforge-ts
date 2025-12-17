@@ -8,28 +8,26 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { Company } from './company.svelte';
-
-export interface CompanyName {
-    companyName: string;
+export interface LastName {
+    name: string;
 }
 
-export function companyNameDefaultValue(): CompanyName {
-    return { companyName: '' } as CompanyName;
+export function lastNameDefaultValue(): LastName {
+    return { name: '' } as LastName;
 }
 
 /** Serializes a value to a JSON string.
 @param value - The value to serialize
-@returns JSON string representation with cycle detection metadata */ export function companyNameSerialize(
-    value: CompanyName
+@returns JSON string representation with cycle detection metadata */ export function lastNameSerialize(
+    value: LastName
 ): string {
     const ctx = SerializeContext.create();
-    return JSON.stringify(companyNameSerializeWithContext(value, ctx));
+    return JSON.stringify(lastNameSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function companyNameSerializeWithContext(
-    value: CompanyName,
+export function lastNameSerializeWithContext(
+    value: LastName,
     ctx: SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
@@ -37,8 +35,8 @@ export function companyNameSerializeWithContext(
         return { __ref: existingId };
     }
     const __id = ctx.register(value);
-    const result: Record<string, unknown> = { __type: 'CompanyName', __id };
-    result['companyName'] = value.companyName;
+    const result: Record<string, unknown> = { __type: 'LastName', __id };
+    result['name'] = value.name;
     return result;
 }
 
@@ -46,19 +44,19 @@ export function companyNameSerializeWithContext(
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized value or validation errors */ export function companyNameDeserialize(
+@returns Result containing the deserialized value or validation errors */ export function lastNameDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<CompanyName, Array<{ field: string; message: string }>> {
+): Result<LastName, Array<{ field: string; message: string }>> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = companyNameDeserializeWithContext(data, ctx);
+        const resultOrRef = lastNameDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: '_root',
-                    message: 'CompanyName.deserialize: root cannot be a forward reference'
+                    message: 'LastName.deserialize: root cannot be a forward reference'
                 }
             ]);
         }
@@ -77,22 +75,22 @@ Automatically detects whether input is a JSON string or object.
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function companyNameDeserializeWithContext(
+export function lastNameDeserializeWithContext(
     value: any,
     ctx: DeserializeContext
-): CompanyName | PendingRef {
+): LastName | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
         throw new DeserializeError([
-            { field: '_root', message: 'CompanyName.deserializeWithContext: expected an object' }
+            { field: '_root', message: 'LastName.deserializeWithContext: expected an object' }
         ]);
     }
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!('companyName' in obj)) {
-        errors.push({ field: 'companyName', message: 'missing required field' });
+    if (!('name' in obj)) {
+        errors.push({ field: 'name', message: 'missing required field' });
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
@@ -103,114 +101,114 @@ export function companyNameDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_companyName = obj['companyName'] as string;
-        if (__raw_companyName.length === 0) {
-            errors.push({ field: 'companyName', message: 'must not be empty' });
+        const __raw_name = obj['name'] as string;
+        if (__raw_name.length === 0) {
+            errors.push({ field: 'name', message: 'must not be empty' });
         }
-        instance.companyName = __raw_companyName;
+        instance.name = __raw_name;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
-    return instance as CompanyName;
+    return instance as LastName;
 }
-export function companyNameValidateField<K extends keyof CompanyName>(
+export function lastNameValidateField<K extends keyof LastName>(
     field: K,
-    value: CompanyName[K]
+    value: LastName[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
     switch (field) {
-        case 'companyName': {
+        case 'name': {
             const __val = value as string;
             if (__val.length === 0) {
-                errors.push({ field: 'companyName', message: 'must not be empty' });
+                errors.push({ field: 'name', message: 'must not be empty' });
             }
             break;
         }
     }
     return errors;
 }
-export function companyNameValidateFields(
-    partial: Partial<CompanyName>
+export function lastNameValidateFields(
+    partial: Partial<LastName>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('companyName' in partial && partial.companyName !== undefined) {
-        const __val = partial.companyName as string;
+    if ('name' in partial && partial.name !== undefined) {
+        const __val = partial.name as string;
         if (__val.length === 0) {
-            errors.push({ field: 'companyName', message: 'must not be empty' });
+            errors.push({ field: 'name', message: 'must not be empty' });
         }
     }
     return errors;
 }
-export function companyNameHasShape(obj: unknown): boolean {
+export function lastNameHasShape(obj: unknown): boolean {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
         return false;
     }
     const o = obj as Record<string, unknown>;
-    return 'companyName' in o;
+    return 'name' in o;
 }
-export function companyNameIs(obj: unknown): obj is CompanyName {
-    if (!companyNameHasShape(obj)) {
+export function lastNameIs(obj: unknown): obj is LastName {
+    if (!lastNameHasShape(obj)) {
         return false;
     }
-    const result = companyNameDeserialize(obj);
+    const result = lastNameDeserialize(obj);
     return Result.isOk(result);
 }
 
-/** Nested error structure matching the data shape */ export type CompanyNameErrors = {
+/** Nested error structure matching the data shape */ export type LastNameErrors = {
     _errors: Option<Array<string>>;
-    companyName: Option<Array<string>>;
+    name: Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
-export type CompanyNameTainted = {
-    companyName: Option<boolean>;
+export type LastNameTainted = {
+    name: Option<boolean>;
 }; /** Type-safe field controllers for this form */
-export interface CompanyNameFieldControllers {
-    readonly companyName: FieldController<string>;
+export interface LastNameFieldControllers {
+    readonly name: FieldController<string>;
 } /** Gigaform instance containing reactive state and field controllers */
-export interface CompanyNameGigaform {
-    readonly data: CompanyName;
-    readonly errors: CompanyNameErrors;
-    readonly tainted: CompanyNameTainted;
-    readonly fields: CompanyNameFieldControllers;
-    validate(): Result<CompanyName, Array<{ field: string; message: string }>>;
-    reset(overrides?: Partial<CompanyName>): void;
+export interface LastNameGigaform {
+    readonly data: LastName;
+    readonly errors: LastNameErrors;
+    readonly tainted: LastNameTainted;
+    readonly fields: LastNameFieldControllers;
+    validate(): Result<LastName, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<LastName>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
-export function companyNameCreateForm(overrides?: Partial<CompanyName>): CompanyNameGigaform {
-    let data = $state({ ...companyNameDefaultValue(), ...overrides });
-    let errors = $state<CompanyNameErrors>({ _errors: Option.none(), companyName: Option.none() });
-    let tainted = $state<CompanyNameTainted>({ companyName: Option.none() });
-    const fields: CompanyNameFieldControllers = {
-        companyName: {
-            path: ['companyName'] as const,
-            name: 'companyName',
+export function lastNameCreateForm(overrides?: Partial<LastName>): LastNameGigaform {
+    let data = $state({ ...lastNameDefaultValue(), ...overrides });
+    let errors = $state<LastNameErrors>({ _errors: Option.none(), name: Option.none() });
+    let tainted = $state<LastNameTainted>({ name: Option.none() });
+    const fields: LastNameFieldControllers = {
+        name: {
+            path: ['name'] as const,
+            name: 'name',
             constraints: { required: true },
-            label: 'Company Name',
-            get: () => data.companyName,
+
+            get: () => data.name,
             set: (value: string) => {
-                data.companyName = value;
+                data.name = value;
             },
             transform: (value: string): string => value,
-            getError: () => errors.companyName,
+            getError: () => errors.name,
             setError: (value: Option<Array<string>>) => {
-                errors.companyName = value;
+                errors.name = value;
             },
-            getTainted: () => tainted.companyName,
+            getTainted: () => tainted.name,
             setTainted: (value: Option<boolean>) => {
-                tainted.companyName = value;
+                tainted.name = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = companyNameValidateField('companyName', data.companyName);
+                const fieldErrors = lastNameValidateField('name', data.name);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
-    function validate(): Result<CompanyName, Array<{ field: string; message: string }>> {
-        return companyNameFromObject(data);
+    function validate(): Result<LastName, Array<{ field: string; message: string }>> {
+        return lastNameFromObject(data);
     }
-    function reset(newOverrides?: Partial<CompanyName>): void {
-        data = { ...companyNameDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), companyName: Option.none() };
-        tainted = { companyName: Option.none() };
+    function reset(newOverrides?: Partial<LastName>): void {
+        data = { ...lastNameDefaultValue(), ...newOverrides };
+        errors = { _errors: Option.none(), name: Option.none() };
+        tainted = { name: Option.none() };
     }
     return {
         get data() {
@@ -236,23 +234,23 @@ export function companyNameCreateForm(overrides?: Partial<CompanyName>): Company
         reset
     };
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
-export function companyNameFromFormData(
+export function lastNameFromFormData(
     formData: FormData
-): Result<CompanyName, Array<{ field: string; message: string }>> {
+): Result<LastName, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
-    obj.companyName = formData.get('companyName') ?? '';
-    return companyNameFromStringifiedJSON(JSON.stringify(obj));
+    obj.name = formData.get('name') ?? '';
+    return lastNameFromStringifiedJSON(JSON.stringify(obj));
 }
 
-export const CompanyName = {
-    defaultValue: companyNameDefaultValue,
-    serialize: companyNameSerialize,
-    serializeWithContext: companyNameSerializeWithContext,
-    deserialize: companyNameDeserialize,
-    deserializeWithContext: companyNameDeserializeWithContext,
-    validateFields: companyNameValidateFields,
-    hasShape: companyNameHasShape,
-    is: companyNameIs,
-    createForm: companyNameCreateForm,
-    fromFormData: companyNameFromFormData
+export const LastName = {
+    defaultValue: lastNameDefaultValue,
+    serialize: lastNameSerialize,
+    serializeWithContext: lastNameSerializeWithContext,
+    deserialize: lastNameDeserialize,
+    deserializeWithContext: lastNameDeserializeWithContext,
+    validateFields: lastNameValidateFields,
+    hasShape: lastNameHasShape,
+    is: lastNameIs,
+    createForm: lastNameCreateForm,
+    fromFormData: lastNameFromFormData
 } as const;
