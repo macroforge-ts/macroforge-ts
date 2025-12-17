@@ -56,23 +56,23 @@
 //! class User {
 //!     id: number;
 //!     name: string;
-//! 
+//!
 //!     cachedScore: number;
-//! 
+//!
 //!     static equals(a: User, b: User): boolean {
 //!         return userEquals(a, b);
 //!     }
-//! 
+//!
 //!     static hashCode(value: User): number {
 //!         return userHashCode(value);
 //!     }
 //! }
-//! 
+//!
 //! export function userEquals(a: User, b: User): boolean {
 //!     if (a === b) return true;
 //!     return a.id === b.id && a.name === b.name;
 //! }
-//! 
+//!
 //! export function userHashCode(value: User): number {
 //!     let hash = 17;
 //!     hash =
@@ -119,23 +119,23 @@
 //! class User {
 //!     id: number;
 //!     name: string;
-//! 
+//!
 //!     cachedScore: number;
-//! 
+//!
 //!     static equals(a: User, b: User): boolean {
 //!         return userEquals(a, b);
 //!     }
-//! 
+//!
 //!     static hashCode(value: User): number {
 //!         return userHashCode(value);
 //!     }
 //! }
-//! 
+//!
 //! export function userEquals(a: User, b: User): boolean {
 //!     if (a === b) return true;
 //!     return a.id === b.id && a.name === b.name;
 //! }
-//! 
+//!
 //! export function userHashCode(value: User): number {
 //!     let hash = 17;
 //!     hash =
@@ -155,18 +155,11 @@
 //! }
 //! ```
 
+use convert_case::{Case, Casing};
+
 use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
-
-/// Convert a PascalCase name to camelCase (for prefix naming style)
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
 
 /// Contains field information needed for equality comparison generation.
 ///
@@ -184,86 +177,11 @@ pub struct EqField {
     pub ts_type: String,
 }
 
-/// Generates JavaScript code that compares a single class field for equality.
+/// Generates JavaScript code that compares fields for equality.
 ///
 /// This function produces an expression that evaluates to a boolean indicating
 /// whether the field values are equal. The generated code handles different
 /// TypeScript types with appropriate comparison strategies.
-///
-/// # Arguments
-///
-/// * `field` - The field to generate comparison code for
-///
-/// # Returns
-///
-/// A string containing a JavaScript boolean expression comparing `this.field`
-/// with `typedOther.field`. The expression can be combined with `&&` for
-/// multiple fields.
-///
-/// # Type-Specific Strategies
-///
-/// - **Primitives**: Uses strict equality (`===`)
-/// - **Arrays**: Checks length, then compares elements (calls `equals` if available)
-/// - **Date**: Compares via `getTime()` timestamps
-/// - **Map**: Checks size, then compares all entries
-/// - **Set**: Checks size, then verifies all elements present in both
-/// - **Objects**: Calls `equals()` method if available, falls back to `===`
-fn generate_field_equality(field: &EqField) -> String {
-    let field_name = &field.name;
-    let ts_type = &field.ts_type;
-
-    if is_primitive_type(ts_type) {
-        // For primitives, use strict equality
-        format!("this.{field_name} === typedOther.{field_name}")
-    } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
-        // For arrays, compare element by element
-        format!(
-            "(Array.isArray(this.{field_name}) && Array.isArray(typedOther.{field_name}) && \
-             this.{field_name}.length === typedOther.{field_name}.length && \
-             this.{field_name}.every((v, i) => \
-                typeof (v as any)?.equals === 'function' \
-                    ? (v as any).equals(typedOther.{field_name}[i]) \
-                    : v === typedOther.{field_name}[i]))"
-        )
-    } else if ts_type == "Date" {
-        // For Date, compare timestamps
-        format!(
-            "(this.{field_name} instanceof Date && typedOther.{field_name} instanceof Date \
-             ? this.{field_name}.getTime() === typedOther.{field_name}.getTime() \
-             : this.{field_name} === typedOther.{field_name})"
-        )
-    } else if ts_type.starts_with("Map<") {
-        // For Map, check size and all entries
-        format!(
-            "(this.{field_name} instanceof Map && typedOther.{field_name} instanceof Map && \
-             this.{field_name}.size === typedOther.{field_name}.size && \
-             Array.from(this.{field_name}.entries()).every(([k, v]) => \
-                typedOther.{field_name}.has(k) && \
-                (typeof (v as any)?.equals === 'function' \
-                    ? (v as any).equals(typedOther.{field_name}.get(k)) \
-                    : v === typedOther.{field_name}.get(k))))"
-        )
-    } else if ts_type.starts_with("Set<") {
-        // For Set, compare by converting to arrays and checking membership
-        format!(
-            "(this.{field_name} instanceof Set && typedOther.{field_name} instanceof Set && \
-             this.{field_name}.size === typedOther.{field_name}.size && \
-             Array.from(this.{field_name}).every(v => typedOther.{field_name}.has(v)))"
-        )
-    } else {
-        // For objects, check for equals method first, then fallback to ===
-        format!(
-            "(typeof (this.{field_name} as any)?.equals === 'function' \
-                ? (this.{field_name} as any).equals(typedOther.{field_name}) \
-                : this.{field_name} === typedOther.{field_name})"
-        )
-    }
-}
-
-/// Generates JavaScript code that compares interface/type alias fields for equality.
-///
-/// Similar to [`generate_field_equality`], but uses variable name parameters instead
-/// of `this`, making it suitable for namespace functions that take objects as parameters.
 ///
 /// # Arguments
 ///
@@ -274,7 +192,17 @@ fn generate_field_equality(field: &EqField) -> String {
 /// # Returns
 ///
 /// A string containing a JavaScript boolean expression comparing `self_var.field`
-/// with `other_var.field`.
+/// with `other_var.field`. The expression can be combined with `&&` for
+/// multiple fields.
+///
+/// # Type-Specific Strategies
+///
+/// - **Primitives**: Uses strict equality (`===`)
+/// - **Arrays**: Checks length, then compares elements (calls `equals` if available)
+/// - **Date**: Compares via `getTime()` timestamps
+/// - **Map**: Checks size, then compares all entries
+/// - **Set**: Checks size, then verifies all elements present in both
+/// - **Objects**: Calls `equals()` method if available, falls back to `===`
 ///
 /// # Example
 ///
@@ -364,7 +292,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 .collect();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}Equals", to_camel_case(class_name));
+            let fn_name = format!("{}Equals", class_name.to_case(Case::Camel));
 
             // Build comparison expression using a and b parameters
             let comparison = if eq_fields.is_empty() {
@@ -404,7 +332,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
         Data::Enum(_) => {
             // Enums: direct comparison with ===
             let enum_name = input.name();
-            let fn_name = format!("{}Equals", to_camel_case(enum_name));
+            let fn_name = format!("{}Equals", enum_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): boolean {
@@ -442,7 +370,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     .join(" && ")
             };
 
-            let fn_name = format!("{}Equals", to_camel_case(interface_name));
+            let fn_name = format!("{}Equals", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): boolean {
@@ -483,7 +411,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                         .join(" && ")
                 };
 
-                let fn_name = format!("{}Equals", to_camel_case(type_name));
+                let fn_name = format!("{}Equals", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
@@ -493,7 +421,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 })
             } else {
                 // Union, tuple, or simple alias: use strict equality and JSON fallback
-                let fn_name = format!("{}Equals", to_camel_case(type_name));
+                let fn_name = format!("{}Equals", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
@@ -517,7 +445,6 @@ mod tests {
     #[test]
     fn test_partial_eq_macro_output() {
         // Test that the template compiles and produces valid output
-        let class_name = "User";
         let eq_fields: Vec<EqField> = vec![
             EqField {
                 name: "id".to_string(),
@@ -531,15 +458,13 @@ mod tests {
 
         let comparison = eq_fields
             .iter()
-            .map(generate_field_equality)
+            .map(|f| generate_field_equality_for_interface(f, "a", "b"))
             .collect::<Vec<_>>()
             .join(" && ");
 
         let output = body! {
             equals(other: unknown): boolean {
-                if (this === other) return true;
-                if (!(other instanceof @{class_name})) return false;
-                const typedOther = other as @{class_name};
+                if (a === b) return true;
                 return @{comparison};
             }
         };
@@ -563,8 +488,8 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         };
-        let result = generate_field_equality(&field);
-        assert!(result.contains("this.id === typedOther.id"));
+        let result = generate_field_equality_for_interface(&field, "a", "b");
+        assert!(result.contains("a.id === b.id"));
     }
 
     #[test]
@@ -573,7 +498,7 @@ mod tests {
             name: "user".to_string(),
             ts_type: "User".to_string(),
         };
-        let result = generate_field_equality(&field);
+        let result = generate_field_equality_for_interface(&field, "a", "b");
         assert!(result.contains("equals"));
     }
 
@@ -583,7 +508,7 @@ mod tests {
             name: "items".to_string(),
             ts_type: "string[]".to_string(),
         };
-        let result = generate_field_equality(&field);
+        let result = generate_field_equality_for_interface(&field, "a", "b");
         assert!(result.contains("Array.isArray"));
         assert!(result.contains("every"));
     }
@@ -594,7 +519,7 @@ mod tests {
             name: "createdAt".to_string(),
             ts_type: "Date".to_string(),
         };
-        let result = generate_field_equality(&field);
+        let result = generate_field_equality_for_interface(&field, "a", "b");
         assert!(result.contains("getTime"));
     }
 }

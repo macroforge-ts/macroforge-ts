@@ -62,17 +62,10 @@
 //! }
 //! ```
 
+use convert_case::{Case, Casing};
+
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
-
-/// Convert a PascalCase name to camelCase (for prefix naming style)
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
 
 /// Options parsed from @Debug decorator on fields
 #[derive(Default)]
@@ -202,7 +195,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let has_fields = !debug_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}ToString", to_camel_case(class_name));
+            let fn_name = format!("{}ToString", class_name.to_case(Case::Camel));
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
@@ -245,7 +238,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 .collect();
             let has_variants = !variants.is_empty();
 
-            let fn_name = format!("{}ToString", to_camel_case(enum_name));
+            let fn_name = format!("{}ToString", enum_name.to_case(Case::Camel));
             Ok(ts_template! {
                 export function @{fn_name}(value: @{enum_name}): string {
                     {#if has_variants}
@@ -278,7 +271,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 .collect();
 
             let has_fields = !debug_fields.is_empty();
-            let fn_name = format!("{}ToString", to_camel_case(interface_name));
+            let fn_name = format!("{}ToString", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name}(value: @{interface_name}): string {
@@ -315,7 +308,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     .collect();
 
                 let has_fields = !debug_fields.is_empty();
-                let fn_name = format!("{}ToString", to_camel_case(type_name));
+                let fn_name = format!("{}ToString", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name}(value: @{type_name}): string {
@@ -332,7 +325,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
             } else {
                 // Union, intersection, tuple, or simple alias: use JSON.stringify
-                let fn_name = format!("{}ToString", to_camel_case(type_name));
+                let fn_name = format!("{}ToString", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name}(value: @{type_name}): string {

@@ -63,17 +63,10 @@
 //! - **Interfaces/Type Aliases**: Creates new object literals with spread operator
 //!   for union/tuple types, or field-by-field copy for object types
 
+use convert_case::{Case, Casing};
+
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
-
-/// Convert a PascalCase name to camelCase (for prefix naming style)
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
 
 /// Generates a `clone()` method for creating copies of objects.
 ///
@@ -111,7 +104,7 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let has_fields = !field_names.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}Clone", to_camel_case(class_name));
+            let fn_name = format!("{}Clone", class_name.to_case(Case::Camel));
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
@@ -147,7 +140,7 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         Data::Enum(_) => {
             // Enums are primitive values, cloning is just returning the value
             let enum_name = input.name();
-            let fn_name = format!("{}Clone", to_camel_case(enum_name));
+            let fn_name = format!("{}Clone", enum_name.to_case(Case::Camel));
             Ok(ts_template! {
                 export function @{fn_name}(value: @{enum_name}): @{enum_name} {
                     return value;
@@ -158,7 +151,7 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let interface_name = input.name();
             let field_names: Vec<&str> = interface.field_names().collect();
             let has_fields = !field_names.is_empty();
-            let fn_name = format!("{}Clone", to_camel_case(interface_name));
+            let fn_name = format!("{}Clone", interface_name.to_case(Case::Camel));
             Ok(ts_template! {
                 export function @{fn_name}(value: @{interface_name}): @{interface_name} {
                     return {
@@ -173,7 +166,7 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
-            let fn_name = format!("{}Clone", to_camel_case(type_name));
+            let fn_name = format!("{}Clone", type_name.to_case(Case::Camel));
 
             if type_alias.is_object() {
                 // Object type: spread copy
