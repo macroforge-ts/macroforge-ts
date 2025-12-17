@@ -147,28 +147,38 @@
 //!
 //! export default {
 //!   foreignTypes: {
-//!     DateTime: {
-//!       from: ["effect", "@effect/schema"],
-//!       serialize: (v, ctx) => v.toJSON(),
-//!       deserialize: (raw, ctx) => DateTime.fromJSON(raw),
-//!       default: () => DateTime.now()
+//!     "DateTime.DateTime": {
+//!       from: ["effect"],
+//!       aliases: [
+//!         { name: "DateTime", from: "effect/DateTime" }
+//!       ],
+//!       serialize: (v) => DateTime.formatIso(v),
+//!       deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+//!       default: () => DateTime.unsafeNow()
 //!     }
 //!   }
 //! }
 //! ```
 //!
-//! With this configuration, any field typed as `DateTime` (imported from `effect` or
-//! `@effect/schema`) will automatically use the configured handlers without needing
-//! per-field decorators.
+//! With this configuration, any field typed as `DateTime.DateTime` (imported from `effect`)
+//! or `DateTime` (imported from `effect/DateTime`) will automatically use the configured
+//! handlers without needing per-field decorators.
 //!
 //! ### Foreign Type Options
 //!
 //! | Option | Description |
 //! |--------|-------------|
 //! | `from` | Array of module paths this type can be imported from |
-//! | `serialize` | Function `(value, ctx) => unknown` for serialization |
-//! | `deserialize` | Function `(raw, ctx) => T` for deserialization |
+//! | `aliases` | Array of `{ name, from }` objects for alternative type-package pairs |
+//! | `serialize` | Function `(value) => unknown` for serialization |
+//! | `deserialize` | Function `(raw) => T` for deserialization |
 //! | `default` | Function `() => T` for default value generation |
+//!
+//! ### Import Source Validation
+//!
+//! Foreign types are only matched when the type is imported from one of the configured
+//! sources. Types with the same name from different packages are ignored and fall back
+//! to generic handling (TypeScript will catch any issues downstream).
 //!
 //! See the [Configuration](crate::host::config) module for more details.
 
@@ -181,9 +191,10 @@ pub mod derive_serialize;
 use crate::host::ForeignTypeConfig;
 use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector, SpanIR};
 use std::cell::RefCell;
+use std::collections::HashMap;
 
 // ============================================================================
-// Thread-local storage for current expansion's foreign types
+// Thread-local storage for current expansion's foreign types and import sources
 // ============================================================================
 
 thread_local! {
@@ -192,6 +203,12 @@ thread_local! {
     /// This is set by the expander before running macros and cleared after.
     /// Macros can query this to check if a field's type matches a foreign type.
     static FOREIGN_TYPES: RefCell<Vec<ForeignTypeConfig>> = RefCell::new(Vec::new());
+
+    /// Thread-local storage for import sources during expansion.
+    ///
+    /// Maps type/identifier names to their import module sources.
+    /// Used to validate that foreign types are imported from the correct modules.
+    static IMPORT_SOURCES: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
 }
 
 /// Set the foreign types for the current expansion.
@@ -212,6 +229,26 @@ pub fn get_foreign_types() -> Vec<ForeignTypeConfig> {
 /// Clear the foreign types after expansion.
 pub fn clear_foreign_types() {
     FOREIGN_TYPES.with(|ft| ft.borrow_mut().clear());
+}
+
+/// Set the import sources for the current expansion.
+///
+/// This should be called by the expander before running macros.
+/// The previous value is returned so it can be restored after expansion.
+pub fn set_import_sources(sources: HashMap<String, String>) -> HashMap<String, String> {
+    IMPORT_SOURCES.with(|is| is.replace(sources))
+}
+
+/// Get a reference to the current import sources.
+///
+/// Returns a clone of the current import sources for thread-safety.
+pub fn get_import_sources() -> HashMap<String, String> {
+    IMPORT_SOURCES.with(|is| is.borrow().clone())
+}
+
+/// Clear the import sources after expansion.
+pub fn clear_import_sources() {
+    IMPORT_SOURCES.with(|is| is.borrow_mut().clear());
 }
 
 /// Naming convention for JSON field renaming
@@ -489,15 +526,27 @@ impl TypeCategory {
     /// // Doesn't match other types
     /// assert!(TypeCategory::match_foreign_type("Date", &foreign_types).is_none());
     /// ```
+    /// Match a TypeScript type against configured foreign types with import source validation.
+    ///
+    /// # Arguments
+    ///
+    /// * `ts_type` - The TypeScript type string (e.g., "DateTime.DateTime", "Duration")
+    /// * `foreign_types` - List of configured foreign type handlers
+    ///
+    /// # Returns
+    ///
+    /// A `ForeignTypeMatch` containing the matched config (if any) and potential warnings
+    /// about near-matches that failed due to import source validation.
     pub fn match_foreign_type<'a>(
         ts_type: &str,
         foreign_types: &'a [ForeignTypeConfig],
-    ) -> Option<&'a ForeignTypeConfig> {
+    ) -> ForeignTypeMatch<'a> {
         let trimmed = ts_type.trim();
+        let import_sources = get_import_sources();
 
         // Skip empty types
         if trimmed.is_empty() {
-            return None;
+            return ForeignTypeMatch::none();
         }
 
         // Extract the base type name (handle generics like Foo<T>)
@@ -507,25 +556,174 @@ impl TypeCategory {
             trimmed
         };
 
-        foreign_types.iter().find(|ft| {
-            // Match by exact type name
-            if base_type == ft.name {
-                return true;
-            }
+        // For qualified types like DateTime.DateTime, extract parts
+        let (namespace_part, type_name) = if let Some(dot_idx) = base_type.rfind('.') {
+            (Some(&base_type[..dot_idx]), &base_type[dot_idx + 1..])
+        } else {
+            (None, base_type)
+        };
 
-            // Also try matching the full type including module path
-            // e.g., if type is "effect.DateTime" and config has from: ["effect"]
-            for source in &ft.from {
-                // Handle patterns like "effect.DateTime" or "@effect/schema.DateTime"
-                let module_name = source.split('/').last().unwrap_or(source);
-                let qualified_name = format!("{}.{}", module_name, ft.name);
-                if trimmed == qualified_name {
-                    return true;
+        let mut near_match: Option<(&ForeignTypeConfig, String)> = None;
+
+        for ft in foreign_types {
+            let ft_type_name = ft.get_type_name();
+            let ft_namespace = ft.get_namespace();
+            let ft_qualified = ft.get_qualified_name();
+
+            // Check if the type name matches
+            let name_matches = type_name == ft_type_name
+                || base_type == ft.name
+                || base_type == ft_qualified;
+
+            // Also check namespace matches if both have namespaces
+            let namespace_matches = match (namespace_part, ft_namespace) {
+                (Some(ns), Some(ft_ns)) => ns == ft_ns,
+                (None, None) => true,
+                // If config has namespace but type doesn't, it's not a match
+                (None, Some(_)) => false,
+                // If type has namespace but config doesn't, require exact base_type match
+                (Some(_), None) => base_type == ft.name,
+            };
+
+            if name_matches && namespace_matches {
+                // Now validate import source
+                let import_name = namespace_part.unwrap_or(type_name);
+
+                if let Some(actual_source) = import_sources.get(import_name) {
+                    // Check if the actual import source matches any configured source
+                    let source_matches = ft.from.iter().any(|configured_source| {
+                        actual_source == configured_source
+                            || actual_source.ends_with(configured_source)
+                            || configured_source.ends_with(actual_source)
+                    });
+
+                    if source_matches {
+                        return ForeignTypeMatch::matched(ft);
+                    }
+                    // Type is imported from a different source - don't match
+                    // We can't know if that library's type has the right methods
+                    // Let it fall through to generic handling; TypeScript will catch issues
+                } else {
+                    // No import found for this type - likely a local type or re-exported
+                    // Don't match foreign type config for types we can't verify the source of
+                }
+            } else if type_name == ft_type_name && !name_matches {
+                // Type name matches but qualified form doesn't - helpful hint
+                let warning = format!(
+                    "Type '{}' has the same name as foreign type '{}' but uses different qualification. \
+                     Expected '{}' or configure with namespace: '{}'.",
+                    base_type, ft.name, ft_qualified,
+                    namespace_part.unwrap_or(type_name)
+                );
+                if near_match.is_none() {
+                    near_match = Some((ft, warning));
                 }
             }
 
-            false
-        })
+            // Check aliases for this foreign type
+            for alias in &ft.aliases {
+                // Parse alias name for potential namespace
+                let (alias_namespace, alias_type_name) = if let Some(dot_idx) = alias.name.rfind('.') {
+                    (Some(&alias.name[..dot_idx]), &alias.name[dot_idx + 1..])
+                } else {
+                    (None, alias.name.as_str())
+                };
+
+                // Check if alias name matches the type
+                let alias_name_matches = type_name == alias_type_name
+                    || base_type == alias.name;
+
+                // Check namespace matches for alias
+                let alias_namespace_matches = match (namespace_part, alias_namespace) {
+                    (Some(ns), Some(alias_ns)) => ns == alias_ns,
+                    (None, None) => true,
+                    (None, Some(_)) => false,
+                    (Some(_), None) => base_type == alias.name,
+                };
+
+                if alias_name_matches && alias_namespace_matches {
+                    // Validate import source against alias's from
+                    let import_name = namespace_part.unwrap_or(type_name);
+
+                    if let Some(actual_source) = import_sources.get(import_name) {
+                        // Check if import source matches the alias's from
+                        if actual_source == &alias.from
+                            || actual_source.ends_with(&alias.from)
+                            || alias.from.ends_with(actual_source)
+                        {
+                            return ForeignTypeMatch::matched(ft);
+                        }
+                    }
+                }
+            }
+        }
+
+        if let Some((ft, warning)) = near_match {
+            ForeignTypeMatch::near_match(ft, warning)
+        } else {
+            ForeignTypeMatch::none()
+        }
+    }
+}
+
+/// Result of matching a type against foreign type configurations.
+#[derive(Debug)]
+pub struct ForeignTypeMatch<'a> {
+    /// The matched foreign type config, if any.
+    pub config: Option<&'a ForeignTypeConfig>,
+    /// Warning message for informational hints.
+    pub warning: Option<String>,
+    /// Error message for import source mismatches (should fail the build).
+    pub error: Option<String>,
+}
+
+impl<'a> ForeignTypeMatch<'a> {
+    /// Create a successful match.
+    pub fn matched(config: &'a ForeignTypeConfig) -> Self {
+        Self {
+            config: Some(config),
+            warning: None,
+            error: None,
+        }
+    }
+
+    /// Create an import mismatch error (type matches but import source doesn't).
+    /// This should cause a build failure.
+    pub fn import_mismatch(_config: &'a ForeignTypeConfig, error: String) -> Self {
+        Self {
+            config: None,
+            warning: None,
+            error: Some(error),
+        }
+    }
+
+    /// Create a near-match (no match, but with a helpful warning).
+    /// The config parameter is for API consistency but not stored since this is a non-match.
+    pub fn near_match(_config: &'a ForeignTypeConfig, warning: String) -> Self {
+        Self {
+            config: None,
+            warning: Some(warning),
+            error: None,
+        }
+    }
+
+    /// Create an empty result (no match, no warning, no error).
+    pub fn none() -> Self {
+        Self {
+            config: None,
+            warning: None,
+            error: None,
+        }
+    }
+
+    /// Returns true if there was a successful match.
+    pub fn is_match(&self) -> bool {
+        self.config.is_some()
+    }
+
+    /// Returns true if there was an error (import source mismatch).
+    pub fn has_error(&self) -> bool {
+        self.error.is_some()
     }
 }
 
