@@ -12,7 +12,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const ts = require("typescript/lib/tsserverlibrary");
 const initPlugin = require("../dist/index.js");
-const { loadFixture, findLineNumber } = require("./test-utils");
+const { loadFixture, findLineNumber } = require("./test-utils.cjs");
 
 // ============================================================================
 // Test Utilities
