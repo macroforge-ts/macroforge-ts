@@ -592,6 +592,7 @@ module.exports.__macroforgeRunPartialEq = nativeBinding.__macroforgeRunPartialEq
 module.exports.__macroforgeRunPartialOrd = nativeBinding.__macroforgeRunPartialOrd
 module.exports.__macroforgeRunSerialize = nativeBinding.__macroforgeRunSerialize
 module.exports.checkSyntax = nativeBinding.checkSyntax
+module.exports.clearConfigCache = nativeBinding.clearConfigCache
 module.exports.Derive = nativeBinding.Derive
 module.exports.expandSync = nativeBinding.expandSync
 module.exports.loadConfig = nativeBinding.loadConfig
