@@ -234,14 +234,14 @@ pub struct ForeignTypeConfig {
 impl ForeignTypeConfig {
     /// Returns the namespace for this type.
     /// If `namespace` is explicitly set, returns that.
-    /// Otherwise, if the name contains a dot (e.g., "DateTime.DateTime"), returns the first segment.
+    /// Otherwise, if the name contains a dot (e.g., "Deep.A.B.Type"), returns everything before the last dot.
     /// Otherwise, returns None.
     pub fn get_namespace(&self) -> Option<&str> {
         if let Some(ref ns) = self.namespace {
             return Some(ns);
         }
-        // If name contains a dot, extract namespace from the qualified name
-        if let Some(dot_idx) = self.name.find('.') {
+        // If name contains a dot, extract namespace (everything before the last dot)
+        if let Some(dot_idx) = self.name.rfind('.') {
             return Some(&self.name[..dot_idx]);
         }
         None
@@ -522,10 +522,10 @@ fn extract_default_export(
                 }
                 // export default defineConfig({ ... }) or similar
                 Expr::Call(call) => {
-                    if let Some(first_arg) = call.args.first() {
-                        if let Expr::Object(obj) = &*first_arg.expr {
-                            return parse_config_object(obj, imports, cm);
-                        }
+                    if let Some(first_arg) = call.args.first()
+                        && let Expr::Object(obj) = &*first_arg.expr
+                    {
+                        return parse_config_object(obj, imports, cm);
                     }
                 }
                 _ => {}
@@ -546,25 +546,25 @@ fn parse_config_object(
     let mut config = MacroforgeConfig::default();
 
     for prop in &obj.props {
-        if let PropOrSpread::Prop(prop) = prop {
-            if let Prop::KeyValue(kv) = &**prop {
-                let key = get_prop_key(&kv.key);
+        if let PropOrSpread::Prop(prop) = prop
+            && let Prop::KeyValue(kv) = &**prop
+        {
+            let key = get_prop_key(&kv.key);
 
-                match key.as_str() {
-                    "keepDecorators" => {
-                        config.keep_decorators = get_bool_value(&kv.value).unwrap_or(false);
-                    }
-                    "generateConvenienceConst" => {
-                        config.generate_convenience_const =
-                            get_bool_value(&kv.value).unwrap_or(true);
-                    }
-                    "foreignTypes" => {
-                        if let Expr::Object(ft_obj) = &*kv.value {
-                            config.foreign_types = parse_foreign_types(ft_obj, imports, cm)?;
-                        }
-                    }
-                    _ => {}
+            match key.as_str() {
+                "keepDecorators" => {
+                    config.keep_decorators = get_bool_value(&kv.value).unwrap_or(false);
                 }
+                "generateConvenienceConst" => {
+                    config.generate_convenience_const =
+                        get_bool_value(&kv.value).unwrap_or(true);
+                }
+                "foreignTypes" => {
+                    if let Expr::Object(ft_obj) = &*kv.value {
+                        config.foreign_types = parse_foreign_types(ft_obj, imports, cm)?;
+                    }
+                }
+                _ => {}
             }
         }
     }
@@ -581,13 +581,13 @@ fn parse_foreign_types(
     let mut foreign_types = vec![];
 
     for prop in &obj.props {
-        if let PropOrSpread::Prop(prop) = prop {
-            if let Prop::KeyValue(kv) = &**prop {
-                let type_name = get_prop_key(&kv.key);
-                if let Expr::Object(type_obj) = &*kv.value {
-                    let ft = parse_single_foreign_type(&type_name, type_obj, imports, cm)?;
-                    foreign_types.push(ft);
-                }
+        if let PropOrSpread::Prop(prop) = prop
+            && let Prop::KeyValue(kv) = &**prop
+        {
+            let type_name = get_prop_key(&kv.key);
+            if let Expr::Object(type_obj) = &*kv.value {
+                let ft = parse_single_foreign_type(&type_name, type_obj, imports, cm)?;
+                foreign_types.push(ft);
             }
         }
     }
@@ -608,34 +608,34 @@ fn parse_single_foreign_type(
     };
 
     for prop in &obj.props {
-        if let PropOrSpread::Prop(prop) = prop {
-            if let Prop::KeyValue(kv) = &**prop {
-                let key = get_prop_key(&kv.key);
+        if let PropOrSpread::Prop(prop) = prop
+            && let Prop::KeyValue(kv) = &**prop
+        {
+            let key = get_prop_key(&kv.key);
 
-                match key.as_str() {
-                    "from" => {
-                        ft.from = extract_string_or_array(&kv.value);
-                    }
-                    "serialize" => {
-                        let (expr, import) = extract_function_expr(&kv.value, imports, cm);
-                        ft.serialize_expr = expr;
-                        ft.serialize_import = import;
-                    }
-                    "deserialize" => {
-                        let (expr, import) = extract_function_expr(&kv.value, imports, cm);
-                        ft.deserialize_expr = expr;
-                        ft.deserialize_import = import;
-                    }
-                    "default" => {
-                        let (expr, import) = extract_function_expr(&kv.value, imports, cm);
-                        ft.default_expr = expr;
-                        ft.default_import = import;
-                    }
-                    "aliases" => {
-                        ft.aliases = parse_aliases_array(&kv.value);
-                    }
-                    _ => {}
+            match key.as_str() {
+                "from" => {
+                    ft.from = extract_string_or_array(&kv.value);
                 }
+                "serialize" => {
+                    let (expr, import) = extract_function_expr(&kv.value, imports, cm);
+                    ft.serialize_expr = expr;
+                    ft.serialize_import = import;
+                }
+                "deserialize" => {
+                    let (expr, import) = extract_function_expr(&kv.value, imports, cm);
+                    ft.deserialize_expr = expr;
+                    ft.deserialize_import = import;
+                }
+                "default" => {
+                    let (expr, import) = extract_function_expr(&kv.value, imports, cm);
+                    ft.default_expr = expr;
+                    ft.default_import = import;
+                }
+                "aliases" => {
+                    ft.aliases = parse_aliases_array(&kv.value);
+                }
+                _ => {}
             }
         }
     }
@@ -648,13 +648,11 @@ fn parse_aliases_array(expr: &Expr) -> Vec<ForeignTypeAlias> {
     let mut aliases = Vec::new();
 
     if let Expr::Array(arr) = expr {
-        for elem in &arr.elems {
-            if let Some(elem) = elem {
-                if let Expr::Object(obj) = &*elem.expr {
-                    if let Some(alias) = parse_single_alias(obj) {
-                        aliases.push(alias);
-                    }
-                }
+        for elem in arr.elems.iter().flatten() {
+            if let Expr::Object(obj) = &*elem.expr
+                && let Some(alias) = parse_single_alias(obj)
+            {
+                aliases.push(alias);
             }
         }
     }
@@ -668,23 +666,23 @@ fn parse_single_alias(obj: &ObjectLit) -> Option<ForeignTypeAlias> {
     let mut from = None;
 
     for prop in &obj.props {
-        if let PropOrSpread::Prop(prop) = prop {
-            if let Prop::KeyValue(kv) = &**prop {
-                let key = get_prop_key(&kv.key);
+        if let PropOrSpread::Prop(prop) = prop
+            && let Prop::KeyValue(kv) = &**prop
+        {
+            let key = get_prop_key(&kv.key);
 
-                match key.as_str() {
-                    "name" => {
-                        if let Expr::Lit(Lit::Str(s)) = &*kv.value {
-                            name = Some(atom_to_string(&s.value));
-                        }
+            match key.as_str() {
+                "name" => {
+                    if let Expr::Lit(Lit::Str(s)) = &*kv.value {
+                        name = Some(atom_to_string(&s.value));
                     }
-                    "from" => {
-                        if let Expr::Lit(Lit::Str(s)) = &*kv.value {
-                            from = Some(atom_to_string(&s.value));
-                        }
-                    }
-                    _ => {}
                 }
+                "from" => {
+                    if let Expr::Lit(Lit::Str(s)) = &*kv.value {
+                        from = Some(atom_to_string(&s.value));
+                    }
+                }
+                _ => {}
             }
         }
     }

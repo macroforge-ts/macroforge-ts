@@ -209,6 +209,13 @@ thread_local! {
     /// Maps type/identifier names to their import module sources.
     /// Used to validate that foreign types are imported from the correct modules.
     static IMPORT_SOURCES: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
+
+    /// Thread-local storage for import aliases during expansion.
+    ///
+    /// Maps local alias names to their original imported names.
+    /// For `import { Option as EffectOption } from "effect/Option"`,
+    /// this would contain `"EffectOption" -> "Option"`.
+    static IMPORT_ALIASES: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
 }
 
 /// Set the foreign types for the current expansion.
@@ -249,6 +256,26 @@ pub fn get_import_sources() -> HashMap<String, String> {
 /// Clear the import sources after expansion.
 pub fn clear_import_sources() {
     IMPORT_SOURCES.with(|is| is.borrow_mut().clear());
+}
+
+/// Set the import aliases for the current expansion.
+///
+/// Maps local alias names to their original imported names.
+/// For `import { Option as EffectOption }`, stores `"EffectOption" -> "Option"`.
+pub fn set_import_aliases(aliases: HashMap<String, String>) -> HashMap<String, String> {
+    IMPORT_ALIASES.with(|ia| ia.replace(aliases))
+}
+
+/// Get a reference to the current import aliases.
+///
+/// Returns a clone of the current import aliases for thread-safety.
+pub fn get_import_aliases() -> HashMap<String, String> {
+    IMPORT_ALIASES.with(|ia| ia.borrow().clone())
+}
+
+/// Clear the import aliases after expansion.
+pub fn clear_import_aliases() {
+    IMPORT_ALIASES.with(|ia| ia.borrow_mut().clear());
 }
 
 /// Naming convention for JSON field renaming
@@ -611,6 +638,7 @@ impl TypeCategory {
     ) -> ForeignTypeMatch<'a> {
         let trimmed = ts_type.trim();
         let import_sources = get_import_sources();
+        let import_aliases = get_import_aliases();
 
         // Skip empty types
         if trimmed.is_empty() {
@@ -631,6 +659,61 @@ impl TypeCategory {
             (None, base_type)
         };
 
+        // Extract the first part of the namespace for import lookup
+        // For A.B.C, the import name is A (the first part before any dot)
+        let first_namespace_part = namespace_part.map(|ns| {
+            if let Some(dot_idx) = ns.find('.') {
+                &ns[..dot_idx]
+            } else {
+                ns
+            }
+        });
+
+        // Resolve the import name - use first namespace part if qualified, otherwise type_name
+        let import_name = first_namespace_part.unwrap_or(type_name);
+
+        // For unqualified types (no namespace), the type_name itself might be an alias
+        // e.g., EffectOption -> Option. For qualified types, only the namespace is aliased.
+        let resolved_type_name = if namespace_part.is_none() {
+            import_aliases
+                .get(type_name)
+                .map(String::as_str)
+                .unwrap_or(type_name)
+        } else {
+            // For qualified types, the type_name (last part) is not aliased
+            type_name
+        };
+
+        // For unqualified aliased types, resolve the base_type
+        let resolved_base_type = if namespace_part.is_none() {
+            import_aliases
+                .get(base_type)
+                .map(String::as_str)
+                .unwrap_or(base_type)
+        } else {
+            base_type
+        };
+
+        // For qualified types, resolve the namespace alias
+        // e.g., EffectDateTime.DateTime with import { DateTime as EffectDateTime }
+        // should resolve namespace EffectDateTime -> DateTime
+        // For A.B.C where A is aliased to X, resolve to X.B.C
+        let resolved_namespace: Option<String> = namespace_part.map(|ns| {
+            let parts: Vec<&str> = ns.split('.').collect();
+            if let Some(first_part) = parts.first() {
+                if let Some(resolved_first) = import_aliases.get(*first_part) {
+                    // Replace the first part with the resolved alias and rejoin
+                    let mut resolved_parts: Vec<&str> = vec![resolved_first.as_str()];
+                    resolved_parts.extend(&parts[1..]);
+                    resolved_parts.join(".")
+                } else {
+                    ns.to_string()
+                }
+            } else {
+                ns.to_string()
+            }
+        });
+
         let mut near_match: Option<(&ForeignTypeConfig, String)> = None;
 
         for ft in foreign_types {
@@ -638,24 +721,31 @@ impl TypeCategory {
             let ft_namespace = ft.get_namespace();
             let ft_qualified = ft.get_qualified_name();
 
-            // Check if the type name matches
-            let name_matches =
-                type_name == ft_type_name || base_type == ft.name || base_type == ft_qualified;
+            // Check if the type name matches (using resolved name for aliased imports)
+            let name_matches = type_name == ft_type_name
+                || base_type == ft.name
+                || base_type == ft_qualified
+                || resolved_type_name == ft_type_name
+                || resolved_base_type == ft.name
+                || resolved_base_type == ft_qualified;
 
             // Also check namespace matches if both have namespaces
+            // Use resolved namespace for aliased imports (e.g., EffectDateTime -> DateTime)
             let namespace_matches = match (namespace_part, ft_namespace) {
-                (Some(ns), Some(ft_ns)) => ns == ft_ns,
+                (Some(ns), Some(ft_ns)) => {
+                    // Match either original namespace or resolved (aliased) namespace
+                    let resolved_ns = resolved_namespace.as_deref().unwrap_or(ns);
+                    ns == ft_ns || resolved_ns == ft_ns
+                }
                 (None, None) => true,
                 // If config has namespace but type doesn't, it's not a match
                 (None, Some(_)) => false,
                 // If type has namespace but config doesn't, require exact base_type match
-                (Some(_), None) => base_type == ft.name,
+                (Some(_), None) => base_type == ft.name || resolved_base_type == ft.name,
             };
 
             if name_matches && namespace_matches {
                 // Now validate import source
-                let import_name = namespace_part.unwrap_or(type_name);
-
                 if let Some(actual_source) = import_sources.get(import_name) {
                     // Check if the actual import source matches any configured source
                     let source_matches = ft.from.iter().any(|configured_source| {
@@ -674,7 +764,9 @@ impl TypeCategory {
                     // No import found for this type - likely a local type or re-exported
                     // Don't match foreign type config for types we can't verify the source of
                 }
-            } else if type_name == ft_type_name && !name_matches {
+            } else if (type_name == ft_type_name || resolved_type_name == ft_type_name)
+                && !name_matches
+            {
                 // Type name matches but qualified form doesn't - helpful hint
                 let warning = format!(
                     "Type '{}' has the same name as foreign type '{}' but uses different qualification. \
