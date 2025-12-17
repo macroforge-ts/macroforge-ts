@@ -25,11 +25,14 @@
 //!   keepDecorators: false,
 //!   generateConvenienceConst: true,
 //!   foreignTypes: {
-//!     DateTime: {
-//!       from: ["effect", "@effect/schema"],
-//!       serialize: (v, ctx) => v.toJSON(),
-//!       deserialize: (raw, ctx) => DateTime.fromJSON(raw),
-//!       default: () => DateTime.now()
+//!     "DateTime.DateTime": {
+//!       from: ["effect"],
+//!       aliases: [
+//!         { name: "DateTime", from: "effect/DateTime" }
+//!       ],
+//!       serialize: (v) => DateTime.formatIso(v),
+//!       deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+//!       default: () => DateTime.unsafeNow()
 //!     }
 //!   }
 //! }
@@ -47,6 +50,22 @@
 //! Foreign types allow global registration of handlers for external types.
 //! When a field has a type that matches a configured foreign type, the appropriate
 //! handler function is used automatically without per-field annotations.
+//!
+//! ### Foreign Type Options
+//!
+//! | Option | Description |
+//! |--------|-------------|
+//! | `from` | Array of module paths this type can be imported from |
+//! | `aliases` | Array of `{ name, from }` objects for alternative type-package pairs |
+//! | `serialize` | Function `(value) => unknown` for serialization |
+//! | `deserialize` | Function `(raw) => T` for deserialization |
+//! | `default` | Function `() => T` for default value generation |
+//!
+//! ### Import Source Validation
+//!
+//! Foreign types are only matched when the type is imported from one of the configured
+//! sources (in `from` or `aliases`). Types imported from other packages with the same
+//! name are ignored, falling back to generic handling.
 
 use super::error::Result;
 use dashmap::DashMap;
@@ -67,6 +86,14 @@ use swc_core::{
 /// Maps config file path to the parsed configuration.
 pub static CONFIG_CACHE: LazyLock<DashMap<String, MacroforgeConfig>> = LazyLock::new(DashMap::new);
 
+/// Clear the configuration cache.
+///
+/// This is useful for testing to ensure each test starts with a clean state.
+/// In production, clearing the cache will force configs to be re-parsed on next access.
+pub fn clear_config_cache() {
+    CONFIG_CACHE.clear();
+}
+
 /// Supported config file names in order of precedence.
 const CONFIG_FILES: &[&str] = &[
     "macroforge.config.ts",
@@ -85,16 +112,84 @@ pub struct ImportInfo {
     pub source: String,
 }
 
+/// An alias for a foreign type that allows matching different name-package pairs.
+///
+/// This is useful when a type can be imported from different paths or with different names.
+///
+/// ## Example
+///
+/// ```javascript
+/// foreignTypes: {
+///   "DateTime.DateTime": {
+///     from: ["effect"],
+///     aliases: [
+///       { name: "DateTime", from: "effect/DateTime" }
+///     ],
+///     serialize: (v) => DateTime.formatIso(v),
+///     // ...
+///   }
+/// }
+/// ```
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ForeignTypeAlias {
+    /// The type name to match (e.g., "DateTime" or "DateTime.DateTime").
+    pub name: String,
+    /// The import source to match (e.g., "effect/DateTime").
+    pub from: String,
+}
+
 /// Configuration for a single foreign type.
 ///
 /// Foreign types allow global registration of handlers for external types
 /// (like Effect's `DateTime`) so they work like primitives without per-field annotations.
+///
+/// ## Key Format
+///
+/// The key in `foreignTypes` should be the fully qualified type name as used in code:
+/// - Simple type name: `"DateTime"` - matches `DateTime` in code
+/// - Fully qualified: `"DateTime.DateTime"` - matches `DateTime.DateTime` (namespace.type pattern)
+///
+/// ## Import Source Validation
+///
+/// Foreign types are only matched when the type is imported from a source listed in
+/// `from` or one of the `aliases`. Types with the same name from different packages
+/// are ignored (fall back to generic handling).
+///
+/// ## Example
+///
+/// ```javascript
+/// foreignTypes: {
+///   // For Effect's DateTime where you import { DateTime } and use DateTime.DateTime
+///   "DateTime.DateTime": {
+///     from: ["effect"],
+///     aliases: [
+///       { name: "DateTime", from: "effect/DateTime" },
+///       { name: "MyDateTime", from: "my-effect-wrapper" }
+///     ],
+///     serialize: (v) => DateTime.formatIso(v),
+///     deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+///     default: () => DateTime.unsafeNow()
+///   }
+/// }
+/// ```
+///
+/// This configuration matches:
+/// - `import { DateTime } from 'effect'` with type `DateTime.DateTime`
+/// - `import { DateTime } from 'effect/DateTime'` with type `DateTime`
+/// - `import { MyDateTime } from 'my-effect-wrapper'` with type `MyDateTime`
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ForeignTypeConfig {
-    /// Type name (e.g., "DateTime").
+    /// The full type key as specified in config (e.g., "DateTime" or "DateTime.DateTime").
+    /// This is the key from the foreignTypes object.
     pub name: String,
 
-    /// Import sources where this type can come from (e.g., ["effect", "@effect/schema"]).
+    /// Optional namespace for the type (e.g., "DateTime" for DateTime.DateTime).
+    /// If specified, the type is accessed as `namespace.typeName`.
+    /// If not specified, defaults to the first segment of the name if it contains a dot.
+    pub namespace: Option<String>,
+
+    /// Import sources where this type can come from (e.g., ["effect", "effect/DateTime"]).
+    /// Used to validate that the type is imported from the correct module.
     pub from: Vec<String>,
 
     /// Serialization function expression (e.g., "(v, ctx) => v.toJSON()").
@@ -114,6 +209,63 @@ pub struct ForeignTypeConfig {
 
     /// Import info if default is a named function from another module.
     pub default_import: Option<ImportInfo>,
+
+    /// Aliases for this foreign type, allowing different name-package pairs to use the same config.
+    ///
+    /// Useful when a type can be imported from different paths or with different names.
+    ///
+    /// ## Example
+    ///
+    /// ```javascript
+    /// foreignTypes: {
+    ///   "DateTime.DateTime": {
+    ///     from: ["effect"],
+    ///     aliases: [
+    ///       { name: "DateTime", from: "effect/DateTime" }
+    ///     ],
+    ///     // ...
+    ///   }
+    /// }
+    /// ```
+    #[serde(default)]
+    pub aliases: Vec<ForeignTypeAlias>,
+}
+
+impl ForeignTypeConfig {
+    /// Returns the namespace for this type.
+    /// If `namespace` is explicitly set, returns that.
+    /// Otherwise, if the name contains a dot (e.g., "DateTime.DateTime"), returns the first segment.
+    /// Otherwise, returns None.
+    pub fn get_namespace(&self) -> Option<&str> {
+        if let Some(ref ns) = self.namespace {
+            return Some(ns);
+        }
+        // If name contains a dot, extract namespace from the qualified name
+        if let Some(dot_idx) = self.name.find('.') {
+            return Some(&self.name[..dot_idx]);
+        }
+        None
+    }
+
+    /// Returns the simple type name (last segment after dots).
+    /// For "DateTime.DateTime", returns "DateTime".
+    /// For "DateTime", returns "DateTime".
+    pub fn get_type_name(&self) -> &str {
+        self.name.rsplit('.').next().unwrap_or(&self.name)
+    }
+
+    /// Returns the full qualified name to match against.
+    /// If namespace is set: "namespace.typeName"
+    /// Otherwise: the name as-is
+    pub fn get_qualified_name(&self) -> String {
+        if let Some(ns) = self.get_namespace() {
+            let type_name = self.get_type_name();
+            if ns != type_name {
+                return format!("{}.{}", ns, type_name);
+            }
+        }
+        self.name.clone()
+    }
 }
 
 /// Configuration for the macro host system.
@@ -479,6 +631,9 @@ fn parse_single_foreign_type(
                         ft.default_expr = expr;
                         ft.default_import = import;
                     }
+                    "aliases" => {
+                        ft.aliases = parse_aliases_array(&kv.value);
+                    }
                     _ => {}
                 }
             }
@@ -486,6 +641,59 @@ fn parse_single_foreign_type(
     }
 
     Ok(ft)
+}
+
+/// Parse an array of aliases: [{ name: "DateTime", from: "effect/DateTime" }, ...]
+fn parse_aliases_array(expr: &Expr) -> Vec<ForeignTypeAlias> {
+    let mut aliases = Vec::new();
+
+    if let Expr::Array(arr) = expr {
+        for elem in &arr.elems {
+            if let Some(elem) = elem {
+                if let Expr::Object(obj) = &*elem.expr {
+                    if let Some(alias) = parse_single_alias(obj) {
+                        aliases.push(alias);
+                    }
+                }
+            }
+        }
+    }
+
+    aliases
+}
+
+/// Parse a single alias object: { name: "DateTime", from: "effect/DateTime" }
+fn parse_single_alias(obj: &ObjectLit) -> Option<ForeignTypeAlias> {
+    let mut name = None;
+    let mut from = None;
+
+    for prop in &obj.props {
+        if let PropOrSpread::Prop(prop) = prop {
+            if let Prop::KeyValue(kv) = &**prop {
+                let key = get_prop_key(&kv.key);
+
+                match key.as_str() {
+                    "name" => {
+                        if let Expr::Lit(Lit::Str(s)) = &*kv.value {
+                            name = Some(atom_to_string(&s.value));
+                        }
+                    }
+                    "from" => {
+                        if let Expr::Lit(Lit::Str(s)) = &*kv.value {
+                            from = Some(atom_to_string(&s.value));
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    // Both name and from are required
+    match (name, from) {
+        (Some(name), Some(from)) => Some(ForeignTypeAlias { name, from }),
+        _ => None,
+    }
 }
 
 /// Get property key as string.
