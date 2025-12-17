@@ -135,6 +135,42 @@
 //!     startTime: ZonedDateTime;
 //! }
 //! ```
+//!
+//! ## Foreign Types (Global Configuration)
+//!
+//! Instead of adding `serializeWith`/`deserializeWith` to every field, you can configure
+//! foreign type handlers globally in `macroforge.config.js`:
+//!
+//! ```javascript
+//! // macroforge.config.js
+//! import { DateTime } from "effect";
+//!
+//! export default {
+//!   foreignTypes: {
+//!     DateTime: {
+//!       from: ["effect", "@effect/schema"],
+//!       serialize: (v, ctx) => v.toJSON(),
+//!       deserialize: (raw, ctx) => DateTime.fromJSON(raw),
+//!       default: () => DateTime.now()
+//!     }
+//!   }
+//! }
+//! ```
+//!
+//! With this configuration, any field typed as `DateTime` (imported from `effect` or
+//! `@effect/schema`) will automatically use the configured handlers without needing
+//! per-field decorators.
+//!
+//! ### Foreign Type Options
+//!
+//! | Option | Description |
+//! |--------|-------------|
+//! | `from` | Array of module paths this type can be imported from |
+//! | `serialize` | Function `(value, ctx) => unknown` for serialization |
+//! | `deserialize` | Function `(raw, ctx) => T` for deserialization |
+//! | `default` | Function `() => T` for default value generation |
+//!
+//! See the [Configuration](crate::host::config) module for more details.
 
 /// Deserialize macro implementation.
 pub mod derive_deserialize;
