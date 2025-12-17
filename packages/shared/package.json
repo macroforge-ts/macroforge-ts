@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/shared",
-  "version": "0.1.41",
+  "version": "0.1.42",
   "description": "Shared utilities for Macroforge plugins",
   "type": "module",
   "main": "./dist/index.js",
@@ -24,12 +24,13 @@
     "cleanbuild": "npm run clean && npm run build"
   },
   "dependencies": {
-    "macroforge": "^0.1.41"
+    "macroforge": "^0.1.42"
   },
   "peerDependencies": {
     "typescript": ">=5.0.0"
   },
   "devDependencies": {
+    "@types/node": "^22.10.2",
     "typescript": "^5.9.3"
   }
 }

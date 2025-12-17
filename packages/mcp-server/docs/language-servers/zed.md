@@ -8,25 +8,25 @@
  ## Installation
  ### 1. Clone the Repository
  ```
-git clone https://github.com/rymskip/macroforge-ts.git
-cd macroforge-ts
+git&nbsp;clone&nbsp;https://github.com/rymskip/macroforge-ts.git
+cd&nbsp;macroforge-ts
 ``` ### 2. Build the Extension
  Build the extension you want to use:
  ```
-# For VTSLS (TypeScript)
-cd crates/extensions/vtsls-macroforge
+#&nbsp;For&nbsp;VTSLS&nbsp;(TypeScript)
+cd&nbsp;crates/extensions/vtsls-macroforge
 
-# Or for Svelte
-cd crates/extensions/svelte-macroforge
+#&nbsp;Or&nbsp;for&nbsp;Svelte
+cd&nbsp;crates/extensions/svelte-macroforge
 ``` ### 3. Install as Dev Extension in Zed
  In Zed, open the command palette and run **zed: install dev extension**, then select the extension directory.
  Alternatively, symlink the extension to your Zed extensions directory:
  ```
-# macOS
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/Library/Application\\ Support/Zed/extensions/installed/vtsls-macroforge
+#&nbsp;macOS
+ln&nbsp;-s&nbsp;/path/to/macroforge-ts/crates/extensions/vtsls-macroforge&nbsp;~/Library/Application\\&nbsp;Support/Zed/extensions/installed/vtsls-macroforge
 
-# Linux
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/extensions/installed/vtsls-macroforge
+#&nbsp;Linux
+ln&nbsp;-s&nbsp;/path/to/macroforge-ts/crates/extensions/vtsls-macroforge&nbsp;~/.config/zed/extensions/installed/vtsls-macroforge
 ``` ## vtsls-macroforge
  This extension wraps [VTSLS](https://github.com/yioneko/vtsls) (a TypeScript language server) with macroforge integration. It provides:
  - Full TypeScript language features

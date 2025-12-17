@@ -27,11 +27,29 @@ and the caller should clone them explicitly.
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(Clone) */
 class Point {
     x: number;
     y: number;
+}
+```
+
+```typescript after
+class Point {
+    x: number;
+    y: number;
+
+    static clone(value: Point): Point {
+        return pointClone(value);
+    }
+}
+
+export function pointClone(value: Point): Point {
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.x = value.x;
+    cloned.y = value.y;
+    return cloned;
 }
 ```
 
