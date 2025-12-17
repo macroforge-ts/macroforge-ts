@@ -75,12 +75,12 @@
 //! class Temperature {
 //!     value: number | null;
 //!     unit: string;
-//! 
+//!
 //!     static compareTo(a: Temperature, b: Temperature): Option<number> {
 //!         return temperaturePartialCompare(a, b);
 //!     }
 //! }
-//! 
+//!
 //! export function temperaturePartialCompare(a: Temperature, b: Temperature): Option<number> {
 //!     if (a === b) return Option.some(0);
 //!     const cmp0 = (() => {
@@ -103,18 +103,11 @@
 //!
 //! The generated code automatically adds an import for `Option` from `macroforge/utils`.
 
+use convert_case::{Case, Casing};
+
 use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
-
-/// Convert a PascalCase name to camelCase (for prefix naming style)
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
 
 /// Contains field information needed for partial ordering comparison generation.
 ///
@@ -132,7 +125,7 @@ struct OrdField {
     ts_type: String,
 }
 
-/// Generates JavaScript code that compares a single class field for partial ordering.
+/// Generates JavaScript code that compares fields for partial ordering.
 ///
 /// This function produces an expression that evaluates to -1, 0, 1, or `null`.
 /// The `null` value indicates incomparable values (the caller wraps results in `Option`).
@@ -140,13 +133,15 @@ struct OrdField {
 /// # Arguments
 ///
 /// * `field` - The field to generate comparison code for
+/// * `self_var` - Variable name for the first object (e.g., "self", "a")
+/// * `other_var` - Variable name for the second object (e.g., "other", "b")
 /// * `allow_null` - Whether to return `null` for incomparable values (true for
 ///   PartialOrd, false for Ord which uses 0 instead)
 ///
 /// # Returns
 ///
 /// A string containing a JavaScript expression that evaluates to -1, 0, 1, or null.
-/// The expression compares `this.field` with `typedOther.field`.
+/// Field access uses the provided variable names: `self_var.field` vs `other_var.field`.
 ///
 /// # Type-Specific Strategies
 ///
@@ -157,99 +152,6 @@ struct OrdField {
 /// - **Arrays**: Returns null if element comparison returns null
 /// - **Date**: Returns null if either value is not a valid Date
 /// - **Objects**: Unwraps `Option` from nested `compareTo()` calls
-///
-/// # Example Output
-///
-/// For a number field: `"(this.count < typedOther.count ? -1 : this.count > typedOther.count ? 1 : 0)"`
-/// For an object field: `"(() => { if (typeof (this.user as any)?.compareTo === 'function') { ... } })()"`
-fn generate_field_compare(field: &OrdField, allow_null: bool) -> String {
-    let field_name = &field.name;
-    let ts_type = &field.ts_type;
-    let null_return = if allow_null { "null" } else { "0" };
-
-    if is_numeric_type(ts_type) {
-        // For numbers/bigint, use direct comparison
-        format!(
-            "(this.{field_name} < typedOther.{field_name} ? -1 : \
-             this.{field_name} > typedOther.{field_name} ? 1 : 0)"
-        )
-    } else if ts_type == "string" {
-        // For strings, use localeCompare
-        format!("this.{field_name}.localeCompare(typedOther.{field_name})")
-    } else if ts_type == "boolean" {
-        // For booleans, false < true
-        format!(
-            "(this.{field_name} === typedOther.{field_name} ? 0 : \
-             this.{field_name} ? 1 : -1)"
-        )
-    } else if is_primitive_type(ts_type) {
-        // For other primitives (null/undefined), treat as equal if both same
-        format!("(this.{field_name} === typedOther.{field_name} ? 0 : {null_return})")
-    } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
-        // For arrays, lexicographic comparison
-        // Handle nested compareTo calls that return Option<number>
-        format!(
-            "(() => {{ \
-                const a = this.{field_name}; \
-                const b = typedOther.{field_name}; \
-                if (!Array.isArray(a) || !Array.isArray(b)) return {null_return}; \
-                const minLen = Math.min(a.length, b.length); \
-                for (let i = 0; i < minLen; i++) {{ \
-                    let cmp: number | null; \
-                    if (typeof (a[i] as any)?.compareTo === 'function') {{ \
-                        const optResult = (a[i] as any).compareTo(b[i]); \
-                        cmp = Option.isNone(optResult) ? null : optResult.value; \
-                    }} else {{ \
-                        cmp = a[i] < b[i] ? -1 : a[i] > b[i] ? 1 : 0; \
-                    }} \
-                    if (cmp === null) return {null_return}; \
-                    if (cmp !== 0) return cmp; \
-                }} \
-                return a.length < b.length ? -1 : a.length > b.length ? 1 : 0; \
-            }})()"
-        )
-    } else if ts_type == "Date" {
-        // For Date, compare timestamps
-        format!(
-            "(() => {{ \
-                const a = this.{field_name}; \
-                const b = typedOther.{field_name}; \
-                if (!(a instanceof Date) || !(b instanceof Date)) return {null_return}; \
-                const ta = a.getTime(); \
-                const tb = b.getTime(); \
-                return ta < tb ? -1 : ta > tb ? 1 : 0; \
-            }})()"
-        )
-    } else {
-        // For objects, check for compareTo method that returns Option<number>
-        format!(
-            "(() => {{ \
-                if (typeof (this.{field_name} as any)?.compareTo === 'function') {{ \
-                    const optResult = (this.{field_name} as any).compareTo(typedOther.{field_name}); \
-                    return Option.isNone(optResult) ? {null_return} : optResult.value; \
-                }} \
-                return this.{field_name} === typedOther.{field_name} ? 0 : {null_return}; \
-            }})()"
-        )
-    }
-}
-
-/// Generates JavaScript code that compares interface/type alias fields for partial ordering.
-///
-/// Similar to [`generate_field_compare`], but uses variable name parameters instead
-/// of `this`, making it suitable for namespace functions that take objects as parameters.
-///
-/// # Arguments
-///
-/// * `field` - The field to generate comparison code for
-/// * `self_var` - Variable name for the first object (e.g., "self", "a")
-/// * `other_var` - Variable name for the second object (e.g., "other", "b")
-/// * `allow_null` - Whether to return null for incomparable values
-///
-/// # Returns
-///
-/// A string containing a JavaScript expression that evaluates to -1, 0, 1, or null.
-/// Field access uses the provided variable names.
 fn generate_field_compare_for_interface(
     field: &OrdField,
     self_var: &str,
@@ -352,7 +254,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let has_fields = !ord_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}PartialCompare", to_camel_case(class_name));
+            let fn_name = format!("{}PartialCompare", class_name.to_case(Case::Camel));
 
             // Build comparison logic using a and b parameters
             let compare_body = if has_fields {
@@ -403,7 +305,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let fn_name = format!("{}PartialCompare", to_camel_case(enum_name));
+            let fn_name = format!("{}PartialCompare", enum_name.to_case(Case::Camel));
 
             let mut result = ts_template! {
                 export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): Option<number> {
@@ -457,7 +359,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 String::new()
             };
 
-            let fn_name = format!("{}PartialCompare", to_camel_case(interface_name));
+            let fn_name = format!("{}PartialCompare", interface_name.to_case(Case::Camel));
 
             let mut result = ts_template! {
                 export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): Option<number> {
@@ -510,7 +412,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     String::new()
                 };
 
-                let fn_name = format!("{}PartialCompare", to_camel_case(type_name));
+                let fn_name = format!("{}PartialCompare", type_name.to_case(Case::Camel));
 
                 let mut result = ts_template! {
                     export function @{fn_name}(a: @{type_name}, b: @{type_name}): Option<number> {
@@ -525,7 +427,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 Ok(result)
             } else {
                 // Union, tuple, or simple alias: limited comparison
-                let fn_name = format!("{}PartialCompare", to_camel_case(type_name));
+                let fn_name = format!("{}PartialCompare", type_name.to_case(Case::Camel));
 
                 let mut result = ts_template! {
                     export function @{fn_name}(a: @{type_name}, b: @{type_name}): Option<number> {
@@ -554,7 +456,6 @@ mod tests {
 
     #[test]
     fn test_partial_ord_macro_output() {
-        let class_name = "User";
         let ord_fields: Vec<OrdField> = vec![OrdField {
             name: "id".to_string(),
             ts_type: "number".to_string(),
@@ -568,7 +469,7 @@ mod tests {
                 let var_name = format!("cmp{}", i);
                 format!(
                     "const {var_name} = {};\n                    if ({var_name} === null) return Option.none();\n                    if ({var_name} !== 0) return Option.some({var_name});",
-                    generate_field_compare(f, true)
+                    generate_field_compare_for_interface(f, "a", "b", true)
                 )
             })
             .collect::<Vec<_>>()
@@ -576,9 +477,7 @@ mod tests {
 
         let output = body! {
             compareTo(other: unknown): Option<number> {
-                if (this === other) return Option.some(0);
-                if (!(other instanceof @{class_name})) return Option.none();
-                const typedOther = other as @{class_name};
+                if (a === b) return Option.some(0);
                 {#if has_fields}
                     @{compare_body}
                 {/if}
@@ -612,9 +511,9 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         };
-        let result = generate_field_compare(&field, true);
-        assert!(result.contains("< typedOther.id"));
-        assert!(result.contains("> typedOther.id"));
+        let result = generate_field_compare_for_interface(&field, "a", "b", true);
+        assert!(result.contains("a.id < b.id"));
+        assert!(result.contains("a.id > b.id"));
     }
 
     #[test]
@@ -623,7 +522,7 @@ mod tests {
             name: "name".to_string(),
             ts_type: "string".to_string(),
         };
-        let result = generate_field_compare(&field, true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true);
         assert!(result.contains("localeCompare"));
     }
 
@@ -633,7 +532,7 @@ mod tests {
             name: "active".to_string(),
             ts_type: "boolean".to_string(),
         };
-        let result = generate_field_compare(&field, true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true);
         // false < true: false returns -1, true returns 1
         assert!(result.contains("-1"));
         assert!(result.contains("1"));
@@ -645,7 +544,7 @@ mod tests {
             name: "createdAt".to_string(),
             ts_type: "Date".to_string(),
         };
-        let result = generate_field_compare(&field, true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true);
         assert!(result.contains("getTime"));
     }
 
@@ -655,7 +554,7 @@ mod tests {
             name: "user".to_string(),
             ts_type: "User".to_string(),
         };
-        let result = generate_field_compare(&field, true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true);
         assert!(result.contains("compareTo"));
         assert!(result.contains("Option.isNone"));
     }
@@ -666,7 +565,7 @@ mod tests {
             name: "items".to_string(),
             ts_type: "Item[]".to_string(),
         };
-        let result = generate_field_compare(&field, true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true);
         assert!(result.contains("Option.isNone"));
         assert!(result.contains("optResult.value"));
     }

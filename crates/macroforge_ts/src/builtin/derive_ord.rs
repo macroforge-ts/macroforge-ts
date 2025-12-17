@@ -69,12 +69,12 @@
 //!     major: number;
 //!     minor: number;
 //!     patch: number;
-//! 
+//!
 //!     static compareTo(a: Version, b: Version): number {
 //!         return versionCompare(a, b);
 //!     }
 //! }
-//! 
+//!
 //! export function versionCompare(a: Version, b: Version): number {
 //!     if (a === b) return 0;
 //!     const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
@@ -92,18 +92,11 @@
 //! - Use **Ord** when all values are comparable (total ordering)
 //! - Use **PartialOrd** when some values may be incomparable (returns `Option<number>`)
 
+use convert_case::{Case, Casing};
+
 use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
-
-/// Convert a PascalCase name to camelCase (for prefix naming style)
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
 
 /// Contains field information needed for ordering comparison generation.
 ///
@@ -121,7 +114,7 @@ struct OrdField {
     ts_type: String,
 }
 
-/// Generates JavaScript code that compares a single class field for ordering.
+/// Generates JavaScript code that compares fields for ordering.
 ///
 /// This function produces an expression that evaluates to -1, 0, or 1 indicating
 /// the ordering relationship between two values. The generated code handles
@@ -133,11 +126,13 @@ struct OrdField {
 /// # Arguments
 ///
 /// * `field` - The field to generate comparison code for
+/// * `self_var` - Variable name for the first object (e.g., "self", "a")
+/// * `other_var` - Variable name for the second object (e.g., "other", "b")
 ///
 /// # Returns
 ///
 /// A string containing a JavaScript expression that evaluates to -1, 0, or 1.
-/// The expression compares `this.field` with `typedOther.field`.
+/// Field access uses the provided variable names: `self_var.field` vs `other_var.field`.
 ///
 /// # Type-Specific Strategies
 ///
@@ -148,80 +143,6 @@ struct OrdField {
 /// - **Arrays**: Lexicographic comparison with fallback to 0 for incomparable elements
 /// - **Date**: Timestamp comparison via `getTime()`
 /// - **Objects**: Calls `compareTo()` if available (with `?? 0` fallback), else 0
-fn generate_field_compare(field: &OrdField) -> String {
-    let field_name = &field.name;
-    let ts_type = &field.ts_type;
-
-    if is_numeric_type(ts_type) {
-        // For numbers/bigint, use direct comparison
-        format!(
-            "(this.{field_name} < typedOther.{field_name} ? -1 : \
-             this.{field_name} > typedOther.{field_name} ? 1 : 0)"
-        )
-    } else if ts_type == "string" {
-        // For strings, use localeCompare (clamped to -1, 0, 1)
-        format!(
-            "((cmp => cmp < 0 ? -1 : cmp > 0 ? 1 : 0)(this.{field_name}.localeCompare(typedOther.{field_name})))"
-        )
-    } else if ts_type == "boolean" {
-        // For booleans, false < true
-        format!(
-            "(this.{field_name} === typedOther.{field_name} ? 0 : \
-             this.{field_name} ? 1 : -1)"
-        )
-    } else if is_primitive_type(ts_type) {
-        // For other primitives (null/undefined), treat as equal
-        "0".to_string()
-    } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
-        // For arrays, lexicographic comparison
-        format!(
-            "(() => {{ \
-                const a = this.{field_name} ?? []; \
-                const b = typedOther.{field_name} ?? []; \
-                const minLen = Math.min(a.length, b.length); \
-                for (let i = 0; i < minLen; i++) {{ \
-                    const cmp = typeof (a[i] as any)?.compareTo === 'function' \
-                        ? (a[i] as any).compareTo(b[i]) ?? 0 \
-                        : (a[i] < b[i] ? -1 : a[i] > b[i] ? 1 : 0); \
-                    if (cmp !== 0) return cmp; \
-                }} \
-                return a.length < b.length ? -1 : a.length > b.length ? 1 : 0; \
-            }})()"
-        )
-    } else if ts_type == "Date" {
-        // For Date, compare timestamps
-        format!(
-            "(() => {{ \
-                const ta = this.{field_name}?.getTime() ?? 0; \
-                const tb = typedOther.{field_name}?.getTime() ?? 0; \
-                return ta < tb ? -1 : ta > tb ? 1 : 0; \
-            }})()"
-        )
-    } else {
-        // For objects, check for compareTo method, fallback to 0
-        format!(
-            "(typeof (this.{field_name} as any)?.compareTo === 'function' \
-                ? (this.{field_name} as any).compareTo(typedOther.{field_name}) ?? 0 \
-                : 0)"
-        )
-    }
-}
-
-/// Generates JavaScript code that compares interface/type alias fields for ordering.
-///
-/// Similar to [`generate_field_compare`], but uses variable name parameters instead
-/// of `this`, making it suitable for namespace functions that take objects as parameters.
-///
-/// # Arguments
-///
-/// * `field` - The field to generate comparison code for
-/// * `self_var` - Variable name for the first object (e.g., "self", "a")
-/// * `other_var` - Variable name for the second object (e.g., "other", "b")
-///
-/// # Returns
-///
-/// A string containing a JavaScript expression that evaluates to -1, 0, or 1.
-/// Field access uses the provided variable names: `self_var.field` vs `other_var.field`.
 fn generate_field_compare_for_interface(
     field: &OrdField,
     self_var: &str,
@@ -309,7 +230,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
             let has_fields = !ord_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}Compare", to_camel_case(class_name));
+            let fn_name = format!("{}Compare", class_name.to_case(Case::Camel));
 
             // Build comparison logic using a and b parameters
             let compare_body = if has_fields {
@@ -358,7 +279,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let fn_name = format!("{}Compare", to_camel_case(enum_name));
+            let fn_name = format!("{}Compare", enum_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): number {
@@ -411,7 +332,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 String::new()
             };
 
-            let fn_name = format!("{}Compare", to_camel_case(interface_name));
+            let fn_name = format!("{}Compare", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): number {
@@ -462,7 +383,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     String::new()
                 };
 
-                let fn_name = format!("{}Compare", to_camel_case(type_name));
+                let fn_name = format!("{}Compare", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name}(a: @{type_name}, b: @{type_name}): number {
@@ -475,7 +396,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 })
             } else {
                 // Union, tuple, or simple alias: basic comparison
-                let fn_name = format!("{}Compare", to_camel_case(type_name));
+                let fn_name = format!("{}Compare", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name}(a: @{type_name}, b: @{type_name}): number {
@@ -517,7 +438,7 @@ mod tests {
                 let var_name = format!("cmp{}", i);
                 format!(
                     "const {var_name} = {};\n                    if ({var_name} !== 0) return {var_name};",
-                    generate_field_compare(f)
+                    generate_field_compare_for_interface(f, "a", "b")
                 )
             })
             .collect::<Vec<_>>()
@@ -525,8 +446,7 @@ mod tests {
 
         let output = body! {
             compareTo(other: @{class_name}): number {
-                if (this === other) return 0;
-                const typedOther = other;
+                if (a === b) return 0;
                 {#if has_fields}
                     @{compare_body}
                 {/if}
@@ -561,9 +481,9 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         };
-        let result = generate_field_compare(&field);
-        assert!(result.contains("< typedOther.id"));
-        assert!(result.contains("> typedOther.id"));
+        let result = generate_field_compare_for_interface(&field, "a", "b");
+        assert!(result.contains("a.id < b.id"));
+        assert!(result.contains("a.id > b.id"));
         assert!(!result.contains("null")); // Total ordering - no null
     }
 
@@ -573,7 +493,7 @@ mod tests {
             name: "name".to_string(),
             ts_type: "string".to_string(),
         };
-        let result = generate_field_compare(&field);
+        let result = generate_field_compare_for_interface(&field, "a", "b");
         assert!(result.contains("localeCompare"));
         // Should clamp localeCompare result to -1, 0, 1
         assert!(result.contains("-1"));
@@ -586,7 +506,7 @@ mod tests {
             name: "user".to_string(),
             ts_type: "User".to_string(),
         };
-        let result = generate_field_compare(&field);
+        let result = generate_field_compare_for_interface(&field, "a", "b");
         assert!(result.contains("compareTo"));
         // Should fallback to 0 instead of null
         assert!(result.contains("?? 0"));

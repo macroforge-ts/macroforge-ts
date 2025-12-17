@@ -65,18 +65,18 @@
 //! class User {
 //!     id: number;
 //!     name: string;
-//! 
+//!
 //!     cachedScore: number;
-//! 
+//!
 //!     static hashCode(value: User): number {
 //!         return userHashCode(value);
 //!     }
-//! 
+//!
 //!     static equals(a: User, b: User): boolean {
 //!         return userEquals(a, b);
 //!     }
 //! }
-//! 
+//!
 //! export function userHashCode(value: User): number {
 //!     let hash = 17;
 //!     hash =
@@ -94,7 +94,7 @@
 //!         0;
 //!     return hash;
 //! }
-//! 
+//!
 //! export function userEquals(a: User, b: User): boolean {
 //!     if (a === b) return true;
 //!     return a.id === b.id && a.name === b.name && a.cachedScore === b.cachedScore;
@@ -107,18 +107,11 @@
 //! When using `@hash(skip)`, ensure the same fields are skipped in both
 //! `Hash` and `PartialEq` to maintain this contract.
 
+use convert_case::{Case, Casing};
+
 use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
-
-/// Convert a PascalCase name to camelCase (for prefix naming style)
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
 
 /// Contains field information needed for hash code generation.
 ///
@@ -136,117 +129,11 @@ pub struct HashField {
     pub ts_type: String,
 }
 
-/// Generates JavaScript code that computes a hash contribution for a single class field.
+/// Generates JavaScript code that computes a hash contribution for a single field.
 ///
-/// This function produces an expression that evaluates to an integer hash value
-/// for the given field when accessed via `this.fieldName`. The generated code
-/// handles different TypeScript types with appropriate hashing strategies.
-///
-/// # Arguments
-///
-/// * `field` - The field to generate hash code for, containing name and type info
-///
-/// # Returns
-///
-/// A string containing a JavaScript expression that evaluates to an integer.
-/// The expression is designed to be combined with other field hashes using
-/// the polynomial rolling hash algorithm: `hash = (hash * 31 + fieldHash) | 0`.
-///
-/// # Type-Specific Strategies
-///
-/// - **number**: Uses direct bit manipulation for integers, string-based hash for floats
-/// - **bigint**: Converts to string and hashes character by character
-/// - **string**: Polynomial hash of each character code
-/// - **boolean**: Returns 1231 for true, 1237 for false (Java's Boolean.hashCode constants)
-/// - **null/undefined**: Returns 1 if non-null, 0 if null
-/// - **Array**: Recursively hashes each element, combining with polynomial formula
-/// - **Date**: Uses `getTime()` timestamp as hash
-/// - **Map**: Hashes all key-value pairs
-/// - **Set**: Hashes all elements
-/// - **Objects**: Calls `hashCode()` method if available, falls back to JSON string hash
-fn generate_field_hash(field: &HashField) -> String {
-    let field_name = &field.name;
-    let ts_type = &field.ts_type;
-
-    if is_primitive_type(ts_type) {
-        match ts_type.as_str() {
-            "number" => {
-                // For numbers, use bit manipulation if integer, otherwise hash string
-                format!(
-                    "(Number.isInteger(this.{field_name}) \
-                        ? this.{field_name} | 0 \
-                        : this.{field_name}.toString().split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))"
-                )
-            }
-            "bigint" => {
-                // For bigint, convert to string and hash
-                format!(
-                    "this.{field_name}.toString().split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)"
-                )
-            }
-            "string" => {
-                // For strings, hash each character
-                format!(
-                    "(this.{field_name} ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)"
-                )
-            }
-            "boolean" => {
-                // For booleans, use 1 for true, 0 for false
-                format!("(this.{field_name} ? 1231 : 1237)")
-            }
-            _ => {
-                // null/undefined
-                format!("(this.{field_name} != null ? 1 : 0)")
-            }
-        }
-    } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
-        // For arrays, hash each element and combine
-        format!(
-            "(Array.isArray(this.{field_name}) \
-                ? this.{field_name}.reduce((h, v) => \
-                    (h * 31 + (typeof (v as any)?.hashCode === 'function' \
-                        ? (v as any).hashCode() \
-                        : (v != null ? String(v).split('').reduce((hh, c) => (hh * 31 + c.charCodeAt(0)) | 0, 0) : 0))) | 0, 0) \
-                : 0)"
-        )
-    } else if ts_type == "Date" {
-        // For Date, hash the timestamp
-        format!("(this.{field_name} instanceof Date ? this.{field_name}.getTime() | 0 : 0)")
-    } else if ts_type.starts_with("Map<") {
-        // For Map, hash entries
-        format!(
-            "(this.{field_name} instanceof Map \
-                ? Array.from(this.{field_name}.entries()).reduce((h, [k, v]) => \
-                    (h * 31 + String(k).split('').reduce((hh, c) => (hh * 31 + c.charCodeAt(0)) | 0, 0) + \
-                    (typeof (v as any)?.hashCode === 'function' ? (v as any).hashCode() : 0)) | 0, 0) \
-                : 0)"
-        )
-    } else if ts_type.starts_with("Set<") {
-        // For Set, hash elements
-        format!(
-            "(this.{field_name} instanceof Set \
-                ? Array.from(this.{field_name}).reduce((h, v) => \
-                    (h * 31 + (typeof (v as any)?.hashCode === 'function' \
-                        ? (v as any).hashCode() \
-                        : (v != null ? String(v).split('').reduce((hh, c) => (hh * 31 + c.charCodeAt(0)) | 0, 0) : 0))) | 0, 0) \
-                : 0)"
-        )
-    } else {
-        // For objects, check for hashCode method first
-        format!(
-            "(typeof (this.{field_name} as any)?.hashCode === 'function' \
-                ? (this.{field_name} as any).hashCode() \
-                : (this.{field_name} != null \
-                    ? JSON.stringify(this.{field_name}).split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0) \
-                    : 0))"
-        )
-    }
-}
-
-/// Generates JavaScript code that computes a hash contribution for interface/type alias fields.
-///
-/// Similar to [`generate_field_hash`], but uses a variable name parameter instead of `this`,
-/// making it suitable for namespace functions that take the object as a parameter.
+/// This function produces an expression that evaluates to an integer hash value.
+/// The generated code handles different TypeScript types with appropriate
+/// hashing strategies.
 ///
 /// # Arguments
 ///
@@ -257,6 +144,18 @@ fn generate_field_hash(field: &HashField) -> String {
 ///
 /// A string containing a JavaScript expression that evaluates to an integer hash value.
 /// Field access uses the provided variable name: `var.fieldName`.
+///
+/// # Type-Specific Strategies
+///
+/// - **number**: Integer values used directly; floats hashed as strings
+/// - **bigint**: String hash of decimal representation
+/// - **string**: Character-by-character polynomial hash
+/// - **boolean**: 1231 for true, 1237 for false (Java convention)
+/// - **Date**: `getTime()` timestamp
+/// - **Arrays**: Element-by-element hash combination
+/// - **Map**: Entry-by-entry key+value hash
+/// - **Set**: Element-by-element hash
+/// - **Objects**: Calls `hashCode()` if available, else JSON string hash
 ///
 /// # Example
 ///
@@ -368,7 +267,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             let has_fields = !hash_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}HashCode", to_camel_case(class_name));
+            let fn_name = format!("{}HashCode", class_name.to_case(Case::Camel));
 
             // Build hash computation using value parameter instead of this
             let hash_body = if has_fields {
@@ -415,7 +314,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let fn_name = format!("{}HashCode", to_camel_case(enum_name));
+            let fn_name = format!("{}HashCode", enum_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name}(value: @{enum_name}): number {
@@ -465,7 +364,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 String::new()
             };
 
-            let fn_name = format!("{}HashCode", to_camel_case(interface_name));
+            let fn_name = format!("{}HashCode", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name}(value: @{interface_name}): number {
@@ -514,7 +413,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                     String::new()
                 };
 
-                let fn_name = format!("{}HashCode", to_camel_case(type_name));
+                let fn_name = format!("{}HashCode", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name}(value: @{type_name}): number {
@@ -527,7 +426,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 })
             } else {
                 // Union, tuple, or simple alias: use JSON hash
-                let fn_name = format!("{}HashCode", to_camel_case(type_name));
+                let fn_name = format!("{}HashCode", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name}(value: @{type_name}): number {
@@ -559,7 +458,12 @@ mod tests {
 
         let hash_body = hash_fields
             .iter()
-            .map(|f| format!("hash = (hash * 31 + {}) | 0;", generate_field_hash(f)))
+            .map(|f| {
+                format!(
+                    "hash = (hash * 31 + {}) | 0;",
+                    generate_field_hash_for_interface(f, "value")
+                )
+            })
             .collect::<Vec<_>>()
             .join("\n                    ");
 
@@ -595,7 +499,7 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         };
-        let result = generate_field_hash(&field);
+        let result = generate_field_hash_for_interface(&field, "value");
         assert!(result.contains("Number.isInteger"));
     }
 
@@ -605,7 +509,7 @@ mod tests {
             name: "name".to_string(),
             ts_type: "string".to_string(),
         };
-        let result = generate_field_hash(&field);
+        let result = generate_field_hash_for_interface(&field, "value");
         assert!(result.contains("split"));
         assert!(result.contains("charCodeAt"));
     }
@@ -616,7 +520,7 @@ mod tests {
             name: "active".to_string(),
             ts_type: "boolean".to_string(),
         };
-        let result = generate_field_hash(&field);
+        let result = generate_field_hash_for_interface(&field, "value");
         assert!(result.contains("1231")); // Java's Boolean.hashCode() constants
         assert!(result.contains("1237"));
     }
@@ -627,7 +531,7 @@ mod tests {
             name: "createdAt".to_string(),
             ts_type: "Date".to_string(),
         };
-        let result = generate_field_hash(&field);
+        let result = generate_field_hash_for_interface(&field, "value");
         assert!(result.contains("getTime"));
     }
 
@@ -637,7 +541,7 @@ mod tests {
             name: "user".to_string(),
             ts_type: "User".to_string(),
         };
-        let result = generate_field_hash(&field);
+        let result = generate_field_hash_for_interface(&field, "value");
         assert!(result.contains("hashCode"));
     }
 }
