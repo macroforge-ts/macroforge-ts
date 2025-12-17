@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -109,7 +109,7 @@ export default defineConfig({
 </p>
 
 <ul>
-	<li><a href="{base}/docs/getting-started/first-macro">Create your first macro</a></li>
-	<li><a href="{base}/docs/concepts">Understand how macros work</a></li>
-	<li><a href="{base}/docs/builtin-macros">Explore built-in macros</a></li>
+	<li><a href={resolve('/docs/getting-started/first-macro')}>Create your first macro</a></li>
+	<li><a href={resolve('/docs/concepts')}>Understand how macros work</a></li>
+	<li><a href={resolve('/docs/builtin-macros')}>Explore built-in macros</a></li>
 </ul>

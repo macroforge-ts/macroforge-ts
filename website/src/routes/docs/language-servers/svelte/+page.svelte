@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -94,5 +94,5 @@ npm run build`} lang="bash" />
 <h2 id="zed-integration">Using with Zed</h2>
 
 <p>
-	For Zed editor, see the <a href="{base}/docs/language-servers/zed">Zed Extensions</a> page for the dedicated <code>svelte-macroforge</code> extension.
+	For Zed editor, see the <a href={resolve('/docs/language-servers/zed')}>Zed Extensions</a> page for the dedicated <code>svelte-macroforge</code> extension.
 </p>

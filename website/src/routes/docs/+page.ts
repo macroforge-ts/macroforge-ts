@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
-import { base } from '$app/paths';
+import { resolve } from '$app/paths';
 
 export function load() {
-	redirect(302, `${base}/docs/getting-started`);
+	redirect(302, resolve('/docs/getting-started'));
 }

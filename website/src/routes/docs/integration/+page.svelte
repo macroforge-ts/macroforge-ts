@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import IntegrationFlow from '$lib/components/ui/IntegrationFlow.svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -80,7 +80,7 @@ npm install -D @macroforge/typescript-plugin @macroforge/vite-plugin`} lang="bas
 <h2 id="next-steps">Detailed Guides</h2>
 
 <ul>
-	<li><a href="{base}/docs/integration/typescript-plugin">TypeScript Plugin setup</a></li>
-	<li><a href="{base}/docs/integration/vite-plugin">Vite Plugin configuration</a></li>
-	<li><a href="{base}/docs/integration/configuration">Configuration options</a></li>
+	<li><a href={resolve('/docs/integration/typescript-plugin')}>TypeScript Plugin setup</a></li>
+	<li><a href={resolve('/docs/integration/vite-plugin')}>Vite Plugin configuration</a></li>
+	<li><a href={resolve('/docs/integration/configuration')}>Configuration options</a></li>
 </ul>

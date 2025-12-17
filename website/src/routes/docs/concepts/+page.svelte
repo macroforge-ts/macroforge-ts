@@ -2,7 +2,7 @@
 	import MacroExample from '$lib/components/ui/MacroExample.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import Flowchart from '$lib/components/ui/Flowchart.svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 
 	let { data } = $props();
 </script>
@@ -31,7 +31,7 @@
 	<li><strong>Output</strong>: The transformed TypeScript is written out, ready for normal compilation</li>
 </ol>
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} beforeHtml={data.examples.basic.beforeHtml} afterHtml={data.examples.basic.afterHtml} />
 
 <h2 id="zero-runtime">Zero Runtime Overhead</h2>
 
@@ -105,6 +105,6 @@
 <h2 id="next-steps">Next Steps</h2>
 
 <ul>
-	<li><a href="{base}/docs/concepts/derive-system">Learn about the derive system</a></li>
-	<li><a href="{base}/docs/concepts/architecture">Explore the architecture</a></li>
+	<li><a href={resolve('/docs/concepts/derive-system')}>Learn about the derive system</a></li>
+	<li><a href={resolve('/docs/concepts/architecture')}>Explore the architecture</a></li>
 </ul>

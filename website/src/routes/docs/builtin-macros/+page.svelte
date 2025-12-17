@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -27,47 +27,47 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td><a href="{base}/docs/builtin-macros/debug"><code>Debug</code></a></td>
+			<td><a href={resolve('/docs/builtin-macros/debug')}><code>Debug</code></a></td>
 			<td><code>toString(): string</code></td>
 			<td>Human-readable string representation</td>
 		</tr>
 		<tr>
-			<td><a href="{base}/docs/builtin-macros/clone"><code>Clone</code></a></td>
+			<td><a href={resolve('/docs/builtin-macros/clone')}><code>Clone</code></a></td>
 			<td><code>clone(): T</code></td>
 			<td>Creates a deep copy of the object</td>
 		</tr>
 		<tr>
-			<td><a href="{base}/docs/builtin-macros/default"><code>Default</code></a></td>
+			<td><a href={resolve('/docs/builtin-macros/default')}><code>Default</code></a></td>
 			<td><code>static default(): T</code></td>
 			<td>Creates an instance with default values</td>
 		</tr>
 		<tr>
-			<td><a href="{base}/docs/builtin-macros/hash"><code>Hash</code></a></td>
+			<td><a href={resolve('/docs/builtin-macros/hash')}><code>Hash</code></a></td>
 			<td><code>hashCode(): number</code></td>
 			<td>Generates a hash code for the object</td>
 		</tr>
 		<tr>
-			<td><a href="{base}/docs/builtin-macros/partial-eq"><code>PartialEq</code></a></td>
+			<td><a href={resolve('/docs/builtin-macros/partial-eq')}><code>PartialEq</code></a></td>
 			<td><code>equals(other: T): boolean</code></td>
 			<td>Value equality comparison</td>
 		</tr>
 		<tr>
-			<td><a href="{base}/docs/builtin-macros/ord"><code>Ord</code></a></td>
+			<td><a href={resolve('/docs/builtin-macros/ord')}><code>Ord</code></a></td>
 			<td><code>compare(other: T): number</code></td>
 			<td>Total ordering comparison (-1, 0, 1)</td>
 		</tr>
 		<tr>
-			<td><a href="{base}/docs/builtin-macros/partial-ord"><code>PartialOrd</code></a></td>
+			<td><a href={resolve('/docs/builtin-macros/partial-ord')}><code>PartialOrd</code></a></td>
 			<td><code>partialCompare(other: T): number | null</code></td>
 			<td>Partial ordering comparison</td>
 		</tr>
 		<tr>
-			<td><a href="{base}/docs/builtin-macros/serialize"><code>Serialize</code></a></td>
+			<td><a href={resolve('/docs/builtin-macros/serialize')}><code>Serialize</code></a></td>
 			<td><code>toJSON(): Record&lt;string, unknown&gt;</code></td>
 			<td>JSON serialization with type handling</td>
 		</tr>
 		<tr>
-			<td><a href="{base}/docs/builtin-macros/deserialize"><code>Deserialize</code></a></td>
+			<td><a href={resolve('/docs/builtin-macros/deserialize')}><code>Deserialize</code></a></td>
 			<td><code>static fromJSON(data: unknown): T</code></td>
 			<td>JSON deserialization with validation</td>
 		</tr>
@@ -214,13 +214,13 @@ console.log(user.equals(copy)); // true`} lang="typescript" />
 </p>
 
 <ul>
-	<li><a href="{base}/docs/builtin-macros/debug"><strong>Debug</strong></a> - Customizable field renaming and skipping</li>
-	<li><a href="{base}/docs/builtin-macros/clone"><strong>Clone</strong></a> - Deep copying for all field types</li>
-	<li><a href="{base}/docs/builtin-macros/default"><strong>Default</strong></a> - Default value generation with field attributes</li>
-	<li><a href="{base}/docs/builtin-macros/hash"><strong>Hash</strong></a> - Hash code generation for use in maps and sets</li>
-	<li><a href="{base}/docs/builtin-macros/partial-eq"><strong>PartialEq</strong></a> - Value-based equality comparison</li>
-	<li><a href="{base}/docs/builtin-macros/ord"><strong>Ord</strong></a> - Total ordering for sorting</li>
-	<li><a href="{base}/docs/builtin-macros/partial-ord"><strong>PartialOrd</strong></a> - Partial ordering comparison</li>
-	<li><a href="{base}/docs/builtin-macros/serialize"><strong>Serialize</strong></a> - JSON serialization with serde-style options</li>
-	<li><a href="{base}/docs/builtin-macros/deserialize"><strong>Deserialize</strong></a> - JSON deserialization with validation</li>
+	<li><a href={resolve('/docs/builtin-macros/debug')}><strong>Debug</strong></a> - Customizable field renaming and skipping</li>
+	<li><a href={resolve('/docs/builtin-macros/clone')}><strong>Clone</strong></a> - Deep copying for all field types</li>
+	<li><a href={resolve('/docs/builtin-macros/default')}><strong>Default</strong></a> - Default value generation with field attributes</li>
+	<li><a href={resolve('/docs/builtin-macros/hash')}><strong>Hash</strong></a> - Hash code generation for use in maps and sets</li>
+	<li><a href={resolve('/docs/builtin-macros/partial-eq')}><strong>PartialEq</strong></a> - Value-based equality comparison</li>
+	<li><a href={resolve('/docs/builtin-macros/ord')}><strong>Ord</strong></a> - Total ordering for sorting</li>
+	<li><a href={resolve('/docs/builtin-macros/partial-ord')}><strong>PartialOrd</strong></a> - Partial ordering comparison</li>
+	<li><a href={resolve('/docs/builtin-macros/serialize')}><strong>Serialize</strong></a> - JSON serialization with serde-style options</li>
+	<li><a href={resolve('/docs/builtin-macros/deserialize')}><strong>Deserialize</strong></a> - JSON deserialization with validation</li>
 </ul>
