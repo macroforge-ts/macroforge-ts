@@ -486,6 +486,37 @@
       "errors": "Returns an error if the code cannot be parsed."
     },
     {
+      "name": "LoadConfigResult",
+      "kind": "struct",
+      "signature": "pub struct LoadConfigResult",
+      "description": "Result of loading a macroforge configuration file.\n\nReturned by [`load_config`] after parsing a `macroforge.config.js/ts` file."
+    },
+    {
+      "name": "load_config",
+      "kind": "function",
+      "signature": "pub fn load_config(content: String, filepath: String) -> Result<LoadConfigResult>",
+      "description": "Load and parse a macroforge configuration file.\n\nParses a `macroforge.config.js/ts` file and caches the result for use\nduring macro expansion. The configuration includes both simple settings\n(like `keepDecorators`) and foreign type handlers.",
+      "params": [
+        {
+          "name": "content",
+          "type": "",
+          "description": "The raw content of the configuration file"
+        },
+        {
+          "name": "filepath",
+          "type": "",
+          "description": "Path to the configuration file (used to determine syntax and as cache key)"
+        }
+      ],
+      "returns": {
+        "type": "",
+        "description": "A [`LoadConfigResult`] containing the parsed configuration summary."
+      },
+      "examples": [
+        "import { loadConfig, expandSync } from 'macroforge';\nimport fs from 'fs';\n\nconst configPath = 'macroforge.config.js';\nconst configContent = fs.readFileSync(configPath, 'utf-8');\n\n// Load and cache the configuration\nconst result = loadConfig(configContent, configPath);\nconsole.log(`Loaded config with ${result.foreignTypeCount} foreign types`);\n\n// The config is now cached and will be used by expandSync\nconst expanded = expandSync(code, filepath, { configPath });"
+      ]
+    },
+    {
       "name": "transform_sync",
       "kind": "function",
       "signature": "pub fn transform_sync(_env: Env, code: String, filepath: String) -> Result<TransformResult>",
