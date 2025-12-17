@@ -177,7 +177,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function greaterThanBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanBigIntValidator, Array<{field: string; message: string}>>{return GreaterThanBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function greaterThanBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanBigIntValidator, Array<{ field: string; message: string }>> {return GreaterThanBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function greaterThanBigIntValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): GreaterThanBigIntValidator | PendingRef {return GreaterThanBigIntValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -353,7 +353,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function greaterThanOrEqualToBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanOrEqualToBigIntValidator, Array<{field: string; message: string}>>{return GreaterThanOrEqualToBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function greaterThanOrEqualToBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanOrEqualToBigIntValidator, Array<{ field: string; message: string }>> {return GreaterThanOrEqualToBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function greaterThanOrEqualToBigIntValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): GreaterThanOrEqualToBigIntValidator | PendingRef {return GreaterThanOrEqualToBigIntValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -529,7 +529,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function lessThanBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanBigIntValidator, Array<{field: string; message: string}>>{return LessThanBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function lessThanBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanBigIntValidator, Array<{ field: string; message: string }>> {return LessThanBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function lessThanBigIntValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): LessThanBigIntValidator | PendingRef {return LessThanBigIntValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -705,7 +705,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function lessThanOrEqualToBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanOrEqualToBigIntValidator, Array<{field: string; message: string}>>{return LessThanOrEqualToBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function lessThanOrEqualToBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanOrEqualToBigIntValidator, Array<{ field: string; message: string }>> {return LessThanOrEqualToBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function lessThanOrEqualToBigIntValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): LessThanOrEqualToBigIntValidator | PendingRef {return LessThanOrEqualToBigIntValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -881,7 +881,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function betweenBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<BetweenBigIntValidator, Array<{field: string; message: string}>>{return BetweenBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function betweenBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<BetweenBigIntValidator, Array<{ field: string; message: string }>> {return BetweenBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function betweenBigIntValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): BetweenBigIntValidator | PendingRef {return BetweenBigIntValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -1057,7 +1057,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function positiveBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<PositiveBigIntValidator, Array<{field: string; message: string}>>{return PositiveBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function positiveBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<PositiveBigIntValidator, Array<{ field: string; message: string }>> {return PositiveBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function positiveBigIntValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): PositiveBigIntValidator | PendingRef {return PositiveBigIntValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -1233,7 +1233,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function nonNegativeBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<NonNegativeBigIntValidator, Array<{field: string; message: string}>>{return NonNegativeBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function nonNegativeBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<NonNegativeBigIntValidator, Array<{ field: string; message: string }>> {return NonNegativeBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function nonNegativeBigIntValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): NonNegativeBigIntValidator | PendingRef {return NonNegativeBigIntValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -1409,7 +1409,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function negativeBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<NegativeBigIntValidator, Array<{field: string; message: string}>>{return NegativeBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function negativeBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<NegativeBigIntValidator, Array<{ field: string; message: string }>> {return NegativeBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function negativeBigIntValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): NegativeBigIntValidator | PendingRef {return NegativeBigIntValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -1585,7 +1585,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function nonPositiveBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<NonPositiveBigIntValidator, Array<{field: string; message: string}>>{return NonPositiveBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function nonPositiveBigIntValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<NonPositiveBigIntValidator, Array<{ field: string; message: string }>> {return NonPositiveBigIntValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function nonPositiveBigIntValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): NonPositiveBigIntValidator | PendingRef {return NonPositiveBigIntValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check

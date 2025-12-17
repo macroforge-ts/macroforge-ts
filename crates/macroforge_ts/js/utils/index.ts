@@ -121,7 +121,9 @@ export namespace DeserializeResult {
    */
   export function unwrap<T>(result: DeserializeResult<T>): T {
     if (result.success) return result.value;
-    throw new Error(`Deserialization failed: ${JSON.stringify(result.errors)}`);
+    throw new Error(
+      `Deserialization failed: ${JSON.stringify((result as DeserializeFailure).errors)}`,
+    );
   }
 
   /**
