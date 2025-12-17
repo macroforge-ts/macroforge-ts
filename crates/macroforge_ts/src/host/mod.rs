@@ -106,7 +106,9 @@ pub mod registry;
 pub mod traits;
 
 // Primary exports for convenience
-pub use config::MacroConfig;
+pub use config::{
+    ForeignTypeConfig, ImportInfo, MacroConfig, MacroforgeConfig, CONFIG_CACHE,
+};
 pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};
 pub use expand::{MacroExpander, MacroExpansion, collect_import_sources};

@@ -142,7 +142,41 @@ pub mod derive_deserialize;
 /// Serialize macro implementation.
 pub mod derive_serialize;
 
+use crate::host::ForeignTypeConfig;
 use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector, SpanIR};
+use std::cell::RefCell;
+
+// ============================================================================
+// Thread-local storage for current expansion's foreign types
+// ============================================================================
+
+thread_local! {
+    /// Thread-local storage for foreign type configurations during expansion.
+    ///
+    /// This is set by the expander before running macros and cleared after.
+    /// Macros can query this to check if a field's type matches a foreign type.
+    static FOREIGN_TYPES: RefCell<Vec<ForeignTypeConfig>> = RefCell::new(Vec::new());
+}
+
+/// Set the foreign types for the current expansion.
+///
+/// This should be called by the expander before running macros.
+/// The previous value is returned so it can be restored after expansion.
+pub fn set_foreign_types(types: Vec<ForeignTypeConfig>) -> Vec<ForeignTypeConfig> {
+    FOREIGN_TYPES.with(|ft| ft.replace(types))
+}
+
+/// Get a reference to the current foreign types.
+///
+/// Returns a clone of the current foreign types for thread-safety.
+pub fn get_foreign_types() -> Vec<ForeignTypeConfig> {
+    FOREIGN_TYPES.with(|ft| ft.borrow().clone())
+}
+
+/// Clear the foreign types after expansion.
+pub fn clear_foreign_types() {
+    FOREIGN_TYPES.with(|ft| ft.borrow_mut().clear());
+}
 
 /// Naming convention for JSON field renaming
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
@@ -388,6 +422,74 @@ impl TypeCategory {
         }
 
         Self::Unknown
+    }
+
+    /// Check if a type matches a configured foreign type.
+    ///
+    /// Attempts to match the type name against the configured foreign types,
+    /// checking both exact name matches and imports from configured sources.
+    ///
+    /// # Arguments
+    ///
+    /// * `ts_type` - The TypeScript type string (e.g., "DateTime", "ZonedDateTime")
+    /// * `foreign_types` - List of configured foreign type handlers
+    ///
+    /// # Returns
+    ///
+    /// The matching foreign type configuration, if found.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let foreign_types = vec![ForeignTypeConfig {
+    ///     name: "DateTime".to_string(),
+    ///     from: vec!["effect".to_string()],
+    ///     ..Default::default()
+    /// }];
+    ///
+    /// // Matches by exact name
+    /// assert!(TypeCategory::match_foreign_type("DateTime", &foreign_types).is_some());
+    ///
+    /// // Doesn't match other types
+    /// assert!(TypeCategory::match_foreign_type("Date", &foreign_types).is_none());
+    /// ```
+    pub fn match_foreign_type<'a>(
+        ts_type: &str,
+        foreign_types: &'a [ForeignTypeConfig],
+    ) -> Option<&'a ForeignTypeConfig> {
+        let trimmed = ts_type.trim();
+
+        // Skip empty types
+        if trimmed.is_empty() {
+            return None;
+        }
+
+        // Extract the base type name (handle generics like Foo<T>)
+        let base_type = if let Some(idx) = trimmed.find('<') {
+            &trimmed[..idx]
+        } else {
+            trimmed
+        };
+
+        foreign_types.iter().find(|ft| {
+            // Match by exact type name
+            if base_type == ft.name {
+                return true;
+            }
+
+            // Also try matching the full type including module path
+            // e.g., if type is "effect.DateTime" and config has from: ["effect"]
+            for source in &ft.from {
+                // Handle patterns like "effect.DateTime" or "@effect/schema.DateTime"
+                let module_name = source.split('/').last().unwrap_or(source);
+                let qualified_name = format!("{}.{}", module_name, ft.name);
+                if trimmed == qualified_name {
+                    return true;
+                }
+            }
+
+            false
+        })
     }
 }
 

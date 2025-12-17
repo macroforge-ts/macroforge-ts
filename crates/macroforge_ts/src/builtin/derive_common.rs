@@ -40,6 +40,7 @@
 //! | `T \| null` | `null` |
 //! | `CustomType` | `CustomType.defaultValue()` |
 
+use crate::builtin::serde::{TypeCategory, get_foreign_types};
 use crate::ts_syn::abi::DecoratorIR;
 
 // ============================================================================
@@ -189,6 +190,16 @@ pub fn has_known_default(_ts_type: &str) -> bool {
 /// Get default value for a TypeScript type
 pub fn get_type_default(ts_type: &str) -> String {
     let t = ts_type.trim();
+
+    // Check for foreign type default first
+    let foreign_types = get_foreign_types();
+    if let Some(ft) = TypeCategory::match_foreign_type(t, &foreign_types) {
+        if let Some(ref default_expr) = ft.default_expr {
+            // Wrap the expression in an IIFE if it's a function
+            // Foreign type defaults are expected to be functions: () => DateTime.now()
+            return format!("({})()", default_expr);
+        }
+    }
 
     // Nullable first (like Rust's Option::default() -> None)
     if is_nullable_type(t) {
