@@ -701,6 +701,26 @@ export declare function __macroforgeRunSerialize(contextJson: string): string
 export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult
 
 /**
+ * Clears the configuration cache.
+ *
+ * This is useful for testing to ensure each test starts with a clean state.
+ * In production, clearing the cache will force configs to be re-parsed on next access.
+ *
+ * # Example
+ *
+ * ```javascript
+ * const { clearConfigCache, loadConfig } = require('macroforge-ts');
+ *
+ * // Clear cache before each test
+ * clearConfigCache();
+ *
+ * // Now load a fresh config
+ * const result = loadConfig(configContent, configPath);
+ * ```
+ */
+export declare function clearConfigCache(): void
+
+/**
  * Entry for a registered decorator in the manifest.
  *
  * Used by [`MacroManifest`] to describe field-level decorators

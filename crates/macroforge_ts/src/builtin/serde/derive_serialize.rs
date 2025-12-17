@@ -380,8 +380,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     } else {
                         // Check if the field's type matches a configured foreign type
                         let foreign_types = get_foreign_types();
-                        TypeCategory::match_foreign_type(&field.ts_type, &foreign_types)
-                            .and_then(|ft| ft.serialize_expr.clone())
+                        let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                        // Error if import source mismatch (type matches but wrong import)
+                        if let Some(error) = ft_match.error {
+                            all_diagnostics.error(field.span, error);
+                        }
+                        // Log warning for informational hints
+                        if let Some(warning) = ft_match.warning {
+                            all_diagnostics.warning(field.span, warning);
+                        }
+                        ft_match.config.and_then(|ft| ft.serialize_expr.clone())
                     };
 
                     Some(SerializeField {
@@ -444,13 +452,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     {#if has_regular}
                         {#for field in regular_fields}
                             {#if let Some(fn_name) = &field.serialize_with}
-                                // Custom serialization function (serializeWith)
+                                // Custom serialization function (serializeWith) - wrapped as IIFE for arrow functions
                                 {#if field.optional}
                                     if (value.@{field.field_name} !== undefined) {
-                                        result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                        result["@{field.json_key}"] = (@{fn_name})(value.@{field.field_name});
                                     }
                                 {:else}
-                                    result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                    result["@{field.json_key}"] = (@{fn_name})(value.@{field.field_name});
                                 {/if}
                             {:else}
                             {#match &field.type_cat}
@@ -838,8 +846,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     } else {
                         // Check if the field's type matches a configured foreign type
                         let foreign_types = get_foreign_types();
-                        TypeCategory::match_foreign_type(&field.ts_type, &foreign_types)
-                            .and_then(|ft| ft.serialize_expr.clone())
+                        let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                        // Error if import source mismatch (type matches but wrong import)
+                        if let Some(error) = ft_match.error {
+                            all_diagnostics.error(field.span, error);
+                        }
+                        // Log warning for informational hints
+                        if let Some(warning) = ft_match.warning {
+                            all_diagnostics.warning(field.span, warning);
+                        }
+                        ft_match.config.and_then(|ft| ft.serialize_expr.clone())
                     };
 
                     Some(SerializeField {
@@ -907,13 +923,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     {#if has_regular}
                         {#for field in regular_fields}
                             {#if let Some(fn_name) = &field.serialize_with}
-                                // Custom serialization function (serializeWith)
+                                // Custom serialization function (serializeWith) - wrapped as IIFE for arrow functions
                                 {#if field.optional}
                                     if (value.@{field.field_name} !== undefined) {
-                                        result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                        result["@{field.json_key}"] = (@{fn_name})(value.@{field.field_name});
                                     }
                                 {:else}
-                                    result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                    result["@{field.json_key}"] = (@{fn_name})(value.@{field.field_name});
                                 {/if}
                             {:else}
                             {#match &field.type_cat}
