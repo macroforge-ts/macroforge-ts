@@ -202,7 +202,7 @@ thread_local! {
     ///
     /// This is set by the expander before running macros and cleared after.
     /// Macros can query this to check if a field's type matches a foreign type.
-    static FOREIGN_TYPES: RefCell<Vec<ForeignTypeConfig>> = RefCell::new(Vec::new());
+    static FOREIGN_TYPES: RefCell<Vec<ForeignTypeConfig>> = const{ RefCell::new(Vec::new()) };
 
     /// Thread-local storage for import sources during expansion.
     ///
@@ -263,26 +263,31 @@ pub enum RenameAll {
     PascalCase,
 }
 
-impl RenameAll {
-    pub fn from_str(s: &str) -> Option<Self> {
+impl std::str::FromStr for RenameAll {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().replace(['-', '_'], "").as_str() {
-            "camelcase" => Some(Self::CamelCase),
-            "snakecase" => Some(Self::SnakeCase),
-            "screamingsnakecase" => Some(Self::ScreamingSnakeCase),
-            "kebabcase" => Some(Self::KebabCase),
-            "pascalcase" => Some(Self::PascalCase),
-            _ => None,
+            "camelcase" => Ok(Self::CamelCase),
+            "snakecase" => Ok(Self::SnakeCase),
+            "screamingsnakecase" => Ok(Self::ScreamingSnakeCase),
+            "kebabcase" => Ok(Self::KebabCase),
+            "pascalcase" => Ok(Self::PascalCase),
+            _ => Err(()),
         }
     }
+}
 
+impl RenameAll {
     pub fn apply(&self, name: &str) -> String {
+        use convert_case::{Case, Casing};
         match self {
             Self::None => name.to_string(),
-            Self::CamelCase => to_camel_case(name),
-            Self::SnakeCase => to_snake_case(name),
-            Self::ScreamingSnakeCase => to_snake_case(name).to_uppercase(),
-            Self::KebabCase => to_snake_case(name).replace('_', "-"),
-            Self::PascalCase => to_pascal_case(name),
+            Self::CamelCase => name.to_case(Case::Camel),
+            Self::SnakeCase => name.to_case(Case::Snake),
+            Self::ScreamingSnakeCase => name.to_case(Case::UpperSnake),
+            Self::KebabCase => name.to_case(Case::Kebab),
+            Self::PascalCase => name.to_case(Case::Pascal),
         }
     }
 }
@@ -304,7 +309,7 @@ impl SerdeContainerOptions {
             let args = decorator.args_src.trim();
 
             if let Some(rename_all) = extract_named_string(args, "renameAll")
-                && let Some(convention) = RenameAll::from_str(&rename_all)
+                && let Ok(convention) = rename_all.parse::<RenameAll>()
             {
                 opts.rename_all = convention;
             }
@@ -417,6 +422,11 @@ pub enum TypeCategory {
     Date,
     Map(String, String),
     Set(String),
+    Record(String, String),
+    /// Wrapper types like Partial<T>, Required<T>, Readonly<T>, Pick<T, K>, Omit<T, K>, NonNullable<T>
+    /// These don't change the runtime value structure, so we serialize based on the inner type.
+    /// Contains the inner type name (e.g., "User" for Partial<User>)
+    Wrapper(String),
     Serializable(String),
     Unknown,
 }
@@ -466,6 +476,16 @@ impl TypeCategory {
             return Self::Set(inner.to_string());
         }
 
+        // Handle Record<K, V>
+        if trimmed.starts_with("Record<") && trimmed.ends_with('>') {
+            let inner = &trimmed[7..trimmed.len() - 1];
+            if let Some(comma_pos) = find_top_level_comma(inner) {
+                let key = inner[..comma_pos].trim().to_string();
+                let value = inner[comma_pos + 1..].trim().to_string();
+                return Self::Record(key, value);
+            }
+        }
+
         // Handle union types (T | undefined, T | null)
         if trimmed.contains('|') {
             let parts: Vec<&str> = trimmed.split('|').map(|s| s.trim()).collect();
@@ -484,6 +504,7 @@ impl TypeCategory {
         }
 
         // Check if it looks like a class/interface name (starts with uppercase)
+        // Exclude built-in types and utility types
         if let Some(first_char) = trimmed.chars().next()
             && first_char.is_uppercase()
             && !matches!(
@@ -491,6 +512,53 @@ impl TypeCategory {
                 "String" | "Number" | "Boolean" | "Object" | "Function" | "Symbol"
             )
         {
+            // Extract base type name (handle generics like Foo<T>)
+            let base_type = if let Some(idx) = trimmed.find('<') {
+                &trimmed[..idx]
+            } else {
+                trimmed
+            };
+
+            // Handle TypeScript wrapper utility types that preserve the inner type's structure
+            // These don't change runtime values, so we serialize based on the inner type
+            if matches!(
+                base_type,
+                "Partial" | "Required" | "Readonly" | "NonNullable"
+            ) {
+                // Single type argument: Partial<T>, Required<T>, Readonly<T>, NonNullable<T>
+                if let Some(start) = trimmed.find('<') {
+                    let inner = &trimmed[start + 1..trimmed.len() - 1];
+                    return Self::Wrapper(inner.to_string());
+                }
+            }
+
+            if matches!(base_type, "Pick" | "Omit") {
+                // Two type arguments: Pick<T, K>, Omit<T, K> - we care about T
+                if let Some(start) = trimmed.find('<') {
+                    let inner = &trimmed[start + 1..trimmed.len() - 1];
+                    if let Some(comma_pos) = find_top_level_comma(inner) {
+                        let first_arg = inner[..comma_pos].trim();
+                        return Self::Wrapper(first_arg.to_string());
+                    }
+                }
+            }
+
+            // These utility types don't have a meaningful serialization strategy
+            // (they operate on function types, unions, or async types)
+            if matches!(
+                base_type,
+                "Exclude"
+                    | "Extract"
+                    | "ReturnType"
+                    | "Parameters"
+                    | "InstanceType"
+                    | "ThisType"
+                    | "Awaited"
+                    | "Promise"
+            ) {
+                return Self::Unknown;
+            }
+
             return Self::Serializable(trimmed.to_string());
         }
 
@@ -571,9 +639,8 @@ impl TypeCategory {
             let ft_qualified = ft.get_qualified_name();
 
             // Check if the type name matches
-            let name_matches = type_name == ft_type_name
-                || base_type == ft.name
-                || base_type == ft_qualified;
+            let name_matches =
+                type_name == ft_type_name || base_type == ft.name || base_type == ft_qualified;
 
             // Also check namespace matches if both have namespaces
             let namespace_matches = match (namespace_part, ft_namespace) {
@@ -612,7 +679,9 @@ impl TypeCategory {
                 let warning = format!(
                     "Type '{}' has the same name as foreign type '{}' but uses different qualification. \
                      Expected '{}' or configure with namespace: '{}'.",
-                    base_type, ft.name, ft_qualified,
+                    base_type,
+                    ft.name,
+                    ft_qualified,
                     namespace_part.unwrap_or(type_name)
                 );
                 if near_match.is_none() {
@@ -623,15 +692,15 @@ impl TypeCategory {
             // Check aliases for this foreign type
             for alias in &ft.aliases {
                 // Parse alias name for potential namespace
-                let (alias_namespace, alias_type_name) = if let Some(dot_idx) = alias.name.rfind('.') {
-                    (Some(&alias.name[..dot_idx]), &alias.name[dot_idx + 1..])
-                } else {
-                    (None, alias.name.as_str())
-                };
+                let (alias_namespace, alias_type_name) =
+                    if let Some(dot_idx) = alias.name.rfind('.') {
+                        (Some(&alias.name[..dot_idx]), &alias.name[dot_idx + 1..])
+                    } else {
+                        (None, alias.name.as_str())
+                    };
 
                 // Check if alias name matches the type
-                let alias_name_matches = type_name == alias_type_name
-                    || base_type == alias.name;
+                let alias_name_matches = type_name == alias_type_name || base_type == alias.name;
 
                 // Check namespace matches for alias
                 let alias_namespace_matches = match (namespace_part, alias_namespace) {
@@ -1569,70 +1638,6 @@ fn parse_validator_string_arg(input: &str) -> Option<String> {
 }
 
 // ============================================================================
-// Case conversion utilities
-// ============================================================================
-
-pub fn to_camel_case(s: &str) -> String {
-    let mut result = String::new();
-    let mut capitalize_next = false;
-    let mut first = true;
-
-    for c in s.chars() {
-        if c == '_' || c == '-' {
-            capitalize_next = true;
-        } else if capitalize_next {
-            result.push(c.to_ascii_uppercase());
-            capitalize_next = false;
-        } else if first {
-            result.push(c.to_ascii_lowercase());
-            first = false;
-        } else {
-            result.push(c);
-        }
-    }
-    result
-}
-
-pub fn to_snake_case(s: &str) -> String {
-    let mut result = String::new();
-    let mut prev_was_upper = false;
-
-    for (i, c) in s.char_indices() {
-        if c.is_uppercase() {
-            if i > 0 && !prev_was_upper {
-                result.push('_');
-            }
-            result.push(c.to_ascii_lowercase());
-            prev_was_upper = true;
-        } else if c == '-' {
-            result.push('_');
-            prev_was_upper = false;
-        } else {
-            result.push(c);
-            prev_was_upper = false;
-        }
-    }
-    result
-}
-
-pub fn to_pascal_case(s: &str) -> String {
-    let mut result = String::new();
-    let mut capitalize_next = true;
-
-    for c in s.chars() {
-        if c == '_' || c == '-' {
-            capitalize_next = true;
-        } else if capitalize_next {
-            result.push(c.to_ascii_uppercase());
-            capitalize_next = false;
-        } else {
-            result.push(c);
-        }
-    }
-    result
-}
-
-// ============================================================================
 // Tests
 // ============================================================================
 
@@ -2364,10 +2369,7 @@ mod tests {
     #[test]
     fn test_type_category_string_literal_single_quotes() {
         // Single-quoted string literals should also be primitive
-        assert_eq!(
-            TypeCategory::from_ts_type("'foo'"),
-            TypeCategory::Primitive
-        );
+        assert_eq!(TypeCategory::from_ts_type("'foo'"), TypeCategory::Primitive);
         assert_eq!(
             TypeCategory::from_ts_type("'bar_baz'"),
             TypeCategory::Primitive
@@ -2384,6 +2386,74 @@ mod tests {
         assert_eq!(
             TypeCategory::from_ts_type("User"),
             TypeCategory::Serializable("User".into())
+        );
+    }
+
+    // ========================================================================
+    // TypeScript utility type classification tests
+    // ========================================================================
+
+    #[test]
+    fn test_type_category_record() {
+        // Record<K, V> should be properly parsed as a Record variant
+        assert_eq!(
+            TypeCategory::from_ts_type("Record<string, unknown>"),
+            TypeCategory::Record("string".into(), "unknown".into())
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("Record<string, number>"),
+            TypeCategory::Record("string".into(), "number".into())
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("Record<string, User>"),
+            TypeCategory::Record("string".into(), "User".into())
+        );
+    }
+
+    #[test]
+    fn test_type_category_wrapper_utility_types() {
+        // Wrapper utility types that preserve structure should extract the inner type
+        assert_eq!(
+            TypeCategory::from_ts_type("Partial<User>"),
+            TypeCategory::Wrapper("User".into())
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("Required<Config>"),
+            TypeCategory::Wrapper("Config".into())
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("Readonly<Data>"),
+            TypeCategory::Wrapper("Data".into())
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("NonNullable<User>"),
+            TypeCategory::Wrapper("User".into())
+        );
+        // Pick and Omit extract the first type argument
+        assert_eq!(
+            TypeCategory::from_ts_type("Pick<User, 'name' | 'email'>"),
+            TypeCategory::Wrapper("User".into())
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("Omit<User, 'password'>"),
+            TypeCategory::Wrapper("User".into())
+        );
+    }
+
+    #[test]
+    fn test_type_category_non_serializable_utility_types() {
+        // Utility types operating on functions/unions/async should be Unknown
+        assert_eq!(
+            TypeCategory::from_ts_type("Promise<string>"),
+            TypeCategory::Unknown
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("ReturnType<typeof fn>"),
+            TypeCategory::Unknown
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("Awaited<Promise<User>>"),
+            TypeCategory::Unknown
         );
     }
 }
