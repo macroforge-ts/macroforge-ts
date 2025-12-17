@@ -40,21 +40,10 @@
 //! | `T \| null` | `null` |
 //! | `CustomType` | `CustomType.defaultValue()` |
 
+use convert_case::{Case, Casing};
+
 use crate::builtin::serde::{TypeCategory, get_foreign_types};
 use crate::ts_syn::abi::DecoratorIR;
-
-// ============================================================================
-// Field Options for Comparison Macros
-// ============================================================================
-
-/// Convert a PascalCase name to camelCase (for prefix naming style)
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
 
 /// Options parsed from field-level decorators for comparison macros
 /// Supports @partialEq(skip), @hash(skip), @ord(skip)
@@ -222,7 +211,7 @@ pub fn get_type_default(ts_type: &str) -> String {
         // Generic type instantiations like RecordLink<Service>
         t if is_generic_type(t) => {
             if let Some((base, args)) = parse_generic_type(t) {
-                format!("{}DefaultValue<{}>()", to_camel_case(base), args)
+                format!("{}DefaultValue<{}>()", base.to_case(Case::Camel), args)
             } else {
                 // Fallback: shouldn't happen if is_generic_type returned true
                 format_default_call(t)
@@ -245,7 +234,7 @@ pub fn get_type_default(ts_type: &str) -> String {
 }
 
 fn format_default_call(type_name: &str) -> String {
-    format!("{}DefaultValue()", to_camel_case(type_name))
+    format!("{}DefaultValue()", type_name.to_case(Case::Camel))
 }
 
 // ============================================================================
