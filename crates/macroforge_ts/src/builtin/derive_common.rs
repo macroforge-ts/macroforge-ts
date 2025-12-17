@@ -185,12 +185,12 @@ pub fn get_type_default(ts_type: &str) -> String {
     let ft_match = TypeCategory::match_foreign_type(t, &foreign_types);
     // Note: Warnings from near-matches are handled by serialize/deserialize macros
     // which have access to diagnostics
-    if let Some(ft) = ft_match.config {
-        if let Some(ref default_expr) = ft.default_expr {
-            // Wrap the expression in an IIFE if it's a function
-            // Foreign type defaults are expected to be functions: () => DateTime.now()
-            return format!("({})()", default_expr);
-        }
+    if let Some(ft) = ft_match.config
+        && let Some(ref default_expr) = ft.default_expr
+    {
+        // Wrap the expression in an IIFE if it's a function
+        // Foreign type defaults are expected to be functions: () => DateTime.now()
+        return format!("({})()", default_expr);
     }
 
     // Nullable first (like Rust's Option::default() -> None)

@@ -1175,9 +1175,9 @@ pub fn parse_import_sources(code: String, filepath: String) -> Result<Vec<Import
         Program::Script(_) => return Ok(vec![]),
     };
 
-    let import_map = crate::host::collect_import_sources(&module, &code);
-    let mut imports = Vec::with_capacity(import_map.len());
-    for (local, module) in import_map {
+    let import_result = crate::host::collect_import_sources(&module, &code);
+    let mut imports = Vec::with_capacity(import_result.sources.len());
+    for (local, module) in import_result.sources {
         imports.push(ImportSourceResult { local, module });
     }
     Ok(imports)
@@ -1477,10 +1477,10 @@ fn expand_inner(
 
     // Set up foreign types from config if available
     let config_path = options.as_ref().and_then(|o| o.config_path.as_ref());
-    if let Some(path) = config_path {
-        if let Some(config) = CONFIG_CACHE.get(path) {
-            crate::builtin::serde::set_foreign_types(config.foreign_types.clone());
-        }
+    if let Some(path) = config_path
+        && let Some(config) = CONFIG_CACHE.get(path)
+    {
+        crate::builtin::serde::set_foreign_types(config.foreign_types.clone());
     }
 
     // Parse the code into an AST.
@@ -1513,16 +1513,18 @@ fn expand_inner(
         }
     };
 
-    // Extract import sources for foreign type validation
-    let import_sources = extract_import_sources(&program);
+    // Extract import sources and aliases for foreign type validation
+    let (import_sources, import_aliases) = extract_import_sources(&program);
     crate::builtin::serde::set_import_sources(import_sources);
+    crate::builtin::serde::set_import_aliases(import_aliases);
 
     // Run macro expansion on the parsed AST
     let expansion_result = macro_host.expand(code, &program, filepath);
 
-    // Clean up foreign types and import sources after expansion (before error propagation)
+    // Clean up foreign types, import sources, and aliases after expansion (before error propagation)
     crate::builtin::serde::clear_foreign_types();
     crate::builtin::serde::clear_import_sources();
+    crate::builtin::serde::clear_import_aliases();
 
     // Now propagate any error
     let expansion = expansion_result.map_err(|err| {
@@ -1788,16 +1790,23 @@ fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Result<()> {
 ///
 /// # Example
 ///
-/// For `import { DateTime } from 'effect'`, this returns `{"DateTime": "effect"}`.
-/// For `import type { DateTime } from 'effect'`, this also returns `{"DateTime": "effect"}`.
-fn extract_import_sources(program: &Program) -> std::collections::HashMap<String, String> {
-    use swc_core::ecma::ast::{ImportSpecifier, ModuleDecl, ModuleItem};
+/// For `import { DateTime } from 'effect'`, this returns sources `{"DateTime": "effect"}`.
+/// For `import type { DateTime } from 'effect'`, this also returns sources `{"DateTime": "effect"}`.
+/// For `import { Option as EffectOption }`, this returns aliases `{"EffectOption": "Option"}`.
+fn extract_import_sources(
+    program: &Program,
+) -> (
+    std::collections::HashMap<String, String>,
+    std::collections::HashMap<String, String>,
+) {
+    use swc_core::ecma::ast::{ImportSpecifier, ModuleDecl, ModuleExportName, ModuleItem};
 
     let mut sources = std::collections::HashMap::new();
+    let mut aliases = std::collections::HashMap::new();
 
     let module = match program {
         Program::Module(m) => m,
-        Program::Script(_) => return sources,
+        Program::Script(_) => return (sources, aliases),
     };
 
     for item in &module.body {
@@ -1808,7 +1817,20 @@ fn extract_import_sources(program: &Program) -> std::collections::HashMap<String
                 match specifier {
                     ImportSpecifier::Named(named) => {
                         let local = named.local.sym.to_string();
-                        sources.insert(local, source.clone());
+                        sources.insert(local.clone(), source.clone());
+
+                        // Track aliases: if there's an imported name different from local
+                        if let Some(imported) = &named.imported {
+                            let original_name = match imported {
+                                ModuleExportName::Ident(ident) => ident.sym.to_string(),
+                                ModuleExportName::Str(s) => {
+                                    String::from_utf8_lossy(s.value.as_bytes()).to_string()
+                                }
+                            };
+                            if original_name != local {
+                                aliases.insert(local, original_name);
+                            }
+                        }
                     }
                     ImportSpecifier::Default(default) => {
                         let local = default.local.sym.to_string();
@@ -1823,7 +1845,7 @@ fn extract_import_sources(program: &Program) -> std::collections::HashMap<String
         }
     }
 
-    sources
+    (sources, aliases)
 }
 
 // ============================================================================

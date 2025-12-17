@@ -626,3 +626,165 @@ describe("Foreign type aliases", () => {
     );
   });
 });
+
+// ============================================================================
+// Local Import Alias Tracking Tests
+// ============================================================================
+
+describe("Local import alias tracking", () => {
+  const configContent = `
+    export default {
+      foreignTypes: {
+        "Option": {
+          from: ["effect/Option"],
+          serialize: (v) => Option.getOrNull(v),
+          deserialize: (raw) => raw === null ? Option.none() : Option.some(raw),
+          default: () => Option.none()
+        }
+      }
+    }
+  `;
+  const configPath = "/test/local-alias/macroforge.config.js";
+
+  test("tracks local import alias (import { Option as EffectOption })", () => {
+    clearConfigCache();
+    loadConfig(configContent, configPath);
+
+    const code = `
+      import type { Option as EffectOption } from 'effect/Option';
+
+      /** @derive(Serialize, Deserialize, Default) */
+      interface UserPreferences {
+        name: string;
+        theme: EffectOption<string>;
+      }
+    `;
+
+    const result = expandSync(code, "test.ts", { configPath });
+
+    // Should recognize EffectOption as the foreign type Option from effect/Option
+    assert.ok(
+      result.code.includes("Option.getOrNull"),
+      `Should use foreign type serialize for aliased import. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes("Option.none()"),
+      `Should use foreign type default/deserialize for aliased import. Got: ${result.code}`
+    );
+  });
+
+  test("tracks multiple local aliases in same file", () => {
+    clearConfigCache();
+    const multiAliasConfig = `
+      export default {
+        foreignTypes: {
+          "Option": {
+            from: ["effect/Option"],
+            serialize: (v) => Option.getOrNull(v),
+            deserialize: (raw) => raw === null ? Option.none() : Option.some(raw),
+            default: () => Option.none()
+          },
+          "DateTime.DateTime": {
+            from: ["effect"],
+            serialize: (v) => DateTime.formatIso(v),
+            deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+            default: () => DateTime.unsafeNow()
+          }
+        }
+      }
+    `;
+    const multiConfigPath = "/test/multi-local-alias/macroforge.config.js";
+    loadConfig(multiAliasConfig, multiConfigPath);
+
+    const code = `
+      import type { Option as MaybeValue } from 'effect/Option';
+      import type { DateTime as EffectDateTime } from 'effect';
+
+      /** @derive(Serialize) */
+      interface Event {
+        title: string;
+        description: MaybeValue<string>;
+        startTime: EffectDateTime.DateTime;
+      }
+    `;
+
+    const result = expandSync(code, "test.ts", { configPath: multiConfigPath });
+
+    // Both aliased types should be recognized
+    assert.ok(
+      result.code.includes("Option.getOrNull"),
+      `Should use foreign type serialize for MaybeValue alias. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes("DateTime.formatIso"),
+      `Should use foreign type serialize for EffectDateTime alias. Got: ${result.code}`
+    );
+  });
+
+  test("local alias does not affect other types with same name", () => {
+    clearConfigCache();
+    loadConfig(configContent, configPath);
+
+    // Import Option with alias, but also have a local Option type
+    const code = `
+      import type { Option as EffectOption } from 'effect/Option';
+
+      // Local type with same base name
+      type Option<T> = T | undefined;
+
+      /** @derive(Serialize) */
+      interface Container {
+        effectValue: EffectOption<string>;
+        localValue: Option<number>;
+      }
+    `;
+
+    const result = expandSync(code, "test.ts", { configPath });
+
+    // EffectOption should use foreign type handler
+    // Local Option should NOT (no import matches)
+    assert.ok(
+      result.code.includes("Option.getOrNull"),
+      `Should use foreign type for EffectOption. Got: ${result.code}`
+    );
+  });
+
+  test("handles deeply nested namespace (10 levels) with alias", () => {
+    clearConfigCache();
+    const deepConfig = `
+      export default {
+        foreignTypes: {
+          "Deep.A.B.C.D.E.F.G.H.I.Type": {
+            from: ["deep-module"],
+            serialize: (v) => Deep.serialize(v),
+            deserialize: (raw) => Deep.deserialize(raw),
+            default: () => Deep.empty()
+          }
+        }
+      }
+    `;
+    const deepConfigPath = "/test/deep-namespace/macroforge.config.js";
+    loadConfig(deepConfig, deepConfigPath);
+
+    const code = `
+      import type { Deep as AliasedDeep } from 'deep-module';
+
+      /** @derive(Serialize, Default) */
+      interface Container {
+        value: AliasedDeep.A.B.C.D.E.F.G.H.I.Type;
+      }
+    `;
+
+    const result = expandSync(code, "test.ts", { configPath: deepConfigPath });
+
+    // Should resolve AliasedDeep -> Deep and match the foreign type
+    assert.ok(
+      result.code.includes("Deep.serialize"),
+      `Should use foreign type serialize for deeply nested aliased namespace. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes("Deep.empty()"),
+      `Should use foreign type default for deeply nested aliased namespace. Got: ${result.code}`
+    );
+  });
+});

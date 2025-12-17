@@ -424,7 +424,8 @@ impl MacroExpander {
         diagnostics.extend(check_builtin_import_warnings(module, source));
 
         // Used for external type function imports (e.g. serializeWithContextFoo) based on existing type imports.
-        let import_sources = collect_import_sources(module, source);
+        let import_result = collect_import_sources(module, source);
+        let import_sources = import_result.sources;
 
         let class_map: HashMap<SpanKey, ClassIR> = classes
             .into_iter()
@@ -750,35 +751,34 @@ impl MacroExpander {
 
             // Generate convenience const for non-class types (Prefix style)
             // Skip if disabled in config or there's already a namespace or const with the same name
-            if let Some(type_name) = get_derive_target_name(&target.target_ir) {
-                if self.config.generate_convenience_const
-                    && !has_existing_namespace_or_const(source, type_name)
-                {
-                    let new_patches = collector.runtime_patches_slice(patches_start);
-                    let functions = extract_function_names_from_patches(new_patches, type_name);
+            if let Some(type_name) = get_derive_target_name(&target.target_ir)
+                && self.config.generate_convenience_const
+                && !has_existing_namespace_or_const(source, type_name)
+            {
+                let new_patches = collector.runtime_patches_slice(patches_start);
+                let functions = extract_function_names_from_patches(new_patches, type_name);
 
-                    if !functions.is_empty() {
-                        let start_pos = get_derive_target_start_span(&target.target_ir);
-                        let is_exported = is_declaration_exported(source, start_pos);
-                        let const_code = generate_convenience_export(
-                            &target.target_ir,
-                            type_name,
-                            &functions,
-                            is_exported,
-                        );
-                        let end_pos = get_derive_target_end_span(&target.target_ir);
+                if !functions.is_empty() {
+                    let start_pos = get_derive_target_start_span(&target.target_ir);
+                    let is_exported = is_declaration_exported(source, start_pos);
+                    let const_code = generate_convenience_export(
+                        &target.target_ir,
+                        type_name,
+                        &functions,
+                        is_exported,
+                    );
+                    let end_pos = get_derive_target_end_span(&target.target_ir);
 
-                        let patch = Patch::Insert {
-                            at: SpanIR {
-                                start: end_pos,
-                                end: end_pos,
-                            },
-                            code: PatchCode::Text(format!("\n\n{}", const_code)),
-                            source_macro: Some("__convenience_const".to_string()),
-                        };
-                        collector.add_runtime_patches(vec![patch.clone()]);
-                        collector.add_type_patches(vec![patch]);
-                    }
+                    let patch = Patch::Insert {
+                        at: SpanIR {
+                            start: end_pos,
+                            end: end_pos,
+                        },
+                        code: PatchCode::Text(format!("\n\n{}", const_code)),
+                        source_macro: Some("__convenience_const".to_string()),
+                    };
+                    collector.add_runtime_patches(vec![patch.clone()]);
+                    collector.add_type_patches(vec![patch]);
                 }
             }
         }
@@ -1182,9 +1182,8 @@ fn strip_decorators(code: &str, external_decorator_modules: &[&str]) -> String {
 
     for line in &lines {
         let trimmed = line.trim_start();
-        if trimmed.starts_with('@') {
+        if let Some(after_at) = trimmed.strip_prefix('@') {
             // Extract the keyword after @
-            let after_at = &trimmed[1..];
             let keyword_end = after_at
                 .find(|c: char| !c.is_alphanumeric() && c != '_')
                 .unwrap_or(after_at.len());
@@ -1486,11 +1485,27 @@ struct DeriveTarget {
     target_ir: DeriveTargetIR,
 }
 
-/// Collect a map of identifier name -> module source from import statements
-pub fn collect_import_sources(module: &Module, source: &str) -> HashMap<String, String> {
-    use swc_core::ecma::ast::{ImportDecl, ImportSpecifier, ModuleDecl, ModuleItem};
+/// Result of collecting import information from a module.
+pub struct ImportCollectionResult {
+    /// Maps local identifier names to their module sources.
+    pub sources: HashMap<String, String>,
+    /// Maps local alias names to their original imported names.
+    /// For `import { Option as EffectOption }`, contains `"EffectOption" -> "Option"`.
+    pub aliases: HashMap<String, String>,
+}
+
+/// Collect import information from a module.
+///
+/// Returns both:
+/// - A map of identifier name -> module source
+/// - A map of local alias name -> original imported name
+pub fn collect_import_sources(module: &Module, source: &str) -> ImportCollectionResult {
+    use swc_core::ecma::ast::{
+        ImportDecl, ImportSpecifier, ModuleDecl, ModuleExportName, ModuleItem,
+    };
 
     let mut import_map = HashMap::new();
+    let mut alias_map = HashMap::new();
 
     import_map.extend(collect_macro_import_comments(source));
 
@@ -1505,7 +1520,21 @@ pub fn collect_import_sources(module: &Module, source: &str) -> HashMap<String, 
                 match specifier {
                     ImportSpecifier::Named(named) => {
                         let local_name = named.local.sym.to_string();
-                        import_map.insert(local_name, module_source.clone());
+                        import_map.insert(local_name.clone(), module_source.clone());
+
+                        // If there's an alias (imported name differs from local name),
+                        // record the mapping from local -> original
+                        if let Some(imported) = &named.imported {
+                            let original_name = match imported {
+                                ModuleExportName::Ident(ident) => ident.sym.to_string(),
+                                ModuleExportName::Str(s) => {
+                                    String::from_utf8_lossy(s.value.as_bytes()).to_string()
+                                }
+                            };
+                            if original_name != local_name {
+                                alias_map.insert(local_name, original_name);
+                            }
+                        }
                     }
                     ImportSpecifier::Default(default) => {
                         let local_name = default.local.sym.to_string();
@@ -1520,7 +1549,10 @@ pub fn collect_import_sources(module: &Module, source: &str) -> HashMap<String, 
         }
     }
 
-    import_map
+    ImportCollectionResult {
+        sources: import_map,
+        aliases: alias_map,
+    }
 }
 
 /// Extracts exported function names from patch code.
@@ -1555,10 +1587,9 @@ fn extract_function_names_from_patches(
                     && fn_name
                         .chars()
                         .all(|c| c.is_ascii_alphanumeric() || c == '_')
+                    && let Some(short_name) = extract_short_name(fn_name, &camel_type_name)
                 {
-                    if let Some(short_name) = extract_short_name(fn_name, &camel_type_name) {
-                        functions.push((fn_name.to_string(), short_name));
-                    }
+                    functions.push((fn_name.to_string(), short_name));
                 }
                 search_start = start + paren_pos;
             } else {
@@ -1573,8 +1604,7 @@ fn extract_function_names_from_patches(
 /// Extracts the short function name from the full function name.
 /// Uses Prefix naming style: userClone -> clone, userDefaultValue -> defaultValue
 fn extract_short_name(full_name: &str, camel_type_name: &str) -> Option<String> {
-    if full_name.starts_with(camel_type_name) {
-        let rest = &full_name[camel_type_name.len()..];
+    if let Some(rest) = full_name.strip_prefix(camel_type_name) {
         if rest.is_empty() {
             return None;
         }
@@ -1952,7 +1982,8 @@ fn collect_derive_targets(
 ) -> Vec<DeriveTarget> {
     let mut targets = Vec::new();
 
-    let import_sources = collect_import_sources(module, source);
+    let import_result = collect_import_sources(module, source);
+    let import_sources = import_result.sources;
 
     for class_ir in class_map.values() {
         collect_from_class(class_ir, source, &import_sources, &mut targets);
