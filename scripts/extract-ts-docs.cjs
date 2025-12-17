@@ -22,6 +22,11 @@ program
 // Packages to process (in order)
 const PACKAGES = [
 	{
+		name: 'shared',
+		displayName: '@macroforge/shared',
+		entryFile: 'src/index.ts'
+	},
+	{
 		name: 'typescript-plugin',
 		displayName: '@macroforge/typescript-plugin',
 		entryFile: 'src/index.ts'
