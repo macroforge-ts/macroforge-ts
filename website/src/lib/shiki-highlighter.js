@@ -58,18 +58,49 @@ function escapeCurlyBracesForSvelte(html) {
 }
 
 /**
- * Create a custom mdsvex highlighter using Shiki.
- * @returns {Promise<(code: string, lang: string | undefined, meta: string | undefined) => Promise<string>>}
+ * Get the shared Shiki highlighter instance.
+ * @returns {Promise<Awaited<ReturnType<typeof createShikiHighlighter>>>}
  */
-export async function createHighlighter() {
+export async function getShikiHighlighter() {
 	if (!highlighterPromise) {
 		highlighterPromise = createShikiHighlighter({
 			themes: ['github-dark', 'github-light'],
 			langs: ['typescript', 'javascript', 'rust', 'bash', 'shell', 'json', 'toml', 'html', 'css', 'svelte', 'markdown', 'text']
 		});
 	}
+	return highlighterPromise;
+}
 
-	const highlighter = await highlighterPromise;
+/**
+ * Highlight code using the shared Shiki instance.
+ * @param {string} code - Code to highlight
+ * @param {string} lang - Language
+ * @returns {Promise<string>} - Highlighted HTML with escaped curly braces
+ */
+export async function highlightCode(code, lang = 'typescript') {
+	const highlighter = await getShikiHighlighter();
+	const loadedLangs = highlighter.getLoadedLanguages();
+	const effectiveLang = loadedLangs.includes(lang) ? lang : 'text';
+
+	let html = highlighter.codeToHtml(code.trim(), {
+		lang: effectiveLang,
+		themes: {
+			dark: 'github-dark',
+			light: 'github-light'
+		},
+		defaultColor: false,
+		tabindex: false
+	});
+
+	return escapeCurlyBracesForSvelte(html);
+}
+
+/**
+ * Create a custom mdsvex highlighter using Shiki.
+ * @returns {Promise<(code: string, lang: string | undefined, meta: string | undefined) => Promise<string>>}
+ */
+export async function createHighlighter() {
+	const highlighter = await getShikiHighlighter();
 
 	/**
 	 * Highlighter function for mdsvex.

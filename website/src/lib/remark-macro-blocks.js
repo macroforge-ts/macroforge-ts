@@ -1,4 +1,5 @@
 import { visit } from 'unist-util-visit';
+import { highlightCode } from './shiki-highlighter.js';
 
 /**
  * Escape code for use in a Svelte expression.
@@ -48,15 +49,17 @@ function generateImportScript(hasMacroExample, hasInteractiveMacro) {
  * ```
  *
  * Output:
- * <MacroExample before={`code`} after={`code`} />
- * @returns {(tree: any) => void}
+ * <MacroExample before={`code`} after={`code`} beforeHtml={`...`} afterHtml={`...`} />
+ * @returns {(tree: any) => Promise<void>}
  */
 export function remarkMacroBlocks() {
-	return (/** @type {any} */ tree) => {
+	return async (/** @type {any} */ tree) => {
 		/** @type {Set<any>} */
 		const nodesToRemove = new Set();
-		/** @type {ReplacementEntry[]} */
-		const replacements = [];
+		/** @type {Array<{parent: any, index: number, beforeNode: any, afterNode: any | null, lang: string}>} */
+		const macroExamples = [];
+		/** @type {Array<{parent: any, index: number, node: any, lang: string}>} */
+		const interactiveMacros = [];
 		let hasMacroExample = false;
 		let hasInteractiveMacro = false;
 
@@ -65,6 +68,7 @@ export function remarkMacroBlocks() {
 
 			const meta = node.meta || '';
 			const metaLower = meta.toLowerCase();
+			const lang = node.lang || 'typescript';
 
 			// Check if this is a "before" block
 			if (metaLower.includes('before')) {
@@ -96,22 +100,16 @@ export function remarkMacroBlocks() {
 				}
 
 				if (afterNode) {
-					const beforeCode = escapeForSvelte(node.value);
-					const afterCode = escapeForSvelte(afterNode.value);
-
 					// Mark both nodes for removal
 					nodesToRemove.add(node);
 					nodesToRemove.add(afterNode);
 
-					// Create a replacement HTML node with the MacroExample component
-					// JSON.stringify already includes quotes, so we use {beforeCode} directly
-					replacements.push({
+					macroExamples.push({
 						parent,
 						index,
-						node: {
-							type: 'html',
-							value: `<MacroExample before={${beforeCode}} after={${afterCode}} />`
-						}
+						beforeNode: node,
+						afterNode,
+						lang
 					});
 					hasMacroExample = true;
 				}
@@ -119,20 +117,57 @@ export function remarkMacroBlocks() {
 
 			// Handle interactive flag - convert to InteractiveMacro
 			if (metaLower.includes('interactive') && !nodesToRemove.has(node)) {
-				const code = escapeForSvelte(node.value);
 				nodesToRemove.add(node);
 
-				replacements.push({
+				interactiveMacros.push({
 					parent,
 					index,
-					node: {
-						type: 'html',
-						value: `<InteractiveMacro code={${code}} />`
-					}
+					node,
+					lang
 				});
 				hasInteractiveMacro = true;
 			}
 		});
+
+		// Generate highlighted HTML for all code blocks
+		/** @type {ReplacementEntry[]} */
+		const replacements = [];
+
+		for (const { parent, index, beforeNode, afterNode, lang } of macroExamples) {
+			const [beforeHtml, afterHtml] = await Promise.all([
+				highlightCode(beforeNode.value, lang),
+				highlightCode(afterNode.value, lang)
+			]);
+
+			const beforeCode = escapeForSvelte(beforeNode.value);
+			const afterCode = escapeForSvelte(afterNode.value);
+			const beforeHtmlEscaped = escapeForSvelte(beforeHtml);
+			const afterHtmlEscaped = escapeForSvelte(afterHtml);
+
+			replacements.push({
+				parent,
+				index,
+				node: {
+					type: 'html',
+					value: `<MacroExample before={${beforeCode}} after={${afterCode}} beforeHtml={${beforeHtmlEscaped}} afterHtml={${afterHtmlEscaped}} />`
+				}
+			});
+		}
+
+		for (const { parent, index, node, lang } of interactiveMacros) {
+			const codeHtml = await highlightCode(node.value, lang);
+			const code = escapeForSvelte(node.value);
+			const codeHtmlEscaped = escapeForSvelte(codeHtml);
+
+			replacements.push({
+				parent,
+				index,
+				node: {
+					type: 'html',
+					value: `<InteractiveMacro code={${code}} codeHtml={${codeHtmlEscaped}} />`
+				}
+			});
+		}
 
 		// Apply replacements in reverse order to preserve indices
 		replacements.sort((a, b) => b.index - a.index);
