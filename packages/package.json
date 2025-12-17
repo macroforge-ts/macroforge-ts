@@ -5,6 +5,7 @@
 	"private": true,
 	"workspaces": [
 		"../crates/macroforge_ts",
+		"shared",
 		"vite-plugin",
 		"typescript-plugin",
 		"svelte-language-server",
