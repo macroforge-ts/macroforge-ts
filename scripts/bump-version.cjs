@@ -66,9 +66,16 @@ for (const platform of platforms) {
   });
 }
 
+// Update shared utilities package
+updatePackageJson("packages/shared/package.json", {
+  version,
+  "dependencies.macroforge": `^${version}`,
+});
+
 // Update typescript-plugin
 updatePackageJson("packages/typescript-plugin/package.json", {
   version,
+  "dependencies.@macroforge/shared": `^${version}`,
   "dependencies.macroforge": `^${version}`,
 });
 
@@ -82,6 +89,7 @@ updatePackageJson("packages/svelte-language-server/package.json", {
 // Update vite-plugin
 updatePackageJson("packages/vite-plugin/package.json", {
   version,
+  "dependencies.@macroforge/shared": `^${version}`,
   "dependencies.macroforge": `^${version}`,
 });
 

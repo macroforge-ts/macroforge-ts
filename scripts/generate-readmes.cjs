@@ -29,6 +29,7 @@ const RUST_CRATES = [
 
 // Package configurations
 const TS_PACKAGES = [
+	{ name: 'shared', dir: 'packages/shared', npm: '@macroforge/shared' },
 	{ name: 'typescript-plugin', dir: 'packages/typescript-plugin', npm: '@macroforge/typescript-plugin' },
 	{ name: 'vite-plugin', dir: 'packages/vite-plugin', npm: '@macroforge/vite-plugin' },
 	{ name: 'svelte-preprocessor', dir: 'packages/svelte-preprocessor', npm: '@macroforge/svelte-preprocessor' },
