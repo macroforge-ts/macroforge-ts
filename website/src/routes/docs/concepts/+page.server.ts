@@ -4,7 +4,7 @@ import { expandExample } from "$lib/server/macroforge";
 export const load: PageServerLoad = async () => {
   return {
     examples: {
-      basic: expandExample(`
+      basic: await expandExample(`
 
 /** @derive(Debug) */
 class User {

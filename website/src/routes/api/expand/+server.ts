@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { expandSync } from 'macroforge';
 import { execSync } from 'child_process';
+import { highlightCode } from '$lib/shiki-highlighter.js';
 
 function formatCode(code: string): string {
 	try {
@@ -31,8 +32,16 @@ export const POST: RequestHandler = async ({ request }) => {
 		expanded = expanded.replace(/^import\s+\{[^}]+\}\s+from\s+['"]macroforge['"];\s*\n?/m, '');
 		expanded = formatCode(expanded);
 
+		// Highlight both source and expanded code
+		const [codeHtml, expandedHtml] = await Promise.all([
+			highlightCode(code),
+			highlightCode(expanded)
+		]);
+
 		return json({
 			code: expanded,
+			codeHtml,
+			expandedHtml,
 			diagnostics: result.diagnostics || []
 		});
 	} catch (error) {

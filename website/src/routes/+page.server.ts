@@ -1,8 +1,7 @@
 import { expandExample } from "$lib/server/macroforge";
 
-export function load() {
-  const heroExample = expandExample(`
-
+export async function load() {
+  const heroExample = await expandExample(`
 /** @derive(Debug, Clone, PartialEq) */
 class User {
   name: string;
@@ -12,7 +11,7 @@ class User {
     this.name = name;
     this.age = age;
   }
-}`);
+}`, 'hero-example.ts');
 
   return {
     heroExample,
