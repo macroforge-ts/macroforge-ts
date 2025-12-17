@@ -1,7 +1,7 @@
 {
   "name": "@macroforge/shared",
   "kind": "typescript_package",
-  "version": "0.1.40",
+  "version": "0.1.41",
   "description": "Shared utilities for Macroforge plugins",
   "overview": "@macroforge/shared\n\nShared utilities for Macroforge plugins.\n\nThis package provides common functionality used by both `@macroforge/vite-plugin`\nand `@macroforge/typescript-plugin`, ensuring consistent behavior across\ndifferent build tools.",
   "items": [
