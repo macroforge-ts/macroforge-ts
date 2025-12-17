@@ -683,7 +683,7 @@ class API {
 
         // Check for static method and standalone function
         assert!(type_output.contains("static toString(value: API): string"));
-        assert!(type_output.contains("export function aPIToString"));
+        assert!(type_output.contains("export function apiToString"));
         // Original methods should still be present
         assert!(type_output.contains("async fetch<T>"));
         assert!(type_output.contains("subscribe("));

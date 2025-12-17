@@ -56,23 +56,23 @@
 //! class User {
 //!     id: number;
 //!     name: string;
-//!
+//! 
 //!     cachedScore: number;
-//!
+//! 
 //!     static equals(a: User, b: User): boolean {
 //!         return userEquals(a, b);
 //!     }
-//!
+//! 
 //!     static hashCode(value: User): number {
 //!         return userHashCode(value);
 //!     }
 //! }
-//!
+//! 
 //! export function userEquals(a: User, b: User): boolean {
 //!     if (a === b) return true;
 //!     return a.id === b.id && a.name === b.name;
 //! }
-//!
+//! 
 //! export function userHashCode(value: User): number {
 //!     let hash = 17;
 //!     hash =
@@ -119,23 +119,23 @@
 //! class User {
 //!     id: number;
 //!     name: string;
-//!
+//! 
 //!     cachedScore: number;
-//!
+//! 
 //!     static equals(a: User, b: User): boolean {
 //!         return userEquals(a, b);
 //!     }
-//!
+//! 
 //!     static hashCode(value: User): number {
 //!         return userHashCode(value);
 //!     }
 //! }
-//!
+//! 
 //! export function userEquals(a: User, b: User): boolean {
 //!     if (a === b) return true;
 //!     return a.id === b.id && a.name === b.name;
 //! }
-//!
+//! 
 //! export function userHashCode(value: User): number {
 //!     let hash = 17;
 //!     hash =

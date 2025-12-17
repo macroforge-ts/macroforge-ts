@@ -69,12 +69,12 @@
 //!     major: number;
 //!     minor: number;
 //!     patch: number;
-//!
+//! 
 //!     static compareTo(a: Version, b: Version): number {
 //!         return versionCompare(a, b);
 //!     }
 //! }
-//!
+//! 
 //! export function versionCompare(a: Version, b: Version): number {
 //!     if (a === b) return 0;
 //!     const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
