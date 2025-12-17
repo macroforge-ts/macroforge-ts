@@ -497,6 +497,7 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
           generateConvenienceConst: boolean;
           hasForeignTypes: boolean;
           foreignTypeCount: number;
+          returnTypes: string;
         };
       }
     | undefined;
