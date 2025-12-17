@@ -1,12 +1,12 @@
 import { expandExample } from '$lib/server/macroforge';
 import { getBuiltinMacro, getVersion } from '$lib/server/api-docs';
 
-export function load() {
+export async function load() {
 	return {
 		version: getVersion('rust', 'macroforge_ts'),
 		macro: getBuiltinMacro('ord'),
 		examples: {
-			basic: expandExample(`/** @derive(Ord) */
+			basic: await expandExample(`/** @derive(Ord) */
 class Version {
   major: number;
   minor: number;
@@ -18,7 +18,7 @@ class Version {
     this.patch = patch;
   }
 }`),
-			skip: expandExample(`/** @derive(Ord) */
+			skip: await expandExample(`/** @derive(Ord) */
 class Task {
   priority: number;
   name: string;
@@ -32,19 +32,19 @@ class Task {
     this.createdAt = createdAt;
   }
 }`),
-			interface: expandExample(`/** @derive(Ord) */
+			interface: await expandExample(`/** @derive(Ord) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`/** @derive(Ord) */
+			enum: await expandExample(`/** @derive(Ord) */
 enum Priority {
   Low = 0,
   Medium = 1,
   High = 2,
   Critical = 3
 }`),
-			typeAlias: expandExample(`/** @derive(Ord) */
+			typeAlias: await expandExample(`/** @derive(Ord) */
 type Coordinate = {
   x: number;
   y: number;
