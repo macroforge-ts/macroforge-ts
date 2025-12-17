@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/bin-darwin-x64",
-  "version": "0.1.40",
+  "version": "0.1.41",
   "cpu": [
     "x64"
   ],
