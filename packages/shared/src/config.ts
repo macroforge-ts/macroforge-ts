@@ -19,6 +19,23 @@ export const CONFIG_FILES = [
 ] as const;
 
 /**
+ * Return type style for generated macro code.
+ *
+ * - `'vanilla'` (default): Plain TypeScript discriminated unions
+ *   - Deserialize: `{ success: true; value: T } | { success: false; errors: FieldError[] }`
+ *   - PartialOrd: `number | null`
+ *
+ * - `'custom'`: Uses `@rydshift/mirror` types
+ *   - Deserialize: `Result<T, Array<FieldError>>`
+ *   - PartialOrd: `Option<number>`
+ *
+ * - `'effect'`: Uses Effect library types
+ *   - Deserialize: `Exit<FieldError[], T>`
+ *   - PartialOrd: `Option.Option<number>`
+ */
+export type ReturnTypesMode = "vanilla" | "custom" | "effect";
+
+/**
  * Result from parsing a config file.
  */
 export interface ConfigLoadResult {
@@ -26,6 +43,7 @@ export interface ConfigLoadResult {
   generateConvenienceConst: boolean;
   hasForeignTypes: boolean;
   foreignTypeCount: number;
+  returnTypes: ReturnTypesMode;
 }
 
 /**
@@ -67,6 +85,15 @@ export interface MacroConfig {
    * Whether the config has foreign type handlers defined.
    */
   hasForeignTypes?: boolean;
+
+  /**
+   * Return type style for generated macro code.
+   *
+   * - `'vanilla'` (default): Plain TypeScript discriminated unions
+   * - `'custom'`: Uses `@rydshift/mirror` Result/Option types
+   * - `'effect'`: Uses Effect library Exit/Option types
+   */
+  returnTypes?: ReturnTypesMode;
 }
 
 /**
@@ -169,6 +196,7 @@ export function loadMacroConfig(
         generateConvenienceConst: result.generateConvenienceConst,
         configPath,
         hasForeignTypes: result.hasForeignTypes,
+        returnTypes: result.returnTypes,
       };
     } catch {
       // Fall through to fallback
