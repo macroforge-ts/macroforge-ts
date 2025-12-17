@@ -18,14 +18,35 @@ async function getHighlighter() {
 }
 
 /**
- * Escape curly braces in HTML for Svelte compatibility.
+ * Escape curly braces and preserve spaces in HTML for Svelte compatibility.
+ * Svelte trims leading/trailing whitespace from text nodes, so we convert
+ * spaces to &nbsp; to preserve them in inline code.
  * @param {string} html - HTML string to escape
  * @returns {string} - Escaped HTML safe for Svelte
  */
 function escapeCurlyBracesForSvelte(html) {
 	return html
 		.replace(/\{/g, '&#123;')
-		.replace(/\}/g, '&#125;');
+		.replace(/\}/g, '&#125;')
+		// Replace spaces only in text content (between > and <), not in attributes
+		.replace(/>([^<]+)</g, (match, text) => '>' + text.replace(/ /g, '&nbsp;') + '<');
+}
+
+/**
+ * Decode HTML entities in code content before highlighting.
+ * This prevents double-encoding when Shiki processes the content.
+ * @param {string} str - String with HTML entities
+ * @returns {string} - Decoded string
+ */
+function decodeHtmlEntities(str) {
+	return str
+		.replace(/&#123;/g, '{')
+		.replace(/&#125;/g, '}')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&nbsp;/g, '\u00A0')  // Non-breaking space character
+		.replace(/&#160;/g, '\u00A0')
+		.replace(/&amp;/g, '&');
 }
 
 /**
@@ -257,12 +278,48 @@ export function codeBlockPreprocess() {
 			}
 
 			const replacements = [];
+			let match;
+
+			// Find all MacroExample usages with data.X.before/after pattern
+			// Transform: <MacroExample before={data.X.before} after={data.X.after} />
+			// To: <MacroExample before={data.X.before} after={data.X.after} beforeHtml={data.X.beforeHtml} afterHtml={data.X.afterHtml} />
+			// Uses [\s\S] to match across newlines
+			const macroExampleRegex = /<MacroExample[\s\S]*?before\s*=\s*\{([^}]+)\}[\s\S]*?after\s*=\s*\{([^}]+)\}[\s\S]*?\/>/g;
+
+			while ((match = macroExampleRegex.exec(content)) !== null) {
+				const componentStr = match[0];
+				const beforeExpr = match[1].trim(); // e.g., "data.heroExample.before"
+				const afterExpr = match[2].trim();  // e.g., "data.heroExample.after"
+
+				// Skip if already has beforeHtml/afterHtml props
+				if (componentStr.includes('beforeHtml') || componentStr.includes('afterHtml')) {
+					continue;
+				}
+
+				// Check if these are data.X.before/after patterns we can transform
+				const beforeMatch = beforeExpr.match(/^(data\.[a-zA-Z0-9_.]+)\.before$/);
+				const afterMatch = afterExpr.match(/^(data\.[a-zA-Z0-9_.]+)\.after$/);
+
+				if (beforeMatch && afterMatch) {
+					const beforeBase = beforeMatch[1]; // e.g., "data.heroExample"
+					const afterBase = afterMatch[1];   // e.g., "data.heroExample"
+
+					// Insert beforeHtml and afterHtml props before the closing />
+					const newComponent = componentStr.slice(0, -2) +
+						`\n                beforeHtml={${beforeBase}.beforeHtml}\n                afterHtml={${afterBase}.afterHtml}\n            />`;
+
+					replacements.push({
+						start: match.index,
+						end: match.index + componentStr.length,
+						replacement: newComponent
+					});
+				}
+			}
 
 			// Find all CodeBlock usages
 			// This regex matches <CodeBlock ... /> or <CodeBlock ...>...</CodeBlock>
 			const codeBlockRegex = /<CodeBlock\s+[^>]*?\bcode\s*=[\s\S]*?(?:\/>|<\/CodeBlock>)/g;
 
-			let match;
 			while ((match = codeBlockRegex.exec(content)) !== null) {
 				const componentStr = match[0];
 				const { code, lang, hasHtmlProp } = parseCodeBlockComponent(componentStr);
@@ -370,8 +427,10 @@ export function codeBlockPreprocess() {
 				}
 
 				try {
-					const lang = detectInlineLanguage(codeContent);
-					const highlightedHtml = await highlightInlineCode(codeContent, lang);
+					// Decode HTML entities before highlighting to prevent double-encoding
+					const decodedContent = decodeHtmlEntities(codeContent);
+					const lang = detectInlineLanguage(decodedContent);
+					const highlightedHtml = await highlightInlineCode(decodedContent, lang);
 
 					replacements.push({
 						start: match.index,
