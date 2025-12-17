@@ -14,7 +14,7 @@
 
 <p class="lead">
     The <code>macroforge_ts_quote</code> crate provides template-based code
-    generation for TypeScript. The <code>ts_template!</code> macro uses Rust-inspired
+    generation for TypeScript. The <code>ts_template!</code> macro uses Svelte + Rust-inspired
     syntax for control flow and interpolation, making it easy to generate complex
     TypeScript code.
 </p>
