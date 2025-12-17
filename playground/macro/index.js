@@ -594,6 +594,7 @@ module.exports.__macroforgeRunSerialize = nativeBinding.__macroforgeRunSerialize
 module.exports.checkSyntax = nativeBinding.checkSyntax
 module.exports.Derive = nativeBinding.Derive
 module.exports.expandSync = nativeBinding.expandSync
+module.exports.loadConfig = nativeBinding.loadConfig
 module.exports.parseImportSources = nativeBinding.parseImportSources
 module.exports.transformSync = nativeBinding.transformSync
 module.exports.__macroforgeRunFieldController = nativeBinding.__macroforgeRunFieldController

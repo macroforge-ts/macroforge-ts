@@ -86,17 +86,17 @@ export function statusIs(value: unknown): value is Status {
     return false;
 }
 
-export const Status = {
-    toString: statusToString,
-    clone: statusClone,
-    equals: statusEquals,
-    hashCode: statusHashCode,
-    serialize: statusSerialize,
-    serializeWithContext: statusSerializeWithContext,
-    deserialize: statusDeserialize,
-    deserializeWithContext: statusDeserializeWithContext,
-    is: statusIs
-} as const;
+export namespace Status {
+    export const toString = statusToString;
+    export const clone = statusClone;
+    export const equals = statusEquals;
+    export const hashCode = statusHashCode;
+    export const serialize = statusSerialize;
+    export const serializeWithContext = statusSerializeWithContext;
+    export const deserialize = statusDeserialize;
+    export const deserializeWithContext = statusDeserializeWithContext;
+    export const is = statusIs;
+}
 
 export enum Priority {
     Low = 1,
@@ -173,17 +173,17 @@ export function priorityIs(value: unknown): value is Priority {
     return false;
 }
 
-export const Priority = {
-    toString: priorityToString,
-    clone: priorityClone,
-    equals: priorityEquals,
-    hashCode: priorityHashCode,
-    serialize: prioritySerialize,
-    serializeWithContext: prioritySerializeWithContext,
-    deserialize: priorityDeserialize,
-    deserializeWithContext: priorityDeserializeWithContext,
-    is: priorityIs
-} as const;
+export namespace Priority {
+    export const toString = priorityToString;
+    export const clone = priorityClone;
+    export const equals = priorityEquals;
+    export const hashCode = priorityHashCode;
+    export const serialize = prioritySerialize;
+    export const serializeWithContext = prioritySerializeWithContext;
+    export const deserialize = priorityDeserialize;
+    export const deserializeWithContext = priorityDeserializeWithContext;
+    export const is = priorityIs;
+}
 
 export enum Color {
     Red,
@@ -214,11 +214,11 @@ export function colorHashCode(value: Color): number {
     return value as number;
 }
 
-export const Color = {
-    toString: colorToString,
-    equals: colorEquals,
-    hashCode: colorHashCode
-} as const;
+export namespace Color {
+    export const toString = colorToString;
+    export const equals = colorEquals;
+    export const hashCode = colorHashCode;
+}
 
 // ==================== TYPE ALIAS EXAMPLES ====================
 

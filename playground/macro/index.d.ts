@@ -769,6 +769,24 @@ export interface ExpandOptions {
    * ```
    */
   externalDecoratorModules?: Array<string>
+  /**
+   * Path to a previously loaded config file.
+   *
+   * When provided, the expansion will use the cached configuration
+   * (including foreign types) from this path. The config must have been
+   * previously loaded via [`load_config`].
+   *
+   * # Example
+   *
+   * ```javascript
+   * // First, load the config
+   * const configResult = loadConfig(configContent, configPath);
+   *
+   * // Then use it during expansion
+   * expandSync(code, filepath, { configPath });
+   * ```
+   */
+  configPath?: string
 }
 
 /**
@@ -899,6 +917,57 @@ export interface JsDiagnostic {
   code?: number
   /** Diagnostic category: "error", "warning", "suggestion", "message". */
   category?: string
+}
+
+/**
+ * Load and parse a macroforge configuration file.
+ *
+ * Parses a `macroforge.config.js/ts` file and caches the result for use
+ * during macro expansion. The configuration includes both simple settings
+ * (like `keepDecorators`) and foreign type handlers.
+ *
+ * # Arguments
+ *
+ * * `content` - The raw content of the configuration file
+ * * `filepath` - Path to the configuration file (used to determine syntax and as cache key)
+ *
+ * # Returns
+ *
+ * A [`LoadConfigResult`] containing the parsed configuration summary.
+ *
+ * # Example
+ *
+ * ```javascript
+ * import { loadConfig, expandSync } from 'macroforge';
+ * import fs from 'fs';
+ *
+ * const configPath = 'macroforge.config.js';
+ * const configContent = fs.readFileSync(configPath, 'utf-8');
+ *
+ * // Load and cache the configuration
+ * const result = loadConfig(configContent, configPath);
+ * console.log(`Loaded config with ${result.foreignTypeCount} foreign types`);
+ *
+ * // The config is now cached and will be used by expandSync
+ * const expanded = expandSync(code, filepath, { configPath });
+ * ```
+ */
+export declare function loadConfig(content: string, filepath: string): LoadConfigResult
+
+/**
+ * Result of loading a macroforge configuration file.
+ *
+ * Returned by [`load_config`] after parsing a `macroforge.config.js/ts` file.
+ */
+export interface LoadConfigResult {
+  /** Whether to preserve `@derive` decorators in the output code. */
+  keepDecorators: boolean
+  /** Whether to generate a convenience const for non-class types. */
+  generateConvenienceConst: boolean
+  /** Whether the config has any foreign type handlers defined. */
+  hasForeignTypes: boolean
+  /** Number of foreign types configured. */
+  foreignTypeCount: number
 }
 
 /**
@@ -1060,6 +1129,11 @@ export interface ProcessFileOptions {
    * See [`ExpandOptions::external_decorator_modules`] for details.
    */
   externalDecoratorModules?: Array<string>
+  /**
+   * Path to a previously loaded config file (for foreign types lookup).
+   * See [`ExpandOptions::config_path`] for details.
+   */
+  configPath?: string
 }
 
 /**
