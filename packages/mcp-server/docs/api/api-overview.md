@@ -2,14 +2,14 @@
  <span class="stats svelte-1c8t0id">55 exported items *Macroforge provides a programmatic API for expanding macros in TypeScript code.*
  ## Overview
  ```
-import &#123;
-  expandSync,
-  transformSync,
-  checkSyntax,
-  parseImportSources,
-  NativePlugin,
-  PositionMapper
-&#125; from "macroforge";
+import&nbsp;&#123;
+&nbsp;&nbsp;expandSync,
+&nbsp;&nbsp;transformSync,
+&nbsp;&nbsp;checkSyntax,
+&nbsp;&nbsp;parseImportSources,
+&nbsp;&nbsp;NativePlugin,
+&nbsp;&nbsp;PositionMapper
+&#125;&nbsp;from&nbsp;"macroforge";
 ``` ## Core Functions
  | Function | Description |
 | --- | --- |
@@ -24,27 +24,27 @@ import &#123;
 | [PositionMapper](../docs/api/position-mapper) | Maps positions between original and expanded code |
  ## Quick Example
  ```
-import &#123; expandSync &#125; from "macroforge";
+import&nbsp;&#123;&nbsp;expandSync&nbsp;&#125;&nbsp;from&nbsp;"macroforge";
 
-const sourceCode = \`
-/** @derive(Debug) */
-class User &#123;
-  name: string;
-  constructor(name: string) &#123;
-    this.name = name;
-  &#125;
+const&nbsp;sourceCode&nbsp;=&nbsp;\`
+/**&nbsp;@derive(Debug)&nbsp;*/
+class&nbsp;User&nbsp;&#123;
+&nbsp;&nbsp;name:&nbsp;string;
+&nbsp;&nbsp;constructor(name:&nbsp;string)&nbsp;&#123;
+&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;
+&nbsp;&nbsp;&#125;
 &#125;
 \`;
 
-const result = expandSync(sourceCode, "user.ts", &#123;
-  keepDecorators: false
+const&nbsp;result&nbsp;=&nbsp;expandSync(sourceCode,&nbsp;"user.ts",&nbsp;&#123;
+&nbsp;&nbsp;keepDecorators:&nbsp;false
 &#125;);
 
 console.log(result.code);
-// Output: class with toString() method generated
+//&nbsp;Output:&nbsp;class&nbsp;with&nbsp;toString()&nbsp;method&nbsp;generated
 
-if (result.diagnostics.length > 0) &#123;
-  console.error("Errors:", result.diagnostics);
+if&nbsp;(result.diagnostics.length&nbsp;>&nbsp;0)&nbsp;&#123;
+&nbsp;&nbsp;console.error("Errors:",&nbsp;result.diagnostics);
 &#125;
 ``` ## Detailed Reference
  - [<code class="shiki-inline"><span class="line"><span style="--shiki-dark:#B392F0;--shiki-light:#6F42C1">expandSync<span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">()</code>](../docs/api/expand-sync) - Full options and return types

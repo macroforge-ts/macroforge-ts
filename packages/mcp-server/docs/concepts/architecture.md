@@ -36,14 +36,14 @@
  ## Re-exported Crates
  For custom macro development, <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">macroforge_ts</code> re-exports everything you need:
  ```
-// Convenient re-exports for macro development
-use macroforge_ts::macros::&#123;ts_macro_derive, body, ts_template, above, below, signature&#125;;
-use macroforge_ts::ts_syn::&#123;Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input&#125;;
+//&nbsp;Convenient&nbsp;re-exports&nbsp;for&nbsp;macro&nbsp;development
+use&nbsp;macroforge_ts::macros::&#123;ts_macro_derive,&nbsp;body,&nbsp;ts_template,&nbsp;above,&nbsp;below,&nbsp;signature&#125;;
+use&nbsp;macroforge_ts::ts_syn::&#123;Data,&nbsp;DeriveInput,&nbsp;MacroforgeError,&nbsp;TsStream,&nbsp;parse_ts_macro_input&#125;;
 
-// Also available: raw crate access and SWC modules
-use macroforge_ts::swc_core;
-use macroforge_ts::swc_common;
-use macroforge_ts::swc_ecma_ast;
+//&nbsp;Also&nbsp;available:&nbsp;raw&nbsp;crate&nbsp;access&nbsp;and&nbsp;SWC&nbsp;modules
+use&nbsp;macroforge_ts::swc_core;
+use&nbsp;macroforge_ts::swc_common;
+use&nbsp;macroforge_ts::swc_ecma_ast;
 ``` ## Next Steps
  - [Write custom macros](../../docs/custom-macros)
  - [Explore the API reference](../../docs/api)
