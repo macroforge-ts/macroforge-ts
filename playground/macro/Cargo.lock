@@ -880,6 +880,7 @@ version = "0.1.41"
 dependencies = [
  "anyhow",
  "clap",
+ "convert_case 0.10.0",
  "dashmap",
  "ignore",
  "inventory",

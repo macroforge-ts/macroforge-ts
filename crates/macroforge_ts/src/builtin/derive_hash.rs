@@ -65,18 +65,18 @@
 //! class User {
 //!     id: number;
 //!     name: string;
-//!
+//! 
 //!     cachedScore: number;
-//!
+//! 
 //!     static hashCode(value: User): number {
 //!         return userHashCode(value);
 //!     }
-//!
+//! 
 //!     static equals(a: User, b: User): boolean {
 //!         return userEquals(a, b);
 //!     }
 //! }
-//!
+//! 
 //! export function userHashCode(value: User): number {
 //!     let hash = 17;
 //!     hash =
@@ -94,7 +94,7 @@
 //!         0;
 //!     return hash;
 //! }
-//!
+//! 
 //! export function userEquals(a: User, b: User): boolean {
 //!     if (a === b) return true;
 //!     return a.id === b.id && a.name === b.name && a.cachedScore === b.cachedScore;

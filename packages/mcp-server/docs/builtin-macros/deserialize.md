@@ -97,7 +97,7 @@ Mixed unions (e.g., `string | Date | User`) check in order:
 
 ## Example
 
-```typescript before
+```typescript
 /** @derive(Deserialize) @serde({ denyUnknownFields: true }) */
 class User {
     id: number;
@@ -109,18 +109,6 @@ class User {
     name: string;
 
     /** @serde({ validate: { positive: true } }) */
-    age?: number;
-}
-```
-
-```typescript after
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
     age?: number;
 }
 ```

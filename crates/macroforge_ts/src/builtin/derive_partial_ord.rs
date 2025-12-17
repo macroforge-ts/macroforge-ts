@@ -75,12 +75,12 @@
 //! class Temperature {
 //!     value: number | null;
 //!     unit: string;
-//!
+//! 
 //!     static compareTo(a: Temperature, b: Temperature): Option<number> {
 //!         return temperaturePartialCompare(a, b);
 //!     }
 //! }
-//!
+//! 
 //! export function temperaturePartialCompare(a: Temperature, b: Temperature): Option<number> {
 //!     if (a === b) return Option.some(0);
 //!     const cmp0 = (() => {
