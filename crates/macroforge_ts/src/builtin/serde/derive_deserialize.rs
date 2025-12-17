@@ -1715,19 +1715,12 @@ use crate::ts_syn::{
     Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input,
 };
 
+use convert_case::{Case, Casing};
+
 use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec, get_foreign_types};
 
-/// Convert a PascalCase name to camelCase (for prefix naming style)
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
-
 fn nested_deserialize_fn_name(type_name: &str) -> String {
-    format!("{}DeserializeWithContext", to_camel_case(type_name))
+    format!("{}DeserializeWithContext", type_name.to_case(Case::Camel))
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -2195,9 +2188,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
             // Generate function names (always prefix style)
-            let fn_deserialize = format!("{}Deserialize", to_camel_case(class_name));
-            let fn_deserialize_internal = format!("{}DeserializeWithContext", to_camel_case(class_name));
-            let fn_is = format!("{}Is", to_camel_case(class_name));
+            let fn_deserialize = format!("{}Deserialize", class_name.to_case(Case::Camel));
+            let fn_deserialize_internal = format!("{}DeserializeWithContext", class_name.to_case(Case::Camel));
+            let fn_is = format!("{}Is", class_name.to_case(Case::Camel));
 
             // Check for user-defined constructor with parameters
             if let Some(ctor) = class.method("constructor")
@@ -2515,6 +2508,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
                                             }
 
+                                        {:case TypeCategory::Record(_, _)}
+                                            if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                instance.@{field.field_name} = @{raw_var} as any;
+                                            }
+
+                                        {:case TypeCategory::Wrapper(_)}
+                                            // Wrapper types (Partial<T>, Required<T>, etc.) preserve structure
+                                            // Pass through directly - the value has the same shape as T
+                                            instance.@{field.field_name} = @{raw_var} as any;
+
                                         {:case TypeCategory::Serializable(type_name)}
                                             {
                                                 const __result = @{type_name}.deserializeWithContext(@{raw_var}, ctx);
@@ -2780,10 +2783,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let fn_deserialize = format!("{}Deserialize", to_camel_case(enum_name));
+            let fn_deserialize = format!("{}Deserialize", enum_name.to_case(Case::Camel));
             let fn_deserialize_internal =
-                format!("{}DeserializeWithContext", to_camel_case(enum_name));
-            let fn_is = format!("{}Is", to_camel_case(enum_name));
+                format!("{}DeserializeWithContext", enum_name.to_case(Case::Camel));
+            let fn_is = format!("{}Is", enum_name.to_case(Case::Camel));
             let mut result = ts_template! {
                 {>> "Deserializes input to an enum value.\nAutomatically detects whether input is a JSON string or value.\n@param input - JSON string or value to deserialize\n@returns The enum value\n@throws Error if the value is not a valid enum member" <<}
                 export function @{fn_deserialize}(input: unknown): @{enum_name} {
@@ -2943,12 +2946,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 fn_is,
                 fn_has_shape,
             ) = (
-                format!("{}Deserialize", to_camel_case(interface_name)),
-                format!("{}DeserializeWithContext", to_camel_case(interface_name)),
-                format!("{}ValidateField", to_camel_case(interface_name)),
-                format!("{}ValidateFields", to_camel_case(interface_name)),
-                format!("{}Is", to_camel_case(interface_name)),
-                format!("{}HasShape", to_camel_case(interface_name)),
+                format!("{}Deserialize", interface_name.to_case(Case::Camel)),
+                format!("{}DeserializeWithContext", interface_name.to_case(Case::Camel)),
+                format!("{}ValidateField", interface_name.to_case(Case::Camel)),
+                format!("{}ValidateFields", interface_name.to_case(Case::Camel)),
+                format!("{}Is", interface_name.to_case(Case::Camel)),
+                format!("{}HasShape", interface_name.to_case(Case::Camel)),
             );
 
             let mut result = {
@@ -3395,15 +3398,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     fn_validate_fields,
                     fn_is,
                 ) = (
-                    format!("{}Deserialize{}", to_camel_case(type_name), generic_decl),
-                    format!("{}DeserializeWithContext", to_camel_case(type_name)),
+                    format!("{}Deserialize{}", type_name.to_case(Case::Camel), generic_decl),
+                    format!("{}DeserializeWithContext", type_name.to_case(Case::Camel)),
                     format!(
                         "{}ValidateField{}",
-                        to_camel_case(type_name),
+                        type_name.to_case(Case::Camel),
                         validate_field_generic_decl
                     ),
-                    format!("{}ValidateFields", to_camel_case(type_name)),
-                    format!("{}Is{}", to_camel_case(type_name), generic_decl),
+                    format!("{}ValidateFields", type_name.to_case(Case::Camel)),
+                    format!("{}Is{}", type_name.to_case(Case::Camel), generic_decl),
                 );
 
                 let mut result = {
@@ -3815,13 +3818,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 };
 
                 let (fn_deserialize, fn_deserialize_internal, fn_is) = (
-                    format!("{}Deserialize{}", to_camel_case(type_name), generic_decl),
+                    format!("{}Deserialize{}", type_name.to_case(Case::Camel), generic_decl),
                     format!(
                         "{}DeserializeWithContext{}",
-                        to_camel_case(type_name),
+                        type_name.to_case(Case::Camel),
                         generic_decl
                     ),
-                    format!("{}Is{}", to_camel_case(type_name), generic_decl),
+                    format!("{}Is{}", type_name.to_case(Case::Camel), generic_decl),
                 );
 
             let mut result = ts_template! {
@@ -4015,19 +4018,19 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     fn_validate_fields,
                     fn_is,
                 ) = (
-                    format!("{}Deserialize{}", to_camel_case(type_name), generic_decl),
+                    format!("{}Deserialize{}", type_name.to_case(Case::Camel), generic_decl),
                     format!(
                         "{}DeserializeWithContext{}",
-                        to_camel_case(type_name),
+                        type_name.to_case(Case::Camel),
                         generic_args
                     ),
                     format!(
                         "{}ValidateField{}",
-                        to_camel_case(type_name),
+                        type_name.to_case(Case::Camel),
                         validate_field_generic_decl
                     ),
-                    format!("{}ValidateFields", to_camel_case(type_name)),
-                    format!("{}Is{}", to_camel_case(type_name), generic_decl),
+                    format!("{}ValidateFields", type_name.to_case(Case::Camel)),
+                    format!("{}Is{}", type_name.to_case(Case::Camel), generic_decl),
                 );
 
                 let mut result = ts_template! {
