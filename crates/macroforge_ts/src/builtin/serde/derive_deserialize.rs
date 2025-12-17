@@ -1718,6 +1718,7 @@ use crate::ts_syn::{
 use convert_case::{Case, Casing};
 
 use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec, get_foreign_types};
+use crate::builtin::return_types::{deserialize_return_type, wrap_success, wrap_error, deserialize_import, is_ok_check};
 
 fn nested_deserialize_fn_name(type_name: &str) -> String {
     format!("{}DeserializeWithContext", type_name.to_case(Case::Camel))
@@ -2332,6 +2333,17 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     .join(" && ")
             };
 
+            // Compute return type and wrappers based on returnTypes mode
+            let return_type = deserialize_return_type(&class_name);
+            let success_result = wrap_success("resultOrRef");
+            let error_root_ref = wrap_error(&format!(
+                r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
+                class_name
+            ));
+            let error_from_catch = wrap_error("e.errors");
+            let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
+            let is_ok_result = is_ok_check("result");
+
             let mut result = body! {
                 constructor(props: { {#for field in &all_fields} @{field.field_name}{#if field.optional}?{/if}: @{field.ts_type}; {/for} }) {
                     {#for field in &all_fields}
@@ -2340,7 +2352,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
 
                 {>> "Deserializes input to an instance of this class.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized instance or validation errors" <<}
-                static deserialize(input: unknown, opts?: DeserializeOptions): Result<@{class_name}, Array<{ field: string; message: string }>> {
+                static deserialize(input: unknown, opts?: DeserializeOptions): @{return_type} {
                     try {
                         // Auto-detect: if string, parse as JSON first
                         const data = typeof input === "string" ? JSON.parse(input) : input;
@@ -2349,7 +2361,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         const resultOrRef = @{class_name}.deserializeWithContext(data, ctx);
 
                         if (PendingRef.is(resultOrRef)) {
-                            return Result.err([{ field: "_root", message: "@{class_name}.deserialize: root cannot be a forward reference" }]);
+                            return @{error_root_ref};
                         }
 
                         ctx.applyPatches();
@@ -2357,13 +2369,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             ctx.freezeAll();
                         }
 
-                        return Result.ok(resultOrRef);
+                        return @{success_result};
                     } catch (e) {
                         if (e instanceof DeserializeError) {
-                            return Result.err(e.errors);
+                            return @{error_from_catch};
                         }
                         const message = e instanceof Error ? e.message : String(e);
-                        return Result.err([{ field: "_root", message }]);
+                        return @{error_generic_message};
                     }
                 }
 
@@ -2742,10 +2754,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         return false;
                     }
                     const result = @{class_name}.deserialize(obj);
-                    return Result.isOk(result);
+                    return @{is_ok_result};
                 }
             };
-            result.add_import("Result", "macroforge/utils");
+            // Add return type import based on mode (vanilla needs no import)
+            if let Some((name, source)) = deserialize_import() {
+                result.add_import(name, source);
+            }
             result.add_import("DeserializeContext", "macroforge/serde");
             result.add_import("DeserializeError", "macroforge/serde");
             result.add_type_import("DeserializeOptions", "macroforge/serde");
@@ -2754,7 +2769,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             // Generate standalone functions that delegate to static methods
             let mut standalone = ts_template! {
                 {>> "Deserializes input to an instance.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized instance or validation errors" <<}
-                export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): Result<@{class_name}, Array<{ field: string; message: string }>> {
+                export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
                     return @{class_name}.deserialize(input, opts);
                 }
 
@@ -2768,7 +2783,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     return @{class_name}.is(value);
                 }
             };
-            standalone.add_import("Result", "macroforge/utils");
+            // Add return type import based on mode (vanilla needs no import)
+            if let Some((name, source)) = deserialize_import() {
+                standalone.add_import(name, source);
+            }
             standalone.add_import("DeserializeContext", "macroforge/serde");
             standalone.add_type_import("DeserializeOptions", "macroforge/serde");
             standalone.add_import("PendingRef", "macroforge/serde");
@@ -2954,10 +2972,21 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 format!("{}HasShape", interface_name.to_case(Case::Camel)),
             );
 
+            // Compute return type and wrappers based on returnTypes mode
+            let return_type = deserialize_return_type(&interface_name);
+            let success_result = wrap_success("resultOrRef");
+            let error_root_ref = wrap_error(&format!(
+                r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
+                interface_name
+            ));
+            let error_from_catch = wrap_error("e.errors");
+            let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
+            let is_ok_result = is_ok_check("result");
+
             let mut result = {
                 ts_template! {
                     {>> "Deserializes input to this interface type.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized value or validation errors" <<}
-                    export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): Result<@{interface_name}, Array<{ field: string; message: string }>> {
+                    export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
                         try {
                             // Auto-detect: if string, parse as JSON first
                             const data = typeof input === "string" ? JSON.parse(input) : input;
@@ -2966,7 +2995,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             const resultOrRef = @{fn_deserialize_internal}(data, ctx);
 
                             if (PendingRef.is(resultOrRef)) {
-                                return Result.err([{ field: "_root", message: "@{interface_name}.deserialize: root cannot be a forward reference" }]);
+                                return @{error_root_ref};
                             }
 
                             ctx.applyPatches();
@@ -2974,13 +3003,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 ctx.freezeAll();
                             }
 
-                            return Result.ok(resultOrRef);
+                            return @{success_result};
                         } catch (e) {
                             if (e instanceof DeserializeError) {
-                                return Result.err(e.errors);
+                                return @{error_from_catch};
                             }
                             const message = e instanceof Error ? e.message : String(e);
-                            return Result.err([{ field: "_root", message }]);
+                            return @{error_generic_message};
                         }
                     }
 
@@ -3268,12 +3297,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             return false;
                         }
                         const result = @{fn_deserialize}(obj);
-                        return Result.isOk(result);
+                        return @{is_ok_result};
                     }
                 }
             };
 
-            result.add_import("Result", "macroforge/utils");
+            // Add return type import based on mode (vanilla needs no import)
+            if let Some((name, source)) = deserialize_import() {
+                result.add_import(name, source);
+            }
             result.add_import("DeserializeContext", "macroforge/serde");
             result.add_import("DeserializeError", "macroforge/serde");
             result.add_type_import("DeserializeOptions", "macroforge/serde");
@@ -3409,10 +3441,20 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     format!("{}Is{}", type_name.to_case(Case::Camel), generic_decl),
                 );
 
+                // Compute return type and wrappers based on returnTypes mode
+                let return_type = deserialize_return_type(&full_type_name);
+                let success_result = wrap_success("resultOrRef");
+                let error_root_ref = wrap_error(&format!(
+                    r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
+                    type_name
+                ));
+                let error_from_catch = wrap_error("e.errors");
+                let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
+
                 let mut result = {
                     ts_template! {
                         {>> "Deserializes input to this type.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized value or validation errors" <<}
-                        export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                        export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
                             try {
                                 // Auto-detect: if string, parse as JSON first
                                 const data = typeof input === "string" ? JSON.parse(input) : input;
@@ -3421,7 +3463,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 const resultOrRef = @{fn_deserialize_internal}(data, ctx);
 
                                 if (PendingRef.is(resultOrRef)) {
-                                    return Result.err([{ field: "_root", message: "@{type_name}.deserialize: root cannot be a forward reference" }]);
+                                    return @{error_root_ref};
                                 }
 
                                 ctx.applyPatches();
@@ -3429,13 +3471,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     ctx.freezeAll();
                                 }
 
-                                return Result.ok(resultOrRef);
+                                return @{success_result};
                             } catch (e) {
                                 if (e instanceof DeserializeError) {
-                                    return Result.err(e.errors);
+                                    return @{error_from_catch};
                                 }
                                 const message = e instanceof Error ? e.message : String(e);
-                                return Result.err([{ field: "_root", message }]);
+                                return @{error_generic_message};
                             }
                         }
 
@@ -3721,7 +3763,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
                 };
 
-                result.add_import("Result", "macroforge/utils");
+                // Add return type import based on mode (vanilla needs no import)
+                if let Some((name, source)) = deserialize_import() {
+                    result.add_import(name, source);
+                }
                 result.add_import("DeserializeContext", "macroforge/serde");
                 result.add_import("DeserializeError", "macroforge/serde");
                 result.add_type_import("DeserializeOptions", "macroforge/serde");
@@ -3827,9 +3872,19 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     format!("{}Is{}", type_name.to_case(Case::Camel), generic_decl),
                 );
 
+                // Compute return type and wrappers based on returnTypes mode
+                let return_type = deserialize_return_type(&full_type_name);
+                let success_result = wrap_success("resultOrRef");
+                let error_root_ref = wrap_error(&format!(
+                    r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
+                    type_name
+                ));
+                let error_from_catch = wrap_error("e.errors");
+                let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
+
             let mut result = ts_template! {
                 {>> "Deserializes input to this type.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized value or validation errors" <<}
-                export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
                     try {
                         // Auto-detect: if string, parse as JSON first
                         const data = typeof input === "string" ? JSON.parse(input) : input;
@@ -3838,20 +3893,20 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         const resultOrRef = @{fn_deserialize_internal}(data, ctx);
 
                         if (PendingRef.is(resultOrRef)) {
-                            return Result.err([{ field: "_root", message: "@{type_name}.deserialize: root cannot be a forward reference" }]);
+                            return @{error_root_ref};
                         }
 
                         ctx.applyPatches();
                         if (opts?.freeze) {
                             ctx.freezeAll();
                         }
-                        return Result.ok(resultOrRef);
+                        return @{success_result};
                     } catch (e) {
                         if (e instanceof DeserializeError) {
-                            return Result.err(e.errors);
+                            return @{error_from_catch};
                         }
                         const message = e instanceof Error ? e.message : String(e);
-                        return Result.err([{ field: "_root", message }]);
+                        return @{error_generic_message};
                     }
                 }
 
@@ -4003,7 +4058,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     {/if}
                 }
             };
-                result.add_import("Result", "macroforge/utils");
+                // Add return type import based on mode (vanilla needs no import)
+                if let Some((name, source)) = deserialize_import() {
+                    result.add_import(name, source);
+                }
                 result.add_import("DeserializeContext", "macroforge/serde");
                 result.add_import("DeserializeError", "macroforge/serde");
                 result.add_type_import("DeserializeOptions", "macroforge/serde");
@@ -4033,9 +4091,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     format!("{}Is{}", type_name.to_case(Case::Camel), generic_decl),
                 );
 
+                // Compute return type and wrappers based on returnTypes mode
+                let return_type = deserialize_return_type(&full_type_name);
+                let success_result = wrap_success("result");
+                let error_from_catch = wrap_error("e.errors");
+                let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
+
                 let mut result = ts_template! {
                     {>> "Deserializes input to this type.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized value or validation errors" <<}
-                    export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                    export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
                         try {
                             // Auto-detect: if string, parse as JSON first
                             const data = typeof input === "string" ? JSON.parse(input) : input;
@@ -4046,13 +4110,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             if (opts?.freeze) {
                                 ctx.freezeAll();
                             }
-                            return Result.ok<@{full_type_name}>(result);
+                            return @{success_result};
                         } catch (e) {
                             if (e instanceof DeserializeError) {
-                                return Result.err(e.errors);
+                                return @{error_from_catch};
                             }
                             const message = e instanceof Error ? e.message : String(e);
-                            return Result.err([{ field: "_root", message }]);
+                            return @{error_generic_message};
                         }
                     }
 
@@ -4081,7 +4145,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         return value != null;
                     }
                 };
-                result.add_import("Result", "macroforge/utils");
+                // Add return type import based on mode (vanilla needs no import)
+                if let Some((name, source)) = deserialize_import() {
+                    result.add_import(name, source);
+                }
                 result.add_import("DeserializeContext", "macroforge/serde");
                 result.add_import("DeserializeError", "macroforge/serde");
                 result.add_type_import("DeserializeOptions", "macroforge/serde");

@@ -188,6 +188,7 @@ pub mod derive_deserialize;
 /// Serialize macro implementation.
 pub mod derive_serialize;
 
+use crate::host::config::ReturnTypesMode;
 use crate::host::ForeignTypeConfig;
 use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector, SpanIR};
 use std::cell::RefCell;
@@ -216,6 +217,12 @@ thread_local! {
     /// For `import { Option as EffectOption } from "effect/Option"`,
     /// this would contain `"EffectOption" -> "Option"`.
     static IMPORT_ALIASES: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
+
+    /// Thread-local storage for return types mode during expansion.
+    ///
+    /// Controls how macros like `Deserialize` and `PartialOrd` express their return types.
+    /// Defaults to `Vanilla` (plain TypeScript discriminated unions).
+    static RETURN_TYPES_MODE: RefCell<ReturnTypesMode> = const { RefCell::new(ReturnTypesMode::Vanilla) };
 }
 
 /// Set the foreign types for the current expansion.
@@ -276,6 +283,26 @@ pub fn get_import_aliases() -> HashMap<String, String> {
 /// Clear the import aliases after expansion.
 pub fn clear_import_aliases() {
     IMPORT_ALIASES.with(|ia| ia.borrow_mut().clear());
+}
+
+/// Set the return types mode for the current expansion.
+///
+/// This should be called by the expander before running macros.
+/// The previous value is returned so it can be restored after expansion.
+pub fn set_return_types_mode(mode: ReturnTypesMode) -> ReturnTypesMode {
+    RETURN_TYPES_MODE.with(|rtm| rtm.replace(mode))
+}
+
+/// Get the current return types mode.
+///
+/// Returns the current mode (defaults to `Vanilla`).
+pub fn get_return_types_mode() -> ReturnTypesMode {
+    RETURN_TYPES_MODE.with(|rtm| *rtm.borrow())
+}
+
+/// Clear the return types mode after expansion.
+pub fn clear_return_types_mode() {
+    RETURN_TYPES_MODE.with(|rtm| *rtm.borrow_mut() = ReturnTypesMode::Vanilla);
 }
 
 /// Naming convention for JSON field renaming

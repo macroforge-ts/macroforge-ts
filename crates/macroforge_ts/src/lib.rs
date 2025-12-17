@@ -1475,12 +1475,13 @@ fn expand_inner(
         }
     }
 
-    // Set up foreign types from config if available
+    // Set up foreign types and return types mode from config if available
     let config_path = options.as_ref().and_then(|o| o.config_path.as_ref());
     if let Some(path) = config_path
         && let Some(config) = CONFIG_CACHE.get(path)
     {
         crate::builtin::serde::set_foreign_types(config.foreign_types.clone());
+        crate::builtin::serde::set_return_types_mode(config.return_types);
     }
 
     // Parse the code into an AST.
@@ -1491,9 +1492,10 @@ fn expand_inner(
         Err(e) => {
             let error_msg = e.to_string();
 
-            // Clean up foreign types before returning
+            // Clean up foreign types and return types mode before returning
             crate::builtin::serde::clear_foreign_types();
             crate::builtin::serde::clear_import_sources();
+            crate::builtin::serde::clear_return_types_mode();
 
             // Return a "no-op" expansion result: original code unchanged,
             // with an informational diagnostic explaining why.
@@ -1521,10 +1523,11 @@ fn expand_inner(
     // Run macro expansion on the parsed AST
     let expansion_result = macro_host.expand(code, &program, filepath);
 
-    // Clean up foreign types, import sources, and aliases after expansion (before error propagation)
+    // Clean up foreign types, import sources, aliases, and return types mode after expansion (before error propagation)
     crate::builtin::serde::clear_foreign_types();
     crate::builtin::serde::clear_import_sources();
     crate::builtin::serde::clear_import_aliases();
+    crate::builtin::serde::clear_return_types_mode();
 
     // Now propagate any error
     let expansion = expansion_result.map_err(|err| {
