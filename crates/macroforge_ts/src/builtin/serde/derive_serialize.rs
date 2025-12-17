@@ -142,7 +142,7 @@ use crate::ts_syn::{
     Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input,
 };
 
-use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory};
+use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, get_foreign_types};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
 fn to_camel_case(name: &str) -> String {
@@ -374,6 +374,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         _ => None,
                     };
 
+                    // Check for foreign type serializer if no explicit serialize_with
+                    let serialize_with = if opts.serialize_with.is_some() {
+                        opts.serialize_with.clone()
+                    } else {
+                        // Check if the field's type matches a configured foreign type
+                        let foreign_types = get_foreign_types();
+                        TypeCategory::match_foreign_type(&field.ts_type, &foreign_types)
+                            .and_then(|ft| ft.serialize_expr.clone())
+                    };
+
                     Some(SerializeField {
                         json_key,
                         field_name: field.name.clone(),
@@ -390,7 +400,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         array_elem_serializable_type,
                         set_elem_serializable_type,
                         map_value_serializable_type,
-                        serialize_with: opts.serialize_with.clone(),
+                        serialize_with,
                     })
                 })
                 .collect();
@@ -822,6 +832,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         _ => None,
                     };
 
+                    // Check for foreign type serializer if no explicit serialize_with
+                    let serialize_with = if opts.serialize_with.is_some() {
+                        opts.serialize_with.clone()
+                    } else {
+                        // Check if the field's type matches a configured foreign type
+                        let foreign_types = get_foreign_types();
+                        TypeCategory::match_foreign_type(&field.ts_type, &foreign_types)
+                            .and_then(|ft| ft.serialize_expr.clone())
+                    };
+
                     Some(SerializeField {
                         json_key,
                         field_name: field.name.clone(),
@@ -838,7 +858,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         array_elem_serializable_type,
                         set_elem_serializable_type,
                         map_value_serializable_type,
-                        serialize_with: opts.serialize_with.clone(),
+                        serialize_with,
                     })
                 })
                 .collect();

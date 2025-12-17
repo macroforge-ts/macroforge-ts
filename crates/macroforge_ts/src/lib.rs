@@ -108,6 +108,7 @@ pub mod host;
 pub use ts_syn::abi;
 
 use host::derived;
+use host::CONFIG_CACHE;
 use ts_syn::{Diagnostic, DiagnosticLevel};
 
 pub mod builtin;
@@ -753,6 +754,9 @@ pub struct ProcessFileOptions {
     /// Additional decorator module names from external macros.
     /// See [`ExpandOptions::external_decorator_modules`] for details.
     pub external_decorator_modules: Option<Vec<String>>,
+    /// Path to a previously loaded config file (for foreign types lookup).
+    /// See [`ExpandOptions::config_path`] for details.
+    pub config_path: Option<String>,
 }
 
 /// Options for macro expansion.
@@ -782,6 +786,23 @@ pub struct ExpandOptions {
     /// });
     /// ```
     pub external_decorator_modules: Option<Vec<String>>,
+
+    /// Path to a previously loaded config file.
+    ///
+    /// When provided, the expansion will use the cached configuration
+    /// (including foreign types) from this path. The config must have been
+    /// previously loaded via [`load_config`].
+    ///
+    /// # Example
+    ///
+    /// ```javascript
+    /// // First, load the config
+    /// const configResult = loadConfig(configContent, configPath);
+    ///
+    /// // Then use it during expansion
+    /// expandSync(code, filepath, { configPath });
+    /// ```
+    pub config_path: Option<String>,
 }
 
 /// The main plugin class for macro expansion with caching support.
@@ -844,6 +865,7 @@ fn option_expand_options(opts: Option<ProcessFileOptions>) -> Option<ExpandOptio
     opts.map(|o| ExpandOptions {
         keep_decorators: o.keep_decorators,
         external_decorator_modules: o.external_decorator_modules,
+        config_path: o.config_path,
     })
 }
 
@@ -1185,6 +1207,71 @@ pub fn parse_import_sources(code: String, filepath: String) -> Result<Vec<Import
 )]
 pub fn derive_decorator() {}
 
+/// Result of loading a macroforge configuration file.
+///
+/// Returned by [`load_config`] after parsing a `macroforge.config.js/ts` file.
+#[napi(object)]
+pub struct LoadConfigResult {
+    /// Whether to preserve `@derive` decorators in the output code.
+    pub keep_decorators: bool,
+    /// Whether to generate a convenience const for non-class types.
+    pub generate_convenience_const: bool,
+    /// Whether the config has any foreign type handlers defined.
+    pub has_foreign_types: bool,
+    /// Number of foreign types configured.
+    pub foreign_type_count: u32,
+}
+
+/// Load and parse a macroforge configuration file.
+///
+/// Parses a `macroforge.config.js/ts` file and caches the result for use
+/// during macro expansion. The configuration includes both simple settings
+/// (like `keepDecorators`) and foreign type handlers.
+///
+/// # Arguments
+///
+/// * `content` - The raw content of the configuration file
+/// * `filepath` - Path to the configuration file (used to determine syntax and as cache key)
+///
+/// # Returns
+///
+/// A [`LoadConfigResult`] containing the parsed configuration summary.
+///
+/// # Example
+///
+/// ```javascript
+/// import { loadConfig, expandSync } from 'macroforge';
+/// import fs from 'fs';
+///
+/// const configPath = 'macroforge.config.js';
+/// const configContent = fs.readFileSync(configPath, 'utf-8');
+///
+/// // Load and cache the configuration
+/// const result = loadConfig(configContent, configPath);
+/// console.log(`Loaded config with ${result.foreignTypeCount} foreign types`);
+///
+/// // The config is now cached and will be used by expandSync
+/// const expanded = expandSync(code, filepath, { configPath });
+/// ```
+#[napi]
+pub fn load_config(content: String, filepath: String) -> Result<LoadConfigResult> {
+    use crate::host::MacroforgeConfig;
+
+    let config = MacroforgeConfig::load_and_cache(&content, &filepath).map_err(|e| {
+        Error::new(
+            Status::GenericFailure,
+            format!("Failed to parse config: {}", e),
+        )
+    })?;
+
+    Ok(LoadConfigResult {
+        keep_decorators: config.keep_decorators,
+        generate_convenience_const: config.generate_convenience_const,
+        has_foreign_types: !config.foreign_types.is_empty(),
+        foreign_type_count: config.foreign_types.len() as u32,
+    })
+}
+
 /// Synchronously transforms TypeScript code through the macro expansion system.
 ///
 /// This is similar to [`expand_sync`] but returns a [`TransformResult`] which
@@ -1367,6 +1454,14 @@ fn expand_inner(
         }
     }
 
+    // Set up foreign types from config if available
+    let config_path = options.as_ref().and_then(|o| o.config_path.as_ref());
+    if let Some(path) = config_path {
+        if let Some(config) = CONFIG_CACHE.get(path) {
+            crate::builtin::serde::set_foreign_types(config.foreign_types.clone());
+        }
+    }
+
     // Parse the code into an AST.
     // On parse errors, we return a graceful "no-op" result instead of failing,
     // because parse errors can happen frequently during typing in an IDE.
@@ -1374,6 +1469,9 @@ fn expand_inner(
         Ok(p) => p,
         Err(e) => {
             let error_msg = e.to_string();
+
+            // Clean up foreign types before returning
+            crate::builtin::serde::clear_foreign_types();
 
             // Return a "no-op" expansion result: original code unchanged,
             // with an informational diagnostic explaining why.
@@ -1394,7 +1492,13 @@ fn expand_inner(
     };
 
     // Run macro expansion on the parsed AST
-    let expansion = macro_host.expand(code, &program, filepath).map_err(|err| {
+    let expansion_result = macro_host.expand(code, &program, filepath);
+
+    // Clean up foreign types after expansion (before error propagation)
+    crate::builtin::serde::clear_foreign_types();
+
+    // Now propagate any error
+    let expansion = expansion_result.map_err(|err| {
         Error::new(
             Status::GenericFailure,
             format!("Macro expansion failed: {err:?}"),
