@@ -34,6 +34,7 @@ if (extraNodePaths.length > 0) {
 
 const roots = [
   path.join(__dirname, "..", "playground", "svelte", "src", "lib", "demo"),
+  path.join(__dirname, "..", "playground", "svelte", "src", "lib", "demo", "types"),
   path.join(__dirname, "..", "playground", "vanilla", "src"),
 ];
 
@@ -78,17 +79,64 @@ function main(options) {
     }
   } else {
     // Use Node.js API
-    const expandSync = require("../crates/macroforge_ts").expandSync;
+    const { expandSync, loadConfig, clearConfigCache } = require("../crates/macroforge_ts");
+
+    // Config file names in order of precedence
+    const CONFIG_FILES = [
+      "macroforge.config.ts",
+      "macroforge.config.mts",
+      "macroforge.config.js",
+      "macroforge.config.mjs",
+      "macroforge.config.cjs",
+    ];
+
+    // Find config file starting from a directory, walking up to package.json
+    function findConfigFile(startDir) {
+      let dir = startDir;
+      while (dir) {
+        for (const configName of CONFIG_FILES) {
+          const configPath = path.join(dir, configName);
+          if (fs.existsSync(configPath)) {
+            return configPath;
+          }
+        }
+        // Stop at package.json (project root)
+        if (fs.existsSync(path.join(dir, "package.json"))) {
+          break;
+        }
+        const parent = path.dirname(dir);
+        if (parent === dir) break;
+        dir = parent;
+      }
+      return null;
+    }
+
+    // Cache loaded configs by path
+    const loadedConfigs = new Set();
 
     for (const root of roots) {
       if (!fs.existsSync(root)) continue;
+
+      // Find and load config for this root
+      const configPath = findConfigFile(root);
+      if (configPath && !loadedConfigs.has(configPath)) {
+        const configContent = fs.readFileSync(configPath, "utf8");
+        loadConfig(configContent, configPath);
+        loadedConfigs.add(configPath);
+        console.log(`loaded config: ${path.relative(process.cwd(), configPath)}`);
+      }
+
       for (const entry of fs.readdirSync(root)) {
         const full = path.join(root, entry);
         if (fs.statSync(full).isFile() && isSourceFile(entry)) {
           const code = fs.readFileSync(full, "utf8");
           const outPath = getExpandedPath(full);
           try {
-            const res = expandSync(code, full, { keepDecorators: false });
+            const options = { keepDecorators: false };
+            if (configPath) {
+              options.configPath = configPath;
+            }
+            const res = expandSync(code, full, options);
             fs.writeFileSync(outPath, res.code);
             console.log(
               `expanded ${path.relative(process.cwd(), full)} -> ${path.relative(process.cwd(), outPath)}`,
