@@ -180,7 +180,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function validDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<ValidDateValidator, Array<{field: string; message: string}>>{return ValidDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function validDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<ValidDateValidator, Array<{ field: string; message: string }>> {return ValidDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function validDateValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): ValidDateValidator | PendingRef {return ValidDateValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -359,7 +359,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function greaterThanDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanDateValidator, Array<{field: string; message: string}>>{return GreaterThanDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function greaterThanDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanDateValidator, Array<{ field: string; message: string }>> {return GreaterThanDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function greaterThanDateValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): GreaterThanDateValidator | PendingRef {return GreaterThanDateValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -538,7 +538,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function greaterThanOrEqualToDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanOrEqualToDateValidator, Array<{field: string; message: string}>>{return GreaterThanOrEqualToDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function greaterThanOrEqualToDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanOrEqualToDateValidator, Array<{ field: string; message: string }>> {return GreaterThanOrEqualToDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function greaterThanOrEqualToDateValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): GreaterThanOrEqualToDateValidator | PendingRef {return GreaterThanOrEqualToDateValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -717,7 +717,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function lessThanDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanDateValidator, Array<{field: string; message: string}>>{return LessThanDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function lessThanDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanDateValidator, Array<{ field: string; message: string }>> {return LessThanDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function lessThanDateValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): LessThanDateValidator | PendingRef {return LessThanDateValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -896,7 +896,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function lessThanOrEqualToDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanOrEqualToDateValidator, Array<{field: string; message: string}>>{return LessThanOrEqualToDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function lessThanOrEqualToDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanOrEqualToDateValidator, Array<{ field: string; message: string }>> {return LessThanOrEqualToDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function lessThanOrEqualToDateValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): LessThanOrEqualToDateValidator | PendingRef {return LessThanOrEqualToDateValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -1075,7 +1075,7 @@ Automatically detects whether input is a JSON string or object.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function betweenDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<BetweenDateValidator, Array<{field: string; message: string}>>{return BetweenDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized instance or validation errors */export function betweenDateValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<BetweenDateValidator, Array<{ field: string; message: string }>> {return BetweenDateValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */export function betweenDateValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): BetweenDateValidator | PendingRef {return BetweenDateValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check

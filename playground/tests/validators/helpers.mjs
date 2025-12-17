@@ -1,7 +1,9 @@
 // Early declarations using var for hoisting
 var moduleCache = new Map();
 var expandSync;
+var loadConfig;
 var Result;
+var configPath;
 
 import { test, describe, beforeEach, afterEach, beforeAll, afterAll } from "bun:test";
 import { expect } from "bun:test";
@@ -22,8 +24,17 @@ const swcMacrosPath = path.join(repoRoot, "crates/macroforge_ts/index.js");
 const utilsPath = path.join(repoRoot, "crates/macroforge_ts/js/utils/index.mjs");
 
 // Initialize after imports
-expandSync = require(swcMacrosPath).expandSync;
+const macroforge = require(swcMacrosPath);
+expandSync = macroforge.expandSync;
+loadConfig = macroforge.loadConfig;
 Result = require(utilsPath).Result;
+
+// Load and cache the config for the vanilla playground
+configPath = path.join(vanillaRoot, "macroforge.config.ts");
+if (fs.existsSync(configPath)) {
+  const configContent = fs.readFileSync(configPath, "utf8");
+  loadConfig(configContent, configPath);
+}
 
 /**
  * Expand macros in a TypeScript file and compile it using Bun's transpiler
@@ -36,7 +47,7 @@ export async function expandAndCompile(filePath) {
   }
 
   const sourceCode = fs.readFileSync(filePath, "utf8");
-  const result = expandSync(sourceCode, path.basename(filePath));
+  const result = expandSync(sourceCode, path.basename(filePath), { configPath });
 
   if (result.diagnostics && result.diagnostics.length > 0) {
     const errors = result.diagnostics.filter(d => d.severity === "error");

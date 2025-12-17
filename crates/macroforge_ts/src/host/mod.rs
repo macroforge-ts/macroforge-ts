@@ -107,7 +107,8 @@ pub mod traits;
 
 // Primary exports for convenience
 pub use config::{
-    clear_config_cache, ForeignTypeConfig, ImportInfo, MacroConfig, MacroforgeConfig, CONFIG_CACHE,
+    ReturnTypesMode, clear_config_cache, ForeignTypeConfig, ImportInfo, MacroConfig,
+    MacroforgeConfig, CONFIG_CACHE,
 };
 pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};
