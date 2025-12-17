@@ -1,12 +1,12 @@
 import { expandExample } from '$lib/server/macroforge';
 import { getBuiltinMacro, getVersion } from '$lib/server/api-docs';
 
-export function load() {
+export async function load() {
 	return {
 		version: getVersion('rust', 'macroforge_ts'),
 		macro: getBuiltinMacro('default'),
 		examples: {
-			basic: expandExample(`/** @derive(Default) */
+			basic: await expandExample(`/** @derive(Default) */
 class Config {
   host: string;
   port: number;
@@ -18,14 +18,14 @@ class Config {
     this.enabled = enabled;
   }
 }`),
-			nullable: expandExample(`/** @derive(Default) */
+			nullable: await expandExample(`/** @derive(Default) */
 interface User {
   name: string;
   email: string | null;
   age: number;
   metadata: Record<string, unknown> | null;
 }`),
-			customType: expandExample(`/** @derive(Default) */
+			customType: await expandExample(`/** @derive(Default) */
 interface AppConfig {
   name: string;
   port: number;
@@ -34,7 +34,7 @@ interface AppConfig {
   /** @default(Permissions.defaultValue()) */
   permissions: Permissions;
 }`),
-			custom: expandExample(`/** @derive(Default) */
+			custom: await expandExample(`/** @derive(Default) */
 class ServerConfig {
   /** @default("localhost") */
   host: string;
@@ -55,18 +55,18 @@ class ServerConfig {
     this.logLevels = logLevels;
   }
 }`),
-			interface: expandExample(`/** @derive(Default) */
+			interface: await expandExample(`/** @derive(Default) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`/** @derive(Default) */
+			enum: await expandExample(`/** @derive(Default) */
 enum Status {
   Pending = "pending",
   Active = "active",
   Completed = "completed",
 }`),
-			typeAlias: expandExample(`/** @derive(Default) */
+			typeAlias: await expandExample(`/** @derive(Default) */
 type Dimensions = {
   width: number;
   height: number;

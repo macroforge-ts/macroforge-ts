@@ -1,12 +1,12 @@
 import { expandExample } from '$lib/server/macroforge';
 import { getBuiltinMacro, getVersion } from '$lib/server/api-docs';
 
-export function load() {
+export async function load() {
 	return {
 		version: getVersion('rust', 'macroforge_ts'),
 		macro: getBuiltinMacro('partial_eq'),
 		examples: {
-			basic: expandExample(`/** @derive(PartialEq) */
+			basic: await expandExample(`/** @derive(PartialEq) */
 class Point {
   x: number;
   y: number;
@@ -16,7 +16,7 @@ class Point {
     this.y = y;
   }
 }`),
-			skip: expandExample(`/** @derive(PartialEq) */
+			skip: await expandExample(`/** @derive(PartialEq) */
 class User {
   id: number;
   name: string;
@@ -30,18 +30,18 @@ class User {
     this.createdAt = createdAt;
   }
 }`),
-			interface: expandExample(`/** @derive(PartialEq) */
+			interface: await expandExample(`/** @derive(PartialEq) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`/** @derive(PartialEq) */
+			enum: await expandExample(`/** @derive(PartialEq) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
   Pending = "pending",
 }`),
-			typeAlias: expandExample(`/** @derive(PartialEq) */
+			typeAlias: await expandExample(`/** @derive(PartialEq) */
 type Point = {
   x: number;
   y: number;

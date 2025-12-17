@@ -1,18 +1,18 @@
 import { expandExample } from '$lib/server/macroforge';
 import { getBuiltinMacro, getVersion } from '$lib/server/api-docs';
 
-export function load() {
+export async function load() {
 	return {
 		version: getVersion('rust', 'macroforge_ts'),
 		macro: getBuiltinMacro('deserialize'),
 		examples: {
-			basic: expandExample(`/** @derive(Deserialize) */
+			basic: await expandExample(`/** @derive(Deserialize) */
 class User {
   name: string;
   age: number;
   createdAt: Date;
 }`),
-			rename: expandExample(`/** @derive(Deserialize) */
+			rename: await expandExample(`/** @derive(Deserialize) */
 class User {
   /** @serde({ rename: "user_id" }) */
   id: string;
@@ -20,7 +20,7 @@ class User {
   /** @serde({ rename: "full_name" }) */
   name: string;
 }`),
-			default: expandExample(`/** @derive(Deserialize) */
+			default: await expandExample(`/** @derive(Deserialize) */
 class Config {
   host: string;
 
@@ -30,19 +30,19 @@ class Config {
   /** @serde({ default: "false" }) */
   debug: boolean;
 }`),
-			interface: expandExample(`/** @derive(Deserialize) */
+			interface: await expandExample(`/** @derive(Deserialize) */
 interface ApiResponse {
   status: number;
   message: string;
   timestamp: Date;
 }`),
-			enum: expandExample(`/** @derive(Deserialize) */
+			enum: await expandExample(`/** @derive(Deserialize) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
   Pending = "pending",
 }`),
-			typeAlias: expandExample(`/** @derive(Deserialize) */
+			typeAlias: await expandExample(`/** @derive(Deserialize) */
 type UserProfile = {
   id: string;
   name: string;
