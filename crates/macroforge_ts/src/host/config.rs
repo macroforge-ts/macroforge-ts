@@ -23,6 +23,7 @@
 //!
 //! export default {
 //!   keepDecorators: false,
+//!   generateConvenienceConst: true,
 //!   foreignTypes: {
 //!     DateTime: {
 //!       from: ["effect", "@effect/schema"],
@@ -33,6 +34,13 @@
 //!   }
 //! }
 //! ```
+//!
+//! ## Configuration Caching
+//!
+//! Configurations are parsed once and cached globally by file path. When using
+//! [`expand_sync`](crate::expand_sync) or [`NativePlugin::process_file`](crate::NativePlugin::process_file),
+//! you can pass `config_path` in the options to use a previously loaded configuration.
+//! This is particularly useful for accessing foreign type handlers during expansion.
 //!
 //! ## Foreign Types
 //!
