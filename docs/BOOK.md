@@ -537,7 +537,7 @@ class User {
 After (Generated)
 
 ```
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 
 class User {
     id: number;
@@ -562,7 +562,7 @@ class User {
 @param value - The value to serialize
 @param ctx - The serialization context  */
 
-    static serializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown> {
+    static serializeWithContext(value: User, ctx: __mf_SerializeContext): Record<string, unknown> {
         return userSerializeWithContext(value, ctx);
     }
 }
@@ -580,14 +580,14 @@ export function userToString(value: User): string {
 @returns JSON string representation with cycle detection metadata */ export function userSerialize(
     value: User
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(userSerializeWithContext(value, ctx));
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function userSerializeWithContext(
     value: User,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -1660,9 +1660,9 @@ export function temperaturePartialCompare(a: Temperature, b: Temperature): numbe
 }
 ```
 
-## Required Import
+## Return Type
 
-The generated code automatically adds an import for `Option` from `macroforge/utils`.
+The generated functions return `number | null` where `null` indicates incomparable values.
 
 
 ---
@@ -1763,7 +1763,7 @@ class User {
 @param value - The value to serialize
 @param ctx - The serialization context  */
 
-    static serializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown> {
+    static serializeWithContext(value: User, ctx: @{SERIALIZE_CONTEXT}): Record<string, unknown> {
         return userSerializeWithContext(value, ctx);
     }
 }
@@ -1773,7 +1773,7 @@ class User {
 @returns JSON string representation with cycle detection metadata */ export function userSerialize(
     value: User
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = @{SERIALIZE_CONTEXT}.create();
     return JSON.stringify(userSerializeWithContext(value, ctx));
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
@@ -1922,20 +1922,6 @@ class User {
 ```
 
 ```typescript after
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
-    age?: number;
-}
-```
-
-Generated output:
-
-```typescript
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
@@ -1972,7 +1958,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: @{DESERIALIZE_OPTIONS}
     ): Result<
         User,
         Array<{
@@ -1984,9 +1970,9 @@ class User {
             // Auto-detect: if string, parse as JSON first
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
-            const ctx = DeserializeContext.create();
+            const ctx = @{DESERIALIZE_CONTEXT}.create();
             const resultOrRef = User.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
+            if (@{PENDING_REF}.is(resultOrRef)) {
                 return Result.err([
                     {
                         field: '_root',
@@ -2000,7 +1986,7 @@ class User {
             }
             return Result.ok(resultOrRef);
         } catch (e) {
-            if (e instanceof DeserializeError) {
+            if (e instanceof @{DESERIALIZE_ERROR}) {
                 return Result.err(e.errors);
             }
             const message = e instanceof Error ? e.message : String(e);
@@ -2014,12 +2000,12 @@ class User {
     }
 
     /** @internal */
-    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
+            throw new @{DESERIALIZE_ERROR}([
                 {
                     field: '_root',
                     message: 'User.deserializeWithContext: expected an object'
@@ -2053,7 +2039,7 @@ class User {
             });
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new @{DESERIALIZE_ERROR}(errors);
         }
         const instance = Object.create(User.prototype) as User;
         if (obj.__id !== undefined) {
@@ -2079,1386 +2065,7 @@ class User {
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof User>(
-        field: K,
-        value: User[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<User>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
-    }
-
-    static is(obj: unknown): obj is User {
-        if (obj instanceof User) {
-            return true;
-        }
-        if (!User.hasShape(obj)) {
-            return false;
-        }
-        const result = User.deserialize(obj);
-        return Result.isOk(result);
-    }
-}
-
-// Usage:
-const result = User.deserialize('{"id":1,"email":"test@example.com"}');
-if (Result.isOk(result)) {
-    const user = result.value;
-} else {
-    console.error(result.error); // [{ field: "email", message: "must be a valid email" }]
-}
-```
-
-Generated output:
-
-```typescript
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-/** @serde({ denyUnknownFields: true }) */
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
-    age?: number;
-
-    constructor(props: {
-        id: number;
-        email: string;
-        name?: string;
-        age?: number;
-    }) {
-        this.id = props.id;
-        this.email = props.email;
-        this.name = props.name as string;
-        this.age = props.age as number;
-    }
-
-    /**
-     * Deserializes input to an instance of this class.
-     * Automatically detects whether input is a JSON string or object.
-     * @param input - JSON string or object to deserialize
-     * @param opts - Optional deserialization options
-     * @returns Result containing the deserialized instance or validation errors
-     */
-    static deserialize(
-        input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-
-            const ctx = DeserializeContext.create();
-            const resultOrRef = User.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    /** @internal */
-    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'User.deserializeWithContext: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
-        for (const key of Object.keys(obj)) {
-            if (!knownKeys.has(key)) {
-                errors.push({
-                    field: key,
-                    message: 'unknown field'
-                });
-            }
-        }
-        if (!('id' in obj)) {
-            errors.push({
-                field: 'id',
-                message: 'missing required field'
-            });
-        }
-        if (!('email' in obj)) {
-            errors.push({
-                field: 'email',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(User.prototype) as User;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_id = obj['id'] as number;
-            instance.id = __raw_id;
-        }
-        {
-            const __raw_email = obj['email'] as string;
-            instance.email = __raw_email;
-        }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
-            instance.name = __raw_name;
-        } else {
-            instance.name = 'guest';
-        }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
-            instance.age = __raw_age;
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof User>(
-        field: K,
-        value: User[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<User>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
-    }
-
-    static is(obj: unknown): obj is User {
-        if (obj instanceof User) {
-            return true;
-        }
-        if (!User.hasShape(obj)) {
-            return false;
-        }
-        const result = User.deserialize(obj);
-        return Result.isOk(result);
-    }
-}
-
-// Usage:
-const result = User.deserialize('{"id":1,"email":"test@example.com"}');
-if (Result.isOk(result)) {
-    const user = result.value;
-} else {
-    console.error(result.error); // [{ field: "email", message: "must be a valid email" }]
-}
-```
-
-Generated output:
-
-```typescript
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-/** @serde({ denyUnknownFields: true }) */
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
-    age?: number;
-
-    constructor(props: {
-        id: number;
-        email: string;
-        name?: string;
-        age?: number;
-    }) {
-        this.id = props.id;
-        this.email = props.email;
-        this.name = props.name as string;
-        this.age = props.age as number;
-    }
-
-    /**
-     * Deserializes input to an instance of this class.
-     * Automatically detects whether input is a JSON string or object.
-     * @param input - JSON string or object to deserialize
-     * @param opts - Optional deserialization options
-     * @returns Result containing the deserialized instance or validation errors
-     */
-    static deserialize(
-        input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-
-            const ctx = DeserializeContext.create();
-            const resultOrRef = User.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    /** @internal */
-    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'User.deserializeWithContext: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
-        for (const key of Object.keys(obj)) {
-            if (!knownKeys.has(key)) {
-                errors.push({
-                    field: key,
-                    message: 'unknown field'
-                });
-            }
-        }
-        if (!('id' in obj)) {
-            errors.push({
-                field: 'id',
-                message: 'missing required field'
-            });
-        }
-        if (!('email' in obj)) {
-            errors.push({
-                field: 'email',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(User.prototype) as User;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_id = obj['id'] as number;
-            instance.id = __raw_id;
-        }
-        {
-            const __raw_email = obj['email'] as string;
-            instance.email = __raw_email;
-        }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
-            instance.name = __raw_name;
-        } else {
-            instance.name = "guest";
-        }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
-            instance.age = __raw_age;
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof User>(
-        field: K,
-        value: User[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<User>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
-    }
-
-    static is(obj: unknown): obj is User {
-        if (obj instanceof User) {
-            return true;
-        }
-        if (!User.hasShape(obj)) {
-            return false;
-        }
-        const result = User.deserialize(obj);
-        return Result.isOk(result);
-    }
-}
-
-// Usage:
-const result = User.deserialize('{"id":1,"email":"test@example.com"}');
-if (Result.isOk(result)) {
-    const user = result.value;
-} else {
-    console.error(result.error); // [{ field: "email", message: "must be a valid email" }]
-}
-```
-
-Generated output:
-
-```typescript
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-/** @serde({ denyUnknownFields: true }) */
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
-    age?: number;
-
-    constructor(props: {
-        id: number;
-        email: string;
-        name?: string;
-        age?: number;
-    }) {
-        this.id = props.id;
-        this.email = props.email;
-        this.name = props.name as string;
-        this.age = props.age as number;
-    }
-
-    /**
-     * Deserializes input to an instance of this class.
-     * Automatically detects whether input is a JSON string or object.
-     * @param input - JSON string or object to deserialize
-     * @param opts - Optional deserialization options
-     * @returns Result containing the deserialized instance or validation errors
-     */
-    static deserialize(
-        input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-
-            const ctx = DeserializeContext.create();
-            const resultOrRef = User.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    /** @internal */
-    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'User.deserializeWithContext: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
-        for (const key of Object.keys(obj)) {
-            if (!knownKeys.has(key)) {
-                errors.push({
-                    field: key,
-                    message: 'unknown field'
-                });
-            }
-        }
-        if (!('id' in obj)) {
-            errors.push({
-                field: 'id',
-                message: 'missing required field'
-            });
-        }
-        if (!('email' in obj)) {
-            errors.push({
-                field: 'email',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(User.prototype) as User;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_id = obj['id'] as number;
-            instance.id = __raw_id;
-        }
-        {
-            const __raw_email = obj['email'] as string;
-            instance.email = __raw_email;
-        }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
-            instance.name = __raw_name;
-        } else {
-            instance.name = 'guest';
-        }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
-            instance.age = __raw_age;
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof User>(
-        field: K,
-        value: User[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<User>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
-    }
-
-    static is(obj: unknown): obj is User {
-        if (obj instanceof User) {
-            return true;
-        }
-        if (!User.hasShape(obj)) {
-            return false;
-        }
-        const result = User.deserialize(obj);
-        return Result.isOk(result);
-    }
-}
-
-// Usage:
-const result = User.deserialize('{"id":1,"email":"test@example.com"}');
-if (Result.isOk(result)) {
-    const user = result.value;
-} else {
-    console.error(result.error); // [{ field: "email", message: "must be a valid email" }]
-}
-```
-
-Generated output:
-
-```typescript
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-/** @serde({ denyUnknownFields: true }) */
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
-    age?: number;
-
-    constructor(props: {
-        id: number;
-        email: string;
-        name?: string;
-        age?: number;
-    }) {
-        this.id = props.id;
-        this.email = props.email;
-        this.name = props.name as string;
-        this.age = props.age as number;
-    }
-
-    /**
-     * Deserializes input to an instance of this class.
-     * Automatically detects whether input is a JSON string or object.
-     * @param input - JSON string or object to deserialize
-     * @param opts - Optional deserialization options
-     * @returns Result containing the deserialized instance or validation errors
-     */
-    static deserialize(
-        input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-
-            const ctx = DeserializeContext.create();
-            const resultOrRef = User.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    /** @internal */
-    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'User.deserializeWithContext: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
-        for (const key of Object.keys(obj)) {
-            if (!knownKeys.has(key)) {
-                errors.push({
-                    field: key,
-                    message: 'unknown field'
-                });
-            }
-        }
-        if (!('id' in obj)) {
-            errors.push({
-                field: 'id',
-                message: 'missing required field'
-            });
-        }
-        if (!('email' in obj)) {
-            errors.push({
-                field: 'email',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(User.prototype) as User;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_id = obj['id'] as number;
-            instance.id = __raw_id;
-        }
-        {
-            const __raw_email = obj['email'] as string;
-            instance.email = __raw_email;
-        }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
-            instance.name = __raw_name;
-        } else {
-            instance.name = "guest";
-        }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
-            instance.age = __raw_age;
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof User>(
-        field: K,
-        value: User[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<User>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
-    }
-
-    static is(obj: unknown): obj is User {
-        if (obj instanceof User) {
-            return true;
-        }
-        if (!User.hasShape(obj)) {
-            return false;
-        }
-        const result = User.deserialize(obj);
-        return Result.isOk(result);
-    }
-}
-
-// Usage:
-const result = User.deserialize('{"id":1,"email":"test@example.com"}');
-if (Result.isOk(result)) {
-    const user = result.value;
-} else {
-    console.error(result.error); // [{ field: "email", message: "must be a valid email" }]
-}
-```
-
-Generated output:
-
-```typescript
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-/** @serde({ denyUnknownFields: true }) */
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
-    age?: number;
-
-    constructor(props: {
-        id: number;
-        email: string;
-        name?: string;
-        age?: number;
-    }) {
-        this.id = props.id;
-        this.email = props.email;
-        this.name = props.name as string;
-        this.age = props.age as number;
-    }
-
-    /**
-     * Deserializes input to an instance of this class.
-     * Automatically detects whether input is a JSON string or object.
-     * @param input - JSON string or object to deserialize
-     * @param opts - Optional deserialization options
-     * @returns Result containing the deserialized instance or validation errors
-     */
-    static deserialize(
-        input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-
-            const ctx = DeserializeContext.create();
-            const resultOrRef = User.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    /** @internal */
-    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'User.deserializeWithContext: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
-        for (const key of Object.keys(obj)) {
-            if (!knownKeys.has(key)) {
-                errors.push({
-                    field: key,
-                    message: 'unknown field'
-                });
-            }
-        }
-        if (!('id' in obj)) {
-            errors.push({
-                field: 'id',
-                message: 'missing required field'
-            });
-        }
-        if (!('email' in obj)) {
-            errors.push({
-                field: 'email',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(User.prototype) as User;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_id = obj['id'] as number;
-            instance.id = __raw_id;
-        }
-        {
-            const __raw_email = obj['email'] as string;
-            instance.email = __raw_email;
-        }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
-            instance.name = __raw_name;
-        } else {
-            instance.name = 'guest';
-        }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
-            instance.age = __raw_age;
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof User>(
-        field: K,
-        value: User[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<User>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
-    }
-
-    static is(obj: unknown): obj is User {
-        if (obj instanceof User) {
-            return true;
-        }
-        if (!User.hasShape(obj)) {
-            return false;
-        }
-        const result = User.deserialize(obj);
-        return Result.isOk(result);
-    }
-}
-
-// Usage:
-const result = User.deserialize('{"id":1,"email":"test@example.com"}');
-if (Result.isOk(result)) {
-    const user = result.value;
-} else {
-    console.error(result.error); // [{ field: "email", message: "must be a valid email" }]
-}
-```
-
-Generated output:
-
-```typescript
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-/** @serde({ denyUnknownFields: true }) */
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
-    age?: number;
-
-    constructor(props: {
-        id: number;
-        email: string;
-        name?: string;
-        age?: number;
-    }) {
-        this.id = props.id;
-        this.email = props.email;
-        this.name = props.name as string;
-        this.age = props.age as number;
-    }
-
-    /**
-     * Deserializes input to an instance of this class.
-     * Automatically detects whether input is a JSON string or object.
-     * @param input - JSON string or object to deserialize
-     * @param opts - Optional deserialization options
-     * @returns Result containing the deserialized instance or validation errors
-     */
-    static deserialize(
-        input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-
-            const ctx = DeserializeContext.create();
-            const resultOrRef = User.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    /** @internal */
-    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'User.deserializeWithContext: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
-        for (const key of Object.keys(obj)) {
-            if (!knownKeys.has(key)) {
-                errors.push({
-                    field: key,
-                    message: 'unknown field'
-                });
-            }
-        }
-        if (!('id' in obj)) {
-            errors.push({
-                field: 'id',
-                message: 'missing required field'
-            });
-        }
-        if (!('email' in obj)) {
-            errors.push({
-                field: 'email',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(User.prototype) as User;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_id = obj['id'] as number;
-            instance.id = __raw_id;
-        }
-        {
-            const __raw_email = obj['email'] as string;
-            instance.email = __raw_email;
-        }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
-            instance.name = __raw_name;
-        } else {
-            instance.name = 'guest';
-        }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
-            instance.age = __raw_age;
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof User>(
-        field: K,
-        value: User[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<User>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
-    }
-
-    static is(obj: unknown): obj is User {
-        if (obj instanceof User) {
-            return true;
-        }
-        if (!User.hasShape(obj)) {
-            return false;
-        }
-        const result = User.deserialize(obj);
-        return Result.isOk(result);
-    }
-}
-
-// Usage:
-const result = User.deserialize('{"id":1,"email":"test@example.com"}');
-if (Result.isOk(result)) {
-    const user = result.value;
-} else {
-    console.error(result.error); // [{ field: "email", message: "must be a valid email" }]
-}
-```
-
-Generated output:
-
-```typescript
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-/** @serde({ denyUnknownFields: true }) */
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
-    age?: number;
-
-    constructor(props: {
-        id: number;
-        email: string;
-        name?: string;
-        age?: number;
-    }) {
-        this.id = props.id;
-        this.email = props.email;
-        this.name = props.name as string;
-        this.age = props.age as number;
-    }
-
-    /**
-     * Deserializes input to an instance of this class.
-     * Automatically detects whether input is a JSON string or object.
-     * @param input - JSON string or object to deserialize
-     * @param opts - Optional deserialization options
-     * @returns Result containing the deserialized instance or validation errors
-     */
-    static deserialize(
-        input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-
-            const ctx = DeserializeContext.create();
-            const resultOrRef = User.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    /** @internal */
-    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'User.deserializeWithContext: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
-        for (const key of Object.keys(obj)) {
-            if (!knownKeys.has(key)) {
-                errors.push({
-                    field: key,
-                    message: 'unknown field'
-                });
-            }
-        }
-        if (!('id' in obj)) {
-            errors.push({
-                field: 'id',
-                message: 'missing required field'
-            });
-        }
-        if (!('email' in obj)) {
-            errors.push({
-                field: 'email',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(User.prototype) as User;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_id = obj['id'] as number;
-            instance.id = __raw_id;
-        }
-        {
-            const __raw_email = obj['email'] as string;
-            instance.email = __raw_email;
-        }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
-            instance.name = __raw_name;
-        } else {
-            instance.name = 'guest';
-        }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
-            instance.age = __raw_age;
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new @{DESERIALIZE_ERROR}(errors);
         }
         return instance;
     }
@@ -3512,7 +2119,6 @@ if (Result.isOk(result)) {
 ## Required Imports
 
 The generated code automatically imports:
-- `Result` from `macroforge/utils`
 - `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
 
 
@@ -4910,7 +3516,7 @@ Optimized output
 
 # Command Line Interface
 
-macroforge v0.1.42
+macroforge v0.1.43
 
 This binary provides command-line utilities for working with Macroforge TypeScript macros. It is designed for development workflows, enabling macro expansion and type checking without requiring Node.js integration.
 
@@ -5655,7 +4261,7 @@ Ensure your project has the `macroforge` package installed and a valid `tsconfig
 
 # API Reference
 
-macroforge v0.1.42 55 exported items
+macroforge v0.1.43 33 exported items
 
 Macroforge provides a programmatic API for expanding macros in TypeScript code.
 
@@ -5728,7 +4334,7 @@ if (result.diagnostics.length > 0) {
 
 # expandSync()
 
-macroforge v0.1.42
+macroforge v0.1.43
 
 Synchronously expands macros in TypeScript code. This is the standalone macro expansion function that doesn't use caching. For cached expansion, use \[\`NativePlugin::process\_file\`\] instead.
 
@@ -5853,7 +4459,7 @@ for (const diag of result.diagnostics) {
 
 # transformSync()
 
-macroforge v0.1.42
+macroforge v0.1.43
 
 Synchronously transforms TypeScript code through the macro expansion system. This is similar to \[\`expand\_sync\`\] but returns a \[\`TransformResult\`\] which includes source map information (when available).
 
@@ -5945,7 +4551,7 @@ Use `expandSync` for most other use cases, as it provides better error handling.
 
 # NativePlugin
 
-macroforge v0.1.42
+macroforge v0.1.43
 
 The main plugin class for macro expansion with caching support. \`NativePlugin\` is designed to be instantiated once and reused across multiple file processing operations. It maintains a cache of expansion results keyed by filepath and version, enabling efficient incremental processing.
 
@@ -6064,7 +4670,7 @@ The `NativePlugin` class is thread-safe and can be used from multiple async cont
 
 # PositionMapper
 
-macroforge v0.1.42
+macroforge v0.1.43
 
 Bidirectional position mapper for translating between original and expanded source positions. This mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with macro-expanded code by translating positions between the original source (what the user wrote) and the expanded source (what the compiler sees).
 

@@ -56,7 +56,7 @@ The `@serde` decorator supports:
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(Serialize) */
 class User {
     id: number;
@@ -72,9 +72,7 @@ class User {
 }
 ```
 
-Generated output:
-
-```typescript
+```typescript after
 import { SerializeContext } from 'macroforge/serde';
 
 class User {

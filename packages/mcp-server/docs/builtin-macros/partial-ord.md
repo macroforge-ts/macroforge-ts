@@ -61,7 +61,7 @@ The `@ord` decorator supports:
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(PartialOrd) */
 class Temperature {
     value: number | null;
@@ -69,9 +69,7 @@ class Temperature {
 }
 ```
 
-Generated output:
-
-```typescript
+```typescript after
 class Temperature {
     value: number | null;
     unit: string;
@@ -99,6 +97,6 @@ export function temperaturePartialCompare(a: Temperature, b: Temperature): numbe
 }
 ```
 
-## Required Import
+## Return Type
 
-The generated code automatically adds an import for `Option` from `macroforge/reexports`.
+The generated functions return `number | null` where `null` indicates incomparable values.
