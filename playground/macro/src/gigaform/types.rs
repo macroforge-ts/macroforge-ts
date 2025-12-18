@@ -24,7 +24,7 @@ pub fn generate(type_name: &str, fields: &[ParsedField]) -> TsStream {
     ts_template! {
         {>> "Nested error structure matching the data shape" <<}
         export type @{errors_name} = {
-            _errors: Option<Array<string>>;
+            _errors: __gf_Option<Array<string>>;
             {$typescript errors_fields}
         };
 
@@ -44,7 +44,7 @@ pub fn generate(type_name: &str, fields: &[ParsedField]) -> TsStream {
             readonly errors: @{errors_name};
             readonly tainted: @{tainted_name};
             readonly fields: @{field_controllers_name};
-            validate(): Exit<Array<{ field: string; message: string }>, @{type_name}>;
+            validate(): Exit<@{type_name}, Array<{ field: string; message: string }>>;
             reset(overrides?: Partial<@{type_name}>): void;
         }
     }
@@ -74,7 +74,7 @@ pub fn generate_with_generics(
     ts_template! {
         {>> "Nested error structure matching the data shape" <<}
         export type @{errors_name}@{generic_decl} = {
-            _errors: Option<Array<string>>;
+            _errors: __gf_Option<Array<string>>;
             {$typescript errors_fields}
         };
 
@@ -94,7 +94,7 @@ pub fn generate_with_generics(
             readonly errors: @{errors_name}@{generic_args};
             readonly tainted: @{tainted_name}@{generic_args};
             readonly fields: @{field_controllers_name}@{generic_args};
-            validate(): Exit<Array<{ field: string; message: string }>, @{type_name}@{generic_args}>;
+            validate(): Exit<@{type_name}@{generic_args}, Array<{ field: string; message: string }>>;
             reset(overrides?: Partial<@{type_name}@{generic_args}>): void;
         }
     }
@@ -115,21 +115,21 @@ fn generate_field_controller_types(fields: &[ParsedField]) -> TsStream {
 }
 
 /// Generates the Errors type fields.
-/// All fields use Option<Array<string>> for consistency with FieldController interface.
+/// All fields use __gf_Option<Array<string>> for consistency with FieldController interface.
 fn generate_errors_fields(fields: &[ParsedField]) -> TsStream {
     ts_template! {
         {#for field in fields}
-            @{&field.name}: Option<Array<string>>;
+            @{&field.name}: __gf_Option<Array<string>>;
         {/for}
     }
 }
 
 /// Generates the Tainted type fields.
-/// All fields use Option<boolean> for consistency with FieldController interface.
+/// All fields use __gf_Option<boolean> for consistency with FieldController interface.
 fn generate_tainted_fields(fields: &[ParsedField]) -> TsStream {
     ts_template! {
         {#for field in fields}
-            @{&field.name}: Option<boolean>;
+            @{&field.name}: __gf_Option<boolean>;
         {/for}
     }
 }
@@ -196,7 +196,7 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
             readonly tainted: @{tainted_name};
             readonly variants: @{variant_fields_name};
             switchVariant(variant: @{variant_union_literal}): void;
-            validate(): Exit<Array<{ field: string; message: string }>, @{type_name}>;
+            validate(): Exit<@{type_name}, Array<{ field: string; message: string }>>;
             reset(overrides?: Partial<@{type_name}>): void;
         }
 
@@ -214,7 +214,7 @@ fn generate_variant_errors(type_name: &str, config: &UnionConfig) -> TsStream {
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
             {$let errors_fields = generate_errors_fields(&variant.fields)}
             export type {|@{type_name}@{variant_name}Errors|} = {
-                _errors: Option<Array<string>>;
+                _errors: __gf_Option<Array<string>>;
                 {$typescript errors_fields}
             };
         {/for}

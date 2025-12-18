@@ -13,13 +13,19 @@
 		"index.js"
 	],
 	"scripts": {
-		"build": "npx -y -p @napi-rs/cli napi build --platform --release --package playground-macros && npm install",
+		"build": "npx -y -p @napi-rs/cli napi build --platform --release --package playground-macros",
 		"prepare": "npm run build",
-		"clean": "rm -rf *.node node_modules",
-		"cleanbuild": "npm run clean && npm run build"
+		"clean": "rm -rf *.node target node_modules",
+		"cleanbuild": "npm run clean && npm install && npm run build"
 	},
 	"dependencies": {
 		"macroforge": "file:../../crates/macroforge_ts"
+	},
+	"peerDependencies": {
+		"effect": "^3.0.0"
+	},
+	"devDependencies": {
+		"effect": "^3.19.4"
 	},
 	"engines": {
 		"node": ">= 18"
