@@ -10,8 +10,8 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { serviceDefaultsDeserializeWithContext } from './service-defaults.svelte';
-import { Result } from 'macroforge/reexports';
-import { Option } from 'macroforge/reexports';
+import { Result } from '@playground/macro/gigaform';
+import { Option } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 

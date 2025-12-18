@@ -13,8 +13,8 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { colorsDeserializeWithContext } from './colors.svelte';
 import { recurrenceRuleDeserializeWithContext } from './recurrence-rule.svelte';
 import { statusDeserializeWithContext } from './status.svelte';
-import { Result } from 'macroforge/reexports';
-import { Option } from 'macroforge/reexports';
+import { Result } from '@playground/macro/gigaform';
+import { Option } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
