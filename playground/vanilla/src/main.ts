@@ -1,6 +1,5 @@
 import { User } from './user';
 import { AllMacrosTestClass, testInstance } from './all-macros-test';
-import { Result } from 'macroforge/reexports';
 
 // Global results object for Playwright assertions
 declare global {
@@ -10,7 +9,7 @@ declare global {
             clone?: object;
             equals?: boolean;
             hashCode?: number;
-            serialize?: object;
+            serialize?: string;
             deserialize?: object;
         };
     }
@@ -28,8 +27,8 @@ function runAllMacroTests() {
         `<strong>Debug (toString):</strong> <code>${debugResult}</code>`;
 
     // Test Clone macro -> static clone()
-    if (typeof (AllMacrosTestClass as any).clone === 'function') {
-        const cloned = (AllMacrosTestClass as any).clone(testInstance);
+    if (typeof AllMacrosTestClass.clone === 'function') {
+        const cloned = AllMacrosTestClass.clone(testInstance);
         results.clone = cloned;
         document.getElementById('result-clone')!.innerHTML =
             `<strong>Clone:</strong> <pre>${JSON.stringify(cloned, null, 2)}</pre>`;
@@ -39,8 +38,8 @@ function runAllMacroTests() {
     }
 
     // Test PartialEq macro -> static equals()
-    if (typeof (AllMacrosTestClass as any).equals === 'function') {
-        const equalsSelf = (AllMacrosTestClass as any).equals(testInstance, testInstance);
+    if (typeof AllMacrosTestClass.equals === 'function') {
+        const equalsSelf = AllMacrosTestClass.equals(testInstance, testInstance);
         results.equals = equalsSelf;
         document.getElementById('result-equals')!.innerHTML =
             `<strong>Equals (self):</strong> <code>${equalsSelf}</code>`;
@@ -50,8 +49,8 @@ function runAllMacroTests() {
     }
 
     // Test Hash macro -> static hashCode()
-    if (typeof (AllMacrosTestClass as any).hashCode === 'function') {
-        const hashCode = (AllMacrosTestClass as any).hashCode(testInstance);
+    if (typeof AllMacrosTestClass.hashCode === 'function') {
+        const hashCode = AllMacrosTestClass.hashCode(testInstance);
         results.hashCode = hashCode;
         document.getElementById('result-hashcode')!.innerHTML =
             `<strong>HashCode:</strong> <code>${hashCode}</code>`;
@@ -61,13 +60,13 @@ function runAllMacroTests() {
     }
 
     // Test Serialize macro -> static serialize()
-    const serialized = (AllMacrosTestClass as any).serialize(testInstance);
+    const serialized = AllMacrosTestClass.serialize(testInstance);
     results.serialize = serialized;
     document.getElementById('result-serialize')!.innerHTML =
         `<strong>Serialize:</strong> <pre>${serialized}</pre>`;
 
     // Test Deserialize macro -> deserialize()
-    if (typeof (AllMacrosTestClass as any).deserialize === 'function') {
+    if (typeof AllMacrosTestClass.deserialize === 'function') {
         const testData = {
             id: 99,
             name: 'Deserialized User',
@@ -76,16 +75,15 @@ function runAllMacroTests() {
             isActive: false,
             score: 50
         };
-        // deserialize returns a Result, need to unwrap it
-        const result = (AllMacrosTestClass as any).deserialize(testData);
-        // Result uses static methods
-        if (Result.isOk(result)) {
-            const deserialized = Result.unwrap(result);
+        // deserialize returns a vanilla result { success: boolean, value/errors }
+        const result = AllMacrosTestClass.deserialize(testData);
+        if (result.success) {
+            const deserialized = result.value;
             results.deserialize = deserialized;
             document.getElementById('result-deserialize')!.innerHTML =
                 `<strong>Deserialize:</strong> <pre>${JSON.stringify(deserialized, null, 2)}</pre>`;
         } else {
-            const errors = Result.unwrapErr(result);
+            const errors = result.errors;
             document.getElementById('result-deserialize')!.innerHTML =
                 `<strong>Deserialize Error:</strong> <pre>${JSON.stringify(errors, null, 2)}</pre>`;
         }

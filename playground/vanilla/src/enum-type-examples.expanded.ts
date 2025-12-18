@@ -1,16 +1,15 @@
-import { DeserializeContext } from 'macroforge/serde';
-import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 /**
  * Examples demonstrating derive macros on enums and type aliases.
  * These showcase the new enum and type alias support for all built-in macros.
  *
- * Generated functions use suffix naming style (default):
- * - toStringStatus, cloneStatus, equalsStatus, etc.
- * - toStringPoint, clonePoint, equalsPoint, etc.
+ * Generated functions use prefix naming style:
+ * - statusToString, statusClone, statusEquals, etc.
+ * - pointToString, pointClone, pointEquals, etc.
  */
 
 // ==================== ENUM EXAMPLES ====================
@@ -38,14 +37,11 @@ export function statusEquals(a: Status, b: Status): boolean {
 }
 
 export function statusHashCode(value: Status): number {
-    if (typeof value === 'string') {
-        let hash = 0;
-        for (let i = 0; i < value.length; i++) {
-            hash = (hash * 31 + value.charCodeAt(i)) | 0;
-        }
-        return hash;
+    let hash = 0;
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash * 31 + value.charCodeAt(i)) | 0;
     }
-    return value as number;
+    return hash;
 }
 
 /** Serializes this enum value to a JSON string. */ export function statusSerialize(
@@ -53,7 +49,10 @@ export function statusHashCode(value: Status): number {
 ): string {
     return JSON.stringify(value);
 } /** Serializes with an existing context for nested/cyclic object graphs. */
-export function statusSerializeWithContext(value: Status, _ctx: SerializeContext): string | number {
+export function statusSerializeWithContext(
+    value: Status,
+    _ctx: __mf_SerializeContext
+): string | number {
     return value;
 }
 
@@ -122,13 +121,6 @@ export function priorityEquals(a: Priority, b: Priority): boolean {
 }
 
 export function priorityHashCode(value: Priority): number {
-    if (typeof value === 'string') {
-        let hash = 0;
-        for (let i = 0; i < value.length; i++) {
-            hash = (hash * 31 + value.charCodeAt(i)) | 0;
-        }
-        return hash;
-    }
     return value as number;
 }
 
@@ -139,7 +131,7 @@ export function priorityHashCode(value: Priority): number {
 } /** Serializes with an existing context for nested/cyclic object graphs. */
 export function prioritySerializeWithContext(
     value: Priority,
-    _ctx: SerializeContext
+    _ctx: __mf_SerializeContext
 ): string | number {
     return value;
 }
@@ -204,13 +196,6 @@ export function colorEquals(a: Color, b: Color): boolean {
 }
 
 export function colorHashCode(value: Color): number {
-    if (typeof value === 'string') {
-        let hash = 0;
-        for (let i = 0; i < value.length; i++) {
-            hash = (hash * 31 + value.charCodeAt(i)) | 0;
-        }
-        return hash;
-    }
     return value as number;
 }
 
@@ -271,14 +256,14 @@ export function pointHashCode(value: Point): number {
 @returns JSON string representation with cycle detection metadata */ export function pointSerialize(
     value: Point
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(pointSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function pointSerializeWithContext(
     value: Point,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -297,41 +282,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function pointDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Result<Point, Array<{ field: string; message: string }>> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Point }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = pointDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                { field: '_root', message: 'Point.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Point.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function pointDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Point | PendingRef {
+    ctx: __mf_DeserializeContext
+): Point | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Point | PendingRef;
+        return ctx.getOrDefer(value.__ref) as Point | __mf_PendingRef;
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Point.deserializeWithContext: expected an object' }
         ]);
     }
@@ -344,7 +337,7 @@ export function pointDeserializeWithContext(
         errors.push({ field: 'y', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -360,18 +353,18 @@ export function pointDeserializeWithContext(
         instance.y = __raw_y;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Point;
 }
 export function pointValidateField<K extends keyof Point>(
-    field: K,
-    value: Point[K]
+    _field: K,
+    _value: Point[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function pointValidateFields(
-    partial: Partial<Point>
+    _partial: Partial<Point>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -467,14 +460,14 @@ export function userProfileHashCode(value: UserProfile): number {
 @returns JSON string representation with cycle detection metadata */ export function userProfileSerialize(
     value: UserProfile
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(userProfileSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function userProfileSerializeWithContext(
     value: UserProfile,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -496,44 +489,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function userProfileDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Result<UserProfile, Array<{ field: string; message: string }>> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: UserProfile }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = userProfileDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'UserProfile.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'UserProfile.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function userProfileDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): UserProfile | PendingRef {
+    ctx: __mf_DeserializeContext
+): UserProfile | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as UserProfile | PendingRef;
+        return ctx.getOrDefer(value.__ref) as UserProfile | __mf_PendingRef;
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'UserProfile.deserializeWithContext: expected an object' }
         ]);
     }
@@ -555,7 +553,7 @@ export function userProfileDeserializeWithContext(
         errors.push({ field: 'isVerified', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -583,18 +581,18 @@ export function userProfileDeserializeWithContext(
         instance.isVerified = __raw_isVerified;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as UserProfile;
 }
 export function userProfileValidateField<K extends keyof UserProfile>(
-    field: K,
-    value: UserProfile[K]
+    _field: K,
+    _value: UserProfile[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function userProfileValidateFields(
-    partial: Partial<UserProfile>
+    _partial: Partial<UserProfile>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -716,30 +714,30 @@ export const ApiStatus = {
 export const currentStatus = Status.Active;
 export const highPriority = Priority.High;
 
-// Using generated standalone functions on enums (suffix naming style)
+// Using generated standalone functions on enums (prefix naming style)
 export function demoEnumFunctions() {
-    // Debug - toStringStatus
-    console.log('Status string:', toStringStatus(Status.Active));
-    console.log('Priority string:', toStringPriority(Priority.High));
+    // Debug - statusToString
+    console.log('Status string:', statusToString(Status.Active));
+    console.log('Priority string:', priorityToString(Priority.High));
 
     // Clone - returns the same value for enums (primitives)
-    const clonedStatus = cloneStatus(Status.Pending);
+    const clonedStatus = statusClone(Status.Pending);
     console.log('Cloned status:', clonedStatus);
 
-    // PartialEq - equalsStatus
-    const areEqual = equalsStatus(Status.Active, Status.Active);
+    // PartialEq - statusEquals
+    const areEqual = statusEquals(Status.Active, Status.Active);
     console.log('Are equal:', areEqual);
 
-    // Hash - hashCodeStatus
-    const hash = hashCodeStatus(Status.Active);
+    // Hash - statusHashCode
+    const hash = statusHashCode(Status.Active);
     console.log('Hash code:', hash);
 
-    // Serialize - toJSONStatus
-    const json = toJSONStatus(Status.Inactive);
+    // Serialize - statusSerialize
+    const json = statusSerialize(Status.Inactive);
     console.log('Serialized:', json);
 
-    // Deserialize - fromJSONStatus
-    const parsed = fromJSONStatus('pending');
+    // Deserialize - statusDeserialize
+    const parsed = statusDeserialize('pending');
     console.log('Parsed:', parsed);
 }
 
@@ -753,33 +751,33 @@ export const user: UserProfile = {
     isVerified: true
 };
 
-// Using generated standalone functions on type aliases (suffix naming style)
+// Using generated standalone functions on type aliases (prefix naming style)
 export function demoTypeFunctions() {
     const point1: Point = { x: 10, y: 20 };
     const point2: Point = { x: 10, y: 20 };
 
-    // Debug - toStringPoint
-    console.log('Point string:', toStringPoint(point1));
-    console.log('User string:', toStringUserProfile(user));
+    // Debug - pointToString
+    console.log('Point string:', pointToString(point1));
+    console.log('User string:', userProfileToString(user));
 
     // Clone - creates a shallow copy
-    const clonedPoint = clonePoint(point1);
+    const clonedPoint = pointClone(point1);
     console.log('Cloned point:', clonedPoint);
 
-    // PartialEq - equalsPoint
-    const pointsEqual = equalsPoint(point1, point2);
+    // PartialEq - pointEquals
+    const pointsEqual = pointEquals(point1, point2);
     console.log('Points equal:', pointsEqual);
 
-    // Hash - hashCodePoint
-    const pointHash = hashCodePoint(point1);
+    // Hash - pointHashCode
+    const pointHash = pointHashCode(point1);
     console.log('Point hash:', pointHash);
 
-    // Serialize - toJSONPoint
-    const pointJson = toJSONPoint(point1);
+    // Serialize - pointSerialize
+    const pointJson = pointSerialize(point1);
     console.log('Point JSON:', pointJson);
 
-    // Deserialize - fromJSONPoint
-    const parsedPoint = fromJSONPoint({ x: 5, y: 10 });
+    // Deserialize - pointDeserialize
+    const parsedPoint = pointDeserialize({ x: 5, y: 10 });
     console.log('Parsed point:', parsedPoint);
 }
 

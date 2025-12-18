@@ -1,7 +1,3 @@
-import { ok as __mf_resultOk } from 'macroforge/reexports';
-import { error as __mf_resultErr } from 'macroforge/reexports';
-import { isOk as __mf_resultIsOk } from 'macroforge/reexports';
-import type { Result as __mf_Result } from 'macroforge/reexports';
 import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
@@ -29,42 +25,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        GreaterThanBigIntValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: GreaterThanBigIntValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = GreaterThanBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'GreaterThanBigIntValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'GreaterThanBigIntValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -124,8 +137,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof GreaterThanBigIntValidator>(
-        field: K,
-        value: GreaterThanBigIntValidator[K]
+        _field: K,
+        _value: GreaterThanBigIntValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -134,9 +147,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'value': {
-                const __val = value as bigint;
+                const __val = _value as bigint;
                 if (__val <= BigInt(0)) {
                     errors.push({
                         field: 'value',
@@ -149,7 +162,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<GreaterThanBigIntValidator>): Array<{
+    static validateFields(_partial: Partial<GreaterThanBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -157,8 +170,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('value' in partial && partial.value !== undefined) {
-            const __val = partial.value as bigint;
+        if ('value' in _partial && _partial.value !== undefined) {
+            const __val = _partial.value as bigint;
             if (__val <= BigInt(0)) {
                 errors.push({
                     field: 'value',
@@ -185,7 +198,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = GreaterThanBigIntValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -196,7 +209,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function greaterThanBigIntValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<GreaterThanBigIntValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: GreaterThanBigIntValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return GreaterThanBigIntValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -232,13 +247,18 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        GreaterThanOrEqualToBigIntValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: GreaterThanOrEqualToBigIntValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
@@ -247,30 +267,42 @@ Automatically detects whether input is a JSON string or object.
                 ctx
             );
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'GreaterThanOrEqualToBigIntValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'GreaterThanOrEqualToBigIntValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -331,8 +363,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof GreaterThanOrEqualToBigIntValidator>(
-        field: K,
-        value: GreaterThanOrEqualToBigIntValidator[K]
+        _field: K,
+        _value: GreaterThanOrEqualToBigIntValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -341,9 +373,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'value': {
-                const __val = value as bigint;
+                const __val = _value as bigint;
                 if (__val < BigInt(0)) {
                     errors.push({
                         field: 'value',
@@ -356,7 +388,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<GreaterThanOrEqualToBigIntValidator>): Array<{
+    static validateFields(_partial: Partial<GreaterThanOrEqualToBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -364,8 +396,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('value' in partial && partial.value !== undefined) {
-            const __val = partial.value as bigint;
+        if ('value' in _partial && _partial.value !== undefined) {
+            const __val = _partial.value as bigint;
             if (__val < BigInt(0)) {
                 errors.push({
                     field: 'value',
@@ -392,7 +424,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = GreaterThanOrEqualToBigIntValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -403,7 +435,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function greaterThanOrEqualToBigIntValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<GreaterThanOrEqualToBigIntValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: GreaterThanOrEqualToBigIntValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return GreaterThanOrEqualToBigIntValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -441,42 +475,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        LessThanBigIntValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: LessThanBigIntValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = LessThanBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'LessThanBigIntValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'LessThanBigIntValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -536,8 +587,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof LessThanBigIntValidator>(
-        field: K,
-        value: LessThanBigIntValidator[K]
+        _field: K,
+        _value: LessThanBigIntValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -546,9 +597,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'value': {
-                const __val = value as bigint;
+                const __val = _value as bigint;
                 if (__val >= BigInt(1000)) {
                     errors.push({
                         field: 'value',
@@ -561,7 +612,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<LessThanBigIntValidator>): Array<{
+    static validateFields(_partial: Partial<LessThanBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -569,8 +620,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('value' in partial && partial.value !== undefined) {
-            const __val = partial.value as bigint;
+        if ('value' in _partial && _partial.value !== undefined) {
+            const __val = _partial.value as bigint;
             if (__val >= BigInt(1000)) {
                 errors.push({
                     field: 'value',
@@ -597,7 +648,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = LessThanBigIntValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -608,7 +659,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function lessThanBigIntValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<LessThanBigIntValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: LessThanBigIntValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return LessThanBigIntValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -644,42 +697,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        LessThanOrEqualToBigIntValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: LessThanOrEqualToBigIntValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = LessThanOrEqualToBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'LessThanOrEqualToBigIntValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'LessThanOrEqualToBigIntValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -740,8 +810,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof LessThanOrEqualToBigIntValidator>(
-        field: K,
-        value: LessThanOrEqualToBigIntValidator[K]
+        _field: K,
+        _value: LessThanOrEqualToBigIntValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -750,9 +820,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'value': {
-                const __val = value as bigint;
+                const __val = _value as bigint;
                 if (__val > BigInt(1000)) {
                     errors.push({
                         field: 'value',
@@ -765,7 +835,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<LessThanOrEqualToBigIntValidator>): Array<{
+    static validateFields(_partial: Partial<LessThanOrEqualToBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -773,8 +843,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('value' in partial && partial.value !== undefined) {
-            const __val = partial.value as bigint;
+        if ('value' in _partial && _partial.value !== undefined) {
+            const __val = _partial.value as bigint;
             if (__val > BigInt(1000)) {
                 errors.push({
                     field: 'value',
@@ -801,7 +871,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = LessThanOrEqualToBigIntValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -812,7 +882,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function lessThanOrEqualToBigIntValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<LessThanOrEqualToBigIntValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: LessThanOrEqualToBigIntValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return LessThanOrEqualToBigIntValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -850,42 +922,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        BetweenBigIntValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: BetweenBigIntValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = BetweenBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'BetweenBigIntValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'BetweenBigIntValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -943,8 +1032,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof BetweenBigIntValidator>(
-        field: K,
-        value: BetweenBigIntValidator[K]
+        _field: K,
+        _value: BetweenBigIntValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -953,9 +1042,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'value': {
-                const __val = value as bigint;
+                const __val = _value as bigint;
                 if (__val < BigInt(0) || __val > BigInt(1000)) {
                     errors.push({
                         field: 'value',
@@ -968,7 +1057,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<BetweenBigIntValidator>): Array<{
+    static validateFields(_partial: Partial<BetweenBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -976,8 +1065,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('value' in partial && partial.value !== undefined) {
-            const __val = partial.value as bigint;
+        if ('value' in _partial && _partial.value !== undefined) {
+            const __val = _partial.value as bigint;
             if (__val < BigInt(0) || __val > BigInt(1000)) {
                 errors.push({
                     field: 'value',
@@ -1004,7 +1093,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = BetweenBigIntValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -1015,7 +1104,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function betweenBigIntValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<BetweenBigIntValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: BetweenBigIntValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return BetweenBigIntValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -1051,42 +1142,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        PositiveBigIntValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: PositiveBigIntValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = PositiveBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'PositiveBigIntValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'PositiveBigIntValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -1146,8 +1254,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof PositiveBigIntValidator>(
-        field: K,
-        value: PositiveBigIntValidator[K]
+        _field: K,
+        _value: PositiveBigIntValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -1156,9 +1264,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'value': {
-                const __val = value as bigint;
+                const __val = _value as bigint;
                 if (__val <= 0n) {
                     errors.push({
                         field: 'value',
@@ -1171,7 +1279,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<PositiveBigIntValidator>): Array<{
+    static validateFields(_partial: Partial<PositiveBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -1179,8 +1287,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('value' in partial && partial.value !== undefined) {
-            const __val = partial.value as bigint;
+        if ('value' in _partial && _partial.value !== undefined) {
+            const __val = _partial.value as bigint;
             if (__val <= 0n) {
                 errors.push({
                     field: 'value',
@@ -1207,7 +1315,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = PositiveBigIntValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -1218,7 +1326,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function positiveBigIntValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<PositiveBigIntValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: PositiveBigIntValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return PositiveBigIntValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -1254,42 +1364,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        NonNegativeBigIntValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: NonNegativeBigIntValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = NonNegativeBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'NonNegativeBigIntValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'NonNegativeBigIntValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -1349,8 +1476,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof NonNegativeBigIntValidator>(
-        field: K,
-        value: NonNegativeBigIntValidator[K]
+        _field: K,
+        _value: NonNegativeBigIntValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -1359,9 +1486,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'value': {
-                const __val = value as bigint;
+                const __val = _value as bigint;
                 if (__val < 0n) {
                     errors.push({
                         field: 'value',
@@ -1374,7 +1501,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<NonNegativeBigIntValidator>): Array<{
+    static validateFields(_partial: Partial<NonNegativeBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -1382,8 +1509,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('value' in partial && partial.value !== undefined) {
-            const __val = partial.value as bigint;
+        if ('value' in _partial && _partial.value !== undefined) {
+            const __val = _partial.value as bigint;
             if (__val < 0n) {
                 errors.push({
                     field: 'value',
@@ -1410,7 +1537,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = NonNegativeBigIntValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -1421,7 +1548,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function nonNegativeBigIntValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<NonNegativeBigIntValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: NonNegativeBigIntValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return NonNegativeBigIntValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -1457,42 +1586,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        NegativeBigIntValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: NegativeBigIntValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = NegativeBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'NegativeBigIntValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'NegativeBigIntValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -1552,8 +1698,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof NegativeBigIntValidator>(
-        field: K,
-        value: NegativeBigIntValidator[K]
+        _field: K,
+        _value: NegativeBigIntValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -1562,9 +1708,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'value': {
-                const __val = value as bigint;
+                const __val = _value as bigint;
                 if (__val >= 0n) {
                     errors.push({
                         field: 'value',
@@ -1577,7 +1723,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<NegativeBigIntValidator>): Array<{
+    static validateFields(_partial: Partial<NegativeBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -1585,8 +1731,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('value' in partial && partial.value !== undefined) {
-            const __val = partial.value as bigint;
+        if ('value' in _partial && _partial.value !== undefined) {
+            const __val = _partial.value as bigint;
             if (__val >= 0n) {
                 errors.push({
                     field: 'value',
@@ -1613,7 +1759,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = NegativeBigIntValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -1624,7 +1770,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function negativeBigIntValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<NegativeBigIntValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: NegativeBigIntValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return NegativeBigIntValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -1660,42 +1808,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        NonPositiveBigIntValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: NonPositiveBigIntValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = NonPositiveBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'NonPositiveBigIntValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'NonPositiveBigIntValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -1755,8 +1920,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof NonPositiveBigIntValidator>(
-        field: K,
-        value: NonPositiveBigIntValidator[K]
+        _field: K,
+        _value: NonPositiveBigIntValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -1765,9 +1930,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'value': {
-                const __val = value as bigint;
+                const __val = _value as bigint;
                 if (__val > 0n) {
                     errors.push({
                         field: 'value',
@@ -1780,7 +1945,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<NonPositiveBigIntValidator>): Array<{
+    static validateFields(_partial: Partial<NonPositiveBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -1788,8 +1953,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('value' in partial && partial.value !== undefined) {
-            const __val = partial.value as bigint;
+        if ('value' in _partial && _partial.value !== undefined) {
+            const __val = _partial.value as bigint;
             if (__val > 0n) {
                 errors.push({
                     field: 'value',
@@ -1816,7 +1981,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = NonPositiveBigIntValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -1827,7 +1992,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function nonPositiveBigIntValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<NonPositiveBigIntValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: NonPositiveBigIntValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return NonPositiveBigIntValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize

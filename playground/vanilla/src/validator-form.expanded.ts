@@ -1,14 +1,11 @@
-import { Result } from 'macroforge/utils';
-import { DeserializeContext } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 /**
  * Validator form model for E2E testing.
  * Tests string, number, array, and date validators with real form validation.
  */
-
-import { Result } from 'macroforge/reexports';
 
 export class UserRegistrationForm {
     email: string;
@@ -42,43 +39,60 @@ Automatically detects whether input is a JSON string or object.
 
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        UserRegistrationForm,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+        opts?: __mf_DeserializeOptions
+    ):
+        | {
+              success: true;
+              value: UserRegistrationForm;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = DeserializeContext.create();
+            const ctx = __mf_DeserializeContext.create();
             const resultOrRef = UserRegistrationForm.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message:
-                            'UserRegistrationForm.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'UserRegistrationForm.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
+            if (e instanceof __mf_DeserializeError) {
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -87,13 +101,13 @@ Automatically detects whether input is a JSON string or object.
 
     static deserializeWithContext(
         value: any,
-        ctx: DeserializeContext
-    ): UserRegistrationForm | PendingRef {
+        ctx: __mf_DeserializeContext
+    ): UserRegistrationForm | __mf_PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
+            throw new __mf_DeserializeError([
                 {
                     field: '_root',
                     message: 'UserRegistrationForm.deserializeWithContext: expected an object'
@@ -136,7 +150,7 @@ Automatically detects whether input is a JSON string or object.
             });
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         const instance = Object.create(UserRegistrationForm.prototype) as UserRegistrationForm;
         if (obj.__id !== undefined) {
@@ -233,14 +247,14 @@ Automatically detects whether input is a JSON string or object.
             instance.website = __raw_website;
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         return instance;
     }
 
     static validateField<K extends keyof UserRegistrationForm>(
-        field: K,
-        value: UserRegistrationForm[K]
+        _field: K,
+        _value: UserRegistrationForm[K]
     ): Array<{
         field: string;
         message: string;
@@ -249,9 +263,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'email': {
-                const __val = value as string;
+                const __val = _value as string;
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
                     errors.push({
                         field: 'email',
@@ -261,7 +275,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'password': {
-                const __val = value as string;
+                const __val = _value as string;
                 if (__val.length < 8) {
                     errors.push({
                         field: 'password',
@@ -277,7 +291,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'username': {
-                const __val = value as string;
+                const __val = _value as string;
                 if (__val.length < 3) {
                     errors.push({
                         field: 'username',
@@ -305,7 +319,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'age': {
-                const __val = value as number;
+                const __val = _value as number;
                 if (!Number.isInteger(__val)) {
                     errors.push({
                         field: 'age',
@@ -321,7 +335,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'website': {
-                const __val = value as string;
+                const __val = _value as string;
                 if (
                     (() => {
                         try {
@@ -343,7 +357,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<UserRegistrationForm>): Array<{
+    static validateFields(_partial: Partial<UserRegistrationForm>): Array<{
         field: string;
         message: string;
     }> {
@@ -351,8 +365,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('email' in partial && partial.email !== undefined) {
-            const __val = partial.email as string;
+        if ('email' in _partial && _partial.email !== undefined) {
+            const __val = _partial.email as string;
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
                 errors.push({
                     field: 'email',
@@ -360,8 +374,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('password' in partial && partial.password !== undefined) {
-            const __val = partial.password as string;
+        if ('password' in _partial && _partial.password !== undefined) {
+            const __val = _partial.password as string;
             if (__val.length < 8) {
                 errors.push({
                     field: 'password',
@@ -375,8 +389,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('username' in partial && partial.username !== undefined) {
-            const __val = partial.username as string;
+        if ('username' in _partial && _partial.username !== undefined) {
+            const __val = _partial.username as string;
             if (__val.length < 3) {
                 errors.push({
                     field: 'username',
@@ -402,8 +416,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('age' in partial && partial.age !== undefined) {
-            const __val = partial.age as number;
+        if ('age' in _partial && _partial.age !== undefined) {
+            const __val = _partial.age as number;
             if (!Number.isInteger(__val)) {
                 errors.push({
                     field: 'age',
@@ -417,8 +431,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('website' in partial && partial.website !== undefined) {
-            const __val = partial.website as string;
+        if ('website' in _partial && _partial.website !== undefined) {
+            const __val = _partial.website as string;
             if (
                 (() => {
                     try {
@@ -454,7 +468,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = UserRegistrationForm.deserialize(obj);
-        return Result.isOk(result);
+        return result.success;
     }
 }
 
@@ -464,16 +478,18 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized instance or validation errors */ export function userRegistrationFormDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Result<UserRegistrationForm, Array<{ field: string; message: string }>> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: UserRegistrationForm }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return UserRegistrationForm.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function userRegistrationFormDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): UserRegistrationForm | PendingRef {
+    ctx: __mf_DeserializeContext
+): UserRegistrationForm | __mf_PendingRef {
     return UserRegistrationForm.deserializeWithContext(value, ctx);
 } /** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -514,54 +530,74 @@ Automatically detects whether input is a JSON string or object.
 
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        ProductForm,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+        opts?: __mf_DeserializeOptions
+    ):
+        | {
+              success: true;
+              value: ProductForm;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = DeserializeContext.create();
+            const ctx = __mf_DeserializeContext.create();
             const resultOrRef = ProductForm.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'ProductForm.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message: 'ProductForm.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
+            if (e instanceof __mf_DeserializeError) {
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context  */
 
-    static deserializeWithContext(value: any, ctx: DeserializeContext): ProductForm | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: __mf_DeserializeContext
+    ): ProductForm | __mf_PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
+            throw new __mf_DeserializeError([
                 {
                     field: '_root',
                     message: 'ProductForm.deserializeWithContext: expected an object'
@@ -604,7 +640,7 @@ Automatically detects whether input is a JSON string or object.
             });
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         const instance = Object.create(ProductForm.prototype) as ProductForm;
         if (obj.__id !== undefined) {
@@ -692,14 +728,14 @@ Automatically detects whether input is a JSON string or object.
             instance.sku = __raw_sku;
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         return instance;
     }
 
     static validateField<K extends keyof ProductForm>(
-        field: K,
-        value: ProductForm[K]
+        _field: K,
+        _value: ProductForm[K]
     ): Array<{
         field: string;
         message: string;
@@ -708,9 +744,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'name': {
-                const __val = value as string;
+                const __val = _value as string;
                 if (__val.length === 0) {
                     errors.push({
                         field: 'name',
@@ -726,7 +762,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'price': {
-                const __val = value as number;
+                const __val = _value as number;
                 if (__val <= 0) {
                     errors.push({
                         field: 'price',
@@ -742,7 +778,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'quantity': {
-                const __val = value as number;
+                const __val = _value as number;
                 if (!Number.isInteger(__val)) {
                     errors.push({
                         field: 'quantity',
@@ -758,7 +794,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'tags': {
-                const __val = value as string[];
+                const __val = _value as string[];
                 if (__val.length < 1) {
                     errors.push({
                         field: 'tags',
@@ -774,7 +810,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'sku': {
-                const __val = value as string;
+                const __val = _value as string;
                 if (
                     !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
                         __val
@@ -791,7 +827,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<ProductForm>): Array<{
+    static validateFields(_partial: Partial<ProductForm>): Array<{
         field: string;
         message: string;
     }> {
@@ -799,8 +835,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('name' in partial && partial.name !== undefined) {
-            const __val = partial.name as string;
+        if ('name' in _partial && _partial.name !== undefined) {
+            const __val = _partial.name as string;
             if (__val.length === 0) {
                 errors.push({
                     field: 'name',
@@ -814,8 +850,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('price' in partial && partial.price !== undefined) {
-            const __val = partial.price as number;
+        if ('price' in _partial && _partial.price !== undefined) {
+            const __val = _partial.price as number;
             if (__val <= 0) {
                 errors.push({
                     field: 'price',
@@ -829,8 +865,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('quantity' in partial && partial.quantity !== undefined) {
-            const __val = partial.quantity as number;
+        if ('quantity' in _partial && _partial.quantity !== undefined) {
+            const __val = _partial.quantity as number;
             if (!Number.isInteger(__val)) {
                 errors.push({
                     field: 'quantity',
@@ -844,8 +880,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('tags' in partial && partial.tags !== undefined) {
-            const __val = partial.tags as string[];
+        if ('tags' in _partial && _partial.tags !== undefined) {
+            const __val = _partial.tags as string[];
             if (__val.length < 1) {
                 errors.push({
                     field: 'tags',
@@ -859,8 +895,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('sku' in partial && partial.sku !== undefined) {
-            const __val = partial.sku as string;
+        if ('sku' in _partial && _partial.sku !== undefined) {
+            const __val = _partial.sku as string;
             if (
                 !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
                     __val
@@ -891,7 +927,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = ProductForm.deserialize(obj);
-        return Result.isOk(result);
+        return result.success;
     }
 }
 
@@ -901,16 +937,18 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized instance or validation errors */ export function productFormDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Result<ProductForm, Array<{ field: string; message: string }>> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: ProductForm }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return ProductForm.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function productFormDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): ProductForm | PendingRef {
+    ctx: __mf_DeserializeContext
+): ProductForm | __mf_PendingRef {
     return ProductForm.deserializeWithContext(value, ctx);
 } /** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -947,54 +985,74 @@ Automatically detects whether input is a JSON string or object.
 
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        EventForm,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+        opts?: __mf_DeserializeOptions
+    ):
+        | {
+              success: true;
+              value: EventForm;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = DeserializeContext.create();
+            const ctx = __mf_DeserializeContext.create();
             const resultOrRef = EventForm.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'EventForm.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message: 'EventForm.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
+            if (e instanceof __mf_DeserializeError) {
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context  */
 
-    static deserializeWithContext(value: any, ctx: DeserializeContext): EventForm | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: __mf_DeserializeContext
+    ): EventForm | __mf_PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
+            throw new __mf_DeserializeError([
                 {
                     field: '_root',
                     message: 'EventForm.deserializeWithContext: expected an object'
@@ -1031,7 +1089,7 @@ Automatically detects whether input is a JSON string or object.
             });
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         const instance = Object.create(EventForm.prototype) as EventForm;
         if (obj.__id !== undefined) {
@@ -1109,14 +1167,14 @@ Automatically detects whether input is a JSON string or object.
             instance.maxAttendees = __raw_maxAttendees;
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         return instance;
     }
 
     static validateField<K extends keyof EventForm>(
-        field: K,
-        value: EventForm[K]
+        _field: K,
+        _value: EventForm[K]
     ): Array<{
         field: string;
         message: string;
@@ -1125,9 +1183,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'title': {
-                const __val = value as string;
+                const __val = _value as string;
                 if (__val.length === 0) {
                     errors.push({
                         field: 'title',
@@ -1143,7 +1201,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'startDate': {
-                const __val = value as Date;
+                const __val = _value as Date;
                 if (__val == null || isNaN(__val.getTime())) {
                     errors.push({
                         field: 'startDate',
@@ -1159,7 +1217,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'endDate': {
-                const __val = value as Date;
+                const __val = _value as Date;
                 if (__val == null || isNaN(__val.getTime())) {
                     errors.push({
                         field: 'endDate',
@@ -1169,7 +1227,7 @@ Automatically detects whether input is a JSON string or object.
                 break;
             }
             case 'maxAttendees': {
-                const __val = value as number;
+                const __val = _value as number;
                 if (!Number.isInteger(__val)) {
                     errors.push({
                         field: 'maxAttendees',
@@ -1188,7 +1246,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<EventForm>): Array<{
+    static validateFields(_partial: Partial<EventForm>): Array<{
         field: string;
         message: string;
     }> {
@@ -1196,8 +1254,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('title' in partial && partial.title !== undefined) {
-            const __val = partial.title as string;
+        if ('title' in _partial && _partial.title !== undefined) {
+            const __val = _partial.title as string;
             if (__val.length === 0) {
                 errors.push({
                     field: 'title',
@@ -1211,8 +1269,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('startDate' in partial && partial.startDate !== undefined) {
-            const __val = partial.startDate as Date;
+        if ('startDate' in _partial && _partial.startDate !== undefined) {
+            const __val = _partial.startDate as Date;
             if (__val == null || isNaN(__val.getTime())) {
                 errors.push({
                     field: 'startDate',
@@ -1226,8 +1284,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('endDate' in partial && partial.endDate !== undefined) {
-            const __val = partial.endDate as Date;
+        if ('endDate' in _partial && _partial.endDate !== undefined) {
+            const __val = _partial.endDate as Date;
             if (__val == null || isNaN(__val.getTime())) {
                 errors.push({
                     field: 'endDate',
@@ -1235,8 +1293,8 @@ Automatically detects whether input is a JSON string or object.
                 });
             }
         }
-        if ('maxAttendees' in partial && partial.maxAttendees !== undefined) {
-            const __val = partial.maxAttendees as number;
+        if ('maxAttendees' in _partial && _partial.maxAttendees !== undefined) {
+            const __val = _partial.maxAttendees as number;
             if (!Number.isInteger(__val)) {
                 errors.push({
                     field: 'maxAttendees',
@@ -1269,7 +1327,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = EventForm.deserialize(obj);
-        return Result.isOk(result);
+        return result.success;
     }
 }
 
@@ -1279,16 +1337,18 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized instance or validation errors */ export function eventFormDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Result<EventForm, Array<{ field: string; message: string }>> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: EventForm }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return EventForm.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function eventFormDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): EventForm | PendingRef {
+    ctx: __mf_DeserializeContext
+): EventForm | __mf_PendingRef {
     return EventForm.deserializeWithContext(value, ctx);
 } /** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
@@ -1297,40 +1357,26 @@ export function eventFormIs(value: unknown): value is EventForm {
     return EventForm.is(value);
 }
 
-// Type for validation result
-export type ValidationResult<T> = {
-    success: boolean;
-    data?: T;
-    errors?: string[];
-};
-
-// Helper to convert Result to ValidationResult
-// The Result type uses static methods
-export function toValidationResult<T>(result: any): ValidationResult<T> {
-    if (Result.isOk(result)) {
-        return { success: true, data: Result.unwrap(result) };
-    } else {
-        // Errors are now structured as {field, message} objects
-        const errors = Result.unwrapErr(result);
-        return {
-            success: false,
-            errors: errors.map((e: any) => (typeof e === 'string' ? e : e.message))
-        };
-    }
-}
+// Type for validation result (matches macroforge's vanilla return type)
+export type ValidationResult<T> =
+    | {
+          success: true;
+          value: T;
+      }
+    | { success: false; errors: Array<{ field: string; message: string }> };
 
 // Form validation functions
 export function validateUserRegistration(data: unknown): ValidationResult<UserRegistrationForm> {
-    const result = (UserRegistrationForm as any).deserialize(JSON.stringify(data));
-    return toValidationResult(result);
+    const result = UserRegistrationForm.deserialize(JSON.stringify(data));
+    return result;
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-    const result = (ProductForm as any).deserialize(JSON.stringify(data));
-    return toValidationResult(result);
+    const result = ProductForm.deserialize(JSON.stringify(data));
+    return result;
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-    const result = (EventForm as any).deserialize(JSON.stringify(data));
-    return toValidationResult(result);
+    const result = EventForm.deserialize(JSON.stringify(data));
+    return result;
 }
