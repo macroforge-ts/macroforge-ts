@@ -353,7 +353,7 @@ fn generate_union_variant_controllers(
             @{prop_key}: {
                 fields: {
                     {$typescript field_controllers}
-                } as @{type_name}@{variant_name}FieldControllers
+                } as {|@{type_name}@{variant_name}FieldControllers|}
             },
         {/for}
     }

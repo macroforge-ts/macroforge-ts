@@ -232,7 +232,7 @@ export interface Serialize<T> {
  *
  * @example
  * ```typescript
- * import { Result } from "macroforge/utils";
+ * import { Result } from "macroforge/reexports";
  *
  * const result = User.fromStringifiedJSON(json);
  * if (Result.isOk(result)) {
