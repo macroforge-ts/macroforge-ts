@@ -1,5 +1,4 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
@@ -40,30 +39,35 @@ Automatically detects whether input is a JSON string or object.
 >(
     input: unknown,
     opts?: DeserializeOptions
-): Result<RecordLink<T>, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: RecordLink<T> }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = recordLinkDeserializeWithContext<T>(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'RecordLink.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'RecordLink.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize

@@ -8,7 +8,7 @@
     {
       "name": "ts_macro_derive",
       "kind": "function",
-      "signature": "pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream",
+      "signature": "pub fn ts_macro_derive(attr : TokenStream, item : TokenStream) -> TokenStream",
       "description": "A procedural macro attribute that transforms a function into a TypeScript derive macro.\n\nThis attribute macro takes a function that processes TypeScript code and generates\nall the necessary infrastructure for it to work as a Macroforge derive macro.",
       "examples": [
         "## With Description",

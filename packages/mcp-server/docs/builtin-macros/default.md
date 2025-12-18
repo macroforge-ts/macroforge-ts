@@ -52,31 +52,11 @@ class UserSettings {
     /** @default(10) */
     pageSize: number;
 
-    notifications: boolean; // Uses type default: false
+    notifications: boolean;  // Uses type default: false
 }
 ```
 
 ```typescript after
-class UserSettings {
-    theme: string;
-
-    pageSize: number;
-
-    notifications: boolean; // Uses type default: false
-
-    static defaultValue(): UserSettings {
-        const instance = new UserSettings();
-        instance.theme = 'light';
-        instance.pageSize = 10;
-        instance.notifications = false;
-        return instance;
-    }
-}
-```
-
-Generated output:
-
-```typescript
 class UserSettings {
     theme: string;
 
@@ -109,25 +89,6 @@ enum Status {
 ```
 
 ```typescript after
-enum Status {
-    /** @default */
-    Pending,
-    Active,
-    Completed
-}
-
-export function statusDefaultValue(): Status {
-    return Status.Pending;
-}
-
-namespace Status {
-    export const defaultValue = statusDefaultValue;
-}
-```
-
-Generated output:
-
-```typescript
 enum Status {
     /** @default */
     Pending,

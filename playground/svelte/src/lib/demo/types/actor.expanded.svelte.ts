@@ -1,254 +1,51 @@
-import { userDefaultValue } from './user.svelte';
-import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-import { accountDeserializeWithContext } from './account.svelte';
-import { employeeDeserializeWithContext } from './employee.svelte';
-import { userDeserializeWithContext } from './user.svelte';
-import { Option } from 'macroforge/utils';
-import type { FieldController } from '@playground/macro/gigaform';
-import { accountDefaultValue } from './account.svelte';
-import { employeeDefaultValue } from './employee.svelte';
+import { userDefaultValue } from "./user.svelte";
+import { SerializeContext } from "macroforge/serde";
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
+import { accountDeserializeWithContext } from "./account.svelte";
+import { employeeDeserializeWithContext } from "./employee.svelte";
+import { userDeserializeWithContext } from "./user.svelte";
+import { Result } from "macroforge/utils";
+import { Option } from "macroforge/utils";
+import type { FieldController } from "@playground/macro/gigaform";
+import { accountDefaultValue } from "./account.svelte";
+import { employeeDefaultValue } from "./employee.svelte";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { User } from './user.svelte';
 import type { Account } from './account.svelte';
 import type { Employee } from './employee.svelte';
 
+
 export type Actor = /** @default */ User | Employee | Account;
 
-export function actorDefaultValue(): Actor {
-    return userDefaultValue();
-}
+export function actorDefaultValue(): Actor {return userDefaultValue();}
 
 /** Serializes a value to a JSON string.
 @param value - The value to serialize
-@returns JSON string representation with cycle detection metadata */ export function actorSerialize(
-    value: Actor
-): string {
-    const ctx = SerializeContext.create();
-    return JSON.stringify(actorSerializeWithContext(value, ctx));
-} /** Serializes with an existing context for nested/cyclic object graphs.
+@returns JSON string representation with cycle detection metadata */export function actorSerialize(value: Actor): string {const ctx = SerializeContext.create(); return JSON.stringify(actorSerializeWithContext(value, ctx));}/** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
-@param ctx - The serialization context */
-export function actorSerializeWithContext(value: Actor, ctx: SerializeContext): unknown {
-    if (typeof (value as any)?.serializeWithContext === 'function') {
-        return (value as any).serializeWithContext(ctx);
-    }
-    return value;
-}
+@param ctx - The serialization context */export function actorSerializeWithContext(value: Actor, ctx: SerializeContext): unknown {if(typeof(value as any)?.serializeWithContext === "function" ){return(value as any).serializeWithContext(ctx);}return value;}
 
 /** Deserializes input to this type.
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized value or validation errors */ export function actorDeserialize(
-    input: unknown,
-    opts?: DeserializeOptions
-): Result<Actor, Array<{ field: string; message: string }>> {
-    try {
-        const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
-        const resultOrRef = actorDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                { field: '_root', message: 'Actor.deserialize: root cannot be a forward reference' }
-            ]);
-        }
-        ctx.applyPatches();
-        if (opts?.freeze) {
-            ctx.freezeAll();
-        }
-        return Result.ok(resultOrRef);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
-    }
-} /** Deserializes with an existing context for nested/cyclic object graphs.
+@returns Result containing the deserialized value or validation errors */export function actorDeserialize(input: unknown, opts?: DeserializeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {try {const data = typeof input === "string" ? JSON.parse(input): input; const ctx = DeserializeContext.create(); const resultOrRef = actorDeserializeWithContext(data, ctx); if(PendingRef.is(resultOrRef)){return { success: false, errors: [{ field: "_root", message: "Actor.deserialize: root cannot be a forward reference" }] };}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return { success: true, value: resultOrRef };}catch(e){if(e instanceof DeserializeError){return { success: false, errors: e.errors };}const message = e instanceof Error? e.message: String(e); return { success: false, errors: [{ field: "_root", message }] };}}/** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
-@param ctx - The deserialization context */
-export function actorDeserializeWithContext(
-    value: any,
-    ctx: DeserializeContext
-): Actor | PendingRef {
-    if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Actor | PendingRef;
-    }
-    if (typeof value !== 'object' || value === null) {
-        throw new DeserializeError([
-            { field: '_root', message: 'Actor.deserializeWithContext: expected an object' }
-        ]);
-    }
-    const __typeName = (value as any).__type;
-    if (typeof __typeName !== 'string') {
-        throw new DeserializeError([
-            {
-                field: '_root',
-                message: 'Actor.deserializeWithContext: missing __type field for union dispatch'
-            }
-        ]);
-    }
-    if (__typeName === 'User') {
-        return userDeserializeWithContext(value, ctx) as Actor;
-    }
-    if (__typeName === 'Employee') {
-        return employeeDeserializeWithContext(value, ctx) as Actor;
-    }
-    if (__typeName === 'Account') {
-        return accountDeserializeWithContext(value, ctx) as Actor;
-    }
-    throw new DeserializeError([
-        {
-            field: '_root',
-            message:
-                'Actor.deserializeWithContext: unknown type "' +
-                __typeName +
-                '". Expected one of: User, Employee, Account'
-        }
-    ]);
-}
-export function actorIs(value: unknown): value is Actor {
-    if (typeof value !== 'object' || value === null) {
-        return false;
-    }
-    const __typeName = (value as any).__type;
-    return __typeName === 'User' || __typeName === 'Employee' || __typeName === 'Account';
-}
+@param ctx - The deserialization context */export function actorDeserializeWithContext(value: any, ctx: DeserializeContext): Actor | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Actor | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "Actor.deserializeWithContext: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "Actor.deserializeWithContext: missing __type field for union dispatch" }]);}if(__typeName === "User" ){return userDeserializeWithContext(value, ctx)as Actor;}if(__typeName === "Employee" ){return employeeDeserializeWithContext(value, ctx)as Actor;}if(__typeName === "Account" ){return accountDeserializeWithContext(value, ctx)as Actor;}throw new DeserializeError([{field: "_root" , message: "Actor.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account" }]); }export function actorIs(value: unknown): value is Actor {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "User" || __typeName === "Employee" || __typeName === "Account" ; }
 
-/** Per-variant error types */ export type ActorUserErrors = { _errors: Option<Array<string>> };
-export type ActorEmployeeErrors = { _errors: Option<Array<string>> };
-export type ActorAccountErrors = {
-    _errors: Option<Array<string>>;
-}; /** Per-variant tainted types */
-export type ActorUserTainted = {};
-export type ActorEmployeeTainted = {};
-export type ActorAccountTainted = {}; /** Union error type */
-export type ActorErrors =
-    | ({ _type: 'User' } & ActorUserErrors)
-    | ({ _type: 'Employee' } & ActorEmployeeErrors)
-    | ({ _type: 'Account' } & ActorAccountErrors); /** Union tainted type */
-export type ActorTainted =
-    | ({ _type: 'User' } & ActorUserTainted)
-    | ({ _type: 'Employee' } & ActorEmployeeTainted)
-    | ({ _type: 'Account' } & ActorAccountTainted); /** Per-variant field controller types */
-export interface ActorUserFieldControllers {}
-export interface ActorEmployeeFieldControllers {}
-export interface ActorAccountFieldControllers {} /** Union Gigaform interface with variant switching */
-export interface ActorGigaform {
-    readonly currentVariant: 'User' | 'Employee' | 'Account';
-    readonly data: Actor;
-    readonly errors: ActorErrors;
-    readonly tainted: ActorTainted;
-    readonly variants: ActorVariantFields;
-    switchVariant(variant: 'User' | 'Employee' | 'Account'): void;
-    validate(): Result<Actor, Array<{ field: string; message: string }>>;
-    reset(overrides?: Partial<Actor>): void;
-} /** Variant fields container */
-export interface ActorVariantFields {
-    readonly User: { readonly fields: ActorUserFieldControllers };
-    readonly Employee: { readonly fields: ActorEmployeeFieldControllers };
-    readonly Account: { readonly fields: ActorAccountFieldControllers };
-} /** Gets default value for a specific variant */
-function actorGetDefaultForVariant(variant: string): Actor {
-    switch (variant) {
-        case 'User':
-            return userDefaultValue() as Actor;
-        case 'Employee':
-            return employeeDefaultValue() as Actor;
-        case 'Account':
-            return accountDefaultValue() as Actor;
-        default:
-            return userDefaultValue() as Actor;
-    }
-} /** Creates a new discriminated union Gigaform with variant switching */
-export function actorCreateForm(initial?: Actor): ActorGigaform {
-    const initialVariant: 'User' | 'Employee' | 'Account' = 'User';
-    let currentVariant = $state<'User' | 'Employee' | 'Account'>(initialVariant);
-    let data = $state<Actor>(initial ?? actorGetDefaultForVariant(initialVariant));
-    let errors = $state<ActorErrors>({} as ActorErrors);
-    let tainted = $state<ActorTainted>({} as ActorTainted);
-    const variants: ActorVariantFields = {
-        User: {
-            fields: {} as ActorUserFieldControllers
-        },
-        Employee: {
-            fields: {} as ActorEmployeeFieldControllers
-        },
-        Account: {
-            fields: {} as ActorAccountFieldControllers
-        }
-    };
-    function switchVariant(variant: 'User' | 'Employee' | 'Account'): void {
-        currentVariant = variant;
-        data = actorGetDefaultForVariant(variant);
-        errors = {} as ActorErrors;
-        tainted = {} as ActorTainted;
-    }
-    function validate(): Result<Actor, Array<{ field: string; message: string }>> {
-        return actorFromObject(data);
-    }
-    function reset(overrides?: Partial<Actor>): void {
-        data = overrides ? (overrides as typeof data) : actorGetDefaultForVariant(currentVariant);
-        errors = {} as ActorErrors;
-        tainted = {} as ActorTainted;
-    }
-    return {
-        get currentVariant() {
-            return currentVariant;
-        },
-        get data() {
-            return data;
-        },
-        set data(v) {
-            data = v;
-        },
-        get errors() {
-            return errors;
-        },
-        set errors(v) {
-            errors = v;
-        },
-        get tainted() {
-            return tainted;
-        },
-        set tainted(v) {
-            tainted = v;
-        },
-        variants,
-        switchVariant,
-        validate,
-        reset
-    };
-} /** Parses FormData for union type, determining variant from discriminant field */
-export function actorFromFormData(
-    formData: FormData
-): Result<Actor, Array<{ field: string; message: string }>> {
-    const discriminant = formData.get('_type') as 'User' | 'Employee' | 'Account' | null;
-    if (!discriminant) {
-        return Result.err([{ field: '_type', message: 'Missing discriminant field' }]);
-    }
-    const obj: Record<string, unknown> = {};
-    obj._type = discriminant;
-    if (discriminant === 'User') {
-    } else if (discriminant === 'Employee') {
-    } else if (discriminant === 'Account') {
-    }
-    return actorFromStringifiedJSON(JSON.stringify(obj));
-}
+/** Per-variant error types */export type ActorUser Errors = {_errors: Option<Array<string>>; }; export type ActorEmployee Errors = {_errors: Option<Array<string>>; }; export type ActorAccount Errors = {_errors: Option<Array<string>>; }; /** Per-variant tainted types */export type ActorUser Tainted = {}; export type ActorEmployee Tainted = {}; export type ActorAccount Tainted = {}; /** Union error type */export type ActorErrors = ({ _type: "User" } & ActorUserErrors) | ({ _type: "Employee" } & ActorEmployeeErrors) | ({ _type: "Account" } & ActorAccountErrors); /** Union tainted type */export type ActorTainted = ({ _type: "User" } & ActorUserTainted) | ({ _type: "Employee" } & ActorEmployeeTainted) | ({ _type: "Account" } & ActorAccountTainted); /** Per-variant field controller types */export interface ActorUser FieldControllers {}export interface ActorEmployee FieldControllers {}export interface ActorAccount FieldControllers {}/** Union Gigaform interface with variant switching */export interface ActorGigaform {readonly currentVariant: "User" | "Employee" | "Account"; readonly data: Actor; readonly errors: ActorErrors; readonly tainted: ActorTainted; readonly variants: ActorVariantFields; switchVariant(variant: "User" | "Employee" | "Account"): void; validate(): Result<Actor, Array<{field: string; message: string}>>; reset(overrides?: Partial<Actor>): void;}/** Variant fields container */export interface ActorVariantFields {readonly User: {readonly fields: ActorUser FieldControllers}; readonly Employee: {readonly fields: ActorEmployee FieldControllers}; readonly Account: {readonly fields: ActorAccount FieldControllers}; }/** Gets default value for a specific variant */function actorGetDefaultForVariant(variant: string): Actor {switch(variant){case "User" : return userDefaultValue() as Actor; case "Employee" : return employeeDefaultValue() as Actor; case "Account" : return accountDefaultValue() as Actor; default: return userDefaultValue() as Actor;}}/** Creates a new discriminated union Gigaform with variant switching */export function actorCreateForm(initial?: Actor): ActorGigaform {const initialVariant: "User" | "Employee" | "Account" = "User"; let currentVariant = $state<"User" | "Employee" | "Account">(initialVariant); let data = $state<Actor>(initial?? actorGetDefaultForVariant(initialVariant)); let errors = $state<ActorErrors>({}as ActorErrors); let tainted = $state<ActorTainted>({}as ActorTainted); const variants: ActorVariantFields = {User: {fields: {}as ActorUser FieldControllers}, Employee: {fields: {}as ActorEmployee FieldControllers}, Account: {fields: {}as ActorAccount FieldControllers}, }; function switchVariant(variant: "User" | "Employee" | "Account"): void {currentVariant = variant; data = actorGetDefaultForVariant(variant); errors = {}as ActorErrors; tainted = {}as ActorTainted;}function validate(): Result<Actor, Array<{field: string; message: string}>>{return actorDeserialize(data);}function reset(overrides?: Partial<Actor>): void {data = overrides ? overrides as typeof data : actorGetDefaultForVariant(currentVariant); errors = {}as ActorErrors; tainted = {}as ActorTainted;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function actorFromFormData(formData: FormData): Result<Actor, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "User" | "Employee" | "Account" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if(discriminant === "User" ){}else if(discriminant === "Employee" ){}else if(discriminant === "Account" ){}return actorDeserialize(obj);}
 
 export const Actor = {
-    defaultValue: actorDefaultValue,
-    serialize: actorSerialize,
-    serializeWithContext: actorSerializeWithContext,
-    deserialize: actorDeserialize,
-    deserializeWithContext: actorDeserializeWithContext,
-    is: actorIs,
-    createForm: actorCreateForm,
-    fromFormData: actorFromFormData
+  defaultValue: actorDefaultValue,
+  serialize: actorSerialize,
+  serializeWithContext: actorSerializeWithContext,
+  deserialize: actorDeserialize,
+  deserializeWithContext: actorDeserializeWithContext,
+  is: actorIs,
+  createForm: actorCreateForm,
+  fromFormData: actorFromFormData
 } as const;

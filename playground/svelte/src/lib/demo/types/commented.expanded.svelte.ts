@@ -1,9 +1,9 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -49,30 +49,35 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function commentedDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<Commented, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: Commented }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = commentedDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'Commented.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Commented.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -161,7 +166,7 @@ export function commentedIs(obj: unknown): obj is Commented {
         return false;
     }
     const result = commentedDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type CommentedErrors = {
@@ -198,7 +203,6 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
             path: ['comment'] as const,
             name: 'comment',
             constraints: { required: true },
-
             get: () => data.comment,
             set: (value: string) => {
                 data.comment = value;
@@ -221,7 +225,6 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
             path: ['replyTo'] as const,
             name: 'replyTo',
             constraints: { required: true },
-
             get: () => data.replyTo,
             set: (value: string | null) => {
                 data.replyTo = value;
@@ -242,7 +245,7 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
         }
     };
     function validate(): Result<Commented, Array<{ field: string; message: string }>> {
-        return commentedFromObject(data);
+        return commentedDeserialize(data);
     }
     function reset(newOverrides?: Partial<Commented>): void {
         data = { ...commentedDefaultValue(), ...newOverrides };
@@ -272,14 +275,14 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
         validate,
         reset
     };
-} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
+} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function commentedFromFormData(
     formData: FormData
 ): Result<Commented, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.comment = formData.get('comment') ?? '';
     obj.replyTo = formData.get('replyTo') ?? '';
-    return commentedFromStringifiedJSON(JSON.stringify(obj));
+    return commentedDeserialize(obj);
 }
 
 export const Commented = {

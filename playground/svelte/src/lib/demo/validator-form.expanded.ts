@@ -1,4 +1,3 @@
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
@@ -41,42 +40,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: DeserializeOptions
-    ): Result<
-        UserRegistrationForm,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: UserRegistrationForm;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = DeserializeContext.create();
             const resultOrRef = UserRegistrationForm.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message:
-                            'UserRegistrationForm.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'UserRegistrationForm.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -452,7 +468,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = UserRegistrationForm.deserialize(obj);
-        return Result.isOk(result);
+        return result.success;
     }
 }
 
@@ -463,7 +479,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function userRegistrationFormDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<UserRegistrationForm, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: UserRegistrationForm }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return UserRegistrationForm.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -513,41 +531,58 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: DeserializeOptions
-    ): Result<
-        ProductForm,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: ProductForm;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = DeserializeContext.create();
             const resultOrRef = ProductForm.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'ProductForm.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message: 'ProductForm.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -889,7 +924,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = ProductForm.deserialize(obj);
-        return Result.isOk(result);
+        return result.success;
     }
 }
 
@@ -900,7 +935,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function productFormDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<ProductForm, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: ProductForm }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return ProductForm.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -946,41 +983,58 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: DeserializeOptions
-    ): Result<
-        EventForm,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: EventForm;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = DeserializeContext.create();
             const resultOrRef = EventForm.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'EventForm.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message: 'EventForm.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -1267,7 +1321,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = EventForm.deserialize(obj);
-        return Result.isOk(result);
+        return result.success;
     }
 }
 
@@ -1278,7 +1332,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function eventFormDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<EventForm, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: EventForm }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return EventForm.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize

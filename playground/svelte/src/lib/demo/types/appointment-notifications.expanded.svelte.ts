@@ -1,9 +1,9 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -53,31 +53,36 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function appointmentNotificationsDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<AppointmentNotifications, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: AppointmentNotifications }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = appointmentNotificationsDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message:
-                        'AppointmentNotifications.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message:
+                            'AppointmentNotifications.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -210,7 +215,7 @@ export function appointmentNotificationsIs(obj: unknown): obj is AppointmentNoti
         return false;
     }
     const result = appointmentNotificationsDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type AppointmentNotificationsErrors = {
@@ -252,7 +257,6 @@ export function appointmentNotificationsCreateForm(
             path: ['personalScheduleChangeNotifications'] as const,
             name: 'personalScheduleChangeNotifications',
             constraints: { required: true },
-
             get: () => data.personalScheduleChangeNotifications,
             set: (value: string) => {
                 data.personalScheduleChangeNotifications = value;
@@ -278,7 +282,6 @@ export function appointmentNotificationsCreateForm(
             path: ['allScheduleChangeNotifications'] as const,
             name: 'allScheduleChangeNotifications',
             constraints: { required: true },
-
             get: () => data.allScheduleChangeNotifications,
             set: (value: string) => {
                 data.allScheduleChangeNotifications = value;
@@ -305,7 +308,7 @@ export function appointmentNotificationsCreateForm(
         AppointmentNotifications,
         Array<{ field: string; message: string }>
     > {
-        return appointmentNotificationsFromObject(data);
+        return appointmentNotificationsDeserialize(data);
     }
     function reset(newOverrides?: Partial<AppointmentNotifications>): void {
         data = { ...appointmentNotificationsDefaultValue(), ...newOverrides };
@@ -342,7 +345,7 @@ export function appointmentNotificationsCreateForm(
         validate,
         reset
     };
-} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
+} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function appointmentNotificationsFromFormData(
     formData: FormData
 ): Result<AppointmentNotifications, Array<{ field: string; message: string }>> {
@@ -350,7 +353,7 @@ export function appointmentNotificationsFromFormData(
     obj.personalScheduleChangeNotifications =
         formData.get('personalScheduleChangeNotifications') ?? '';
     obj.allScheduleChangeNotifications = formData.get('allScheduleChangeNotifications') ?? '';
-    return appointmentNotificationsFromStringifiedJSON(JSON.stringify(obj));
+    return appointmentNotificationsDeserialize(obj);
 }
 
 export const AppointmentNotifications = {

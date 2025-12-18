@@ -1,9 +1,9 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -49,30 +49,35 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function promotionDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<Promotion, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: Promotion }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = promotionDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'Promotion.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Promotion.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -141,7 +146,7 @@ export function promotionIs(obj: unknown): obj is Promotion {
         return false;
     }
     const result = promotionDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type PromotionErrors = {
@@ -178,7 +183,6 @@ export function promotionCreateForm(overrides?: Partial<Promotion>): PromotionGi
             path: ['id'] as const,
             name: 'id',
             constraints: { required: true },
-
             get: () => data.id,
             set: (value: string) => {
                 data.id = value;
@@ -201,7 +205,6 @@ export function promotionCreateForm(overrides?: Partial<Promotion>): PromotionGi
             path: ['date'] as const,
             name: 'date',
             constraints: { required: true },
-
             get: () => data.date,
             set: (value: string) => {
                 data.date = value;
@@ -222,7 +225,7 @@ export function promotionCreateForm(overrides?: Partial<Promotion>): PromotionGi
         }
     };
     function validate(): Result<Promotion, Array<{ field: string; message: string }>> {
-        return promotionFromObject(data);
+        return promotionDeserialize(data);
     }
     function reset(newOverrides?: Partial<Promotion>): void {
         data = { ...promotionDefaultValue(), ...newOverrides };
@@ -252,14 +255,14 @@ export function promotionCreateForm(overrides?: Partial<Promotion>): PromotionGi
         validate,
         reset
     };
-} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
+} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function promotionFromFormData(
     formData: FormData
 ): Result<Promotion, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.date = formData.get('date') ?? '';
-    return promotionFromStringifiedJSON(JSON.stringify(obj));
+    return promotionDeserialize(obj);
 }
 
 export const Promotion = {

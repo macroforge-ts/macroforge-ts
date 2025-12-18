@@ -1,9 +1,9 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -56,30 +56,35 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function addressDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<Address, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: Address }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = addressDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'Address.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Address.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -230,7 +235,7 @@ export function addressIs(obj: unknown): obj is Address {
         return false;
     }
     const result = addressDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type AddressErrors = {
@@ -280,7 +285,6 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             path: ['street'] as const,
             name: 'street',
             constraints: { required: true },
-
             get: () => data.street,
             set: (value: string) => {
                 data.street = value;
@@ -303,7 +307,6 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             path: ['city'] as const,
             name: 'city',
             constraints: { required: true },
-
             get: () => data.city,
             set: (value: string) => {
                 data.city = value;
@@ -326,7 +329,6 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             path: ['state'] as const,
             name: 'state',
             constraints: { required: true },
-
             get: () => data.state,
             set: (value: string) => {
                 data.state = value;
@@ -349,7 +351,6 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             path: ['zipcode'] as const,
             name: 'zipcode',
             constraints: { required: true },
-
             get: () => data.zipcode,
             set: (value: string) => {
                 data.zipcode = value;
@@ -370,7 +371,7 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
         }
     };
     function validate(): Result<Address, Array<{ field: string; message: string }>> {
-        return addressFromObject(data);
+        return addressDeserialize(data);
     }
     function reset(newOverrides?: Partial<Address>): void {
         data = { ...addressDefaultValue(), ...newOverrides };
@@ -411,7 +412,7 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
         validate,
         reset
     };
-} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
+} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function addressFromFormData(
     formData: FormData
 ): Result<Address, Array<{ field: string; message: string }>> {
@@ -420,7 +421,7 @@ export function addressFromFormData(
     obj.city = formData.get('city') ?? '';
     obj.state = formData.get('state') ?? '';
     obj.zipcode = formData.get('zipcode') ?? '';
-    return addressFromStringifiedJSON(JSON.stringify(obj));
+    return addressDeserialize(obj);
 }
 
 export const Address = {

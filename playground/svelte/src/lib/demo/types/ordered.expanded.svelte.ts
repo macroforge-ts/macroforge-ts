@@ -1,9 +1,9 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -58,30 +58,35 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function orderedDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<Ordered, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: Ordered }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = orderedDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'Ordered.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Ordered.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -164,7 +169,7 @@ export function orderedIs(obj: unknown): obj is Ordered {
         return false;
     }
     const result = orderedDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type OrderedErrors = {
@@ -214,7 +219,6 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             path: ['id'] as const,
             name: 'id',
             constraints: { required: true },
-
             get: () => data.id,
             set: (value: string) => {
                 data.id = value;
@@ -237,7 +241,6 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             path: ['in'] as const,
             name: 'in',
             constraints: { required: true },
-
             get: () => data.in,
             set: (value: string | Account) => {
                 data.in = value;
@@ -260,7 +263,6 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             path: ['out'] as const,
             name: 'out',
             constraints: { required: true },
-
             get: () => data.out,
             set: (value: string | Order) => {
                 data.out = value;
@@ -283,7 +285,6 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             path: ['date'] as const,
             name: 'date',
             constraints: { required: true },
-
             get: () => data.date,
             set: (value: string) => {
                 data.date = value;
@@ -304,7 +305,7 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
         }
     };
     function validate(): Result<Ordered, Array<{ field: string; message: string }>> {
-        return orderedFromObject(data);
+        return orderedDeserialize(data);
     }
     function reset(newOverrides?: Partial<Ordered>): void {
         data = { ...orderedDefaultValue(), ...newOverrides };
@@ -340,7 +341,7 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
         validate,
         reset
     };
-} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
+} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function orderedFromFormData(
     formData: FormData
 ): Result<Ordered, Array<{ field: string; message: string }>> {
@@ -349,7 +350,7 @@ export function orderedFromFormData(
     obj.in = formData.get('in') ?? '';
     obj.out = formData.get('out') ?? '';
     obj.date = formData.get('date') ?? '';
-    return orderedFromStringifiedJSON(JSON.stringify(obj));
+    return orderedDeserialize(obj);
 }
 
 export const Ordered = {

@@ -21,7 +21,7 @@ pub mod parser;
 pub mod types;
 
 use macroforge_ts::macros::{ts_macro_derive, ts_template};
-use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use macroforge_ts::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
 /// Generates Gigaform helpers (prefixed exports) with types, fromFormData, and field controllers.
 pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
@@ -104,14 +104,9 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
 
     // Generate each section with generics
     let type_defs = types::generate_with_generics(type_name, &fields, &generics);
-    let form_data_fn =
-        form_data::generate_with_generics(type_name, &fields, &generics);
-    let factory_fn = field_descriptors::generate_factory_with_generics(
-        type_name,
-        &fields,
-        &options,
-        &generics,
-    );
+    let form_data_fn = form_data::generate_with_generics(type_name, &fields, &generics);
+    let factory_fn =
+        field_descriptors::generate_factory_with_generics(type_name, &fields, &options, &generics);
 
     // Combine into plain, prefixed exports (no namespace merging)
     let mut output = ts_template! {
@@ -220,8 +215,7 @@ fn generate_union_form(
         options,
         generics,
     );
-    let form_data_fn =
-        form_data::generate_union_with_generics(type_name, union_config, generics);
+    let form_data_fn = form_data::generate_union_with_generics(type_name, union_config, generics);
 
     let mut output = ts_template! {
         {$typescript type_defs}
@@ -241,7 +235,7 @@ fn generate_union_form(
         .iter()
         .any(|v| v.fields.iter().any(|f| f.is_array))
     {
-        output.add_type_import("ArrayFieldController", "@playground/macro/gigaform");
+        output.add_type_import("ArrayFieldController", "@dealdraft/macros/gigaform");
     }
 
     // Add i18n import if used
@@ -278,7 +272,7 @@ fn generate_enum_form(
 /// This macro **composes with** other Macroforge macros:
 /// - `@derive(Default)` provides `defaultValue()`
 /// - `@derive(Serialize)` provides `toObject()`
-/// - `@derive(Deserialize)` + `@serde({ validate: [...] })` provides `fromObject()` with validation
+/// - `@derive(Deserialize)` + `@serde({ validate: [...] })` provides `deserialize()` with validation
 ///
 /// **Gigaform adds (for a type `UserForm`):**
 /// - `UserFormErrors` type (nested error structure)

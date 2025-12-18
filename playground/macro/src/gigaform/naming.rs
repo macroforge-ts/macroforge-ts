@@ -1,64 +1,41 @@
-fn to_camel_case(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
+use convert_case::Casing;
 
 pub fn call_default_value(type_name: &str, generic_args: &str) -> String {
-    format!("{}DefaultValue{generic_args}()", to_camel_case(type_name))
+    format!(
+        "{}DefaultValue{generic_args}()",
+        type_name.to_case(convert_case::Case::Camel)
+    )
 }
 
-pub fn call_validate_field(
-    type_name: &str,
-    field_expr: &str,
-    value_expr: &str,
-) -> String {
+pub fn call_validate_field(type_name: &str, field_expr: &str, value_expr: &str) -> String {
     format!(
         "{}ValidateField({field_expr}, {value_expr})",
-        to_camel_case(type_name)
+        type_name.to_case(convert_case::Case::Camel)
     )
 }
 
-#[allow(dead_code)]
-pub fn call_validate_fields(
-    type_name: &str,
-    partial_expr: &str,
-) -> String {
-    format!("{}ValidateFields({partial_expr})", to_camel_case(type_name))
-}
-
-pub fn call_from_object(
-    type_name: &str,
-    generic_args: &str,
-    value_expr: &str,
-) -> String {
+pub fn call_deserialize(type_name: &str, generic_args: &str, value_expr: &str) -> String {
     format!(
-        "{}FromObject{generic_args}({value_expr})",
-        to_camel_case(type_name)
-    )
-}
-
-pub fn call_from_stringified_json(
-    type_name: &str,
-    generic_args: &str,
-    json_expr: &str,
-) -> String {
-    format!(
-        "{}FromStringifiedJSON{generic_args}({json_expr})",
-        to_camel_case(type_name)
+        "{}Deserialize{generic_args}({value_expr})",
+        type_name.to_case(convert_case::Case::Camel)
     )
 }
 
 pub fn fn_name_from_form_data(type_name: &str, generic_decl: &str) -> String {
-    format!("{}FromFormData{generic_decl}", to_camel_case(type_name))
+    format!(
+        "{}FromFormData{generic_decl}",
+        type_name.to_case(convert_case::Case::Camel)
+    )
 }
 
 /// Generates a function name with Prefix style.
 /// For prefix style: `userCreateForm`, `userGetDefaultForVariant`
 pub fn fn_name(base: &str, type_name: &str, generic_decl: &str) -> String {
-    format!("{}{}{generic_decl}", to_camel_case(type_name), capitalize_first(base))
+    format!(
+        "{}{}{generic_decl}",
+        type_name.to_case(convert_case::Case::Camel),
+        capitalize_first(base)
+    )
 }
 
 /// Generates a type name with prefix style.
@@ -80,8 +57,11 @@ pub fn call_default_value_for_type_ref(type_ref: &str) -> String {
     if let Some(bracket_pos) = tr.find('<') {
         let base_type = &tr[..bracket_pos];
         let type_args = &tr[bracket_pos..]; // includes <>
-        return format!("{}DefaultValue{type_args}()", to_camel_case(base_type));
+        return format!(
+            "{}DefaultValue{type_args}()",
+            base_type.to_case(convert_case::Case::Camel)
+        );
     }
 
-    format!("{}DefaultValue()", to_camel_case(tr))
+    format!("{}DefaultValue()", tr.to_case(convert_case::Case::Camel))
 }

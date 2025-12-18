@@ -1,9 +1,9 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -53,30 +53,35 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function numberDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<Number, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: Number }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = numberDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'Number.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Number.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -204,7 +209,7 @@ export function numberIs(obj: unknown): obj is Number {
         return false;
     }
     const result = numberDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type NumberErrors = {
@@ -249,7 +254,6 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
             path: ['countryCode'] as const,
             name: 'countryCode',
             constraints: { required: true },
-
             get: () => data.countryCode,
             set: (value: string) => {
                 data.countryCode = value;
@@ -272,7 +276,6 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
             path: ['areaCode'] as const,
             name: 'areaCode',
             constraints: { required: true },
-
             get: () => data.areaCode,
             set: (value: string) => {
                 data.areaCode = value;
@@ -295,7 +298,6 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
             path: ['localNumber'] as const,
             name: 'localNumber',
             constraints: { required: true },
-
             get: () => data.localNumber,
             set: (value: string) => {
                 data.localNumber = value;
@@ -316,7 +318,7 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
         }
     };
     function validate(): Result<Number, Array<{ field: string; message: string }>> {
-        return numberFromObject(data);
+        return numberDeserialize(data);
     }
     function reset(newOverrides?: Partial<Number>): void {
         data = { ...numberDefaultValue(), ...newOverrides };
@@ -355,7 +357,7 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
         validate,
         reset
     };
-} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
+} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function numberFromFormData(
     formData: FormData
 ): Result<Number, Array<{ field: string; message: string }>> {
@@ -363,7 +365,7 @@ export function numberFromFormData(
     obj.countryCode = formData.get('countryCode') ?? '';
     obj.areaCode = formData.get('areaCode') ?? '';
     obj.localNumber = formData.get('localNumber') ?? '';
-    return numberFromStringifiedJSON(JSON.stringify(obj));
+    return numberDeserialize(obj);
 }
 
 export const Number = {

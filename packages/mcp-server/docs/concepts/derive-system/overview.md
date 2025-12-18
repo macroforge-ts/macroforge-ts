@@ -1,0 +1,200 @@
+# The Derive System
+
+The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`.
+
+## Syntax Reference
+
+Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
+
+### The @derive Statement
+
+The `@derive` decorator triggers macro expansion on a class or interface:
+
+Source
+
+TypeScript
+
+```
+/** @derive(Debug) */
+class MyClass {
+    value: string;
+}
+```
+
+Syntax rules:
+
+*   Must be inside a JSDoc comment (`/** */`)
+*   Must appear immediately before the class/interface declaration
+*   Multiple macros can be comma-separated: `@derive(A, B, C)`
+*   Multiple `@derive` statements can be stacked
+
+Source
+
+TypeScript
+
+```
+/** @derive(Debug, Clone) */
+class User {
+    name: string;
+    email: string;
+}
+```
+
+### The import macro Statement
+
+To use macros from external packages, you must declare them with `import macro`:
+
+TypeScript
+
+```
+/** import macro { MacroName } from "package-name"; */
+```
+
+Syntax rules:
+
+*   Must be inside a JSDoc comment (`/** */`)
+*   Can appear anywhere in the file (typically at the top)
+*   Multiple macros can be imported: `import macro { A, B } from "pkg";`
+*   Multiple import statements can be used for different packages
+
+TypeScript
+
+```
+/** import macro { JSON, Validate } from "@my/macros"; */
+/** import macro { Builder } from "@other/macros"; */
+
+/** @derive(JSON, Validate, Builder) */
+class User {
+  name: string;
+  email: string;
+}
+```
+
+Built-in macros
+
+Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement.
+
+### Field Attributes
+
+Macros can define field-level attributes to customize behavior per field:
+
+Before (Your Code)
+
+```
+/** @derive(Debug, Serialize) */
+class User {
+    /** @debug({ rename: "userId" }) */
+    /** @serde({ rename: "user_id" }) */
+    id: number;
+
+    name: string;
+
+    /** @debug({ skip: true }) */
+    /** @serde({ skip: true }) */
+    password: string;
+
+    metadata: Record<string, unknown>;
+}
+```
+
+After (Generated)
+
+```
+import { SerializeContext } from 'macroforge/serde';
+
+class User {
+    id: number;
+
+    name: string;
+
+    password: string;
+
+    metadata: Record<string, unknown>;
+
+    static toString(value: User): string {
+        return userToString(value);
+    }
+    /** Serializes a value to a JSON string.
+@param value - The value to serialize
+@returns JSON string representation with cycle detection metadata  */
+
+    static serialize(value: User): string {
+        return userSerialize(value);
+    }
+    /** @internal Serializes with an existing context for nested/cyclic object graphs.
+@param value - The value to serialize
+@param ctx - The serialization context  */
+
+    static serializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown> {
+        return userSerializeWithContext(value, ctx);
+    }
+}
+
+export function userToString(value: User): string {
+    const parts: string[] = [];
+    parts.push('userId: ' + value.id);
+    parts.push('name: ' + value.name);
+    parts.push('metadata: ' + value.metadata);
+    return 'User { ' + parts.join(', ') + ' }';
+}
+
+/** Serializes a value to a JSON string.
+@param value - The value to serialize
+@returns JSON string representation with cycle detection metadata */ export function userSerialize(
+    value: User
+): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(userSerializeWithContext(value, ctx));
+} /** @internal Serializes with an existing context for nested/cyclic object graphs.
+@param value - The value to serialize
+@param ctx - The serialization context */
+export function userSerializeWithContext(
+    value: User,
+    ctx: SerializeContext
+): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const __id = ctx.register(value);
+    const result: Record<string, unknown> = { __type: 'User', __id };
+    result['user_id'] = value.id;
+    result['name'] = value.name;
+    result['metadata'] = value.metadata;
+    return result;
+}
+```
+
+Syntax rules:
+
+*   Must be inside a JSDoc comment immediately before the field
+*   Options use object literal syntax: `@attr({ key: value })`
+*   Boolean options: `@attr({ skip: true })`
+*   String options: `@attr({ rename: "newName" })`
+*   Multiple attributes can be on separate lines or combined
+
+Common field attributes by macro:
+
+| Macro                 | Attribute     | Options                                |
+| --------------------- | ------------- | -------------------------------------- |
+| Debug                 | `@debug`      | `skip`, `rename`                       |
+| Clone                 | `@clone`      | `skip`, `clone_with`                   |
+| Serialize/Deserialize | `@serde`      | `skip`, `rename`, `flatten`, `default` |
+| Hash                  | `@hash`       | `skip`                                 |
+| PartialEq/Ord         | `@eq`, `@ord` | `skip`                                 |
+
+## How It Works
+
+1.  **Declaration**: You write `@derive(MacroName)` before a class
+2.  **Discovery**: Macroforge finds all derive decorators in your code
+3.  **Expansion**: Each named macro receives the class AST and generates code
+4.  **Injection**: Generated methods/properties are added to the class
+
+## What Can Be Derived
+
+The derive system works on:
+
+*   **Classes**: The primary target for derive macros
+*   **Interfaces**: Macros generate companion namespace functions
+*   **Enums**: Macros generate namespace functions for enum values
+*   **Type aliases**: Both object types and union types are supported
