@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -195,23 +196,23 @@ export interface OrderedGigaform {
     readonly errors: OrderedErrors;
     readonly tainted: OrderedTainted;
     readonly fields: OrderedFieldControllers;
-    validate(): Result<Ordered, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Ordered>;
     reset(overrides?: Partial<Ordered>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform {
     let data = $state({ ...orderedDefaultValue(), ...overrides });
     let errors = $state<OrderedErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        in: Option.none(),
-        out: Option.none(),
-        date: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        in: optionNone(),
+        out: optionNone(),
+        date: optionNone()
     });
     let tainted = $state<OrderedTainted>({
-        id: Option.none(),
-        in: Option.none(),
-        out: Option.none(),
-        date: Option.none()
+        id: optionNone(),
+        in: optionNone(),
+        out: optionNone(),
+        date: optionNone()
     });
     const fields: OrderedFieldControllers = {
         id: {
@@ -303,19 +304,19 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             }
         }
     };
-    function validate(): Result<Ordered, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Ordered> {
         return orderedDeserialize(data);
     }
     function reset(newOverrides?: Partial<Ordered>): void {
         data = { ...orderedDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            in: Option.none(),
-            out: Option.none(),
-            date: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            in: optionNone(),
+            out: optionNone(),
+            date: optionNone()
         };
-        tainted = { id: Option.none(), in: Option.none(), out: Option.none(), date: Option.none() };
+        tainted = { id: optionNone(), in: optionNone(), out: optionNone(), date: optionNone() };
     }
     return {
         get data() {
@@ -343,7 +344,7 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function orderedFromFormData(
     formData: FormData
-): Result<Ordered, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Ordered> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.in = formData.get('in') ?? '';

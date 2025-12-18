@@ -11,6 +11,9 @@ build = { cmd = "pixi run build:rust && pixi run build:plugin" }
 "build:website" = {cmd = "cd website && npm run build"}
 "build:plugin" = { cmd = "bun run --cwd packages/vite-plugin build" }
 "build:@playground/macro" = { cmd = "cd playground/macro && bun x napi build --platform --release -p playground-macros" }
+"build:@playground/svelte" = "cd playground/svelte && npm run build"
+"build:@playground/vanilla" = "cd playground/vanilla && npm run build"
+"build:playground" = "pixi run build:@playground/macro && pixi run build:@playground/svelte && pixi run build:@playground/vanilla"
 "test:rust" = { cmd = "cd crates && cargo test --workspace" }
 "test:packages" = { cmd = "cd packages/typescript-plugin && bun run test && cd ../svelte-language-server && bun run test && cd ../vite-plugin && bun run test" }
 "test:playground" = { cmd = "node ./scripts/test-playground-expansion.cjs && (cd playground/tests && node --test --test-force-exit *.test.mjs) && (cd playground/tests && bun test validators/) && (cd playground/tests/rust-tests && cargo test) && (cd playground/tests && npm run test:e2e)" }

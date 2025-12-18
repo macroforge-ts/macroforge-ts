@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type OrderStage = /** @default */ 'Estimate' | 'Active' | 'Invoice';
@@ -127,7 +129,7 @@ export interface OrderStageGigaform {
     readonly tainted: OrderStageTainted;
     readonly variants: OrderStageVariantFields;
     switchVariant(variant: 'Estimate' | 'Active' | 'Invoice'): void;
-    validate(): Result<OrderStage, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, OrderStage>;
     reset(overrides?: Partial<OrderStage>): void;
 } /** Variant fields container */
 export interface OrderStageVariantFields {
@@ -165,7 +167,7 @@ export function orderStageCreateForm(initial?: OrderStage): OrderStageGigaform {
         errors = {} as OrderStageErrors;
         tainted = {} as OrderStageTainted;
     }
-    function validate(): Result<OrderStage, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, OrderStage> {
         return orderStageDeserialize(data);
     }
     function reset(overrides?: Partial<OrderStage>): void {
@@ -205,10 +207,10 @@ export function orderStageCreateForm(initial?: OrderStage): OrderStageGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function orderStageFromFormData(
     formData: FormData
-): Result<OrderStage, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, OrderStage> {
     const discriminant = formData.get('_value') as 'Estimate' | 'Active' | 'Invoice' | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

@@ -18,7 +18,7 @@ pub fn generate(
 
     ts_template! {
         {>> "Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize)." <<}
-        export function @{fn_name}(formData: FormData): Result<@{interface_name}, Array<{ field: string; message: string }>> {
+        export function @{fn_name}(formData: FormData): Exit<Array<{ field: string; message: string }>, @{interface_name}> {
             const obj: Record<string, unknown> = {};
 
             {$typescript field_extractions}
@@ -47,7 +47,7 @@ pub fn generate_with_generics(
 
     ts_template! {
         {>> "Parses FormData and validates it, returning a Result with the parsed data or errors." <<}
-        export function @{fn_name}(formData: FormData): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
+        export function @{fn_name}(formData: FormData): Exit<Array<{ field: string; message: string }>, @{interface_name}@{generic_args}> {
             const obj: Record<string, unknown> = {};
 
             {$typescript field_extractions}
@@ -87,11 +87,11 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
 
     ts_template! {
         {>> "Parses FormData for union type, determining variant from discriminant field" <<}
-        export function @{fn_name}(formData: FormData): Result<@{type_name}, Array<{ field: string; message: string }>> {
+        export function @{fn_name}(formData: FormData): Exit<Array<{ field: string; message: string }>, @{type_name}> {
             const discriminant = formData.get("@{discriminant_field}") as @{variant_literals} | null;
 
             if (!discriminant) {
-                return Result.err([{ field: "@{discriminant_field}", message: "Missing discriminant field" }]);
+                return exitFail([{ field: "@{discriminant_field}", message: "Missing discriminant field" }]);
             }
 
             const obj: Record<string, unknown> = {};

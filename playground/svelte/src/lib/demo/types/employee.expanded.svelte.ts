@@ -16,8 +16,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { emailDeserializeWithContext } from './email.svelte';
 import { jobTitleDeserializeWithContext } from './job-title.svelte';
 import { settingsDeserializeWithContext } from './settings.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -499,51 +500,51 @@ export interface EmployeeGigaform {
     readonly errors: EmployeeErrors;
     readonly tainted: EmployeeTainted;
     readonly fields: EmployeeFieldControllers;
-    validate(): Result<Employee, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Employee>;
     reset(overrides?: Partial<Employee>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaform {
     let data = $state({ ...employeeDefaultValue(), ...overrides });
     let errors = $state<EmployeeErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        imageUrl: Option.none(),
-        name: Option.none(),
-        phones: Option.none(),
-        role: Option.none(),
-        title: Option.none(),
-        email: Option.none(),
-        address: Option.none(),
-        username: Option.none(),
-        route: Option.none(),
-        ratePerHour: Option.none(),
-        active: Option.none(),
-        isTechnician: Option.none(),
-        isSalesRep: Option.none(),
-        description: Option.none(),
-        linkedinUrl: Option.none(),
-        attendance: Option.none(),
-        settings: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        imageUrl: optionNone(),
+        name: optionNone(),
+        phones: optionNone(),
+        role: optionNone(),
+        title: optionNone(),
+        email: optionNone(),
+        address: optionNone(),
+        username: optionNone(),
+        route: optionNone(),
+        ratePerHour: optionNone(),
+        active: optionNone(),
+        isTechnician: optionNone(),
+        isSalesRep: optionNone(),
+        description: optionNone(),
+        linkedinUrl: optionNone(),
+        attendance: optionNone(),
+        settings: optionNone()
     });
     let tainted = $state<EmployeeTainted>({
-        id: Option.none(),
-        imageUrl: Option.none(),
-        name: Option.none(),
-        phones: Option.none(),
-        role: Option.none(),
-        title: Option.none(),
-        email: Option.none(),
-        address: Option.none(),
-        username: Option.none(),
-        route: Option.none(),
-        ratePerHour: Option.none(),
-        active: Option.none(),
-        isTechnician: Option.none(),
-        isSalesRep: Option.none(),
-        description: Option.none(),
-        linkedinUrl: Option.none(),
-        attendance: Option.none(),
-        settings: Option.none()
+        id: optionNone(),
+        imageUrl: optionNone(),
+        name: optionNone(),
+        phones: optionNone(),
+        role: optionNone(),
+        title: optionNone(),
+        email: optionNone(),
+        address: optionNone(),
+        username: optionNone(),
+        route: optionNone(),
+        ratePerHour: optionNone(),
+        active: optionNone(),
+        isTechnician: optionNone(),
+        isSalesRep: optionNone(),
+        description: optionNone(),
+        linkedinUrl: optionNone(),
+        attendance: optionNone(),
+        settings: optionNone()
     });
     const fields: EmployeeFieldControllers = {
         id: {
@@ -1003,51 +1004,51 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             }
         }
     };
-    function validate(): Result<Employee, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Employee> {
         return employeeDeserialize(data);
     }
     function reset(newOverrides?: Partial<Employee>): void {
         data = { ...employeeDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            imageUrl: Option.none(),
-            name: Option.none(),
-            phones: Option.none(),
-            role: Option.none(),
-            title: Option.none(),
-            email: Option.none(),
-            address: Option.none(),
-            username: Option.none(),
-            route: Option.none(),
-            ratePerHour: Option.none(),
-            active: Option.none(),
-            isTechnician: Option.none(),
-            isSalesRep: Option.none(),
-            description: Option.none(),
-            linkedinUrl: Option.none(),
-            attendance: Option.none(),
-            settings: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            imageUrl: optionNone(),
+            name: optionNone(),
+            phones: optionNone(),
+            role: optionNone(),
+            title: optionNone(),
+            email: optionNone(),
+            address: optionNone(),
+            username: optionNone(),
+            route: optionNone(),
+            ratePerHour: optionNone(),
+            active: optionNone(),
+            isTechnician: optionNone(),
+            isSalesRep: optionNone(),
+            description: optionNone(),
+            linkedinUrl: optionNone(),
+            attendance: optionNone(),
+            settings: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            imageUrl: Option.none(),
-            name: Option.none(),
-            phones: Option.none(),
-            role: Option.none(),
-            title: Option.none(),
-            email: Option.none(),
-            address: Option.none(),
-            username: Option.none(),
-            route: Option.none(),
-            ratePerHour: Option.none(),
-            active: Option.none(),
-            isTechnician: Option.none(),
-            isSalesRep: Option.none(),
-            description: Option.none(),
-            linkedinUrl: Option.none(),
-            attendance: Option.none(),
-            settings: Option.none()
+            id: optionNone(),
+            imageUrl: optionNone(),
+            name: optionNone(),
+            phones: optionNone(),
+            role: optionNone(),
+            title: optionNone(),
+            email: optionNone(),
+            address: optionNone(),
+            username: optionNone(),
+            route: optionNone(),
+            ratePerHour: optionNone(),
+            active: optionNone(),
+            isTechnician: optionNone(),
+            isSalesRep: optionNone(),
+            description: optionNone(),
+            linkedinUrl: optionNone(),
+            attendance: optionNone(),
+            settings: optionNone()
         };
     }
     return {
@@ -1076,7 +1077,7 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function employeeFromFormData(
     formData: FormData
-): Result<Employee, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Employee> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.imageUrl = formData.get('imageUrl') ?? '';

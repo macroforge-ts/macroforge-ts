@@ -10,8 +10,10 @@ import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/s
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { companyNameDeserializeWithContext } from './company-name.svelte';
 import { personNameDeserializeWithContext } from './person-name.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { personNameDefaultValue } from './person-name.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -152,7 +154,7 @@ export interface AccountNameGigaform {
     readonly tainted: AccountNameTainted;
     readonly variants: AccountNameVariantFields;
     switchVariant(variant: 'CompanyName' | 'PersonName'): void;
-    validate(): Result<AccountName, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, AccountName>;
     reset(overrides?: Partial<AccountName>): void;
 } /** Variant fields container */
 export interface AccountNameVariantFields {
@@ -185,7 +187,7 @@ export function accountNameCreateForm(initial?: AccountName): AccountNameGigafor
         errors = {} as AccountNameErrors;
         tainted = {} as AccountNameTainted;
     }
-    function validate(): Result<AccountName, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, AccountName> {
         return accountNameDeserialize(data);
     }
     function reset(overrides?: Partial<AccountName>): void {
@@ -225,10 +227,10 @@ export function accountNameCreateForm(initial?: AccountName): AccountNameGigafor
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function accountNameFromFormData(
     formData: FormData
-): Result<AccountName, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, AccountName> {
     const discriminant = formData.get('_type') as 'CompanyName' | 'PersonName' | null;
     if (!discriminant) {
-        return Result.err([{ field: '_type', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;

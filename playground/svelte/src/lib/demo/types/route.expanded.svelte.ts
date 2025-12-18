@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -363,37 +364,37 @@ export interface RouteGigaform {
     readonly errors: RouteErrors;
     readonly tainted: RouteTainted;
     readonly fields: RouteFieldControllers;
-    validate(): Result<Route, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Route>;
     reset(overrides?: Partial<Route>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function routeCreateForm(overrides?: Partial<Route>): RouteGigaform {
     let data = $state({ ...routeDefaultValue(), ...overrides });
     let errors = $state<RouteErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        techs: Option.none(),
-        active: Option.none(),
-        name: Option.none(),
-        phone: Option.none(),
-        position: Option.none(),
-        serviceRoute: Option.none(),
-        defaultDurationHours: Option.none(),
-        tags: Option.none(),
-        icon: Option.none(),
-        color: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        techs: optionNone(),
+        active: optionNone(),
+        name: optionNone(),
+        phone: optionNone(),
+        position: optionNone(),
+        serviceRoute: optionNone(),
+        defaultDurationHours: optionNone(),
+        tags: optionNone(),
+        icon: optionNone(),
+        color: optionNone()
     });
     let tainted = $state<RouteTainted>({
-        id: Option.none(),
-        techs: Option.none(),
-        active: Option.none(),
-        name: Option.none(),
-        phone: Option.none(),
-        position: Option.none(),
-        serviceRoute: Option.none(),
-        defaultDurationHours: Option.none(),
-        tags: Option.none(),
-        icon: Option.none(),
-        color: Option.none()
+        id: optionNone(),
+        techs: optionNone(),
+        active: optionNone(),
+        name: optionNone(),
+        phone: optionNone(),
+        position: optionNone(),
+        serviceRoute: optionNone(),
+        defaultDurationHours: optionNone(),
+        tags: optionNone(),
+        icon: optionNone(),
+        color: optionNone()
     });
     const fields: RouteFieldControllers = {
         id: {
@@ -672,37 +673,37 @@ export function routeCreateForm(overrides?: Partial<Route>): RouteGigaform {
             }
         }
     };
-    function validate(): Result<Route, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Route> {
         return routeDeserialize(data);
     }
     function reset(newOverrides?: Partial<Route>): void {
         data = { ...routeDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            techs: Option.none(),
-            active: Option.none(),
-            name: Option.none(),
-            phone: Option.none(),
-            position: Option.none(),
-            serviceRoute: Option.none(),
-            defaultDurationHours: Option.none(),
-            tags: Option.none(),
-            icon: Option.none(),
-            color: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            techs: optionNone(),
+            active: optionNone(),
+            name: optionNone(),
+            phone: optionNone(),
+            position: optionNone(),
+            serviceRoute: optionNone(),
+            defaultDurationHours: optionNone(),
+            tags: optionNone(),
+            icon: optionNone(),
+            color: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            techs: Option.none(),
-            active: Option.none(),
-            name: Option.none(),
-            phone: Option.none(),
-            position: Option.none(),
-            serviceRoute: Option.none(),
-            defaultDurationHours: Option.none(),
-            tags: Option.none(),
-            icon: Option.none(),
-            color: Option.none()
+            id: optionNone(),
+            techs: optionNone(),
+            active: optionNone(),
+            name: optionNone(),
+            phone: optionNone(),
+            position: optionNone(),
+            serviceRoute: optionNone(),
+            defaultDurationHours: optionNone(),
+            tags: optionNone(),
+            icon: optionNone(),
+            color: optionNone()
         };
     }
     return {
@@ -731,7 +732,7 @@ export function routeCreateForm(overrides?: Partial<Route>): RouteGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function routeFromFormData(
     formData: FormData
-): Result<Route, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Route> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.techs = formData.get('techs') ?? '';

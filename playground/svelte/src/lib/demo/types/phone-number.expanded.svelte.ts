@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -250,25 +251,25 @@ export interface PhoneNumberGigaform {
     readonly errors: PhoneNumberErrors;
     readonly tainted: PhoneNumberTainted;
     readonly fields: PhoneNumberFieldControllers;
-    validate(): Result<PhoneNumber, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, PhoneNumber>;
     reset(overrides?: Partial<PhoneNumber>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNumberGigaform {
     let data = $state({ ...phoneNumberDefaultValue(), ...overrides });
     let errors = $state<PhoneNumberErrors>({
-        _errors: Option.none(),
-        main: Option.none(),
-        phoneType: Option.none(),
-        number: Option.none(),
-        canText: Option.none(),
-        canCall: Option.none()
+        _errors: optionNone(),
+        main: optionNone(),
+        phoneType: optionNone(),
+        number: optionNone(),
+        canText: optionNone(),
+        canCall: optionNone()
     });
     let tainted = $state<PhoneNumberTainted>({
-        main: Option.none(),
-        phoneType: Option.none(),
-        number: Option.none(),
-        canText: Option.none(),
-        canCall: Option.none()
+        main: optionNone(),
+        phoneType: optionNone(),
+        number: optionNone(),
+        canText: optionNone(),
+        canCall: optionNone()
     });
     const fields: PhoneNumberFieldControllers = {
         main: {
@@ -387,25 +388,25 @@ export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNu
             }
         }
     };
-    function validate(): Result<PhoneNumber, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, PhoneNumber> {
         return phoneNumberDeserialize(data);
     }
     function reset(newOverrides?: Partial<PhoneNumber>): void {
         data = { ...phoneNumberDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            main: Option.none(),
-            phoneType: Option.none(),
-            number: Option.none(),
-            canText: Option.none(),
-            canCall: Option.none()
+            _errors: optionNone(),
+            main: optionNone(),
+            phoneType: optionNone(),
+            number: optionNone(),
+            canText: optionNone(),
+            canCall: optionNone()
         };
         tainted = {
-            main: Option.none(),
-            phoneType: Option.none(),
-            number: Option.none(),
-            canText: Option.none(),
-            canCall: Option.none()
+            main: optionNone(),
+            phoneType: optionNone(),
+            number: optionNone(),
+            canText: optionNone(),
+            canCall: optionNone()
         };
     }
     return {
@@ -434,7 +435,7 @@ export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNu
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function phoneNumberFromFormData(
     formData: FormData
-): Result<PhoneNumber, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, PhoneNumber> {
     const obj: Record<string, unknown> = {};
     {
         const mainVal = formData.get('main');

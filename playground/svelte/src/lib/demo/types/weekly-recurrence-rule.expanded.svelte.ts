@@ -8,8 +8,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -175,7 +176,7 @@ export interface WeeklyRecurrenceRuleGigaform {
     readonly errors: WeeklyRecurrenceRuleErrors;
     readonly tainted: WeeklyRecurrenceRuleTainted;
     readonly fields: WeeklyRecurrenceRuleFieldControllers;
-    validate(): Result<WeeklyRecurrenceRule, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, WeeklyRecurrenceRule>;
     reset(overrides?: Partial<WeeklyRecurrenceRule>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function weeklyRecurrenceRuleCreateForm(
@@ -183,13 +184,13 @@ export function weeklyRecurrenceRuleCreateForm(
 ): WeeklyRecurrenceRuleGigaform {
     let data = $state({ ...weeklyRecurrenceRuleDefaultValue(), ...overrides });
     let errors = $state<WeeklyRecurrenceRuleErrors>({
-        _errors: Option.none(),
-        quantityOfWeeks: Option.none(),
-        weekdays: Option.none()
+        _errors: optionNone(),
+        quantityOfWeeks: optionNone(),
+        weekdays: optionNone()
     });
     let tainted = $state<WeeklyRecurrenceRuleTainted>({
-        quantityOfWeeks: Option.none(),
-        weekdays: Option.none()
+        quantityOfWeeks: optionNone(),
+        weekdays: optionNone()
     });
     const fields: WeeklyRecurrenceRuleFieldControllers = {
         quantityOfWeeks: {
@@ -270,17 +271,13 @@ export function weeklyRecurrenceRuleCreateForm(
             }
         }
     };
-    function validate(): Result<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, WeeklyRecurrenceRule> {
         return weeklyRecurrenceRuleDeserialize(data);
     }
     function reset(newOverrides?: Partial<WeeklyRecurrenceRule>): void {
         data = { ...weeklyRecurrenceRuleDefaultValue(), ...newOverrides };
-        errors = {
-            _errors: Option.none(),
-            quantityOfWeeks: Option.none(),
-            weekdays: Option.none()
-        };
-        tainted = { quantityOfWeeks: Option.none(), weekdays: Option.none() };
+        errors = { _errors: optionNone(), quantityOfWeeks: optionNone(), weekdays: optionNone() };
+        tainted = { quantityOfWeeks: optionNone(), weekdays: optionNone() };
     }
     return {
         get data() {
@@ -308,7 +305,7 @@ export function weeklyRecurrenceRuleCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function weeklyRecurrenceRuleFromFormData(
     formData: FormData
-): Result<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, WeeklyRecurrenceRule> {
     const obj: Record<string, unknown> = {};
     {
         const quantityOfWeeksStr = formData.get('quantityOfWeeks');

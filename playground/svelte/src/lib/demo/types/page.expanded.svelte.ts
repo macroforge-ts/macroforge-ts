@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type Page =
@@ -360,7 +362,7 @@ export interface PageGigaform {
             | 'SalesSchedulingReminders'
             | 'UserHome'
     ): void;
-    validate(): Result<Page, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Page>;
     reset(overrides?: Partial<Page>): void;
 } /** Variant fields container */
 export interface PageVariantFields {
@@ -609,7 +611,7 @@ export function pageCreateForm(initial?: Page): PageGigaform {
         errors = {} as PageErrors;
         tainted = {} as PageTainted;
     }
-    function validate(): Result<Page, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Page> {
         return pageDeserialize(data);
     }
     function reset(overrides?: Partial<Page>): void {
@@ -647,7 +649,7 @@ export function pageCreateForm(initial?: Page): PageGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function pageFromFormData(
     formData: FormData
-): Result<Page, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Page> {
     const discriminant = formData.get('_value') as
         | 'SalesHomeDashboard'
         | 'SalesHomeProducts'
@@ -676,7 +678,7 @@ export function pageFromFormData(
         | 'UserHome'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

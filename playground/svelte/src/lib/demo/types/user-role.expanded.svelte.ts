@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type UserRole =
@@ -167,7 +169,7 @@ export interface UserRoleGigaform {
             | 'HumanResources'
             | 'InformationTechnology'
     ): void;
-    validate(): Result<UserRole, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, UserRole>;
     reset(overrides?: Partial<UserRole>): void;
 } /** Variant fields container */
 export interface UserRoleVariantFields {
@@ -238,7 +240,7 @@ export function userRoleCreateForm(initial?: UserRole): UserRoleGigaform {
         errors = {} as UserRoleErrors;
         tainted = {} as UserRoleTainted;
     }
-    function validate(): Result<UserRole, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, UserRole> {
         return userRoleDeserialize(data);
     }
     function reset(overrides?: Partial<UserRole>): void {
@@ -278,7 +280,7 @@ export function userRoleCreateForm(initial?: UserRole): UserRoleGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function userRoleFromFormData(
     formData: FormData
-): Result<UserRole, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, UserRole> {
     const discriminant = formData.get('_value') as
         | 'Administrator'
         | 'SalesRepresentative'
@@ -287,7 +289,7 @@ export function userRoleFromFormData(
         | 'InformationTechnology'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

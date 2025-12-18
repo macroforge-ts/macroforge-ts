@@ -12,8 +12,10 @@ import { dailyRecurrenceRuleDeserializeWithContext } from './daily-recurrence-ru
 import { monthlyRecurrenceRuleDeserializeWithContext } from './monthly-recurrence-rule.svelte';
 import { weeklyRecurrenceRuleDeserializeWithContext } from './weekly-recurrence-rule.svelte';
 import { yearlyRecurrenceRuleDeserializeWithContext } from './yearly-recurrence-rule.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { monthlyRecurrenceRuleDefaultValue } from './monthly-recurrence-rule.svelte';
 import { weeklyRecurrenceRuleDefaultValue } from './weekly-recurrence-rule.svelte';
@@ -190,7 +192,7 @@ export interface IntervalGigaform {
             | 'MonthlyRecurrenceRule'
             | 'YearlyRecurrenceRule'
     ): void;
-    validate(): Result<Interval, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Interval>;
     reset(overrides?: Partial<Interval>): void;
 } /** Variant fields container */
 export interface IntervalVariantFields {
@@ -252,7 +254,7 @@ export function intervalCreateForm(initial?: Interval): IntervalGigaform {
         errors = {} as IntervalErrors;
         tainted = {} as IntervalTainted;
     }
-    function validate(): Result<Interval, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Interval> {
         return intervalDeserialize(data);
     }
     function reset(overrides?: Partial<Interval>): void {
@@ -292,7 +294,7 @@ export function intervalCreateForm(initial?: Interval): IntervalGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function intervalFromFormData(
     formData: FormData
-): Result<Interval, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Interval> {
     const discriminant = formData.get('_type') as
         | 'DailyRecurrenceRule'
         | 'WeeklyRecurrenceRule'
@@ -300,7 +302,7 @@ export function intervalFromFormData(
         | 'YearlyRecurrenceRule'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_type', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;

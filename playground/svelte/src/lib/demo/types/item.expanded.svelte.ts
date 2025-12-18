@@ -9,8 +9,10 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { recordLinkDeserializeWithContext } from './record-link.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -143,7 +145,7 @@ export interface ItemGigaform {
     readonly tainted: ItemTainted;
     readonly variants: ItemVariantFields;
     switchVariant(variant: 'RecordLink<Product>' | 'RecordLink<Service>'): void;
-    validate(): Result<Item, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Item>;
     reset(overrides?: Partial<Item>): void;
 } /** Variant fields container */
 export interface ItemVariantFields {
@@ -176,7 +178,7 @@ export function itemCreateForm(initial?: Item): ItemGigaform {
         errors = {} as ItemErrors;
         tainted = {} as ItemTainted;
     }
-    function validate(): Result<Item, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Item> {
         return itemDeserialize(data);
     }
     function reset(overrides?: Partial<Item>): void {
@@ -214,13 +216,13 @@ export function itemCreateForm(initial?: Item): ItemGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function itemFromFormData(
     formData: FormData
-): Result<Item, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Item> {
     const discriminant = formData.get('_type') as
         | 'RecordLink<Product>'
         | 'RecordLink<Service>'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_type', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;

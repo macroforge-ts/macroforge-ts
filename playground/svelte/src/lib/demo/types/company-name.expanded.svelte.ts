@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -176,13 +177,13 @@ export interface CompanyNameGigaform {
     readonly errors: CompanyNameErrors;
     readonly tainted: CompanyNameTainted;
     readonly fields: CompanyNameFieldControllers;
-    validate(): Result<CompanyName, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, CompanyName>;
     reset(overrides?: Partial<CompanyName>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function companyNameCreateForm(overrides?: Partial<CompanyName>): CompanyNameGigaform {
     let data = $state({ ...companyNameDefaultValue(), ...overrides });
-    let errors = $state<CompanyNameErrors>({ _errors: Option.none(), companyName: Option.none() });
-    let tainted = $state<CompanyNameTainted>({ companyName: Option.none() });
+    let errors = $state<CompanyNameErrors>({ _errors: optionNone(), companyName: optionNone() });
+    let tainted = $state<CompanyNameTainted>({ companyName: optionNone() });
     const fields: CompanyNameFieldControllers = {
         companyName: {
             path: ['companyName'] as const,
@@ -208,13 +209,13 @@ export function companyNameCreateForm(overrides?: Partial<CompanyName>): Company
             }
         }
     };
-    function validate(): Result<CompanyName, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, CompanyName> {
         return companyNameDeserialize(data);
     }
     function reset(newOverrides?: Partial<CompanyName>): void {
         data = { ...companyNameDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), companyName: Option.none() };
-        tainted = { companyName: Option.none() };
+        errors = { _errors: optionNone(), companyName: optionNone() };
+        tainted = { companyName: optionNone() };
     }
     return {
         get data() {
@@ -242,7 +243,7 @@ export function companyNameCreateForm(overrides?: Partial<CompanyName>): Company
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function companyNameFromFormData(
     formData: FormData
-): Result<CompanyName, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, CompanyName> {
     const obj: Record<string, unknown> = {};
     obj.companyName = formData.get('companyName') ?? '';
     return companyNameDeserialize(obj);

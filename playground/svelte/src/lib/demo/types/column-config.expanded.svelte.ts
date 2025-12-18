@@ -10,8 +10,9 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { dataPathDeserializeWithContext } from './data-path.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 import { DataPath } from './data-path.svelte';
@@ -193,17 +194,17 @@ export interface ColumnConfigGigaform {
     readonly errors: ColumnConfigErrors;
     readonly tainted: ColumnConfigTainted;
     readonly fields: ColumnConfigFieldControllers;
-    validate(): Result<ColumnConfig, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, ColumnConfig>;
     reset(overrides?: Partial<ColumnConfig>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function columnConfigCreateForm(overrides?: Partial<ColumnConfig>): ColumnConfigGigaform {
     let data = $state({ ...columnConfigDefaultValue(), ...overrides });
     let errors = $state<ColumnConfigErrors>({
-        _errors: Option.none(),
-        heading: Option.none(),
-        dataPath: Option.none()
+        _errors: optionNone(),
+        heading: optionNone(),
+        dataPath: optionNone()
     });
-    let tainted = $state<ColumnConfigTainted>({ heading: Option.none(), dataPath: Option.none() });
+    let tainted = $state<ColumnConfigTainted>({ heading: optionNone(), dataPath: optionNone() });
     const fields: ColumnConfigFieldControllers = {
         heading: {
             path: ['heading'] as const,
@@ -250,13 +251,13 @@ export function columnConfigCreateForm(overrides?: Partial<ColumnConfig>): Colum
             }
         }
     };
-    function validate(): Result<ColumnConfig, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, ColumnConfig> {
         return columnConfigDeserialize(data);
     }
     function reset(newOverrides?: Partial<ColumnConfig>): void {
         data = { ...columnConfigDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), heading: Option.none(), dataPath: Option.none() };
-        tainted = { heading: Option.none(), dataPath: Option.none() };
+        errors = { _errors: optionNone(), heading: optionNone(), dataPath: optionNone() };
+        tainted = { heading: optionNone(), dataPath: optionNone() };
     }
     return {
         get data() {
@@ -284,7 +285,7 @@ export function columnConfigCreateForm(overrides?: Partial<ColumnConfig>): Colum
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function columnConfigFromFormData(
     formData: FormData
-): Result<ColumnConfig, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, ColumnConfig> {
     const obj: Record<string, unknown> = {};
     obj.heading = formData.get('heading') ?? '';
     {

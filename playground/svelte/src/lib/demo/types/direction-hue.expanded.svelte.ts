@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -166,17 +167,17 @@ export interface DirectionHueGigaform {
     readonly errors: DirectionHueErrors;
     readonly tainted: DirectionHueTainted;
     readonly fields: DirectionHueFieldControllers;
-    validate(): Result<DirectionHue, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, DirectionHue>;
     reset(overrides?: Partial<DirectionHue>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function directionHueCreateForm(overrides?: Partial<DirectionHue>): DirectionHueGigaform {
     let data = $state({ ...directionHueDefaultValue(), ...overrides });
     let errors = $state<DirectionHueErrors>({
-        _errors: Option.none(),
-        bearing: Option.none(),
-        hue: Option.none()
+        _errors: optionNone(),
+        bearing: optionNone(),
+        hue: optionNone()
     });
-    let tainted = $state<DirectionHueTainted>({ bearing: Option.none(), hue: Option.none() });
+    let tainted = $state<DirectionHueTainted>({ bearing: optionNone(), hue: optionNone() });
     const fields: DirectionHueFieldControllers = {
         bearing: {
             path: ['bearing'] as const,
@@ -223,13 +224,13 @@ export function directionHueCreateForm(overrides?: Partial<DirectionHue>): Direc
             }
         }
     };
-    function validate(): Result<DirectionHue, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, DirectionHue> {
         return directionHueDeserialize(data);
     }
     function reset(newOverrides?: Partial<DirectionHue>): void {
         data = { ...directionHueDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), bearing: Option.none(), hue: Option.none() };
-        tainted = { bearing: Option.none(), hue: Option.none() };
+        errors = { _errors: optionNone(), bearing: optionNone(), hue: optionNone() };
+        tainted = { bearing: optionNone(), hue: optionNone() };
     }
     return {
         get data() {
@@ -257,7 +258,7 @@ export function directionHueCreateForm(overrides?: Partial<DirectionHue>): Direc
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function directionHueFromFormData(
     formData: FormData
-): Result<DirectionHue, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, DirectionHue> {
     const obj: Record<string, unknown> = {};
     {
         const bearingStr = formData.get('bearing');

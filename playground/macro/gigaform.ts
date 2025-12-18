@@ -1,6 +1,16 @@
-// Re-export Result and Option for generated Gigaform code
-export { Result, Option } from "@rydshift/mirror/declarative";
-export type { Result as ResultType, Option as OptionType } from "@rydshift/mirror/declarative";
+// Re-export Effect types for Gigaform
+// NOTE: Gigaform requires returnTypes: "effect" in macroforge.config.ts
+export {
+  // Exit functions (deserialize return)
+  exitSucceed,
+  exitFail,
+  exitIsSuccess,
+  // Option functions (field controller state)
+  optionSome,
+  optionNone,
+  optionIsNone,
+} from "macroforge/reexports/effect";
+export type { Exit, Option } from "macroforge/reexports/effect";
 
 /** Base interface for field controllers */
 export interface FieldController<T> {

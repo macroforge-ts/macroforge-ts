@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -125,7 +127,7 @@ export interface OverviewDisplayGigaform {
     readonly tainted: OverviewDisplayTainted;
     readonly variants: OverviewDisplayVariantFields;
     switchVariant(variant: 'Card' | 'Table'): void;
-    validate(): Result<OverviewDisplay, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, OverviewDisplay>;
     reset(overrides?: Partial<OverviewDisplay>): void;
 } /** Variant fields container */
 export interface OverviewDisplayVariantFields {
@@ -160,7 +162,7 @@ export function overviewDisplayCreateForm(initial?: OverviewDisplay): OverviewDi
         errors = {} as OverviewDisplayErrors;
         tainted = {} as OverviewDisplayTainted;
     }
-    function validate(): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, OverviewDisplay> {
         return overviewDisplayDeserialize(data);
     }
     function reset(overrides?: Partial<OverviewDisplay>): void {
@@ -200,10 +202,10 @@ export function overviewDisplayCreateForm(initial?: OverviewDisplay): OverviewDi
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function overviewDisplayFromFormData(
     formData: FormData
-): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, OverviewDisplay> {
     const discriminant = formData.get('_value') as 'Card' | 'Table' | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

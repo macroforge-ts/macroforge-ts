@@ -9,8 +9,9 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { itemDeserializeWithContext } from './item.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -200,23 +201,23 @@ export interface BilledItemGigaform {
     readonly errors: BilledItemErrors;
     readonly tainted: BilledItemTainted;
     readonly fields: BilledItemFieldControllers;
-    validate(): Result<BilledItem, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, BilledItem>;
     reset(overrides?: Partial<BilledItem>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledItemGigaform {
     let data = $state({ ...billedItemDefaultValue(), ...overrides });
     let errors = $state<BilledItemErrors>({
-        _errors: Option.none(),
-        item: Option.none(),
-        quantity: Option.none(),
-        taxed: Option.none(),
-        upsale: Option.none()
+        _errors: optionNone(),
+        item: optionNone(),
+        quantity: optionNone(),
+        taxed: optionNone(),
+        upsale: optionNone()
     });
     let tainted = $state<BilledItemTainted>({
-        item: Option.none(),
-        quantity: Option.none(),
-        taxed: Option.none(),
-        upsale: Option.none()
+        item: optionNone(),
+        quantity: optionNone(),
+        taxed: optionNone(),
+        upsale: optionNone()
     });
     const fields: BilledItemFieldControllers = {
         item: {
@@ -312,23 +313,23 @@ export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledIte
             }
         }
     };
-    function validate(): Result<BilledItem, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, BilledItem> {
         return billedItemDeserialize(data);
     }
     function reset(newOverrides?: Partial<BilledItem>): void {
         data = { ...billedItemDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            item: Option.none(),
-            quantity: Option.none(),
-            taxed: Option.none(),
-            upsale: Option.none()
+            _errors: optionNone(),
+            item: optionNone(),
+            quantity: optionNone(),
+            taxed: optionNone(),
+            upsale: optionNone()
         };
         tainted = {
-            item: Option.none(),
-            quantity: Option.none(),
-            taxed: Option.none(),
-            upsale: Option.none()
+            item: optionNone(),
+            quantity: optionNone(),
+            taxed: optionNone(),
+            upsale: optionNone()
         };
     }
     return {
@@ -357,7 +358,7 @@ export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledIte
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function billedItemFromFormData(
     formData: FormData
-): Result<BilledItem, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, BilledItem> {
     const obj: Record<string, unknown> = {};
     {
         const itemObj: Record<string, unknown> = {};

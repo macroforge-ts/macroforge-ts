@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -232,21 +233,21 @@ export interface NumberGigaform {
     readonly errors: NumberErrors;
     readonly tainted: NumberTainted;
     readonly fields: NumberFieldControllers;
-    validate(): Result<Number, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Number>;
     reset(overrides?: Partial<Number>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
     let data = $state({ ...numberDefaultValue(), ...overrides });
     let errors = $state<NumberErrors>({
-        _errors: Option.none(),
-        countryCode: Option.none(),
-        areaCode: Option.none(),
-        localNumber: Option.none()
+        _errors: optionNone(),
+        countryCode: optionNone(),
+        areaCode: optionNone(),
+        localNumber: optionNone()
     });
     let tainted = $state<NumberTainted>({
-        countryCode: Option.none(),
-        areaCode: Option.none(),
-        localNumber: Option.none()
+        countryCode: optionNone(),
+        areaCode: optionNone(),
+        localNumber: optionNone()
     });
     const fields: NumberFieldControllers = {
         countryCode: {
@@ -316,22 +317,18 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
             }
         }
     };
-    function validate(): Result<Number, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Number> {
         return numberDeserialize(data);
     }
     function reset(newOverrides?: Partial<Number>): void {
         data = { ...numberDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            countryCode: Option.none(),
-            areaCode: Option.none(),
-            localNumber: Option.none()
+            _errors: optionNone(),
+            countryCode: optionNone(),
+            areaCode: optionNone(),
+            localNumber: optionNone()
         };
-        tainted = {
-            countryCode: Option.none(),
-            areaCode: Option.none(),
-            localNumber: Option.none()
-        };
+        tainted = { countryCode: optionNone(), areaCode: optionNone(), localNumber: optionNone() };
     }
     return {
         get data() {
@@ -359,7 +356,7 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function numberFromFormData(
     formData: FormData
-): Result<Number, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Number> {
     const obj: Record<string, unknown> = {};
     obj.countryCode = formData.get('countryCode') ?? '';
     obj.areaCode = formData.get('areaCode') ?? '';

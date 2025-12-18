@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -308,7 +310,7 @@ export interface TableGigaform {
             | 'Represents'
             | 'Ordered'
     ): void;
-    validate(): Result<Table, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Table>;
     reset(overrides?: Partial<Table>): void;
 } /** Variant fields container */
 export interface TableVariantFields {
@@ -481,7 +483,7 @@ export function tableCreateForm(initial?: Table): TableGigaform {
         errors = {} as TableErrors;
         tainted = {} as TableTainted;
     }
-    function validate(): Result<Table, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Table> {
         return tableDeserialize(data);
     }
     function reset(overrides?: Partial<Table>): void {
@@ -519,7 +521,7 @@ export function tableCreateForm(initial?: Table): TableGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function tableFromFormData(
     formData: FormData
-): Result<Table, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Table> {
     const discriminant = formData.get('_value') as
         | 'Account'
         | 'Did'
@@ -541,7 +543,7 @@ export function tableFromFormData(
         | 'Ordered'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

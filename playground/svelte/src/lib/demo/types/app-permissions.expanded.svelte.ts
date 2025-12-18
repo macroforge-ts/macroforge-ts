@@ -10,8 +10,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -194,7 +195,7 @@ export interface AppPermissionsGigaform {
     readonly errors: AppPermissionsErrors;
     readonly tainted: AppPermissionsTainted;
     readonly fields: AppPermissionsFieldControllers;
-    validate(): Result<AppPermissions, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, AppPermissions>;
     reset(overrides?: Partial<AppPermissions>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function appPermissionsCreateForm(
@@ -202,15 +203,15 @@ export function appPermissionsCreateForm(
 ): AppPermissionsGigaform {
     let data = $state({ ...appPermissionsDefaultValue(), ...overrides });
     let errors = $state<AppPermissionsErrors>({
-        _errors: Option.none(),
-        applications: Option.none(),
-        pages: Option.none(),
-        data: Option.none()
+        _errors: optionNone(),
+        applications: optionNone(),
+        pages: optionNone(),
+        data: optionNone()
     });
     let tainted = $state<AppPermissionsTainted>({
-        applications: Option.none(),
-        pages: Option.none(),
-        data: Option.none()
+        applications: optionNone(),
+        pages: optionNone(),
+        data: optionNone()
     });
     const fields: AppPermissionsFieldControllers = {
         applications: {
@@ -370,18 +371,18 @@ export function appPermissionsCreateForm(
             }
         }
     };
-    function validate(): Result<AppPermissions, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, AppPermissions> {
         return appPermissionsDeserialize(data);
     }
     function reset(newOverrides?: Partial<AppPermissions>): void {
         data = { ...appPermissionsDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            applications: Option.none(),
-            pages: Option.none(),
-            data: Option.none()
+            _errors: optionNone(),
+            applications: optionNone(),
+            pages: optionNone(),
+            data: optionNone()
         };
-        tainted = { applications: Option.none(), pages: Option.none(), data: Option.none() };
+        tainted = { applications: optionNone(), pages: optionNone(), data: optionNone() };
     }
     return {
         get data() {
@@ -409,7 +410,7 @@ export function appPermissionsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function appPermissionsFromFormData(
     formData: FormData
-): Result<AppPermissions, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, AppPermissions> {
     const obj: Record<string, unknown> = {};
     {
         const applicationsItems: Array<Record<string, unknown>> = [];

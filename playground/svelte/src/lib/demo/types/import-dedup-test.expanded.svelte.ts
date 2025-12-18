@@ -1,3 +1,7 @@
+import { optionSome as __mf_optionSome } from 'macroforge/reexports/effect';
+import { optionNone as __mf_optionNone } from 'macroforge/reexports/effect';
+import { optionIsNone as __mf_optionIsNone } from 'macroforge/reexports/effect';
+import type { Option as __mf_Option } from 'macroforge/reexports/effect';
 import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
 import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
 import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
@@ -6,10 +10,6 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { optionSome as __mf_optionSome } from 'macroforge/reexports/effect';
-import { optionNone as __mf_optionNone } from 'macroforge/reexports/effect';
-import { optionIsNone as __mf_optionIsNone } from 'macroforge/reexports/effect';
-import type { Option as __mf_Option } from 'macroforge/reexports/effect';
 /**
  * Stress test for aliased imports and tree-shaking.
  *

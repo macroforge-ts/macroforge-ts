@@ -10,8 +10,9 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { productDefaultsDeserializeWithContext } from './product-defaults.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -336,35 +337,35 @@ export interface ProductGigaform {
     readonly errors: ProductErrors;
     readonly tainted: ProductTainted;
     readonly fields: ProductFieldControllers;
-    validate(): Result<Product, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Product>;
     reset(overrides?: Partial<Product>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function productCreateForm(overrides?: Partial<Product>): ProductGigaform {
     let data = $state({ ...productDefaultValue(), ...overrides });
     let errors = $state<ProductErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        name: Option.none(),
-        quickCode: Option.none(),
-        group: Option.none(),
-        subgroup: Option.none(),
-        unit: Option.none(),
-        active: Option.none(),
-        commission: Option.none(),
-        favorite: Option.none(),
-        defaults: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        name: optionNone(),
+        quickCode: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        unit: optionNone(),
+        active: optionNone(),
+        commission: optionNone(),
+        favorite: optionNone(),
+        defaults: optionNone()
     });
     let tainted = $state<ProductTainted>({
-        id: Option.none(),
-        name: Option.none(),
-        quickCode: Option.none(),
-        group: Option.none(),
-        subgroup: Option.none(),
-        unit: Option.none(),
-        active: Option.none(),
-        commission: Option.none(),
-        favorite: Option.none(),
-        defaults: Option.none()
+        id: optionNone(),
+        name: optionNone(),
+        quickCode: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        unit: optionNone(),
+        active: optionNone(),
+        commission: optionNone(),
+        favorite: optionNone(),
+        defaults: optionNone()
     });
     const fields: ProductFieldControllers = {
         id: {
@@ -596,35 +597,35 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             }
         }
     };
-    function validate(): Result<Product, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Product> {
         return productDeserialize(data);
     }
     function reset(newOverrides?: Partial<Product>): void {
         data = { ...productDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            name: Option.none(),
-            quickCode: Option.none(),
-            group: Option.none(),
-            subgroup: Option.none(),
-            unit: Option.none(),
-            active: Option.none(),
-            commission: Option.none(),
-            favorite: Option.none(),
-            defaults: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            name: optionNone(),
+            quickCode: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            unit: optionNone(),
+            active: optionNone(),
+            commission: optionNone(),
+            favorite: optionNone(),
+            defaults: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            name: Option.none(),
-            quickCode: Option.none(),
-            group: Option.none(),
-            subgroup: Option.none(),
-            unit: Option.none(),
-            active: Option.none(),
-            commission: Option.none(),
-            favorite: Option.none(),
-            defaults: Option.none()
+            id: optionNone(),
+            name: optionNone(),
+            quickCode: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            unit: optionNone(),
+            active: optionNone(),
+            commission: optionNone(),
+            favorite: optionNone(),
+            defaults: optionNone()
         };
     }
     return {
@@ -653,7 +654,7 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function productFromFormData(
     formData: FormData
-): Result<Product, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Product> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.name = formData.get('name') ?? '';

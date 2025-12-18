@@ -1,3 +1,5 @@
+import { DateTime as __mf_DateTime } from 'effect';
+import { Option as __mf_Option } from 'effect';
 import { appPermissionsDefaultValue } from './app-permissions.svelte';
 import { settingsDefaultValue } from './settings.svelte';
 import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
@@ -15,8 +17,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { appPermissionsDeserializeWithContext } from './app-permissions.svelte';
 import { settingsDeserializeWithContext } from './settings.svelte';
 import { userRoleDeserializeWithContext } from './user-role.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -52,21 +55,21 @@ export interface User {
 export function userDefaultValue(): User {
     return {
         id: '',
-        email: (() => Option.none())(),
+        email: (() => __mf_Option.none())(),
         firstName: '',
         lastName: '',
-        password: (() => Option.none())(),
-        metadata: (() => Option.none())(),
+        password: (() => __mf_Option.none())(),
+        metadata: (() => __mf_Option.none())(),
         settings: settingsDefaultValue(),
         role: 'Administrator',
         emailVerified: false,
-        verificationToken: (() => Option.none())(),
-        verificationExpires: (() => Option.none())(),
-        passwordResetToken: (() => Option.none())(),
-        passwordResetExpires: (() => Option.none())(),
+        verificationToken: (() => __mf_Option.none())(),
+        verificationExpires: (() => __mf_Option.none())(),
+        passwordResetToken: (() => __mf_Option.none())(),
+        passwordResetExpires: (() => __mf_Option.none())(),
         permissions: appPermissionsDefaultValue(),
-        createdAt: (() => DateTime.unsafeNow())(),
-        lastLoginAt: (() => Option.none())()
+        createdAt: (() => __mf_DateTime.unsafeNow())(),
+        lastLoginAt: (() => __mf_Option.none())()
     } as User;
 }
 
@@ -91,29 +94,37 @@ export function userSerializeWithContext(
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'User', __id };
     result['id'] = value.id;
-    result['email'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.email);
+    result['email'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(value.email);
     result['firstName'] = value.firstName;
     result['lastName'] = value.lastName;
-    result['password'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.password);
-    result['metadata'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.metadata);
+    result['password'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
+        value.password
+    );
+    result['metadata'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
+        value.metadata
+    );
     result['settings'] = settingsSerializeWithContext(value.settings, ctx);
     result['role'] = userRoleSerializeWithContext(value.role, ctx);
     result['emailVerified'] = value.emailVerified;
-    result['verificationToken'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
+    result['verificationToken'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
         value.verificationToken
     );
-    result['verificationExpires'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
+    result['verificationExpires'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
         value.verificationExpires
     );
-    result['passwordResetToken'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
+    result['passwordResetToken'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
         value.passwordResetToken
     );
-    result['passwordResetExpires'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
+    result['passwordResetExpires'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
         value.passwordResetExpires
     );
     result['permissions'] = appPermissionsSerializeWithContext(value.permissions, ctx);
-    result['createdAt'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.createdAt);
-    result['lastLoginAt'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.lastLoginAt);
+    result['createdAt'] = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(
+        value.createdAt
+    );
+    result['lastLoginAt'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
+        value.lastLoginAt
+    );
     return result;
 }
 
@@ -223,9 +234,8 @@ export function userDeserializeWithContext(
         const __raw_id = obj['id'] as string;
         instance.id = __raw_id;
     }
-    instance.email = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['email']
-    );
+    instance.email = ((raw: unknown) =>
+        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['email']);
     {
         const __raw_firstName = obj['firstName'] as string;
         if (__raw_firstName.length === 0) {
@@ -240,12 +250,10 @@ export function userDeserializeWithContext(
         }
         instance.lastName = __raw_lastName;
     }
-    instance.password = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['password']
-    );
-    instance.metadata = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['metadata']
-    );
+    instance.password = ((raw: unknown) =>
+        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['password']);
+    instance.metadata = ((raw: unknown) =>
+        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['metadata']);
     {
         const __raw_settings = obj['settings'] as Settings;
         {
@@ -265,13 +273,13 @@ export function userDeserializeWithContext(
         instance.emailVerified = __raw_emailVerified;
     }
     instance.verificationToken = ((raw: unknown) =>
-        raw === null ? Option.none() : Option.some(raw))(obj['verificationToken']);
+        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['verificationToken']);
     instance.verificationExpires = ((raw: unknown) =>
-        raw === null ? Option.none() : Option.some(raw))(obj['verificationExpires']);
+        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['verificationExpires']);
     instance.passwordResetToken = ((raw: unknown) =>
-        raw === null ? Option.none() : Option.some(raw))(obj['passwordResetToken']);
+        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['passwordResetToken']);
     instance.passwordResetExpires = ((raw: unknown) =>
-        raw === null ? Option.none() : Option.some(raw))(obj['passwordResetExpires']);
+        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['passwordResetExpires']);
     {
         const __raw_permissions = obj['permissions'] as AppPermissions;
         {
@@ -279,12 +287,11 @@ export function userDeserializeWithContext(
             ctx.assignOrDefer(instance, 'permissions', __result);
         }
     }
-    instance.createdAt = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(
+    instance.createdAt = ((raw: unknown) => __mf_DateTime.unsafeFromDate(new Date(raw as string)))(
         obj['createdAt']
     );
-    instance.lastLoginAt = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['lastLoginAt']
-    );
+    instance.lastLoginAt = ((raw: unknown) =>
+        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['lastLoginAt']);
     if (errors.length > 0) {
         throw new __mf_DeserializeError(errors);
     }
@@ -423,47 +430,47 @@ export interface UserGigaform {
     readonly errors: UserErrors;
     readonly tainted: UserTainted;
     readonly fields: UserFieldControllers;
-    validate(): Result<User, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, User>;
     reset(overrides?: Partial<User>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function userCreateForm(overrides?: Partial<User>): UserGigaform {
     let data = $state({ ...userDefaultValue(), ...overrides });
     let errors = $state<UserErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        email: Option.none(),
-        firstName: Option.none(),
-        lastName: Option.none(),
-        password: Option.none(),
-        metadata: Option.none(),
-        settings: Option.none(),
-        role: Option.none(),
-        emailVerified: Option.none(),
-        verificationToken: Option.none(),
-        verificationExpires: Option.none(),
-        passwordResetToken: Option.none(),
-        passwordResetExpires: Option.none(),
-        permissions: Option.none(),
-        createdAt: Option.none(),
-        lastLoginAt: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        email: optionNone(),
+        firstName: optionNone(),
+        lastName: optionNone(),
+        password: optionNone(),
+        metadata: optionNone(),
+        settings: optionNone(),
+        role: optionNone(),
+        emailVerified: optionNone(),
+        verificationToken: optionNone(),
+        verificationExpires: optionNone(),
+        passwordResetToken: optionNone(),
+        passwordResetExpires: optionNone(),
+        permissions: optionNone(),
+        createdAt: optionNone(),
+        lastLoginAt: optionNone()
     });
     let tainted = $state<UserTainted>({
-        id: Option.none(),
-        email: Option.none(),
-        firstName: Option.none(),
-        lastName: Option.none(),
-        password: Option.none(),
-        metadata: Option.none(),
-        settings: Option.none(),
-        role: Option.none(),
-        emailVerified: Option.none(),
-        verificationToken: Option.none(),
-        verificationExpires: Option.none(),
-        passwordResetToken: Option.none(),
-        passwordResetExpires: Option.none(),
-        permissions: Option.none(),
-        createdAt: Option.none(),
-        lastLoginAt: Option.none()
+        id: optionNone(),
+        email: optionNone(),
+        firstName: optionNone(),
+        lastName: optionNone(),
+        password: optionNone(),
+        metadata: optionNone(),
+        settings: optionNone(),
+        role: optionNone(),
+        emailVerified: optionNone(),
+        verificationToken: optionNone(),
+        verificationExpires: optionNone(),
+        passwordResetToken: optionNone(),
+        passwordResetExpires: optionNone(),
+        permissions: optionNone(),
+        createdAt: optionNone(),
+        lastLoginAt: optionNone()
     });
     const fields: UserFieldControllers = {
         id: {
@@ -828,47 +835,47 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             }
         }
     };
-    function validate(): Result<User, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, User> {
         return userDeserialize(data);
     }
     function reset(newOverrides?: Partial<User>): void {
         data = { ...userDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            email: Option.none(),
-            firstName: Option.none(),
-            lastName: Option.none(),
-            password: Option.none(),
-            metadata: Option.none(),
-            settings: Option.none(),
-            role: Option.none(),
-            emailVerified: Option.none(),
-            verificationToken: Option.none(),
-            verificationExpires: Option.none(),
-            passwordResetToken: Option.none(),
-            passwordResetExpires: Option.none(),
-            permissions: Option.none(),
-            createdAt: Option.none(),
-            lastLoginAt: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            email: optionNone(),
+            firstName: optionNone(),
+            lastName: optionNone(),
+            password: optionNone(),
+            metadata: optionNone(),
+            settings: optionNone(),
+            role: optionNone(),
+            emailVerified: optionNone(),
+            verificationToken: optionNone(),
+            verificationExpires: optionNone(),
+            passwordResetToken: optionNone(),
+            passwordResetExpires: optionNone(),
+            permissions: optionNone(),
+            createdAt: optionNone(),
+            lastLoginAt: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            email: Option.none(),
-            firstName: Option.none(),
-            lastName: Option.none(),
-            password: Option.none(),
-            metadata: Option.none(),
-            settings: Option.none(),
-            role: Option.none(),
-            emailVerified: Option.none(),
-            verificationToken: Option.none(),
-            verificationExpires: Option.none(),
-            passwordResetToken: Option.none(),
-            passwordResetExpires: Option.none(),
-            permissions: Option.none(),
-            createdAt: Option.none(),
-            lastLoginAt: Option.none()
+            id: optionNone(),
+            email: optionNone(),
+            firstName: optionNone(),
+            lastName: optionNone(),
+            password: optionNone(),
+            metadata: optionNone(),
+            settings: optionNone(),
+            role: optionNone(),
+            emailVerified: optionNone(),
+            verificationToken: optionNone(),
+            verificationExpires: optionNone(),
+            passwordResetToken: optionNone(),
+            passwordResetExpires: optionNone(),
+            permissions: optionNone(),
+            createdAt: optionNone(),
+            lastLoginAt: optionNone()
         };
     }
     return {
@@ -897,7 +904,7 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function userFromFormData(
     formData: FormData
-): Result<User, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, User> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     {

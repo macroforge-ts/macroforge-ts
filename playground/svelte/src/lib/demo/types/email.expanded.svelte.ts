@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -196,17 +197,17 @@ export interface EmailGigaform {
     readonly errors: EmailErrors;
     readonly tainted: EmailTainted;
     readonly fields: EmailFieldControllers;
-    validate(): Result<Email, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Email>;
     reset(overrides?: Partial<Email>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function emailCreateForm(overrides?: Partial<Email>): EmailGigaform {
     let data = $state({ ...emailDefaultValue(), ...overrides });
     let errors = $state<EmailErrors>({
-        _errors: Option.none(),
-        canEmail: Option.none(),
-        emailString: Option.none()
+        _errors: optionNone(),
+        canEmail: optionNone(),
+        emailString: optionNone()
     });
-    let tainted = $state<EmailTainted>({ canEmail: Option.none(), emailString: Option.none() });
+    let tainted = $state<EmailTainted>({ canEmail: optionNone(), emailString: optionNone() });
     const fields: EmailFieldControllers = {
         canEmail: {
             path: ['canEmail'] as const,
@@ -255,13 +256,13 @@ export function emailCreateForm(overrides?: Partial<Email>): EmailGigaform {
             }
         }
     };
-    function validate(): Result<Email, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Email> {
         return emailDeserialize(data);
     }
     function reset(newOverrides?: Partial<Email>): void {
         data = { ...emailDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), canEmail: Option.none(), emailString: Option.none() };
-        tainted = { canEmail: Option.none(), emailString: Option.none() };
+        errors = { _errors: optionNone(), canEmail: optionNone(), emailString: optionNone() };
+        tainted = { canEmail: optionNone(), emailString: optionNone() };
     }
     return {
         get data() {
@@ -289,7 +290,7 @@ export function emailCreateForm(overrides?: Partial<Email>): EmailGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function emailFromFormData(
     formData: FormData
-): Result<Email, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Email> {
     const obj: Record<string, unknown> = {};
     {
         const canEmailVal = formData.get('canEmail');

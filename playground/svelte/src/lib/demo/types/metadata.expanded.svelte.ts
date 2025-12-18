@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -193,23 +194,23 @@ export interface MetadataGigaform {
     readonly errors: MetadataErrors;
     readonly tainted: MetadataTainted;
     readonly fields: MetadataFieldControllers;
-    validate(): Result<Metadata, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Metadata>;
     reset(overrides?: Partial<Metadata>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaform {
     let data = $state({ ...metadataDefaultValue(), ...overrides });
     let errors = $state<MetadataErrors>({
-        _errors: Option.none(),
-        createdAt: Option.none(),
-        lastLogin: Option.none(),
-        isActive: Option.none(),
-        roles: Option.none()
+        _errors: optionNone(),
+        createdAt: optionNone(),
+        lastLogin: optionNone(),
+        isActive: optionNone(),
+        roles: optionNone()
     });
     let tainted = $state<MetadataTainted>({
-        createdAt: Option.none(),
-        lastLogin: Option.none(),
-        isActive: Option.none(),
-        roles: Option.none()
+        createdAt: optionNone(),
+        lastLogin: optionNone(),
+        isActive: optionNone(),
+        roles: optionNone()
     });
     const fields: MetadataFieldControllers = {
         createdAt: {
@@ -331,23 +332,23 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
             }
         }
     };
-    function validate(): Result<Metadata, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Metadata> {
         return metadataDeserialize(data);
     }
     function reset(newOverrides?: Partial<Metadata>): void {
         data = { ...metadataDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            createdAt: Option.none(),
-            lastLogin: Option.none(),
-            isActive: Option.none(),
-            roles: Option.none()
+            _errors: optionNone(),
+            createdAt: optionNone(),
+            lastLogin: optionNone(),
+            isActive: optionNone(),
+            roles: optionNone()
         };
         tainted = {
-            createdAt: Option.none(),
-            lastLogin: Option.none(),
-            isActive: Option.none(),
-            roles: Option.none()
+            createdAt: optionNone(),
+            lastLogin: optionNone(),
+            isActive: optionNone(),
+            roles: optionNone()
         };
     }
     return {
@@ -376,7 +377,7 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function metadataFromFormData(
     formData: FormData
-): Result<Metadata, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Metadata> {
     const obj: Record<string, unknown> = {};
     obj.createdAt = formData.get('createdAt') ?? '';
     obj.lastLogin = formData.get('lastLogin') ?? '';

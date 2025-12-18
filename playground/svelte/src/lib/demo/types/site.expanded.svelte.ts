@@ -10,8 +10,9 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { coordinatesDeserializeWithContext } from './coordinates.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -406,39 +407,39 @@ export interface SiteGigaform {
     readonly errors: SiteErrors;
     readonly tainted: SiteTainted;
     readonly fields: SiteFieldControllers;
-    validate(): Result<Site, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Site>;
     reset(overrides?: Partial<Site>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function siteCreateForm(overrides?: Partial<Site>): SiteGigaform {
     let data = $state({ ...siteDefaultValue(), ...overrides });
     let errors = $state<SiteErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        addressLine1: Option.none(),
-        addressLine2: Option.none(),
-        sublocalityLevel1: Option.none(),
-        locality: Option.none(),
-        administrativeAreaLevel3: Option.none(),
-        administrativeAreaLevel2: Option.none(),
-        administrativeAreaLevel1: Option.none(),
-        country: Option.none(),
-        postalCode: Option.none(),
-        postalCodeSuffix: Option.none(),
-        coordinates: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        addressLine1: optionNone(),
+        addressLine2: optionNone(),
+        sublocalityLevel1: optionNone(),
+        locality: optionNone(),
+        administrativeAreaLevel3: optionNone(),
+        administrativeAreaLevel2: optionNone(),
+        administrativeAreaLevel1: optionNone(),
+        country: optionNone(),
+        postalCode: optionNone(),
+        postalCodeSuffix: optionNone(),
+        coordinates: optionNone()
     });
     let tainted = $state<SiteTainted>({
-        id: Option.none(),
-        addressLine1: Option.none(),
-        addressLine2: Option.none(),
-        sublocalityLevel1: Option.none(),
-        locality: Option.none(),
-        administrativeAreaLevel3: Option.none(),
-        administrativeAreaLevel2: Option.none(),
-        administrativeAreaLevel1: Option.none(),
-        country: Option.none(),
-        postalCode: Option.none(),
-        postalCodeSuffix: Option.none(),
-        coordinates: Option.none()
+        id: optionNone(),
+        addressLine1: optionNone(),
+        addressLine2: optionNone(),
+        sublocalityLevel1: optionNone(),
+        locality: optionNone(),
+        administrativeAreaLevel3: optionNone(),
+        administrativeAreaLevel2: optionNone(),
+        administrativeAreaLevel1: optionNone(),
+        country: optionNone(),
+        postalCode: optionNone(),
+        postalCodeSuffix: optionNone(),
+        coordinates: optionNone()
     });
     const fields: SiteFieldControllers = {
         id: {
@@ -715,39 +716,39 @@ export function siteCreateForm(overrides?: Partial<Site>): SiteGigaform {
             }
         }
     };
-    function validate(): Result<Site, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Site> {
         return siteDeserialize(data);
     }
     function reset(newOverrides?: Partial<Site>): void {
         data = { ...siteDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            addressLine1: Option.none(),
-            addressLine2: Option.none(),
-            sublocalityLevel1: Option.none(),
-            locality: Option.none(),
-            administrativeAreaLevel3: Option.none(),
-            administrativeAreaLevel2: Option.none(),
-            administrativeAreaLevel1: Option.none(),
-            country: Option.none(),
-            postalCode: Option.none(),
-            postalCodeSuffix: Option.none(),
-            coordinates: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            addressLine1: optionNone(),
+            addressLine2: optionNone(),
+            sublocalityLevel1: optionNone(),
+            locality: optionNone(),
+            administrativeAreaLevel3: optionNone(),
+            administrativeAreaLevel2: optionNone(),
+            administrativeAreaLevel1: optionNone(),
+            country: optionNone(),
+            postalCode: optionNone(),
+            postalCodeSuffix: optionNone(),
+            coordinates: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            addressLine1: Option.none(),
-            addressLine2: Option.none(),
-            sublocalityLevel1: Option.none(),
-            locality: Option.none(),
-            administrativeAreaLevel3: Option.none(),
-            administrativeAreaLevel2: Option.none(),
-            administrativeAreaLevel1: Option.none(),
-            country: Option.none(),
-            postalCode: Option.none(),
-            postalCodeSuffix: Option.none(),
-            coordinates: Option.none()
+            id: optionNone(),
+            addressLine1: optionNone(),
+            addressLine2: optionNone(),
+            sublocalityLevel1: optionNone(),
+            locality: optionNone(),
+            administrativeAreaLevel3: optionNone(),
+            administrativeAreaLevel2: optionNone(),
+            administrativeAreaLevel1: optionNone(),
+            country: optionNone(),
+            postalCode: optionNone(),
+            postalCodeSuffix: optionNone(),
+            coordinates: optionNone()
         };
     }
     return {
@@ -776,7 +777,7 @@ export function siteCreateForm(overrides?: Partial<Site>): SiteGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function siteFromFormData(
     formData: FormData
-): Result<Site, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Site> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.addressLine1 = formData.get('addressLine1') ?? '';

@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -190,7 +191,7 @@ export interface ServiceDefaultsGigaform {
     readonly errors: ServiceDefaultsErrors;
     readonly tainted: ServiceDefaultsTainted;
     readonly fields: ServiceDefaultsFieldControllers;
-    validate(): Result<ServiceDefaults, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, ServiceDefaults>;
     reset(overrides?: Partial<ServiceDefaults>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function serviceDefaultsCreateForm(
@@ -198,13 +199,13 @@ export function serviceDefaultsCreateForm(
 ): ServiceDefaultsGigaform {
     let data = $state({ ...serviceDefaultsDefaultValue(), ...overrides });
     let errors = $state<ServiceDefaultsErrors>({
-        _errors: Option.none(),
-        price: Option.none(),
-        description: Option.none()
+        _errors: optionNone(),
+        price: optionNone(),
+        description: optionNone()
     });
     let tainted = $state<ServiceDefaultsTainted>({
-        price: Option.none(),
-        description: Option.none()
+        price: optionNone(),
+        description: optionNone()
     });
     const fields: ServiceDefaultsFieldControllers = {
         price: {
@@ -254,13 +255,13 @@ export function serviceDefaultsCreateForm(
             }
         }
     };
-    function validate(): Result<ServiceDefaults, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, ServiceDefaults> {
         return serviceDefaultsDeserialize(data);
     }
     function reset(newOverrides?: Partial<ServiceDefaults>): void {
         data = { ...serviceDefaultsDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), price: Option.none(), description: Option.none() };
-        tainted = { price: Option.none(), description: Option.none() };
+        errors = { _errors: optionNone(), price: optionNone(), description: optionNone() };
+        tainted = { price: optionNone(), description: optionNone() };
     }
     return {
         get data() {
@@ -288,7 +289,7 @@ export function serviceDefaultsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function serviceDefaultsFromFormData(
     formData: FormData
-): Result<ServiceDefaults, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, ServiceDefaults> {
     const obj: Record<string, unknown> = {};
     {
         const priceStr = formData.get('price');

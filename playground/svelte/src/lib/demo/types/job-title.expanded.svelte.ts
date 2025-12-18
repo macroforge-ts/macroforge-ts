@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type JobTitle =
@@ -153,7 +155,7 @@ export interface JobTitleGigaform {
     switchVariant(
         variant: 'Technician' | 'SalesRepresentative' | 'HumanResources' | 'InformationTechnology'
     ): void;
-    validate(): Result<JobTitle, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, JobTitle>;
     reset(overrides?: Partial<JobTitle>): void;
 } /** Variant fields container */
 export interface JobTitleVariantFields {
@@ -209,7 +211,7 @@ export function jobTitleCreateForm(initial?: JobTitle): JobTitleGigaform {
         errors = {} as JobTitleErrors;
         tainted = {} as JobTitleTainted;
     }
-    function validate(): Result<JobTitle, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, JobTitle> {
         return jobTitleDeserialize(data);
     }
     function reset(overrides?: Partial<JobTitle>): void {
@@ -249,7 +251,7 @@ export function jobTitleCreateForm(initial?: JobTitle): JobTitleGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function jobTitleFromFormData(
     formData: FormData
-): Result<JobTitle, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, JobTitle> {
     const discriminant = formData.get('_value') as
         | 'Technician'
         | 'SalesRepresentative'
@@ -257,7 +259,7 @@ export function jobTitleFromFormData(
         | 'InformationTechnology'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

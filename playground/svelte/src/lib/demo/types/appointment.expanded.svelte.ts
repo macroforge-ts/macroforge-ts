@@ -1,3 +1,5 @@
+import { DateTime as __mf_DateTime } from 'effect';
+import { Option as __mf_Option } from 'effect';
 import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { colorsSerializeWithContext } from './colors.svelte';
 import { recurrenceRuleSerializeWithContext } from './recurrence-rule.svelte';
@@ -13,8 +15,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { colorsDeserializeWithContext } from './colors.svelte';
 import { recurrenceRuleDeserializeWithContext } from './recurrence-rule.svelte';
 import { statusDeserializeWithContext } from './status.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -62,7 +65,7 @@ export function appointmentDefaultValue(): Appointment {
         id: '',
         title: '',
         status: 'Scheduled',
-        begins: (() => DateTime.unsafeNow())(),
+        begins: (() => __mf_DateTime.unsafeNow())(),
         duration: 0,
         timeZone: '',
         offsetMs: 0,
@@ -70,7 +73,7 @@ export function appointmentDefaultValue(): Appointment {
         multiDay: false,
         employees: [],
         location: '',
-        description: (() => Option.none())(),
+        description: (() => __mf_Option.none())(),
         colors: { main: '#000000', hover: '#333333', active: '#666666' },
         recurrenceRule: null
     } as Appointment;
@@ -99,7 +102,7 @@ export function appointmentSerializeWithContext(
     result['id'] = value.id;
     result['title'] = value.title;
     result['status'] = statusSerializeWithContext(value.status, ctx);
-    result['begins'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.begins);
+    result['begins'] = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(value.begins);
     result['duration'] = value.duration;
     result['timeZone'] = value.timeZone;
     result['offsetMs'] = value.offsetMs;
@@ -107,7 +110,9 @@ export function appointmentSerializeWithContext(
     result['multiDay'] = value.multiDay;
     result['employees'] = value.employees;
     result['location'] = value.location;
-    result['description'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.description);
+    result['description'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
+        value.description
+    );
     result['colors'] = colorsSerializeWithContext(value.colors, ctx);
     if (value.recurrenceRule !== null) {
         result['recurrenceRule'] = recurrenceRuleSerializeWithContext(value.recurrenceRule, ctx);
@@ -234,7 +239,7 @@ export function appointmentDeserializeWithContext(
             ctx.assignOrDefer(instance, 'status', __result);
         }
     }
-    instance.begins = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(
+    instance.begins = ((raw: unknown) => __mf_DateTime.unsafeFromDate(new Date(raw as string)))(
         obj['begins']
     );
     {
@@ -267,9 +272,8 @@ export function appointmentDeserializeWithContext(
         const __raw_location = obj['location'] as string | Site;
         instance.location = __raw_location;
     }
-    instance.description = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['description']
-    );
+    instance.description = ((raw: unknown) =>
+        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['description']);
     {
         const __raw_colors = obj['colors'] as Colors;
         {
@@ -403,43 +407,43 @@ export interface AppointmentGigaform {
     readonly errors: AppointmentErrors;
     readonly tainted: AppointmentTainted;
     readonly fields: AppointmentFieldControllers;
-    validate(): Result<Appointment, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Appointment>;
     reset(overrides?: Partial<Appointment>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function appointmentCreateForm(overrides?: Partial<Appointment>): AppointmentGigaform {
     let data = $state({ ...appointmentDefaultValue(), ...overrides });
     let errors = $state<AppointmentErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        title: Option.none(),
-        status: Option.none(),
-        begins: Option.none(),
-        duration: Option.none(),
-        timeZone: Option.none(),
-        offsetMs: Option.none(),
-        allDay: Option.none(),
-        multiDay: Option.none(),
-        employees: Option.none(),
-        location: Option.none(),
-        description: Option.none(),
-        colors: Option.none(),
-        recurrenceRule: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        title: optionNone(),
+        status: optionNone(),
+        begins: optionNone(),
+        duration: optionNone(),
+        timeZone: optionNone(),
+        offsetMs: optionNone(),
+        allDay: optionNone(),
+        multiDay: optionNone(),
+        employees: optionNone(),
+        location: optionNone(),
+        description: optionNone(),
+        colors: optionNone(),
+        recurrenceRule: optionNone()
     });
     let tainted = $state<AppointmentTainted>({
-        id: Option.none(),
-        title: Option.none(),
-        status: Option.none(),
-        begins: Option.none(),
-        duration: Option.none(),
-        timeZone: Option.none(),
-        offsetMs: Option.none(),
-        allDay: Option.none(),
-        multiDay: Option.none(),
-        employees: Option.none(),
-        location: Option.none(),
-        description: Option.none(),
-        colors: Option.none(),
-        recurrenceRule: Option.none()
+        id: optionNone(),
+        title: optionNone(),
+        status: optionNone(),
+        begins: optionNone(),
+        duration: optionNone(),
+        timeZone: optionNone(),
+        offsetMs: optionNone(),
+        allDay: optionNone(),
+        multiDay: optionNone(),
+        employees: optionNone(),
+        location: optionNone(),
+        description: optionNone(),
+        colors: optionNone(),
+        recurrenceRule: optionNone()
     });
     const fields: AppointmentFieldControllers = {
         id: {
@@ -791,43 +795,43 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             }
         }
     };
-    function validate(): Result<Appointment, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Appointment> {
         return appointmentDeserialize(data);
     }
     function reset(newOverrides?: Partial<Appointment>): void {
         data = { ...appointmentDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            title: Option.none(),
-            status: Option.none(),
-            begins: Option.none(),
-            duration: Option.none(),
-            timeZone: Option.none(),
-            offsetMs: Option.none(),
-            allDay: Option.none(),
-            multiDay: Option.none(),
-            employees: Option.none(),
-            location: Option.none(),
-            description: Option.none(),
-            colors: Option.none(),
-            recurrenceRule: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            title: optionNone(),
+            status: optionNone(),
+            begins: optionNone(),
+            duration: optionNone(),
+            timeZone: optionNone(),
+            offsetMs: optionNone(),
+            allDay: optionNone(),
+            multiDay: optionNone(),
+            employees: optionNone(),
+            location: optionNone(),
+            description: optionNone(),
+            colors: optionNone(),
+            recurrenceRule: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            title: Option.none(),
-            status: Option.none(),
-            begins: Option.none(),
-            duration: Option.none(),
-            timeZone: Option.none(),
-            offsetMs: Option.none(),
-            allDay: Option.none(),
-            multiDay: Option.none(),
-            employees: Option.none(),
-            location: Option.none(),
-            description: Option.none(),
-            colors: Option.none(),
-            recurrenceRule: Option.none()
+            id: optionNone(),
+            title: optionNone(),
+            status: optionNone(),
+            begins: optionNone(),
+            duration: optionNone(),
+            timeZone: optionNone(),
+            offsetMs: optionNone(),
+            allDay: optionNone(),
+            multiDay: optionNone(),
+            employees: optionNone(),
+            location: optionNone(),
+            description: optionNone(),
+            colors: optionNone(),
+            recurrenceRule: optionNone()
         };
     }
     return {
@@ -856,7 +860,7 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function appointmentFromFormData(
     formData: FormData
-): Result<Appointment, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Appointment> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.title = formData.get('title') ?? '';

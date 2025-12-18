@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -232,21 +233,21 @@ export interface EmailPartsGigaform {
     readonly errors: EmailPartsErrors;
     readonly tainted: EmailPartsTainted;
     readonly fields: EmailPartsFieldControllers;
-    validate(): Result<EmailParts, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, EmailParts>;
     reset(overrides?: Partial<EmailParts>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPartsGigaform {
     let data = $state({ ...emailPartsDefaultValue(), ...overrides });
     let errors = $state<EmailPartsErrors>({
-        _errors: Option.none(),
-        local: Option.none(),
-        domainName: Option.none(),
-        topLevelDomain: Option.none()
+        _errors: optionNone(),
+        local: optionNone(),
+        domainName: optionNone(),
+        topLevelDomain: optionNone()
     });
     let tainted = $state<EmailPartsTainted>({
-        local: Option.none(),
-        domainName: Option.none(),
-        topLevelDomain: Option.none()
+        local: optionNone(),
+        domainName: optionNone(),
+        topLevelDomain: optionNone()
     });
     const fields: EmailPartsFieldControllers = {
         local: {
@@ -316,22 +317,18 @@ export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPart
             }
         }
     };
-    function validate(): Result<EmailParts, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, EmailParts> {
         return emailPartsDeserialize(data);
     }
     function reset(newOverrides?: Partial<EmailParts>): void {
         data = { ...emailPartsDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            local: Option.none(),
-            domainName: Option.none(),
-            topLevelDomain: Option.none()
+            _errors: optionNone(),
+            local: optionNone(),
+            domainName: optionNone(),
+            topLevelDomain: optionNone()
         };
-        tainted = {
-            local: Option.none(),
-            domainName: Option.none(),
-            topLevelDomain: Option.none()
-        };
+        tainted = { local: optionNone(), domainName: optionNone(), topLevelDomain: optionNone() };
     }
     return {
         get data() {
@@ -359,7 +356,7 @@ export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPart
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function emailPartsFromFormData(
     formData: FormData
-): Result<EmailParts, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, EmailParts> {
     const obj: Record<string, unknown> = {};
     obj.local = formData.get('local') ?? '';
     obj.domainName = formData.get('domainName') ?? '';

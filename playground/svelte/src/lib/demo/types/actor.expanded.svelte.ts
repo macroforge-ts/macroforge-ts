@@ -11,8 +11,10 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { accountDeserializeWithContext } from './account.svelte';
 import { employeeDeserializeWithContext } from './employee.svelte';
 import { userDeserializeWithContext } from './user.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { accountDefaultValue } from './account.svelte';
 import { employeeDefaultValue } from './employee.svelte';
@@ -151,7 +153,7 @@ export interface ActorGigaform {
     readonly tainted: ActorTainted;
     readonly variants: ActorVariantFields;
     switchVariant(variant: 'User' | 'Employee' | 'Account'): void;
-    validate(): Result<Actor, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Actor>;
     reset(overrides?: Partial<Actor>): void;
 } /** Variant fields container */
 export interface ActorVariantFields {
@@ -188,7 +190,7 @@ export function actorCreateForm(initial?: Actor): ActorGigaform {
         errors = {} as ActorErrors;
         tainted = {} as ActorTainted;
     }
-    function validate(): Result<Actor, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Actor> {
         return actorDeserialize(data);
     }
     function reset(overrides?: Partial<Actor>): void {
@@ -226,10 +228,10 @@ export function actorCreateForm(initial?: Actor): ActorGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function actorFromFormData(
     formData: FormData
-): Result<Actor, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Actor> {
     const discriminant = formData.get('_type') as 'User' | 'Employee' | 'Account' | null;
     if (!discriminant) {
-        return Result.err([{ field: '_type', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;

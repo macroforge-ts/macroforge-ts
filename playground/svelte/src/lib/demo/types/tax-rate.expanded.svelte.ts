@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -393,35 +394,35 @@ export interface TaxRateGigaform {
     readonly errors: TaxRateErrors;
     readonly tainted: TaxRateTainted;
     readonly fields: TaxRateFieldControllers;
-    validate(): Result<TaxRate, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, TaxRate>;
     reset(overrides?: Partial<TaxRate>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform {
     let data = $state({ ...taxRateDefaultValue(), ...overrides });
     let errors = $state<TaxRateErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        name: Option.none(),
-        taxAgency: Option.none(),
-        zip: Option.none(),
-        city: Option.none(),
-        county: Option.none(),
-        state: Option.none(),
-        isActive: Option.none(),
-        description: Option.none(),
-        taxComponents: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        name: optionNone(),
+        taxAgency: optionNone(),
+        zip: optionNone(),
+        city: optionNone(),
+        county: optionNone(),
+        state: optionNone(),
+        isActive: optionNone(),
+        description: optionNone(),
+        taxComponents: optionNone()
     });
     let tainted = $state<TaxRateTainted>({
-        id: Option.none(),
-        name: Option.none(),
-        taxAgency: Option.none(),
-        zip: Option.none(),
-        city: Option.none(),
-        county: Option.none(),
-        state: Option.none(),
-        isActive: Option.none(),
-        description: Option.none(),
-        taxComponents: Option.none()
+        id: optionNone(),
+        name: optionNone(),
+        taxAgency: optionNone(),
+        zip: optionNone(),
+        city: optionNone(),
+        county: optionNone(),
+        state: optionNone(),
+        isActive: optionNone(),
+        description: optionNone(),
+        taxComponents: optionNone()
     });
     const fields: TaxRateFieldControllers = {
         id: {
@@ -653,35 +654,35 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             }
         }
     };
-    function validate(): Result<TaxRate, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, TaxRate> {
         return taxRateDeserialize(data);
     }
     function reset(newOverrides?: Partial<TaxRate>): void {
         data = { ...taxRateDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            name: Option.none(),
-            taxAgency: Option.none(),
-            zip: Option.none(),
-            city: Option.none(),
-            county: Option.none(),
-            state: Option.none(),
-            isActive: Option.none(),
-            description: Option.none(),
-            taxComponents: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            name: optionNone(),
+            taxAgency: optionNone(),
+            zip: optionNone(),
+            city: optionNone(),
+            county: optionNone(),
+            state: optionNone(),
+            isActive: optionNone(),
+            description: optionNone(),
+            taxComponents: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            name: Option.none(),
-            taxAgency: Option.none(),
-            zip: Option.none(),
-            city: Option.none(),
-            county: Option.none(),
-            state: Option.none(),
-            isActive: Option.none(),
-            description: Option.none(),
-            taxComponents: Option.none()
+            id: optionNone(),
+            name: optionNone(),
+            taxAgency: optionNone(),
+            zip: optionNone(),
+            city: optionNone(),
+            county: optionNone(),
+            state: optionNone(),
+            isActive: optionNone(),
+            description: optionNone(),
+            taxComponents: optionNone()
         };
     }
     return {
@@ -710,7 +711,7 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function taxRateFromFormData(
     formData: FormData
-): Result<TaxRate, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, TaxRate> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.name = formData.get('name') ?? '';

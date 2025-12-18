@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type NextStep = /** @default */ 'InitialContact' | 'Qualified' | 'Estimate' | 'Negotiation';
@@ -131,7 +133,7 @@ export interface NextStepGigaform {
     readonly tainted: NextStepTainted;
     readonly variants: NextStepVariantFields;
     switchVariant(variant: 'InitialContact' | 'Qualified' | 'Estimate' | 'Negotiation'): void;
-    validate(): Result<NextStep, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, NextStep>;
     reset(overrides?: Partial<NextStep>): void;
 } /** Variant fields container */
 export interface NextStepVariantFields {
@@ -178,7 +180,7 @@ export function nextStepCreateForm(initial?: NextStep): NextStepGigaform {
         errors = {} as NextStepErrors;
         tainted = {} as NextStepTainted;
     }
-    function validate(): Result<NextStep, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, NextStep> {
         return nextStepDeserialize(data);
     }
     function reset(overrides?: Partial<NextStep>): void {
@@ -218,7 +220,7 @@ export function nextStepCreateForm(initial?: NextStep): NextStepGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function nextStepFromFormData(
     formData: FormData
-): Result<NextStep, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, NextStep> {
     const discriminant = formData.get('_value') as
         | 'InitialContact'
         | 'Qualified'
@@ -226,7 +228,7 @@ export function nextStepFromFormData(
         | 'Negotiation'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

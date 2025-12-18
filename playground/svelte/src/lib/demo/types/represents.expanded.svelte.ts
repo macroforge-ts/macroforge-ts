@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -194,23 +195,23 @@ export interface RepresentsGigaform {
     readonly errors: RepresentsErrors;
     readonly tainted: RepresentsTainted;
     readonly fields: RepresentsFieldControllers;
-    validate(): Result<Represents, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Represents>;
     reset(overrides?: Partial<Represents>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function representsCreateForm(overrides?: Partial<Represents>): RepresentsGigaform {
     let data = $state({ ...representsDefaultValue(), ...overrides });
     let errors = $state<RepresentsErrors>({
-        _errors: Option.none(),
-        in: Option.none(),
-        out: Option.none(),
-        id: Option.none(),
-        dateStarted: Option.none()
+        _errors: optionNone(),
+        in: optionNone(),
+        out: optionNone(),
+        id: optionNone(),
+        dateStarted: optionNone()
     });
     let tainted = $state<RepresentsTainted>({
-        in: Option.none(),
-        out: Option.none(),
-        id: Option.none(),
-        dateStarted: Option.none()
+        in: optionNone(),
+        out: optionNone(),
+        id: optionNone(),
+        dateStarted: optionNone()
     });
     const fields: RepresentsFieldControllers = {
         in: {
@@ -302,23 +303,23 @@ export function representsCreateForm(overrides?: Partial<Represents>): Represent
             }
         }
     };
-    function validate(): Result<Represents, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Represents> {
         return representsDeserialize(data);
     }
     function reset(newOverrides?: Partial<Represents>): void {
         data = { ...representsDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            in: Option.none(),
-            out: Option.none(),
-            id: Option.none(),
-            dateStarted: Option.none()
+            _errors: optionNone(),
+            in: optionNone(),
+            out: optionNone(),
+            id: optionNone(),
+            dateStarted: optionNone()
         };
         tainted = {
-            in: Option.none(),
-            out: Option.none(),
-            id: Option.none(),
-            dateStarted: Option.none()
+            in: optionNone(),
+            out: optionNone(),
+            id: optionNone(),
+            dateStarted: optionNone()
         };
     }
     return {
@@ -347,7 +348,7 @@ export function representsCreateForm(overrides?: Partial<Represents>): Represent
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function representsFromFormData(
     formData: FormData
-): Result<Represents, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Represents> {
     const obj: Record<string, unknown> = {};
     obj.in = formData.get('in') ?? '';
     obj.out = formData.get('out') ?? '';

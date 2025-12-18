@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -157,7 +158,7 @@ export interface DailyRecurrenceRuleGigaform {
     readonly errors: DailyRecurrenceRuleErrors;
     readonly tainted: DailyRecurrenceRuleTainted;
     readonly fields: DailyRecurrenceRuleFieldControllers;
-    validate(): Result<DailyRecurrenceRule, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, DailyRecurrenceRule>;
     reset(overrides?: Partial<DailyRecurrenceRule>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function dailyRecurrenceRuleCreateForm(
@@ -165,10 +166,10 @@ export function dailyRecurrenceRuleCreateForm(
 ): DailyRecurrenceRuleGigaform {
     let data = $state({ ...dailyRecurrenceRuleDefaultValue(), ...overrides });
     let errors = $state<DailyRecurrenceRuleErrors>({
-        _errors: Option.none(),
-        quantityOfDays: Option.none()
+        _errors: optionNone(),
+        quantityOfDays: optionNone()
     });
-    let tainted = $state<DailyRecurrenceRuleTainted>({ quantityOfDays: Option.none() });
+    let tainted = $state<DailyRecurrenceRuleTainted>({ quantityOfDays: optionNone() });
     const fields: DailyRecurrenceRuleFieldControllers = {
         quantityOfDays: {
             path: ['quantityOfDays'] as const,
@@ -196,13 +197,13 @@ export function dailyRecurrenceRuleCreateForm(
             }
         }
     };
-    function validate(): Result<DailyRecurrenceRule, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, DailyRecurrenceRule> {
         return dailyRecurrenceRuleDeserialize(data);
     }
     function reset(newOverrides?: Partial<DailyRecurrenceRule>): void {
         data = { ...dailyRecurrenceRuleDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), quantityOfDays: Option.none() };
-        tainted = { quantityOfDays: Option.none() };
+        errors = { _errors: optionNone(), quantityOfDays: optionNone() };
+        tainted = { quantityOfDays: optionNone() };
     }
     return {
         get data() {
@@ -230,7 +231,7 @@ export function dailyRecurrenceRuleCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function dailyRecurrenceRuleFromFormData(
     formData: FormData
-): Result<DailyRecurrenceRule, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, DailyRecurrenceRule> {
     const obj: Record<string, unknown> = {};
     {
         const quantityOfDaysStr = formData.get('quantityOfDays');

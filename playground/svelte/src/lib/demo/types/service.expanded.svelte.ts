@@ -10,8 +10,9 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { serviceDefaultsDeserializeWithContext } from './service-defaults.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -351,37 +352,37 @@ export interface ServiceGigaform {
     readonly errors: ServiceErrors;
     readonly tainted: ServiceTainted;
     readonly fields: ServiceFieldControllers;
-    validate(): Result<Service, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Service>;
     reset(overrides?: Partial<Service>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function serviceCreateForm(overrides?: Partial<Service>): ServiceGigaform {
     let data = $state({ ...serviceDefaultValue(), ...overrides });
     let errors = $state<ServiceErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        name: Option.none(),
-        quickCode: Option.none(),
-        group: Option.none(),
-        subgroup: Option.none(),
-        unit: Option.none(),
-        active: Option.none(),
-        commission: Option.none(),
-        favorite: Option.none(),
-        averageTime: Option.none(),
-        defaults: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        name: optionNone(),
+        quickCode: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        unit: optionNone(),
+        active: optionNone(),
+        commission: optionNone(),
+        favorite: optionNone(),
+        averageTime: optionNone(),
+        defaults: optionNone()
     });
     let tainted = $state<ServiceTainted>({
-        id: Option.none(),
-        name: Option.none(),
-        quickCode: Option.none(),
-        group: Option.none(),
-        subgroup: Option.none(),
-        unit: Option.none(),
-        active: Option.none(),
-        commission: Option.none(),
-        favorite: Option.none(),
-        averageTime: Option.none(),
-        defaults: Option.none()
+        id: optionNone(),
+        name: optionNone(),
+        quickCode: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        unit: optionNone(),
+        active: optionNone(),
+        commission: optionNone(),
+        favorite: optionNone(),
+        averageTime: optionNone(),
+        defaults: optionNone()
     });
     const fields: ServiceFieldControllers = {
         id: {
@@ -635,37 +636,37 @@ export function serviceCreateForm(overrides?: Partial<Service>): ServiceGigaform
             }
         }
     };
-    function validate(): Result<Service, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Service> {
         return serviceDeserialize(data);
     }
     function reset(newOverrides?: Partial<Service>): void {
         data = { ...serviceDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            name: Option.none(),
-            quickCode: Option.none(),
-            group: Option.none(),
-            subgroup: Option.none(),
-            unit: Option.none(),
-            active: Option.none(),
-            commission: Option.none(),
-            favorite: Option.none(),
-            averageTime: Option.none(),
-            defaults: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            name: optionNone(),
+            quickCode: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            unit: optionNone(),
+            active: optionNone(),
+            commission: optionNone(),
+            favorite: optionNone(),
+            averageTime: optionNone(),
+            defaults: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            name: Option.none(),
-            quickCode: Option.none(),
-            group: Option.none(),
-            subgroup: Option.none(),
-            unit: Option.none(),
-            active: Option.none(),
-            commission: Option.none(),
-            favorite: Option.none(),
-            averageTime: Option.none(),
-            defaults: Option.none()
+            id: optionNone(),
+            name: optionNone(),
+            quickCode: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            unit: optionNone(),
+            active: optionNone(),
+            commission: optionNone(),
+            favorite: optionNone(),
+            averageTime: optionNone(),
+            defaults: optionNone()
         };
     }
     return {
@@ -694,7 +695,7 @@ export function serviceCreateForm(overrides?: Partial<Service>): ServiceGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function serviceFromFormData(
     formData: FormData
-): Result<Service, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Service> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.name = formData.get('name') ?? '';

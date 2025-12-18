@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type Status = /** @default */ 'Scheduled' | 'OnDeck' | 'Waiting';
@@ -124,7 +126,7 @@ export interface StatusGigaform {
     readonly tainted: StatusTainted;
     readonly variants: StatusVariantFields;
     switchVariant(variant: 'Scheduled' | 'OnDeck' | 'Waiting'): void;
-    validate(): Result<Status, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Status>;
     reset(overrides?: Partial<Status>): void;
 } /** Variant fields container */
 export interface StatusVariantFields {
@@ -162,7 +164,7 @@ export function statusCreateForm(initial?: Status): StatusGigaform {
         errors = {} as StatusErrors;
         tainted = {} as StatusTainted;
     }
-    function validate(): Result<Status, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Status> {
         return statusDeserialize(data);
     }
     function reset(overrides?: Partial<Status>): void {
@@ -200,10 +202,10 @@ export function statusCreateForm(initial?: Status): StatusGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function statusFromFormData(
     formData: FormData
-): Result<Status, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Status> {
     const discriminant = formData.get('_value') as 'Scheduled' | 'OnDeck' | 'Waiting' | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
