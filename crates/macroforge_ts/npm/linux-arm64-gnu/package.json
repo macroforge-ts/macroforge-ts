@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/bin-linux-arm64-gnu",
-  "version": "0.1.42",
+  "version": "0.1.43",
   "cpu": [
     "arm64"
   ],
