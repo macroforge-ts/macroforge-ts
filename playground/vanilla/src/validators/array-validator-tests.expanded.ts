@@ -1,8 +1,11 @@
-import { Result } from 'macroforge/utils';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { ok as __mf_resultOk } from 'macroforge/reexports';
+import { err as __mf_resultErr } from 'macroforge/reexports';
+import { isOk as __mf_resultIsOk } from 'macroforge/reexports';
+import type { Result as __mf_Result } from 'macroforge/reexports';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 /**
  * Array validator test classes for comprehensive deserializer validation testing.
  */
@@ -17,11 +20,16 @@ export class MaxItemsValidator {
     }) {
         this.items = props.items;
     }
+    /** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(
-        json: string,
-        opts?: DeserializeOptions
-    ): Result<
+    static deserialize(
+        input: unknown,
+        opts?: __mf_DeserializeOptions
+    ): __mf_Result<
         MaxItemsValidator,
         Array<{
             field: string;
@@ -29,40 +37,14 @@ export class MaxItemsValidator {
         }>
     > {
         try {
-            const raw = JSON.parse(json);
-            return MaxItemsValidator.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        MaxItemsValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            const ctx = DeserializeContext.create();
-            const resultOrRef = MaxItemsValidator.deserializeWithContext(obj, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const ctx = __mf_DeserializeContext.create();
+            const resultOrRef = MaxItemsValidator.deserializeWithContext(data, ctx);
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return __mf_resultErr([
                     {
                         field: '_root',
-                        message: 'MaxItemsValidator.fromObject: root cannot be a forward reference'
+                        message: 'MaxItemsValidator.deserialize: root cannot be a forward reference'
                     }
                 ]);
             }
@@ -70,13 +52,13 @@ export class MaxItemsValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(resultOrRef);
+            return __mf_resultOk(resultOrRef);
         } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
+            if (e instanceof __mf_DeserializeError) {
+                return __mf_resultErr(e.errors);
             }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
+            return __mf_resultErr([
                 {
                     field: '_root',
                     message
@@ -84,16 +66,19 @@ export class MaxItemsValidator {
             ]);
         }
     }
+    /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(
         value: any,
-        ctx: DeserializeContext
-    ): MaxItemsValidator | PendingRef {
+        ctx: __mf_DeserializeContext
+    ): MaxItemsValidator | __mf_PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
+            throw new __mf_DeserializeError([
                 {
                     field: '_root',
                     message: 'MaxItemsValidator.deserializeWithContext: expected an object'
@@ -112,7 +97,7 @@ export class MaxItemsValidator {
             });
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         const instance = Object.create(MaxItemsValidator.prototype) as MaxItemsValidator;
         if (obj.__id !== undefined) {
@@ -132,7 +117,7 @@ export class MaxItemsValidator {
             }
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         return instance;
     }
@@ -198,9 +183,33 @@ export class MaxItemsValidator {
         if (!MaxItemsValidator.hasShape(obj)) {
             return false;
         }
-        const result = MaxItemsValidator.fromObject(obj);
-        return Result.isOk(result);
+        const result = MaxItemsValidator.deserialize(obj);
+        return __mf_resultIsOk(result);
     }
+}
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */ export function maxItemsValidatorDeserialize(
+    input: unknown,
+    opts?: __mf_DeserializeOptions
+): __mf_Result<MaxItemsValidator, Array<{ field: string; message: string }>> {
+    return MaxItemsValidator.deserialize(input, opts);
+} /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */
+export function maxItemsValidatorDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): MaxItemsValidator | __mf_PendingRef {
+    return MaxItemsValidator.deserializeWithContext(value, ctx);
+} /** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */
+export function maxItemsValidatorIs(value: unknown): value is MaxItemsValidator {
+    return MaxItemsValidator.is(value);
 }
 
 // MinItems validator
@@ -213,11 +222,16 @@ export class MinItemsValidator {
     }) {
         this.items = props.items;
     }
+    /** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(
-        json: string,
-        opts?: DeserializeOptions
-    ): Result<
+    static deserialize(
+        input: unknown,
+        opts?: __mf_DeserializeOptions
+    ): __mf_Result<
         MinItemsValidator,
         Array<{
             field: string;
@@ -225,40 +239,14 @@ export class MinItemsValidator {
         }>
     > {
         try {
-            const raw = JSON.parse(json);
-            return MinItemsValidator.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        MinItemsValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            const ctx = DeserializeContext.create();
-            const resultOrRef = MinItemsValidator.deserializeWithContext(obj, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const ctx = __mf_DeserializeContext.create();
+            const resultOrRef = MinItemsValidator.deserializeWithContext(data, ctx);
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return __mf_resultErr([
                     {
                         field: '_root',
-                        message: 'MinItemsValidator.fromObject: root cannot be a forward reference'
+                        message: 'MinItemsValidator.deserialize: root cannot be a forward reference'
                     }
                 ]);
             }
@@ -266,13 +254,13 @@ export class MinItemsValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(resultOrRef);
+            return __mf_resultOk(resultOrRef);
         } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
+            if (e instanceof __mf_DeserializeError) {
+                return __mf_resultErr(e.errors);
             }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
+            return __mf_resultErr([
                 {
                     field: '_root',
                     message
@@ -280,16 +268,19 @@ export class MinItemsValidator {
             ]);
         }
     }
+    /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(
         value: any,
-        ctx: DeserializeContext
-    ): MinItemsValidator | PendingRef {
+        ctx: __mf_DeserializeContext
+    ): MinItemsValidator | __mf_PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
+            throw new __mf_DeserializeError([
                 {
                     field: '_root',
                     message: 'MinItemsValidator.deserializeWithContext: expected an object'
@@ -308,7 +299,7 @@ export class MinItemsValidator {
             });
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         const instance = Object.create(MinItemsValidator.prototype) as MinItemsValidator;
         if (obj.__id !== undefined) {
@@ -328,7 +319,7 @@ export class MinItemsValidator {
             }
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         return instance;
     }
@@ -394,9 +385,33 @@ export class MinItemsValidator {
         if (!MinItemsValidator.hasShape(obj)) {
             return false;
         }
-        const result = MinItemsValidator.fromObject(obj);
-        return Result.isOk(result);
+        const result = MinItemsValidator.deserialize(obj);
+        return __mf_resultIsOk(result);
     }
+}
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */ export function minItemsValidatorDeserialize(
+    input: unknown,
+    opts?: __mf_DeserializeOptions
+): __mf_Result<MinItemsValidator, Array<{ field: string; message: string }>> {
+    return MinItemsValidator.deserialize(input, opts);
+} /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */
+export function minItemsValidatorDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): MinItemsValidator | __mf_PendingRef {
+    return MinItemsValidator.deserializeWithContext(value, ctx);
+} /** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */
+export function minItemsValidatorIs(value: unknown): value is MinItemsValidator {
+    return MinItemsValidator.is(value);
 }
 
 // ItemsCount validator
@@ -409,11 +424,16 @@ export class ItemsCountValidator {
     }) {
         this.items = props.items;
     }
+    /** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(
-        json: string,
-        opts?: DeserializeOptions
-    ): Result<
+    static deserialize(
+        input: unknown,
+        opts?: __mf_DeserializeOptions
+    ): __mf_Result<
         ItemsCountValidator,
         Array<{
             field: string;
@@ -421,41 +441,15 @@ export class ItemsCountValidator {
         }>
     > {
         try {
-            const raw = JSON.parse(json);
-            return ItemsCountValidator.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        ItemsCountValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            const ctx = DeserializeContext.create();
-            const resultOrRef = ItemsCountValidator.deserializeWithContext(obj, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const ctx = __mf_DeserializeContext.create();
+            const resultOrRef = ItemsCountValidator.deserializeWithContext(data, ctx);
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return __mf_resultErr([
                     {
                         field: '_root',
                         message:
-                            'ItemsCountValidator.fromObject: root cannot be a forward reference'
+                            'ItemsCountValidator.deserialize: root cannot be a forward reference'
                     }
                 ]);
             }
@@ -463,13 +457,13 @@ export class ItemsCountValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(resultOrRef);
+            return __mf_resultOk(resultOrRef);
         } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
+            if (e instanceof __mf_DeserializeError) {
+                return __mf_resultErr(e.errors);
             }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
+            return __mf_resultErr([
                 {
                     field: '_root',
                     message
@@ -477,16 +471,19 @@ export class ItemsCountValidator {
             ]);
         }
     }
+    /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(
         value: any,
-        ctx: DeserializeContext
-    ): ItemsCountValidator | PendingRef {
+        ctx: __mf_DeserializeContext
+    ): ItemsCountValidator | __mf_PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
+            throw new __mf_DeserializeError([
                 {
                     field: '_root',
                     message: 'ItemsCountValidator.deserializeWithContext: expected an object'
@@ -505,7 +502,7 @@ export class ItemsCountValidator {
             });
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         const instance = Object.create(ItemsCountValidator.prototype) as ItemsCountValidator;
         if (obj.__id !== undefined) {
@@ -525,7 +522,7 @@ export class ItemsCountValidator {
             }
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         return instance;
     }
@@ -591,7 +588,31 @@ export class ItemsCountValidator {
         if (!ItemsCountValidator.hasShape(obj)) {
             return false;
         }
-        const result = ItemsCountValidator.fromObject(obj);
-        return Result.isOk(result);
+        const result = ItemsCountValidator.deserialize(obj);
+        return __mf_resultIsOk(result);
     }
+}
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */ export function itemsCountValidatorDeserialize(
+    input: unknown,
+    opts?: __mf_DeserializeOptions
+): __mf_Result<ItemsCountValidator, Array<{ field: string; message: string }>> {
+    return ItemsCountValidator.deserialize(input, opts);
+} /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */
+export function itemsCountValidatorDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): ItemsCountValidator | __mf_PendingRef {
+    return ItemsCountValidator.deserializeWithContext(value, ctx);
+} /** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */
+export function itemsCountValidatorIs(value: unknown): value is ItemsCountValidator {
+    return ItemsCountValidator.is(value);
 }

@@ -1,6 +1,6 @@
 import { User } from './user';
 import { AllMacrosTestClass, testInstance } from './all-macros-test';
-import { Result } from 'macroforge/utils';
+import { Result } from 'macroforge/reexports';
 
 // Global results object for Playwright assertions
 declare global {
