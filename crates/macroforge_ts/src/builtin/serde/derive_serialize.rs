@@ -144,7 +144,10 @@ use crate::ts_syn::{
 
 use convert_case::{Case, Casing};
 
-use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, get_foreign_types};
+use super::{
+    SerdeContainerOptions, SerdeFieldOptions, TypeCategory, get_foreign_types,
+    rewrite_expression_namespaces,
+};
 
 fn nested_serialize_fn_name(type_name: &str) -> String {
     format!("{}SerializeWithContext", type_name.to_case(Case::Camel))
@@ -406,7 +409,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         if let Some(warning) = ft_match.warning {
                             all_diagnostics.warning(field.span, warning);
                         }
-                        ft_match.config.and_then(|ft| ft.serialize_expr.clone())
+                        // Rewrite namespace references to use generated aliases
+                        ft_match
+                            .config
+                            .and_then(|ft| ft.serialize_expr.clone())
+                            .map(|expr| rewrite_expression_namespaces(&expr))
                     };
 
                     Some(SerializeField {
@@ -1022,7 +1029,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         if let Some(warning) = ft_match.warning {
                             all_diagnostics.warning(field.span, warning);
                         }
-                        ft_match.config.and_then(|ft| ft.serialize_expr.clone())
+                        // Rewrite namespace references to use generated aliases
+                        ft_match
+                            .config
+                            .and_then(|ft| ft.serialize_expr.clone())
+                            .map(|expr| rewrite_expression_namespaces(&expr))
                     };
 
                     Some(SerializeField {

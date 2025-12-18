@@ -190,7 +190,9 @@ pub fn get_type_default(ts_type: &str) -> String {
     {
         // Wrap the expression in an IIFE if it's a function
         // Foreign type defaults are expected to be functions: () => DateTime.now()
-        return format!("({})()", default_expr);
+        // Rewrite namespace references to use generated aliases
+        let rewritten = crate::builtin::serde::rewrite_expression_namespaces(default_expr);
+        return format!("({})()", rewritten);
     }
 
     // Nullable first (like Rust's Option::default() -> None)
