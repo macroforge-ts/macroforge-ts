@@ -867,6 +867,120 @@ describe("service", () => {
     assert.equal(normalizePath(ls2.tsconfigPath), normalizePath(tsconfigPath));
   });
 
+  describe("macroforge expansion", () => {
+    it("expands @derive macros and makes exports visible to importers", async () => {
+      const dirPath = getRandomVirtualDirPath(testDir);
+      const { virtualSystem, lsDocumentContext, rootUris } = setup();
+
+      // Create tsconfig with macroforge plugin
+      virtualSystem.writeFile(
+        path.join(dirPath, "tsconfig.json"),
+        JSON.stringify({
+          compilerOptions: {
+            strict: true,
+            moduleResolution: "bundler",
+            module: "ESNext",
+            target: "ESNext",
+          },
+          plugins: [{ name: "@macroforge/typescript-plugin" }],
+        }),
+      );
+
+      // Create a file with @derive macro that generates serialize/deserialize
+      const sourceFile = path.join(dirPath, "user.svelte.ts");
+      virtualSystem.writeFile(
+        sourceFile,
+        `/** @derive(Serialize, Deserialize) */
+export interface User {
+  name: string;
+  age: number;
+}`,
+      );
+
+      // Create a file that imports the generated functions
+      const importingFile = path.join(dirPath, "consumer.svelte.ts");
+      virtualSystem.writeFile(
+        importingFile,
+        `import { userSerialize, userDeserialize, type User } from "./user.svelte";
+
+const user: User = { name: "test", age: 30 };
+const serialized = userSerialize(user);
+const deserialized = userDeserialize(serialized);`,
+      );
+
+      const ls = await getService(importingFile, rootUris, lsDocumentContext);
+      const diagnostics = getSemanticDiagnosticsMessages(ls, importingFile);
+
+      // If macroforge expansion is working, there should be no "has no exported member" errors
+      const importErrors = diagnostics.filter(
+        (d) =>
+          d.includes("has no exported member") ||
+          d.includes("cannot find name"),
+      );
+      assert.deepStrictEqual(
+        importErrors,
+        [],
+        `Expected no import errors, but got: ${importErrors.join(", ")}`,
+      );
+    });
+
+    it("expands macros in imported .svelte.ts files", async () => {
+      const dirPath = getRandomVirtualDirPath(testDir);
+      const { virtualSystem, lsDocumentContext, rootUris } = setup();
+
+      virtualSystem.writeFile(
+        path.join(dirPath, "tsconfig.json"),
+        JSON.stringify({
+          compilerOptions: {
+            strict: true,
+            moduleResolution: "bundler",
+            module: "ESNext",
+            target: "ESNext",
+          },
+        }),
+      );
+
+      // First file with macro
+      const dataPathFile = path.join(dirPath, "data-path.svelte.ts");
+      virtualSystem.writeFile(
+        dataPathFile,
+        `/** @derive(Serialize, Deserialize) */
+export interface DataPath {
+  path: string;
+  segments: string[];
+}`,
+      );
+
+      // Second file that imports from first
+      const consumerFile = path.join(dirPath, "consumer.svelte.ts");
+      virtualSystem.writeFile(
+        consumerFile,
+        `import { dataPathSerialize, dataPathDeserialize } from "./data-path.svelte";
+
+export function processPath(path: string) {
+  const data = { path, segments: path.split("/") };
+  return dataPathSerialize(data);
+}`,
+      );
+
+      const ls = await getService(consumerFile, rootUris, lsDocumentContext);
+      const diagnostics = getSemanticDiagnosticsMessages(ls, consumerFile);
+
+      // Filter for import-related errors
+      const importErrors = diagnostics.filter(
+        (d) =>
+          d.includes("has no exported member") ||
+          d.includes("Module") ||
+          d.includes("cannot find"),
+      );
+      assert.deepStrictEqual(
+        importErrors,
+        [],
+        `Expected macroforge to expand imports, but got errors: ${importErrors.join(", ")}`,
+      );
+    });
+  });
+
   function getSemanticDiagnosticsMessages(
     ls: LanguageServiceContainer,
     filePath: string,
