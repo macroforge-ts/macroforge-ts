@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -26,14 +25,14 @@ export function colorDefaultValue(): Color {
 @returns JSON string representation with cycle detection metadata */ export function colorSerialize(
     value: Color
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(colorSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function colorSerializeWithContext(
     value: Color,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -53,41 +52,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function colorDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Color> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Color }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = colorDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'Color.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Color.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function colorDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Color | PendingRef {
+    ctx: __mf_DeserializeContext
+): Color | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Color.deserializeWithContext: expected an object' }
         ]);
     }
@@ -103,7 +110,7 @@ export function colorDeserializeWithContext(
         errors.push({ field: 'blue', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -123,18 +130,18 @@ export function colorDeserializeWithContext(
         instance.blue = __raw_blue;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Color;
 }
 export function colorValidateField<K extends keyof Color>(
-    field: K,
-    value: Color[K]
+    _field: K,
+    _value: Color[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function colorValidateFields(
-    partial: Partial<Color>
+    _partial: Partial<Color>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -150,19 +157,19 @@ export function colorIs(obj: unknown): obj is Color {
         return false;
     }
     const result = colorDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type ColorErrors = {
-    _errors: Option<Array<string>>;
-    red: Option<Array<string>>;
-    green: Option<Array<string>>;
-    blue: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    red: __gf_Option<Array<string>>;
+    green: __gf_Option<Array<string>>;
+    blue: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type ColorTainted = {
-    red: Option<boolean>;
-    green: Option<boolean>;
-    blue: Option<boolean>;
+    red: __gf_Option<boolean>;
+    green: __gf_Option<boolean>;
+    blue: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface ColorFieldControllers {
     readonly red: FieldController<number>;
@@ -174,7 +181,7 @@ export interface ColorGigaform {
     readonly errors: ColorErrors;
     readonly tainted: ColorTainted;
     readonly fields: ColorFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Color>;
+    validate(): Exit<Color, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Color>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function colorCreateForm(overrides?: Partial<Color>): ColorGigaform {
@@ -201,11 +208,11 @@ export function colorCreateForm(overrides?: Partial<Color>): ColorGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.red,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.red = value;
             },
             getTainted: () => tainted.red,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.red = value;
             },
             validate: (): Array<string> => {
@@ -223,11 +230,11 @@ export function colorCreateForm(overrides?: Partial<Color>): ColorGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.green,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.green = value;
             },
             getTainted: () => tainted.green,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.green = value;
             },
             validate: (): Array<string> => {
@@ -245,11 +252,11 @@ export function colorCreateForm(overrides?: Partial<Color>): ColorGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.blue,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.blue = value;
             },
             getTainted: () => tainted.blue,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.blue = value;
             },
             validate: (): Array<string> => {
@@ -258,7 +265,7 @@ export function colorCreateForm(overrides?: Partial<Color>): ColorGigaform {
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Color> {
+    function validate(): Exit<Color, Array<{ field: string; message: string }>> {
         return toExit(colorDeserialize(data));
     }
     function reset(newOverrides?: Partial<Color>): void {
@@ -297,7 +304,7 @@ export function colorCreateForm(overrides?: Partial<Color>): ColorGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function colorFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Color> {
+): Exit<Color, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const redStr = formData.get('red');

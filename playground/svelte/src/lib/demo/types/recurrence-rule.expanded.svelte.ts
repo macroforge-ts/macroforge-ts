@@ -1,17 +1,16 @@
 import { intervalDefaultValue } from './interval.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { intervalSerializeWithContext } from './interval.svelte';
 import { recurrenceEndSerializeWithContext } from './recurrence-end.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { intervalDeserializeWithContext } from './interval.svelte';
 import { recurrenceEndDeserializeWithContext } from './recurrence-end.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -42,14 +41,14 @@ export function recurrenceRuleDefaultValue(): RecurrenceRule {
 @returns JSON string representation with cycle detection metadata */ export function recurrenceRuleSerialize(
     value: RecurrenceRule
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(recurrenceRuleSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function recurrenceRuleSerializeWithContext(
     value: RecurrenceRule,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -83,44 +82,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function recurrenceRuleDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, RecurrenceRule> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: RecurrenceRule }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = recurrenceRuleDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'RecurrenceRule.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'RecurrenceRule.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function recurrenceRuleDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): RecurrenceRule | PendingRef {
+    ctx: __mf_DeserializeContext
+): RecurrenceRule | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'RecurrenceRule.deserializeWithContext: expected an object' }
         ]);
     }
@@ -142,7 +146,7 @@ export function recurrenceRuleDeserializeWithContext(
         errors.push({ field: 'additionalInstances', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -186,18 +190,18 @@ export function recurrenceRuleDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as RecurrenceRule;
 }
 export function recurrenceRuleValidateField<K extends keyof RecurrenceRule>(
-    field: K,
-    value: RecurrenceRule[K]
+    _field: K,
+    _value: RecurrenceRule[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function recurrenceRuleValidateFields(
-    partial: Partial<RecurrenceRule>
+    _partial: Partial<RecurrenceRule>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -219,23 +223,23 @@ export function recurrenceRuleIs(obj: unknown): obj is RecurrenceRule {
         return false;
     }
     const result = recurrenceRuleDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type RecurrenceRuleErrors = {
-    _errors: Option<Array<string>>;
-    interval: Option<Array<string>>;
-    recurrenceBegins: Option<Array<string>>;
-    recurrenceEnds: Option<Array<string>>;
-    cancelledInstances: Option<Array<string>>;
-    additionalInstances: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    interval: __gf_Option<Array<string>>;
+    recurrenceBegins: __gf_Option<Array<string>>;
+    recurrenceEnds: __gf_Option<Array<string>>;
+    cancelledInstances: __gf_Option<Array<string>>;
+    additionalInstances: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type RecurrenceRuleTainted = {
-    interval: Option<boolean>;
-    recurrenceBegins: Option<boolean>;
-    recurrenceEnds: Option<boolean>;
-    cancelledInstances: Option<boolean>;
-    additionalInstances: Option<boolean>;
+    interval: __gf_Option<boolean>;
+    recurrenceBegins: __gf_Option<boolean>;
+    recurrenceEnds: __gf_Option<boolean>;
+    cancelledInstances: __gf_Option<boolean>;
+    additionalInstances: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface RecurrenceRuleFieldControllers {
     readonly interval: FieldController<Interval>;
@@ -249,7 +253,7 @@ export interface RecurrenceRuleGigaform {
     readonly errors: RecurrenceRuleErrors;
     readonly tainted: RecurrenceRuleTainted;
     readonly fields: RecurrenceRuleFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, RecurrenceRule>;
+    validate(): Exit<RecurrenceRule, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<RecurrenceRule>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function recurrenceRuleCreateForm(
@@ -282,11 +286,11 @@ export function recurrenceRuleCreateForm(
             },
             transform: (value: Interval): Interval => value,
             getError: () => errors.interval,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.interval = value;
             },
             getTainted: () => tainted.interval,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.interval = value;
             },
             validate: (): Array<string> => {
@@ -304,11 +308,11 @@ export function recurrenceRuleCreateForm(
             },
             transform: (value: string): string => value,
             getError: () => errors.recurrenceBegins,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.recurrenceBegins = value;
             },
             getTainted: () => tainted.recurrenceBegins,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.recurrenceBegins = value;
             },
             validate: (): Array<string> => {
@@ -329,11 +333,11 @@ export function recurrenceRuleCreateForm(
             },
             transform: (value: RecurrenceEnd | null): RecurrenceEnd | null => value,
             getError: () => errors.recurrenceEnds,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.recurrenceEnds = value;
             },
             getTainted: () => tainted.recurrenceEnds,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.recurrenceEnds = value;
             },
             validate: (): Array<string> => {
@@ -354,11 +358,11 @@ export function recurrenceRuleCreateForm(
             },
             transform: (value: string[] | null): string[] | null => value,
             getError: () => errors.cancelledInstances,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.cancelledInstances = value;
             },
             getTainted: () => tainted.cancelledInstances,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.cancelledInstances = value;
             },
             validate: (): Array<string> => {
@@ -379,11 +383,11 @@ export function recurrenceRuleCreateForm(
             },
             transform: (value: string[] | null): string[] | null => value,
             getError: () => errors.additionalInstances,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.additionalInstances = value;
             },
             getTainted: () => tainted.additionalInstances,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.additionalInstances = value;
             },
             validate: (): Array<string> => {
@@ -395,7 +399,7 @@ export function recurrenceRuleCreateForm(
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, RecurrenceRule> {
+    function validate(): Exit<RecurrenceRule, Array<{ field: string; message: string }>> {
         return toExit(recurrenceRuleDeserialize(data));
     }
     function reset(newOverrides?: Partial<RecurrenceRule>): void {
@@ -442,7 +446,7 @@ export function recurrenceRuleCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function recurrenceRuleFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, RecurrenceRule> {
+): Exit<RecurrenceRule, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const intervalObj: Record<string, unknown> = {};

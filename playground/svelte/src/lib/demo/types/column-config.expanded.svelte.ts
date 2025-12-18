@@ -1,15 +1,14 @@
 import { dataPathDefaultValue } from './data-path.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { dataPathSerializeWithContext } from './data-path.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { dataPathDeserializeWithContext } from './data-path.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -29,14 +28,14 @@ export function columnConfigDefaultValue(): ColumnConfig {
 @returns JSON string representation with cycle detection metadata */ export function columnConfigSerialize(
     value: ColumnConfig
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(columnConfigSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function columnConfigSerializeWithContext(
     value: ColumnConfig,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -55,44 +54,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function columnConfigDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, ColumnConfig> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: ColumnConfig }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = columnConfigDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'ColumnConfig.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'ColumnConfig.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function columnConfigDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): ColumnConfig | PendingRef {
+    ctx: __mf_DeserializeContext
+): ColumnConfig | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'ColumnConfig.deserializeWithContext: expected an object' }
         ]);
     }
@@ -105,7 +109,7 @@ export function columnConfigDeserializeWithContext(
         errors.push({ field: 'dataPath', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -127,18 +131,18 @@ export function columnConfigDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as ColumnConfig;
 }
 export function columnConfigValidateField<K extends keyof ColumnConfig>(
-    field: K,
-    value: ColumnConfig[K]
+    _field: K,
+    _value: ColumnConfig[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'heading': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'heading', message: 'must not be empty' });
             }
@@ -148,11 +152,11 @@ export function columnConfigValidateField<K extends keyof ColumnConfig>(
     return errors;
 }
 export function columnConfigValidateFields(
-    partial: Partial<ColumnConfig>
+    _partial: Partial<ColumnConfig>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('heading' in partial && partial.heading !== undefined) {
-        const __val = partial.heading as string;
+    if ('heading' in _partial && _partial.heading !== undefined) {
+        const __val = _partial.heading as string;
         if (__val.length === 0) {
             errors.push({ field: 'heading', message: 'must not be empty' });
         }
@@ -171,17 +175,17 @@ export function columnConfigIs(obj: unknown): obj is ColumnConfig {
         return false;
     }
     const result = columnConfigDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type ColumnConfigErrors = {
-    _errors: Option<Array<string>>;
-    heading: Option<Array<string>>;
-    dataPath: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    heading: __gf_Option<Array<string>>;
+    dataPath: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type ColumnConfigTainted = {
-    heading: Option<boolean>;
-    dataPath: Option<boolean>;
+    heading: __gf_Option<boolean>;
+    dataPath: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface ColumnConfigFieldControllers {
     readonly heading: FieldController<string>;
@@ -192,7 +196,7 @@ export interface ColumnConfigGigaform {
     readonly errors: ColumnConfigErrors;
     readonly tainted: ColumnConfigTainted;
     readonly fields: ColumnConfigFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, ColumnConfig>;
+    validate(): Exit<ColumnConfig, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<ColumnConfig>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function columnConfigCreateForm(overrides?: Partial<ColumnConfig>): ColumnConfigGigaform {
@@ -214,11 +218,11 @@ export function columnConfigCreateForm(overrides?: Partial<ColumnConfig>): Colum
             },
             transform: (value: string): string => value,
             getError: () => errors.heading,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.heading = value;
             },
             getTainted: () => tainted.heading,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.heading = value;
             },
             validate: (): Array<string> => {
@@ -236,11 +240,11 @@ export function columnConfigCreateForm(overrides?: Partial<ColumnConfig>): Colum
             },
             transform: (value: DataPath): DataPath => value,
             getError: () => errors.dataPath,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.dataPath = value;
             },
             getTainted: () => tainted.dataPath,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.dataPath = value;
             },
             validate: (): Array<string> => {
@@ -249,7 +253,7 @@ export function columnConfigCreateForm(overrides?: Partial<ColumnConfig>): Colum
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, ColumnConfig> {
+    function validate(): Exit<ColumnConfig, Array<{ field: string; message: string }>> {
         return toExit(columnConfigDeserialize(data));
     }
     function reset(newOverrides?: Partial<ColumnConfig>): void {
@@ -283,7 +287,7 @@ export function columnConfigCreateForm(overrides?: Partial<ColumnConfig>): Colum
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function columnConfigFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, ColumnConfig> {
+): Exit<ColumnConfig, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.heading = formData.get('heading') ?? '';
     {

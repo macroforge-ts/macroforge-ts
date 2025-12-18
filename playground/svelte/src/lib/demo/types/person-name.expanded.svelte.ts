@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -26,14 +25,14 @@ export function personNameDefaultValue(): PersonName {
 @returns JSON string representation with cycle detection metadata */ export function personNameSerialize(
     value: PersonName
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(personNameSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function personNameSerializeWithContext(
     value: PersonName,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -52,44 +51,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function personNameDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, PersonName> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: PersonName }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = personNameDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'PersonName.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'PersonName.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function personNameDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): PersonName | PendingRef {
+    ctx: __mf_DeserializeContext
+): PersonName | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'PersonName.deserializeWithContext: expected an object' }
         ]);
     }
@@ -102,7 +106,7 @@ export function personNameDeserializeWithContext(
         errors.push({ field: 'lastName', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -124,25 +128,25 @@ export function personNameDeserializeWithContext(
         instance.lastName = __raw_lastName;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as PersonName;
 }
 export function personNameValidateField<K extends keyof PersonName>(
-    field: K,
-    value: PersonName[K]
+    _field: K,
+    _value: PersonName[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'firstName': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'firstName', message: 'must not be empty' });
             }
             break;
         }
         case 'lastName': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'lastName', message: 'must not be empty' });
             }
@@ -152,17 +156,17 @@ export function personNameValidateField<K extends keyof PersonName>(
     return errors;
 }
 export function personNameValidateFields(
-    partial: Partial<PersonName>
+    _partial: Partial<PersonName>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('firstName' in partial && partial.firstName !== undefined) {
-        const __val = partial.firstName as string;
+    if ('firstName' in _partial && _partial.firstName !== undefined) {
+        const __val = _partial.firstName as string;
         if (__val.length === 0) {
             errors.push({ field: 'firstName', message: 'must not be empty' });
         }
     }
-    if ('lastName' in partial && partial.lastName !== undefined) {
-        const __val = partial.lastName as string;
+    if ('lastName' in _partial && _partial.lastName !== undefined) {
+        const __val = _partial.lastName as string;
         if (__val.length === 0) {
             errors.push({ field: 'lastName', message: 'must not be empty' });
         }
@@ -181,17 +185,17 @@ export function personNameIs(obj: unknown): obj is PersonName {
         return false;
     }
     const result = personNameDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type PersonNameErrors = {
-    _errors: Option<Array<string>>;
-    firstName: Option<Array<string>>;
-    lastName: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    firstName: __gf_Option<Array<string>>;
+    lastName: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type PersonNameTainted = {
-    firstName: Option<boolean>;
-    lastName: Option<boolean>;
+    firstName: __gf_Option<boolean>;
+    lastName: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface PersonNameFieldControllers {
     readonly firstName: FieldController<string>;
@@ -202,7 +206,7 @@ export interface PersonNameGigaform {
     readonly errors: PersonNameErrors;
     readonly tainted: PersonNameTainted;
     readonly fields: PersonNameFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, PersonName>;
+    validate(): Exit<PersonName, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<PersonName>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function personNameCreateForm(overrides?: Partial<PersonName>): PersonNameGigaform {
@@ -225,11 +229,11 @@ export function personNameCreateForm(overrides?: Partial<PersonName>): PersonNam
             },
             transform: (value: string): string => value,
             getError: () => errors.firstName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.firstName = value;
             },
             getTainted: () => tainted.firstName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.firstName = value;
             },
             validate: (): Array<string> => {
@@ -248,11 +252,11 @@ export function personNameCreateForm(overrides?: Partial<PersonName>): PersonNam
             },
             transform: (value: string): string => value,
             getError: () => errors.lastName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.lastName = value;
             },
             getTainted: () => tainted.lastName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.lastName = value;
             },
             validate: (): Array<string> => {
@@ -261,7 +265,7 @@ export function personNameCreateForm(overrides?: Partial<PersonName>): PersonNam
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, PersonName> {
+    function validate(): Exit<PersonName, Array<{ field: string; message: string }>> {
         return toExit(personNameDeserialize(data));
     }
     function reset(newOverrides?: Partial<PersonName>): void {
@@ -295,7 +299,7 @@ export function personNameCreateForm(overrides?: Partial<PersonName>): PersonNam
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function personNameFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, PersonName> {
+): Exit<PersonName, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.firstName = formData.get('firstName') ?? '';
     obj.lastName = formData.get('lastName') ?? '';

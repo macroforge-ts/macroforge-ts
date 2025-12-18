@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
@@ -46,12 +45,12 @@ export function pageDefaultValue(): Page {
 @returns JSON string representation with cycle detection metadata */ export function pageSerialize(
     value: Page
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(pageSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function pageSerializeWithContext(value: Page, ctx: SerializeContext): unknown {
+export function pageSerializeWithContext(value: Page, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -64,35 +63,46 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function pageDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Page> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Page }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = pageDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'Page.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Page.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function pageDeserializeWithContext(value: any, ctx: DeserializeContext): Page | PendingRef {
+export function pageDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): Page | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Page | PendingRef;
+        return ctx.getOrDefer(value.__ref) as Page | __mf_PendingRef;
     }
     const allowedValues = [
         'SalesHomeDashboard',
@@ -122,7 +132,7 @@ export function pageDeserializeWithContext(value: any, ctx: DeserializeContext):
         'UserHome'
     ] as const;
     if (!allowedValues.includes(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -167,33 +177,33 @@ export function pageIs(value: unknown): value is Page {
 }
 
 /** Per-variant error types */ export type PageSalesHomeDashboardErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
-export type PageSalesHomeProductsErrors = { _errors: Option<Array<string>> };
-export type PageSalesHomeServicesErrors = { _errors: Option<Array<string>> };
-export type PageSalesHomePackagesErrors = { _errors: Option<Array<string>> };
-export type PageSalesHomeTaxRatesErrors = { _errors: Option<Array<string>> };
-export type PageSalesLeadsOverviewErrors = { _errors: Option<Array<string>> };
-export type PageSalesLeadsActivitiesErrors = { _errors: Option<Array<string>> };
-export type PageSalesLeadsCampaignsErrors = { _errors: Option<Array<string>> };
-export type PageSalesLeadsDripCampaignsErrors = { _errors: Option<Array<string>> };
-export type PageSalesLeadsOpportunitiesErrors = { _errors: Option<Array<string>> };
-export type PageSalesLeadsPromotionsErrors = { _errors: Option<Array<string>> };
-export type PageSalesAccountsOverviewErrors = { _errors: Option<Array<string>> };
-export type PageSalesAccountsActivitiesErrors = { _errors: Option<Array<string>> };
-export type PageSalesAccountsBillingErrors = { _errors: Option<Array<string>> };
-export type PageSalesAccountsContractsErrors = { _errors: Option<Array<string>> };
-export type PageSalesOrdersOverviewErrors = { _errors: Option<Array<string>> };
-export type PageSalesOrdersActivitiesErrors = { _errors: Option<Array<string>> };
-export type PageSalesOrdersPaymentsErrors = { _errors: Option<Array<string>> };
-export type PageSalesOrdersCommissionsErrors = { _errors: Option<Array<string>> };
-export type PageSalesSchedulingScheduleErrors = { _errors: Option<Array<string>> };
-export type PageSalesSchedulingAppointmentsErrors = { _errors: Option<Array<string>> };
-export type PageSalesSchedulingRecurringErrors = { _errors: Option<Array<string>> };
-export type PageSalesSchedulingRoutesErrors = { _errors: Option<Array<string>> };
-export type PageSalesSchedulingRemindersErrors = { _errors: Option<Array<string>> };
+export type PageSalesHomeProductsErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesHomeServicesErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesHomePackagesErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesHomeTaxRatesErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesLeadsOverviewErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesLeadsActivitiesErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesLeadsCampaignsErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesLeadsDripCampaignsErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesLeadsOpportunitiesErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesLeadsPromotionsErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesAccountsOverviewErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesAccountsActivitiesErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesAccountsBillingErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesAccountsContractsErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesOrdersOverviewErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesOrdersActivitiesErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesOrdersPaymentsErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesOrdersCommissionsErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesSchedulingScheduleErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesSchedulingAppointmentsErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesSchedulingRecurringErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesSchedulingRoutesErrors = { _errors: __gf_Option<Array<string>> };
+export type PageSalesSchedulingRemindersErrors = { _errors: __gf_Option<Array<string>> };
 export type PageUserHomeErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type PageSalesHomeDashboardTainted = {};
 export type PageSalesHomeProductsTainted = {};
@@ -356,7 +366,7 @@ export interface PageGigaform {
             | 'SalesSchedulingReminders'
             | 'UserHome'
     ): void;
-    validate(): Exit<Array<{ field: string; message: string }>, Page>;
+    validate(): Exit<Page, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Page>): void;
 } /** Variant fields container */
 export interface PageVariantFields {
@@ -605,7 +615,7 @@ export function pageCreateForm(initial?: Page): PageGigaform {
         errors = {} as PageErrors;
         tainted = {} as PageTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, Page> {
+    function validate(): Exit<Page, Array<{ field: string; message: string }>> {
         return toExit(pageDeserialize(data));
     }
     function reset(overrides?: Partial<Page>): void {
@@ -643,7 +653,7 @@ export function pageCreateForm(initial?: Page): PageGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function pageFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Page> {
+): Exit<Page, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_value') as
         | 'SalesHomeDashboard'
         | 'SalesHomeProducts'

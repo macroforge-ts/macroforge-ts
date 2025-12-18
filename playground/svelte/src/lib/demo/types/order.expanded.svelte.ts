@@ -1,15 +1,14 @@
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { billedItemSerializeWithContext } from './billed-item.svelte';
 import { orderStageSerializeWithContext } from './order-stage.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { orderStageDeserializeWithContext } from './order-stage.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -128,14 +127,14 @@ export function orderDefaultValue(): Order {
 @returns JSON string representation with cycle detection metadata */ export function orderSerialize(
     value: Order
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(orderSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function orderSerializeWithContext(
     value: Order,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -191,41 +190,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function orderDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Order> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Order }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = orderDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'Order.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Order.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function orderDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Order | PendingRef {
+    ctx: __mf_DeserializeContext
+): Order | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Order.deserializeWithContext: expected an object' }
         ]);
     }
@@ -319,7 +326,7 @@ export function orderDeserializeWithContext(
         errors.push({ field: 'commissions', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -475,53 +482,53 @@ export function orderDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Order;
 }
 export function orderValidateField<K extends keyof Order>(
-    field: K,
-    value: Order[K]
+    _field: K,
+    _value: Order[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'opportunity': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'opportunity', message: 'must not be empty' });
             }
             break;
         }
         case 'reference': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'reference', message: 'must not be empty' });
             }
             break;
         }
         case 'leadSource': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'leadSource', message: 'must not be empty' });
             }
             break;
         }
         case 'group': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'group', message: 'must not be empty' });
             }
             break;
         }
         case 'subgroup': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'subgroup', message: 'must not be empty' });
             }
             break;
         }
         case 'actionItem': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'actionItem', message: 'must not be empty' });
             }
@@ -531,41 +538,41 @@ export function orderValidateField<K extends keyof Order>(
     return errors;
 }
 export function orderValidateFields(
-    partial: Partial<Order>
+    _partial: Partial<Order>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('opportunity' in partial && partial.opportunity !== undefined) {
-        const __val = partial.opportunity as string;
+    if ('opportunity' in _partial && _partial.opportunity !== undefined) {
+        const __val = _partial.opportunity as string;
         if (__val.length === 0) {
             errors.push({ field: 'opportunity', message: 'must not be empty' });
         }
     }
-    if ('reference' in partial && partial.reference !== undefined) {
-        const __val = partial.reference as string;
+    if ('reference' in _partial && _partial.reference !== undefined) {
+        const __val = _partial.reference as string;
         if (__val.length === 0) {
             errors.push({ field: 'reference', message: 'must not be empty' });
         }
     }
-    if ('leadSource' in partial && partial.leadSource !== undefined) {
-        const __val = partial.leadSource as string;
+    if ('leadSource' in _partial && _partial.leadSource !== undefined) {
+        const __val = _partial.leadSource as string;
         if (__val.length === 0) {
             errors.push({ field: 'leadSource', message: 'must not be empty' });
         }
     }
-    if ('group' in partial && partial.group !== undefined) {
-        const __val = partial.group as string;
+    if ('group' in _partial && _partial.group !== undefined) {
+        const __val = _partial.group as string;
         if (__val.length === 0) {
             errors.push({ field: 'group', message: 'must not be empty' });
         }
     }
-    if ('subgroup' in partial && partial.subgroup !== undefined) {
-        const __val = partial.subgroup as string;
+    if ('subgroup' in _partial && _partial.subgroup !== undefined) {
+        const __val = _partial.subgroup as string;
         if (__val.length === 0) {
             errors.push({ field: 'subgroup', message: 'must not be empty' });
         }
     }
-    if ('actionItem' in partial && partial.actionItem !== undefined) {
-        const __val = partial.actionItem as string;
+    if ('actionItem' in _partial && _partial.actionItem !== undefined) {
+        const __val = _partial.actionItem as string;
         if (__val.length === 0) {
             errors.push({ field: 'actionItem', message: 'must not be empty' });
         }
@@ -614,71 +621,71 @@ export function orderIs(obj: unknown): obj is Order {
         return false;
     }
     const result = orderDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type OrderErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    account: Option<Array<string>>;
-    stage: Option<Array<string>>;
-    number: Option<Array<string>>;
-    payments: Option<Array<string>>;
-    opportunity: Option<Array<string>>;
-    reference: Option<Array<string>>;
-    leadSource: Option<Array<string>>;
-    salesRep: Option<Array<string>>;
-    group: Option<Array<string>>;
-    subgroup: Option<Array<string>>;
-    isPosted: Option<Array<string>>;
-    needsReview: Option<Array<string>>;
-    actionItem: Option<Array<string>>;
-    upsale: Option<Array<string>>;
-    dateCreated: Option<Array<string>>;
-    appointment: Option<Array<string>>;
-    lastTechs: Option<Array<string>>;
-    package: Option<Array<string>>;
-    promotion: Option<Array<string>>;
-    balance: Option<Array<string>>;
-    due: Option<Array<string>>;
-    total: Option<Array<string>>;
-    site: Option<Array<string>>;
-    billedItems: Option<Array<string>>;
-    memo: Option<Array<string>>;
-    discount: Option<Array<string>>;
-    tip: Option<Array<string>>;
-    commissions: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    account: __gf_Option<Array<string>>;
+    stage: __gf_Option<Array<string>>;
+    number: __gf_Option<Array<string>>;
+    payments: __gf_Option<Array<string>>;
+    opportunity: __gf_Option<Array<string>>;
+    reference: __gf_Option<Array<string>>;
+    leadSource: __gf_Option<Array<string>>;
+    salesRep: __gf_Option<Array<string>>;
+    group: __gf_Option<Array<string>>;
+    subgroup: __gf_Option<Array<string>>;
+    isPosted: __gf_Option<Array<string>>;
+    needsReview: __gf_Option<Array<string>>;
+    actionItem: __gf_Option<Array<string>>;
+    upsale: __gf_Option<Array<string>>;
+    dateCreated: __gf_Option<Array<string>>;
+    appointment: __gf_Option<Array<string>>;
+    lastTechs: __gf_Option<Array<string>>;
+    package: __gf_Option<Array<string>>;
+    promotion: __gf_Option<Array<string>>;
+    balance: __gf_Option<Array<string>>;
+    due: __gf_Option<Array<string>>;
+    total: __gf_Option<Array<string>>;
+    site: __gf_Option<Array<string>>;
+    billedItems: __gf_Option<Array<string>>;
+    memo: __gf_Option<Array<string>>;
+    discount: __gf_Option<Array<string>>;
+    tip: __gf_Option<Array<string>>;
+    commissions: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type OrderTainted = {
-    id: Option<boolean>;
-    account: Option<boolean>;
-    stage: Option<boolean>;
-    number: Option<boolean>;
-    payments: Option<boolean>;
-    opportunity: Option<boolean>;
-    reference: Option<boolean>;
-    leadSource: Option<boolean>;
-    salesRep: Option<boolean>;
-    group: Option<boolean>;
-    subgroup: Option<boolean>;
-    isPosted: Option<boolean>;
-    needsReview: Option<boolean>;
-    actionItem: Option<boolean>;
-    upsale: Option<boolean>;
-    dateCreated: Option<boolean>;
-    appointment: Option<boolean>;
-    lastTechs: Option<boolean>;
-    package: Option<boolean>;
-    promotion: Option<boolean>;
-    balance: Option<boolean>;
-    due: Option<boolean>;
-    total: Option<boolean>;
-    site: Option<boolean>;
-    billedItems: Option<boolean>;
-    memo: Option<boolean>;
-    discount: Option<boolean>;
-    tip: Option<boolean>;
-    commissions: Option<boolean>;
+    id: __gf_Option<boolean>;
+    account: __gf_Option<boolean>;
+    stage: __gf_Option<boolean>;
+    number: __gf_Option<boolean>;
+    payments: __gf_Option<boolean>;
+    opportunity: __gf_Option<boolean>;
+    reference: __gf_Option<boolean>;
+    leadSource: __gf_Option<boolean>;
+    salesRep: __gf_Option<boolean>;
+    group: __gf_Option<boolean>;
+    subgroup: __gf_Option<boolean>;
+    isPosted: __gf_Option<boolean>;
+    needsReview: __gf_Option<boolean>;
+    actionItem: __gf_Option<boolean>;
+    upsale: __gf_Option<boolean>;
+    dateCreated: __gf_Option<boolean>;
+    appointment: __gf_Option<boolean>;
+    lastTechs: __gf_Option<boolean>;
+    package: __gf_Option<boolean>;
+    promotion: __gf_Option<boolean>;
+    balance: __gf_Option<boolean>;
+    due: __gf_Option<boolean>;
+    total: __gf_Option<boolean>;
+    site: __gf_Option<boolean>;
+    billedItems: __gf_Option<boolean>;
+    memo: __gf_Option<boolean>;
+    discount: __gf_Option<boolean>;
+    tip: __gf_Option<boolean>;
+    commissions: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface OrderFieldControllers {
     readonly id: FieldController<string>;
@@ -716,7 +723,7 @@ export interface OrderGigaform {
     readonly errors: OrderErrors;
     readonly tainted: OrderTainted;
     readonly fields: OrderFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Order>;
+    validate(): Exit<Order, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Order>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
@@ -795,11 +802,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -818,11 +825,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string | Account): string | Account => value,
             getError: () => errors.account,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.account = value;
             },
             getTainted: () => tainted.account,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.account = value;
             },
             validate: (): Array<string> => {
@@ -841,11 +848,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: OrderStage): OrderStage => value,
             getError: () => errors.stage,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.stage = value;
             },
             getTainted: () => tainted.stage,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.stage = value;
             },
             validate: (): Array<string> => {
@@ -863,11 +870,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.number,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.number = value;
             },
             getTainted: () => tainted.number,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.number = value;
             },
             validate: (): Array<string> => {
@@ -885,11 +892,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: (string | Payment)[]): (string | Payment)[] => value,
             getError: () => errors.payments,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.payments = value;
             },
             getTainted: () => tainted.payments,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.payments = value;
             },
             validate: (): Array<string> => {
@@ -906,11 +913,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
                 },
                 transform: (value: string | Payment): string | Payment => value,
                 getError: () => errors.payments,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.payments = value;
                 },
                 getTainted: () => tainted.payments,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.payments = value;
                 },
                 validate: (): Array<string> => []
@@ -938,11 +945,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.opportunity,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.opportunity = value;
             },
             getTainted: () => tainted.opportunity,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.opportunity = value;
             },
             validate: (): Array<string> => {
@@ -961,11 +968,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.reference,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.reference = value;
             },
             getTainted: () => tainted.reference,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.reference = value;
             },
             validate: (): Array<string> => {
@@ -984,11 +991,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.leadSource,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.leadSource = value;
             },
             getTainted: () => tainted.leadSource,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.leadSource = value;
             },
             validate: (): Array<string> => {
@@ -1007,11 +1014,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string | Employee): string | Employee => value,
             getError: () => errors.salesRep,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.salesRep = value;
             },
             getTainted: () => tainted.salesRep,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.salesRep = value;
             },
             validate: (): Array<string> => {
@@ -1030,11 +1037,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.group,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.group = value;
             },
             getTainted: () => tainted.group,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.group = value;
             },
             validate: (): Array<string> => {
@@ -1053,11 +1060,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.subgroup,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.subgroup = value;
             },
             getTainted: () => tainted.subgroup,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.subgroup = value;
             },
             validate: (): Array<string> => {
@@ -1076,11 +1083,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.isPosted,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.isPosted = value;
             },
             getTainted: () => tainted.isPosted,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.isPosted = value;
             },
             validate: (): Array<string> => {
@@ -1099,11 +1106,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.needsReview,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.needsReview = value;
             },
             getTainted: () => tainted.needsReview,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.needsReview = value;
             },
             validate: (): Array<string> => {
@@ -1122,11 +1129,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.actionItem,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.actionItem = value;
             },
             getTainted: () => tainted.actionItem,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.actionItem = value;
             },
             validate: (): Array<string> => {
@@ -1144,11 +1151,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.upsale,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.upsale = value;
             },
             getTainted: () => tainted.upsale,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.upsale = value;
             },
             validate: (): Array<string> => {
@@ -1166,11 +1173,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: DateTime.DateTime): DateTime.DateTime => value,
             getError: () => errors.dateCreated,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.dateCreated = value;
             },
             getTainted: () => tainted.dateCreated,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.dateCreated = value;
             },
             validate: (): Array<string> => {
@@ -1189,11 +1196,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string | Appointment): string | Appointment => value,
             getError: () => errors.appointment,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.appointment = value;
             },
             getTainted: () => tainted.appointment,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.appointment = value;
             },
             validate: (): Array<string> => {
@@ -1212,11 +1219,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: (string | Employee)[]): (string | Employee)[] => value,
             getError: () => errors.lastTechs,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.lastTechs = value;
             },
             getTainted: () => tainted.lastTechs,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.lastTechs = value;
             },
             validate: (): Array<string> => {
@@ -1233,11 +1240,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
                 },
                 transform: (value: string | Employee): string | Employee => value,
                 getError: () => errors.lastTechs,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.lastTechs = value;
                 },
                 getTainted: () => tainted.lastTechs,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.lastTechs = value;
                 },
                 validate: (): Array<string> => []
@@ -1264,11 +1271,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: (string | Package)[] | null): (string | Package)[] | null => value,
             getError: () => errors.package,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.package = value;
             },
             getTainted: () => tainted.package,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.package = value;
             },
             validate: (): Array<string> => {
@@ -1287,11 +1294,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             transform: (value: (string | Promotion)[] | null): (string | Promotion)[] | null =>
                 value,
             getError: () => errors.promotion,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.promotion = value;
             },
             getTainted: () => tainted.promotion,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.promotion = value;
             },
             validate: (): Array<string> => {
@@ -1309,11 +1316,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.balance,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.balance = value;
             },
             getTainted: () => tainted.balance,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.balance = value;
             },
             validate: (): Array<string> => {
@@ -1332,11 +1339,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: DateTime.DateTime): DateTime.DateTime => value,
             getError: () => errors.due,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.due = value;
             },
             getTainted: () => tainted.due,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.due = value;
             },
             validate: (): Array<string> => {
@@ -1354,11 +1361,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.total,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.total = value;
             },
             getTainted: () => tainted.total,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.total = value;
             },
             validate: (): Array<string> => {
@@ -1377,11 +1384,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: string | Site): string | Site => value,
             getError: () => errors.site,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.site = value;
             },
             getTainted: () => tainted.site,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.site = value;
             },
             validate: (): Array<string> => {
@@ -1399,11 +1406,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: BilledItem[]): BilledItem[] => value,
             getError: () => errors.billedItems,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.billedItems = value;
             },
             getTainted: () => tainted.billedItems,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.billedItems = value;
             },
             validate: (): Array<string> => {
@@ -1420,11 +1427,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
                 },
                 transform: (value: BilledItem): BilledItem => value,
                 getError: () => errors.billedItems,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.billedItems = value;
                 },
                 getTainted: () => tainted.billedItems,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.billedItems = value;
                 },
                 validate: (): Array<string> => []
@@ -1452,11 +1459,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: Option<string>): Option<string> => value,
             getError: () => errors.memo,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.memo = value;
             },
             getTainted: () => tainted.memo,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.memo = value;
             },
             validate: (): Array<string> => {
@@ -1474,11 +1481,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.discount,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.discount = value;
             },
             getTainted: () => tainted.discount,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.discount = value;
             },
             validate: (): Array<string> => {
@@ -1496,11 +1503,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.tip,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.tip = value;
             },
             getTainted: () => tainted.tip,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.tip = value;
             },
             validate: (): Array<string> => {
@@ -1518,11 +1525,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             },
             transform: (value: number[]): number[] => value,
             getError: () => errors.commissions,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.commissions = value;
             },
             getTainted: () => tainted.commissions,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.commissions = value;
             },
             validate: (): Array<string> => {
@@ -1539,11 +1546,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
                 },
                 transform: (value: number): number => value,
                 getError: () => errors.commissions,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.commissions = value;
                 },
                 getTainted: () => tainted.commissions,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.commissions = value;
                 },
                 validate: (): Array<string> => []
@@ -1561,7 +1568,7 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Order> {
+    function validate(): Exit<Order, Array<{ field: string; message: string }>> {
         return toExit(orderDeserialize(data));
     }
     function reset(newOverrides?: Partial<Order>): void {
@@ -1656,7 +1663,7 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function orderFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Order> {
+): Exit<Order, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.account = formData.get('account') ?? '';

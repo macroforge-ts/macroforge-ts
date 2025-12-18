@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -27,14 +26,14 @@ export function cardinalDefaultValue(): Cardinal {
 @returns JSON string representation with cycle detection metadata */ export function cardinalSerialize(
     value: Cardinal
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(cardinalSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function cardinalSerializeWithContext(
     value: Cardinal,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -55,44 +54,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function cardinalDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Cardinal> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Cardinal }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = cardinalDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Cardinal.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Cardinal.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function cardinalDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Cardinal | PendingRef {
+    ctx: __mf_DeserializeContext
+): Cardinal | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Cardinal.deserializeWithContext: expected an object' }
         ]);
     }
@@ -111,7 +115,7 @@ export function cardinalDeserializeWithContext(
         errors.push({ field: 'west', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -135,18 +139,18 @@ export function cardinalDeserializeWithContext(
         instance.west = __raw_west;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Cardinal;
 }
 export function cardinalValidateField<K extends keyof Cardinal>(
-    field: K,
-    value: Cardinal[K]
+    _field: K,
+    _value: Cardinal[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function cardinalValidateFields(
-    partial: Partial<Cardinal>
+    _partial: Partial<Cardinal>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -162,21 +166,21 @@ export function cardinalIs(obj: unknown): obj is Cardinal {
         return false;
     }
     const result = cardinalDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type CardinalErrors = {
-    _errors: Option<Array<string>>;
-    north: Option<Array<string>>;
-    east: Option<Array<string>>;
-    south: Option<Array<string>>;
-    west: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    north: __gf_Option<Array<string>>;
+    east: __gf_Option<Array<string>>;
+    south: __gf_Option<Array<string>>;
+    west: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type CardinalTainted = {
-    north: Option<boolean>;
-    east: Option<boolean>;
-    south: Option<boolean>;
-    west: Option<boolean>;
+    north: __gf_Option<boolean>;
+    east: __gf_Option<boolean>;
+    south: __gf_Option<boolean>;
+    west: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface CardinalFieldControllers {
     readonly north: FieldController<number>;
@@ -189,7 +193,7 @@ export interface CardinalGigaform {
     readonly errors: CardinalErrors;
     readonly tainted: CardinalTainted;
     readonly fields: CardinalFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Cardinal>;
+    validate(): Exit<Cardinal, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Cardinal>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaform {
@@ -218,11 +222,11 @@ export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaf
             },
             transform: (value: number): number => value,
             getError: () => errors.north,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.north = value;
             },
             getTainted: () => tainted.north,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.north = value;
             },
             validate: (): Array<string> => {
@@ -240,11 +244,11 @@ export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaf
             },
             transform: (value: number): number => value,
             getError: () => errors.east,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.east = value;
             },
             getTainted: () => tainted.east,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.east = value;
             },
             validate: (): Array<string> => {
@@ -262,11 +266,11 @@ export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaf
             },
             transform: (value: number): number => value,
             getError: () => errors.south,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.south = value;
             },
             getTainted: () => tainted.south,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.south = value;
             },
             validate: (): Array<string> => {
@@ -284,11 +288,11 @@ export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaf
             },
             transform: (value: number): number => value,
             getError: () => errors.west,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.west = value;
             },
             getTainted: () => tainted.west,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.west = value;
             },
             validate: (): Array<string> => {
@@ -297,7 +301,7 @@ export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaf
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Cardinal> {
+    function validate(): Exit<Cardinal, Array<{ field: string; message: string }>> {
         return toExit(cardinalDeserialize(data));
     }
     function reset(newOverrides?: Partial<Cardinal>): void {
@@ -342,7 +346,7 @@ export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function cardinalFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Cardinal> {
+): Exit<Cardinal, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const northStr = formData.get('north');

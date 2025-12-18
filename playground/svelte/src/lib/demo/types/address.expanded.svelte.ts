@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -30,14 +29,14 @@ export function addressDefaultValue(): Address {
 @returns JSON string representation with cycle detection metadata */ export function addressSerialize(
     value: Address
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(addressSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function addressSerializeWithContext(
     value: Address,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -58,44 +57,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function addressDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Address> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Address }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = addressDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Address.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Address.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function addressDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Address | PendingRef {
+    ctx: __mf_DeserializeContext
+): Address | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Address.deserializeWithContext: expected an object' }
         ]);
     }
@@ -114,7 +118,7 @@ export function addressDeserializeWithContext(
         errors.push({ field: 'zipcode', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -150,39 +154,39 @@ export function addressDeserializeWithContext(
         instance.zipcode = __raw_zipcode;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Address;
 }
 export function addressValidateField<K extends keyof Address>(
-    field: K,
-    value: Address[K]
+    _field: K,
+    _value: Address[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'street': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'street', message: 'must not be empty' });
             }
             break;
         }
         case 'city': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'city', message: 'must not be empty' });
             }
             break;
         }
         case 'state': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'state', message: 'must not be empty' });
             }
             break;
         }
         case 'zipcode': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'zipcode', message: 'must not be empty' });
             }
@@ -192,29 +196,29 @@ export function addressValidateField<K extends keyof Address>(
     return errors;
 }
 export function addressValidateFields(
-    partial: Partial<Address>
+    _partial: Partial<Address>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('street' in partial && partial.street !== undefined) {
-        const __val = partial.street as string;
+    if ('street' in _partial && _partial.street !== undefined) {
+        const __val = _partial.street as string;
         if (__val.length === 0) {
             errors.push({ field: 'street', message: 'must not be empty' });
         }
     }
-    if ('city' in partial && partial.city !== undefined) {
-        const __val = partial.city as string;
+    if ('city' in _partial && _partial.city !== undefined) {
+        const __val = _partial.city as string;
         if (__val.length === 0) {
             errors.push({ field: 'city', message: 'must not be empty' });
         }
     }
-    if ('state' in partial && partial.state !== undefined) {
-        const __val = partial.state as string;
+    if ('state' in _partial && _partial.state !== undefined) {
+        const __val = _partial.state as string;
         if (__val.length === 0) {
             errors.push({ field: 'state', message: 'must not be empty' });
         }
     }
-    if ('zipcode' in partial && partial.zipcode !== undefined) {
-        const __val = partial.zipcode as string;
+    if ('zipcode' in _partial && _partial.zipcode !== undefined) {
+        const __val = _partial.zipcode as string;
         if (__val.length === 0) {
             errors.push({ field: 'zipcode', message: 'must not be empty' });
         }
@@ -233,21 +237,21 @@ export function addressIs(obj: unknown): obj is Address {
         return false;
     }
     const result = addressDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type AddressErrors = {
-    _errors: Option<Array<string>>;
-    street: Option<Array<string>>;
-    city: Option<Array<string>>;
-    state: Option<Array<string>>;
-    zipcode: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    street: __gf_Option<Array<string>>;
+    city: __gf_Option<Array<string>>;
+    state: __gf_Option<Array<string>>;
+    zipcode: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type AddressTainted = {
-    street: Option<boolean>;
-    city: Option<boolean>;
-    state: Option<boolean>;
-    zipcode: Option<boolean>;
+    street: __gf_Option<boolean>;
+    city: __gf_Option<boolean>;
+    state: __gf_Option<boolean>;
+    zipcode: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface AddressFieldControllers {
     readonly street: FieldController<string>;
@@ -260,7 +264,7 @@ export interface AddressGigaform {
     readonly errors: AddressErrors;
     readonly tainted: AddressTainted;
     readonly fields: AddressFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Address>;
+    validate(): Exit<Address, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Address>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform {
@@ -289,11 +293,11 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.street,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.street = value;
             },
             getTainted: () => tainted.street,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.street = value;
             },
             validate: (): Array<string> => {
@@ -311,11 +315,11 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.city,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.city = value;
             },
             getTainted: () => tainted.city,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.city = value;
             },
             validate: (): Array<string> => {
@@ -333,11 +337,11 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.state,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.state = value;
             },
             getTainted: () => tainted.state,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.state = value;
             },
             validate: (): Array<string> => {
@@ -355,11 +359,11 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.zipcode,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.zipcode = value;
             },
             getTainted: () => tainted.zipcode,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.zipcode = value;
             },
             validate: (): Array<string> => {
@@ -368,7 +372,7 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Address> {
+    function validate(): Exit<Address, Array<{ field: string; message: string }>> {
         return toExit(addressDeserialize(data));
     }
     function reset(newOverrides?: Partial<Address>): void {
@@ -413,7 +417,7 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function addressFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Address> {
+): Exit<Address, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.street = formData.get('street') ?? '';
     obj.city = formData.get('city') ?? '';

@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
@@ -26,12 +25,12 @@ export function userRoleDefaultValue(): UserRole {
 @returns JSON string representation with cycle detection metadata */ export function userRoleSerialize(
     value: UserRole
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(userRoleSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function userRoleSerializeWithContext(value: UserRole, ctx: SerializeContext): unknown {
+export function userRoleSerializeWithContext(value: UserRole, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -44,41 +43,46 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function userRoleDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, UserRole> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: UserRole }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = userRoleDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'UserRole.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'UserRole.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function userRoleDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): UserRole | PendingRef {
+    ctx: __mf_DeserializeContext
+): UserRole | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as UserRole | PendingRef;
+        return ctx.getOrDefer(value.__ref) as UserRole | __mf_PendingRef;
     }
     const allowedValues = [
         'Administrator',
@@ -88,7 +92,7 @@ export function userRoleDeserializeWithContext(
         'InformationTechnology'
     ] as const;
     if (!allowedValues.includes(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -113,13 +117,13 @@ export function userRoleIs(value: unknown): value is UserRole {
 }
 
 /** Per-variant error types */ export type UserRoleAdministratorErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
-export type UserRoleSalesRepresentativeErrors = { _errors: Option<Array<string>> };
-export type UserRoleTechnicianErrors = { _errors: Option<Array<string>> };
-export type UserRoleHumanResourcesErrors = { _errors: Option<Array<string>> };
+export type UserRoleSalesRepresentativeErrors = { _errors: __gf_Option<Array<string>> };
+export type UserRoleTechnicianErrors = { _errors: __gf_Option<Array<string>> };
+export type UserRoleHumanResourcesErrors = { _errors: __gf_Option<Array<string>> };
 export type UserRoleInformationTechnologyErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type UserRoleAdministratorTainted = {};
 export type UserRoleSalesRepresentativeTainted = {};
@@ -166,7 +170,7 @@ export interface UserRoleGigaform {
             | 'HumanResources'
             | 'InformationTechnology'
     ): void;
-    validate(): Exit<Array<{ field: string; message: string }>, UserRole>;
+    validate(): Exit<UserRole, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<UserRole>): void;
 } /** Variant fields container */
 export interface UserRoleVariantFields {
@@ -237,7 +241,7 @@ export function userRoleCreateForm(initial?: UserRole): UserRoleGigaform {
         errors = {} as UserRoleErrors;
         tainted = {} as UserRoleTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, UserRole> {
+    function validate(): Exit<UserRole, Array<{ field: string; message: string }>> {
         return toExit(userRoleDeserialize(data));
     }
     function reset(overrides?: Partial<UserRole>): void {
@@ -277,7 +281,7 @@ export function userRoleCreateForm(initial?: UserRole): UserRoleGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function userRoleFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, UserRole> {
+): Exit<UserRole, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_value') as
         | 'Administrator'
         | 'SalesRepresentative'

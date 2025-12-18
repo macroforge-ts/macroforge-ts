@@ -1,9 +1,8 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 
 export type RecordLink<T> = /** @default */ string | T;
 
@@ -16,14 +15,14 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
 @returns JSON string representation with cycle detection metadata */ export function recordLinkSerialize<
     T
 >(value: RecordLink<T>): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(recordLinkSerializeWithContext<T>(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function recordLinkSerializeWithContext<T>(
     value: RecordLink<T>,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
@@ -39,47 +38,52 @@ Automatically detects whether input is a JSON string or object.
     T
 >(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, RecordLink<T>> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: RecordLink<T> }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = recordLinkDeserializeWithContext<T>(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'RecordLink.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'RecordLink.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function recordLinkDeserializeWithContext<T>(
     value: any,
-    ctx: DeserializeContext
-): RecordLink<T> | PendingRef {
+    ctx: __mf_DeserializeContext
+): RecordLink<T> | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as RecordLink<T> | PendingRef;
+        return ctx.getOrDefer(value.__ref) as RecordLink<T> | __mf_PendingRef;
     }
     if (typeof value === 'string') {
         return value as RecordLink<T>;
     }
     return value as RecordLink<T>;
-    throw new DeserializeError([
+    throw new __mf_DeserializeError([
         {
             field: '_root',
             message: 'RecordLink.deserializeWithContext: value does not match any union member'

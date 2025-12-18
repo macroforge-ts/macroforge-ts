@@ -1,14 +1,13 @@
 import { recordLinkDefaultValue } from './record-link.svelte';
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { recordLinkDeserializeWithContext } from './record-link.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -28,12 +27,12 @@ export function itemDefaultValue(): Item {
 @returns JSON string representation with cycle detection metadata */ export function itemSerialize(
     value: Item
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(itemSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function itemSerializeWithContext(value: Item, ctx: SerializeContext): unknown {
+export function itemSerializeWithContext(value: Item, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -46,44 +45,55 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function itemDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Item> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Item }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = itemDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'Item.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Item.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function itemDeserializeWithContext(value: any, ctx: DeserializeContext): Item | PendingRef {
+export function itemDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): Item | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Item | PendingRef;
+        return ctx.getOrDefer(value.__ref) as Item | __mf_PendingRef;
     }
     if (typeof value !== 'object' || value === null) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Item.deserializeWithContext: expected an object' }
         ]);
     }
     const __typeName = (value as any).__type;
     if (typeof __typeName !== 'string') {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'Item.deserializeWithContext: missing __type field for union dispatch'
@@ -96,7 +106,7 @@ export function itemDeserializeWithContext(value: any, ctx: DeserializeContext):
     if (__typeName === 'RecordLink<Service>') {
         return recordLinkDeserializeWithContext(value, ctx) as Item;
     }
-    throw new DeserializeError([
+    throw new __mf_DeserializeError([
         {
             field: '_root',
             message:
@@ -115,10 +125,10 @@ export function itemIs(value: unknown): value is Item {
 }
 
 /** Per-variant error types */ export type ItemRecordLinkProductErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
 export type ItemRecordLinkServiceErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type ItemRecordLinkProductTainted = {};
 export type ItemRecordLinkServiceTainted = {}; /** Union error type */
@@ -139,7 +149,7 @@ export interface ItemGigaform {
     readonly tainted: ItemTainted;
     readonly variants: ItemVariantFields;
     switchVariant(variant: 'RecordLink<Product>' | 'RecordLink<Service>'): void;
-    validate(): Exit<Array<{ field: string; message: string }>, Item>;
+    validate(): Exit<Item, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Item>): void;
 } /** Variant fields container */
 export interface ItemVariantFields {
@@ -172,7 +182,7 @@ export function itemCreateForm(initial?: Item): ItemGigaform {
         errors = {} as ItemErrors;
         tainted = {} as ItemTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, Item> {
+    function validate(): Exit<Item, Array<{ field: string; message: string }>> {
         return toExit(itemDeserialize(data));
     }
     function reset(overrides?: Partial<Item>): void {
@@ -210,7 +220,7 @@ export function itemCreateForm(initial?: Item): ItemGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function itemFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Item> {
+): Exit<Item, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_type') as
         | 'RecordLink<Product>'
         | 'RecordLink<Service>'

@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -24,14 +23,14 @@ export function dailyRecurrenceRuleDefaultValue(): DailyRecurrenceRule {
 @returns JSON string representation with cycle detection metadata */ export function dailyRecurrenceRuleSerialize(
     value: DailyRecurrenceRule
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(dailyRecurrenceRuleSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function dailyRecurrenceRuleSerializeWithContext(
     value: DailyRecurrenceRule,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -49,44 +48,50 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function dailyRecurrenceRuleDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, DailyRecurrenceRule> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: DailyRecurrenceRule }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = dailyRecurrenceRuleDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'DailyRecurrenceRule.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message:
+                            'DailyRecurrenceRule.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function dailyRecurrenceRuleDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): DailyRecurrenceRule | PendingRef {
+    ctx: __mf_DeserializeContext
+): DailyRecurrenceRule | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'DailyRecurrenceRule.deserializeWithContext: expected an object'
@@ -99,7 +104,7 @@ export function dailyRecurrenceRuleDeserializeWithContext(
         errors.push({ field: 'quantityOfDays', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -111,18 +116,18 @@ export function dailyRecurrenceRuleDeserializeWithContext(
         instance.quantityOfDays = __raw_quantityOfDays;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as DailyRecurrenceRule;
 }
 export function dailyRecurrenceRuleValidateField<K extends keyof DailyRecurrenceRule>(
-    field: K,
-    value: DailyRecurrenceRule[K]
+    _field: K,
+    _value: DailyRecurrenceRule[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function dailyRecurrenceRuleValidateFields(
-    partial: Partial<DailyRecurrenceRule>
+    _partial: Partial<DailyRecurrenceRule>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -138,15 +143,15 @@ export function dailyRecurrenceRuleIs(obj: unknown): obj is DailyRecurrenceRule 
         return false;
     }
     const result = dailyRecurrenceRuleDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type DailyRecurrenceRuleErrors = {
-    _errors: Option<Array<string>>;
-    quantityOfDays: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    quantityOfDays: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type DailyRecurrenceRuleTainted = {
-    quantityOfDays: Option<boolean>;
+    quantityOfDays: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface DailyRecurrenceRuleFieldControllers {
     readonly quantityOfDays: FieldController<number>;
@@ -156,7 +161,7 @@ export interface DailyRecurrenceRuleGigaform {
     readonly errors: DailyRecurrenceRuleErrors;
     readonly tainted: DailyRecurrenceRuleTainted;
     readonly fields: DailyRecurrenceRuleFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, DailyRecurrenceRule>;
+    validate(): Exit<DailyRecurrenceRule, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<DailyRecurrenceRule>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function dailyRecurrenceRuleCreateForm(
@@ -179,11 +184,11 @@ export function dailyRecurrenceRuleCreateForm(
             },
             transform: (value: number): number => value,
             getError: () => errors.quantityOfDays,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.quantityOfDays = value;
             },
             getTainted: () => tainted.quantityOfDays,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.quantityOfDays = value;
             },
             validate: (): Array<string> => {
@@ -195,7 +200,7 @@ export function dailyRecurrenceRuleCreateForm(
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, DailyRecurrenceRule> {
+    function validate(): Exit<DailyRecurrenceRule, Array<{ field: string; message: string }>> {
         return toExit(dailyRecurrenceRuleDeserialize(data));
     }
     function reset(newOverrides?: Partial<DailyRecurrenceRule>): void {
@@ -229,7 +234,7 @@ export function dailyRecurrenceRuleCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function dailyRecurrenceRuleFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, DailyRecurrenceRule> {
+): Exit<DailyRecurrenceRule, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const quantityOfDaysStr = formData.get('quantityOfDays');

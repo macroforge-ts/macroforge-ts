@@ -1,10 +1,9 @@
 import { accountDefaultValue } from './account.svelte';
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { accountDeserializeWithContext } from './account.svelte';
 import { appointmentDeserializeWithContext } from './appointment.svelte';
 import { companyDeserializeWithContext } from './company.svelte';
@@ -24,7 +23,7 @@ import { taxRateDeserializeWithContext } from './tax-rate.svelte';
 import { userDeserializeWithContext } from './user.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { appointmentDefaultValue } from './appointment.svelte';
@@ -91,12 +90,12 @@ export function targetDefaultValue(): Target {
 @returns JSON string representation with cycle detection metadata */ export function targetSerialize(
     value: Target
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(targetSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function targetSerializeWithContext(value: Target, ctx: SerializeContext): unknown {
+export function targetSerializeWithContext(value: Target, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -109,50 +108,55 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function targetDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Target> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Target }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = targetDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Target.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Target.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function targetDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Target | PendingRef {
+    ctx: __mf_DeserializeContext
+): Target | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Target | PendingRef;
+        return ctx.getOrDefer(value.__ref) as Target | __mf_PendingRef;
     }
     if (typeof value !== 'object' || value === null) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Target.deserializeWithContext: expected an object' }
         ]);
     }
     const __typeName = (value as any).__type;
     if (typeof __typeName !== 'string') {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'Target.deserializeWithContext: missing __type field for union dispatch'
@@ -210,7 +214,7 @@ export function targetDeserializeWithContext(
     if (__typeName === 'Ordered') {
         return orderedDeserializeWithContext(value, ctx) as Target;
     }
-    throw new DeserializeError([
+    throw new __mf_DeserializeError([
         {
             field: '_root',
             message:
@@ -246,24 +250,26 @@ export function targetIs(value: unknown): value is Target {
     );
 }
 
-/** Per-variant error types */ export type TargetAccountErrors = { _errors: Option<Array<string>> };
-export type TargetUserErrors = { _errors: Option<Array<string>> };
-export type TargetEmployeeErrors = { _errors: Option<Array<string>> };
-export type TargetAppointmentErrors = { _errors: Option<Array<string>> };
-export type TargetLeadErrors = { _errors: Option<Array<string>> };
-export type TargetTaxRateErrors = { _errors: Option<Array<string>> };
-export type TargetSiteErrors = { _errors: Option<Array<string>> };
-export type TargetRouteErrors = { _errors: Option<Array<string>> };
-export type TargetCompanyErrors = { _errors: Option<Array<string>> };
-export type TargetProductErrors = { _errors: Option<Array<string>> };
-export type TargetServiceErrors = { _errors: Option<Array<string>> };
-export type TargetOrderErrors = { _errors: Option<Array<string>> };
-export type TargetPaymentErrors = { _errors: Option<Array<string>> };
-export type TargetPackageErrors = { _errors: Option<Array<string>> };
-export type TargetPromotionErrors = { _errors: Option<Array<string>> };
-export type TargetRepresentsErrors = { _errors: Option<Array<string>> };
+/** Per-variant error types */ export type TargetAccountErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetUserErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetEmployeeErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetAppointmentErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetLeadErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetTaxRateErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetSiteErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetRouteErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetCompanyErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetProductErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetServiceErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetOrderErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetPaymentErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetPackageErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetPromotionErrors = { _errors: __gf_Option<Array<string>> };
+export type TargetRepresentsErrors = { _errors: __gf_Option<Array<string>> };
 export type TargetOrderedErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type TargetAccountTainted = {};
 export type TargetUserTainted = {};
@@ -378,7 +384,7 @@ export interface TargetGigaform {
             | 'Represents'
             | 'Ordered'
     ): void;
-    validate(): Exit<Array<{ field: string; message: string }>, Target>;
+    validate(): Exit<Target, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Target>): void;
 } /** Variant fields container */
 export interface TargetVariantFields {
@@ -525,7 +531,7 @@ export function targetCreateForm(initial?: Target): TargetGigaform {
         errors = {} as TargetErrors;
         tainted = {} as TargetTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, Target> {
+    function validate(): Exit<Target, Array<{ field: string; message: string }>> {
         return toExit(targetDeserialize(data));
     }
     function reset(overrides?: Partial<Target>): void {
@@ -563,7 +569,7 @@ export function targetCreateForm(initial?: Target): TargetGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function targetFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Target> {
+): Exit<Target, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_type') as
         | 'Account'
         | 'User'

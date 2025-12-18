@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -26,14 +25,14 @@ export function productDefaultsDefaultValue(): ProductDefaults {
 @returns JSON string representation with cycle detection metadata */ export function productDefaultsSerialize(
     value: ProductDefaults
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(productDefaultsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function productDefaultsSerializeWithContext(
     value: ProductDefaults,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -52,44 +51,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function productDefaultsDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, ProductDefaults> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: ProductDefaults }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = productDefaultsDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'ProductDefaults.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'ProductDefaults.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function productDefaultsDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): ProductDefaults | PendingRef {
+    ctx: __mf_DeserializeContext
+): ProductDefaults | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'ProductDefaults.deserializeWithContext: expected an object'
@@ -105,7 +109,7 @@ export function productDefaultsDeserializeWithContext(
         errors.push({ field: 'description', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -124,18 +128,18 @@ export function productDefaultsDeserializeWithContext(
         instance.description = __raw_description;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as ProductDefaults;
 }
 export function productDefaultsValidateField<K extends keyof ProductDefaults>(
-    field: K,
-    value: ProductDefaults[K]
+    _field: K,
+    _value: ProductDefaults[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'description': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'description', message: 'must not be empty' });
             }
@@ -145,11 +149,11 @@ export function productDefaultsValidateField<K extends keyof ProductDefaults>(
     return errors;
 }
 export function productDefaultsValidateFields(
-    partial: Partial<ProductDefaults>
+    _partial: Partial<ProductDefaults>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('description' in partial && partial.description !== undefined) {
-        const __val = partial.description as string;
+    if ('description' in _partial && _partial.description !== undefined) {
+        const __val = _partial.description as string;
         if (__val.length === 0) {
             errors.push({ field: 'description', message: 'must not be empty' });
         }
@@ -168,17 +172,17 @@ export function productDefaultsIs(obj: unknown): obj is ProductDefaults {
         return false;
     }
     const result = productDefaultsDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type ProductDefaultsErrors = {
-    _errors: Option<Array<string>>;
-    price: Option<Array<string>>;
-    description: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    price: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type ProductDefaultsTainted = {
-    price: Option<boolean>;
-    description: Option<boolean>;
+    price: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface ProductDefaultsFieldControllers {
     readonly price: FieldController<number>;
@@ -189,7 +193,7 @@ export interface ProductDefaultsGigaform {
     readonly errors: ProductDefaultsErrors;
     readonly tainted: ProductDefaultsTainted;
     readonly fields: ProductDefaultsFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, ProductDefaults>;
+    validate(): Exit<ProductDefaults, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<ProductDefaults>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function productDefaultsCreateForm(
@@ -217,11 +221,11 @@ export function productDefaultsCreateForm(
             },
             transform: (value: number): number => value,
             getError: () => errors.price,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.price = value;
             },
             getTainted: () => tainted.price,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.price = value;
             },
             validate: (): Array<string> => {
@@ -240,11 +244,11 @@ export function productDefaultsCreateForm(
             },
             transform: (value: string): string => value,
             getError: () => errors.description,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.description = value;
             },
             getTainted: () => tainted.description,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.description = value;
             },
             validate: (): Array<string> => {
@@ -253,7 +257,7 @@ export function productDefaultsCreateForm(
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, ProductDefaults> {
+    function validate(): Exit<ProductDefaults, Array<{ field: string; message: string }>> {
         return toExit(productDefaultsDeserialize(data));
     }
     function reset(newOverrides?: Partial<ProductDefaults>): void {
@@ -287,7 +291,7 @@ export function productDefaultsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function productDefaultsFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, ProductDefaults> {
+): Exit<ProductDefaults, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const priceStr = formData.get('price');

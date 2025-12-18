@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -25,14 +24,14 @@ export function paymentDefaultValue(): Payment {
 @returns JSON string representation with cycle detection metadata */ export function paymentSerialize(
     value: Payment
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(paymentSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function paymentSerializeWithContext(
     value: Payment,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -51,44 +50,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function paymentDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Payment> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Payment }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = paymentDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Payment.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Payment.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function paymentDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Payment | PendingRef {
+    ctx: __mf_DeserializeContext
+): Payment | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Payment.deserializeWithContext: expected an object' }
         ]);
     }
@@ -101,7 +105,7 @@ export function paymentDeserializeWithContext(
         errors.push({ field: 'date', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -117,18 +121,18 @@ export function paymentDeserializeWithContext(
         instance.date = __raw_date;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Payment;
 }
 export function paymentValidateField<K extends keyof Payment>(
-    field: K,
-    value: Payment[K]
+    _field: K,
+    _value: Payment[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function paymentValidateFields(
-    partial: Partial<Payment>
+    _partial: Partial<Payment>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -144,17 +148,17 @@ export function paymentIs(obj: unknown): obj is Payment {
         return false;
     }
     const result = paymentDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type PaymentErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    date: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    date: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type PaymentTainted = {
-    id: Option<boolean>;
-    date: Option<boolean>;
+    id: __gf_Option<boolean>;
+    date: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface PaymentFieldControllers {
     readonly id: FieldController<string>;
@@ -165,7 +169,7 @@ export interface PaymentGigaform {
     readonly errors: PaymentErrors;
     readonly tainted: PaymentTainted;
     readonly fields: PaymentFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Payment>;
+    validate(): Exit<Payment, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Payment>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function paymentCreateForm(overrides?: Partial<Payment>): PaymentGigaform {
@@ -187,11 +191,11 @@ export function paymentCreateForm(overrides?: Partial<Payment>): PaymentGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -209,11 +213,11 @@ export function paymentCreateForm(overrides?: Partial<Payment>): PaymentGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.date,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.date = value;
             },
             getTainted: () => tainted.date,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.date = value;
             },
             validate: (): Array<string> => {
@@ -222,7 +226,7 @@ export function paymentCreateForm(overrides?: Partial<Payment>): PaymentGigaform
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Payment> {
+    function validate(): Exit<Payment, Array<{ field: string; message: string }>> {
         return toExit(paymentDeserialize(data));
     }
     function reset(newOverrides?: Partial<Payment>): void {
@@ -256,7 +260,7 @@ export function paymentCreateForm(overrides?: Partial<Payment>): PaymentGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function paymentFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Payment> {
+): Exit<Payment, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.date = formData.get('date') ?? '';

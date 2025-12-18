@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -25,14 +24,14 @@ export function viewedDefaultValue(): Viewed {
 @returns JSON string representation with cycle detection metadata */ export function viewedSerialize(
     value: Viewed
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(viewedSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function viewedSerializeWithContext(
     value: Viewed,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -51,44 +50,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function viewedDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Viewed> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Viewed }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = viewedDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Viewed.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Viewed.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function viewedDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Viewed | PendingRef {
+    ctx: __mf_DeserializeContext
+): Viewed | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Viewed.deserializeWithContext: expected an object' }
         ]);
     }
@@ -101,7 +105,7 @@ export function viewedDeserializeWithContext(
         errors.push({ field: 'source', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -117,18 +121,18 @@ export function viewedDeserializeWithContext(
         instance.source = __raw_source;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Viewed;
 }
 export function viewedValidateField<K extends keyof Viewed>(
-    field: K,
-    value: Viewed[K]
+    _field: K,
+    _value: Viewed[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function viewedValidateFields(
-    partial: Partial<Viewed>
+    _partial: Partial<Viewed>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -144,17 +148,17 @@ export function viewedIs(obj: unknown): obj is Viewed {
         return false;
     }
     const result = viewedDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type ViewedErrors = {
-    _errors: Option<Array<string>>;
-    durationSeconds: Option<Array<string>>;
-    source: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    durationSeconds: __gf_Option<Array<string>>;
+    source: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type ViewedTainted = {
-    durationSeconds: Option<boolean>;
-    source: Option<boolean>;
+    durationSeconds: __gf_Option<boolean>;
+    source: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface ViewedFieldControllers {
     readonly durationSeconds: FieldController<number | null>;
@@ -165,7 +169,7 @@ export interface ViewedGigaform {
     readonly errors: ViewedErrors;
     readonly tainted: ViewedTainted;
     readonly fields: ViewedFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Viewed>;
+    validate(): Exit<Viewed, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Viewed>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function viewedCreateForm(overrides?: Partial<Viewed>): ViewedGigaform {
@@ -187,11 +191,11 @@ export function viewedCreateForm(overrides?: Partial<Viewed>): ViewedGigaform {
             },
             transform: (value: number | null): number | null => value,
             getError: () => errors.durationSeconds,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.durationSeconds = value;
             },
             getTainted: () => tainted.durationSeconds,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.durationSeconds = value;
             },
             validate: (): Array<string> => {
@@ -209,11 +213,11 @@ export function viewedCreateForm(overrides?: Partial<Viewed>): ViewedGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.source,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.source = value;
             },
             getTainted: () => tainted.source,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.source = value;
             },
             validate: (): Array<string> => {
@@ -222,7 +226,7 @@ export function viewedCreateForm(overrides?: Partial<Viewed>): ViewedGigaform {
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Viewed> {
+    function validate(): Exit<Viewed, Array<{ field: string; message: string }>> {
         return toExit(viewedDeserialize(data));
     }
     function reset(newOverrides?: Partial<Viewed>): void {
@@ -256,7 +260,7 @@ export function viewedCreateForm(overrides?: Partial<Viewed>): ViewedGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function viewedFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Viewed> {
+): Exit<Viewed, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const durationSecondsStr = formData.get('durationSeconds');

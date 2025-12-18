@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -26,14 +25,14 @@ export function commissionsDefaultValue(): Commissions {
 @returns JSON string representation with cycle detection metadata */ export function commissionsSerialize(
     value: Commissions
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(commissionsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function commissionsSerializeWithContext(
     value: Commissions,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -52,44 +51,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function commissionsDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Commissions> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Commissions }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = commissionsDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Commissions.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Commissions.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function commissionsDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Commissions | PendingRef {
+    ctx: __mf_DeserializeContext
+): Commissions | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Commissions.deserializeWithContext: expected an object' }
         ]);
     }
@@ -102,7 +106,7 @@ export function commissionsDeserializeWithContext(
         errors.push({ field: 'salesRep', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -124,25 +128,25 @@ export function commissionsDeserializeWithContext(
         instance.salesRep = __raw_salesRep;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Commissions;
 }
 export function commissionsValidateField<K extends keyof Commissions>(
-    field: K,
-    value: Commissions[K]
+    _field: K,
+    _value: Commissions[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'technician': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'technician', message: 'must not be empty' });
             }
             break;
         }
         case 'salesRep': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'salesRep', message: 'must not be empty' });
             }
@@ -152,17 +156,17 @@ export function commissionsValidateField<K extends keyof Commissions>(
     return errors;
 }
 export function commissionsValidateFields(
-    partial: Partial<Commissions>
+    _partial: Partial<Commissions>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('technician' in partial && partial.technician !== undefined) {
-        const __val = partial.technician as string;
+    if ('technician' in _partial && _partial.technician !== undefined) {
+        const __val = _partial.technician as string;
         if (__val.length === 0) {
             errors.push({ field: 'technician', message: 'must not be empty' });
         }
     }
-    if ('salesRep' in partial && partial.salesRep !== undefined) {
-        const __val = partial.salesRep as string;
+    if ('salesRep' in _partial && _partial.salesRep !== undefined) {
+        const __val = _partial.salesRep as string;
         if (__val.length === 0) {
             errors.push({ field: 'salesRep', message: 'must not be empty' });
         }
@@ -181,17 +185,17 @@ export function commissionsIs(obj: unknown): obj is Commissions {
         return false;
     }
     const result = commissionsDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type CommissionsErrors = {
-    _errors: Option<Array<string>>;
-    technician: Option<Array<string>>;
-    salesRep: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    technician: __gf_Option<Array<string>>;
+    salesRep: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type CommissionsTainted = {
-    technician: Option<boolean>;
-    salesRep: Option<boolean>;
+    technician: __gf_Option<boolean>;
+    salesRep: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface CommissionsFieldControllers {
     readonly technician: FieldController<string>;
@@ -202,7 +206,7 @@ export interface CommissionsGigaform {
     readonly errors: CommissionsErrors;
     readonly tainted: CommissionsTainted;
     readonly fields: CommissionsFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Commissions>;
+    validate(): Exit<Commissions, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Commissions>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function commissionsCreateForm(overrides?: Partial<Commissions>): CommissionsGigaform {
@@ -224,11 +228,11 @@ export function commissionsCreateForm(overrides?: Partial<Commissions>): Commiss
             },
             transform: (value: string): string => value,
             getError: () => errors.technician,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.technician = value;
             },
             getTainted: () => tainted.technician,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.technician = value;
             },
             validate: (): Array<string> => {
@@ -246,11 +250,11 @@ export function commissionsCreateForm(overrides?: Partial<Commissions>): Commiss
             },
             transform: (value: string): string => value,
             getError: () => errors.salesRep,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.salesRep = value;
             },
             getTainted: () => tainted.salesRep,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.salesRep = value;
             },
             validate: (): Array<string> => {
@@ -259,7 +263,7 @@ export function commissionsCreateForm(overrides?: Partial<Commissions>): Commiss
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Commissions> {
+    function validate(): Exit<Commissions, Array<{ field: string; message: string }>> {
         return toExit(commissionsDeserialize(data));
     }
     function reset(newOverrides?: Partial<Commissions>): void {
@@ -293,7 +297,7 @@ export function commissionsCreateForm(overrides?: Partial<Commissions>): Commiss
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function commissionsFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Commissions> {
+): Exit<Commissions, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.technician = formData.get('technician') ?? '';
     obj.salesRep = formData.get('salesRep') ?? '';

@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -25,14 +24,14 @@ export function directionHueDefaultValue(): DirectionHue {
 @returns JSON string representation with cycle detection metadata */ export function directionHueSerialize(
     value: DirectionHue
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(directionHueSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function directionHueSerializeWithContext(
     value: DirectionHue,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -51,44 +50,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function directionHueDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, DirectionHue> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: DirectionHue }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = directionHueDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'DirectionHue.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'DirectionHue.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function directionHueDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): DirectionHue | PendingRef {
+    ctx: __mf_DeserializeContext
+): DirectionHue | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'DirectionHue.deserializeWithContext: expected an object' }
         ]);
     }
@@ -101,7 +105,7 @@ export function directionHueDeserializeWithContext(
         errors.push({ field: 'hue', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -117,18 +121,18 @@ export function directionHueDeserializeWithContext(
         instance.hue = __raw_hue;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as DirectionHue;
 }
 export function directionHueValidateField<K extends keyof DirectionHue>(
-    field: K,
-    value: DirectionHue[K]
+    _field: K,
+    _value: DirectionHue[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function directionHueValidateFields(
-    partial: Partial<DirectionHue>
+    _partial: Partial<DirectionHue>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -144,17 +148,17 @@ export function directionHueIs(obj: unknown): obj is DirectionHue {
         return false;
     }
     const result = directionHueDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type DirectionHueErrors = {
-    _errors: Option<Array<string>>;
-    bearing: Option<Array<string>>;
-    hue: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    bearing: __gf_Option<Array<string>>;
+    hue: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type DirectionHueTainted = {
-    bearing: Option<boolean>;
-    hue: Option<boolean>;
+    bearing: __gf_Option<boolean>;
+    hue: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface DirectionHueFieldControllers {
     readonly bearing: FieldController<number>;
@@ -165,7 +169,7 @@ export interface DirectionHueGigaform {
     readonly errors: DirectionHueErrors;
     readonly tainted: DirectionHueTainted;
     readonly fields: DirectionHueFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, DirectionHue>;
+    validate(): Exit<DirectionHue, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<DirectionHue>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function directionHueCreateForm(overrides?: Partial<DirectionHue>): DirectionHueGigaform {
@@ -187,11 +191,11 @@ export function directionHueCreateForm(overrides?: Partial<DirectionHue>): Direc
             },
             transform: (value: number): number => value,
             getError: () => errors.bearing,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.bearing = value;
             },
             getTainted: () => tainted.bearing,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.bearing = value;
             },
             validate: (): Array<string> => {
@@ -209,11 +213,11 @@ export function directionHueCreateForm(overrides?: Partial<DirectionHue>): Direc
             },
             transform: (value: number): number => value,
             getError: () => errors.hue,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hue = value;
             },
             getTainted: () => tainted.hue,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hue = value;
             },
             validate: (): Array<string> => {
@@ -222,7 +226,7 @@ export function directionHueCreateForm(overrides?: Partial<DirectionHue>): Direc
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, DirectionHue> {
+    function validate(): Exit<DirectionHue, Array<{ field: string; message: string }>> {
         return toExit(directionHueDeserialize(data));
     }
     function reset(newOverrides?: Partial<DirectionHue>): void {
@@ -256,7 +260,7 @@ export function directionHueCreateForm(overrides?: Partial<DirectionHue>): Direc
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function directionHueFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, DirectionHue> {
+): Exit<DirectionHue, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const bearingStr = formData.get('bearing');

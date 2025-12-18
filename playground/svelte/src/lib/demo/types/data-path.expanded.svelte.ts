@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -26,14 +25,14 @@ export function dataPathDefaultValue(): DataPath {
 @returns JSON string representation with cycle detection metadata */ export function dataPathSerialize(
     value: DataPath
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(dataPathSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function dataPathSerializeWithContext(
     value: DataPath,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -52,44 +51,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function dataPathDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, DataPath> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: DataPath }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = dataPathDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'DataPath.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'DataPath.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function dataPathDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): DataPath | PendingRef {
+    ctx: __mf_DeserializeContext
+): DataPath | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'DataPath.deserializeWithContext: expected an object' }
         ]);
     }
@@ -102,7 +106,7 @@ export function dataPathDeserializeWithContext(
         errors.push({ field: 'formatter', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -120,18 +124,18 @@ export function dataPathDeserializeWithContext(
         instance.formatter = __raw_formatter;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as DataPath;
 }
 export function dataPathValidateField<K extends keyof DataPath>(
-    field: K,
-    value: DataPath[K]
+    _field: K,
+    _value: DataPath[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function dataPathValidateFields(
-    partial: Partial<DataPath>
+    _partial: Partial<DataPath>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -147,17 +151,17 @@ export function dataPathIs(obj: unknown): obj is DataPath {
         return false;
     }
     const result = dataPathDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type DataPathErrors = {
-    _errors: Option<Array<string>>;
-    path: Option<Array<string>>;
-    formatter: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    path: __gf_Option<Array<string>>;
+    formatter: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type DataPathTainted = {
-    path: Option<boolean>;
-    formatter: Option<boolean>;
+    path: __gf_Option<boolean>;
+    formatter: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface DataPathFieldControllers {
     readonly path: ArrayFieldController<string>;
@@ -168,7 +172,7 @@ export interface DataPathGigaform {
     readonly errors: DataPathErrors;
     readonly tainted: DataPathTainted;
     readonly fields: DataPathFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, DataPath>;
+    validate(): Exit<DataPath, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<DataPath>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaform {
@@ -190,11 +194,11 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
             },
             transform: (value: string[]): string[] => value,
             getError: () => errors.path,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.path = value;
             },
             getTainted: () => tainted.path,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.path = value;
             },
             validate: (): Array<string> => {
@@ -211,11 +215,11 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
                 },
                 transform: (value: string): string => value,
                 getError: () => errors.path,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.path = value;
                 },
                 getTainted: () => tainted.path,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.path = value;
                 },
                 validate: (): Array<string> => []
@@ -242,11 +246,11 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.formatter,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.formatter = value;
             },
             getTainted: () => tainted.formatter,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.formatter = value;
             },
             validate: (): Array<string> => {
@@ -255,7 +259,7 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, DataPath> {
+    function validate(): Exit<DataPath, Array<{ field: string; message: string }>> {
         return toExit(dataPathDeserialize(data));
     }
     function reset(newOverrides?: Partial<DataPath>): void {
@@ -289,7 +293,7 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function dataPathFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, DataPath> {
+): Exit<DataPath, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.path = formData.getAll('path') as Array<string>;
     obj.formatter = formData.get('formatter') ?? '';

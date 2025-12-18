@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -26,14 +25,14 @@ export function paidDefaultValue(): Paid {
 @returns JSON string representation with cycle detection metadata */ export function paidSerialize(
     value: Paid
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(paidSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function paidSerializeWithContext(
     value: Paid,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -53,38 +52,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function paidDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Paid> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Paid }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = paidDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'Paid.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Paid.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function paidDeserializeWithContext(value: any, ctx: DeserializeContext): Paid | PendingRef {
+export function paidDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): Paid | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Paid.deserializeWithContext: expected an object' }
         ]);
     }
@@ -100,7 +110,7 @@ export function paidDeserializeWithContext(value: any, ctx: DeserializeContext):
         errors.push({ field: 'paymentMethod', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -120,18 +130,18 @@ export function paidDeserializeWithContext(value: any, ctx: DeserializeContext):
         instance.paymentMethod = __raw_paymentMethod;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Paid;
 }
 export function paidValidateField<K extends keyof Paid>(
-    field: K,
-    value: Paid[K]
+    _field: K,
+    _value: Paid[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function paidValidateFields(
-    partial: Partial<Paid>
+    _partial: Partial<Paid>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -147,19 +157,19 @@ export function paidIs(obj: unknown): obj is Paid {
         return false;
     }
     const result = paidDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type PaidErrors = {
-    _errors: Option<Array<string>>;
-    amount: Option<Array<string>>;
-    currency: Option<Array<string>>;
-    paymentMethod: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    amount: __gf_Option<Array<string>>;
+    currency: __gf_Option<Array<string>>;
+    paymentMethod: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type PaidTainted = {
-    amount: Option<boolean>;
-    currency: Option<boolean>;
-    paymentMethod: Option<boolean>;
+    amount: __gf_Option<boolean>;
+    currency: __gf_Option<boolean>;
+    paymentMethod: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface PaidFieldControllers {
     readonly amount: FieldController<number | null>;
@@ -171,7 +181,7 @@ export interface PaidGigaform {
     readonly errors: PaidErrors;
     readonly tainted: PaidTainted;
     readonly fields: PaidFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Paid>;
+    validate(): Exit<Paid, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Paid>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
@@ -198,11 +208,11 @@ export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
             },
             transform: (value: number | null): number | null => value,
             getError: () => errors.amount,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.amount = value;
             },
             getTainted: () => tainted.amount,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.amount = value;
             },
             validate: (): Array<string> => {
@@ -220,11 +230,11 @@ export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.currency,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.currency = value;
             },
             getTainted: () => tainted.currency,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.currency = value;
             },
             validate: (): Array<string> => {
@@ -242,11 +252,11 @@ export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.paymentMethod,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.paymentMethod = value;
             },
             getTainted: () => tainted.paymentMethod,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.paymentMethod = value;
             },
             validate: (): Array<string> => {
@@ -255,7 +265,7 @@ export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Paid> {
+    function validate(): Exit<Paid, Array<{ field: string; message: string }>> {
         return toExit(paidDeserialize(data));
     }
     function reset(newOverrides?: Partial<Paid>): void {
@@ -294,7 +304,7 @@ export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function paidFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Paid> {
+): Exit<Paid, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const amountStr = formData.get('amount');

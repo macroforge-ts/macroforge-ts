@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
@@ -28,14 +27,14 @@ export function applicationsDefaultValue(): Applications {
 @returns JSON string representation with cycle detection metadata */ export function applicationsSerialize(
     value: Applications
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(applicationsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function applicationsSerializeWithContext(
     value: Applications,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
@@ -49,41 +48,46 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function applicationsDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Applications> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Applications }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = applicationsDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Applications.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Applications.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function applicationsDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Applications | PendingRef {
+    ctx: __mf_DeserializeContext
+): Applications | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Applications | PendingRef;
+        return ctx.getOrDefer(value.__ref) as Applications | __mf_PendingRef;
     }
     const allowedValues = [
         'Sales',
@@ -95,7 +99,7 @@ export function applicationsDeserializeWithContext(
         'Website'
     ] as const;
     if (!allowedValues.includes(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -122,15 +126,15 @@ export function applicationsIs(value: unknown): value is Applications {
 }
 
 /** Per-variant error types */ export type ApplicationsSalesErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
-export type ApplicationsAccountingErrors = { _errors: Option<Array<string>> };
-export type ApplicationsErrandErrors = { _errors: Option<Array<string>> };
-export type ApplicationsHumanResourcesErrors = { _errors: Option<Array<string>> };
-export type ApplicationsLogisticsErrors = { _errors: Option<Array<string>> };
-export type ApplicationsMarketingErrors = { _errors: Option<Array<string>> };
+export type ApplicationsAccountingErrors = { _errors: __gf_Option<Array<string>> };
+export type ApplicationsErrandErrors = { _errors: __gf_Option<Array<string>> };
+export type ApplicationsHumanResourcesErrors = { _errors: __gf_Option<Array<string>> };
+export type ApplicationsLogisticsErrors = { _errors: __gf_Option<Array<string>> };
+export type ApplicationsMarketingErrors = { _errors: __gf_Option<Array<string>> };
 export type ApplicationsWebsiteErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type ApplicationsSalesTainted = {};
 export type ApplicationsAccountingTainted = {};
@@ -187,7 +191,7 @@ export interface ApplicationsGigaform {
             | 'Marketing'
             | 'Website'
     ): void;
-    validate(): Exit<Array<{ field: string; message: string }>, Applications>;
+    validate(): Exit<Applications, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Applications>): void;
 } /** Variant fields container */
 export interface ApplicationsVariantFields {
@@ -266,7 +270,7 @@ export function applicationsCreateForm(initial?: Applications): ApplicationsGiga
         errors = {} as ApplicationsErrors;
         tainted = {} as ApplicationsTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, Applications> {
+    function validate(): Exit<Applications, Array<{ field: string; message: string }>> {
         return toExit(applicationsDeserialize(data));
     }
     function reset(overrides?: Partial<Applications>): void {
@@ -306,7 +310,7 @@ export function applicationsCreateForm(initial?: Applications): ApplicationsGiga
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function applicationsFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Applications> {
+): Exit<Applications, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_value') as
         | 'Sales'
         | 'Accounting'

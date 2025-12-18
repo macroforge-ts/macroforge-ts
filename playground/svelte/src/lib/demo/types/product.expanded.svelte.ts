@@ -1,15 +1,14 @@
 import { productDefaultsDefaultValue } from './product-defaults.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { productDefaultsSerializeWithContext } from './product-defaults.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { productDefaultsDeserializeWithContext } from './product-defaults.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -57,14 +56,14 @@ export function productDefaultValue(): Product {
 @returns JSON string representation with cycle detection metadata */ export function productSerialize(
     value: Product
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(productSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function productSerializeWithContext(
     value: Product,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -91,44 +90,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function productDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Product> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Product }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = productDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Product.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Product.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function productDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Product | PendingRef {
+    ctx: __mf_DeserializeContext
+): Product | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Product.deserializeWithContext: expected an object' }
         ]);
     }
@@ -165,7 +169,7 @@ export function productDeserializeWithContext(
         errors.push({ field: 'defaults', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -222,25 +226,25 @@ export function productDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Product;
 }
 export function productValidateField<K extends keyof Product>(
-    field: K,
-    value: Product[K]
+    _field: K,
+    _value: Product[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'name': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'name', message: 'must not be empty' });
             }
             break;
         }
         case 'quickCode': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'quickCode', message: 'must not be empty' });
             }
@@ -250,17 +254,17 @@ export function productValidateField<K extends keyof Product>(
     return errors;
 }
 export function productValidateFields(
-    partial: Partial<Product>
+    _partial: Partial<Product>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('name' in partial && partial.name !== undefined) {
-        const __val = partial.name as string;
+    if ('name' in _partial && _partial.name !== undefined) {
+        const __val = _partial.name as string;
         if (__val.length === 0) {
             errors.push({ field: 'name', message: 'must not be empty' });
         }
     }
-    if ('quickCode' in partial && partial.quickCode !== undefined) {
-        const __val = partial.quickCode as string;
+    if ('quickCode' in _partial && _partial.quickCode !== undefined) {
+        const __val = _partial.quickCode as string;
         if (__val.length === 0) {
             errors.push({ field: 'quickCode', message: 'must not be empty' });
         }
@@ -290,33 +294,33 @@ export function productIs(obj: unknown): obj is Product {
         return false;
     }
     const result = productDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type ProductErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    name: Option<Array<string>>;
-    quickCode: Option<Array<string>>;
-    group: Option<Array<string>>;
-    subgroup: Option<Array<string>>;
-    unit: Option<Array<string>>;
-    active: Option<Array<string>>;
-    commission: Option<Array<string>>;
-    favorite: Option<Array<string>>;
-    defaults: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    name: __gf_Option<Array<string>>;
+    quickCode: __gf_Option<Array<string>>;
+    group: __gf_Option<Array<string>>;
+    subgroup: __gf_Option<Array<string>>;
+    unit: __gf_Option<Array<string>>;
+    active: __gf_Option<Array<string>>;
+    commission: __gf_Option<Array<string>>;
+    favorite: __gf_Option<Array<string>>;
+    defaults: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type ProductTainted = {
-    id: Option<boolean>;
-    name: Option<boolean>;
-    quickCode: Option<boolean>;
-    group: Option<boolean>;
-    subgroup: Option<boolean>;
-    unit: Option<boolean>;
-    active: Option<boolean>;
-    commission: Option<boolean>;
-    favorite: Option<boolean>;
-    defaults: Option<boolean>;
+    id: __gf_Option<boolean>;
+    name: __gf_Option<boolean>;
+    quickCode: __gf_Option<boolean>;
+    group: __gf_Option<boolean>;
+    subgroup: __gf_Option<boolean>;
+    unit: __gf_Option<boolean>;
+    active: __gf_Option<boolean>;
+    commission: __gf_Option<boolean>;
+    favorite: __gf_Option<boolean>;
+    defaults: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface ProductFieldControllers {
     readonly id: FieldController<string>;
@@ -335,7 +339,7 @@ export interface ProductGigaform {
     readonly errors: ProductErrors;
     readonly tainted: ProductTainted;
     readonly fields: ProductFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Product>;
+    validate(): Exit<Product, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Product>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function productCreateForm(overrides?: Partial<Product>): ProductGigaform {
@@ -376,11 +380,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -399,11 +403,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.name,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.name = value;
             },
             getTainted: () => tainted.name,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.name = value;
             },
             validate: (): Array<string> => {
@@ -422,11 +426,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.quickCode,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.quickCode = value;
             },
             getTainted: () => tainted.quickCode,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.quickCode = value;
             },
             validate: (): Array<string> => {
@@ -445,11 +449,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.group,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.group = value;
             },
             getTainted: () => tainted.group,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.group = value;
             },
             validate: (): Array<string> => {
@@ -468,11 +472,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.subgroup,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.subgroup = value;
             },
             getTainted: () => tainted.subgroup,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.subgroup = value;
             },
             validate: (): Array<string> => {
@@ -491,11 +495,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.unit,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.unit = value;
             },
             getTainted: () => tainted.unit,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.unit = value;
             },
             validate: (): Array<string> => {
@@ -514,11 +518,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.active,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.active = value;
             },
             getTainted: () => tainted.active,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.active = value;
             },
             validate: (): Array<string> => {
@@ -537,11 +541,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.commission,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.commission = value;
             },
             getTainted: () => tainted.commission,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.commission = value;
             },
             validate: (): Array<string> => {
@@ -560,11 +564,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.favorite,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.favorite = value;
             },
             getTainted: () => tainted.favorite,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.favorite = value;
             },
             validate: (): Array<string> => {
@@ -582,11 +586,11 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             },
             transform: (value: ProductDefaults): ProductDefaults => value,
             getError: () => errors.defaults,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.defaults = value;
             },
             getTainted: () => tainted.defaults,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.defaults = value;
             },
             validate: (): Array<string> => {
@@ -595,7 +599,7 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Product> {
+    function validate(): Exit<Product, Array<{ field: string; message: string }>> {
         return toExit(productDeserialize(data));
     }
     function reset(newOverrides?: Partial<Product>): void {
@@ -652,7 +656,7 @@ export function productCreateForm(overrides?: Partial<Product>): ProductGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function productFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Product> {
+): Exit<Product, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.name = formData.get('name') ?? '';

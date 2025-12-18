@@ -1,16 +1,15 @@
 import { overviewSettingsDefaultValue } from './overview-settings.svelte';
 import { scheduleSettingsDefaultValue } from './schedule-settings.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { appointmentNotificationsSerializeWithContext } from './appointment-notifications.svelte';
 import { commissionsSerializeWithContext } from './commissions.svelte';
 import { overviewSettingsSerializeWithContext } from './overview-settings.svelte';
 import { pageSerializeWithContext } from './page.svelte';
 import { scheduleSettingsSerializeWithContext } from './schedule-settings.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { appointmentNotificationsDeserializeWithContext } from './appointment-notifications.svelte';
 import { commissionsDeserializeWithContext } from './commissions.svelte';
 import { overviewSettingsDeserializeWithContext } from './overview-settings.svelte';
@@ -18,7 +17,7 @@ import { pageDeserializeWithContext } from './page.svelte';
 import { scheduleSettingsDeserializeWithContext } from './schedule-settings.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -67,14 +66,14 @@ export function settingsDefaultValue(): Settings {
 @returns JSON string representation with cycle detection metadata */ export function settingsSerialize(
     value: Settings
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(settingsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function settingsSerializeWithContext(
     value: Settings,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -138,44 +137,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function settingsDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Settings> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Settings }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = settingsDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Settings.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Settings.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function settingsDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Settings | PendingRef {
+    ctx: __mf_DeserializeContext
+): Settings | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Settings.deserializeWithContext: expected an object' }
         ]);
     }
@@ -218,7 +222,7 @@ export function settingsDeserializeWithContext(
         errors.push({ field: 'homePage', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -345,18 +349,18 @@ export function settingsDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Settings;
 }
 export function settingsValidateField<K extends keyof Settings>(
-    field: K,
-    value: Settings[K]
+    _field: K,
+    _value: Settings[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function settingsValidateFields(
-    partial: Partial<Settings>
+    _partial: Partial<Settings>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -385,37 +389,37 @@ export function settingsIs(obj: unknown): obj is Settings {
         return false;
     }
     const result = settingsDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type SettingsErrors = {
-    _errors: Option<Array<string>>;
-    appointmentNotifications: Option<Array<string>>;
-    commissions: Option<Array<string>>;
-    scheduleSettings: Option<Array<string>>;
-    accountOverviewSettings: Option<Array<string>>;
-    serviceOverviewSettings: Option<Array<string>>;
-    appointmentOverviewSettings: Option<Array<string>>;
-    leadOverviewSettings: Option<Array<string>>;
-    packageOverviewSettings: Option<Array<string>>;
-    productOverviewSettings: Option<Array<string>>;
-    orderOverviewSettings: Option<Array<string>>;
-    taxRateOverviewSettings: Option<Array<string>>;
-    homePage: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    appointmentNotifications: __gf_Option<Array<string>>;
+    commissions: __gf_Option<Array<string>>;
+    scheduleSettings: __gf_Option<Array<string>>;
+    accountOverviewSettings: __gf_Option<Array<string>>;
+    serviceOverviewSettings: __gf_Option<Array<string>>;
+    appointmentOverviewSettings: __gf_Option<Array<string>>;
+    leadOverviewSettings: __gf_Option<Array<string>>;
+    packageOverviewSettings: __gf_Option<Array<string>>;
+    productOverviewSettings: __gf_Option<Array<string>>;
+    orderOverviewSettings: __gf_Option<Array<string>>;
+    taxRateOverviewSettings: __gf_Option<Array<string>>;
+    homePage: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type SettingsTainted = {
-    appointmentNotifications: Option<boolean>;
-    commissions: Option<boolean>;
-    scheduleSettings: Option<boolean>;
-    accountOverviewSettings: Option<boolean>;
-    serviceOverviewSettings: Option<boolean>;
-    appointmentOverviewSettings: Option<boolean>;
-    leadOverviewSettings: Option<boolean>;
-    packageOverviewSettings: Option<boolean>;
-    productOverviewSettings: Option<boolean>;
-    orderOverviewSettings: Option<boolean>;
-    taxRateOverviewSettings: Option<boolean>;
-    homePage: Option<boolean>;
+    appointmentNotifications: __gf_Option<boolean>;
+    commissions: __gf_Option<boolean>;
+    scheduleSettings: __gf_Option<boolean>;
+    accountOverviewSettings: __gf_Option<boolean>;
+    serviceOverviewSettings: __gf_Option<boolean>;
+    appointmentOverviewSettings: __gf_Option<boolean>;
+    leadOverviewSettings: __gf_Option<boolean>;
+    packageOverviewSettings: __gf_Option<boolean>;
+    productOverviewSettings: __gf_Option<boolean>;
+    orderOverviewSettings: __gf_Option<boolean>;
+    taxRateOverviewSettings: __gf_Option<boolean>;
+    homePage: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface SettingsFieldControllers {
     readonly appointmentNotifications: FieldController<AppointmentNotifications | null>;
@@ -436,7 +440,7 @@ export interface SettingsGigaform {
     readonly errors: SettingsErrors;
     readonly tainted: SettingsTainted;
     readonly fields: SettingsFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Settings>;
+    validate(): Exit<Settings, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Settings>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaform {
@@ -482,11 +486,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             transform: (value: AppointmentNotifications | null): AppointmentNotifications | null =>
                 value,
             getError: () => errors.appointmentNotifications,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.appointmentNotifications = value;
             },
             getTainted: () => tainted.appointmentNotifications,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.appointmentNotifications = value;
             },
             validate: (): Array<string> => {
@@ -507,11 +511,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: Commissions | null): Commissions | null => value,
             getError: () => errors.commissions,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.commissions = value;
             },
             getTainted: () => tainted.commissions,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.commissions = value;
             },
             validate: (): Array<string> => {
@@ -529,11 +533,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: ScheduleSettings): ScheduleSettings => value,
             getError: () => errors.scheduleSettings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.scheduleSettings = value;
             },
             getTainted: () => tainted.scheduleSettings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.scheduleSettings = value;
             },
             validate: (): Array<string> => {
@@ -554,11 +558,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: OverviewSettings): OverviewSettings => value,
             getError: () => errors.accountOverviewSettings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.accountOverviewSettings = value;
             },
             getTainted: () => tainted.accountOverviewSettings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.accountOverviewSettings = value;
             },
             validate: (): Array<string> => {
@@ -579,11 +583,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: OverviewSettings): OverviewSettings => value,
             getError: () => errors.serviceOverviewSettings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.serviceOverviewSettings = value;
             },
             getTainted: () => tainted.serviceOverviewSettings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.serviceOverviewSettings = value;
             },
             validate: (): Array<string> => {
@@ -604,11 +608,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: OverviewSettings): OverviewSettings => value,
             getError: () => errors.appointmentOverviewSettings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.appointmentOverviewSettings = value;
             },
             getTainted: () => tainted.appointmentOverviewSettings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.appointmentOverviewSettings = value;
             },
             validate: (): Array<string> => {
@@ -629,11 +633,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: OverviewSettings): OverviewSettings => value,
             getError: () => errors.leadOverviewSettings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.leadOverviewSettings = value;
             },
             getTainted: () => tainted.leadOverviewSettings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.leadOverviewSettings = value;
             },
             validate: (): Array<string> => {
@@ -654,11 +658,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: OverviewSettings): OverviewSettings => value,
             getError: () => errors.packageOverviewSettings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.packageOverviewSettings = value;
             },
             getTainted: () => tainted.packageOverviewSettings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.packageOverviewSettings = value;
             },
             validate: (): Array<string> => {
@@ -679,11 +683,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: OverviewSettings): OverviewSettings => value,
             getError: () => errors.productOverviewSettings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.productOverviewSettings = value;
             },
             getTainted: () => tainted.productOverviewSettings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.productOverviewSettings = value;
             },
             validate: (): Array<string> => {
@@ -704,11 +708,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: OverviewSettings): OverviewSettings => value,
             getError: () => errors.orderOverviewSettings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.orderOverviewSettings = value;
             },
             getTainted: () => tainted.orderOverviewSettings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.orderOverviewSettings = value;
             },
             validate: (): Array<string> => {
@@ -729,11 +733,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: OverviewSettings): OverviewSettings => value,
             getError: () => errors.taxRateOverviewSettings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.taxRateOverviewSettings = value;
             },
             getTainted: () => tainted.taxRateOverviewSettings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.taxRateOverviewSettings = value;
             },
             validate: (): Array<string> => {
@@ -754,11 +758,11 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             },
             transform: (value: Page): Page => value,
             getError: () => errors.homePage,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.homePage = value;
             },
             getTainted: () => tainted.homePage,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.homePage = value;
             },
             validate: (): Array<string> => {
@@ -767,7 +771,7 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Settings> {
+    function validate(): Exit<Settings, Array<{ field: string; message: string }>> {
         return toExit(settingsDeserialize(data));
     }
     function reset(newOverrides?: Partial<Settings>): void {
@@ -828,7 +832,7 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function settingsFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Settings> {
+): Exit<Settings, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.appointmentNotifications = formData.get('appointmentNotifications') ?? '';
     obj.commissions = formData.get('commissions') ?? '';

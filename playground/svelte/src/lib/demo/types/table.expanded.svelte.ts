@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -59,12 +58,12 @@ export function tableDefaultValue(): Table {
 @returns JSON string representation with cycle detection metadata */ export function tableSerialize(
     value: Table
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(tableSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function tableSerializeWithContext(value: Table, ctx: SerializeContext): unknown {
+export function tableSerializeWithContext(value: Table, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -77,38 +76,46 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function tableDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Table> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Table }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = tableDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'Table.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Table.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function tableDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Table | PendingRef {
+    ctx: __mf_DeserializeContext
+): Table | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Table | PendingRef;
+        return ctx.getOrDefer(value.__ref) as Table | __mf_PendingRef;
     }
     const allowedValues = [
         'Account',
@@ -131,7 +138,7 @@ export function tableDeserializeWithContext(
         'Ordered'
     ] as const;
     if (!allowedValues.includes(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -168,25 +175,27 @@ export function tableIs(value: unknown): value is Table {
     return allowedValues.includes(value as any);
 }
 
-/** Per-variant error types */ export type TableAccountErrors = { _errors: Option<Array<string>> };
-export type TableDidErrors = { _errors: Option<Array<string>> };
-export type TableAppointmentErrors = { _errors: Option<Array<string>> };
-export type TableLeadErrors = { _errors: Option<Array<string>> };
-export type TableTaxRateErrors = { _errors: Option<Array<string>> };
-export type TableSiteErrors = { _errors: Option<Array<string>> };
-export type TableEmployeeErrors = { _errors: Option<Array<string>> };
-export type TableRouteErrors = { _errors: Option<Array<string>> };
-export type TableCompanyErrors = { _errors: Option<Array<string>> };
-export type TableProductErrors = { _errors: Option<Array<string>> };
-export type TableServiceErrors = { _errors: Option<Array<string>> };
-export type TableUserErrors = { _errors: Option<Array<string>> };
-export type TableOrderErrors = { _errors: Option<Array<string>> };
-export type TablePaymentErrors = { _errors: Option<Array<string>> };
-export type TablePackageErrors = { _errors: Option<Array<string>> };
-export type TablePromotionErrors = { _errors: Option<Array<string>> };
-export type TableRepresentsErrors = { _errors: Option<Array<string>> };
+/** Per-variant error types */ export type TableAccountErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TableDidErrors = { _errors: __gf_Option<Array<string>> };
+export type TableAppointmentErrors = { _errors: __gf_Option<Array<string>> };
+export type TableLeadErrors = { _errors: __gf_Option<Array<string>> };
+export type TableTaxRateErrors = { _errors: __gf_Option<Array<string>> };
+export type TableSiteErrors = { _errors: __gf_Option<Array<string>> };
+export type TableEmployeeErrors = { _errors: __gf_Option<Array<string>> };
+export type TableRouteErrors = { _errors: __gf_Option<Array<string>> };
+export type TableCompanyErrors = { _errors: __gf_Option<Array<string>> };
+export type TableProductErrors = { _errors: __gf_Option<Array<string>> };
+export type TableServiceErrors = { _errors: __gf_Option<Array<string>> };
+export type TableUserErrors = { _errors: __gf_Option<Array<string>> };
+export type TableOrderErrors = { _errors: __gf_Option<Array<string>> };
+export type TablePaymentErrors = { _errors: __gf_Option<Array<string>> };
+export type TablePackageErrors = { _errors: __gf_Option<Array<string>> };
+export type TablePromotionErrors = { _errors: __gf_Option<Array<string>> };
+export type TableRepresentsErrors = { _errors: __gf_Option<Array<string>> };
 export type TableOrderedErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type TableAccountTainted = {};
 export type TableDidTainted = {};
@@ -307,7 +316,7 @@ export interface TableGigaform {
             | 'Represents'
             | 'Ordered'
     ): void;
-    validate(): Exit<Array<{ field: string; message: string }>, Table>;
+    validate(): Exit<Table, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Table>): void;
 } /** Variant fields container */
 export interface TableVariantFields {
@@ -480,7 +489,7 @@ export function tableCreateForm(initial?: Table): TableGigaform {
         errors = {} as TableErrors;
         tainted = {} as TableTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, Table> {
+    function validate(): Exit<Table, Array<{ field: string; message: string }>> {
         return toExit(tableDeserialize(data));
     }
     function reset(overrides?: Partial<Table>): void {
@@ -518,7 +527,7 @@ export function tableCreateForm(initial?: Table): TableGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function tableFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Table> {
+): Exit<Table, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_value') as
         | 'Account'
         | 'Did'

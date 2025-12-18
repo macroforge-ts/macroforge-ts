@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -28,14 +27,14 @@ export function emailPartsDefaultValue(): EmailParts {
 @returns JSON string representation with cycle detection metadata */ export function emailPartsSerialize(
     value: EmailParts
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(emailPartsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function emailPartsSerializeWithContext(
     value: EmailParts,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -55,44 +54,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function emailPartsDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, EmailParts> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: EmailParts }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = emailPartsDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'EmailParts.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'EmailParts.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function emailPartsDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): EmailParts | PendingRef {
+    ctx: __mf_DeserializeContext
+): EmailParts | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'EmailParts.deserializeWithContext: expected an object' }
         ]);
     }
@@ -108,7 +112,7 @@ export function emailPartsDeserializeWithContext(
         errors.push({ field: 'topLevelDomain', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -137,32 +141,32 @@ export function emailPartsDeserializeWithContext(
         instance.topLevelDomain = __raw_topLevelDomain;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as EmailParts;
 }
 export function emailPartsValidateField<K extends keyof EmailParts>(
-    field: K,
-    value: EmailParts[K]
+    _field: K,
+    _value: EmailParts[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'local': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'local', message: 'must not be empty' });
             }
             break;
         }
         case 'domainName': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'domainName', message: 'must not be empty' });
             }
             break;
         }
         case 'topLevelDomain': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'topLevelDomain', message: 'must not be empty' });
             }
@@ -172,23 +176,23 @@ export function emailPartsValidateField<K extends keyof EmailParts>(
     return errors;
 }
 export function emailPartsValidateFields(
-    partial: Partial<EmailParts>
+    _partial: Partial<EmailParts>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('local' in partial && partial.local !== undefined) {
-        const __val = partial.local as string;
+    if ('local' in _partial && _partial.local !== undefined) {
+        const __val = _partial.local as string;
         if (__val.length === 0) {
             errors.push({ field: 'local', message: 'must not be empty' });
         }
     }
-    if ('domainName' in partial && partial.domainName !== undefined) {
-        const __val = partial.domainName as string;
+    if ('domainName' in _partial && _partial.domainName !== undefined) {
+        const __val = _partial.domainName as string;
         if (__val.length === 0) {
             errors.push({ field: 'domainName', message: 'must not be empty' });
         }
     }
-    if ('topLevelDomain' in partial && partial.topLevelDomain !== undefined) {
-        const __val = partial.topLevelDomain as string;
+    if ('topLevelDomain' in _partial && _partial.topLevelDomain !== undefined) {
+        const __val = _partial.topLevelDomain as string;
         if (__val.length === 0) {
             errors.push({ field: 'topLevelDomain', message: 'must not be empty' });
         }
@@ -207,19 +211,19 @@ export function emailPartsIs(obj: unknown): obj is EmailParts {
         return false;
     }
     const result = emailPartsDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type EmailPartsErrors = {
-    _errors: Option<Array<string>>;
-    local: Option<Array<string>>;
-    domainName: Option<Array<string>>;
-    topLevelDomain: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    local: __gf_Option<Array<string>>;
+    domainName: __gf_Option<Array<string>>;
+    topLevelDomain: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type EmailPartsTainted = {
-    local: Option<boolean>;
-    domainName: Option<boolean>;
-    topLevelDomain: Option<boolean>;
+    local: __gf_Option<boolean>;
+    domainName: __gf_Option<boolean>;
+    topLevelDomain: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface EmailPartsFieldControllers {
     readonly local: FieldController<string>;
@@ -231,7 +235,7 @@ export interface EmailPartsGigaform {
     readonly errors: EmailPartsErrors;
     readonly tainted: EmailPartsTainted;
     readonly fields: EmailPartsFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, EmailParts>;
+    validate(): Exit<EmailParts, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<EmailParts>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPartsGigaform {
@@ -258,11 +262,11 @@ export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPart
             },
             transform: (value: string): string => value,
             getError: () => errors.local,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.local = value;
             },
             getTainted: () => tainted.local,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.local = value;
             },
             validate: (): Array<string> => {
@@ -280,11 +284,11 @@ export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPart
             },
             transform: (value: string): string => value,
             getError: () => errors.domainName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.domainName = value;
             },
             getTainted: () => tainted.domainName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.domainName = value;
             },
             validate: (): Array<string> => {
@@ -302,11 +306,11 @@ export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPart
             },
             transform: (value: string): string => value,
             getError: () => errors.topLevelDomain,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.topLevelDomain = value;
             },
             getTainted: () => tainted.topLevelDomain,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.topLevelDomain = value;
             },
             validate: (): Array<string> => {
@@ -315,7 +319,7 @@ export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPart
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, EmailParts> {
+    function validate(): Exit<EmailParts, Array<{ field: string; message: string }>> {
         return toExit(emailPartsDeserialize(data));
     }
     function reset(newOverrides?: Partial<EmailParts>): void {
@@ -354,7 +358,7 @@ export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPart
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function emailPartsFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, EmailParts> {
+): Exit<EmailParts, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.local = formData.get('local') ?? '';
     obj.domainName = formData.get('domainName') ?? '';

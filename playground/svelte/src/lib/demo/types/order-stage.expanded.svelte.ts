@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
@@ -21,12 +20,15 @@ export function orderStageDefaultValue(): OrderStage {
 @returns JSON string representation with cycle detection metadata */ export function orderStageSerialize(
     value: OrderStage
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(orderStageSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function orderStageSerializeWithContext(value: OrderStage, ctx: SerializeContext): unknown {
+export function orderStageSerializeWithContext(
+    value: OrderStage,
+    ctx: __mf_SerializeContext
+): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -39,45 +41,50 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function orderStageDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, OrderStage> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: OrderStage }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = orderStageDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'OrderStage.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'OrderStage.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function orderStageDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): OrderStage | PendingRef {
+    ctx: __mf_DeserializeContext
+): OrderStage | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as OrderStage | PendingRef;
+        return ctx.getOrDefer(value.__ref) as OrderStage | __mf_PendingRef;
     }
     const allowedValues = ['Estimate', 'Active', 'Invoice'] as const;
     if (!allowedValues.includes(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -96,11 +103,11 @@ export function orderStageIs(value: unknown): value is OrderStage {
 }
 
 /** Per-variant error types */ export type OrderStageEstimateErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
-export type OrderStageActiveErrors = { _errors: Option<Array<string>> };
+export type OrderStageActiveErrors = { _errors: __gf_Option<Array<string>> };
 export type OrderStageInvoiceErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type OrderStageEstimateTainted = {};
 export type OrderStageActiveTainted = {};
@@ -123,7 +130,7 @@ export interface OrderStageGigaform {
     readonly tainted: OrderStageTainted;
     readonly variants: OrderStageVariantFields;
     switchVariant(variant: 'Estimate' | 'Active' | 'Invoice'): void;
-    validate(): Exit<Array<{ field: string; message: string }>, OrderStage>;
+    validate(): Exit<OrderStage, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<OrderStage>): void;
 } /** Variant fields container */
 export interface OrderStageVariantFields {
@@ -161,7 +168,7 @@ export function orderStageCreateForm(initial?: OrderStage): OrderStageGigaform {
         errors = {} as OrderStageErrors;
         tainted = {} as OrderStageTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, OrderStage> {
+    function validate(): Exit<OrderStage, Array<{ field: string; message: string }>> {
         return toExit(orderStageDeserialize(data));
     }
     function reset(overrides?: Partial<OrderStage>): void {
@@ -201,7 +208,7 @@ export function orderStageCreateForm(initial?: OrderStage): OrderStageGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function orderStageFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, OrderStage> {
+): Exit<OrderStage, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_value') as 'Estimate' | 'Active' | 'Invoice' | null;
     if (!discriminant) {
         return toExit({
