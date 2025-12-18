@@ -24,17 +24,14 @@ export {
 export type { Exit, Option };
 
 /** Vanilla result type from builtin macros */
-export type VanillaResult<
-  T,
-  E = Array<{ field: string; message: string }>,
-> =
+export type VanillaResult<T, E = Array<{ field: string; message: string }>> =
   | { success: true; value: T }
   | { success: false; errors: E };
 
 /** Convert vanilla result to Exit type */
 export function toExit<T>(
-  result: VanillaResult<T>
-): Exit<Array<{ field: string; message: string }>, T> {
+  result: VanillaResult<T>,
+): Exit<T, Array<{ field: string; message: string }>> {
   if (result.success) {
     return exitSucceed(result.value);
   } else {
@@ -235,7 +232,7 @@ export interface BaseGigaform<TData, TErrors, TTainted, TFields> {
   readonly tainted: TTainted;
   readonly fields: TFields;
   validate(): Promise<
-    Result<TData, ReadonlyArray<{ field: string; message: string }>>
+    Exit<TData, ReadonlyArray<{ field: string; message: string }>>
   >;
   reset(overrides: Partial<TData> | null): void;
 }

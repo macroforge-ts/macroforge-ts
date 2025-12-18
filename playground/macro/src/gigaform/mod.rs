@@ -120,8 +120,8 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     output.add_type_import("Exit", "@playground/macro/gigaform");
     // toExit helper to convert vanilla result to Exit
     output.add_import("toExit", "@playground/macro/gigaform");
-    // Option for field controller state
-    output.add_type_import("Option", "@playground/macro/gigaform");
+    // Option for field controller state (aliased to avoid conflict with user imports)
+    output.add_type_import_as("Option", "__gf_Option", "@playground/macro/gigaform");
     output.add_import("optionNone", "@playground/macro/gigaform");
 
     // Import FieldController from the canonical location
@@ -233,8 +233,8 @@ fn generate_union_form(
     output.add_type_import("Exit", "@playground/macro/gigaform");
     // toExit helper to convert vanilla result to Exit
     output.add_import("toExit", "@playground/macro/gigaform");
-    // Option for field controller state
-    output.add_type_import("Option", "@playground/macro/gigaform");
+    // Option for field controller state (aliased to avoid conflict with user imports)
+    output.add_type_import_as("Option", "__gf_Option", "@playground/macro/gigaform");
     output.add_import("optionNone", "@playground/macro/gigaform");
 
     // Import FieldController from the canonical location
@@ -317,7 +317,7 @@ fn generate_enum_form(
 /// export interface UserFormFieldControllers { name: FieldController<string>; ... }
 /// export interface UserFormGigaform { data, errors, tainted, fields, validate(), reset() };
 /// export function userFormCreateForm(overrides?: Partial<UserForm>): UserFormGigaform;
-/// export function userFormFromFormData(fd: FormData): Exit<Array<{ field: string; message: string }>, UserForm>;
+/// export function userFormFromFormData(fd: FormData): Exit<UserForm, Array<{ field: string; message: string }>>;
 ///
 /// // Usage in Svelte component:
 /// const form = userFormCreateForm();

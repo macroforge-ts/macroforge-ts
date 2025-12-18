@@ -50,7 +50,7 @@ pub fn generate_factory(
             };
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Exit<Array<{ field: string; message: string }>, @{interface_name}> {
+            function validate(): Exit<@{interface_name}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
 
@@ -119,7 +119,7 @@ pub fn generate_factory_with_generics(
             };
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Exit<Array<{ field: string; message: string }>, @{interface_name}@{generic_args}> {
+            function validate(): Exit<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
 
@@ -258,7 +258,7 @@ pub fn generate_union_factory(
             }
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Exit<Array<{ field: string; message: string }>, @{type_name}> {
+            function validate(): Exit<@{type_name}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
 
@@ -528,9 +528,9 @@ fn generate_field_controller(
             set: (value: @{ts_type}) => { data.@{name} = value; },
             {$typescript transform_fn}
             getError: () => errors.@{name},
-            setError: (value: Option<Array<string>>) => { errors.@{name} = value; },
+            setError: (value: __gf_Option<Array<string>>) => { errors.@{name} = value; },
             getTainted: () => tainted.@{name},
-            setTainted: (value: Option<boolean>) => { tainted.@{name} = value; },
+            setTainted: (value: __gf_Option<boolean>) => { tainted.@{name} = value; },
             {$typescript validate_fn}
             {#if let Some(methods) = array_methods}
                 {$typescript methods}
@@ -728,9 +728,9 @@ fn generate_array_methods(field: &ParsedField, name: &str) -> TsStream {
             set: (value: @{element_type}) => { data.@{name}[index] = value; },
             transform: (value: @{element_type}): @{element_type} => value,
             getError: () => errors.@{name},
-            setError: (value: Option<Array<string>>) => { errors.@{name} = value; },
+            setError: (value: __gf_Option<Array<string>>) => { errors.@{name} = value; },
             getTainted: () => tainted.@{name},
-            setTainted: (value: Option<boolean>) => { tainted.@{name} = value; },
+            setTainted: (value: __gf_Option<boolean>) => { tainted.@{name} = value; },
             validate: (): Array<string> => [],
         }),
         push: (item: @{element_type}) => { data.@{name}.push(item); },
