@@ -199,7 +199,7 @@ try {
 
   // Extract docs (writes to website/static/api-data/)
   run("rust-script scripts/extract-rust-docs.rs");
-  run("node scripts/extract-ts-docs.cjs");
+  run("rust-script scripts/extract-ts-docs.rs");
 
   // Step 3: Clean build all packages (website will include fresh docs)
   console.log("\n[3/7] Clean building all packages...");

@@ -115,7 +115,7 @@ function main() {
 	console.log('Regenerating API documentation...');
 	try {
 		execSync('rust-script scripts/extract-rust-docs.rs', { cwd: rootDir, stdio: 'pipe' });
-		execSync('node scripts/extract-ts-docs.cjs', { cwd: rootDir, stdio: 'pipe' });
+		execSync('rust-script scripts/extract-ts-docs.rs', { cwd: rootDir, stdio: 'pipe' });
 	} catch (e) {
 		console.error('Failed to regenerate API docs:', e.message);
 		process.exit(1);
