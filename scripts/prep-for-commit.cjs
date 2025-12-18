@@ -198,7 +198,7 @@ try {
   externalConfigAdded = true;
 
   // Extract docs (writes to website/static/api-data/)
-  run("node scripts/extract-rust-docs.cjs");
+  run("rust-script scripts/extract-rust-docs.rs");
   run("node scripts/extract-ts-docs.cjs");
 
   // Step 3: Clean build all packages (website will include fresh docs)
@@ -216,7 +216,7 @@ try {
 
   // Step 5: Rebuild docs book from rendered HTML
   console.log("\n[5/7] Rebuilding docs book...");
-  run("node scripts/build-docs-book.cjs");
+  run("rust-script scripts/build-docs-book.rs");
 
   // Step 6: Sync MCP docs from rendered website
   console.log("\n[6/7] Syncing MCP server docs...");

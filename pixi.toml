@@ -25,9 +25,9 @@ diagnostics = { cmd = "bun ./scripts/diagnostics.cjs" }
 "expand:playground" = { cmd = "bun ./scripts/expand-playground.cjs" }
 "cleanbuild:all" = { cmd = "bun ./scripts/cleanbuild-all.cjs" }
 bump = { cmd = "node scripts/bump-version.cjs" }
-"docs:book" = { cmd = "node scripts/build-docs-book.cjs" }
-"docs:mcp" = {cmd =  "cd packages/mcp-server && node scripts/extract-docs.cjs"}
-"docs:api" = { cmd = "node scripts/extract-rust-docs.cjs && node scripts/extract-ts-docs.cjs" }
+"docs:book" = { cmd = "rust-script scripts/build-docs-book.rs" }
+"docs:mcp" = { cmd = "rust-script packages/mcp-server/scripts/extract-docs.rs" }
+"docs:api" = { cmd = "rust-script scripts/extract-rust-docs.rs && rust-script scripts/extract-ts-docs.rs" }
 "docs:readmes" = { cmd = "node scripts/generate-readmes.cjs" }
 "docs:all" = { cmd = "pixi run docs:api && pixi run docs:readmes && pixi run docs:book && pixi run docs:mcp" }
 "docs:check" = { cmd = "node scripts/check-docs-freshness.cjs" }
