@@ -50,7 +50,7 @@
 
 import type ts from "typescript/lib/tsserverlibrary";
 import type { ExpandResult, MacroManifestEntry, DecoratorManifestEntry } from "macroforge";
-import { NativePlugin, PositionMapper, __macroforgeGetManifest } from "macroforge";
+import { NativePlugin, PositionMapper, __macroforgeGetManifest, loadConfig as nativeLoadConfig } from "macroforge";
 import { createRequire } from "module";
 import path from "path";
 import fs from "fs";
@@ -862,15 +862,23 @@ function init(modules: { typescript: typeof ts }) {
       info.languageServiceHost.getCurrentDirectory?.() ??
       process.cwd();
 
-    // Create a config loader using the native plugin
+    // Create a config loader using the native loadConfig function
     const configLoader = (content: string, filepath: string) => {
-      const result = (NativePlugin as any).loadConfig?.(content, filepath);
-      return result ?? {
-        keepDecorators: false,
-        generateConvenienceConst: false,
-        hasForeignTypes: false,
-        foreignTypeCount: 0,
-      };
+      try {
+        const result = nativeLoadConfig(content, filepath);
+        return {
+          ...result,
+          returnTypes: "vanilla" as const, // TODO: Extract from config if available
+        };
+      } catch {
+        return {
+          keepDecorators: false,
+          generateConvenienceConst: false,
+          hasForeignTypes: false,
+          foreignTypeCount: 0,
+          returnTypes: "vanilla" as const,
+        };
+      }
     };
     const macroConfig = loadMacroConfig(getCurrentDirectory(), configLoader);
     const keepDecorators = macroConfig.keepDecorators;
