@@ -18,7 +18,7 @@ swc = ["dep:swc_core"]
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 
-swc_core = { version = "48", optional = true, default-features = false, features = [
+swc_core = { version = "51.0.0", optional = true, default-features = false, features = [
   "common",
   "ecma_ast",
   "ecma_parser",

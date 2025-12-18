@@ -1103,6 +1103,20 @@ impl MacroExpander {
             code = strip_decorators(&code, &external_modules);
         }
 
+        // Generate imports for required namespaces (from foreign type expressions)
+        let required_imports = crate::builtin::serde::get_required_namespace_imports();
+        if !required_imports.is_empty() {
+            let mut import_lines = String::new();
+            for (namespace, (module, alias)) in &required_imports {
+                import_lines.push_str(&format!(
+                    "import {{ {} as {} }} from \"{}\";\n",
+                    namespace, alias, module
+                ));
+            }
+            // Prepend imports to the code
+            code = format!("{}{}", import_lines, code);
+        }
+
         let mut expansion = MacroExpansion {
             code,
             diagnostics: std::mem::take(diagnostics),
