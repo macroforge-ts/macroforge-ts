@@ -1,6 +1,6 @@
 # NativePlugin
 
-macroforge v0.1.42
+macroforge v0.1.43
 
 The main plugin class for macro expansion with caching support. \`NativePlugin\` is designed to be instantiated once and reused across multiple file processing operations. It maintains a cache of expansion results keyed by filepath and version, enabling efficient incremental processing.
 

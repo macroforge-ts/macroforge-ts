@@ -1,6 +1,6 @@
 # Command Line Interface
 
-macroforge v0.1.42
+macroforge v0.1.43
 
 This binary provides command-line utilities for working with Macroforge TypeScript macros. It is designed for development workflows, enabling macro expansion and type checking without requiring Node.js integration.
 

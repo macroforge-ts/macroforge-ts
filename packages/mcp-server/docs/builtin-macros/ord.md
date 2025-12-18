@@ -53,7 +53,7 @@ The `@ord` decorator supports:
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(Ord) */
 class Version {
     major: number;
@@ -62,9 +62,7 @@ class Version {
 }
 ```
 
-Generated output:
-
-```typescript
+```typescript after
 class Version {
     major: number;
     minor: number;

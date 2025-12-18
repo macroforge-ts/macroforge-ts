@@ -100,7 +100,7 @@ class User {
 After (Generated)
 
 ```
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 
 class User {
     id: number;
@@ -125,7 +125,7 @@ class User {
 @param value - The value to serialize
 @param ctx - The serialization context  */
 
-    static serializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown> {
+    static serializeWithContext(value: User, ctx: __mf_SerializeContext): Record<string, unknown> {
         return userSerializeWithContext(value, ctx);
     }
 }
@@ -143,14 +143,14 @@ export function userToString(value: User): string {
 @returns JSON string representation with cycle detection metadata */ export function userSerialize(
     value: User
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(userSerializeWithContext(value, ctx));
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function userSerializeWithContext(
     value: User,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
