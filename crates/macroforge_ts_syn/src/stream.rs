@@ -94,6 +94,56 @@ use swc_core::ecma::parser::{PResult, Parser, StringInput, Syntax, TsSyntax, lex
 
 use crate::TsSynError;
 
+/// Configuration for a single import to be added to a file.
+///
+/// Used with [`TsStream::add_imports`] to batch-add multiple imports.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::ImportConfig;
+///
+/// const MY_IMPORTS: &[ImportConfig] = &[
+///     ImportConfig::value("ok", "__mf_ok", "macroforge/reexports"),
+///     ImportConfig::type_only("Result", "__mf_Result", "macroforge/reexports"),
+/// ];
+///
+/// stream.add_imports(MY_IMPORTS);
+/// ```
+#[derive(Debug, Clone, Copy)]
+pub struct ImportConfig {
+    /// The original export name from the source module
+    pub name: &'static str,
+    /// The alias to use in the generated import (typically `__mf_` prefixed)
+    pub alias: &'static str,
+    /// The module path to import from
+    pub module: &'static str,
+    /// Whether this is a type-only import (`import type { ... }`)
+    pub is_type: bool,
+}
+
+impl ImportConfig {
+    /// Create a value import config (runtime import).
+    pub const fn value(name: &'static str, alias: &'static str, module: &'static str) -> Self {
+        Self {
+            name,
+            alias,
+            module,
+            is_type: false,
+        }
+    }
+
+    /// Create a type-only import config.
+    pub const fn type_only(name: &'static str, alias: &'static str, module: &'static str) -> Self {
+        Self {
+            name,
+            alias,
+            module,
+            is_type: true,
+        }
+    }
+}
+
 /// A parsing stream that wraps SWC's parser, analogous to `syn::parse::ParseBuffer`.
 ///
 /// `TsStream` manages the parsing context for TypeScript source code. It holds:
@@ -362,6 +412,81 @@ impl TsStream {
             context: Some("import".to_string()),
             source_macro: Some("Deserialize".to_string()),
         });
+    }
+
+    /// Add an import with automatic `__mf_` alias to avoid collisions with user imports.
+    ///
+    /// # Example
+    /// ```ignore
+    /// stream.add_aliased_import("DeserializeContext", "macroforge/serde");
+    /// // Generates: import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+    /// ```
+    pub fn add_aliased_import(&mut self, name: &str, module: &str) {
+        let specifier = format!("{name} as __mf_{name}");
+        self.add_import(&specifier, module);
+    }
+
+    /// Add a type-only import with automatic `__mf_` alias.
+    ///
+    /// # Example
+    /// ```ignore
+    /// stream.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
+    /// // Generates: import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
+    /// ```
+    pub fn add_aliased_type_import(&mut self, name: &str, module: &str) {
+        let specifier = format!("{name} as __mf_{name}");
+        self.add_type_import(&specifier, module);
+    }
+
+    /// Add an import with a custom alias.
+    ///
+    /// # Example
+    /// ```ignore
+    /// stream.add_import_as("resultOk", "__mf_resultOk", "macroforge/reexports");
+    /// // Generates: import { resultOk as __mf_resultOk } from "macroforge/reexports";
+    /// ```
+    pub fn add_import_as(&mut self, name: &str, alias: &str, module: &str) {
+        let specifier = format!("{name} as {alias}");
+        self.add_import(&specifier, module);
+    }
+
+    /// Add a type-only import with a custom alias.
+    ///
+    /// # Example
+    /// ```ignore
+    /// stream.add_type_import_as("Result", "__mf_Result", "macroforge/reexports");
+    /// // Generates: import type { Result as __mf_Result } from "macroforge/reexports";
+    /// ```
+    pub fn add_type_import_as(&mut self, name: &str, alias: &str, module: &str) {
+        let specifier = format!("{name} as {alias}");
+        self.add_type_import(&specifier, module);
+    }
+
+    /// Add multiple imports from a slice of [`ImportConfig`].
+    ///
+    /// This is the preferred way to add macro-related imports, as it handles
+    /// both value and type imports with proper aliasing.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use macroforge_ts_syn::ImportConfig;
+    ///
+    /// const SERDE_IMPORTS: &[ImportConfig] = &[
+    ///     ImportConfig::value("DeserializeContext", "__mf_DeserializeContext", "macroforge/serde"),
+    ///     ImportConfig::type_only("DeserializeOptions", "__mf_DeserializeOptions", "macroforge/serde"),
+    /// ];
+    ///
+    /// stream.add_imports(SERDE_IMPORTS);
+    /// ```
+    pub fn add_imports(&mut self, imports: &[ImportConfig]) {
+        for import in imports {
+            if import.is_type {
+                self.add_type_import_as(import.name, import.alias, import.module);
+            } else {
+                self.add_import_as(import.name, import.alias, import.module);
+            }
+        }
     }
 
     /// Create a temporary parser for a parsing operation.
