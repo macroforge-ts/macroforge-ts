@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/vite-plugin",
-  "version": "0.1.43",
+  "version": "0.1.44",
   "type": "module",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -21,8 +21,8 @@
     "test": "node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "@macroforge/shared": "^0.1.43",
-    "macroforge": "^0.1.43"
+    "@macroforge/shared": "^0.1.44",
+    "macroforge": "^0.1.44"
   },
   "peerDependencies": {
     "vite": "^5.0.0 || ^6.0.0 || ^7.0.0"
