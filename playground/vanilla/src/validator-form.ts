@@ -3,7 +3,7 @@
  * Tests string, number, array, and date validators with real form validation.
  */
 
-import { Result } from 'macroforge/utils';
+import { Result } from 'macroforge/reexports';
 
 /** @derive(Deserialize) */
 export class UserRegistrationForm {

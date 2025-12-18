@@ -176,8 +176,8 @@ fn generate_primitive_extraction(
             let default_val = if optional { "undefined" } else { "0" };
             ts_template! {
                 {
-                    const @{name}Str = formData.get("@{form_key}");
-                    obj.@{name} = @{name}Str ? parseFloat(@{name}Str as string) : @{default_val};
+                    const {|@{name}Str|} = formData.get("@{form_key}");
+                    obj.@{name} = {|@{name}Str|} ? parseFloat({|@{name}Str|} as string) : @{default_val};
                     if (obj.@{name} !== undefined && isNaN(obj.@{name} as number)) obj.@{name} = @{default_val};
                 }
             }
@@ -186,8 +186,8 @@ fn generate_primitive_extraction(
             // FormData booleans: "true"/"on" = true, absent/other = false
             ts_template! {
                 {
-                    const @{name}Val = formData.get("@{form_key}");
-                    obj.@{name} = @{name}Val === "true" || @{name}Val === "on" || @{name}Val === "1";
+                    const {|@{name}Val|} = formData.get("@{form_key}");
+                    obj.@{name} = {|@{name}Val|} === "true" || {|@{name}Val|} === "on" || {|@{name}Val|} === "1";
                 }
             }
         }
@@ -195,15 +195,15 @@ fn generate_primitive_extraction(
             if optional {
                 ts_template! {
                     {
-                        const @{name}Str = formData.get("@{form_key}");
-                        obj.@{name} = @{name}Str ? new Date(@{name}Str as string) : undefined;
+                        const {|@{name}Str|} = formData.get("@{form_key}");
+                        obj.@{name} = {|@{name}Str|} ? new Date({|@{name}Str|} as string) : undefined;
                     }
                 }
             } else {
                 ts_template! {
                     {
-                        const @{name}Str = formData.get("@{form_key}");
-                        obj.@{name} = @{name}Str ? new Date(@{name}Str as string) : new Date();
+                        const {|@{name}Str|} = formData.get("@{form_key}");
+                        obj.@{name} = {|@{name}Str|} ? new Date({|@{name}Str|} as string) : new Date();
                     }
                 }
             }
@@ -212,15 +212,15 @@ fn generate_primitive_extraction(
             if optional {
                 ts_template! {
                     {
-                        const @{name}Str = formData.get("@{form_key}");
-                        obj.@{name} = @{name}Str ? BigInt(@{name}Str as string) : undefined;
+                        const {|@{name}Str|} = formData.get("@{form_key}");
+                        obj.@{name} = {|@{name}Str|} ? BigInt({|@{name}Str|} as string) : undefined;
                     }
                 }
             } else {
                 ts_template! {
                     {
-                        const @{name}Str = formData.get("@{form_key}");
-                        obj.@{name} = @{name}Str ? BigInt(@{name}Str as string) : 0n;
+                        const {|@{name}Str|} = formData.get("@{form_key}");
+                        obj.@{name} = {|@{name}Str|} ? BigInt({|@{name}Str|} as string) : 0n;
                     }
                 }
             }
@@ -261,7 +261,7 @@ fn generate_array_extraction(name: &str, form_key: &str, field: &ParsedField) ->
             ts_template! {
                 {
                     // Collect array items from indexed form fields
-                    const @{name}Items: Array<Record<string, unknown>> = [];
+                    const {|@{name}Items|}: Array<Record<string, unknown>> = [];
                     let idx = 0;
                     while (formData.has("@{form_key}." + idx + ".") || idx === 0) {
                         // Check if any field with this index exists
@@ -275,12 +275,12 @@ fn generate_array_extraction(name: &str, form_key: &str, field: &ParsedField) ->
                                     item[fieldName] = value;
                                 }
                             }
-                            @{name}Items.push(item);
+                            {|@{name}Items|}.push(item);
                         }
                         idx++;
                         if (idx > 1000) break; // Safety limit
                     }
-                    obj.@{name} = @{name}Items;
+                    obj.@{name} = {|@{name}Items|};
                 }
             }
         }
@@ -296,13 +296,13 @@ fn generate_nested_extraction(name: &str, form_key: &str, field: &ParsedField) -
     ts_template! {
         {
             // Collect nested object fields with prefix "@{form_key}."
-            const @{name}Obj: Record<string, unknown> = {};
+            const {|@{name}Obj|}: Record<string, unknown> = {};
             for (const [key, value] of Array.from(formData.entries())) {
                 if (key.startsWith("@{form_key}.")) {
                     const fieldName = key.slice("@{form_key}.".length);
                     // Handle deeper nesting by splitting on dots
                     const parts = fieldName.split(".");
-                    let current = @{name}Obj;
+                    let current = {|@{name}Obj|};
                     for (let i = 0; i < parts.length - 1; i++) {
                         const part = parts[i]!;
                         if (!(part in current)) {
@@ -313,7 +313,7 @@ fn generate_nested_extraction(name: &str, form_key: &str, field: &ParsedField) -
                     current[parts[parts.length - 1]!] = value;
                 }
             }
-            obj.@{name} = @{name}Obj;
+            obj.@{name} = {|@{name}Obj|};
         }
     }
 }

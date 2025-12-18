@@ -780,8 +780,8 @@ describe("Gigaform imports", () => {
       "Should add Result import",
     );
     assert.ok(
-      result.code.includes('from "macroforge/utils"'),
-      "Should import from macroforge/utils",
+      result.code.includes('from "macroforge/reexports"'),
+      "Should import from macroforge/reexports",
     );
   });
 });

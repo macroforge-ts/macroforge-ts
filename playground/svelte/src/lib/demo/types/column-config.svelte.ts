@@ -1,6 +1,5 @@
 /** import macro {Gigaform} from "@playground/macro"; */
-
-import type { DataPath } from './data-path.svelte';
+import { DataPath } from './data-path.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface ColumnConfig {

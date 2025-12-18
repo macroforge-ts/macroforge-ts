@@ -1,4 +1,4 @@
-import type { Result, Option } from "macroforge/utils";
+import type { Result, Option } from "macroforge/reexports";
 
 /** Base interface for field controllers */
 export interface FieldController<T> {

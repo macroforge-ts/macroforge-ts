@@ -213,7 +213,7 @@ fn generate_variant_errors(type_name: &str, config: &UnionConfig) -> TsStream {
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
             {$let errors_fields = generate_errors_fields(&variant.fields)}
-            export type @{type_name}@{variant_name}Errors = {
+            export type {|@{type_name}@{variant_name}Errors|} = {
                 _errors: Option<Array<string>>;
                 {$typescript errors_fields}
             };
@@ -227,7 +227,7 @@ fn generate_variant_tainted(type_name: &str, config: &UnionConfig) -> TsStream {
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
             {$let tainted_fields = generate_tainted_fields(&variant.fields)}
-            export type @{type_name}@{variant_name}Tainted = {
+            export type {|@{type_name}@{variant_name}Tainted|} = {
                 {$typescript tainted_fields}
             };
         {/for}
@@ -261,7 +261,7 @@ fn generate_variant_field_controllers(type_name: &str, config: &UnionConfig) -> 
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
             {$let field_types = generate_field_controller_types(&variant.fields)}
-            export interface @{type_name}@{variant_name}FieldControllers {
+            export interface {|@{type_name}@{variant_name}FieldControllers|} {
                 {$typescript field_types}
             }
         {/for}
@@ -289,7 +289,7 @@ fn generate_variant_fields_interface(
             {$let value = &variant.discriminant_value}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
             {$let prop_key = if needs_quoting(value) { format!("\"{}\"", value) } else { value.clone() }}
-            readonly @{prop_key}: { readonly fields: @{type_name}@{variant_name}FieldControllers };
+            readonly @{prop_key}: { readonly fields: {|@{type_name}@{variant_name}FieldControllers|} };
         {/for}
     }
 }

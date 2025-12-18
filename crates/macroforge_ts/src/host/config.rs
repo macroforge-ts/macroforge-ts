@@ -349,6 +349,14 @@ pub struct MacroforgeConfig {
     /// - `effect`: Uses Effect library Exit/Option types
     #[serde(default)]
     pub return_types: ReturnTypesMode,
+
+    /// Import sources from the config file itself.
+    ///
+    /// Maps imported names (e.g., "DateTime", "Option") to their import info
+    /// (module source). This is used to determine the correct import source
+    /// when generating namespace imports for foreign type expressions.
+    #[serde(default, skip_serializing)]
+    pub config_imports: HashMap<String, ImportInfo>,
 }
 
 /// Returns the default for generate_convenience_const (true).
@@ -363,6 +371,7 @@ impl Default for MacroforgeConfig {
             generate_convenience_const: true, // Default to true
             foreign_types: Vec::new(),
             return_types: ReturnTypesMode::default(),
+            config_imports: HashMap::new(),
         }
     }
 }
@@ -466,6 +475,40 @@ impl MacroforgeConfig {
     pub fn find_with_root() -> Result<Option<(Self, std::path::PathBuf)>> {
         let current_dir = std::env::current_dir()?;
         Self::find_config_in_ancestors(&current_dir)
+    }
+
+    /// Finds configuration starting from a specific path.
+    ///
+    /// This is useful when expanding files in different directories,
+    /// as it allows finding the config relative to each file rather
+    /// than from the current working directory.
+    ///
+    /// # Arguments
+    ///
+    /// * `start_path` - The file or directory to start searching from.
+    ///   If a file is provided, the search starts from its parent directory.
+    ///
+    /// # Returns
+    ///
+    /// - `Ok(Some((config, dir)))` - Found and loaded configuration
+    /// - `Ok(None)` - No configuration file found
+    /// - `Err(_)` - Error reading or parsing configuration
+    pub fn find_with_root_from_path(start_path: &Path) -> Result<Option<(Self, std::path::PathBuf)>> {
+        let start_dir = if start_path.is_file() {
+            start_path.parent().map(|p| p.to_path_buf()).unwrap_or_else(|| start_path.to_path_buf())
+        } else {
+            start_path.to_path_buf()
+        };
+        Self::find_config_in_ancestors(&start_dir)
+    }
+
+    /// Convenience wrapper that finds and loads config from a specific path.
+    ///
+    /// # Arguments
+    ///
+    /// * `start_path` - The file or directory to start searching from.
+    pub fn find_from_path(start_path: &Path) -> Result<Option<Self>> {
+        Ok(Self::find_with_root_from_path(start_path)?.map(|(cfg, _)| cfg))
     }
 
     /// Find configuration in ancestors, returning config and root dir.
@@ -634,6 +677,9 @@ fn parse_config_object(
             }
         }
     }
+
+    // Store the config file's imports for use when generating namespace imports
+    config.config_imports = imports.clone();
 
     Ok(config)
 }
@@ -1311,6 +1357,7 @@ mod tests {
             generate_convenience_const: false,
             foreign_types: vec![],
             return_types: ReturnTypesMode::Effect,
+            config_imports: HashMap::new(),
         };
 
         let legacy: MacroConfig = mf_config.into();

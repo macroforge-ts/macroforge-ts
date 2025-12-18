@@ -726,6 +726,11 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
         return null;
       }
 
+      // Skip already-expanded files (e.g., *.expanded.ts, *.expanded.svelte.ts)
+      if (id.includes(".expanded.")) {
+        return null;
+      }
+
       // Check if Rust transformer is available
       if (!rustTransformer || !rustTransformer.expandSync) {
         // Return unchanged if transformer not available
