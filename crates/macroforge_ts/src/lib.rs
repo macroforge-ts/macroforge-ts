@@ -104,6 +104,10 @@ pub use macroforge_ts_syn::swc_ecma_ast;
 // ============================================================================
 pub mod host;
 
+// Build script utilities (enabled with "build" feature)
+#[cfg(feature = "build")]
+pub mod build;
+
 // Re-export abi types from ts_syn
 pub use ts_syn::abi;
 

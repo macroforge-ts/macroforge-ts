@@ -34,9 +34,9 @@ swc_core = { version = "51.0.0", features = [
 ] }
 
 # External crates
-macroforge_ts_syn = { version = "0.1.42", path = "../macroforge_ts_syn" }
-macroforge_ts_quote = { version = "0.1.42", path = "../macroforge_ts_quote" }
-macroforge_ts_macros = { version = "0.1.42", path = "../macroforge_ts_macros" }
+macroforge_ts_syn = { version = "0.1.43", path = "../macroforge_ts_syn" }
+macroforge_ts_quote = { version = "0.1.43", path = "../macroforge_ts_quote" }
+macroforge_ts_macros = { version = "0.1.43", path = "../macroforge_ts_macros" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -58,8 +58,17 @@ ignore = "0.4"
 # Concurrency
 dashmap = "6.1"
 
+# Build script utilities (optional, for napi auto-build)
+libc = { version = "0.2", optional = true }
+
+[features]
+default = []
+# Enable build script utilities (napi_auto_build)
+build = ["libc"]
+
 [build-dependencies]
 napi-build = "2.3.1"
+libc = "0.2"
 
 [dev-dependencies]
 tempfile = "3.13.0"

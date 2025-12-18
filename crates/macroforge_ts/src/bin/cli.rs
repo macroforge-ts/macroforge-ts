@@ -848,6 +848,7 @@ fn run_tsc_wrapper(project: Option<PathBuf>) -> Result<()> {
     // Write a temporary Node.js script that wraps tsc and expands macros on file load
     let script = r#"
 const { createRequire } = require('module');
+const fs = require('fs');
 const cwdRequire = createRequire(process.cwd() + '/package.json');
 const ts = cwdRequire('typescript');
 const macros = cwdRequire('macroforge');
@@ -858,6 +859,42 @@ const configPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists, projectAr
 if (!configPath) {
   console.error(`[macroforge] tsconfig not found: ${projectArg}`);
   process.exit(1);
+}
+
+// Find and load macroforge config for foreign types
+const CONFIG_FILES = [
+  'macroforge.config.ts',
+  'macroforge.config.mts',
+  'macroforge.config.js',
+  'macroforge.config.mjs',
+  'macroforge.config.cjs',
+];
+let macroConfigPath = null;
+let currentDir = process.cwd();
+while (true) {
+  for (const filename of CONFIG_FILES) {
+    const candidate = path.join(currentDir, filename);
+    if (fs.existsSync(candidate)) {
+      macroConfigPath = candidate;
+      break;
+    }
+  }
+  if (macroConfigPath) break;
+  // Stop at package.json boundary
+  if (fs.existsSync(path.join(currentDir, 'package.json'))) break;
+  const parent = path.dirname(currentDir);
+  if (parent === currentDir) break;
+  currentDir = parent;
+}
+
+// Load the config if found (caches foreign types in native plugin)
+if (macroConfigPath) {
+  try {
+    const configContent = fs.readFileSync(macroConfigPath, 'utf8');
+    macros.loadConfig(configContent, macroConfigPath);
+  } catch (e) {
+    // Config load failed, continue without foreign types
+  }
 }
 
 const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
@@ -893,7 +930,8 @@ host.getSourceFile = (fileName, languageVersion, ...rest) => {
     ) {
       const sourceText = ts.sys.readFile(fileName);
       if (sourceText && sourceText.includes('@derive')) {
-        const expanded = macros.expandSync(sourceText, fileName);
+        const expandOpts = macroConfigPath ? { configPath: macroConfigPath } : undefined;
+        const expanded = macros.expandSync(sourceText, fileName, expandOpts);
         const text = expanded.code || sourceText;
         return ts.createSourceFile(fileName, text, languageVersion, true);
       }

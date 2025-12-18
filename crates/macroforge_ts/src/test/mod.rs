@@ -99,24 +99,6 @@ fn parse_module(source: &str) -> Program {
     Program::Module(module)
 }
 
-/// Extension trait for whitespace-normalized string comparison.
-///
-/// Used in tests to compare generated code against expected output
-/// without being sensitive to formatting differences.
-trait StringExt {
-    /// Removes all whitespace characters from a string.
-    ///
-    /// This allows comparing code output regardless of indentation
-    /// or line breaks differences.
-    fn replace_whitespace(&self) -> String;
-}
-
-impl StringExt for str {
-    fn replace_whitespace(&self) -> String {
-        self.chars().filter(|c| !c.is_whitespace()).collect()
-    }
-}
-
 /// Creates a minimal `ClassIR` for testing macro expansion.
 ///
 /// Returns a class IR with the given name and default spans,
@@ -1550,7 +1532,8 @@ class User {
             "Should have static serialize method"
         );
         assert!(
-            type_output.contains("static serializeWithContext(value: User, ctx: __mf_SerializeContext)"),
+            type_output
+                .contains("static serializeWithContext(value: User, ctx: __mf_SerializeContext)"),
             "Should have static serializeWithContext method"
         );
         assert!(
@@ -1579,7 +1562,9 @@ class Data {
         assert!(result.changed, "expand() should report changes");
         // Serialize macro adds static serialize methods and standalone functions
         assert!(
-            result.code.contains("static serialize(value: Data): string"),
+            result
+                .code
+                .contains("static serialize(value: Data): string"),
             "Should have static serialize method"
         );
         assert!(
@@ -1619,8 +1604,9 @@ class User {
             "Should have deserialize method"
         );
         assert!(
-            type_output
-                .contains("static deserializeWithContext(value: any, ctx: __mf_DeserializeContext)"),
+            type_output.contains(
+                "static deserializeWithContext(value: any, ctx: __mf_DeserializeContext)"
+            ),
             "Should have deserializeWithContext method"
         );
     });
@@ -1851,7 +1837,9 @@ class Config {
 
         // Should have both serialize and deserialize methods (now static)
         assert!(
-            result.code.contains("static serialize(value: Config): string"),
+            result
+                .code
+                .contains("static serialize(value: Config): string"),
             "Should have Serialize's static serialize"
         );
         assert!(

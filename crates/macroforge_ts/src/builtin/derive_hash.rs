@@ -312,22 +312,35 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
             Ok(combined)
         }
-        Data::Enum(_) => {
+        Data::Enum(enum_data) => {
             let enum_name = input.name();
             let fn_name = format!("{}HashCode", enum_name.to_case(Case::Camel));
 
-            Ok(ts_template! {
-                export function @{fn_name}(value: @{enum_name}): number {
-                    if (typeof value === "string") {
+            // Check if all variants are string values
+            let is_string_enum = enum_data
+                .variants()
+                .iter()
+                .all(|v| v.value.is_string());
+
+            if is_string_enum {
+                // String enum: hash the string value
+                Ok(ts_template! {
+                    export function @{fn_name}(value: @{enum_name}): number {
                         let hash = 0;
                         for (let i = 0; i < value.length; i++) {
                             hash = (hash * 31 + value.charCodeAt(i)) | 0;
                         }
                         return hash;
                     }
-                    return value as number;
-                }
-            })
+                })
+            } else {
+                // Numeric enum: use the number value directly
+                Ok(ts_template! {
+                    export function @{fn_name}(value: @{enum_name}): number {
+                        return value as number;
+                    }
+                })
+            }
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
