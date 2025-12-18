@@ -59,8 +59,8 @@ use crate::ts_syn::abi::{MacroKind, MacroResult};
 /// # Example
 ///
 /// ```rust,no_run
-/// use macroforge_ts::host::Macroforge;
-/// use macroforge_ts_syn::{TsStream, MacroKind, MacroResult, TargetIR, Patch, SpanIR};
+/// use macroforge_ts::host::{Macroforge, MacroKind, MacroResult, Patch};
+/// use macroforge_ts::ts_syn::{TsStream, TargetIR, SpanIR};
 ///
 /// struct GreetMacro;
 ///
@@ -192,9 +192,9 @@ pub trait Macroforge: Send + Sync {
 /// # Example
 ///
 /// ```rust,no_run
-/// use macroforge_ts::host::Macroforge;
+/// use macroforge_ts::host::{Macroforge, MacroKind, MacroResult};
 /// use macroforge_ts::host::traits::MacroPackage;
-/// use macroforge_ts_syn::{TsStream, MacroKind, MacroResult};
+/// use macroforge_ts::ts_syn::TsStream;
 ///
 /// // Define some macros
 /// struct DebugMacro;
