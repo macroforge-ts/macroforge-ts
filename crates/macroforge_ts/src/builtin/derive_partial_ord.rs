@@ -101,15 +101,15 @@
 //!
 //! ## Required Import
 //!
-//! The generated code automatically adds an import for `Option` from `macroforge/utils`.
+//! The generated code automatically adds an import for `Option` from `macroforge/reexports`.
 
 use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
 use crate::builtin::return_types::{
-    is_none_check, partial_ord_import, partial_ord_return_type, unwrap_option_or_null, wrap_none,
-    wrap_some,
+    is_none_check, partial_ord_return_type, unwrap_option_or_null, wrap_none, wrap_some,
 };
+use crate::builtin::serde::get_return_types_mode;
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
@@ -298,10 +298,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
             };
 
-            // Add import based on mode
-            if let Some((import_name, import_path)) = partial_ord_import() {
-                standalone.add_import(import_name, import_path);
-            }
+            // Add imports based on mode
+            standalone.add_imports(get_return_types_mode().partial_ord_imports());
 
             // Generate static wrapper method that delegates to standalone function
             let class_body = body! {
@@ -317,10 +315,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             combined.runtime_patches = standalone.runtime_patches;
             combined.runtime_patches.extend(class_body.runtime_patches);
 
-            // Add import based on mode
-            if let Some((import_name, import_path)) = partial_ord_import() {
-                combined.add_import(import_name, import_path);
-            }
+            // Add imports based on mode
+            combined.add_imports(get_return_types_mode().partial_ord_imports());
 
             Ok(combined)
         }
@@ -348,10 +344,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
             };
 
-            // Add import based on mode
-            if let Some((import_name, import_path)) = partial_ord_import() {
-                result.add_import(import_name, import_path);
-            }
+            // Add imports based on mode
+            result.add_imports(get_return_types_mode().partial_ord_imports());
 
             Ok(result)
         }
@@ -410,10 +404,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
             };
 
-            // Add import based on mode
-            if let Some((import_name, import_path)) = partial_ord_import() {
-                result.add_import(import_name, import_path);
-            }
+            // Add imports based on mode
+            result.add_imports(get_return_types_mode().partial_ord_imports());
 
             Ok(result)
         }
@@ -474,10 +466,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
                 };
 
-                // Add import based on mode
-                if let Some((import_name, import_path)) = partial_ord_import() {
-                    result.add_import(import_name, import_path);
-                }
+                // Add imports based on mode
+                result.add_imports(get_return_types_mode().partial_ord_imports());
 
                 Ok(result)
             } else {
@@ -500,10 +490,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
                 };
 
-                // Add import based on mode
-                if let Some((import_name, import_path)) = partial_ord_import() {
-                    result.add_import(import_name, import_path);
-                }
+                // Add imports based on mode
+                result.add_imports(get_return_types_mode().partial_ord_imports());
 
                 Ok(result)
             }

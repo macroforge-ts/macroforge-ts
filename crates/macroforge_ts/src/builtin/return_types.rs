@@ -9,13 +9,129 @@
 //! - **Custom**: Uses `@rydshift/mirror` Result/Option types
 //! - **Effect**: Uses Effect library Exit/Option types
 //!
+//! ## Import Strategy
+//!
+//! For Effect and Custom modes, we import specific functions with `__mf_` prefixed
+//! aliases to avoid any risk of collision with user imports:
+//!
+//! ```typescript
+//! // Effect mode
+//! import { succeed as __mf_exitSucceed, fail as __mf_exitFail } from "effect/Exit";
+//! import type { Exit } from "effect/Exit";
+//!
+//! // Custom mode
+//! import { ok as __mf_resultOk, err as __mf_resultErr } from "@rydshift/mirror/declarative";
+//! ```
+//!
+//! This approach:
+//! - Eliminates namespace collisions with user imports
+//! - Enables better tree-shaking (only specific functions imported)
+//! - Is explicit about what macroforge uses
+//!
 //! ## Usage
 //!
 //! These helpers are used by `derive_deserialize.rs` and `derive_partial_ord.rs`
 //! to generate mode-appropriate code.
 
-use crate::host::config::ReturnTypesMode;
 use super::serde::get_return_types_mode;
+use crate::host::config::ReturnTypesMode;
+use crate::ts_syn::ImportConfig;
+
+// ============================================================================
+// Import Configs for Return Types
+// ============================================================================
+
+/// Deserialize imports for Custom mode (@rydshift/mirror Result)
+pub const CUSTOM_DESERIALIZE_IMPORTS: &[ImportConfig] = &[
+    ImportConfig::value("ok", "__mf_resultOk", "macroforge/reexports"),
+    ImportConfig::value("err", "__mf_resultErr", "macroforge/reexports"),
+    ImportConfig::value("isOk", "__mf_resultIsOk", "macroforge/reexports"),
+    ImportConfig::type_only("Result", "__mf_Result", "macroforge/reexports"),
+];
+
+/// Deserialize imports for Effect mode (effect Exit)
+pub const EFFECT_DESERIALIZE_IMPORTS: &[ImportConfig] = &[
+    ImportConfig::value("exitSucceed", "__mf_exitSucceed", "macroforge/reexports/effect"),
+    ImportConfig::value("exitFail", "__mf_exitFail", "macroforge/reexports/effect"),
+    ImportConfig::value("exitIsSuccess", "__mf_exitIsSuccess", "macroforge/reexports/effect"),
+    ImportConfig::type_only("Exit", "__mf_Exit", "macroforge/reexports/effect"),
+];
+
+/// PartialOrd imports for Custom mode (@rydshift/mirror Option)
+pub const CUSTOM_PARTIAL_ORD_IMPORTS: &[ImportConfig] = &[
+    ImportConfig::value("some", "__mf_optionSome", "macroforge/reexports"),
+    ImportConfig::value("none", "__mf_optionNone", "macroforge/reexports"),
+    ImportConfig::value("isNone", "__mf_optionIsNone", "macroforge/reexports"),
+    ImportConfig::type_only("Option", "__mf_Option", "macroforge/reexports"),
+];
+
+/// PartialOrd imports for Effect mode (effect Option)
+pub const EFFECT_PARTIAL_ORD_IMPORTS: &[ImportConfig] = &[
+    ImportConfig::value("optionSome", "__mf_optionSome", "macroforge/reexports/effect"),
+    ImportConfig::value("optionNone", "__mf_optionNone", "macroforge/reexports/effect"),
+    ImportConfig::value("optionIsNone", "__mf_optionIsNone", "macroforge/reexports/effect"),
+    ImportConfig::type_only("Option", "__mf_Option", "macroforge/reexports/effect"),
+];
+
+impl ReturnTypesMode {
+    /// Get the deserialize imports for this mode.
+    ///
+    /// Returns a static slice of [`ImportConfig`] for use with [`TsStream::add_imports`].
+    pub const fn deserialize_imports(&self) -> &'static [ImportConfig] {
+        match self {
+            ReturnTypesMode::Vanilla => &[],
+            ReturnTypesMode::Custom => CUSTOM_DESERIALIZE_IMPORTS,
+            ReturnTypesMode::Effect => EFFECT_DESERIALIZE_IMPORTS,
+        }
+    }
+
+    /// Get the partial_ord imports for this mode.
+    ///
+    /// Returns a static slice of [`ImportConfig`] for use with [`TsStream::add_imports`].
+    pub const fn partial_ord_imports(&self) -> &'static [ImportConfig] {
+        match self {
+            ReturnTypesMode::Vanilla => &[],
+            ReturnTypesMode::Custom => CUSTOM_PARTIAL_ORD_IMPORTS,
+            ReturnTypesMode::Effect => EFFECT_PARTIAL_ORD_IMPORTS,
+        }
+    }
+}
+
+// ============================================================================
+// Aliased Function Names
+// ============================================================================
+
+// Effect Exit functions
+const EXIT_SUCCEED: &str = "__mf_exitSucceed";
+const EXIT_FAIL: &str = "__mf_exitFail";
+const EXIT_IS_SUCCESS: &str = "__mf_exitIsSuccess";
+
+// Effect Option functions
+const EFFECT_OPTION_SOME: &str = "__mf_optionSome";
+const EFFECT_OPTION_NONE: &str = "__mf_optionNone";
+const EFFECT_OPTION_IS_NONE: &str = "__mf_optionIsNone";
+
+// Custom Result functions
+const RESULT_OK: &str = "__mf_resultOk";
+const RESULT_ERR: &str = "__mf_resultErr";
+const RESULT_IS_OK: &str = "__mf_resultIsOk";
+
+// Custom Option functions
+const CUSTOM_OPTION_SOME: &str = "__mf_optionSome";
+const CUSTOM_OPTION_NONE: &str = "__mf_optionNone";
+const CUSTOM_OPTION_IS_NONE: &str = "__mf_optionIsNone";
+
+// Serde types (aliased) - use with TsStream::add_aliased_import()
+/// Aliased name for DeserializeContext
+pub const DESERIALIZE_CONTEXT: &str = "__mf_DeserializeContext";
+/// Aliased name for DeserializeError
+pub const DESERIALIZE_ERROR: &str = "__mf_DeserializeError";
+/// Aliased name for DeserializeOptions
+pub const DESERIALIZE_OPTIONS: &str = "__mf_DeserializeOptions";
+/// Aliased name for PendingRef
+pub const PENDING_REF: &str = "__mf_PendingRef";
+/// Aliased name for SerializeContext
+pub const SERIALIZE_CONTEXT: &str = "__mf_SerializeContext";
 
 // ============================================================================
 // Deserialize Return Type Helpers
@@ -31,8 +147,8 @@ use super::serde::get_return_types_mode;
 ///
 /// The appropriate return type signature for the current mode:
 /// - Vanilla: `{ success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }`
-/// - Custom: `Result<T, Array<{ field: string; message: string }>>`
-/// - Effect: `Exit<Array<{ field: string; message: string }>, T>`
+/// - Custom: `__mf_Result<T, Array<{ field: string; message: string }>>`
+/// - Effect: `__mf_Exit<Array<{ field: string; message: string }>, T>`
 pub fn deserialize_return_type(type_name: &str) -> String {
     match get_return_types_mode() {
         ReturnTypesMode::Vanilla => {
@@ -43,13 +159,13 @@ pub fn deserialize_return_type(type_name: &str) -> String {
         }
         ReturnTypesMode::Custom => {
             format!(
-                "Result<{}, Array<{{ field: string; message: string }}>>",
+                "__mf_Result<{}, Array<{{ field: string; message: string }}>>",
                 type_name
             )
         }
         ReturnTypesMode::Effect => {
             format!(
-                "Exit.Exit<Array<{{ field: string; message: string }}>, {}>",
+                "__mf_Exit<Array<{{ field: string; message: string }}>, {}>",
                 type_name
             )
         }
@@ -66,18 +182,18 @@ pub fn deserialize_return_type(type_name: &str) -> String {
 ///
 /// The appropriate success wrapper for the current mode:
 /// - Vanilla: `{ success: true, value: <expr> }`
-/// - Custom: `Result.ok(<expr>)`
-/// - Effect: `Exit.succeed(<expr>)`
+/// - Custom: `__mf_resultOk(<expr>)`
+/// - Effect: `__mf_exitSucceed(<expr>)`
 pub fn wrap_success(expr: &str) -> String {
     match get_return_types_mode() {
         ReturnTypesMode::Vanilla => {
             format!("{{ success: true, value: {} }}", expr)
         }
         ReturnTypesMode::Custom => {
-            format!("Result.ok({})", expr)
+            format!("{}({})", RESULT_OK, expr)
         }
         ReturnTypesMode::Effect => {
-            format!("Exit.succeed({})", expr)
+            format!("{}({})", EXIT_SUCCEED, expr)
         }
     }
 }
@@ -92,34 +208,19 @@ pub fn wrap_success(expr: &str) -> String {
 ///
 /// The appropriate error wrapper for the current mode:
 /// - Vanilla: `{ success: false, errors: <expr> }`
-/// - Custom: `Result.err(<expr>)`
-/// - Effect: `Exit.fail(<expr>)`
+/// - Custom: `__mf_resultErr(<expr>)`
+/// - Effect: `__mf_exitFail(<expr>)`
 pub fn wrap_error(expr: &str) -> String {
     match get_return_types_mode() {
         ReturnTypesMode::Vanilla => {
             format!("{{ success: false, errors: {} }}", expr)
         }
         ReturnTypesMode::Custom => {
-            format!("Result.err({})", expr)
+            format!("{}({})", RESULT_ERR, expr)
         }
         ReturnTypesMode::Effect => {
-            format!("Exit.fail({})", expr)
+            format!("{}({})", EXIT_FAIL, expr)
         }
-    }
-}
-
-/// Returns the import needed for the Deserialize return type.
-///
-/// # Returns
-///
-/// - Vanilla: `None` (no import needed)
-/// - Custom: `Some(("Result", "macroforge/utils"))`
-/// - Effect: `Some(("Exit", "macroforge/utils/effect"))`
-pub fn deserialize_import() -> Option<(&'static str, &'static str)> {
-    match get_return_types_mode() {
-        ReturnTypesMode::Vanilla => None,
-        ReturnTypesMode::Custom => Some(("Result", "macroforge/utils")),
-        ReturnTypesMode::Effect => Some(("Exit", "macroforge/utils/effect")),
     }
 }
 
@@ -133,13 +234,13 @@ pub fn deserialize_import() -> Option<(&'static str, &'static str)> {
 ///
 /// The appropriate success check for the current mode:
 /// - Vanilla: `<expr>.success`
-/// - Custom: `Result.isOk(<expr>)`
-/// - Effect: `Exit.isSuccess(<expr>)`
+/// - Custom: `__mf_resultIsOk(<expr>)`
+/// - Effect: `__mf_exitIsSuccess(<expr>)`
 pub fn is_ok_check(expr: &str) -> String {
     match get_return_types_mode() {
         ReturnTypesMode::Vanilla => format!("{}.success", expr),
-        ReturnTypesMode::Custom => format!("Result.isOk({})", expr),
-        ReturnTypesMode::Effect => format!("Exit.isSuccess({})", expr),
+        ReturnTypesMode::Custom => format!("{}({})", RESULT_IS_OK, expr),
+        ReturnTypesMode::Effect => format!("{}({})", EXIT_IS_SUCCESS, expr),
     }
 }
 
@@ -153,13 +254,13 @@ pub fn is_ok_check(expr: &str) -> String {
 ///
 /// The appropriate return type for the current mode:
 /// - Vanilla: `number | null`
-/// - Custom: `Option<number>`
-/// - Effect: `Option.Option<number>`
+/// - Custom: `__mf_Option<number>`
+/// - Effect: `__mf_Option<number>`
 pub fn partial_ord_return_type() -> &'static str {
     match get_return_types_mode() {
         ReturnTypesMode::Vanilla => "number | null",
-        ReturnTypesMode::Custom => "Option<number>",
-        ReturnTypesMode::Effect => "Option.Option<number>",
+        ReturnTypesMode::Custom => "__mf_Option<number>",
+        ReturnTypesMode::Effect => "__mf_Option<number>",
     }
 }
 
@@ -173,13 +274,13 @@ pub fn partial_ord_return_type() -> &'static str {
 ///
 /// The appropriate "some" wrapper for the current mode:
 /// - Vanilla: `<expr>` (no wrapper needed)
-/// - Custom: `Option.some(<expr>)`
-/// - Effect: `Option.some(<expr>)`
+/// - Custom: `__mf_optionSome(<expr>)`
+/// - Effect: `__mf_optionSome(<expr>)`
 pub fn wrap_some(expr: &str) -> String {
     match get_return_types_mode() {
         ReturnTypesMode::Vanilla => expr.to_string(),
-        ReturnTypesMode::Custom => format!("Option.some({})", expr),
-        ReturnTypesMode::Effect => format!("Option.some({})", expr),
+        ReturnTypesMode::Custom => format!("{}({})", CUSTOM_OPTION_SOME, expr),
+        ReturnTypesMode::Effect => format!("{}({})", EFFECT_OPTION_SOME, expr),
     }
 }
 
@@ -189,28 +290,13 @@ pub fn wrap_some(expr: &str) -> String {
 ///
 /// The appropriate "none" value for the current mode:
 /// - Vanilla: `null`
-/// - Custom: `Option.none()`
-/// - Effect: `Option.none()`
-pub fn wrap_none() -> &'static str {
+/// - Custom: `__mf_optionNone()`
+/// - Effect: `__mf_optionNone()`
+pub fn wrap_none() -> String {
     match get_return_types_mode() {
-        ReturnTypesMode::Vanilla => "null",
-        ReturnTypesMode::Custom => "Option.none()",
-        ReturnTypesMode::Effect => "Option.none()",
-    }
-}
-
-/// Returns the import needed for the PartialOrd return type.
-///
-/// # Returns
-///
-/// - Vanilla: `None` (no import needed)
-/// - Custom: `Some(("Option", "macroforge/utils"))`
-/// - Effect: `Some(("Option", "macroforge/utils/effect"))`
-pub fn partial_ord_import() -> Option<(&'static str, &'static str)> {
-    match get_return_types_mode() {
-        ReturnTypesMode::Vanilla => None,
-        ReturnTypesMode::Custom => Some(("Option", "macroforge/utils")),
-        ReturnTypesMode::Effect => Some(("Option", "macroforge/utils/effect")),
+        ReturnTypesMode::Vanilla => "null".to_string(),
+        ReturnTypesMode::Custom => format!("{}()", CUSTOM_OPTION_NONE),
+        ReturnTypesMode::Effect => format!("{}()", EFFECT_OPTION_NONE),
     }
 }
 
@@ -235,13 +321,13 @@ pub fn uses_option_type() -> bool {
 ///
 /// The appropriate check for the current mode:
 /// - Vanilla: `<expr> === null`
-/// - Custom: `Option.isNone(<expr>)`
-/// - Effect: `Option.isNone(<expr>)`
+/// - Custom: `__mf_optionIsNone(<expr>)`
+/// - Effect: `__mf_optionIsNone(<expr>)`
 pub fn is_none_check(expr: &str) -> String {
     match get_return_types_mode() {
         ReturnTypesMode::Vanilla => format!("{} === null", expr),
-        ReturnTypesMode::Custom => format!("Option.isNone({})", expr),
-        ReturnTypesMode::Effect => format!("Option.isNone({})", expr),
+        ReturnTypesMode::Custom => format!("{}({})", CUSTOM_OPTION_IS_NONE, expr),
+        ReturnTypesMode::Effect => format!("{}({})", EFFECT_OPTION_IS_NONE, expr),
     }
 }
 
@@ -277,20 +363,26 @@ pub fn unwrap_option(expr: &str) -> String {
 ///
 /// The appropriate conditional expression:
 /// - Vanilla: `<expr>` (null is already the None representation)
-/// - Custom: `Option.isNone(<expr>) ? null : <expr>.value`
-/// - Effect: `Option.isNone(<expr>) ? null : <expr>.value`
+/// - Custom: `__mf_optionIsNone(<expr>) ? null : <expr>.value`
+/// - Effect: `__mf_optionIsNone(<expr>) ? null : <expr>.value`
 pub fn unwrap_option_or_null(expr: &str) -> String {
     match get_return_types_mode() {
         ReturnTypesMode::Vanilla => expr.to_string(),
-        ReturnTypesMode::Custom => format!("Option.isNone({}) ? null : {}.value", expr, expr),
-        ReturnTypesMode::Effect => format!("Option.isNone({}) ? null : {}.value", expr, expr),
+        ReturnTypesMode::Custom => format!(
+            "{}({}) ? null : {}.value",
+            CUSTOM_OPTION_IS_NONE, expr, expr
+        ),
+        ReturnTypesMode::Effect => format!(
+            "{}({}) ? null : {}.value",
+            EFFECT_OPTION_IS_NONE, expr, expr
+        ),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::builtin::serde::{set_return_types_mode, clear_return_types_mode};
+    use crate::builtin::serde::{clear_return_types_mode, set_return_types_mode};
 
     #[test]
     fn test_vanilla_deserialize_return_type() {
@@ -313,7 +405,7 @@ mod tests {
     fn test_effect_deserialize_return_type() {
         set_return_types_mode(ReturnTypesMode::Effect);
         let result = deserialize_return_type("User");
-        assert!(result.contains("Exit.Exit<"));
+        assert!(result.contains("Exit<"));
         assert!(result.contains("User"));
         clear_return_types_mode();
     }
@@ -327,7 +419,14 @@ mod tests {
     #[test]
     fn test_custom_wrap_success() {
         set_return_types_mode(ReturnTypesMode::Custom);
-        assert_eq!(wrap_success("value"), "Result.ok(value)");
+        assert_eq!(wrap_success("value"), "__mf_resultOk(value)");
+        clear_return_types_mode();
+    }
+
+    #[test]
+    fn test_effect_wrap_success() {
+        set_return_types_mode(ReturnTypesMode::Effect);
+        assert_eq!(wrap_success("value"), "__mf_exitSucceed(value)");
         clear_return_types_mode();
     }
 
@@ -342,9 +441,76 @@ mod tests {
     #[test]
     fn test_custom_partial_ord() {
         set_return_types_mode(ReturnTypesMode::Custom);
-        assert_eq!(partial_ord_return_type(), "Option<number>");
-        assert_eq!(wrap_some("0"), "Option.some(0)");
-        assert_eq!(wrap_none(), "Option.none()");
+        assert_eq!(partial_ord_return_type(), "__mf_Option<number>");
+        assert_eq!(wrap_some("0"), "__mf_optionSome(0)");
+        assert_eq!(wrap_none(), "__mf_optionNone()");
+        clear_return_types_mode();
+    }
+
+    #[test]
+    fn test_effect_partial_ord() {
+        set_return_types_mode(ReturnTypesMode::Effect);
+        assert_eq!(partial_ord_return_type(), "__mf_Option<number>");
+        assert_eq!(wrap_some("0"), "__mf_optionSome(0)");
+        assert_eq!(wrap_none(), "__mf_optionNone()");
+        clear_return_types_mode();
+    }
+
+    // ========================================================================
+    // Aliased Import Tests
+    // ========================================================================
+
+    #[test]
+    fn test_deserialize_imports_vanilla() {
+        assert!(ReturnTypesMode::Vanilla.deserialize_imports().is_empty());
+    }
+
+    #[test]
+    fn test_deserialize_imports_custom() {
+        let imports = ReturnTypesMode::Custom.deserialize_imports();
+        assert!(imports.iter().any(|i| i.alias == "__mf_resultOk"));
+        assert!(imports.iter().any(|i| i.alias == "__mf_resultErr"));
+        assert!(imports.iter().any(|i| i.alias == "__mf_Result"));
+        assert!(imports.iter().any(|i| i.module == "macroforge/reexports"));
+    }
+
+    #[test]
+    fn test_deserialize_imports_effect() {
+        let imports = ReturnTypesMode::Effect.deserialize_imports();
+        assert!(imports.iter().any(|i| i.alias == "__mf_exitSucceed"));
+        assert!(imports.iter().any(|i| i.alias == "__mf_exitFail"));
+        assert!(imports.iter().any(|i| i.alias == "__mf_Exit"));
+        assert!(imports.iter().any(|i| i.module == "macroforge/reexports/effect"));
+    }
+
+    #[test]
+    fn test_partial_ord_imports_effect() {
+        let imports = ReturnTypesMode::Effect.partial_ord_imports();
+        assert!(imports.iter().any(|i| i.alias == "__mf_optionSome"));
+        assert!(imports.iter().any(|i| i.alias == "__mf_optionNone"));
+        assert!(imports.iter().any(|i| i.alias == "__mf_Option"));
+        assert!(imports.iter().any(|i| i.module == "macroforge/reexports/effect"));
+    }
+
+    #[test]
+    fn test_is_ok_check_uses_aliased_function() {
+        set_return_types_mode(ReturnTypesMode::Effect);
+        assert_eq!(is_ok_check("result"), "__mf_exitIsSuccess(result)");
+        clear_return_types_mode();
+
+        set_return_types_mode(ReturnTypesMode::Custom);
+        assert_eq!(is_ok_check("result"), "__mf_resultIsOk(result)");
+        clear_return_types_mode();
+    }
+
+    #[test]
+    fn test_is_none_check_uses_aliased_function() {
+        set_return_types_mode(ReturnTypesMode::Effect);
+        assert_eq!(is_none_check("opt"), "__mf_optionIsNone(opt)");
+        clear_return_types_mode();
+
+        set_return_types_mode(ReturnTypesMode::Custom);
+        assert_eq!(is_none_check("opt"), "__mf_optionIsNone(opt)");
         clear_return_types_mode();
     }
 }
