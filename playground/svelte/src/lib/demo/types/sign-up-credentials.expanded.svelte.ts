@@ -2,23 +2,22 @@ import { emailPartsDefaultValue } from './email-parts.svelte';
 import { firstNameDefaultValue } from './first-name.svelte';
 import { lastNameDefaultValue } from './last-name.svelte';
 import { passwordDefaultValue } from './password.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { emailPartsSerializeWithContext } from './email-parts.svelte';
 import { firstNameSerializeWithContext } from './first-name.svelte';
 import { lastNameSerializeWithContext } from './last-name.svelte';
 import { passwordSerializeWithContext } from './password.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { emailPartsDeserializeWithContext } from './email-parts.svelte';
 import { firstNameDeserializeWithContext } from './first-name.svelte';
 import { lastNameDeserializeWithContext } from './last-name.svelte';
 import { passwordDeserializeWithContext } from './password.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -51,14 +50,14 @@ export function signUpCredentialsDefaultValue(): SignUpCredentials {
 @returns JSON string representation with cycle detection metadata */ export function signUpCredentialsSerialize(
     value: SignUpCredentials
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(signUpCredentialsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function signUpCredentialsSerializeWithContext(
     value: SignUpCredentials,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -80,44 +79,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function signUpCredentialsDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, SignUpCredentials> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: SignUpCredentials }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = signUpCredentialsDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'SignUpCredentials.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'SignUpCredentials.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function signUpCredentialsDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): SignUpCredentials | PendingRef {
+    ctx: __mf_DeserializeContext
+): SignUpCredentials | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'SignUpCredentials.deserializeWithContext: expected an object'
@@ -142,7 +146,7 @@ export function signUpCredentialsDeserializeWithContext(
         errors.push({ field: 'rememberMe', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -182,18 +186,18 @@ export function signUpCredentialsDeserializeWithContext(
         instance.rememberMe = __raw_rememberMe;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as SignUpCredentials;
 }
 export function signUpCredentialsValidateField<K extends keyof SignUpCredentials>(
-    field: K,
-    value: SignUpCredentials[K]
+    _field: K,
+    _value: SignUpCredentials[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function signUpCredentialsValidateFields(
-    partial: Partial<SignUpCredentials>
+    _partial: Partial<SignUpCredentials>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -211,23 +215,23 @@ export function signUpCredentialsIs(obj: unknown): obj is SignUpCredentials {
         return false;
     }
     const result = signUpCredentialsDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type SignUpCredentialsErrors = {
-    _errors: Option<Array<string>>;
-    firstName: Option<Array<string>>;
-    lastName: Option<Array<string>>;
-    email: Option<Array<string>>;
-    password: Option<Array<string>>;
-    rememberMe: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    firstName: __gf_Option<Array<string>>;
+    lastName: __gf_Option<Array<string>>;
+    email: __gf_Option<Array<string>>;
+    password: __gf_Option<Array<string>>;
+    rememberMe: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type SignUpCredentialsTainted = {
-    firstName: Option<boolean>;
-    lastName: Option<boolean>;
-    email: Option<boolean>;
-    password: Option<boolean>;
-    rememberMe: Option<boolean>;
+    firstName: __gf_Option<boolean>;
+    lastName: __gf_Option<boolean>;
+    email: __gf_Option<boolean>;
+    password: __gf_Option<boolean>;
+    rememberMe: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface SignUpCredentialsFieldControllers {
     readonly firstName: FieldController<FirstName>;
@@ -241,7 +245,7 @@ export interface SignUpCredentialsGigaform {
     readonly errors: SignUpCredentialsErrors;
     readonly tainted: SignUpCredentialsTainted;
     readonly fields: SignUpCredentialsFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, SignUpCredentials>;
+    validate(): Exit<SignUpCredentials, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<SignUpCredentials>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function signUpCredentialsCreateForm(
@@ -274,11 +278,11 @@ export function signUpCredentialsCreateForm(
             },
             transform: (value: FirstName): FirstName => value,
             getError: () => errors.firstName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.firstName = value;
             },
             getTainted: () => tainted.firstName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.firstName = value;
             },
             validate: (): Array<string> => {
@@ -296,11 +300,11 @@ export function signUpCredentialsCreateForm(
             },
             transform: (value: LastName): LastName => value,
             getError: () => errors.lastName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.lastName = value;
             },
             getTainted: () => tainted.lastName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.lastName = value;
             },
             validate: (): Array<string> => {
@@ -318,11 +322,11 @@ export function signUpCredentialsCreateForm(
             },
             transform: (value: EmailParts): EmailParts => value,
             getError: () => errors.email,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.email = value;
             },
             getTainted: () => tainted.email,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.email = value;
             },
             validate: (): Array<string> => {
@@ -340,11 +344,11 @@ export function signUpCredentialsCreateForm(
             },
             transform: (value: Password): Password => value,
             getError: () => errors.password,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.password = value;
             },
             getTainted: () => tainted.password,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.password = value;
             },
             validate: (): Array<string> => {
@@ -362,11 +366,11 @@ export function signUpCredentialsCreateForm(
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.rememberMe,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.rememberMe = value;
             },
             getTainted: () => tainted.rememberMe,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.rememberMe = value;
             },
             validate: (): Array<string> => {
@@ -375,7 +379,7 @@ export function signUpCredentialsCreateForm(
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, SignUpCredentials> {
+    function validate(): Exit<SignUpCredentials, Array<{ field: string; message: string }>> {
         return toExit(signUpCredentialsDeserialize(data));
     }
     function reset(newOverrides?: Partial<SignUpCredentials>): void {
@@ -422,7 +426,7 @@ export function signUpCredentialsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function signUpCredentialsFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, SignUpCredentials> {
+): Exit<SignUpCredentials, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const firstNameObj: Record<string, unknown> = {};

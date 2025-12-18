@@ -1,21 +1,20 @@
 import { emailDefaultValue } from './email.svelte';
 import { settingsDefaultValue } from './settings.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { emailSerializeWithContext } from './email.svelte';
 import { jobTitleSerializeWithContext } from './job-title.svelte';
 import { phoneNumberSerializeWithContext } from './phone-number.svelte';
 import { settingsSerializeWithContext } from './settings.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { emailDeserializeWithContext } from './email.svelte';
 import { jobTitleDeserializeWithContext } from './job-title.svelte';
 import { settingsDeserializeWithContext } from './settings.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -82,14 +81,14 @@ export function employeeDefaultValue(): Employee {
 @returns JSON string representation with cycle detection metadata */ export function employeeSerialize(
     value: Employee
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(employeeSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function employeeSerializeWithContext(
     value: Employee,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -124,44 +123,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function employeeDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Employee> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Employee }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = employeeDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Employee.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Employee.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function employeeDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Employee | PendingRef {
+    ctx: __mf_DeserializeContext
+): Employee | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Employee.deserializeWithContext: expected an object' }
         ]);
     }
@@ -222,7 +226,7 @@ export function employeeDeserializeWithContext(
         errors.push({ field: 'settings', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -327,39 +331,39 @@ export function employeeDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Employee;
 }
 export function employeeValidateField<K extends keyof Employee>(
-    field: K,
-    value: Employee[K]
+    _field: K,
+    _value: Employee[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'name': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'name', message: 'must not be empty' });
             }
             break;
         }
         case 'role': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'role', message: 'must not be empty' });
             }
             break;
         }
         case 'address': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'address', message: 'must not be empty' });
             }
             break;
         }
         case 'username': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'username', message: 'must not be empty' });
             }
@@ -369,29 +373,29 @@ export function employeeValidateField<K extends keyof Employee>(
     return errors;
 }
 export function employeeValidateFields(
-    partial: Partial<Employee>
+    _partial: Partial<Employee>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('name' in partial && partial.name !== undefined) {
-        const __val = partial.name as string;
+    if ('name' in _partial && _partial.name !== undefined) {
+        const __val = _partial.name as string;
         if (__val.length === 0) {
             errors.push({ field: 'name', message: 'must not be empty' });
         }
     }
-    if ('role' in partial && partial.role !== undefined) {
-        const __val = partial.role as string;
+    if ('role' in _partial && _partial.role !== undefined) {
+        const __val = _partial.role as string;
         if (__val.length === 0) {
             errors.push({ field: 'role', message: 'must not be empty' });
         }
     }
-    if ('address' in partial && partial.address !== undefined) {
-        const __val = partial.address as string;
+    if ('address' in _partial && _partial.address !== undefined) {
+        const __val = _partial.address as string;
         if (__val.length === 0) {
             errors.push({ field: 'address', message: 'must not be empty' });
         }
     }
-    if ('username' in partial && partial.username !== undefined) {
-        const __val = partial.username as string;
+    if ('username' in _partial && _partial.username !== undefined) {
+        const __val = _partial.username as string;
         if (__val.length === 0) {
             errors.push({ field: 'username', message: 'must not be empty' });
         }
@@ -429,49 +433,49 @@ export function employeeIs(obj: unknown): obj is Employee {
         return false;
     }
     const result = employeeDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type EmployeeErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    imageUrl: Option<Array<string>>;
-    name: Option<Array<string>>;
-    phones: Option<Array<string>>;
-    role: Option<Array<string>>;
-    title: Option<Array<string>>;
-    email: Option<Array<string>>;
-    address: Option<Array<string>>;
-    username: Option<Array<string>>;
-    route: Option<Array<string>>;
-    ratePerHour: Option<Array<string>>;
-    active: Option<Array<string>>;
-    isTechnician: Option<Array<string>>;
-    isSalesRep: Option<Array<string>>;
-    description: Option<Array<string>>;
-    linkedinUrl: Option<Array<string>>;
-    attendance: Option<Array<string>>;
-    settings: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    imageUrl: __gf_Option<Array<string>>;
+    name: __gf_Option<Array<string>>;
+    phones: __gf_Option<Array<string>>;
+    role: __gf_Option<Array<string>>;
+    title: __gf_Option<Array<string>>;
+    email: __gf_Option<Array<string>>;
+    address: __gf_Option<Array<string>>;
+    username: __gf_Option<Array<string>>;
+    route: __gf_Option<Array<string>>;
+    ratePerHour: __gf_Option<Array<string>>;
+    active: __gf_Option<Array<string>>;
+    isTechnician: __gf_Option<Array<string>>;
+    isSalesRep: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
+    linkedinUrl: __gf_Option<Array<string>>;
+    attendance: __gf_Option<Array<string>>;
+    settings: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type EmployeeTainted = {
-    id: Option<boolean>;
-    imageUrl: Option<boolean>;
-    name: Option<boolean>;
-    phones: Option<boolean>;
-    role: Option<boolean>;
-    title: Option<boolean>;
-    email: Option<boolean>;
-    address: Option<boolean>;
-    username: Option<boolean>;
-    route: Option<boolean>;
-    ratePerHour: Option<boolean>;
-    active: Option<boolean>;
-    isTechnician: Option<boolean>;
-    isSalesRep: Option<boolean>;
-    description: Option<boolean>;
-    linkedinUrl: Option<boolean>;
-    attendance: Option<boolean>;
-    settings: Option<boolean>;
+    id: __gf_Option<boolean>;
+    imageUrl: __gf_Option<boolean>;
+    name: __gf_Option<boolean>;
+    phones: __gf_Option<boolean>;
+    role: __gf_Option<boolean>;
+    title: __gf_Option<boolean>;
+    email: __gf_Option<boolean>;
+    address: __gf_Option<boolean>;
+    username: __gf_Option<boolean>;
+    route: __gf_Option<boolean>;
+    ratePerHour: __gf_Option<boolean>;
+    active: __gf_Option<boolean>;
+    isTechnician: __gf_Option<boolean>;
+    isSalesRep: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
+    linkedinUrl: __gf_Option<boolean>;
+    attendance: __gf_Option<boolean>;
+    settings: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface EmployeeFieldControllers {
     readonly id: FieldController<string>;
@@ -498,7 +502,7 @@ export interface EmployeeGigaform {
     readonly errors: EmployeeErrors;
     readonly tainted: EmployeeTainted;
     readonly fields: EmployeeFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Employee>;
+    validate(): Exit<Employee, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Employee>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaform {
@@ -555,11 +559,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -577,11 +581,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.imageUrl,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.imageUrl = value;
             },
             getTainted: () => tainted.imageUrl,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.imageUrl = value;
             },
             validate: (): Array<string> => {
@@ -599,11 +603,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string): string => value,
             getError: () => errors.name,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.name = value;
             },
             getTainted: () => tainted.name,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.name = value;
             },
             validate: (): Array<string> => {
@@ -621,11 +625,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: PhoneNumber[]): PhoneNumber[] => value,
             getError: () => errors.phones,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.phones = value;
             },
             getTainted: () => tainted.phones,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.phones = value;
             },
             validate: (): Array<string> => {
@@ -642,11 +646,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
                 },
                 transform: (value: PhoneNumber): PhoneNumber => value,
                 getError: () => errors.phones,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.phones = value;
                 },
                 getTainted: () => tainted.phones,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.phones = value;
                 },
                 validate: (): Array<string> => []
@@ -673,11 +677,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string): string => value,
             getError: () => errors.role,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.role = value;
             },
             getTainted: () => tainted.role,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.role = value;
             },
             validate: (): Array<string> => {
@@ -695,11 +699,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: JobTitle): JobTitle => value,
             getError: () => errors.title,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.title = value;
             },
             getTainted: () => tainted.title,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.title = value;
             },
             validate: (): Array<string> => {
@@ -717,11 +721,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: Email): Email => value,
             getError: () => errors.email,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.email = value;
             },
             getTainted: () => tainted.email,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.email = value;
             },
             validate: (): Array<string> => {
@@ -739,11 +743,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string): string => value,
             getError: () => errors.address,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.address = value;
             },
             getTainted: () => tainted.address,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.address = value;
             },
             validate: (): Array<string> => {
@@ -761,11 +765,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string): string => value,
             getError: () => errors.username,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.username = value;
             },
             getTainted: () => tainted.username,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.username = value;
             },
             validate: (): Array<string> => {
@@ -783,11 +787,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string | Route): string | Route => value,
             getError: () => errors.route,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.route = value;
             },
             getTainted: () => tainted.route,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.route = value;
             },
             validate: (): Array<string> => {
@@ -805,11 +809,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: number): number => value,
             getError: () => errors.ratePerHour,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.ratePerHour = value;
             },
             getTainted: () => tainted.ratePerHour,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.ratePerHour = value;
             },
             validate: (): Array<string> => {
@@ -827,11 +831,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.active,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.active = value;
             },
             getTainted: () => tainted.active,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.active = value;
             },
             validate: (): Array<string> => {
@@ -849,11 +853,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.isTechnician,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.isTechnician = value;
             },
             getTainted: () => tainted.isTechnician,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.isTechnician = value;
             },
             validate: (): Array<string> => {
@@ -871,11 +875,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.isSalesRep,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.isSalesRep = value;
             },
             getTainted: () => tainted.isSalesRep,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.isSalesRep = value;
             },
             validate: (): Array<string> => {
@@ -893,11 +897,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.description,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.description = value;
             },
             getTainted: () => tainted.description,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.description = value;
             },
             validate: (): Array<string> => {
@@ -915,11 +919,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.linkedinUrl,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.linkedinUrl = value;
             },
             getTainted: () => tainted.linkedinUrl,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.linkedinUrl = value;
             },
             validate: (): Array<string> => {
@@ -937,11 +941,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: string[]): string[] => value,
             getError: () => errors.attendance,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.attendance = value;
             },
             getTainted: () => tainted.attendance,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.attendance = value;
             },
             validate: (): Array<string> => {
@@ -958,11 +962,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
                 },
                 transform: (value: string): string => value,
                 getError: () => errors.attendance,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.attendance = value;
                 },
                 getTainted: () => tainted.attendance,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.attendance = value;
                 },
                 validate: (): Array<string> => []
@@ -989,11 +993,11 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             },
             transform: (value: Settings): Settings => value,
             getError: () => errors.settings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.settings = value;
             },
             getTainted: () => tainted.settings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.settings = value;
             },
             validate: (): Array<string> => {
@@ -1002,7 +1006,7 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Employee> {
+    function validate(): Exit<Employee, Array<{ field: string; message: string }>> {
         return toExit(employeeDeserialize(data));
     }
     function reset(newOverrides?: Partial<Employee>): void {
@@ -1075,7 +1079,7 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function employeeFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Employee> {
+): Exit<Employee, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.imageUrl = formData.get('imageUrl') ?? '';

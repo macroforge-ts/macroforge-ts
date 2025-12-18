@@ -1,15 +1,14 @@
 import { companyNameDefaultValue } from './company-name.svelte';
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { companyNameDeserializeWithContext } from './company-name.svelte';
 import { personNameDeserializeWithContext } from './person-name.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { personNameDefaultValue } from './person-name.svelte';
@@ -30,14 +29,14 @@ export function accountNameDefaultValue(): AccountName {
 @returns JSON string representation with cycle detection metadata */ export function accountNameSerialize(
     value: AccountName
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(accountNameSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function accountNameSerializeWithContext(
     value: AccountName,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
@@ -51,50 +50,55 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function accountNameDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, AccountName> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: AccountName }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = accountNameDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'AccountName.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'AccountName.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function accountNameDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): AccountName | PendingRef {
+    ctx: __mf_DeserializeContext
+): AccountName | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as AccountName | PendingRef;
+        return ctx.getOrDefer(value.__ref) as AccountName | __mf_PendingRef;
     }
     if (typeof value !== 'object' || value === null) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'AccountName.deserializeWithContext: expected an object' }
         ]);
     }
     const __typeName = (value as any).__type;
     if (typeof __typeName !== 'string') {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -108,7 +112,7 @@ export function accountNameDeserializeWithContext(
     if (__typeName === 'PersonName') {
         return personNameDeserializeWithContext(value, ctx) as AccountName;
     }
-    throw new DeserializeError([
+    throw new __mf_DeserializeError([
         {
             field: '_root',
             message:
@@ -127,10 +131,10 @@ export function accountNameIs(value: unknown): value is AccountName {
 }
 
 /** Per-variant error types */ export type AccountNameCompanyNameErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
 export type AccountNamePersonNameErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type AccountNameCompanyNameTainted = {};
 export type AccountNamePersonNameTainted = {}; /** Union error type */
@@ -151,7 +155,7 @@ export interface AccountNameGigaform {
     readonly tainted: AccountNameTainted;
     readonly variants: AccountNameVariantFields;
     switchVariant(variant: 'CompanyName' | 'PersonName'): void;
-    validate(): Exit<Array<{ field: string; message: string }>, AccountName>;
+    validate(): Exit<AccountName, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<AccountName>): void;
 } /** Variant fields container */
 export interface AccountNameVariantFields {
@@ -184,7 +188,7 @@ export function accountNameCreateForm(initial?: AccountName): AccountNameGigafor
         errors = {} as AccountNameErrors;
         tainted = {} as AccountNameTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, AccountName> {
+    function validate(): Exit<AccountName, Array<{ field: string; message: string }>> {
         return toExit(accountNameDeserialize(data));
     }
     function reset(overrides?: Partial<AccountName>): void {
@@ -224,7 +228,7 @@ export function accountNameCreateForm(initial?: AccountName): AccountNameGigafor
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function accountNameFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, AccountName> {
+): Exit<AccountName, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_type') as 'CompanyName' | 'PersonName' | null;
     if (!discriminant) {
         return toExit({

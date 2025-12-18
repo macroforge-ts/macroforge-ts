@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -24,14 +23,14 @@ export function passwordDefaultValue(): Password {
 @returns JSON string representation with cycle detection metadata */ export function passwordSerialize(
     value: Password
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(passwordSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function passwordSerializeWithContext(
     value: Password,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -49,44 +48,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function passwordDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Password> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Password }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = passwordDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Password.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Password.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function passwordDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Password | PendingRef {
+    ctx: __mf_DeserializeContext
+): Password | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Password.deserializeWithContext: expected an object' }
         ]);
     }
@@ -96,7 +100,7 @@ export function passwordDeserializeWithContext(
         errors.push({ field: 'password', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -111,18 +115,18 @@ export function passwordDeserializeWithContext(
         instance.password = __raw_password;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Password;
 }
 export function passwordValidateField<K extends keyof Password>(
-    field: K,
-    value: Password[K]
+    _field: K,
+    _value: Password[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'password': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'password', message: 'must not be empty' });
             }
@@ -132,11 +136,11 @@ export function passwordValidateField<K extends keyof Password>(
     return errors;
 }
 export function passwordValidateFields(
-    partial: Partial<Password>
+    _partial: Partial<Password>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('password' in partial && partial.password !== undefined) {
-        const __val = partial.password as string;
+    if ('password' in _partial && _partial.password !== undefined) {
+        const __val = _partial.password as string;
         if (__val.length === 0) {
             errors.push({ field: 'password', message: 'must not be empty' });
         }
@@ -155,15 +159,15 @@ export function passwordIs(obj: unknown): obj is Password {
         return false;
     }
     const result = passwordDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type PasswordErrors = {
-    _errors: Option<Array<string>>;
-    password: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    password: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type PasswordTainted = {
-    password: Option<boolean>;
+    password: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface PasswordFieldControllers {
     readonly password: FieldController<string>;
@@ -173,7 +177,7 @@ export interface PasswordGigaform {
     readonly errors: PasswordErrors;
     readonly tainted: PasswordTainted;
     readonly fields: PasswordFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Password>;
+    validate(): Exit<Password, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Password>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function passwordCreateForm(overrides?: Partial<Password>): PasswordGigaform {
@@ -191,11 +195,11 @@ export function passwordCreateForm(overrides?: Partial<Password>): PasswordGigaf
             },
             transform: (value: string): string => value,
             getError: () => errors.password,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.password = value;
             },
             getTainted: () => tainted.password,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.password = value;
             },
             validate: (): Array<string> => {
@@ -204,7 +208,7 @@ export function passwordCreateForm(overrides?: Partial<Password>): PasswordGigaf
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Password> {
+    function validate(): Exit<Password, Array<{ field: string; message: string }>> {
         return toExit(passwordDeserialize(data));
     }
     function reset(newOverrides?: Partial<Password>): void {
@@ -238,7 +242,7 @@ export function passwordCreateForm(overrides?: Partial<Password>): PasswordGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function passwordFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Password> {
+): Exit<Password, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.password = formData.get('password') ?? '';
     return toExit(passwordDeserialize(obj));

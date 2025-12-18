@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -25,14 +24,14 @@ export function commentedDefaultValue(): Commented {
 @returns JSON string representation with cycle detection metadata */ export function commentedSerialize(
     value: Commented
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(commentedSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function commentedSerializeWithContext(
     value: Commented,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -51,44 +50,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function commentedDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Commented> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Commented }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = commentedDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Commented.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Commented.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function commentedDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Commented | PendingRef {
+    ctx: __mf_DeserializeContext
+): Commented | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Commented.deserializeWithContext: expected an object' }
         ]);
     }
@@ -101,7 +105,7 @@ export function commentedDeserializeWithContext(
         errors.push({ field: 'replyTo', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -120,18 +124,18 @@ export function commentedDeserializeWithContext(
         instance.replyTo = __raw_replyTo;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Commented;
 }
 export function commentedValidateField<K extends keyof Commented>(
-    field: K,
-    value: Commented[K]
+    _field: K,
+    _value: Commented[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'comment': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'comment', message: 'must not be empty' });
             }
@@ -141,11 +145,11 @@ export function commentedValidateField<K extends keyof Commented>(
     return errors;
 }
 export function commentedValidateFields(
-    partial: Partial<Commented>
+    _partial: Partial<Commented>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('comment' in partial && partial.comment !== undefined) {
-        const __val = partial.comment as string;
+    if ('comment' in _partial && _partial.comment !== undefined) {
+        const __val = _partial.comment as string;
         if (__val.length === 0) {
             errors.push({ field: 'comment', message: 'must not be empty' });
         }
@@ -164,17 +168,17 @@ export function commentedIs(obj: unknown): obj is Commented {
         return false;
     }
     const result = commentedDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type CommentedErrors = {
-    _errors: Option<Array<string>>;
-    comment: Option<Array<string>>;
-    replyTo: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    comment: __gf_Option<Array<string>>;
+    replyTo: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type CommentedTainted = {
-    comment: Option<boolean>;
-    replyTo: Option<boolean>;
+    comment: __gf_Option<boolean>;
+    replyTo: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface CommentedFieldControllers {
     readonly comment: FieldController<string>;
@@ -185,7 +189,7 @@ export interface CommentedGigaform {
     readonly errors: CommentedErrors;
     readonly tainted: CommentedTainted;
     readonly fields: CommentedFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Commented>;
+    validate(): Exit<Commented, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Commented>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGigaform {
@@ -207,11 +211,11 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
             },
             transform: (value: string): string => value,
             getError: () => errors.comment,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.comment = value;
             },
             getTainted: () => tainted.comment,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.comment = value;
             },
             validate: (): Array<string> => {
@@ -229,11 +233,11 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.replyTo,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.replyTo = value;
             },
             getTainted: () => tainted.replyTo,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.replyTo = value;
             },
             validate: (): Array<string> => {
@@ -242,7 +246,7 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Commented> {
+    function validate(): Exit<Commented, Array<{ field: string; message: string }>> {
         return toExit(commentedDeserialize(data));
     }
     function reset(newOverrides?: Partial<Commented>): void {
@@ -276,7 +280,7 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function commentedFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Commented> {
+): Exit<Commented, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.comment = formData.get('comment') ?? '';
     obj.replyTo = formData.get('replyTo') ?? '';

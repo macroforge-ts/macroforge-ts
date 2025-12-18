@@ -17,8 +17,8 @@
         since: "2025-01-07",
         apiToken: "sk-live-token",
     });
-    const derivedSummary = derivedUser.toString();
-    const derivedUserJson = derivedUser.toJSON();
+    const derivedSummary = MacroUser.toString(derivedUser);
+    const derivedUserJson = JSON.parse(MacroUser.serialize(derivedUser));
     const derivedJsonPretty = JSON.stringify(derivedUserJson, null, 2);
     const showcaseJsonPretty = JSON.stringify(showcaseUserJson, null, 2);
 

@@ -1,13 +1,12 @@
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { weekdaySerializeWithContext } from './weekday.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -29,14 +28,14 @@ export function weeklyRecurrenceRuleDefaultValue(): WeeklyRecurrenceRule {
 @returns JSON string representation with cycle detection metadata */ export function weeklyRecurrenceRuleSerialize(
     value: WeeklyRecurrenceRule
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(weeklyRecurrenceRuleSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function weeklyRecurrenceRuleSerializeWithContext(
     value: WeeklyRecurrenceRule,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -55,44 +54,50 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function weeklyRecurrenceRuleDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, WeeklyRecurrenceRule> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: WeeklyRecurrenceRule }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = weeklyRecurrenceRuleDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'WeeklyRecurrenceRule.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message:
+                            'WeeklyRecurrenceRule.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function weeklyRecurrenceRuleDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): WeeklyRecurrenceRule | PendingRef {
+    ctx: __mf_DeserializeContext
+): WeeklyRecurrenceRule | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'WeeklyRecurrenceRule.deserializeWithContext: expected an object'
@@ -108,7 +113,7 @@ export function weeklyRecurrenceRuleDeserializeWithContext(
         errors.push({ field: 'weekdays', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -126,18 +131,18 @@ export function weeklyRecurrenceRuleDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as WeeklyRecurrenceRule;
 }
 export function weeklyRecurrenceRuleValidateField<K extends keyof WeeklyRecurrenceRule>(
-    field: K,
-    value: WeeklyRecurrenceRule[K]
+    _field: K,
+    _value: WeeklyRecurrenceRule[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function weeklyRecurrenceRuleValidateFields(
-    partial: Partial<WeeklyRecurrenceRule>
+    _partial: Partial<WeeklyRecurrenceRule>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -153,17 +158,17 @@ export function weeklyRecurrenceRuleIs(obj: unknown): obj is WeeklyRecurrenceRul
         return false;
     }
     const result = weeklyRecurrenceRuleDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type WeeklyRecurrenceRuleErrors = {
-    _errors: Option<Array<string>>;
-    quantityOfWeeks: Option<Array<string>>;
-    weekdays: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    quantityOfWeeks: __gf_Option<Array<string>>;
+    weekdays: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type WeeklyRecurrenceRuleTainted = {
-    quantityOfWeeks: Option<boolean>;
-    weekdays: Option<boolean>;
+    quantityOfWeeks: __gf_Option<boolean>;
+    weekdays: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface WeeklyRecurrenceRuleFieldControllers {
     readonly quantityOfWeeks: FieldController<number>;
@@ -174,7 +179,7 @@ export interface WeeklyRecurrenceRuleGigaform {
     readonly errors: WeeklyRecurrenceRuleErrors;
     readonly tainted: WeeklyRecurrenceRuleTainted;
     readonly fields: WeeklyRecurrenceRuleFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, WeeklyRecurrenceRule>;
+    validate(): Exit<WeeklyRecurrenceRule, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<WeeklyRecurrenceRule>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function weeklyRecurrenceRuleCreateForm(
@@ -201,11 +206,11 @@ export function weeklyRecurrenceRuleCreateForm(
             },
             transform: (value: number): number => value,
             getError: () => errors.quantityOfWeeks,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.quantityOfWeeks = value;
             },
             getTainted: () => tainted.quantityOfWeeks,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.quantityOfWeeks = value;
             },
             validate: (): Array<string> => {
@@ -226,11 +231,11 @@ export function weeklyRecurrenceRuleCreateForm(
             },
             transform: (value: Weekday[]): Weekday[] => value,
             getError: () => errors.weekdays,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.weekdays = value;
             },
             getTainted: () => tainted.weekdays,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.weekdays = value;
             },
             validate: (): Array<string> => {
@@ -247,11 +252,11 @@ export function weeklyRecurrenceRuleCreateForm(
                 },
                 transform: (value: Weekday): Weekday => value,
                 getError: () => errors.weekdays,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.weekdays = value;
                 },
                 getTainted: () => tainted.weekdays,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.weekdays = value;
                 },
                 validate: (): Array<string> => []
@@ -269,7 +274,7 @@ export function weeklyRecurrenceRuleCreateForm(
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, WeeklyRecurrenceRule> {
+    function validate(): Exit<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
         return toExit(weeklyRecurrenceRuleDeserialize(data));
     }
     function reset(newOverrides?: Partial<WeeklyRecurrenceRule>): void {
@@ -303,7 +308,7 @@ export function weeklyRecurrenceRuleCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function weeklyRecurrenceRuleFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, WeeklyRecurrenceRule> {
+): Exit<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const quantityOfWeeksStr = formData.get('quantityOfWeeks');

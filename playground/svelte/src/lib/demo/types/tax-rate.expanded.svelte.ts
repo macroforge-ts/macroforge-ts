@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -53,14 +52,14 @@ export function taxRateDefaultValue(): TaxRate {
 @returns JSON string representation with cycle detection metadata */ export function taxRateSerialize(
     value: TaxRate
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(taxRateSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function taxRateSerializeWithContext(
     value: TaxRate,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -87,44 +86,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function taxRateDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, TaxRate> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: TaxRate }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = taxRateDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'TaxRate.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'TaxRate.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function taxRateDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): TaxRate | PendingRef {
+    ctx: __mf_DeserializeContext
+): TaxRate | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'TaxRate.deserializeWithContext: expected an object' }
         ]);
     }
@@ -161,7 +165,7 @@ export function taxRateDeserializeWithContext(
         errors.push({ field: 'taxComponents', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -227,53 +231,53 @@ export function taxRateDeserializeWithContext(
         instance.taxComponents = __raw_taxComponents;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as TaxRate;
 }
 export function taxRateValidateField<K extends keyof TaxRate>(
-    field: K,
-    value: TaxRate[K]
+    _field: K,
+    _value: TaxRate[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'name': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'name', message: 'must not be empty' });
             }
             break;
         }
         case 'taxAgency': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'taxAgency', message: 'must not be empty' });
             }
             break;
         }
         case 'city': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'city', message: 'must not be empty' });
             }
             break;
         }
         case 'county': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'county', message: 'must not be empty' });
             }
             break;
         }
         case 'state': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'state', message: 'must not be empty' });
             }
             break;
         }
         case 'description': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'description', message: 'must not be empty' });
             }
@@ -283,41 +287,41 @@ export function taxRateValidateField<K extends keyof TaxRate>(
     return errors;
 }
 export function taxRateValidateFields(
-    partial: Partial<TaxRate>
+    _partial: Partial<TaxRate>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('name' in partial && partial.name !== undefined) {
-        const __val = partial.name as string;
+    if ('name' in _partial && _partial.name !== undefined) {
+        const __val = _partial.name as string;
         if (__val.length === 0) {
             errors.push({ field: 'name', message: 'must not be empty' });
         }
     }
-    if ('taxAgency' in partial && partial.taxAgency !== undefined) {
-        const __val = partial.taxAgency as string;
+    if ('taxAgency' in _partial && _partial.taxAgency !== undefined) {
+        const __val = _partial.taxAgency as string;
         if (__val.length === 0) {
             errors.push({ field: 'taxAgency', message: 'must not be empty' });
         }
     }
-    if ('city' in partial && partial.city !== undefined) {
-        const __val = partial.city as string;
+    if ('city' in _partial && _partial.city !== undefined) {
+        const __val = _partial.city as string;
         if (__val.length === 0) {
             errors.push({ field: 'city', message: 'must not be empty' });
         }
     }
-    if ('county' in partial && partial.county !== undefined) {
-        const __val = partial.county as string;
+    if ('county' in _partial && _partial.county !== undefined) {
+        const __val = _partial.county as string;
         if (__val.length === 0) {
             errors.push({ field: 'county', message: 'must not be empty' });
         }
     }
-    if ('state' in partial && partial.state !== undefined) {
-        const __val = partial.state as string;
+    if ('state' in _partial && _partial.state !== undefined) {
+        const __val = _partial.state as string;
         if (__val.length === 0) {
             errors.push({ field: 'state', message: 'must not be empty' });
         }
     }
-    if ('description' in partial && partial.description !== undefined) {
-        const __val = partial.description as string;
+    if ('description' in _partial && _partial.description !== undefined) {
+        const __val = _partial.description as string;
         if (__val.length === 0) {
             errors.push({ field: 'description', message: 'must not be empty' });
         }
@@ -347,33 +351,33 @@ export function taxRateIs(obj: unknown): obj is TaxRate {
         return false;
     }
     const result = taxRateDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type TaxRateErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    name: Option<Array<string>>;
-    taxAgency: Option<Array<string>>;
-    zip: Option<Array<string>>;
-    city: Option<Array<string>>;
-    county: Option<Array<string>>;
-    state: Option<Array<string>>;
-    isActive: Option<Array<string>>;
-    description: Option<Array<string>>;
-    taxComponents: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    name: __gf_Option<Array<string>>;
+    taxAgency: __gf_Option<Array<string>>;
+    zip: __gf_Option<Array<string>>;
+    city: __gf_Option<Array<string>>;
+    county: __gf_Option<Array<string>>;
+    state: __gf_Option<Array<string>>;
+    isActive: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
+    taxComponents: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type TaxRateTainted = {
-    id: Option<boolean>;
-    name: Option<boolean>;
-    taxAgency: Option<boolean>;
-    zip: Option<boolean>;
-    city: Option<boolean>;
-    county: Option<boolean>;
-    state: Option<boolean>;
-    isActive: Option<boolean>;
-    description: Option<boolean>;
-    taxComponents: Option<boolean>;
+    id: __gf_Option<boolean>;
+    name: __gf_Option<boolean>;
+    taxAgency: __gf_Option<boolean>;
+    zip: __gf_Option<boolean>;
+    city: __gf_Option<boolean>;
+    county: __gf_Option<boolean>;
+    state: __gf_Option<boolean>;
+    isActive: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
+    taxComponents: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface TaxRateFieldControllers {
     readonly id: FieldController<string>;
@@ -392,7 +396,7 @@ export interface TaxRateGigaform {
     readonly errors: TaxRateErrors;
     readonly tainted: TaxRateTainted;
     readonly fields: TaxRateFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, TaxRate>;
+    validate(): Exit<TaxRate, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<TaxRate>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform {
@@ -433,11 +437,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -456,11 +460,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.name,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.name = value;
             },
             getTainted: () => tainted.name,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.name = value;
             },
             validate: (): Array<string> => {
@@ -479,11 +483,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.taxAgency,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.taxAgency = value;
             },
             getTainted: () => tainted.taxAgency,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.taxAgency = value;
             },
             validate: (): Array<string> => {
@@ -502,11 +506,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.zip,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.zip = value;
             },
             getTainted: () => tainted.zip,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.zip = value;
             },
             validate: (): Array<string> => {
@@ -525,11 +529,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.city,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.city = value;
             },
             getTainted: () => tainted.city,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.city = value;
             },
             validate: (): Array<string> => {
@@ -548,11 +552,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.county,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.county = value;
             },
             getTainted: () => tainted.county,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.county = value;
             },
             validate: (): Array<string> => {
@@ -571,11 +575,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.state,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.state = value;
             },
             getTainted: () => tainted.state,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.state = value;
             },
             validate: (): Array<string> => {
@@ -594,11 +598,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.isActive,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.isActive = value;
             },
             getTainted: () => tainted.isActive,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.isActive = value;
             },
             validate: (): Array<string> => {
@@ -617,11 +621,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.description,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.description = value;
             },
             getTainted: () => tainted.description,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.description = value;
             },
             validate: (): Array<string> => {
@@ -639,11 +643,11 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             },
             transform: (value: { [key: string]: number }): { [key: string]: number } => value,
             getError: () => errors.taxComponents,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.taxComponents = value;
             },
             getTainted: () => tainted.taxComponents,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.taxComponents = value;
             },
             validate: (): Array<string> => {
@@ -652,7 +656,7 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, TaxRate> {
+    function validate(): Exit<TaxRate, Array<{ field: string; message: string }>> {
         return toExit(taxRateDeserialize(data));
     }
     function reset(newOverrides?: Partial<TaxRate>): void {
@@ -709,7 +713,7 @@ export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function taxRateFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, TaxRate> {
+): Exit<TaxRate, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.name = formData.get('name') ?? '';

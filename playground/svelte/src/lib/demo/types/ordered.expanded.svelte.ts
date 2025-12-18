@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -32,14 +31,14 @@ export function orderedDefaultValue(): Ordered {
 @returns JSON string representation with cycle detection metadata */ export function orderedSerialize(
     value: Ordered
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(orderedSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function orderedSerializeWithContext(
     value: Ordered,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -60,44 +59,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function orderedDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Ordered> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Ordered }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = orderedDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Ordered.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Ordered.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function orderedDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Ordered | PendingRef {
+    ctx: __mf_DeserializeContext
+): Ordered | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Ordered.deserializeWithContext: expected an object' }
         ]);
     }
@@ -116,7 +120,7 @@ export function orderedDeserializeWithContext(
         errors.push({ field: 'date', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -140,18 +144,18 @@ export function orderedDeserializeWithContext(
         instance.date = __raw_date;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Ordered;
 }
 export function orderedValidateField<K extends keyof Ordered>(
-    field: K,
-    value: Ordered[K]
+    _field: K,
+    _value: Ordered[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function orderedValidateFields(
-    partial: Partial<Ordered>
+    _partial: Partial<Ordered>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -167,21 +171,21 @@ export function orderedIs(obj: unknown): obj is Ordered {
         return false;
     }
     const result = orderedDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type OrderedErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    in: Option<Array<string>>;
-    out: Option<Array<string>>;
-    date: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    in: __gf_Option<Array<string>>;
+    out: __gf_Option<Array<string>>;
+    date: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type OrderedTainted = {
-    id: Option<boolean>;
-    in: Option<boolean>;
-    out: Option<boolean>;
-    date: Option<boolean>;
+    id: __gf_Option<boolean>;
+    in: __gf_Option<boolean>;
+    out: __gf_Option<boolean>;
+    date: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface OrderedFieldControllers {
     readonly id: FieldController<string>;
@@ -194,7 +198,7 @@ export interface OrderedGigaform {
     readonly errors: OrderedErrors;
     readonly tainted: OrderedTainted;
     readonly fields: OrderedFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Ordered>;
+    validate(): Exit<Ordered, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Ordered>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform {
@@ -223,11 +227,11 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -245,11 +249,11 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             },
             transform: (value: string | Account): string | Account => value,
             getError: () => errors.in,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.in = value;
             },
             getTainted: () => tainted.in,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.in = value;
             },
             validate: (): Array<string> => {
@@ -267,11 +271,11 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             },
             transform: (value: string | Order): string | Order => value,
             getError: () => errors.out,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.out = value;
             },
             getTainted: () => tainted.out,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.out = value;
             },
             validate: (): Array<string> => {
@@ -289,11 +293,11 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.date,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.date = value;
             },
             getTainted: () => tainted.date,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.date = value;
             },
             validate: (): Array<string> => {
@@ -302,7 +306,7 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Ordered> {
+    function validate(): Exit<Ordered, Array<{ field: string; message: string }>> {
         return toExit(orderedDeserialize(data));
     }
     function reset(newOverrides?: Partial<Ordered>): void {
@@ -342,7 +346,7 @@ export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function orderedFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Ordered> {
+): Exit<Ordered, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.in = formData.get('in') ?? '';

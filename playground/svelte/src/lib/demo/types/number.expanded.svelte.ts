@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -28,14 +27,14 @@ export function numberDefaultValue(): Number {
 @returns JSON string representation with cycle detection metadata */ export function numberSerialize(
     value: Number
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(numberSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function numberSerializeWithContext(
     value: Number,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -55,44 +54,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function numberDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Number> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Number }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = numberDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Number.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Number.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function numberDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Number | PendingRef {
+    ctx: __mf_DeserializeContext
+): Number | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Number.deserializeWithContext: expected an object' }
         ]);
     }
@@ -108,7 +112,7 @@ export function numberDeserializeWithContext(
         errors.push({ field: 'localNumber', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -137,32 +141,32 @@ export function numberDeserializeWithContext(
         instance.localNumber = __raw_localNumber;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Number;
 }
 export function numberValidateField<K extends keyof Number>(
-    field: K,
-    value: Number[K]
+    _field: K,
+    _value: Number[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'countryCode': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'countryCode', message: 'must not be empty' });
             }
             break;
         }
         case 'areaCode': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'areaCode', message: 'must not be empty' });
             }
             break;
         }
         case 'localNumber': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'localNumber', message: 'must not be empty' });
             }
@@ -172,23 +176,23 @@ export function numberValidateField<K extends keyof Number>(
     return errors;
 }
 export function numberValidateFields(
-    partial: Partial<Number>
+    _partial: Partial<Number>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('countryCode' in partial && partial.countryCode !== undefined) {
-        const __val = partial.countryCode as string;
+    if ('countryCode' in _partial && _partial.countryCode !== undefined) {
+        const __val = _partial.countryCode as string;
         if (__val.length === 0) {
             errors.push({ field: 'countryCode', message: 'must not be empty' });
         }
     }
-    if ('areaCode' in partial && partial.areaCode !== undefined) {
-        const __val = partial.areaCode as string;
+    if ('areaCode' in _partial && _partial.areaCode !== undefined) {
+        const __val = _partial.areaCode as string;
         if (__val.length === 0) {
             errors.push({ field: 'areaCode', message: 'must not be empty' });
         }
     }
-    if ('localNumber' in partial && partial.localNumber !== undefined) {
-        const __val = partial.localNumber as string;
+    if ('localNumber' in _partial && _partial.localNumber !== undefined) {
+        const __val = _partial.localNumber as string;
         if (__val.length === 0) {
             errors.push({ field: 'localNumber', message: 'must not be empty' });
         }
@@ -207,19 +211,19 @@ export function numberIs(obj: unknown): obj is Number {
         return false;
     }
     const result = numberDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type NumberErrors = {
-    _errors: Option<Array<string>>;
-    countryCode: Option<Array<string>>;
-    areaCode: Option<Array<string>>;
-    localNumber: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    countryCode: __gf_Option<Array<string>>;
+    areaCode: __gf_Option<Array<string>>;
+    localNumber: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type NumberTainted = {
-    countryCode: Option<boolean>;
-    areaCode: Option<boolean>;
-    localNumber: Option<boolean>;
+    countryCode: __gf_Option<boolean>;
+    areaCode: __gf_Option<boolean>;
+    localNumber: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface NumberFieldControllers {
     readonly countryCode: FieldController<string>;
@@ -231,7 +235,7 @@ export interface NumberGigaform {
     readonly errors: NumberErrors;
     readonly tainted: NumberTainted;
     readonly fields: NumberFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Number>;
+    validate(): Exit<Number, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Number>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
@@ -258,11 +262,11 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.countryCode,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.countryCode = value;
             },
             getTainted: () => tainted.countryCode,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.countryCode = value;
             },
             validate: (): Array<string> => {
@@ -280,11 +284,11 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.areaCode,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.areaCode = value;
             },
             getTainted: () => tainted.areaCode,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.areaCode = value;
             },
             validate: (): Array<string> => {
@@ -302,11 +306,11 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.localNumber,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.localNumber = value;
             },
             getTainted: () => tainted.localNumber,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.localNumber = value;
             },
             validate: (): Array<string> => {
@@ -315,7 +319,7 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Number> {
+    function validate(): Exit<Number, Array<{ field: string; message: string }>> {
         return toExit(numberDeserialize(data));
     }
     function reset(newOverrides?: Partial<Number>): void {
@@ -354,7 +358,7 @@ export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function numberFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Number> {
+): Exit<Number, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.countryCode = formData.get('countryCode') ?? '';
     obj.areaCode = formData.get('areaCode') ?? '';

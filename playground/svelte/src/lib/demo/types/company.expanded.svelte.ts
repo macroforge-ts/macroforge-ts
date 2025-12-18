@@ -1,16 +1,15 @@
 import { colorsConfigDefaultValue } from './colors-config.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { colorsConfigSerializeWithContext } from './colors-config.svelte';
 import { phoneNumberSerializeWithContext } from './phone-number.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { colorsConfigDeserializeWithContext } from './colors-config.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -105,14 +104,14 @@ export function companyDefaultValue(): Company {
 @returns JSON string representation with cycle detection metadata */ export function companySerialize(
     value: Company
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(companySerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function companySerializeWithContext(
     value: Company,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -158,44 +157,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function companyDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Company> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Company }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = companyDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Company.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Company.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function companyDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Company | PendingRef {
+    ctx: __mf_DeserializeContext
+): Company | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Company.deserializeWithContext: expected an object' }
         ]);
     }
@@ -295,7 +299,7 @@ export function companyDeserializeWithContext(
         errors.push({ field: 'colorsConfig', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -461,88 +465,88 @@ export function companyDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Company;
 }
 export function companyValidateField<K extends keyof Company>(
-    field: K,
-    value: Company[K]
+    _field: K,
+    _value: Company[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'legalName': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'legalName', message: 'must not be empty' });
             }
             break;
         }
         case 'fax': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'fax', message: 'must not be empty' });
             }
             break;
         }
         case 'email': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'email', message: 'must not be empty' });
             }
             break;
         }
         case 'website': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'website', message: 'must not be empty' });
             }
             break;
         }
         case 'taxId': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'taxId', message: 'must not be empty' });
             }
             break;
         }
         case 'postalCodeLookup': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'postalCodeLookup', message: 'must not be empty' });
             }
             break;
         }
         case 'defaultTaxLocation': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'defaultTaxLocation', message: 'must not be empty' });
             }
             break;
         }
         case 'defaultAccountType': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'defaultAccountType', message: 'must not be empty' });
             }
             break;
         }
         case 'lookupFormatting': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'lookupFormatting', message: 'must not be empty' });
             }
             break;
         }
         case 'accountNameFormat': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'accountNameFormat', message: 'must not be empty' });
             }
             break;
         }
         case 'dateDisplayStyle': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'dateDisplayStyle', message: 'must not be empty' });
             }
@@ -552,71 +556,71 @@ export function companyValidateField<K extends keyof Company>(
     return errors;
 }
 export function companyValidateFields(
-    partial: Partial<Company>
+    _partial: Partial<Company>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('legalName' in partial && partial.legalName !== undefined) {
-        const __val = partial.legalName as string;
+    if ('legalName' in _partial && _partial.legalName !== undefined) {
+        const __val = _partial.legalName as string;
         if (__val.length === 0) {
             errors.push({ field: 'legalName', message: 'must not be empty' });
         }
     }
-    if ('fax' in partial && partial.fax !== undefined) {
-        const __val = partial.fax as string;
+    if ('fax' in _partial && _partial.fax !== undefined) {
+        const __val = _partial.fax as string;
         if (__val.length === 0) {
             errors.push({ field: 'fax', message: 'must not be empty' });
         }
     }
-    if ('email' in partial && partial.email !== undefined) {
-        const __val = partial.email as string;
+    if ('email' in _partial && _partial.email !== undefined) {
+        const __val = _partial.email as string;
         if (__val.length === 0) {
             errors.push({ field: 'email', message: 'must not be empty' });
         }
     }
-    if ('website' in partial && partial.website !== undefined) {
-        const __val = partial.website as string;
+    if ('website' in _partial && _partial.website !== undefined) {
+        const __val = _partial.website as string;
         if (__val.length === 0) {
             errors.push({ field: 'website', message: 'must not be empty' });
         }
     }
-    if ('taxId' in partial && partial.taxId !== undefined) {
-        const __val = partial.taxId as string;
+    if ('taxId' in _partial && _partial.taxId !== undefined) {
+        const __val = _partial.taxId as string;
         if (__val.length === 0) {
             errors.push({ field: 'taxId', message: 'must not be empty' });
         }
     }
-    if ('postalCodeLookup' in partial && partial.postalCodeLookup !== undefined) {
-        const __val = partial.postalCodeLookup as string;
+    if ('postalCodeLookup' in _partial && _partial.postalCodeLookup !== undefined) {
+        const __val = _partial.postalCodeLookup as string;
         if (__val.length === 0) {
             errors.push({ field: 'postalCodeLookup', message: 'must not be empty' });
         }
     }
-    if ('defaultTaxLocation' in partial && partial.defaultTaxLocation !== undefined) {
-        const __val = partial.defaultTaxLocation as string;
+    if ('defaultTaxLocation' in _partial && _partial.defaultTaxLocation !== undefined) {
+        const __val = _partial.defaultTaxLocation as string;
         if (__val.length === 0) {
             errors.push({ field: 'defaultTaxLocation', message: 'must not be empty' });
         }
     }
-    if ('defaultAccountType' in partial && partial.defaultAccountType !== undefined) {
-        const __val = partial.defaultAccountType as string;
+    if ('defaultAccountType' in _partial && _partial.defaultAccountType !== undefined) {
+        const __val = _partial.defaultAccountType as string;
         if (__val.length === 0) {
             errors.push({ field: 'defaultAccountType', message: 'must not be empty' });
         }
     }
-    if ('lookupFormatting' in partial && partial.lookupFormatting !== undefined) {
-        const __val = partial.lookupFormatting as string;
+    if ('lookupFormatting' in _partial && _partial.lookupFormatting !== undefined) {
+        const __val = _partial.lookupFormatting as string;
         if (__val.length === 0) {
             errors.push({ field: 'lookupFormatting', message: 'must not be empty' });
         }
     }
-    if ('accountNameFormat' in partial && partial.accountNameFormat !== undefined) {
-        const __val = partial.accountNameFormat as string;
+    if ('accountNameFormat' in _partial && _partial.accountNameFormat !== undefined) {
+        const __val = _partial.accountNameFormat as string;
         if (__val.length === 0) {
             errors.push({ field: 'accountNameFormat', message: 'must not be empty' });
         }
     }
-    if ('dateDisplayStyle' in partial && partial.dateDisplayStyle !== undefined) {
-        const __val = partial.dateDisplayStyle as string;
+    if ('dateDisplayStyle' in _partial && _partial.dateDisplayStyle !== undefined) {
+        const __val = _partial.dateDisplayStyle as string;
         if (__val.length === 0) {
             errors.push({ field: 'dateDisplayStyle', message: 'must not be empty' });
         }
@@ -665,71 +669,71 @@ export function companyIs(obj: unknown): obj is Company {
         return false;
     }
     const result = companyDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type CompanyErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    legalName: Option<Array<string>>;
-    headquarters: Option<Array<string>>;
-    phones: Option<Array<string>>;
-    fax: Option<Array<string>>;
-    email: Option<Array<string>>;
-    website: Option<Array<string>>;
-    taxId: Option<Array<string>>;
-    referenceNumber: Option<Array<string>>;
-    postalCodeLookup: Option<Array<string>>;
-    timeZone: Option<Array<string>>;
-    defaultTax: Option<Array<string>>;
-    defaultTaxLocation: Option<Array<string>>;
-    defaultAreaCode: Option<Array<string>>;
-    defaultAccountType: Option<Array<string>>;
-    lookupFormatting: Option<Array<string>>;
-    accountNameFormat: Option<Array<string>>;
-    merchantServiceProvider: Option<Array<string>>;
-    dateDisplayStyle: Option<Array<string>>;
-    hasAutoCommission: Option<Array<string>>;
-    hasAutoDaylightSavings: Option<Array<string>>;
-    hasAutoFmsTracking: Option<Array<string>>;
-    hasNotifications: Option<Array<string>>;
-    hasRequiredLeadSource: Option<Array<string>>;
-    hasRequiredEmail: Option<Array<string>>;
-    hasSortServiceItemsAlphabetically: Option<Array<string>>;
-    hasAttachOrderToAppointmentEmails: Option<Array<string>>;
-    scheduleInterval: Option<Array<string>>;
-    colorsConfig: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    legalName: __gf_Option<Array<string>>;
+    headquarters: __gf_Option<Array<string>>;
+    phones: __gf_Option<Array<string>>;
+    fax: __gf_Option<Array<string>>;
+    email: __gf_Option<Array<string>>;
+    website: __gf_Option<Array<string>>;
+    taxId: __gf_Option<Array<string>>;
+    referenceNumber: __gf_Option<Array<string>>;
+    postalCodeLookup: __gf_Option<Array<string>>;
+    timeZone: __gf_Option<Array<string>>;
+    defaultTax: __gf_Option<Array<string>>;
+    defaultTaxLocation: __gf_Option<Array<string>>;
+    defaultAreaCode: __gf_Option<Array<string>>;
+    defaultAccountType: __gf_Option<Array<string>>;
+    lookupFormatting: __gf_Option<Array<string>>;
+    accountNameFormat: __gf_Option<Array<string>>;
+    merchantServiceProvider: __gf_Option<Array<string>>;
+    dateDisplayStyle: __gf_Option<Array<string>>;
+    hasAutoCommission: __gf_Option<Array<string>>;
+    hasAutoDaylightSavings: __gf_Option<Array<string>>;
+    hasAutoFmsTracking: __gf_Option<Array<string>>;
+    hasNotifications: __gf_Option<Array<string>>;
+    hasRequiredLeadSource: __gf_Option<Array<string>>;
+    hasRequiredEmail: __gf_Option<Array<string>>;
+    hasSortServiceItemsAlphabetically: __gf_Option<Array<string>>;
+    hasAttachOrderToAppointmentEmails: __gf_Option<Array<string>>;
+    scheduleInterval: __gf_Option<Array<string>>;
+    colorsConfig: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type CompanyTainted = {
-    id: Option<boolean>;
-    legalName: Option<boolean>;
-    headquarters: Option<boolean>;
-    phones: Option<boolean>;
-    fax: Option<boolean>;
-    email: Option<boolean>;
-    website: Option<boolean>;
-    taxId: Option<boolean>;
-    referenceNumber: Option<boolean>;
-    postalCodeLookup: Option<boolean>;
-    timeZone: Option<boolean>;
-    defaultTax: Option<boolean>;
-    defaultTaxLocation: Option<boolean>;
-    defaultAreaCode: Option<boolean>;
-    defaultAccountType: Option<boolean>;
-    lookupFormatting: Option<boolean>;
-    accountNameFormat: Option<boolean>;
-    merchantServiceProvider: Option<boolean>;
-    dateDisplayStyle: Option<boolean>;
-    hasAutoCommission: Option<boolean>;
-    hasAutoDaylightSavings: Option<boolean>;
-    hasAutoFmsTracking: Option<boolean>;
-    hasNotifications: Option<boolean>;
-    hasRequiredLeadSource: Option<boolean>;
-    hasRequiredEmail: Option<boolean>;
-    hasSortServiceItemsAlphabetically: Option<boolean>;
-    hasAttachOrderToAppointmentEmails: Option<boolean>;
-    scheduleInterval: Option<boolean>;
-    colorsConfig: Option<boolean>;
+    id: __gf_Option<boolean>;
+    legalName: __gf_Option<boolean>;
+    headquarters: __gf_Option<boolean>;
+    phones: __gf_Option<boolean>;
+    fax: __gf_Option<boolean>;
+    email: __gf_Option<boolean>;
+    website: __gf_Option<boolean>;
+    taxId: __gf_Option<boolean>;
+    referenceNumber: __gf_Option<boolean>;
+    postalCodeLookup: __gf_Option<boolean>;
+    timeZone: __gf_Option<boolean>;
+    defaultTax: __gf_Option<boolean>;
+    defaultTaxLocation: __gf_Option<boolean>;
+    defaultAreaCode: __gf_Option<boolean>;
+    defaultAccountType: __gf_Option<boolean>;
+    lookupFormatting: __gf_Option<boolean>;
+    accountNameFormat: __gf_Option<boolean>;
+    merchantServiceProvider: __gf_Option<boolean>;
+    dateDisplayStyle: __gf_Option<boolean>;
+    hasAutoCommission: __gf_Option<boolean>;
+    hasAutoDaylightSavings: __gf_Option<boolean>;
+    hasAutoFmsTracking: __gf_Option<boolean>;
+    hasNotifications: __gf_Option<boolean>;
+    hasRequiredLeadSource: __gf_Option<boolean>;
+    hasRequiredEmail: __gf_Option<boolean>;
+    hasSortServiceItemsAlphabetically: __gf_Option<boolean>;
+    hasAttachOrderToAppointmentEmails: __gf_Option<boolean>;
+    scheduleInterval: __gf_Option<boolean>;
+    colorsConfig: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface CompanyFieldControllers {
     readonly id: FieldController<string>;
@@ -767,7 +771,7 @@ export interface CompanyGigaform {
     readonly errors: CompanyErrors;
     readonly tainted: CompanyTainted;
     readonly fields: CompanyFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Company>;
+    validate(): Exit<Company, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Company>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform {
@@ -846,11 +850,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -868,11 +872,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.legalName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.legalName = value;
             },
             getTainted: () => tainted.legalName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.legalName = value;
             },
             validate: (): Array<string> => {
@@ -890,11 +894,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string | Site): string | Site => value,
             getError: () => errors.headquarters,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.headquarters = value;
             },
             getTainted: () => tainted.headquarters,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.headquarters = value;
             },
             validate: (): Array<string> => {
@@ -912,11 +916,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: PhoneNumber[]): PhoneNumber[] => value,
             getError: () => errors.phones,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.phones = value;
             },
             getTainted: () => tainted.phones,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.phones = value;
             },
             validate: (): Array<string> => {
@@ -933,11 +937,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
                 },
                 transform: (value: PhoneNumber): PhoneNumber => value,
                 getError: () => errors.phones,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.phones = value;
                 },
                 getTainted: () => tainted.phones,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.phones = value;
                 },
                 validate: (): Array<string> => []
@@ -964,11 +968,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.fax,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.fax = value;
             },
             getTainted: () => tainted.fax,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.fax = value;
             },
             validate: (): Array<string> => {
@@ -986,11 +990,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.email,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.email = value;
             },
             getTainted: () => tainted.email,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.email = value;
             },
             validate: (): Array<string> => {
@@ -1008,11 +1012,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.website,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.website = value;
             },
             getTainted: () => tainted.website,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.website = value;
             },
             validate: (): Array<string> => {
@@ -1030,11 +1034,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.taxId,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.taxId = value;
             },
             getTainted: () => tainted.taxId,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.taxId = value;
             },
             validate: (): Array<string> => {
@@ -1052,11 +1056,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.referenceNumber,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.referenceNumber = value;
             },
             getTainted: () => tainted.referenceNumber,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.referenceNumber = value;
             },
             validate: (): Array<string> => {
@@ -1074,11 +1078,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.postalCodeLookup,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.postalCodeLookup = value;
             },
             getTainted: () => tainted.postalCodeLookup,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.postalCodeLookup = value;
             },
             validate: (): Array<string> => {
@@ -1096,11 +1100,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.timeZone,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.timeZone = value;
             },
             getTainted: () => tainted.timeZone,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.timeZone = value;
             },
             validate: (): Array<string> => {
@@ -1118,11 +1122,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string | TaxRate): string | TaxRate => value,
             getError: () => errors.defaultTax,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.defaultTax = value;
             },
             getTainted: () => tainted.defaultTax,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.defaultTax = value;
             },
             validate: (): Array<string> => {
@@ -1140,11 +1144,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.defaultTaxLocation,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.defaultTaxLocation = value;
             },
             getTainted: () => tainted.defaultTaxLocation,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.defaultTaxLocation = value;
             },
             validate: (): Array<string> => {
@@ -1165,11 +1169,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.defaultAreaCode,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.defaultAreaCode = value;
             },
             getTainted: () => tainted.defaultAreaCode,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.defaultAreaCode = value;
             },
             validate: (): Array<string> => {
@@ -1187,11 +1191,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.defaultAccountType,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.defaultAccountType = value;
             },
             getTainted: () => tainted.defaultAccountType,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.defaultAccountType = value;
             },
             validate: (): Array<string> => {
@@ -1212,11 +1216,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.lookupFormatting,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.lookupFormatting = value;
             },
             getTainted: () => tainted.lookupFormatting,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.lookupFormatting = value;
             },
             validate: (): Array<string> => {
@@ -1234,11 +1238,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.accountNameFormat,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.accountNameFormat = value;
             },
             getTainted: () => tainted.accountNameFormat,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.accountNameFormat = value;
             },
             validate: (): Array<string> => {
@@ -1259,11 +1263,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.merchantServiceProvider,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.merchantServiceProvider = value;
             },
             getTainted: () => tainted.merchantServiceProvider,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.merchantServiceProvider = value;
             },
             validate: (): Array<string> => {
@@ -1284,11 +1288,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: string): string => value,
             getError: () => errors.dateDisplayStyle,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.dateDisplayStyle = value;
             },
             getTainted: () => tainted.dateDisplayStyle,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.dateDisplayStyle = value;
             },
             validate: (): Array<string> => {
@@ -1306,11 +1310,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.hasAutoCommission,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hasAutoCommission = value;
             },
             getTainted: () => tainted.hasAutoCommission,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hasAutoCommission = value;
             },
             validate: (): Array<string> => {
@@ -1331,11 +1335,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.hasAutoDaylightSavings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hasAutoDaylightSavings = value;
             },
             getTainted: () => tainted.hasAutoDaylightSavings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hasAutoDaylightSavings = value;
             },
             validate: (): Array<string> => {
@@ -1356,11 +1360,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.hasAutoFmsTracking,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hasAutoFmsTracking = value;
             },
             getTainted: () => tainted.hasAutoFmsTracking,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hasAutoFmsTracking = value;
             },
             validate: (): Array<string> => {
@@ -1381,11 +1385,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.hasNotifications,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hasNotifications = value;
             },
             getTainted: () => tainted.hasNotifications,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hasNotifications = value;
             },
             validate: (): Array<string> => {
@@ -1403,11 +1407,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.hasRequiredLeadSource,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hasRequiredLeadSource = value;
             },
             getTainted: () => tainted.hasRequiredLeadSource,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hasRequiredLeadSource = value;
             },
             validate: (): Array<string> => {
@@ -1428,11 +1432,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.hasRequiredEmail,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hasRequiredEmail = value;
             },
             getTainted: () => tainted.hasRequiredEmail,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hasRequiredEmail = value;
             },
             validate: (): Array<string> => {
@@ -1450,11 +1454,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.hasSortServiceItemsAlphabetically,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hasSortServiceItemsAlphabetically = value;
             },
             getTainted: () => tainted.hasSortServiceItemsAlphabetically,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hasSortServiceItemsAlphabetically = value;
             },
             validate: (): Array<string> => {
@@ -1475,11 +1479,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.hasAttachOrderToAppointmentEmails,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hasAttachOrderToAppointmentEmails = value;
             },
             getTainted: () => tainted.hasAttachOrderToAppointmentEmails,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hasAttachOrderToAppointmentEmails = value;
             },
             validate: (): Array<string> => {
@@ -1500,11 +1504,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.scheduleInterval,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.scheduleInterval = value;
             },
             getTainted: () => tainted.scheduleInterval,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.scheduleInterval = value;
             },
             validate: (): Array<string> => {
@@ -1522,11 +1526,11 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             },
             transform: (value: ColorsConfig): ColorsConfig => value,
             getError: () => errors.colorsConfig,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.colorsConfig = value;
             },
             getTainted: () => tainted.colorsConfig,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.colorsConfig = value;
             },
             validate: (): Array<string> => {
@@ -1535,7 +1539,7 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Company> {
+    function validate(): Exit<Company, Array<{ field: string; message: string }>> {
         return toExit(companyDeserialize(data));
     }
     function reset(newOverrides?: Partial<Company>): void {
@@ -1630,7 +1634,7 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function companyFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Company> {
+): Exit<Company, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.legalName = formData.get('legalName') ?? '';

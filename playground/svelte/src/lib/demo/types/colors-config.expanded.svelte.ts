@@ -1,17 +1,16 @@
 import { gradientDefaultValue } from './gradient.svelte';
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { cardinalDeserializeWithContext } from './cardinal.svelte';
 import { customDeserializeWithContext } from './custom.svelte';
 import { gradientDeserializeWithContext } from './gradient.svelte';
 import { ordinalDeserializeWithContext } from './ordinal.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { cardinalDefaultValue } from './cardinal.svelte';
@@ -35,14 +34,14 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 @returns JSON string representation with cycle detection metadata */ export function colorsConfigSerialize(
     value: ColorsConfig
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(colorsConfigSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function colorsConfigSerializeWithContext(
     value: ColorsConfig,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
@@ -56,50 +55,55 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function colorsConfigDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, ColorsConfig> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: ColorsConfig }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = colorsConfigDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'ColorsConfig.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'ColorsConfig.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function colorsConfigDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): ColorsConfig | PendingRef {
+    ctx: __mf_DeserializeContext
+): ColorsConfig | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as ColorsConfig | PendingRef;
+        return ctx.getOrDefer(value.__ref) as ColorsConfig | __mf_PendingRef;
     }
     if (typeof value !== 'object' || value === null) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'ColorsConfig.deserializeWithContext: expected an object' }
         ]);
     }
     const __typeName = (value as any).__type;
     if (typeof __typeName !== 'string') {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -119,7 +123,7 @@ export function colorsConfigDeserializeWithContext(
     if (__typeName === 'Gradient') {
         return gradientDeserializeWithContext(value, ctx) as ColorsConfig;
     }
-    throw new DeserializeError([
+    throw new __mf_DeserializeError([
         {
             field: '_root',
             message:
@@ -143,12 +147,12 @@ export function colorsConfigIs(value: unknown): value is ColorsConfig {
 }
 
 /** Per-variant error types */ export type ColorsConfigCardinalErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
-export type ColorsConfigOrdinalErrors = { _errors: Option<Array<string>> };
-export type ColorsConfigCustomErrors = { _errors: Option<Array<string>> };
+export type ColorsConfigOrdinalErrors = { _errors: __gf_Option<Array<string>> };
+export type ColorsConfigCustomErrors = { _errors: __gf_Option<Array<string>> };
 export type ColorsConfigGradientErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type ColorsConfigCardinalTainted = {};
 export type ColorsConfigOrdinalTainted = {};
@@ -177,7 +181,7 @@ export interface ColorsConfigGigaform {
     readonly tainted: ColorsConfigTainted;
     readonly variants: ColorsConfigVariantFields;
     switchVariant(variant: 'Cardinal' | 'Ordinal' | 'Custom' | 'Gradient'): void;
-    validate(): Exit<Array<{ field: string; message: string }>, ColorsConfig>;
+    validate(): Exit<ColorsConfig, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<ColorsConfig>): void;
 } /** Variant fields container */
 export interface ColorsConfigVariantFields {
@@ -218,7 +222,7 @@ export function colorsConfigCreateForm(initial?: ColorsConfig): ColorsConfigGiga
         errors = {} as ColorsConfigErrors;
         tainted = {} as ColorsConfigTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, ColorsConfig> {
+    function validate(): Exit<ColorsConfig, Array<{ field: string; message: string }>> {
         return toExit(colorsConfigDeserialize(data));
     }
     function reset(overrides?: Partial<ColorsConfig>): void {
@@ -258,7 +262,7 @@ export function colorsConfigCreateForm(initial?: ColorsConfig): ColorsConfigGiga
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function colorsConfigFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, ColorsConfig> {
+): Exit<ColorsConfig, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_type') as
         | 'Cardinal'
         | 'Ordinal'

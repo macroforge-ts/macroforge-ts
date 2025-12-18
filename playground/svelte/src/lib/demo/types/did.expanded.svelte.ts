@@ -1,15 +1,14 @@
 import { activityTypeDefaultValue } from './activity-type.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { activityTypeSerializeWithContext } from './activity-type.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { activityTypeDeserializeWithContext } from './activity-type.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -44,14 +43,14 @@ export function didDefaultValue(): Did {
 @returns JSON string representation with cycle detection metadata */ export function didSerialize(
     value: Did
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(didSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function didSerializeWithContext(
     value: Did,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -74,38 +73,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function didDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Did> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Did }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = didDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'Did.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Did.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function didDeserializeWithContext(value: any, ctx: DeserializeContext): Did | PendingRef {
+export function didDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): Did | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Did.deserializeWithContext: expected an object' }
         ]);
     }
@@ -130,7 +140,7 @@ export function didDeserializeWithContext(value: any, ctx: DeserializeContext): 
         errors.push({ field: 'metadata', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -165,18 +175,18 @@ export function didDeserializeWithContext(value: any, ctx: DeserializeContext): 
         instance.metadata = __raw_metadata;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Did;
 }
 export function didValidateField<K extends keyof Did>(
-    field: K,
-    value: Did[K]
+    _field: K,
+    _value: Did[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function didValidateFields(
-    partial: Partial<Did>
+    _partial: Partial<Did>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -199,25 +209,25 @@ export function didIs(obj: unknown): obj is Did {
         return false;
     }
     const result = didDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type DidErrors = {
-    _errors: Option<Array<string>>;
-    in: Option<Array<string>>;
-    out: Option<Array<string>>;
-    id: Option<Array<string>>;
-    activityType: Option<Array<string>>;
-    createdAt: Option<Array<string>>;
-    metadata: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    in: __gf_Option<Array<string>>;
+    out: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    activityType: __gf_Option<Array<string>>;
+    createdAt: __gf_Option<Array<string>>;
+    metadata: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type DidTainted = {
-    in: Option<boolean>;
-    out: Option<boolean>;
-    id: Option<boolean>;
-    activityType: Option<boolean>;
-    createdAt: Option<boolean>;
-    metadata: Option<boolean>;
+    in: __gf_Option<boolean>;
+    out: __gf_Option<boolean>;
+    id: __gf_Option<boolean>;
+    activityType: __gf_Option<boolean>;
+    createdAt: __gf_Option<boolean>;
+    metadata: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface DidFieldControllers {
     readonly in: FieldController<string | Actor>;
@@ -232,7 +242,7 @@ export interface DidGigaform {
     readonly errors: DidErrors;
     readonly tainted: DidTainted;
     readonly fields: DidFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Did>;
+    validate(): Exit<Did, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Did>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function didCreateForm(overrides?: Partial<Did>): DidGigaform {
@@ -265,11 +275,11 @@ export function didCreateForm(overrides?: Partial<Did>): DidGigaform {
             },
             transform: (value: string | Actor): string | Actor => value,
             getError: () => errors.in,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.in = value;
             },
             getTainted: () => tainted.in,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.in = value;
             },
             validate: (): Array<string> => {
@@ -287,11 +297,11 @@ export function didCreateForm(overrides?: Partial<Did>): DidGigaform {
             },
             transform: (value: string | Target): string | Target => value,
             getError: () => errors.out,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.out = value;
             },
             getTainted: () => tainted.out,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.out = value;
             },
             validate: (): Array<string> => {
@@ -309,11 +319,11 @@ export function didCreateForm(overrides?: Partial<Did>): DidGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -331,11 +341,11 @@ export function didCreateForm(overrides?: Partial<Did>): DidGigaform {
             },
             transform: (value: ActivityType): ActivityType => value,
             getError: () => errors.activityType,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.activityType = value;
             },
             getTainted: () => tainted.activityType,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.activityType = value;
             },
             validate: (): Array<string> => {
@@ -353,11 +363,11 @@ export function didCreateForm(overrides?: Partial<Did>): DidGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.createdAt,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.createdAt = value;
             },
             getTainted: () => tainted.createdAt,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.createdAt = value;
             },
             validate: (): Array<string> => {
@@ -375,11 +385,11 @@ export function didCreateForm(overrides?: Partial<Did>): DidGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.metadata,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.metadata = value;
             },
             getTainted: () => tainted.metadata,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.metadata = value;
             },
             validate: (): Array<string> => {
@@ -388,7 +398,7 @@ export function didCreateForm(overrides?: Partial<Did>): DidGigaform {
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Did> {
+    function validate(): Exit<Did, Array<{ field: string; message: string }>> {
         return toExit(didDeserialize(data));
     }
     function reset(newOverrides?: Partial<Did>): void {
@@ -437,7 +447,7 @@ export function didCreateForm(overrides?: Partial<Did>): DidGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function didFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Did> {
+): Exit<Did, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.in = formData.get('in') ?? '';
     obj.out = formData.get('out') ?? '';

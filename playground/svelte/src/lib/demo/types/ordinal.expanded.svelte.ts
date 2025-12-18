@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -40,14 +39,14 @@ export function ordinalDefaultValue(): Ordinal {
 @returns JSON string representation with cycle detection metadata */ export function ordinalSerialize(
     value: Ordinal
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(ordinalSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function ordinalSerializeWithContext(
     value: Ordinal,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -72,44 +71,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function ordinalDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Ordinal> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Ordinal }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = ordinalDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Ordinal.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Ordinal.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function ordinalDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Ordinal | PendingRef {
+    ctx: __mf_DeserializeContext
+): Ordinal | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Ordinal.deserializeWithContext: expected an object' }
         ]);
     }
@@ -140,7 +144,7 @@ export function ordinalDeserializeWithContext(
         errors.push({ field: 'northwest', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -180,18 +184,18 @@ export function ordinalDeserializeWithContext(
         instance.northwest = __raw_northwest;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Ordinal;
 }
 export function ordinalValidateField<K extends keyof Ordinal>(
-    field: K,
-    value: Ordinal[K]
+    _field: K,
+    _value: Ordinal[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function ordinalValidateFields(
-    partial: Partial<Ordinal>
+    _partial: Partial<Ordinal>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -216,29 +220,29 @@ export function ordinalIs(obj: unknown): obj is Ordinal {
         return false;
     }
     const result = ordinalDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type OrdinalErrors = {
-    _errors: Option<Array<string>>;
-    north: Option<Array<string>>;
-    northeast: Option<Array<string>>;
-    east: Option<Array<string>>;
-    southeast: Option<Array<string>>;
-    south: Option<Array<string>>;
-    southwest: Option<Array<string>>;
-    west: Option<Array<string>>;
-    northwest: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    north: __gf_Option<Array<string>>;
+    northeast: __gf_Option<Array<string>>;
+    east: __gf_Option<Array<string>>;
+    southeast: __gf_Option<Array<string>>;
+    south: __gf_Option<Array<string>>;
+    southwest: __gf_Option<Array<string>>;
+    west: __gf_Option<Array<string>>;
+    northwest: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type OrdinalTainted = {
-    north: Option<boolean>;
-    northeast: Option<boolean>;
-    east: Option<boolean>;
-    southeast: Option<boolean>;
-    south: Option<boolean>;
-    southwest: Option<boolean>;
-    west: Option<boolean>;
-    northwest: Option<boolean>;
+    north: __gf_Option<boolean>;
+    northeast: __gf_Option<boolean>;
+    east: __gf_Option<boolean>;
+    southeast: __gf_Option<boolean>;
+    south: __gf_Option<boolean>;
+    southwest: __gf_Option<boolean>;
+    west: __gf_Option<boolean>;
+    northwest: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface OrdinalFieldControllers {
     readonly north: FieldController<number>;
@@ -255,7 +259,7 @@ export interface OrdinalGigaform {
     readonly errors: OrdinalErrors;
     readonly tainted: OrdinalTainted;
     readonly fields: OrdinalFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Ordinal>;
+    validate(): Exit<Ordinal, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Ordinal>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform {
@@ -292,11 +296,11 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.north,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.north = value;
             },
             getTainted: () => tainted.north,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.north = value;
             },
             validate: (): Array<string> => {
@@ -314,11 +318,11 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.northeast,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.northeast = value;
             },
             getTainted: () => tainted.northeast,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.northeast = value;
             },
             validate: (): Array<string> => {
@@ -336,11 +340,11 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.east,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.east = value;
             },
             getTainted: () => tainted.east,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.east = value;
             },
             validate: (): Array<string> => {
@@ -358,11 +362,11 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.southeast,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.southeast = value;
             },
             getTainted: () => tainted.southeast,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.southeast = value;
             },
             validate: (): Array<string> => {
@@ -380,11 +384,11 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.south,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.south = value;
             },
             getTainted: () => tainted.south,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.south = value;
             },
             validate: (): Array<string> => {
@@ -402,11 +406,11 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.southwest,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.southwest = value;
             },
             getTainted: () => tainted.southwest,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.southwest = value;
             },
             validate: (): Array<string> => {
@@ -424,11 +428,11 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.west,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.west = value;
             },
             getTainted: () => tainted.west,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.west = value;
             },
             validate: (): Array<string> => {
@@ -446,11 +450,11 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             },
             transform: (value: number): number => value,
             getError: () => errors.northwest,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.northwest = value;
             },
             getTainted: () => tainted.northwest,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.northwest = value;
             },
             validate: (): Array<string> => {
@@ -459,7 +463,7 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Ordinal> {
+    function validate(): Exit<Ordinal, Array<{ field: string; message: string }>> {
         return toExit(ordinalDeserialize(data));
     }
     function reset(newOverrides?: Partial<Ordinal>): void {
@@ -512,7 +516,7 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function ordinalFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Ordinal> {
+): Exit<Ordinal, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const northStr = formData.get('north');

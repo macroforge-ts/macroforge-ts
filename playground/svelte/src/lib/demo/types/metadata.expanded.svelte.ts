@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -28,14 +27,14 @@ export function metadataDefaultValue(): Metadata {
 @returns JSON string representation with cycle detection metadata */ export function metadataSerialize(
     value: Metadata
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(metadataSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function metadataSerializeWithContext(
     value: Metadata,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -56,44 +55,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function metadataDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Metadata> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Metadata }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = metadataDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Metadata.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Metadata.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function metadataDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Metadata | PendingRef {
+    ctx: __mf_DeserializeContext
+): Metadata | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Metadata.deserializeWithContext: expected an object' }
         ]);
     }
@@ -112,7 +116,7 @@ export function metadataDeserializeWithContext(
         errors.push({ field: 'roles', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -138,18 +142,18 @@ export function metadataDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Metadata;
 }
 export function metadataValidateField<K extends keyof Metadata>(
-    field: K,
-    value: Metadata[K]
+    _field: K,
+    _value: Metadata[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function metadataValidateFields(
-    partial: Partial<Metadata>
+    _partial: Partial<Metadata>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -165,21 +169,21 @@ export function metadataIs(obj: unknown): obj is Metadata {
         return false;
     }
     const result = metadataDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type MetadataErrors = {
-    _errors: Option<Array<string>>;
-    createdAt: Option<Array<string>>;
-    lastLogin: Option<Array<string>>;
-    isActive: Option<Array<string>>;
-    roles: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    createdAt: __gf_Option<Array<string>>;
+    lastLogin: __gf_Option<Array<string>>;
+    isActive: __gf_Option<Array<string>>;
+    roles: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type MetadataTainted = {
-    createdAt: Option<boolean>;
-    lastLogin: Option<boolean>;
-    isActive: Option<boolean>;
-    roles: Option<boolean>;
+    createdAt: __gf_Option<boolean>;
+    lastLogin: __gf_Option<boolean>;
+    isActive: __gf_Option<boolean>;
+    roles: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface MetadataFieldControllers {
     readonly createdAt: FieldController<string>;
@@ -192,7 +196,7 @@ export interface MetadataGigaform {
     readonly errors: MetadataErrors;
     readonly tainted: MetadataTainted;
     readonly fields: MetadataFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Metadata>;
+    validate(): Exit<Metadata, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Metadata>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaform {
@@ -221,11 +225,11 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
             },
             transform: (value: string): string => value,
             getError: () => errors.createdAt,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.createdAt = value;
             },
             getTainted: () => tainted.createdAt,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.createdAt = value;
             },
             validate: (): Array<string> => {
@@ -243,11 +247,11 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.lastLogin,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.lastLogin = value;
             },
             getTainted: () => tainted.lastLogin,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.lastLogin = value;
             },
             validate: (): Array<string> => {
@@ -265,11 +269,11 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.isActive,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.isActive = value;
             },
             getTainted: () => tainted.isActive,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.isActive = value;
             },
             validate: (): Array<string> => {
@@ -287,11 +291,11 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
             },
             transform: (value: string[]): string[] => value,
             getError: () => errors.roles,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.roles = value;
             },
             getTainted: () => tainted.roles,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.roles = value;
             },
             validate: (): Array<string> => {
@@ -308,11 +312,11 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
                 },
                 transform: (value: string): string => value,
                 getError: () => errors.roles,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.roles = value;
                 },
                 getTainted: () => tainted.roles,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.roles = value;
                 },
                 validate: (): Array<string> => []
@@ -330,7 +334,7 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Metadata> {
+    function validate(): Exit<Metadata, Array<{ field: string; message: string }>> {
         return toExit(metadataDeserialize(data));
     }
     function reset(newOverrides?: Partial<Metadata>): void {
@@ -375,7 +379,7 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function metadataFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Metadata> {
+): Exit<Metadata, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.createdAt = formData.get('createdAt') ?? '';
     obj.lastLogin = formData.get('lastLogin') ?? '';

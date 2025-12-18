@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -25,14 +24,14 @@ export function sentDefaultValue(): Sent {
 @returns JSON string representation with cycle detection metadata */ export function sentSerialize(
     value: Sent
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(sentSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function sentSerializeWithContext(
     value: Sent,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -51,38 +50,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function sentDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Sent> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Sent }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = sentDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'Sent.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Sent.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function sentDeserializeWithContext(value: any, ctx: DeserializeContext): Sent | PendingRef {
+export function sentDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): Sent | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Sent.deserializeWithContext: expected an object' }
         ]);
     }
@@ -95,7 +105,7 @@ export function sentDeserializeWithContext(value: any, ctx: DeserializeContext):
         errors.push({ field: 'method', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -111,18 +121,18 @@ export function sentDeserializeWithContext(value: any, ctx: DeserializeContext):
         instance.method = __raw_method;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Sent;
 }
 export function sentValidateField<K extends keyof Sent>(
-    field: K,
-    value: Sent[K]
+    _field: K,
+    _value: Sent[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function sentValidateFields(
-    partial: Partial<Sent>
+    _partial: Partial<Sent>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -138,17 +148,17 @@ export function sentIs(obj: unknown): obj is Sent {
         return false;
     }
     const result = sentDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type SentErrors = {
-    _errors: Option<Array<string>>;
-    recipient: Option<Array<string>>;
-    method: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    recipient: __gf_Option<Array<string>>;
+    method: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type SentTainted = {
-    recipient: Option<boolean>;
-    method: Option<boolean>;
+    recipient: __gf_Option<boolean>;
+    method: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface SentFieldControllers {
     readonly recipient: FieldController<string | null>;
@@ -159,7 +169,7 @@ export interface SentGigaform {
     readonly errors: SentErrors;
     readonly tainted: SentTainted;
     readonly fields: SentFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Sent>;
+    validate(): Exit<Sent, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Sent>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function sentCreateForm(overrides?: Partial<Sent>): SentGigaform {
@@ -181,11 +191,11 @@ export function sentCreateForm(overrides?: Partial<Sent>): SentGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.recipient,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.recipient = value;
             },
             getTainted: () => tainted.recipient,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.recipient = value;
             },
             validate: (): Array<string> => {
@@ -203,11 +213,11 @@ export function sentCreateForm(overrides?: Partial<Sent>): SentGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.method,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.method = value;
             },
             getTainted: () => tainted.method,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.method = value;
             },
             validate: (): Array<string> => {
@@ -216,7 +226,7 @@ export function sentCreateForm(overrides?: Partial<Sent>): SentGigaform {
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Sent> {
+    function validate(): Exit<Sent, Array<{ field: string; message: string }>> {
         return toExit(sentDeserialize(data));
     }
     function reset(newOverrides?: Partial<Sent>): void {
@@ -250,7 +260,7 @@ export function sentCreateForm(overrides?: Partial<Sent>): SentGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function sentFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Sent> {
+): Exit<Sent, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.recipient = formData.get('recipient') ?? '';
     obj.method = formData.get('method') ?? '';

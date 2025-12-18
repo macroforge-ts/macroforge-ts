@@ -1,14 +1,13 @@
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { itemSerializeWithContext } from './item.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { itemDeserializeWithContext } from './item.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -34,14 +33,14 @@ export function billedItemDefaultValue(): BilledItem {
 @returns JSON string representation with cycle detection metadata */ export function billedItemSerialize(
     value: BilledItem
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(billedItemSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function billedItemSerializeWithContext(
     value: BilledItem,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -62,44 +61,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function billedItemDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, BilledItem> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: BilledItem }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = billedItemDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'BilledItem.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'BilledItem.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function billedItemDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): BilledItem | PendingRef {
+    ctx: __mf_DeserializeContext
+): BilledItem | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'BilledItem.deserializeWithContext: expected an object' }
         ]);
     }
@@ -118,7 +122,7 @@ export function billedItemDeserializeWithContext(
         errors.push({ field: 'upsale', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -145,18 +149,18 @@ export function billedItemDeserializeWithContext(
         instance.upsale = __raw_upsale;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as BilledItem;
 }
 export function billedItemValidateField<K extends keyof BilledItem>(
-    field: K,
-    value: BilledItem[K]
+    _field: K,
+    _value: BilledItem[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function billedItemValidateFields(
-    partial: Partial<BilledItem>
+    _partial: Partial<BilledItem>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -172,21 +176,21 @@ export function billedItemIs(obj: unknown): obj is BilledItem {
         return false;
     }
     const result = billedItemDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type BilledItemErrors = {
-    _errors: Option<Array<string>>;
-    item: Option<Array<string>>;
-    quantity: Option<Array<string>>;
-    taxed: Option<Array<string>>;
-    upsale: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    item: __gf_Option<Array<string>>;
+    quantity: __gf_Option<Array<string>>;
+    taxed: __gf_Option<Array<string>>;
+    upsale: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type BilledItemTainted = {
-    item: Option<boolean>;
-    quantity: Option<boolean>;
-    taxed: Option<boolean>;
-    upsale: Option<boolean>;
+    item: __gf_Option<boolean>;
+    quantity: __gf_Option<boolean>;
+    taxed: __gf_Option<boolean>;
+    upsale: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface BilledItemFieldControllers {
     readonly item: FieldController<Item>;
@@ -199,7 +203,7 @@ export interface BilledItemGigaform {
     readonly errors: BilledItemErrors;
     readonly tainted: BilledItemTainted;
     readonly fields: BilledItemFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, BilledItem>;
+    validate(): Exit<BilledItem, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<BilledItem>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledItemGigaform {
@@ -229,11 +233,11 @@ export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledIte
             },
             transform: (value: Item): Item => value,
             getError: () => errors.item,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.item = value;
             },
             getTainted: () => tainted.item,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.item = value;
             },
             validate: (): Array<string> => {
@@ -252,11 +256,11 @@ export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledIte
             },
             transform: (value: number): number => value,
             getError: () => errors.quantity,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.quantity = value;
             },
             getTainted: () => tainted.quantity,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.quantity = value;
             },
             validate: (): Array<string> => {
@@ -275,11 +279,11 @@ export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledIte
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.taxed,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.taxed = value;
             },
             getTainted: () => tainted.taxed,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.taxed = value;
             },
             validate: (): Array<string> => {
@@ -298,11 +302,11 @@ export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledIte
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.upsale,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.upsale = value;
             },
             getTainted: () => tainted.upsale,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.upsale = value;
             },
             validate: (): Array<string> => {
@@ -311,7 +315,7 @@ export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledIte
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, BilledItem> {
+    function validate(): Exit<BilledItem, Array<{ field: string; message: string }>> {
         return toExit(billedItemDeserialize(data));
     }
     function reset(newOverrides?: Partial<BilledItem>): void {
@@ -356,7 +360,7 @@ export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledIte
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function billedItemFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, BilledItem> {
+): Exit<BilledItem, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const itemObj: Record<string, unknown> = {};

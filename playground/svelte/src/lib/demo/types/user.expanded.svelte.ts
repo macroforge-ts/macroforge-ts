@@ -1,20 +1,19 @@
 import { appPermissionsDefaultValue } from './app-permissions.svelte';
 import { settingsDefaultValue } from './settings.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { appPermissionsSerializeWithContext } from './app-permissions.svelte';
 import { settingsSerializeWithContext } from './settings.svelte';
 import { userRoleSerializeWithContext } from './user-role.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { appPermissionsDeserializeWithContext } from './app-permissions.svelte';
 import { settingsDeserializeWithContext } from './settings.svelte';
 import { userRoleDeserializeWithContext } from './user-role.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -74,14 +73,14 @@ export function userDefaultValue(): User {
 @returns JSON string representation with cycle detection metadata */ export function userSerialize(
     value: User
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(userSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function userSerializeWithContext(
     value: User,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -122,38 +121,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function userDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, User> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: User }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = userDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'User.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'User.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function userDeserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
+export function userDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): User | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'User.deserializeWithContext: expected an object' }
         ]);
     }
@@ -208,7 +218,7 @@ export function userDeserializeWithContext(value: any, ctx: DeserializeContext):
         errors.push({ field: 'lastLoginAt', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -282,25 +292,25 @@ export function userDeserializeWithContext(value: any, ctx: DeserializeContext):
         obj['lastLoginAt']
     );
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as User;
 }
 export function userValidateField<K extends keyof User>(
-    field: K,
-    value: User[K]
+    _field: K,
+    _value: User[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'firstName': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'firstName', message: 'must not be empty' });
             }
             break;
         }
         case 'lastName': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'lastName', message: 'must not be empty' });
             }
@@ -310,17 +320,17 @@ export function userValidateField<K extends keyof User>(
     return errors;
 }
 export function userValidateFields(
-    partial: Partial<User>
+    _partial: Partial<User>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('firstName' in partial && partial.firstName !== undefined) {
-        const __val = partial.firstName as string;
+    if ('firstName' in _partial && _partial.firstName !== undefined) {
+        const __val = _partial.firstName as string;
         if (__val.length === 0) {
             errors.push({ field: 'firstName', message: 'must not be empty' });
         }
     }
-    if ('lastName' in partial && partial.lastName !== undefined) {
-        const __val = partial.lastName as string;
+    if ('lastName' in _partial && _partial.lastName !== undefined) {
+        const __val = _partial.lastName as string;
         if (__val.length === 0) {
             errors.push({ field: 'lastName', message: 'must not be empty' });
         }
@@ -356,45 +366,45 @@ export function userIs(obj: unknown): obj is User {
         return false;
     }
     const result = userDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type UserErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    email: Option<Array<string>>;
-    firstName: Option<Array<string>>;
-    lastName: Option<Array<string>>;
-    password: Option<Array<string>>;
-    metadata: Option<Array<string>>;
-    settings: Option<Array<string>>;
-    role: Option<Array<string>>;
-    emailVerified: Option<Array<string>>;
-    verificationToken: Option<Array<string>>;
-    verificationExpires: Option<Array<string>>;
-    passwordResetToken: Option<Array<string>>;
-    passwordResetExpires: Option<Array<string>>;
-    permissions: Option<Array<string>>;
-    createdAt: Option<Array<string>>;
-    lastLoginAt: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    email: __gf_Option<Array<string>>;
+    firstName: __gf_Option<Array<string>>;
+    lastName: __gf_Option<Array<string>>;
+    password: __gf_Option<Array<string>>;
+    metadata: __gf_Option<Array<string>>;
+    settings: __gf_Option<Array<string>>;
+    role: __gf_Option<Array<string>>;
+    emailVerified: __gf_Option<Array<string>>;
+    verificationToken: __gf_Option<Array<string>>;
+    verificationExpires: __gf_Option<Array<string>>;
+    passwordResetToken: __gf_Option<Array<string>>;
+    passwordResetExpires: __gf_Option<Array<string>>;
+    permissions: __gf_Option<Array<string>>;
+    createdAt: __gf_Option<Array<string>>;
+    lastLoginAt: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type UserTainted = {
-    id: Option<boolean>;
-    email: Option<boolean>;
-    firstName: Option<boolean>;
-    lastName: Option<boolean>;
-    password: Option<boolean>;
-    metadata: Option<boolean>;
-    settings: Option<boolean>;
-    role: Option<boolean>;
-    emailVerified: Option<boolean>;
-    verificationToken: Option<boolean>;
-    verificationExpires: Option<boolean>;
-    passwordResetToken: Option<boolean>;
-    passwordResetExpires: Option<boolean>;
-    permissions: Option<boolean>;
-    createdAt: Option<boolean>;
-    lastLoginAt: Option<boolean>;
+    id: __gf_Option<boolean>;
+    email: __gf_Option<boolean>;
+    firstName: __gf_Option<boolean>;
+    lastName: __gf_Option<boolean>;
+    password: __gf_Option<boolean>;
+    metadata: __gf_Option<boolean>;
+    settings: __gf_Option<boolean>;
+    role: __gf_Option<boolean>;
+    emailVerified: __gf_Option<boolean>;
+    verificationToken: __gf_Option<boolean>;
+    verificationExpires: __gf_Option<boolean>;
+    passwordResetToken: __gf_Option<boolean>;
+    passwordResetExpires: __gf_Option<boolean>;
+    permissions: __gf_Option<boolean>;
+    createdAt: __gf_Option<boolean>;
+    lastLoginAt: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface UserFieldControllers {
     readonly id: FieldController<string>;
@@ -419,7 +429,7 @@ export interface UserGigaform {
     readonly errors: UserErrors;
     readonly tainted: UserTainted;
     readonly fields: UserFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, User>;
+    validate(): Exit<User, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<User>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function userCreateForm(overrides?: Partial<User>): UserGigaform {
@@ -472,11 +482,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -494,11 +504,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: Option<string>): Option<string> => value,
             getError: () => errors.email,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.email = value;
             },
             getTainted: () => tainted.email,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.email = value;
             },
             validate: (): Array<string> => {
@@ -516,11 +526,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.firstName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.firstName = value;
             },
             getTainted: () => tainted.firstName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.firstName = value;
             },
             validate: (): Array<string> => {
@@ -538,11 +548,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.lastName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.lastName = value;
             },
             getTainted: () => tainted.lastName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.lastName = value;
             },
             validate: (): Array<string> => {
@@ -560,11 +570,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: Option<string>): Option<string> => value,
             getError: () => errors.password,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.password = value;
             },
             getTainted: () => tainted.password,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.password = value;
             },
             validate: (): Array<string> => {
@@ -582,11 +592,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: Option<Metadata>): Option<Metadata> => value,
             getError: () => errors.metadata,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.metadata = value;
             },
             getTainted: () => tainted.metadata,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.metadata = value;
             },
             validate: (): Array<string> => {
@@ -604,11 +614,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: Settings): Settings => value,
             getError: () => errors.settings,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.settings = value;
             },
             getTainted: () => tainted.settings,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.settings = value;
             },
             validate: (): Array<string> => {
@@ -626,11 +636,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: UserRole): UserRole => value,
             getError: () => errors.role,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.role = value;
             },
             getTainted: () => tainted.role,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.role = value;
             },
             validate: (): Array<string> => {
@@ -648,11 +658,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.emailVerified,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.emailVerified = value;
             },
             getTainted: () => tainted.emailVerified,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.emailVerified = value;
             },
             validate: (): Array<string> => {
@@ -670,11 +680,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: Option<string>): Option<string> => value,
             getError: () => errors.verificationToken,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.verificationToken = value;
             },
             getTainted: () => tainted.verificationToken,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.verificationToken = value;
             },
             validate: (): Array<string> => {
@@ -692,11 +702,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: Option<DateTime.DateTime>): Option<DateTime.DateTime> => value,
             getError: () => errors.verificationExpires,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.verificationExpires = value;
             },
             getTainted: () => tainted.verificationExpires,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.verificationExpires = value;
             },
             validate: (): Array<string> => {
@@ -717,11 +727,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: Option<string>): Option<string> => value,
             getError: () => errors.passwordResetToken,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.passwordResetToken = value;
             },
             getTainted: () => tainted.passwordResetToken,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.passwordResetToken = value;
             },
             validate: (): Array<string> => {
@@ -742,11 +752,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: Option<DateTime.DateTime>): Option<DateTime.DateTime> => value,
             getError: () => errors.passwordResetExpires,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.passwordResetExpires = value;
             },
             getTainted: () => tainted.passwordResetExpires,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.passwordResetExpires = value;
             },
             validate: (): Array<string> => {
@@ -767,11 +777,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: AppPermissions): AppPermissions => value,
             getError: () => errors.permissions,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.permissions = value;
             },
             getTainted: () => tainted.permissions,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.permissions = value;
             },
             validate: (): Array<string> => {
@@ -789,11 +799,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: DateTime.DateTime): DateTime.DateTime => value,
             getError: () => errors.createdAt,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.createdAt = value;
             },
             getTainted: () => tainted.createdAt,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.createdAt = value;
             },
             validate: (): Array<string> => {
@@ -811,11 +821,11 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             },
             transform: (value: Option<DateTime.DateTime>): Option<DateTime.DateTime> => value,
             getError: () => errors.lastLoginAt,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.lastLoginAt = value;
             },
             getTainted: () => tainted.lastLoginAt,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.lastLoginAt = value;
             },
             validate: (): Array<string> => {
@@ -824,7 +834,7 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, User> {
+    function validate(): Exit<User, Array<{ field: string; message: string }>> {
         return toExit(userDeserialize(data));
     }
     function reset(newOverrides?: Partial<User>): void {
@@ -893,7 +903,7 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function userFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, User> {
+): Exit<User, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     {

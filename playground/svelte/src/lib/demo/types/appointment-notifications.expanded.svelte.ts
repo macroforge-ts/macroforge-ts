@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -29,14 +28,14 @@ export function appointmentNotificationsDefaultValue(): AppointmentNotifications
 @returns JSON string representation with cycle detection metadata */ export function appointmentNotificationsSerialize(
     value: AppointmentNotifications
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(appointmentNotificationsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function appointmentNotificationsSerializeWithContext(
     value: AppointmentNotifications,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -55,45 +54,50 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function appointmentNotificationsDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, AppointmentNotifications> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: AppointmentNotifications }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = appointmentNotificationsDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message:
-                        'AppointmentNotifications.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message:
+                            'AppointmentNotifications.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function appointmentNotificationsDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): AppointmentNotifications | PendingRef {
+    ctx: __mf_DeserializeContext
+): AppointmentNotifications | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'AppointmentNotifications.deserializeWithContext: expected an object'
@@ -112,7 +116,7 @@ export function appointmentNotificationsDeserializeWithContext(
         errors.push({ field: 'allScheduleChangeNotifications', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -141,18 +145,18 @@ export function appointmentNotificationsDeserializeWithContext(
         instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as AppointmentNotifications;
 }
 export function appointmentNotificationsValidateField<K extends keyof AppointmentNotifications>(
-    field: K,
-    value: AppointmentNotifications[K]
+    _field: K,
+    _value: AppointmentNotifications[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'personalScheduleChangeNotifications': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({
                     field: 'personalScheduleChangeNotifications',
@@ -162,7 +166,7 @@ export function appointmentNotificationsValidateField<K extends keyof Appointmen
             break;
         }
         case 'allScheduleChangeNotifications': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({
                     field: 'allScheduleChangeNotifications',
@@ -175,14 +179,14 @@ export function appointmentNotificationsValidateField<K extends keyof Appointmen
     return errors;
 }
 export function appointmentNotificationsValidateFields(
-    partial: Partial<AppointmentNotifications>
+    _partial: Partial<AppointmentNotifications>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
     if (
-        'personalScheduleChangeNotifications' in partial &&
-        partial.personalScheduleChangeNotifications !== undefined
+        'personalScheduleChangeNotifications' in _partial &&
+        _partial.personalScheduleChangeNotifications !== undefined
     ) {
-        const __val = partial.personalScheduleChangeNotifications as string;
+        const __val = _partial.personalScheduleChangeNotifications as string;
         if (__val.length === 0) {
             errors.push({
                 field: 'personalScheduleChangeNotifications',
@@ -191,10 +195,10 @@ export function appointmentNotificationsValidateFields(
         }
     }
     if (
-        'allScheduleChangeNotifications' in partial &&
-        partial.allScheduleChangeNotifications !== undefined
+        'allScheduleChangeNotifications' in _partial &&
+        _partial.allScheduleChangeNotifications !== undefined
     ) {
-        const __val = partial.allScheduleChangeNotifications as string;
+        const __val = _partial.allScheduleChangeNotifications as string;
         if (__val.length === 0) {
             errors.push({ field: 'allScheduleChangeNotifications', message: 'must not be empty' });
         }
@@ -213,17 +217,17 @@ export function appointmentNotificationsIs(obj: unknown): obj is AppointmentNoti
         return false;
     }
     const result = appointmentNotificationsDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type AppointmentNotificationsErrors = {
-    _errors: Option<Array<string>>;
-    personalScheduleChangeNotifications: Option<Array<string>>;
-    allScheduleChangeNotifications: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    personalScheduleChangeNotifications: __gf_Option<Array<string>>;
+    allScheduleChangeNotifications: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type AppointmentNotificationsTainted = {
-    personalScheduleChangeNotifications: Option<boolean>;
-    allScheduleChangeNotifications: Option<boolean>;
+    personalScheduleChangeNotifications: __gf_Option<boolean>;
+    allScheduleChangeNotifications: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface AppointmentNotificationsFieldControllers {
     readonly personalScheduleChangeNotifications: FieldController<string>;
@@ -234,7 +238,7 @@ export interface AppointmentNotificationsGigaform {
     readonly errors: AppointmentNotificationsErrors;
     readonly tainted: AppointmentNotificationsTainted;
     readonly fields: AppointmentNotificationsFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, AppointmentNotifications>;
+    validate(): Exit<AppointmentNotifications, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<AppointmentNotifications>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function appointmentNotificationsCreateForm(
@@ -261,11 +265,11 @@ export function appointmentNotificationsCreateForm(
             },
             transform: (value: string): string => value,
             getError: () => errors.personalScheduleChangeNotifications,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.personalScheduleChangeNotifications = value;
             },
             getTainted: () => tainted.personalScheduleChangeNotifications,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.personalScheduleChangeNotifications = value;
             },
             validate: (): Array<string> => {
@@ -286,11 +290,11 @@ export function appointmentNotificationsCreateForm(
             },
             transform: (value: string): string => value,
             getError: () => errors.allScheduleChangeNotifications,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.allScheduleChangeNotifications = value;
             },
             getTainted: () => tainted.allScheduleChangeNotifications,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.allScheduleChangeNotifications = value;
             },
             validate: (): Array<string> => {
@@ -302,7 +306,7 @@ export function appointmentNotificationsCreateForm(
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, AppointmentNotifications> {
+    function validate(): Exit<AppointmentNotifications, Array<{ field: string; message: string }>> {
         return toExit(appointmentNotificationsDeserialize(data));
     }
     function reset(newOverrides?: Partial<AppointmentNotifications>): void {
@@ -343,7 +347,7 @@ export function appointmentNotificationsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function appointmentNotificationsFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, AppointmentNotifications> {
+): Exit<AppointmentNotifications, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.personalScheduleChangeNotifications =
         formData.get('personalScheduleChangeNotifications') ?? '';

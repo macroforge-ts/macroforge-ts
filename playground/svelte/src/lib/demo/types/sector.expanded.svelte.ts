@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
@@ -21,12 +20,12 @@ export function sectorDefaultValue(): Sector {
 @returns JSON string representation with cycle detection metadata */ export function sectorSerialize(
     value: Sector
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(sectorSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function sectorSerializeWithContext(value: Sector, ctx: SerializeContext): unknown {
+export function sectorSerializeWithContext(value: Sector, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -39,45 +38,50 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function sectorDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Sector> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Sector }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = sectorDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Sector.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Sector.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function sectorDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Sector | PendingRef {
+    ctx: __mf_DeserializeContext
+): Sector | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Sector | PendingRef;
+        return ctx.getOrDefer(value.__ref) as Sector | __mf_PendingRef;
     }
     const allowedValues = ['Residential', 'Commercial'] as const;
     if (!allowedValues.includes(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -96,10 +100,10 @@ export function sectorIs(value: unknown): value is Sector {
 }
 
 /** Per-variant error types */ export type SectorResidentialErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
 export type SectorCommercialErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type SectorResidentialTainted = {};
 export type SectorCommercialTainted = {}; /** Union error type */
@@ -120,7 +124,7 @@ export interface SectorGigaform {
     readonly tainted: SectorTainted;
     readonly variants: SectorVariantFields;
     switchVariant(variant: 'Residential' | 'Commercial'): void;
-    validate(): Exit<Array<{ field: string; message: string }>, Sector>;
+    validate(): Exit<Sector, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Sector>): void;
 } /** Variant fields container */
 export interface SectorVariantFields {
@@ -154,7 +158,7 @@ export function sectorCreateForm(initial?: Sector): SectorGigaform {
         errors = {} as SectorErrors;
         tainted = {} as SectorTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, Sector> {
+    function validate(): Exit<Sector, Array<{ field: string; message: string }>> {
         return toExit(sectorDeserialize(data));
     }
     function reset(overrides?: Partial<Sector>): void {
@@ -192,7 +196,7 @@ export function sectorCreateForm(initial?: Sector): SectorGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function sectorFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Sector> {
+): Exit<Sector, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_value') as 'Residential' | 'Commercial' | null;
     if (!discriminant) {
         return toExit({

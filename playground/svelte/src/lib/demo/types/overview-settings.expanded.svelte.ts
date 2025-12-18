@@ -1,17 +1,16 @@
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { columnConfigSerializeWithContext } from './column-config.svelte';
 import { overviewDisplaySerializeWithContext } from './overview-display.svelte';
 import { rowHeightSerializeWithContext } from './row-height.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { overviewDisplayDeserializeWithContext } from './overview-display.svelte';
 import { rowHeightDeserializeWithContext } from './row-height.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -44,14 +43,14 @@ export function overviewSettingsDefaultValue(): OverviewSettings {
 @returns JSON string representation with cycle detection metadata */ export function overviewSettingsSerialize(
     value: OverviewSettings
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(overviewSettingsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function overviewSettingsSerializeWithContext(
     value: OverviewSettings,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -74,44 +73,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function overviewSettingsDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, OverviewSettings> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: OverviewSettings }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = overviewSettingsDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'OverviewSettings.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'OverviewSettings.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function overviewSettingsDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): OverviewSettings | PendingRef {
+    ctx: __mf_DeserializeContext
+): OverviewSettings | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'OverviewSettings.deserializeWithContext: expected an object'
@@ -133,7 +137,7 @@ export function overviewSettingsDeserializeWithContext(
         errors.push({ field: 'columnConfigs', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -165,18 +169,18 @@ export function overviewSettingsDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as OverviewSettings;
 }
 export function overviewSettingsValidateField<K extends keyof OverviewSettings>(
-    field: K,
-    value: OverviewSettings[K]
+    _field: K,
+    _value: OverviewSettings[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function overviewSettingsValidateFields(
-    partial: Partial<OverviewSettings>
+    _partial: Partial<OverviewSettings>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -192,21 +196,21 @@ export function overviewSettingsIs(obj: unknown): obj is OverviewSettings {
         return false;
     }
     const result = overviewSettingsDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type OverviewSettingsErrors = {
-    _errors: Option<Array<string>>;
-    rowHeight: Option<Array<string>>;
-    cardOrRow: Option<Array<string>>;
-    perPage: Option<Array<string>>;
-    columnConfigs: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    rowHeight: __gf_Option<Array<string>>;
+    cardOrRow: __gf_Option<Array<string>>;
+    perPage: __gf_Option<Array<string>>;
+    columnConfigs: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type OverviewSettingsTainted = {
-    rowHeight: Option<boolean>;
-    cardOrRow: Option<boolean>;
-    perPage: Option<boolean>;
-    columnConfigs: Option<boolean>;
+    rowHeight: __gf_Option<boolean>;
+    cardOrRow: __gf_Option<boolean>;
+    perPage: __gf_Option<boolean>;
+    columnConfigs: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface OverviewSettingsFieldControllers {
     readonly rowHeight: FieldController<RowHeight>;
@@ -219,7 +223,7 @@ export interface OverviewSettingsGigaform {
     readonly errors: OverviewSettingsErrors;
     readonly tainted: OverviewSettingsTainted;
     readonly fields: OverviewSettingsFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, OverviewSettings>;
+    validate(): Exit<OverviewSettings, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<OverviewSettings>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function overviewSettingsCreateForm(
@@ -250,11 +254,11 @@ export function overviewSettingsCreateForm(
             },
             transform: (value: RowHeight): RowHeight => value,
             getError: () => errors.rowHeight,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.rowHeight = value;
             },
             getTainted: () => tainted.rowHeight,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.rowHeight = value;
             },
             validate: (): Array<string> => {
@@ -272,11 +276,11 @@ export function overviewSettingsCreateForm(
             },
             transform: (value: OverviewDisplay): OverviewDisplay => value,
             getError: () => errors.cardOrRow,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.cardOrRow = value;
             },
             getTainted: () => tainted.cardOrRow,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.cardOrRow = value;
             },
             validate: (): Array<string> => {
@@ -294,11 +298,11 @@ export function overviewSettingsCreateForm(
             },
             transform: (value: number): number => value,
             getError: () => errors.perPage,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.perPage = value;
             },
             getTainted: () => tainted.perPage,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.perPage = value;
             },
             validate: (): Array<string> => {
@@ -316,11 +320,11 @@ export function overviewSettingsCreateForm(
             },
             transform: (value: ColumnConfig[]): ColumnConfig[] => value,
             getError: () => errors.columnConfigs,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.columnConfigs = value;
             },
             getTainted: () => tainted.columnConfigs,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.columnConfigs = value;
             },
             validate: (): Array<string> => {
@@ -340,11 +344,11 @@ export function overviewSettingsCreateForm(
                 },
                 transform: (value: ColumnConfig): ColumnConfig => value,
                 getError: () => errors.columnConfigs,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.columnConfigs = value;
                 },
                 getTainted: () => tainted.columnConfigs,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.columnConfigs = value;
                 },
                 validate: (): Array<string> => []
@@ -362,7 +366,7 @@ export function overviewSettingsCreateForm(
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, OverviewSettings> {
+    function validate(): Exit<OverviewSettings, Array<{ field: string; message: string }>> {
         return toExit(overviewSettingsDeserialize(data));
     }
     function reset(newOverrides?: Partial<OverviewSettings>): void {
@@ -407,7 +411,7 @@ export function overviewSettingsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function overviewSettingsFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, OverviewSettings> {
+): Exit<OverviewSettings, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const rowHeightObj: Record<string, unknown> = {};

@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
@@ -21,12 +20,12 @@ export function statusDefaultValue(): Status {
 @returns JSON string representation with cycle detection metadata */ export function statusSerialize(
     value: Status
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(statusSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function statusSerializeWithContext(value: Status, ctx: SerializeContext): unknown {
+export function statusSerializeWithContext(value: Status, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -39,45 +38,50 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function statusDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Status> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Status }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = statusDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Status.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Status.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function statusDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Status | PendingRef {
+    ctx: __mf_DeserializeContext
+): Status | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Status | PendingRef;
+        return ctx.getOrDefer(value.__ref) as Status | __mf_PendingRef;
     }
     const allowedValues = ['Scheduled', 'OnDeck', 'Waiting'] as const;
     if (!allowedValues.includes(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -96,11 +100,11 @@ export function statusIs(value: unknown): value is Status {
 }
 
 /** Per-variant error types */ export type StatusScheduledErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
-export type StatusOnDeckErrors = { _errors: Option<Array<string>> };
+export type StatusOnDeckErrors = { _errors: __gf_Option<Array<string>> };
 export type StatusWaitingErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type StatusScheduledTainted = {};
 export type StatusOnDeckTainted = {};
@@ -123,7 +127,7 @@ export interface StatusGigaform {
     readonly tainted: StatusTainted;
     readonly variants: StatusVariantFields;
     switchVariant(variant: 'Scheduled' | 'OnDeck' | 'Waiting'): void;
-    validate(): Exit<Array<{ field: string; message: string }>, Status>;
+    validate(): Exit<Status, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Status>): void;
 } /** Variant fields container */
 export interface StatusVariantFields {
@@ -161,7 +165,7 @@ export function statusCreateForm(initial?: Status): StatusGigaform {
         errors = {} as StatusErrors;
         tainted = {} as StatusTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, Status> {
+    function validate(): Exit<Status, Array<{ field: string; message: string }>> {
         return toExit(statusDeserialize(data));
     }
     function reset(overrides?: Partial<Status>): void {
@@ -199,7 +203,7 @@ export function statusCreateForm(initial?: Status): StatusGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function statusFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Status> {
+): Exit<Status, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_value') as 'Scheduled' | 'OnDeck' | 'Waiting' | null;
     if (!discriminant) {
         return toExit({

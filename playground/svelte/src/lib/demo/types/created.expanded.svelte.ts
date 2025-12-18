@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -24,14 +23,14 @@ export function createdDefaultValue(): Created {
 @returns JSON string representation with cycle detection metadata */ export function createdSerialize(
     value: Created
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(createdSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function createdSerializeWithContext(
     value: Created,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -49,44 +48,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function createdDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Created> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Created }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = createdDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Created.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Created.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function createdDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Created | PendingRef {
+    ctx: __mf_DeserializeContext
+): Created | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Created.deserializeWithContext: expected an object' }
         ]);
     }
@@ -96,7 +100,7 @@ export function createdDeserializeWithContext(
         errors.push({ field: 'initialData', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -108,18 +112,18 @@ export function createdDeserializeWithContext(
         instance.initialData = __raw_initialData;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Created;
 }
 export function createdValidateField<K extends keyof Created>(
-    field: K,
-    value: Created[K]
+    _field: K,
+    _value: Created[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function createdValidateFields(
-    partial: Partial<Created>
+    _partial: Partial<Created>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -135,15 +139,15 @@ export function createdIs(obj: unknown): obj is Created {
         return false;
     }
     const result = createdDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type CreatedErrors = {
-    _errors: Option<Array<string>>;
-    initialData: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    initialData: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type CreatedTainted = {
-    initialData: Option<boolean>;
+    initialData: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface CreatedFieldControllers {
     readonly initialData: FieldController<string | null>;
@@ -153,7 +157,7 @@ export interface CreatedGigaform {
     readonly errors: CreatedErrors;
     readonly tainted: CreatedTainted;
     readonly fields: CreatedFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Created>;
+    validate(): Exit<Created, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Created>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createdCreateForm(overrides?: Partial<Created>): CreatedGigaform {
@@ -171,11 +175,11 @@ export function createdCreateForm(overrides?: Partial<Created>): CreatedGigaform
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.initialData,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.initialData = value;
             },
             getTainted: () => tainted.initialData,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.initialData = value;
             },
             validate: (): Array<string> => {
@@ -184,7 +188,7 @@ export function createdCreateForm(overrides?: Partial<Created>): CreatedGigaform
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Created> {
+    function validate(): Exit<Created, Array<{ field: string; message: string }>> {
         return toExit(createdDeserialize(data));
     }
     function reset(newOverrides?: Partial<Created>): void {
@@ -218,7 +222,7 @@ export function createdCreateForm(overrides?: Partial<Created>): CreatedGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function createdFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Created> {
+): Exit<Created, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.initialData = formData.get('initialData') ?? '';
     return toExit(createdDeserialize(obj));

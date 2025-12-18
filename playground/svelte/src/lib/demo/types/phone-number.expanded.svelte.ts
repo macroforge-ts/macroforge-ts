@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -40,14 +39,14 @@ export function phoneNumberDefaultValue(): PhoneNumber {
 @returns JSON string representation with cycle detection metadata */ export function phoneNumberSerialize(
     value: PhoneNumber
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(phoneNumberSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function phoneNumberSerializeWithContext(
     value: PhoneNumber,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -69,44 +68,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function phoneNumberDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, PhoneNumber> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: PhoneNumber }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = phoneNumberDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'PhoneNumber.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'PhoneNumber.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function phoneNumberDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): PhoneNumber | PendingRef {
+    ctx: __mf_DeserializeContext
+): PhoneNumber | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'PhoneNumber.deserializeWithContext: expected an object' }
         ]);
     }
@@ -128,7 +132,7 @@ export function phoneNumberDeserializeWithContext(
         errors.push({ field: 'canCall', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -162,25 +166,25 @@ export function phoneNumberDeserializeWithContext(
         instance.canCall = __raw_canCall;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as PhoneNumber;
 }
 export function phoneNumberValidateField<K extends keyof PhoneNumber>(
-    field: K,
-    value: PhoneNumber[K]
+    _field: K,
+    _value: PhoneNumber[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'phoneType': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'phoneType', message: 'must not be empty' });
             }
             break;
         }
         case 'number': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'number', message: 'must not be empty' });
             }
@@ -190,17 +194,17 @@ export function phoneNumberValidateField<K extends keyof PhoneNumber>(
     return errors;
 }
 export function phoneNumberValidateFields(
-    partial: Partial<PhoneNumber>
+    _partial: Partial<PhoneNumber>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('phoneType' in partial && partial.phoneType !== undefined) {
-        const __val = partial.phoneType as string;
+    if ('phoneType' in _partial && _partial.phoneType !== undefined) {
+        const __val = _partial.phoneType as string;
         if (__val.length === 0) {
             errors.push({ field: 'phoneType', message: 'must not be empty' });
         }
     }
-    if ('number' in partial && partial.number !== undefined) {
-        const __val = partial.number as string;
+    if ('number' in _partial && _partial.number !== undefined) {
+        const __val = _partial.number as string;
         if (__val.length === 0) {
             errors.push({ field: 'number', message: 'must not be empty' });
         }
@@ -219,23 +223,23 @@ export function phoneNumberIs(obj: unknown): obj is PhoneNumber {
         return false;
     }
     const result = phoneNumberDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type PhoneNumberErrors = {
-    _errors: Option<Array<string>>;
-    main: Option<Array<string>>;
-    phoneType: Option<Array<string>>;
-    number: Option<Array<string>>;
-    canText: Option<Array<string>>;
-    canCall: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    main: __gf_Option<Array<string>>;
+    phoneType: __gf_Option<Array<string>>;
+    number: __gf_Option<Array<string>>;
+    canText: __gf_Option<Array<string>>;
+    canCall: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type PhoneNumberTainted = {
-    main: Option<boolean>;
-    phoneType: Option<boolean>;
-    number: Option<boolean>;
-    canText: Option<boolean>;
-    canCall: Option<boolean>;
+    main: __gf_Option<boolean>;
+    phoneType: __gf_Option<boolean>;
+    number: __gf_Option<boolean>;
+    canText: __gf_Option<boolean>;
+    canCall: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface PhoneNumberFieldControllers {
     readonly main: FieldController<boolean>;
@@ -249,7 +253,7 @@ export interface PhoneNumberGigaform {
     readonly errors: PhoneNumberErrors;
     readonly tainted: PhoneNumberTainted;
     readonly fields: PhoneNumberFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, PhoneNumber>;
+    validate(): Exit<PhoneNumber, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<PhoneNumber>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNumberGigaform {
@@ -281,11 +285,11 @@ export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNu
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.main,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.main = value;
             },
             getTainted: () => tainted.main,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.main = value;
             },
             validate: (): Array<string> => {
@@ -304,11 +308,11 @@ export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNu
             },
             transform: (value: string): string => value,
             getError: () => errors.phoneType,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.phoneType = value;
             },
             getTainted: () => tainted.phoneType,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.phoneType = value;
             },
             validate: (): Array<string> => {
@@ -327,11 +331,11 @@ export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNu
             },
             transform: (value: string): string => value,
             getError: () => errors.number,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.number = value;
             },
             getTainted: () => tainted.number,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.number = value;
             },
             validate: (): Array<string> => {
@@ -350,11 +354,11 @@ export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNu
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.canText,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.canText = value;
             },
             getTainted: () => tainted.canText,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.canText = value;
             },
             validate: (): Array<string> => {
@@ -373,11 +377,11 @@ export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNu
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.canCall,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.canCall = value;
             },
             getTainted: () => tainted.canCall,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.canCall = value;
             },
             validate: (): Array<string> => {
@@ -386,7 +390,7 @@ export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNu
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, PhoneNumber> {
+    function validate(): Exit<PhoneNumber, Array<{ field: string; message: string }>> {
         return toExit(phoneNumberDeserialize(data));
     }
     function reset(newOverrides?: Partial<PhoneNumber>): void {
@@ -433,7 +437,7 @@ export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNu
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function phoneNumberFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, PhoneNumber> {
+): Exit<PhoneNumber, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const mainVal = formData.get('main');

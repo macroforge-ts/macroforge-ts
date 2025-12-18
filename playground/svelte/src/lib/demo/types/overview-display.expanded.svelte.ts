@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -24,14 +23,14 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
 @returns JSON string representation with cycle detection metadata */ export function overviewDisplaySerialize(
     value: OverviewDisplay
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(overviewDisplaySerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function overviewDisplaySerializeWithContext(
     value: OverviewDisplay,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
@@ -45,45 +44,50 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function overviewDisplayDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, OverviewDisplay> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: OverviewDisplay }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = overviewDisplayDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'OverviewDisplay.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'OverviewDisplay.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function overviewDisplayDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): OverviewDisplay | PendingRef {
+    ctx: __mf_DeserializeContext
+): OverviewDisplay | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as OverviewDisplay | PendingRef;
+        return ctx.getOrDefer(value.__ref) as OverviewDisplay | __mf_PendingRef;
     }
     const allowedValues = ['Card', 'Table'] as const;
     if (!allowedValues.includes(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -102,10 +106,10 @@ export function overviewDisplayIs(value: unknown): value is OverviewDisplay {
 }
 
 /** Per-variant error types */ export type OverviewDisplayCardErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
 export type OverviewDisplayTableErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type OverviewDisplayCardTainted = {};
 export type OverviewDisplayTableTainted = {}; /** Union error type */
@@ -124,7 +128,7 @@ export interface OverviewDisplayGigaform {
     readonly tainted: OverviewDisplayTainted;
     readonly variants: OverviewDisplayVariantFields;
     switchVariant(variant: 'Card' | 'Table'): void;
-    validate(): Exit<Array<{ field: string; message: string }>, OverviewDisplay>;
+    validate(): Exit<OverviewDisplay, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<OverviewDisplay>): void;
 } /** Variant fields container */
 export interface OverviewDisplayVariantFields {
@@ -159,7 +163,7 @@ export function overviewDisplayCreateForm(initial?: OverviewDisplay): OverviewDi
         errors = {} as OverviewDisplayErrors;
         tainted = {} as OverviewDisplayTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, OverviewDisplay> {
+    function validate(): Exit<OverviewDisplay, Array<{ field: string; message: string }>> {
         return toExit(overviewDisplayDeserialize(data));
     }
     function reset(overrides?: Partial<OverviewDisplay>): void {
@@ -199,7 +203,7 @@ export function overviewDisplayCreateForm(initial?: OverviewDisplay): OverviewDi
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function overviewDisplayFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, OverviewDisplay> {
+): Exit<OverviewDisplay, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_value') as 'Card' | 'Table' | null;
     if (!discriminant) {
         return toExit({

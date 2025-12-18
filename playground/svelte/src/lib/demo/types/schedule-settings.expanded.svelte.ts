@@ -1,14 +1,13 @@
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { rowHeightSerializeWithContext } from './row-height.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { rowHeightDeserializeWithContext } from './row-height.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -38,14 +37,14 @@ export function scheduleSettingsDefaultValue(): ScheduleSettings {
 @returns JSON string representation with cycle detection metadata */ export function scheduleSettingsSerialize(
     value: ScheduleSettings
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(scheduleSettingsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function scheduleSettingsSerializeWithContext(
     value: ScheduleSettings,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -66,44 +65,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function scheduleSettingsDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, ScheduleSettings> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: ScheduleSettings }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = scheduleSettingsDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'ScheduleSettings.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'ScheduleSettings.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function scheduleSettingsDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): ScheduleSettings | PendingRef {
+    ctx: __mf_DeserializeContext
+): ScheduleSettings | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'ScheduleSettings.deserializeWithContext: expected an object'
@@ -125,7 +129,7 @@ export function scheduleSettingsDeserializeWithContext(
         errors.push({ field: 'detailedCards', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -154,18 +158,18 @@ export function scheduleSettingsDeserializeWithContext(
         instance.detailedCards = __raw_detailedCards;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as ScheduleSettings;
 }
 export function scheduleSettingsValidateField<K extends keyof ScheduleSettings>(
-    field: K,
-    value: ScheduleSettings[K]
+    _field: K,
+    _value: ScheduleSettings[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
 export function scheduleSettingsValidateFields(
-    partial: Partial<ScheduleSettings>
+    _partial: Partial<ScheduleSettings>
 ): Array<{ field: string; message: string }> {
     return [];
 }
@@ -181,21 +185,21 @@ export function scheduleSettingsIs(obj: unknown): obj is ScheduleSettings {
         return false;
     }
     const result = scheduleSettingsDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type ScheduleSettingsErrors = {
-    _errors: Option<Array<string>>;
-    daysPerWeek: Option<Array<string>>;
-    rowHeight: Option<Array<string>>;
-    visibleRoutes: Option<Array<string>>;
-    detailedCards: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    daysPerWeek: __gf_Option<Array<string>>;
+    rowHeight: __gf_Option<Array<string>>;
+    visibleRoutes: __gf_Option<Array<string>>;
+    detailedCards: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type ScheduleSettingsTainted = {
-    daysPerWeek: Option<boolean>;
-    rowHeight: Option<boolean>;
-    visibleRoutes: Option<boolean>;
-    detailedCards: Option<boolean>;
+    daysPerWeek: __gf_Option<boolean>;
+    rowHeight: __gf_Option<boolean>;
+    visibleRoutes: __gf_Option<boolean>;
+    detailedCards: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface ScheduleSettingsFieldControllers {
     readonly daysPerWeek: FieldController<number>;
@@ -208,7 +212,7 @@ export interface ScheduleSettingsGigaform {
     readonly errors: ScheduleSettingsErrors;
     readonly tainted: ScheduleSettingsTainted;
     readonly fields: ScheduleSettingsFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, ScheduleSettings>;
+    validate(): Exit<ScheduleSettings, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<ScheduleSettings>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function scheduleSettingsCreateForm(
@@ -239,11 +243,11 @@ export function scheduleSettingsCreateForm(
             },
             transform: (value: number): number => value,
             getError: () => errors.daysPerWeek,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.daysPerWeek = value;
             },
             getTainted: () => tainted.daysPerWeek,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.daysPerWeek = value;
             },
             validate: (): Array<string> => {
@@ -261,11 +265,11 @@ export function scheduleSettingsCreateForm(
             },
             transform: (value: RowHeight): RowHeight => value,
             getError: () => errors.rowHeight,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.rowHeight = value;
             },
             getTainted: () => tainted.rowHeight,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.rowHeight = value;
             },
             validate: (): Array<string> => {
@@ -283,11 +287,11 @@ export function scheduleSettingsCreateForm(
             },
             transform: (value: string[]): string[] => value,
             getError: () => errors.visibleRoutes,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.visibleRoutes = value;
             },
             getTainted: () => tainted.visibleRoutes,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.visibleRoutes = value;
             },
             validate: (): Array<string> => {
@@ -307,11 +311,11 @@ export function scheduleSettingsCreateForm(
                 },
                 transform: (value: string): string => value,
                 getError: () => errors.visibleRoutes,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.visibleRoutes = value;
                 },
                 getTainted: () => tainted.visibleRoutes,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.visibleRoutes = value;
                 },
                 validate: (): Array<string> => []
@@ -338,11 +342,11 @@ export function scheduleSettingsCreateForm(
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.detailedCards,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.detailedCards = value;
             },
             getTainted: () => tainted.detailedCards,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.detailedCards = value;
             },
             validate: (): Array<string> => {
@@ -354,7 +358,7 @@ export function scheduleSettingsCreateForm(
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, ScheduleSettings> {
+    function validate(): Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
         return toExit(scheduleSettingsDeserialize(data));
     }
     function reset(newOverrides?: Partial<ScheduleSettings>): void {
@@ -399,7 +403,7 @@ export function scheduleSettingsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function scheduleSettingsFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, ScheduleSettings> {
+): Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     {
         const daysPerWeekStr = formData.get('daysPerWeek');

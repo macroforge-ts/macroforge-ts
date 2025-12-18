@@ -1,18 +1,17 @@
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { colorsSerializeWithContext } from './colors.svelte';
 import { recurrenceRuleSerializeWithContext } from './recurrence-rule.svelte';
 import { statusSerializeWithContext } from './status.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { colorsDeserializeWithContext } from './colors.svelte';
 import { recurrenceRuleDeserializeWithContext } from './recurrence-rule.svelte';
 import { statusDeserializeWithContext } from './status.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -80,14 +79,14 @@ export function appointmentDefaultValue(): Appointment {
 @returns JSON string representation with cycle detection metadata */ export function appointmentSerialize(
     value: Appointment
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(appointmentSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function appointmentSerializeWithContext(
     value: Appointment,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -122,44 +121,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function appointmentDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Appointment> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Appointment }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = appointmentDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'Appointment.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Appointment.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function appointmentDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): Appointment | PendingRef {
+    ctx: __mf_DeserializeContext
+): Appointment | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Appointment.deserializeWithContext: expected an object' }
         ]);
     }
@@ -208,7 +212,7 @@ export function appointmentDeserializeWithContext(
         errors.push({ field: 'recurrenceRule', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -286,18 +290,18 @@ export function appointmentDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Appointment;
 }
 export function appointmentValidateField<K extends keyof Appointment>(
-    field: K,
-    value: Appointment[K]
+    _field: K,
+    _value: Appointment[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'title': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'title', message: 'must not be empty' });
             }
@@ -307,11 +311,11 @@ export function appointmentValidateField<K extends keyof Appointment>(
     return errors;
 }
 export function appointmentValidateFields(
-    partial: Partial<Appointment>
+    _partial: Partial<Appointment>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('title' in partial && partial.title !== undefined) {
-        const __val = partial.title as string;
+    if ('title' in _partial && _partial.title !== undefined) {
+        const __val = _partial.title as string;
         if (__val.length === 0) {
             errors.push({ field: 'title', message: 'must not be empty' });
         }
@@ -345,41 +349,41 @@ export function appointmentIs(obj: unknown): obj is Appointment {
         return false;
     }
     const result = appointmentDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type AppointmentErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    title: Option<Array<string>>;
-    status: Option<Array<string>>;
-    begins: Option<Array<string>>;
-    duration: Option<Array<string>>;
-    timeZone: Option<Array<string>>;
-    offsetMs: Option<Array<string>>;
-    allDay: Option<Array<string>>;
-    multiDay: Option<Array<string>>;
-    employees: Option<Array<string>>;
-    location: Option<Array<string>>;
-    description: Option<Array<string>>;
-    colors: Option<Array<string>>;
-    recurrenceRule: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    title: __gf_Option<Array<string>>;
+    status: __gf_Option<Array<string>>;
+    begins: __gf_Option<Array<string>>;
+    duration: __gf_Option<Array<string>>;
+    timeZone: __gf_Option<Array<string>>;
+    offsetMs: __gf_Option<Array<string>>;
+    allDay: __gf_Option<Array<string>>;
+    multiDay: __gf_Option<Array<string>>;
+    employees: __gf_Option<Array<string>>;
+    location: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
+    colors: __gf_Option<Array<string>>;
+    recurrenceRule: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type AppointmentTainted = {
-    id: Option<boolean>;
-    title: Option<boolean>;
-    status: Option<boolean>;
-    begins: Option<boolean>;
-    duration: Option<boolean>;
-    timeZone: Option<boolean>;
-    offsetMs: Option<boolean>;
-    allDay: Option<boolean>;
-    multiDay: Option<boolean>;
-    employees: Option<boolean>;
-    location: Option<boolean>;
-    description: Option<boolean>;
-    colors: Option<boolean>;
-    recurrenceRule: Option<boolean>;
+    id: __gf_Option<boolean>;
+    title: __gf_Option<boolean>;
+    status: __gf_Option<boolean>;
+    begins: __gf_Option<boolean>;
+    duration: __gf_Option<boolean>;
+    timeZone: __gf_Option<boolean>;
+    offsetMs: __gf_Option<boolean>;
+    allDay: __gf_Option<boolean>;
+    multiDay: __gf_Option<boolean>;
+    employees: __gf_Option<boolean>;
+    location: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
+    colors: __gf_Option<boolean>;
+    recurrenceRule: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface AppointmentFieldControllers {
     readonly id: FieldController<string>;
@@ -402,7 +406,7 @@ export interface AppointmentGigaform {
     readonly errors: AppointmentErrors;
     readonly tainted: AppointmentTainted;
     readonly fields: AppointmentFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Appointment>;
+    validate(): Exit<Appointment, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Appointment>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function appointmentCreateForm(overrides?: Partial<Appointment>): AppointmentGigaform {
@@ -451,11 +455,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -474,11 +478,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: string): string => value,
             getError: () => errors.title,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.title = value;
             },
             getTainted: () => tainted.title,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.title = value;
             },
             validate: (): Array<string> => {
@@ -497,11 +501,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: Status): Status => value,
             getError: () => errors.status,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.status = value;
             },
             getTainted: () => tainted.status,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.status = value;
             },
             validate: (): Array<string> => {
@@ -520,11 +524,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: DateTime.DateTime): DateTime.DateTime => value,
             getError: () => errors.begins,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.begins = value;
             },
             getTainted: () => tainted.begins,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.begins = value;
             },
             validate: (): Array<string> => {
@@ -543,11 +547,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: number): number => value,
             getError: () => errors.duration,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.duration = value;
             },
             getTainted: () => tainted.duration,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.duration = value;
             },
             validate: (): Array<string> => {
@@ -566,11 +570,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: string): string => value,
             getError: () => errors.timeZone,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.timeZone = value;
             },
             getTainted: () => tainted.timeZone,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.timeZone = value;
             },
             validate: (): Array<string> => {
@@ -588,11 +592,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: number): number => value,
             getError: () => errors.offsetMs,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.offsetMs = value;
             },
             getTainted: () => tainted.offsetMs,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.offsetMs = value;
             },
             validate: (): Array<string> => {
@@ -611,11 +615,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.allDay,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.allDay = value;
             },
             getTainted: () => tainted.allDay,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.allDay = value;
             },
             validate: (): Array<string> => {
@@ -634,11 +638,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.multiDay,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.multiDay = value;
             },
             getTainted: () => tainted.multiDay,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.multiDay = value;
             },
             validate: (): Array<string> => {
@@ -657,11 +661,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: (string | Employee)[]): (string | Employee)[] => value,
             getError: () => errors.employees,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.employees = value;
             },
             getTainted: () => tainted.employees,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.employees = value;
             },
             validate: (): Array<string> => {
@@ -678,11 +682,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
                 },
                 transform: (value: string | Employee): string | Employee => value,
                 getError: () => errors.employees,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.employees = value;
                 },
                 getTainted: () => tainted.employees,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.employees = value;
                 },
                 validate: (): Array<string> => []
@@ -710,11 +714,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: string | Site): string | Site => value,
             getError: () => errors.location,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.location = value;
             },
             getTainted: () => tainted.location,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.location = value;
             },
             validate: (): Array<string> => {
@@ -733,11 +737,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: Option<string>): Option<string> => value,
             getError: () => errors.description,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.description = value;
             },
             getTainted: () => tainted.description,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.description = value;
             },
             validate: (): Array<string> => {
@@ -755,11 +759,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: Colors): Colors => value,
             getError: () => errors.colors,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.colors = value;
             },
             getTainted: () => tainted.colors,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.colors = value;
             },
             validate: (): Array<string> => {
@@ -777,11 +781,11 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             },
             transform: (value: RecurrenceRule | null): RecurrenceRule | null => value,
             getError: () => errors.recurrenceRule,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.recurrenceRule = value;
             },
             getTainted: () => tainted.recurrenceRule,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.recurrenceRule = value;
             },
             validate: (): Array<string> => {
@@ -790,7 +794,7 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Appointment> {
+    function validate(): Exit<Appointment, Array<{ field: string; message: string }>> {
         return toExit(appointmentDeserialize(data));
     }
     function reset(newOverrides?: Partial<Appointment>): void {
@@ -855,7 +859,7 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function appointmentFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Appointment> {
+): Exit<Appointment, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.title = formData.get('title') ?? '';

@@ -1,10 +1,9 @@
 import { createdDefaultValue } from './created.svelte';
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { commentedDeserializeWithContext } from './commented.svelte';
 import { createdDeserializeWithContext } from './created.svelte';
 import { editedDeserializeWithContext } from './edited.svelte';
@@ -13,7 +12,7 @@ import { sentDeserializeWithContext } from './sent.svelte';
 import { viewedDeserializeWithContext } from './viewed.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { commentedDefaultValue } from './commented.svelte';
@@ -41,14 +40,14 @@ export function activityTypeDefaultValue(): ActivityType {
 @returns JSON string representation with cycle detection metadata */ export function activityTypeSerialize(
     value: ActivityType
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(activityTypeSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function activityTypeSerializeWithContext(
     value: ActivityType,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
@@ -62,50 +61,55 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function activityTypeDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, ActivityType> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: ActivityType }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = activityTypeDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'ActivityType.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'ActivityType.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function activityTypeDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): ActivityType | PendingRef {
+    ctx: __mf_DeserializeContext
+): ActivityType | __mf_PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as ActivityType | PendingRef;
+        return ctx.getOrDefer(value.__ref) as ActivityType | __mf_PendingRef;
     }
     if (typeof value !== 'object' || value === null) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'ActivityType.deserializeWithContext: expected an object' }
         ]);
     }
     const __typeName = (value as any).__type;
     if (typeof __typeName !== 'string') {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message:
@@ -131,7 +135,7 @@ export function activityTypeDeserializeWithContext(
     if (__typeName === 'Paid') {
         return paidDeserializeWithContext(value, ctx) as ActivityType;
     }
-    throw new DeserializeError([
+    throw new __mf_DeserializeError([
         {
             field: '_root',
             message:
@@ -157,14 +161,14 @@ export function activityTypeIs(value: unknown): value is ActivityType {
 }
 
 /** Per-variant error types */ export type ActivityTypeCreatedErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 };
-export type ActivityTypeEditedErrors = { _errors: Option<Array<string>> };
-export type ActivityTypeSentErrors = { _errors: Option<Array<string>> };
-export type ActivityTypeViewedErrors = { _errors: Option<Array<string>> };
-export type ActivityTypeCommentedErrors = { _errors: Option<Array<string>> };
+export type ActivityTypeEditedErrors = { _errors: __gf_Option<Array<string>> };
+export type ActivityTypeSentErrors = { _errors: __gf_Option<Array<string>> };
+export type ActivityTypeViewedErrors = { _errors: __gf_Option<Array<string>> };
+export type ActivityTypeCommentedErrors = { _errors: __gf_Option<Array<string>> };
 export type ActivityTypePaidErrors = {
-    _errors: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
 }; /** Per-variant tainted types */
 export type ActivityTypeCreatedTainted = {};
 export type ActivityTypeEditedTainted = {};
@@ -199,7 +203,7 @@ export interface ActivityTypeGigaform {
     readonly tainted: ActivityTypeTainted;
     readonly variants: ActivityTypeVariantFields;
     switchVariant(variant: 'Created' | 'Edited' | 'Sent' | 'Viewed' | 'Commented' | 'Paid'): void;
-    validate(): Exit<Array<{ field: string; message: string }>, ActivityType>;
+    validate(): Exit<ActivityType, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<ActivityType>): void;
 } /** Variant fields container */
 export interface ActivityTypeVariantFields {
@@ -253,7 +257,7 @@ export function activityTypeCreateForm(initial?: ActivityType): ActivityTypeGiga
         errors = {} as ActivityTypeErrors;
         tainted = {} as ActivityTypeTainted;
     }
-    function validate(): Exit<Array<{ field: string; message: string }>, ActivityType> {
+    function validate(): Exit<ActivityType, Array<{ field: string; message: string }>> {
         return toExit(activityTypeDeserialize(data));
     }
     function reset(overrides?: Partial<ActivityType>): void {
@@ -293,7 +297,7 @@ export function activityTypeCreateForm(initial?: ActivityType): ActivityTypeGiga
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function activityTypeFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, ActivityType> {
+): Exit<ActivityType, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_type') as
         | 'Created'
         | 'Edited'

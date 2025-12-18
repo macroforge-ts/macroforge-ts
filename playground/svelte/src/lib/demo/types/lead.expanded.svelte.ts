@@ -1,6 +1,6 @@
 import { accountNameDefaultValue } from './account-name.svelte';
 import { emailDefaultValue } from './email.svelte';
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { accountNameSerializeWithContext } from './account-name.svelte';
 import { emailSerializeWithContext } from './email.svelte';
 import { leadStageSerializeWithContext } from './lead-stage.svelte';
@@ -8,11 +8,10 @@ import { nextStepSerializeWithContext } from './next-step.svelte';
 import { phoneNumberSerializeWithContext } from './phone-number.svelte';
 import { prioritySerializeWithContext } from './priority.svelte';
 import { sectorSerializeWithContext } from './sector.svelte';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { accountNameDeserializeWithContext } from './account-name.svelte';
 import { emailDeserializeWithContext } from './email.svelte';
 import { leadStageDeserializeWithContext } from './lead-stage.svelte';
@@ -21,7 +20,7 @@ import { priorityDeserializeWithContext } from './priority.svelte';
 import { sectorDeserializeWithContext } from './sector.svelte';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -153,14 +152,14 @@ export function leadDefaultValue(): Lead {
 @returns JSON string representation with cycle detection metadata */ export function leadSerialize(
     value: Lead
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(leadSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function leadSerializeWithContext(
     value: Lead,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -217,38 +216,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function leadDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, Lead> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: Lead }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = leadDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                { field: '_root', message: 'Lead.deserialize: root cannot be a forward reference' }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Lead.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function leadDeserializeWithContext(value: any, ctx: DeserializeContext): Lead | PendingRef {
+export function leadDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): Lead | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'Lead.deserializeWithContext: expected an object' }
         ]);
     }
@@ -351,7 +361,7 @@ export function leadDeserializeWithContext(value: any, ctx: DeserializeContext):
         errors.push({ field: 'customFields', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -534,46 +544,46 @@ export function leadDeserializeWithContext(value: any, ctx: DeserializeContext):
         }
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as Lead;
 }
 export function leadValidateField<K extends keyof Lead>(
-    field: K,
-    value: Lead[K]
+    _field: K,
+    _value: Lead[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'status': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'status', message: 'must not be empty' });
             }
             break;
         }
         case 'memo': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'memo', message: 'must not be empty' });
             }
             break;
         }
         case 'accountType': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'accountType', message: 'must not be empty' });
             }
             break;
         }
         case 'subtype': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'subtype', message: 'must not be empty' });
             }
             break;
         }
         case 'paymentTerms': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'paymentTerms', message: 'must not be empty' });
             }
@@ -583,35 +593,35 @@ export function leadValidateField<K extends keyof Lead>(
     return errors;
 }
 export function leadValidateFields(
-    partial: Partial<Lead>
+    _partial: Partial<Lead>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('status' in partial && partial.status !== undefined) {
-        const __val = partial.status as string;
+    if ('status' in _partial && _partial.status !== undefined) {
+        const __val = _partial.status as string;
         if (__val.length === 0) {
             errors.push({ field: 'status', message: 'must not be empty' });
         }
     }
-    if ('memo' in partial && partial.memo !== undefined) {
-        const __val = partial.memo as string;
+    if ('memo' in _partial && _partial.memo !== undefined) {
+        const __val = _partial.memo as string;
         if (__val.length === 0) {
             errors.push({ field: 'memo', message: 'must not be empty' });
         }
     }
-    if ('accountType' in partial && partial.accountType !== undefined) {
-        const __val = partial.accountType as string;
+    if ('accountType' in _partial && _partial.accountType !== undefined) {
+        const __val = _partial.accountType as string;
         if (__val.length === 0) {
             errors.push({ field: 'accountType', message: 'must not be empty' });
         }
     }
-    if ('subtype' in partial && partial.subtype !== undefined) {
-        const __val = partial.subtype as string;
+    if ('subtype' in _partial && _partial.subtype !== undefined) {
+        const __val = _partial.subtype as string;
         if (__val.length === 0) {
             errors.push({ field: 'subtype', message: 'must not be empty' });
         }
     }
-    if ('paymentTerms' in partial && partial.paymentTerms !== undefined) {
-        const __val = partial.paymentTerms as string;
+    if ('paymentTerms' in _partial && _partial.paymentTerms !== undefined) {
+        const __val = _partial.paymentTerms as string;
         if (__val.length === 0) {
             errors.push({ field: 'paymentTerms', message: 'must not be empty' });
         }
@@ -663,77 +673,77 @@ export function leadIs(obj: unknown): obj is Lead {
         return false;
     }
     const result = leadDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type LeadErrors = {
-    _errors: Option<Array<string>>;
-    id: Option<Array<string>>;
-    number: Option<Array<string>>;
-    accepted: Option<Array<string>>;
-    probability: Option<Array<string>>;
-    priority: Option<Array<string>>;
-    dueDate: Option<Array<string>>;
-    closeDate: Option<Array<string>>;
-    value: Option<Array<string>>;
-    stage: Option<Array<string>>;
-    status: Option<Array<string>>;
-    description: Option<Array<string>>;
-    nextStep: Option<Array<string>>;
-    favorite: Option<Array<string>>;
-    dateAdded: Option<Array<string>>;
-    taxRate: Option<Array<string>>;
-    sector: Option<Array<string>>;
-    leadName: Option<Array<string>>;
-    phones: Option<Array<string>>;
-    email: Option<Array<string>>;
-    leadSource: Option<Array<string>>;
-    site: Option<Array<string>>;
-    memo: Option<Array<string>>;
-    needsReview: Option<Array<string>>;
-    hasAlert: Option<Array<string>>;
-    salesRep: Option<Array<string>>;
-    color: Option<Array<string>>;
-    accountType: Option<Array<string>>;
-    subtype: Option<Array<string>>;
-    isTaxExempt: Option<Array<string>>;
-    paymentTerms: Option<Array<string>>;
-    tags: Option<Array<string>>;
-    customFields: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    number: __gf_Option<Array<string>>;
+    accepted: __gf_Option<Array<string>>;
+    probability: __gf_Option<Array<string>>;
+    priority: __gf_Option<Array<string>>;
+    dueDate: __gf_Option<Array<string>>;
+    closeDate: __gf_Option<Array<string>>;
+    value: __gf_Option<Array<string>>;
+    stage: __gf_Option<Array<string>>;
+    status: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
+    nextStep: __gf_Option<Array<string>>;
+    favorite: __gf_Option<Array<string>>;
+    dateAdded: __gf_Option<Array<string>>;
+    taxRate: __gf_Option<Array<string>>;
+    sector: __gf_Option<Array<string>>;
+    leadName: __gf_Option<Array<string>>;
+    phones: __gf_Option<Array<string>>;
+    email: __gf_Option<Array<string>>;
+    leadSource: __gf_Option<Array<string>>;
+    site: __gf_Option<Array<string>>;
+    memo: __gf_Option<Array<string>>;
+    needsReview: __gf_Option<Array<string>>;
+    hasAlert: __gf_Option<Array<string>>;
+    salesRep: __gf_Option<Array<string>>;
+    color: __gf_Option<Array<string>>;
+    accountType: __gf_Option<Array<string>>;
+    subtype: __gf_Option<Array<string>>;
+    isTaxExempt: __gf_Option<Array<string>>;
+    paymentTerms: __gf_Option<Array<string>>;
+    tags: __gf_Option<Array<string>>;
+    customFields: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type LeadTainted = {
-    id: Option<boolean>;
-    number: Option<boolean>;
-    accepted: Option<boolean>;
-    probability: Option<boolean>;
-    priority: Option<boolean>;
-    dueDate: Option<boolean>;
-    closeDate: Option<boolean>;
-    value: Option<boolean>;
-    stage: Option<boolean>;
-    status: Option<boolean>;
-    description: Option<boolean>;
-    nextStep: Option<boolean>;
-    favorite: Option<boolean>;
-    dateAdded: Option<boolean>;
-    taxRate: Option<boolean>;
-    sector: Option<boolean>;
-    leadName: Option<boolean>;
-    phones: Option<boolean>;
-    email: Option<boolean>;
-    leadSource: Option<boolean>;
-    site: Option<boolean>;
-    memo: Option<boolean>;
-    needsReview: Option<boolean>;
-    hasAlert: Option<boolean>;
-    salesRep: Option<boolean>;
-    color: Option<boolean>;
-    accountType: Option<boolean>;
-    subtype: Option<boolean>;
-    isTaxExempt: Option<boolean>;
-    paymentTerms: Option<boolean>;
-    tags: Option<boolean>;
-    customFields: Option<boolean>;
+    id: __gf_Option<boolean>;
+    number: __gf_Option<boolean>;
+    accepted: __gf_Option<boolean>;
+    probability: __gf_Option<boolean>;
+    priority: __gf_Option<boolean>;
+    dueDate: __gf_Option<boolean>;
+    closeDate: __gf_Option<boolean>;
+    value: __gf_Option<boolean>;
+    stage: __gf_Option<boolean>;
+    status: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
+    nextStep: __gf_Option<boolean>;
+    favorite: __gf_Option<boolean>;
+    dateAdded: __gf_Option<boolean>;
+    taxRate: __gf_Option<boolean>;
+    sector: __gf_Option<boolean>;
+    leadName: __gf_Option<boolean>;
+    phones: __gf_Option<boolean>;
+    email: __gf_Option<boolean>;
+    leadSource: __gf_Option<boolean>;
+    site: __gf_Option<boolean>;
+    memo: __gf_Option<boolean>;
+    needsReview: __gf_Option<boolean>;
+    hasAlert: __gf_Option<boolean>;
+    salesRep: __gf_Option<boolean>;
+    color: __gf_Option<boolean>;
+    accountType: __gf_Option<boolean>;
+    subtype: __gf_Option<boolean>;
+    isTaxExempt: __gf_Option<boolean>;
+    paymentTerms: __gf_Option<boolean>;
+    tags: __gf_Option<boolean>;
+    customFields: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface LeadFieldControllers {
     readonly id: FieldController<string>;
@@ -774,7 +784,7 @@ export interface LeadGigaform {
     readonly errors: LeadErrors;
     readonly tainted: LeadTainted;
     readonly fields: LeadFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, Lead>;
+    validate(): Exit<Lead, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<Lead>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
@@ -859,11 +869,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.id,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.id = value;
             },
             getTainted: () => tainted.id,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
@@ -881,11 +891,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: number | null): number | null => value,
             getError: () => errors.number,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.number = value;
             },
             getTainted: () => tainted.number,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.number = value;
             },
             validate: (): Array<string> => {
@@ -903,11 +913,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.accepted,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.accepted = value;
             },
             getTainted: () => tainted.accepted,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.accepted = value;
             },
             validate: (): Array<string> => {
@@ -926,11 +936,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.probability,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.probability = value;
             },
             getTainted: () => tainted.probability,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.probability = value;
             },
             validate: (): Array<string> => {
@@ -949,11 +959,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: Priority): Priority => value,
             getError: () => errors.priority,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.priority = value;
             },
             getTainted: () => tainted.priority,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.priority = value;
             },
             validate: (): Array<string> => {
@@ -972,11 +982,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.dueDate,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.dueDate = value;
             },
             getTainted: () => tainted.dueDate,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.dueDate = value;
             },
             validate: (): Array<string> => {
@@ -995,11 +1005,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.closeDate,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.closeDate = value;
             },
             getTainted: () => tainted.closeDate,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.closeDate = value;
             },
             validate: (): Array<string> => {
@@ -1018,11 +1028,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: number): number => value,
             getError: () => errors.value,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.value = value;
             },
             getTainted: () => tainted.value,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.value = value;
             },
             validate: (): Array<string> => {
@@ -1041,11 +1051,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: LeadStage): LeadStage => value,
             getError: () => errors.stage,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.stage = value;
             },
             getTainted: () => tainted.stage,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.stage = value;
             },
             validate: (): Array<string> => {
@@ -1064,11 +1074,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.status,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.status = value;
             },
             getTainted: () => tainted.status,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.status = value;
             },
             validate: (): Array<string> => {
@@ -1087,11 +1097,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.description,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.description = value;
             },
             getTainted: () => tainted.description,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.description = value;
             },
             validate: (): Array<string> => {
@@ -1109,11 +1119,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: NextStep): NextStep => value,
             getError: () => errors.nextStep,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.nextStep = value;
             },
             getTainted: () => tainted.nextStep,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.nextStep = value;
             },
             validate: (): Array<string> => {
@@ -1132,11 +1142,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.favorite,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.favorite = value;
             },
             getTainted: () => tainted.favorite,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.favorite = value;
             },
             validate: (): Array<string> => {
@@ -1154,11 +1164,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.dateAdded,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.dateAdded = value;
             },
             getTainted: () => tainted.dateAdded,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.dateAdded = value;
             },
             validate: (): Array<string> => {
@@ -1177,11 +1187,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: (string | TaxRate) | null): (string | TaxRate) | null => value,
             getError: () => errors.taxRate,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.taxRate = value;
             },
             getTainted: () => tainted.taxRate,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.taxRate = value;
             },
             validate: (): Array<string> => {
@@ -1200,11 +1210,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: Sector): Sector => value,
             getError: () => errors.sector,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.sector = value;
             },
             getTainted: () => tainted.sector,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.sector = value;
             },
             validate: (): Array<string> => {
@@ -1222,11 +1232,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: AccountName): AccountName => value,
             getError: () => errors.leadName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.leadName = value;
             },
             getTainted: () => tainted.leadName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.leadName = value;
             },
             validate: (): Array<string> => {
@@ -1244,11 +1254,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: PhoneNumber[]): PhoneNumber[] => value,
             getError: () => errors.phones,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.phones = value;
             },
             getTainted: () => tainted.phones,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.phones = value;
             },
             validate: (): Array<string> => {
@@ -1265,11 +1275,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
                 },
                 transform: (value: PhoneNumber): PhoneNumber => value,
                 getError: () => errors.phones,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.phones = value;
                 },
                 getTainted: () => tainted.phones,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.phones = value;
                 },
                 validate: (): Array<string> => []
@@ -1297,11 +1307,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: Email): Email => value,
             getError: () => errors.email,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.email = value;
             },
             getTainted: () => tainted.email,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.email = value;
             },
             validate: (): Array<string> => {
@@ -1320,11 +1330,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.leadSource,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.leadSource = value;
             },
             getTainted: () => tainted.leadSource,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.leadSource = value;
             },
             validate: (): Array<string> => {
@@ -1343,11 +1353,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string | Site): string | Site => value,
             getError: () => errors.site,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.site = value;
             },
             getTainted: () => tainted.site,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.site = value;
             },
             validate: (): Array<string> => {
@@ -1366,11 +1376,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.memo,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.memo = value;
             },
             getTainted: () => tainted.memo,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.memo = value;
             },
             validate: (): Array<string> => {
@@ -1389,11 +1399,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.needsReview,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.needsReview = value;
             },
             getTainted: () => tainted.needsReview,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.needsReview = value;
             },
             validate: (): Array<string> => {
@@ -1412,11 +1422,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.hasAlert,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.hasAlert = value;
             },
             getTainted: () => tainted.hasAlert,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.hasAlert = value;
             },
             validate: (): Array<string> => {
@@ -1435,11 +1445,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: Represents[] | null): Represents[] | null => value,
             getError: () => errors.salesRep,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.salesRep = value;
             },
             getTainted: () => tainted.salesRep,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.salesRep = value;
             },
             validate: (): Array<string> => {
@@ -1457,11 +1467,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string | null): string | null => value,
             getError: () => errors.color,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.color = value;
             },
             getTainted: () => tainted.color,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.color = value;
             },
             validate: (): Array<string> => {
@@ -1480,11 +1490,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.accountType,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.accountType = value;
             },
             getTainted: () => tainted.accountType,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.accountType = value;
             },
             validate: (): Array<string> => {
@@ -1503,11 +1513,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.subtype,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.subtype = value;
             },
             getTainted: () => tainted.subtype,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.subtype = value;
             },
             validate: (): Array<string> => {
@@ -1526,11 +1536,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: boolean): boolean => value,
             getError: () => errors.isTaxExempt,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.isTaxExempt = value;
             },
             getTainted: () => tainted.isTaxExempt,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.isTaxExempt = value;
             },
             validate: (): Array<string> => {
@@ -1549,11 +1559,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string): string => value,
             getError: () => errors.paymentTerms,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.paymentTerms = value;
             },
             getTainted: () => tainted.paymentTerms,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.paymentTerms = value;
             },
             validate: (): Array<string> => {
@@ -1572,11 +1582,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: string[]): string[] => value,
             getError: () => errors.tags,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.tags = value;
             },
             getTainted: () => tainted.tags,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.tags = value;
             },
             validate: (): Array<string> => {
@@ -1593,11 +1603,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
                 },
                 transform: (value: string): string => value,
                 getError: () => errors.tags,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.tags = value;
                 },
                 getTainted: () => tainted.tags,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.tags = value;
                 },
                 validate: (): Array<string> => []
@@ -1624,11 +1634,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             },
             transform: (value: [string, string][]): [string, string][] => value,
             getError: () => errors.customFields,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.customFields = value;
             },
             getTainted: () => tainted.customFields,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.customFields = value;
             },
             validate: (): Array<string> => {
@@ -1645,11 +1655,11 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
                 },
                 transform: (value: [string, string]): [string, string] => value,
                 getError: () => errors.customFields,
-                setError: (value: Option<Array<string>>) => {
+                setError: (value: __gf_Option<Array<string>>) => {
                     errors.customFields = value;
                 },
                 getTainted: () => tainted.customFields,
-                setTainted: (value: Option<boolean>) => {
+                setTainted: (value: __gf_Option<boolean>) => {
                     tainted.customFields = value;
                 },
                 validate: (): Array<string> => []
@@ -1667,7 +1677,7 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, Lead> {
+    function validate(): Exit<Lead, Array<{ field: string; message: string }>> {
         return toExit(leadDeserialize(data));
     }
     function reset(newOverrides?: Partial<Lead>): void {
@@ -1768,7 +1778,7 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function leadFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, Lead> {
+): Exit<Lead, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     {

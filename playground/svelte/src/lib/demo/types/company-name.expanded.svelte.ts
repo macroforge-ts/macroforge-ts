@@ -1,12 +1,11 @@
-import { SerializeContext } from 'macroforge/serde';
-import { Exit } from 'macroforge/utils/effect';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option } from '@playground/macro/gigaform';
+import type { Option as __gf_Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -26,14 +25,14 @@ export function companyNameDefaultValue(): CompanyName {
 @returns JSON string representation with cycle detection metadata */ export function companyNameSerialize(
     value: CompanyName
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(companyNameSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function companyNameSerializeWithContext(
     value: CompanyName,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -51,44 +50,49 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function companyNameDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-): Exit.Exit<Array<{ field: string; message: string }>, CompanyName> {
+    opts?: __mf_DeserializeOptions
+):
+    | { success: true; value: CompanyName }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = companyNameDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return Exit.fail([
-                {
-                    field: '_root',
-                    message: 'CompanyName.deserialize: root cannot be a forward reference'
-                }
-            ]);
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'CompanyName.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Exit.succeed(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Exit.fail(e.errors);
+        if (e instanceof __mf_DeserializeError) {
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Exit.fail([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function companyNameDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): CompanyName | PendingRef {
+    ctx: __mf_DeserializeContext
+): CompanyName | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             { field: '_root', message: 'CompanyName.deserializeWithContext: expected an object' }
         ]);
     }
@@ -98,7 +102,7 @@ export function companyNameDeserializeWithContext(
         errors.push({ field: 'companyName', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -113,18 +117,18 @@ export function companyNameDeserializeWithContext(
         instance.companyName = __raw_companyName;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as CompanyName;
 }
 export function companyNameValidateField<K extends keyof CompanyName>(
-    field: K,
-    value: CompanyName[K]
+    _field: K,
+    _value: CompanyName[K]
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    switch (field) {
+    switch (_field) {
         case 'companyName': {
-            const __val = value as string;
+            const __val = _value as string;
             if (__val.length === 0) {
                 errors.push({ field: 'companyName', message: 'must not be empty' });
             }
@@ -134,11 +138,11 @@ export function companyNameValidateField<K extends keyof CompanyName>(
     return errors;
 }
 export function companyNameValidateFields(
-    partial: Partial<CompanyName>
+    _partial: Partial<CompanyName>
 ): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
-    if ('companyName' in partial && partial.companyName !== undefined) {
-        const __val = partial.companyName as string;
+    if ('companyName' in _partial && _partial.companyName !== undefined) {
+        const __val = _partial.companyName as string;
         if (__val.length === 0) {
             errors.push({ field: 'companyName', message: 'must not be empty' });
         }
@@ -157,15 +161,15 @@ export function companyNameIs(obj: unknown): obj is CompanyName {
         return false;
     }
     const result = companyNameDeserialize(obj);
-    return Exit.isSuccess(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type CompanyNameErrors = {
-    _errors: Option<Array<string>>;
-    companyName: Option<Array<string>>;
+    _errors: __gf_Option<Array<string>>;
+    companyName: __gf_Option<Array<string>>;
 }; /** Nested boolean structure for tracking touched/dirty fields */
 export type CompanyNameTainted = {
-    companyName: Option<boolean>;
+    companyName: __gf_Option<boolean>;
 }; /** Type-safe field controllers for this form */
 export interface CompanyNameFieldControllers {
     readonly companyName: FieldController<string>;
@@ -175,7 +179,7 @@ export interface CompanyNameGigaform {
     readonly errors: CompanyNameErrors;
     readonly tainted: CompanyNameTainted;
     readonly fields: CompanyNameFieldControllers;
-    validate(): Exit<Array<{ field: string; message: string }>, CompanyName>;
+    validate(): Exit<CompanyName, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<CompanyName>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function companyNameCreateForm(overrides?: Partial<CompanyName>): CompanyNameGigaform {
@@ -194,11 +198,11 @@ export function companyNameCreateForm(overrides?: Partial<CompanyName>): Company
             },
             transform: (value: string): string => value,
             getError: () => errors.companyName,
-            setError: (value: Option<Array<string>>) => {
+            setError: (value: __gf_Option<Array<string>>) => {
                 errors.companyName = value;
             },
             getTainted: () => tainted.companyName,
-            setTainted: (value: Option<boolean>) => {
+            setTainted: (value: __gf_Option<boolean>) => {
                 tainted.companyName = value;
             },
             validate: (): Array<string> => {
@@ -207,7 +211,7 @@ export function companyNameCreateForm(overrides?: Partial<CompanyName>): Company
             }
         }
     };
-    function validate(): Exit<Array<{ field: string; message: string }>, CompanyName> {
+    function validate(): Exit<CompanyName, Array<{ field: string; message: string }>> {
         return toExit(companyNameDeserialize(data));
     }
     function reset(newOverrides?: Partial<CompanyName>): void {
@@ -241,7 +245,7 @@ export function companyNameCreateForm(overrides?: Partial<CompanyName>): Company
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function companyNameFromFormData(
     formData: FormData
-): Exit<Array<{ field: string; message: string }>, CompanyName> {
+): Exit<CompanyName, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.companyName = formData.get('companyName') ?? '';
     return toExit(companyNameDeserialize(obj));
