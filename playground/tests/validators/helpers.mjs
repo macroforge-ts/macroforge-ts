@@ -2,7 +2,6 @@
 var moduleCache = new Map();
 var expandSync;
 var loadConfig;
-var Result;
 var configPath;
 
 import { test, describe, beforeEach, afterEach, beforeAll, afterAll } from "bun:test";
@@ -21,13 +20,12 @@ const vanillaRoot = path.join(playgroundRoot, "vanilla");
 // Use require for synchronous loading
 const require = createRequire(import.meta.url);
 const swcMacrosPath = path.join(repoRoot, "crates/macroforge_ts/index.js");
-const utilsPath = path.join(repoRoot, "crates/macroforge_ts/js/utils/index.mjs");
 
 // Initialize after imports
 const macroforge = require(swcMacrosPath);
 expandSync = macroforge.expandSync;
 loadConfig = macroforge.loadConfig;
-Result = require(utilsPath).Result;
+
 
 // Load and cache the config for the vanilla playground
 configPath = path.join(vanillaRoot, "macroforge.config.ts");
@@ -88,15 +86,15 @@ export async function loadValidatorModule(moduleName) {
 }
 
 /**
- * Assert that fromStringifiedJSON returns an error Result with expected message substring
- * @param {object} result - Result from fromStringifiedJSON
+ * Assert that fromStringifiedJSON returns an error result with expected message substring
+ * @param {object} result - Result from fromStringifiedJSON ({ success: boolean, errors?: Array })
  * @param {string} fieldName - Field name for error context
  * @param {string} messageSubstring - Expected substring in error message
  */
 export function assertValidationError(result, fieldName, messageSubstring) {
-  expect(Result.isErr(result)).toBe(true);
-  const errors = Result.unwrapErr(result);
-  // Errors are now structured as {field, message} objects
+  expect(result.success).toBe(false);
+  const errors = result.errors;
+  // Errors are structured as {field, message} objects
   const hasExpectedError = errors.some((e) => {
     const msg = typeof e === "string" ? e : e.message;
     return msg.includes(messageSubstring);
@@ -105,30 +103,30 @@ export function assertValidationError(result, fieldName, messageSubstring) {
 }
 
 /**
- * Assert that fromStringifiedJSON returns a successful Result
- * @param {object} result - Result from fromStringifiedJSON
+ * Assert that fromStringifiedJSON returns a successful result
+ * @param {object} result - Result from fromStringifiedJSON ({ success: boolean, value?: T, errors?: Array })
  * @param {string} fieldName - Field name for error context
  */
 export function assertValidationSuccess(result, fieldName) {
-  if (Result.isErr(result)) {
-    const errors = Result.unwrapErr(result);
-    // Errors are now structured as {field, message} objects
+  if (!result.success) {
+    const errors = result.errors;
+    // Errors are structured as {field, message} objects
     const errorMsgs = errors.map((e) => (typeof e === "string" ? e : `${e.field}: ${e.message}`));
     throw new Error(
       `Expected validation to succeed for "${fieldName}", but got errors: ${errorMsgs.join("; ")}`
     );
   }
-  expect(Result.isOk(result)).toBe(true);
+  expect(result.success).toBe(true);
 }
 
 /**
  * Assert that fromStringifiedJSON returns specific error count
- * @param {object} result - Result from fromStringifiedJSON
+ * @param {object} result - Result from fromStringifiedJSON ({ success: boolean, errors?: Array })
  * @param {number} expectedCount - Expected number of errors
  */
 export function assertErrorCount(result, expectedCount) {
-  expect(Result.isErr(result)).toBe(true);
-  const errors = Result.unwrapErr(result);
+  expect(result.success).toBe(false);
+  const errors = result.errors;
   expect(errors.length).toBe(expectedCount);
 }
 
