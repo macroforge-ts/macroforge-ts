@@ -242,13 +242,11 @@ export interface Serialize<T> {
  *
  * @example
  * ```typescript
- * import { Result } from "macroforge/reexports";
- *
- * const result = User.fromStringifiedJSON(json);
- * if (Result.isOk(result)) {
+ * const result = User.deserialize(data);
+ * if (result.success) {
  *   const user = result.value;
  * } else {
- *   console.error(result.error); // Validation errors
+ *   console.error(result.errors); // Validation errors
  * }
  * ```
  */
