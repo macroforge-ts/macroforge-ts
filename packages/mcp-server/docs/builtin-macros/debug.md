@@ -26,7 +26,7 @@ The `@debug` decorator supports:
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(Debug) */
 class User {
     /** @debug({ rename: "id" }) */
@@ -39,9 +39,7 @@ class User {
 }
 ```
 
-Generated output:
-
-```typescript
+```typescript after
 class User {
     userId: number;
 

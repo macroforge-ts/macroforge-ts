@@ -39,7 +39,7 @@ The `@partialEq` decorator supports:
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(PartialEq, Hash) */
 class User {
     id: number;
@@ -50,9 +50,7 @@ class User {
 }
 ```
 
-Generated output:
-
-```typescript
+```typescript after
 class User {
     id: number;
     name: string;
@@ -102,7 +100,7 @@ When implementing `PartialEq`, consider also implementing `Hash`:
 
 To maintain the hash contract, skip the same fields in both `PartialEq` and `Hash`:
 
-```typescript
+```typescript before
 /** @derive(PartialEq, Hash) */
 class User {
     id: number;
@@ -113,9 +111,7 @@ class User {
 }
 ```
 
-Generated output:
-
-```typescript
+```typescript after
 class User {
     id: number;
     name: string;

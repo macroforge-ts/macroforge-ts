@@ -1,6 +1,6 @@
 # transformSync()
 
-macroforge v0.1.42
+macroforge v0.1.43
 
 Synchronously transforms TypeScript code through the macro expansion system. This is similar to \[\`expand\_sync\`\] but returns a \[\`TransformResult\`\] which includes source map information (when available).
 
