@@ -37,6 +37,7 @@ export interface MacroDiagnostic {
 
 export interface MacroExpansionResult {
     types: string | null;
+    code: string | null;
     diagnostics: MacroDiagnostic[];
 }
 
@@ -57,7 +58,7 @@ export function augmentWithMacroforge(
     config?: MacroforgeAugmentationConfig
 ): MacroExpansionResult {
     if (!config || !shouldProcess(fileName)) {
-        return { types: null, diagnostics: [] };
+        return { types: null, code: null, diagnostics: [] };
     }
 
     // Check if macroforge module loaded successfully
@@ -67,24 +68,25 @@ export function augmentWithMacroforge(
                 `Skipping macroforge expansion for ${fileName}: native module not loaded (${macroforgeLoadError.message})`
             );
         }
-        return { types: null, diagnostics: [] };
+        return { types: null, code: null, diagnostics: [] };
     }
 
     // Basic check if macro is used to avoid invoking rust for every file
     // This is a heuristic, but expand_sync parses anyway so it's safe
     if (!sourceText.includes('@')) {
-        return { types: null, diagnostics: [] };
+        return { types: null, code: null, diagnostics: [] };
     }
 
     try {
         const result = expandSync(sourceText, fileName);
         return {
             types: result.types || null,
+            code: result.code || null,
             diagnostics: result.diagnostics
         };
     } catch (e) {
         Logger.error(`macroforge expansion failed for ${fileName}:`, e);
-        return { types: null, diagnostics: [] };
+        return { types: null, code: null, diagnostics: [] };
     }
 }
 

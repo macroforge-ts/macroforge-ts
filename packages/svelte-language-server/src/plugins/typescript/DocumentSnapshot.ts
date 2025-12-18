@@ -378,8 +378,8 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
       this.macroforgeConfig,
     );
 
-    if (augmented.types) {
-      this.text = augmented.types;
+    if (augmented.code) {
+      this.text = augmented.code;
     }
     this.macroDiagnostics = augmented.diagnostics;
   }
@@ -731,8 +731,8 @@ export class JSOrTSDocumentSnapshot
       this.macroforgeConfig,
     );
 
-    if (augmented.types) {
-      this.text = augmented.types;
+    if (augmented.code) {
+      this.text = augmented.code;
     }
     this.macroDiagnostics = augmented.diagnostics;
   }
