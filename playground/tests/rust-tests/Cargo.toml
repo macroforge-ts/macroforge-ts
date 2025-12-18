@@ -8,7 +8,7 @@ publish = false
 macroforge_ts = { path = "../../../crates/macroforge_ts" }
 macroforge_ts_quote = { path = "../../../crates/macroforge_ts_quote" }
 macroforge_ts_syn = { path = "../../../crates/macroforge_ts_syn" }
-swc_core = { version = "48", features = ["common", "ecma_ast", "ecma_parser"] }
+swc_core = { version = "51", features = ["common", "ecma_ast", "ecma_parser"] }
 
 [dev-dependencies]
 trybuild = "1.0"
