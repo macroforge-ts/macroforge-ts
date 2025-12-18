@@ -1,15 +1,9 @@
-import { optionSome as __mf_optionSome } from 'macroforge/reexports/effect';
-import { optionNone as __mf_optionNone } from 'macroforge/reexports/effect';
-import { optionIsNone as __mf_optionIsNone } from 'macroforge/reexports/effect';
-import type { Option as __mf_Option } from 'macroforge/reexports/effect';
-import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
-import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
-import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
-import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { Exit } from 'macroforge/utils/effect';
+import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
+import { Option } from 'macroforge/utils/effect';
 /**
  * Stress test for aliased imports and tree-shaking.
  *
@@ -44,14 +38,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function userWithDeserializeDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, UserWithDeserialize> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, UserWithDeserialize> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = userWithDeserializeDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 {
                     field: '_root',
                     message: 'UserWithDeserialize.deserialize: root cannot be a forward reference'
@@ -62,26 +56,26 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function userWithDeserializeDeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): UserWithDeserialize | __mf_PendingRef {
+    ctx: DeserializeContext
+): UserWithDeserialize | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             {
                 field: '_root',
                 message: 'UserWithDeserialize.deserializeWithContext: expected an object'
@@ -100,7 +94,7 @@ export function userWithDeserializeDeserializeWithContext(
         errors.push({ field: 'email', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -120,7 +114,7 @@ export function userWithDeserializeDeserializeWithContext(
         instance.email = __raw_email;
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     return instance as UserWithDeserialize;
 }
@@ -147,7 +141,7 @@ export function userWithDeserializeIs(obj: unknown): obj is UserWithDeserialize 
         return false;
     }
     const result = userWithDeserializeDeserialize(obj);
-    return __mf_exitIsSuccess(result);
+    return Exit.isSuccess(result);
 }
 
 export const UserWithDeserialize = {
@@ -168,15 +162,15 @@ export interface ComparableItem {
 export function comparableItemPartialCompare(
     a: ComparableItem,
     b: ComparableItem
-): __mf_Option<number> {
-    if (a === b) return __mf_optionSome(0);
+): Option.Option<number> {
+    if (a === b) return Option.some(0);
     const cmp0 = a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0;
-    if (cmp0 === null) return __mf_optionNone();
-    if (cmp0 !== 0) return __mf_optionSome(cmp0);
+    if (cmp0 === null) return Option.none();
+    if (cmp0 !== 0) return Option.some(cmp0);
     const cmp1 = a.name.localeCompare(b.name);
-    if (cmp1 === null) return __mf_optionNone();
-    if (cmp1 !== 0) return __mf_optionSome(cmp1);
-    return __mf_optionSome(0);
+    if (cmp1 === null) return Option.none();
+    if (cmp1 !== 0) return Option.some(cmp1);
+    return Option.some(0);
 }
 
 export const ComparableItem = {
@@ -197,14 +191,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function fullFeaturedTypeDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, FullFeaturedType> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, FullFeaturedType> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = fullFeaturedTypeDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 {
                     field: '_root',
                     message: 'FullFeaturedType.deserialize: root cannot be a forward reference'
@@ -215,26 +209,26 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function fullFeaturedTypeDeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): FullFeaturedType | __mf_PendingRef {
+    ctx: DeserializeContext
+): FullFeaturedType | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             {
                 field: '_root',
                 message: 'FullFeaturedType.deserializeWithContext: expected an object'
@@ -253,7 +247,7 @@ export function fullFeaturedTypeDeserializeWithContext(
         errors.push({ field: 'score', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -273,7 +267,7 @@ export function fullFeaturedTypeDeserializeWithContext(
         instance.score = __raw_score;
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     return instance as FullFeaturedType;
 }
@@ -300,24 +294,24 @@ export function fullFeaturedTypeIs(obj: unknown): obj is FullFeaturedType {
         return false;
     }
     const result = fullFeaturedTypeDeserialize(obj);
-    return __mf_exitIsSuccess(result);
+    return Exit.isSuccess(result);
 }
 
 export function fullFeaturedTypePartialCompare(
     a: FullFeaturedType,
     b: FullFeaturedType
-): __mf_Option<number> {
-    if (a === b) return __mf_optionSome(0);
+): Option.Option<number> {
+    if (a === b) return Option.some(0);
     const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-    if (cmp0 === null) return __mf_optionNone();
-    if (cmp0 !== 0) return __mf_optionSome(cmp0);
+    if (cmp0 === null) return Option.none();
+    if (cmp0 !== 0) return Option.some(cmp0);
     const cmp1 = a.value.localeCompare(b.value);
-    if (cmp1 === null) return __mf_optionNone();
-    if (cmp1 !== 0) return __mf_optionSome(cmp1);
+    if (cmp1 === null) return Option.none();
+    if (cmp1 !== 0) return Option.some(cmp1);
     const cmp2 = a.score < b.score ? -1 : a.score > b.score ? 1 : 0;
-    if (cmp2 === null) return __mf_optionNone();
-    if (cmp2 !== 0) return __mf_optionSome(cmp2);
-    return __mf_optionSome(0);
+    if (cmp2 === null) return Option.none();
+    if (cmp2 !== 0) return Option.some(cmp2);
+    return Option.some(0);
 }
 
 export const FullFeaturedType = {
@@ -341,14 +335,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function typeADeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, TypeA> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, TypeA> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = typeADeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 { field: '_root', message: 'TypeA.deserialize: root cannot be a forward reference' }
             ]);
         }
@@ -356,26 +350,26 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function typeADeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): TypeA | __mf_PendingRef {
+    ctx: DeserializeContext
+): TypeA | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             { field: '_root', message: 'TypeA.deserializeWithContext: expected an object' }
         ]);
     }
@@ -385,7 +379,7 @@ export function typeADeserializeWithContext(
         errors.push({ field: 'fieldA', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -397,7 +391,7 @@ export function typeADeserializeWithContext(
         instance.fieldA = __raw_fieldA;
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     return instance as TypeA;
 }
@@ -424,7 +418,7 @@ export function typeAIs(obj: unknown): obj is TypeA {
         return false;
     }
     const result = typeADeserialize(obj);
-    return __mf_exitIsSuccess(result);
+    return Exit.isSuccess(result);
 }
 
 export const TypeA = {
@@ -445,14 +439,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function typeBDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, TypeB> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, TypeB> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = typeBDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 { field: '_root', message: 'TypeB.deserialize: root cannot be a forward reference' }
             ]);
         }
@@ -460,26 +454,26 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function typeBDeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): TypeB | __mf_PendingRef {
+    ctx: DeserializeContext
+): TypeB | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             { field: '_root', message: 'TypeB.deserializeWithContext: expected an object' }
         ]);
     }
@@ -489,7 +483,7 @@ export function typeBDeserializeWithContext(
         errors.push({ field: 'fieldB', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -501,7 +495,7 @@ export function typeBDeserializeWithContext(
         instance.fieldB = __raw_fieldB;
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     return instance as TypeB;
 }
@@ -528,7 +522,7 @@ export function typeBIs(obj: unknown): obj is TypeB {
         return false;
     }
     const result = typeBDeserialize(obj);
-    return __mf_exitIsSuccess(result);
+    return Exit.isSuccess(result);
 }
 
 export const TypeB = {
@@ -543,12 +537,12 @@ export interface TypeC {
     fieldC: number;
 }
 
-export function typeCPartialCompare(a: TypeC, b: TypeC): __mf_Option<number> {
-    if (a === b) return __mf_optionSome(0);
+export function typeCPartialCompare(a: TypeC, b: TypeC): Option.Option<number> {
+    if (a === b) return Option.some(0);
     const cmp0 = a.fieldC < b.fieldC ? -1 : a.fieldC > b.fieldC ? 1 : 0;
-    if (cmp0 === null) return __mf_optionNone();
-    if (cmp0 !== 0) return __mf_optionSome(cmp0);
-    return __mf_optionSome(0);
+    if (cmp0 === null) return Option.none();
+    if (cmp0 !== 0) return Option.some(cmp0);
+    return Option.some(0);
 }
 
 export const TypeC = {

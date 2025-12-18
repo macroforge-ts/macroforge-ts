@@ -1,23 +1,19 @@
-import { DateTime as __mf_DateTime } from 'effect';
-import { Option as __mf_Option } from 'effect';
 import { appPermissionsDefaultValue } from './app-permissions.svelte';
 import { settingsDefaultValue } from './settings.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from 'macroforge/serde';
 import { appPermissionsSerializeWithContext } from './app-permissions.svelte';
 import { settingsSerializeWithContext } from './settings.svelte';
 import { userRoleSerializeWithContext } from './user-role.svelte';
-import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
-import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
-import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
-import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { Exit } from 'macroforge/utils/effect';
+import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 import { appPermissionsDeserializeWithContext } from './app-permissions.svelte';
 import { settingsDeserializeWithContext } from './settings.svelte';
 import { userRoleDeserializeWithContext } from './user-role.svelte';
 import type { Exit } from '@playground/macro/gigaform';
+import { toExit } from '@playground/macro/gigaform';
 import type { Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
@@ -55,21 +51,21 @@ export interface User {
 export function userDefaultValue(): User {
     return {
         id: '',
-        email: (() => __mf_Option.none())(),
+        email: (() => Option.none())(),
         firstName: '',
         lastName: '',
-        password: (() => __mf_Option.none())(),
-        metadata: (() => __mf_Option.none())(),
+        password: (() => Option.none())(),
+        metadata: (() => Option.none())(),
         settings: settingsDefaultValue(),
         role: 'Administrator',
         emailVerified: false,
-        verificationToken: (() => __mf_Option.none())(),
-        verificationExpires: (() => __mf_Option.none())(),
-        passwordResetToken: (() => __mf_Option.none())(),
-        passwordResetExpires: (() => __mf_Option.none())(),
+        verificationToken: (() => Option.none())(),
+        verificationExpires: (() => Option.none())(),
+        passwordResetToken: (() => Option.none())(),
+        passwordResetExpires: (() => Option.none())(),
         permissions: appPermissionsDefaultValue(),
-        createdAt: (() => __mf_DateTime.unsafeNow())(),
-        lastLoginAt: (() => __mf_Option.none())()
+        createdAt: (() => DateTime.unsafeNow())(),
+        lastLoginAt: (() => Option.none())()
     } as User;
 }
 
@@ -78,14 +74,14 @@ export function userDefaultValue(): User {
 @returns JSON string representation with cycle detection metadata */ export function userSerialize(
     value: User
 ): string {
-    const ctx = __mf_SerializeContext.create();
+    const ctx = SerializeContext.create();
     return JSON.stringify(userSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function userSerializeWithContext(
     value: User,
-    ctx: __mf_SerializeContext
+    ctx: SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -94,37 +90,29 @@ export function userSerializeWithContext(
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'User', __id };
     result['id'] = value.id;
-    result['email'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(value.email);
+    result['email'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.email);
     result['firstName'] = value.firstName;
     result['lastName'] = value.lastName;
-    result['password'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
-        value.password
-    );
-    result['metadata'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
-        value.metadata
-    );
+    result['password'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.password);
+    result['metadata'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.metadata);
     result['settings'] = settingsSerializeWithContext(value.settings, ctx);
     result['role'] = userRoleSerializeWithContext(value.role, ctx);
     result['emailVerified'] = value.emailVerified;
-    result['verificationToken'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
+    result['verificationToken'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
         value.verificationToken
     );
-    result['verificationExpires'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
+    result['verificationExpires'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
         value.verificationExpires
     );
-    result['passwordResetToken'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
+    result['passwordResetToken'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
         value.passwordResetToken
     );
-    result['passwordResetExpires'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
+    result['passwordResetExpires'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
         value.passwordResetExpires
     );
     result['permissions'] = appPermissionsSerializeWithContext(value.permissions, ctx);
-    result['createdAt'] = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(
-        value.createdAt
-    );
-    result['lastLoginAt'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
-        value.lastLoginAt
-    );
+    result['createdAt'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.createdAt);
+    result['lastLoginAt'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.lastLoginAt);
     return result;
 }
 
@@ -134,14 +122,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function userDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, User> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, User> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = userDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 { field: '_root', message: 'User.deserialize: root cannot be a forward reference' }
             ]);
         }
@@ -149,26 +137,23 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function userDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): User | __mf_PendingRef {
+export function userDeserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             { field: '_root', message: 'User.deserializeWithContext: expected an object' }
         ]);
     }
@@ -223,7 +208,7 @@ export function userDeserializeWithContext(
         errors.push({ field: 'lastLoginAt', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -234,8 +219,9 @@ export function userDeserializeWithContext(
         const __raw_id = obj['id'] as string;
         instance.id = __raw_id;
     }
-    instance.email = ((raw: unknown) =>
-        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['email']);
+    instance.email = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
+        obj['email']
+    );
     {
         const __raw_firstName = obj['firstName'] as string;
         if (__raw_firstName.length === 0) {
@@ -250,10 +236,12 @@ export function userDeserializeWithContext(
         }
         instance.lastName = __raw_lastName;
     }
-    instance.password = ((raw: unknown) =>
-        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['password']);
-    instance.metadata = ((raw: unknown) =>
-        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['metadata']);
+    instance.password = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
+        obj['password']
+    );
+    instance.metadata = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
+        obj['metadata']
+    );
     {
         const __raw_settings = obj['settings'] as Settings;
         {
@@ -273,13 +261,13 @@ export function userDeserializeWithContext(
         instance.emailVerified = __raw_emailVerified;
     }
     instance.verificationToken = ((raw: unknown) =>
-        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['verificationToken']);
+        raw === null ? Option.none() : Option.some(raw))(obj['verificationToken']);
     instance.verificationExpires = ((raw: unknown) =>
-        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['verificationExpires']);
+        raw === null ? Option.none() : Option.some(raw))(obj['verificationExpires']);
     instance.passwordResetToken = ((raw: unknown) =>
-        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['passwordResetToken']);
+        raw === null ? Option.none() : Option.some(raw))(obj['passwordResetToken']);
     instance.passwordResetExpires = ((raw: unknown) =>
-        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['passwordResetExpires']);
+        raw === null ? Option.none() : Option.some(raw))(obj['passwordResetExpires']);
     {
         const __raw_permissions = obj['permissions'] as AppPermissions;
         {
@@ -287,13 +275,14 @@ export function userDeserializeWithContext(
             ctx.assignOrDefer(instance, 'permissions', __result);
         }
     }
-    instance.createdAt = ((raw: unknown) => __mf_DateTime.unsafeFromDate(new Date(raw as string)))(
+    instance.createdAt = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(
         obj['createdAt']
     );
-    instance.lastLoginAt = ((raw: unknown) =>
-        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['lastLoginAt']);
+    instance.lastLoginAt = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
+        obj['lastLoginAt']
+    );
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     return instance as User;
 }
@@ -367,7 +356,7 @@ export function userIs(obj: unknown): obj is User {
         return false;
     }
     const result = userDeserialize(obj);
-    return __mf_exitIsSuccess(result);
+    return Exit.isSuccess(result);
 }
 
 /** Nested error structure matching the data shape */ export type UserErrors = {
@@ -836,7 +825,7 @@ export function userCreateForm(overrides?: Partial<User>): UserGigaform {
         }
     };
     function validate(): Exit<Array<{ field: string; message: string }>, User> {
-        return userDeserialize(data);
+        return toExit(userDeserialize(data));
     }
     function reset(newOverrides?: Partial<User>): void {
         data = { ...userDefaultValue(), ...newOverrides };
@@ -1142,7 +1131,7 @@ export function userFromFormData(
         }
         obj.lastLoginAt = lastLoginAtObj;
     }
-    return userDeserialize(obj);
+    return toExit(userDeserialize(obj));
 }
 
 export const User = {

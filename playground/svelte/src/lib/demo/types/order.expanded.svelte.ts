@@ -1,18 +1,14 @@
-import { DateTime as __mf_DateTime } from 'effect';
-import { Option as __mf_Option } from 'effect';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from 'macroforge/serde';
 import { billedItemSerializeWithContext } from './billed-item.svelte';
 import { orderStageSerializeWithContext } from './order-stage.svelte';
-import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
-import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
-import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
-import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { Exit } from 'macroforge/utils/effect';
+import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 import { orderStageDeserializeWithContext } from './order-stage.svelte';
 import type { Exit } from '@playground/macro/gigaform';
+import { toExit } from '@playground/macro/gigaform';
 import type { Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
@@ -110,17 +106,17 @@ export function orderDefaultValue(): Order {
         needsReview: false,
         actionItem: '',
         upsale: 0,
-        dateCreated: (() => __mf_DateTime.unsafeNow())(),
+        dateCreated: (() => DateTime.unsafeNow())(),
         appointment: '',
         lastTechs: [],
         package: null,
         promotion: null,
         balance: 0,
-        due: (() => __mf_DateTime.unsafeNow())(),
+        due: (() => DateTime.unsafeNow())(),
         total: 0,
         site: '',
         billedItems: [],
-        memo: (() => __mf_Option.none())(),
+        memo: (() => Option.none())(),
         discount: 0,
         tip: 0,
         commissions: []
@@ -132,14 +128,14 @@ export function orderDefaultValue(): Order {
 @returns JSON string representation with cycle detection metadata */ export function orderSerialize(
     value: Order
 ): string {
-    const ctx = __mf_SerializeContext.create();
+    const ctx = SerializeContext.create();
     return JSON.stringify(orderSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function orderSerializeWithContext(
     value: Order,
-    ctx: __mf_SerializeContext
+    ctx: SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -162,9 +158,7 @@ export function orderSerializeWithContext(
     result['needsReview'] = value.needsReview;
     result['actionItem'] = value.actionItem;
     result['upsale'] = value.upsale;
-    result['dateCreated'] = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(
-        value.dateCreated
-    );
+    result['dateCreated'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.dateCreated);
     result['appointment'] = value.appointment;
     result['lastTechs'] = value.lastTechs;
     if (value.package !== null) {
@@ -178,13 +172,13 @@ export function orderSerializeWithContext(
         result['promotion'] = null;
     }
     result['balance'] = value.balance;
-    result['due'] = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(value.due);
+    result['due'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.due);
     result['total'] = value.total;
     result['site'] = value.site;
     result['billedItems'] = value.billedItems.map((item) =>
         billedItemSerializeWithContext(item, ctx)
     );
-    result['memo'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(value.memo);
+    result['memo'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.memo);
     result['discount'] = value.discount;
     result['tip'] = value.tip;
     result['commissions'] = value.commissions;
@@ -197,14 +191,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function orderDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, Order> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, Order> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = orderDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 { field: '_root', message: 'Order.deserialize: root cannot be a forward reference' }
             ]);
         }
@@ -212,26 +206,26 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function orderDeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): Order | __mf_PendingRef {
+    ctx: DeserializeContext
+): Order | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             { field: '_root', message: 'Order.deserializeWithContext: expected an object' }
         ]);
     }
@@ -325,7 +319,7 @@ export function orderDeserializeWithContext(
         errors.push({ field: 'commissions', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -415,8 +409,9 @@ export function orderDeserializeWithContext(
         const __raw_upsale = obj['upsale'] as number;
         instance.upsale = __raw_upsale;
     }
-    instance.dateCreated = ((raw: unknown) =>
-        __mf_DateTime.unsafeFromDate(new Date(raw as string)))(obj['dateCreated']);
+    instance.dateCreated = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(
+        obj['dateCreated']
+    );
     {
         const __raw_appointment = obj['appointment'] as string | Appointment;
         instance.appointment = __raw_appointment;
@@ -447,9 +442,7 @@ export function orderDeserializeWithContext(
         const __raw_balance = obj['balance'] as number;
         instance.balance = __raw_balance;
     }
-    instance.due = ((raw: unknown) => __mf_DateTime.unsafeFromDate(new Date(raw as string)))(
-        obj['due']
-    );
+    instance.due = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(obj['due']);
     {
         const __raw_total = obj['total'] as number;
         instance.total = __raw_total;
@@ -464,7 +457,7 @@ export function orderDeserializeWithContext(
             instance.billedItems = __raw_billedItems as BilledItem[];
         }
     }
-    instance.memo = ((raw: unknown) => (raw === null ? __mf_Option.none() : __mf_Option.some(raw)))(
+    instance.memo = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
         obj['memo']
     );
     {
@@ -482,7 +475,7 @@ export function orderDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     return instance as Order;
 }
@@ -621,7 +614,7 @@ export function orderIs(obj: unknown): obj is Order {
         return false;
     }
     const result = orderDeserialize(obj);
-    return __mf_exitIsSuccess(result);
+    return Exit.isSuccess(result);
 }
 
 /** Nested error structure matching the data shape */ export type OrderErrors = {
@@ -1569,7 +1562,7 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
         }
     };
     function validate(): Exit<Array<{ field: string; message: string }>, Order> {
-        return orderDeserialize(data);
+        return toExit(orderDeserialize(data));
     }
     function reset(newOverrides?: Partial<Order>): void {
         data = { ...orderDefaultValue(), ...newOverrides };
@@ -1866,7 +1859,7 @@ export function orderFromFormData(
         .getAll('commissions')
         .map((v) => parseFloat(v as string))
         .filter((n) => !isNaN(n));
-    return orderDeserialize(obj);
+    return toExit(orderDeserialize(obj));
 }
 
 export const Order = {

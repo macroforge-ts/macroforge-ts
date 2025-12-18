@@ -1,25 +1,23 @@
 import { overviewSettingsDefaultValue } from './overview-settings.svelte';
 import { scheduleSettingsDefaultValue } from './schedule-settings.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from 'macroforge/serde';
 import { appointmentNotificationsSerializeWithContext } from './appointment-notifications.svelte';
 import { commissionsSerializeWithContext } from './commissions.svelte';
 import { overviewSettingsSerializeWithContext } from './overview-settings.svelte';
 import { pageSerializeWithContext } from './page.svelte';
 import { scheduleSettingsSerializeWithContext } from './schedule-settings.svelte';
-import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
-import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
-import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
-import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { Exit } from 'macroforge/utils/effect';
+import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 import { appointmentNotificationsDeserializeWithContext } from './appointment-notifications.svelte';
 import { commissionsDeserializeWithContext } from './commissions.svelte';
 import { overviewSettingsDeserializeWithContext } from './overview-settings.svelte';
 import { pageDeserializeWithContext } from './page.svelte';
 import { scheduleSettingsDeserializeWithContext } from './schedule-settings.svelte';
 import type { Exit } from '@playground/macro/gigaform';
+import { toExit } from '@playground/macro/gigaform';
 import type { Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
@@ -69,14 +67,14 @@ export function settingsDefaultValue(): Settings {
 @returns JSON string representation with cycle detection metadata */ export function settingsSerialize(
     value: Settings
 ): string {
-    const ctx = __mf_SerializeContext.create();
+    const ctx = SerializeContext.create();
     return JSON.stringify(settingsSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function settingsSerializeWithContext(
     value: Settings,
-    ctx: __mf_SerializeContext
+    ctx: SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -140,14 +138,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function settingsDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, Settings> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, Settings> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = settingsDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 {
                     field: '_root',
                     message: 'Settings.deserialize: root cannot be a forward reference'
@@ -158,26 +156,26 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function settingsDeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): Settings | __mf_PendingRef {
+    ctx: DeserializeContext
+): Settings | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             { field: '_root', message: 'Settings.deserializeWithContext: expected an object' }
         ]);
     }
@@ -220,7 +218,7 @@ export function settingsDeserializeWithContext(
         errors.push({ field: 'homePage', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -347,7 +345,7 @@ export function settingsDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     return instance as Settings;
 }
@@ -387,7 +385,7 @@ export function settingsIs(obj: unknown): obj is Settings {
         return false;
     }
     const result = settingsDeserialize(obj);
-    return __mf_exitIsSuccess(result);
+    return Exit.isSuccess(result);
 }
 
 /** Nested error structure matching the data shape */ export type SettingsErrors = {
@@ -770,7 +768,7 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
         }
     };
     function validate(): Exit<Array<{ field: string; message: string }>, Settings> {
-        return settingsDeserialize(data);
+        return toExit(settingsDeserialize(data));
     }
     function reset(newOverrides?: Partial<Settings>): void {
         data = { ...settingsDefaultValue(), ...newOverrides };
@@ -1024,7 +1022,7 @@ export function settingsFromFormData(
         }
         obj.homePage = homePageObj;
     }
-    return settingsDeserialize(obj);
+    return toExit(settingsDeserialize(obj));
 }
 
 export const Settings = {

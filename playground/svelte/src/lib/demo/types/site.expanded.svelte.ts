@@ -1,16 +1,14 @@
 import { coordinatesDefaultValue } from './coordinates.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from 'macroforge/serde';
 import { coordinatesSerializeWithContext } from './coordinates.svelte';
-import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
-import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
-import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
-import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { Exit } from 'macroforge/utils/effect';
+import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 import { coordinatesDeserializeWithContext } from './coordinates.svelte';
 import type { Exit } from '@playground/macro/gigaform';
+import { toExit } from '@playground/macro/gigaform';
 import type { Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
@@ -60,14 +58,14 @@ export function siteDefaultValue(): Site {
 @returns JSON string representation with cycle detection metadata */ export function siteSerialize(
     value: Site
 ): string {
-    const ctx = __mf_SerializeContext.create();
+    const ctx = SerializeContext.create();
     return JSON.stringify(siteSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function siteSerializeWithContext(
     value: Site,
-    ctx: __mf_SerializeContext
+    ctx: SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -96,14 +94,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function siteDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, Site> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, Site> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = siteDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 { field: '_root', message: 'Site.deserialize: root cannot be a forward reference' }
             ]);
         }
@@ -111,26 +109,23 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function siteDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): Site | __mf_PendingRef {
+export function siteDeserializeWithContext(value: any, ctx: DeserializeContext): Site | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             { field: '_root', message: 'Site.deserializeWithContext: expected an object' }
         ]);
     }
@@ -173,7 +168,7 @@ export function siteDeserializeWithContext(
         errors.push({ field: 'coordinates', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -247,7 +242,7 @@ export function siteDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     return instance as Site;
 }
@@ -356,7 +351,7 @@ export function siteIs(obj: unknown): obj is Site {
         return false;
     }
     const result = siteDeserialize(obj);
-    return __mf_exitIsSuccess(result);
+    return Exit.isSuccess(result);
 }
 
 /** Nested error structure matching the data shape */ export type SiteErrors = {
@@ -717,7 +712,7 @@ export function siteCreateForm(overrides?: Partial<Site>): SiteGigaform {
         }
     };
     function validate(): Exit<Array<{ field: string; message: string }>, Site> {
-        return siteDeserialize(data);
+        return toExit(siteDeserialize(data));
     }
     function reset(newOverrides?: Partial<Site>): void {
         data = { ...siteDefaultValue(), ...newOverrides };
@@ -809,7 +804,7 @@ export function siteFromFormData(
         }
         obj.coordinates = coordinatesObj;
     }
-    return siteDeserialize(obj);
+    return toExit(siteDeserialize(obj));
 }
 
 export const Site = {

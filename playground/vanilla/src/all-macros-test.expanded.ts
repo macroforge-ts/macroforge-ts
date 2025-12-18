@@ -1,12 +1,9 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { ok as __mf_resultOk } from 'macroforge/reexports';
-import { err as __mf_resultErr } from 'macroforge/reexports';
-import { isOk as __mf_resultIsOk } from 'macroforge/reexports';
-import type { Result as __mf_Result } from 'macroforge/reexports';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import { SerializeContext } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
+import { DeserializeContext } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
 /**
  * Comprehensive test class demonstrating all available macros.
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
@@ -49,7 +46,7 @@ export class AllMacrosTestClass {
 
     static serializeWithContext(
         value: AllMacrosTestClass,
-        ctx: __mf_SerializeContext
+        ctx: SerializeContext
     ): Record<string, unknown> {
         return allMacrosTestClassSerializeWithContext(value, ctx);
     }
@@ -77,8 +74,8 @@ Automatically detects whether input is a JSON string or object.
 
     static deserialize(
         input: unknown,
-        opts?: __mf_DeserializeOptions
-    ): __mf_Result<
+        opts?: DeserializeOptions
+    ): Result<
         AllMacrosTestClass,
         Array<{
             field: string;
@@ -87,10 +84,10 @@ Automatically detects whether input is a JSON string or object.
     > {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
+            const ctx = DeserializeContext.create();
             const resultOrRef = AllMacrosTestClass.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
+            if (PendingRef.is(resultOrRef)) {
+                return Result.err([
                     {
                         field: '_root',
                         message:
@@ -102,13 +99,13 @@ Automatically detects whether input is a JSON string or object.
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return Result.ok(resultOrRef);
         } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
+            return Result.err([
                 {
                     field: '_root',
                     message
@@ -122,13 +119,13 @@ Automatically detects whether input is a JSON string or object.
 
     static deserializeWithContext(
         value: any,
-        ctx: __mf_DeserializeContext
-    ): AllMacrosTestClass | __mf_PendingRef {
+        ctx: DeserializeContext
+    ): AllMacrosTestClass | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
+            throw new DeserializeError([
                 {
                     field: '_root',
                     message: 'AllMacrosTestClass.deserializeWithContext: expected an object'
@@ -177,7 +174,7 @@ Automatically detects whether input is a JSON string or object.
             });
         }
         if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
+            throw new DeserializeError(errors);
         }
         const instance = Object.create(AllMacrosTestClass.prototype) as AllMacrosTestClass;
         if (obj.__id !== undefined) {
@@ -209,7 +206,7 @@ Automatically detects whether input is a JSON string or object.
             instance.score = __raw_score;
         }
         if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
+            throw new DeserializeError(errors);
         }
         return instance;
     }
@@ -254,7 +251,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = AllMacrosTestClass.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return Result.isOk(result);
     }
 }
 
@@ -296,14 +293,14 @@ export function allMacrosTestClassEquals(a: AllMacrosTestClass, b: AllMacrosTest
 @returns JSON string representation with cycle detection metadata */ export function allMacrosTestClassSerialize(
     value: AllMacrosTestClass
 ): string {
-    const ctx = __mf_SerializeContext.create();
+    const ctx = SerializeContext.create();
     return JSON.stringify(allMacrosTestClassSerializeWithContext(value, ctx));
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function allMacrosTestClassSerializeWithContext(
     value: AllMacrosTestClass,
-    ctx: __mf_SerializeContext
+    ctx: SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -326,16 +323,16 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized instance or validation errors */ export function allMacrosTestClassDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Result<AllMacrosTestClass, Array<{ field: string; message: string }>> {
+    opts?: DeserializeOptions
+): Result<AllMacrosTestClass, Array<{ field: string; message: string }>> {
     return AllMacrosTestClass.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function allMacrosTestClassDeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): AllMacrosTestClass | __mf_PendingRef {
+    ctx: DeserializeContext
+): AllMacrosTestClass | PendingRef {
     return AllMacrosTestClass.deserializeWithContext(value, ctx);
 } /** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
