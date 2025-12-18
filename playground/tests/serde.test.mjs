@@ -742,9 +742,9 @@ describe("Import handling", () => {
 
     assert.ok(
       result.code.includes(
-        'import { SerializeContext } from "macroforge/serde"',
+        'import { SerializeContext as __mf_SerializeContext } from "macroforge/serde"',
       ),
-      "Should add SerializeContext import",
+      "Should add SerializeContext import with __mf_ alias",
     );
   });
 

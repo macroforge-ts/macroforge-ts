@@ -16,6 +16,13 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const { expandSync } = require("macroforge");
 
+// Helper to normalize whitespace for robust string matching
+const normalize = (s) => s.replace(/\s+/g, "");
+
+// Helper to check if normalized code contains normalized pattern
+const includesNormalized = (code, pattern) =>
+  normalize(code).includes(normalize(pattern));
+
 // Helper to wrap code with the required Gigaform macro import
 const withGigaformImport = (code) => `
 /** import macro { Gigaform } from "@playground/macro"; */
@@ -42,21 +49,21 @@ describe("Gigaform type generation", () => {
       result.code.includes("export type UserFormErrors"),
       "Should generate UserFormErrors type",
     );
-    // Implementation uses Option<Array<string>> instead of Array<string> | undefined
+    // Implementation uses __gf_Option<Array<string>> instead of Array<string> | undefined
     assert.ok(
-      result.code.includes("_errors: Option<Array<string>>"),
+      result.code.includes("_errors: __gf_Option<Array<string>>"),
       "Should have root _errors",
     );
     assert.ok(
-      result.code.includes("name: Option<Array<string>>"),
+      result.code.includes("name: __gf_Option<Array<string>>"),
       "Should have name error array",
     );
     assert.ok(
-      result.code.includes("email: Option<Array<string>>"),
+      result.code.includes("email: __gf_Option<Array<string>>"),
       "Should have email error array",
     );
     assert.ok(
-      result.code.includes("age: Option<Array<string>>"),
+      result.code.includes("age: __gf_Option<Array<string>>"),
       "Should have age error array",
     );
   });
@@ -75,13 +82,13 @@ describe("Gigaform type generation", () => {
       result.code.includes("export type UserFormTainted"),
       "Should generate UserFormTainted type",
     );
-    // Implementation uses Option<boolean> instead of boolean | undefined
+    // Implementation uses __gf_Option<boolean> instead of boolean | undefined
     assert.ok(
-      result.code.includes("name: Option<boolean>"),
+      result.code.includes("name: __gf_Option<boolean>"),
       "Should have name tainted flag",
     );
     assert.ok(
-      result.code.includes("email: Option<boolean>"),
+      result.code.includes("email: __gf_Option<boolean>"),
       "Should have email tainted flag",
     );
   });
@@ -250,14 +257,14 @@ describe("Gigaform createForm factory", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    // Implementation initializes with Option.none() for each field
+    // Implementation initializes with optionNone() for each field
     assert.ok(
       result.code.includes("let errors = $state<StateFormErrors>({"),
       "Should use $state for errors",
     );
     assert.ok(
-      result.code.includes("Option.none()"),
-      "Should initialize with Option.none()",
+      result.code.includes("optionNone()"),
+      "Should initialize with optionNone()",
     );
     assert.ok(
       result.code.includes("let tainted = $state<StateFormTainted>({"),
@@ -265,7 +272,7 @@ describe("Gigaform createForm factory", () => {
     );
   });
 
-  test("generates validate function that delegates to fromObject", () => {
+  test("generates validate function that delegates to Deserialize", () => {
     const code = `
       /** @derive(Default, Deserialize, Gigaform) */
       interface ValidatedForm {
@@ -275,16 +282,12 @@ describe("Gigaform createForm factory", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(
-      result.code.includes("function validate()"),
+      includesNormalized(result.code, "function validate()"),
       "Should generate validate function",
     );
     assert.ok(
-      result.code.includes("validatedFormFromObject(data)"),
-      "Should call validatedFormFromObject for validation",
-    );
-    assert.ok(
-      !result.code.includes("ValidatedForm.fromObject(data)"),
-      "Should not use namespace-style fromObject",
+      includesNormalized(result.code, "toExit(validatedFormDeserialize(data))"),
+      "Should call validatedFormDeserialize wrapped in toExit for validation",
     );
   });
 
@@ -305,7 +308,7 @@ describe("Gigaform createForm factory", () => {
       result.code.includes("newOverrides?: Partial<ResettableForm>"),
       "Should accept overrides",
     );
-    // Implementation resets to Option.none() instead of empty object
+    // Implementation resets to optionNone() instead of empty object
     assert.ok(result.code.includes("errors = {"), "Should reset errors");
     assert.ok(result.code.includes("tainted = {"), "Should reset tainted");
   });
@@ -356,11 +359,11 @@ describe("Gigaform field controllers", () => {
 
     // Closure-based accessors (no parameters)
     assert.ok(
-      result.code.includes("get: () => data.name"),
+      includesNormalized(result.code, "get: () => data.name"),
       "Should generate closure get accessor",
     );
     assert.ok(
-      result.code.includes("set: (value: string) => { data.name = value; }"),
+      includesNormalized(result.code, "set: (value: string) => { data.name = value; }"),
       "Should generate closure set accessor",
     );
   });
@@ -376,12 +379,13 @@ describe("Gigaform field controllers", () => {
 
     // Implementation uses direct property access and Option type
     assert.ok(
-      result.code.includes("getError: () => errors.email"),
+      includesNormalized(result.code, "getError: () => errors.email"),
       "Should generate getError closure",
     );
     assert.ok(
-      result.code.includes(
-        "setError: (value: Option<Array<string>>) => { errors.email = value; }",
+      includesNormalized(
+        result.code,
+        "setError: (value: __gf_Option<Array<string>>) => { errors.email = value; }",
       ),
       "Should generate setError closure",
     );
@@ -398,12 +402,13 @@ describe("Gigaform field controllers", () => {
 
     // Implementation uses direct property access and Option type
     assert.ok(
-      result.code.includes("getTainted: () => tainted.field"),
+      includesNormalized(result.code, "getTainted: () => tainted.field"),
       "Should generate getTainted closure",
     );
     assert.ok(
-      result.code.includes(
-        "setTainted: (value: Option<boolean>) => { tainted.field = value; }",
+      includesNormalized(
+        result.code,
+        "setTainted: (value: __gf_Option<boolean>) => { tainted.field = value; }",
       ),
       "Should generate setTainted closure",
     );
@@ -419,23 +424,26 @@ describe("Gigaform field controllers", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(
-      result.code.includes("validate: ()"),
+      includesNormalized(result.code, "validate: ()"),
       "Should generate validate method",
     );
     assert.ok(
-      result.code.includes(
+      includesNormalized(
+        result.code,
         'filterFormValidateField("username", data.username)',
       ),
       "Should call per-field validation via filterFormValidateField",
     );
     assert.ok(
-      !result.code.includes(
+      !includesNormalized(
+        result.code,
         'FilterForm.validateField("username", data.username)',
       ),
       "Should not use namespace-style FilterForm.validateField",
     );
     assert.ok(
-      result.code.includes(
+      includesNormalized(
+        result.code,
         ".map((e: { field: string; message: string }) => e.message)",
       ),
       "Should extract messages",
@@ -453,19 +461,19 @@ describe("Gigaform field controllers", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(
-      result.code.includes('path: ["firstName"]'),
+      includesNormalized(result.code, 'path: ["firstName"]'),
       "Should have firstName path",
     );
     assert.ok(
-      result.code.includes('path: ["lastName"]'),
+      includesNormalized(result.code, 'path: ["lastName"]'),
       "Should have lastName path",
     );
     assert.ok(
-      result.code.includes('name: "firstName"'),
+      includesNormalized(result.code, 'name: "firstName"'),
       "Should have firstName name",
     );
     assert.ok(
-      result.code.includes('name: "lastName"'),
+      includesNormalized(result.code, 'name: "lastName"'),
       "Should have lastName name",
     );
   });
@@ -637,11 +645,12 @@ describe("Gigaform array fields", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(
-      result.code.includes("get: () => data.items[index]"),
+      includesNormalized(result.code, "get: () => data.items[index]"),
       "Should generate indexed get",
     );
     assert.ok(
-      result.code.includes(
+      includesNormalized(
+        result.code,
         "set: (value: number) => { data.items[index] = value; }",
       ),
       "Should generate indexed set",
@@ -718,7 +727,7 @@ describe("Gigaform fromFormData", () => {
     );
   });
 
-  test("returns Result with structured errors", () => {
+  test("returns Exit with structured errors", () => {
     const code = `
       /** @derive(Default, Deserialize, Gigaform) */
       interface ResultForm {
@@ -727,16 +736,14 @@ describe("Gigaform fromFormData", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    // Match Result type with structured errors
+    // Match Exit type with structured errors (Effect library type)
     assert.ok(
-      result.code.includes(
-        "Result<ResultForm, Array<{field: string; message: string}>>",
-      ),
-      "Should return Result with structured errors",
+      includesNormalized(result.code, "Exit<ResultForm, Array<{ field: string; message: string }>>"),
+      "Should return Exit with structured errors",
     );
   });
 
-  test("delegates to fromStringifiedJSON for validation", () => {
+  test("delegates to Deserialize for validation", () => {
     const code = `
       /** @derive(Default, Deserialize, Gigaform) */
       interface DelegateForm {
@@ -745,17 +752,10 @@ describe("Gigaform fromFormData", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
+    // Should delegate to the deserialize function and wrap with toExit
     assert.ok(
-      result.code.includes(
-        "delegateFormFromStringifiedJSON(JSON.stringify(obj))",
-      ),
-      "Should delegate to delegateFormFromStringifiedJSON",
-    );
-    assert.ok(
-      !result.code.includes(
-        "DelegateForm.fromStringifiedJSON(JSON.stringify(obj))",
-      ),
-      "Should not use namespace-style fromStringifiedJSON",
+      result.code.includes("toExit(delegateFormDeserialize(obj))"),
+      "Should delegate to delegateFormDeserialize wrapped in toExit",
     );
   });
 });
@@ -765,7 +765,7 @@ describe("Gigaform fromFormData", () => {
 // ============================================================================
 
 describe("Gigaform imports", () => {
-  test("adds Result import", () => {
+  test("adds Exit type import", () => {
     const code = `
       /** @derive(Default, Deserialize, Gigaform) */
       interface ImportForm {
@@ -774,14 +774,15 @@ describe("Gigaform imports", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
+    // Gigaform uses Effect's Exit type from @playground/macro/gigaform
     assert.ok(
-      result.code.includes("import { Result }") ||
-        result.code.includes("import {Result}"),
-      "Should add Result import",
+      result.code.includes("import type { Exit }") ||
+        result.code.includes("import type {Exit}"),
+      "Should add Exit type import",
     );
     assert.ok(
-      result.code.includes('from "macroforge/reexports"'),
-      "Should import from macroforge/reexports",
+      result.code.includes('from "@playground/macro/gigaform"'),
+      "Should import from @playground/macro/gigaform",
     );
   });
 });
@@ -811,7 +812,7 @@ describe("Gigaform integration with other macros", () => {
     );
   });
 
-  test("works with Deserialize macro for fromObject", () => {
+  test("works with Deserialize macro for validation", () => {
     const code = `
       /** @derive(Default, Deserialize, Gigaform) */
       interface DeserializeForm {
@@ -820,13 +821,10 @@ describe("Gigaform integration with other macros", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
+    // Gigaform uses the Deserialize macro's function for validation
     assert.ok(
-      result.code.includes("deserializeFormFromObject("),
-      "Should use deserializeFormFromObject()",
-    );
-    assert.ok(
-      !result.code.includes("DeserializeForm.fromObject("),
-      "Should not use namespace-style fromObject()",
+      result.code.includes("deserializeFormDeserialize("),
+      "Should use deserializeFormDeserialize()",
     );
   });
 
