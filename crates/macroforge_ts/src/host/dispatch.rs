@@ -63,8 +63,8 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResul
 /// # Example
 ///
 /// ```rust,no_run
-/// use macroforge_ts::host::{MacroRegistry, MacroDispatcher, DiagnosticLevel};
-/// use macroforge_ts_syn::{MacroContextIR, MacroKind, SpanIR, TargetIR, ClassIR};
+/// use macroforge_ts::host::{MacroRegistry, MacroDispatcher, DiagnosticLevel, MacroKind};
+/// use macroforge_ts::ts_syn::abi::{MacroContextIR, SpanIR, TargetIR, ClassIR};
 ///
 /// let registry = MacroRegistry::new();
 /// // ... register macros in the registry ...

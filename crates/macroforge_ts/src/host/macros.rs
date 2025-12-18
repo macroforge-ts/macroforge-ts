@@ -11,8 +11,8 @@
 //!
 //! ```rust,no_run
 //! use macroforge_ts::register_macro_package;
-//! use macroforge_ts::host::{MacroRegistry, Macroforge, Result};
-//! use macroforge_ts_syn::{TsStream, MacroKind, MacroResult};
+//! use macroforge_ts::host::{MacroRegistry, Macroforge, Result, MacroKind, MacroResult};
+//! use macroforge_ts::ts_syn::TsStream;
 //! use std::sync::Arc;
 //!
 //! struct MacroA;
@@ -57,8 +57,8 @@
 ///
 /// ```rust,no_run
 /// use macroforge_ts::register_macro_package;
-/// use macroforge_ts::host::{MacroRegistry, Macroforge, Result};
-/// use macroforge_ts_syn::{TsStream, MacroKind, MacroResult};
+/// use macroforge_ts::host::{MacroRegistry, Macroforge, Result, MacroKind, MacroResult};
+/// use macroforge_ts::ts_syn::TsStream;
 /// use std::sync::Arc;
 ///
 /// struct MyMacro;

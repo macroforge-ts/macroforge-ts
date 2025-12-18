@@ -77,8 +77,8 @@ impl MacroKey {
 /// # Example
 ///
 /// ```rust,no_run
-/// use macroforge_ts::host::{MacroRegistry, Macroforge};
-/// use macroforge_ts_syn::{TsStream, MacroKind, MacroResult};
+/// use macroforge_ts::host::{MacroRegistry, Macroforge, MacroKind, MacroResult};
+/// use macroforge_ts::ts_syn::TsStream;
 /// use std::sync::Arc;
 ///
 /// // Define a simple macro
