@@ -1,9 +1,9 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -51,30 +51,35 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function editedDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<Edited, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: Edited }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = editedDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'Edited.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'Edited.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -170,7 +175,7 @@ export function editedIs(obj: unknown): obj is Edited {
         return false;
     }
     const result = editedDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type EditedErrors = {
@@ -215,7 +220,6 @@ export function editedCreateForm(overrides?: Partial<Edited>): EditedGigaform {
             path: ['fieldName'] as const,
             name: 'fieldName',
             constraints: { required: true },
-
             get: () => data.fieldName,
             set: (value: string) => {
                 data.fieldName = value;
@@ -238,7 +242,6 @@ export function editedCreateForm(overrides?: Partial<Edited>): EditedGigaform {
             path: ['oldValue'] as const,
             name: 'oldValue',
             constraints: { required: true },
-
             get: () => data.oldValue,
             set: (value: string | null) => {
                 data.oldValue = value;
@@ -261,7 +264,6 @@ export function editedCreateForm(overrides?: Partial<Edited>): EditedGigaform {
             path: ['newValue'] as const,
             name: 'newValue',
             constraints: { required: true },
-
             get: () => data.newValue,
             set: (value: string | null) => {
                 data.newValue = value;
@@ -282,7 +284,7 @@ export function editedCreateForm(overrides?: Partial<Edited>): EditedGigaform {
         }
     };
     function validate(): Result<Edited, Array<{ field: string; message: string }>> {
-        return editedFromObject(data);
+        return editedDeserialize(data);
     }
     function reset(newOverrides?: Partial<Edited>): void {
         data = { ...editedDefaultValue(), ...newOverrides };
@@ -317,7 +319,7 @@ export function editedCreateForm(overrides?: Partial<Edited>): EditedGigaform {
         validate,
         reset
     };
-} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
+} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function editedFromFormData(
     formData: FormData
 ): Result<Edited, Array<{ field: string; message: string }>> {
@@ -325,7 +327,7 @@ export function editedFromFormData(
     obj.fieldName = formData.get('fieldName') ?? '';
     obj.oldValue = formData.get('oldValue') ?? '';
     obj.newValue = formData.get('newValue') ?? '';
-    return editedFromStringifiedJSON(JSON.stringify(obj));
+    return editedDeserialize(obj);
 }
 
 export const Edited = {

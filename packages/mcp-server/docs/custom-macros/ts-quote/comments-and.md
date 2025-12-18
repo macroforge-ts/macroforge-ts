@@ -1,45 +1,79 @@
-## Comments: `&#123;> "..." <&#125;` and `&#123;>> "..." <<&#125;`
+## Comments: `{> "..." <}` and `{>> "..." <<}`
 
 Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
 
 ### Block Comments
 
-Use `&#123;> "comment" <&#125;` for block comments:
+Use `{> "comment" <}` for block comments:
 
-```rust
-let code = ts_template! {
-    {> "This is a block comment" <}
-    const x = 42;
+Rust
+
+```
+let code = ts_template! {
+    {> "This is a block comment" <}
+    const x = 42;
 };
 ```
 
 **Generates:**
 
-```typescript
-/* This is a block comment */
-const x = 42;
+TypeScript
+
+```
+/* This is a block comment */
+const x = 42;
 ```
 
 ### Doc Comments (JSDoc)
 
-Use `&#123;>> "doc" <<&#125;` for JSDoc comments:
+Use `{>> "doc" <<}` for JSDoc comments:
 
-```rust
-let code = ts_template! {
-    {>> "@param {string} name - The user's name" <<}
-    {>> "@returns {string} A greeting message" <<}
-    function greet(name: string): string {
-        return "Hello, " + name;
-    }
+Rust
+
+```
+let code = ts_template! {
+    {>> "@param {string} name - The user's name" <<}
+    {>> "@returns {string} A greeting message" <<}
+    function greet(name: string): string {
+        return "Hello, " + name;
+    }
 };
 ```
 
 **Generates:**
 
-```typescript
-/** @param {string} name - The user's name */
-/** @returns {string} A greeting message */
-function greet(name: string): string {
-    return "Hello, " + name;
+TypeScript
+
+```
+/** @param {string} name - The user's name */
+/** @returns {string} A greeting message */
+function greet(name: string): string {
+    return "Hello, " + name;
 }
+```
+
+### Comments with Interpolation
+
+Use `format!()` or similar to build dynamic comment strings:
+
+Rust
+
+```
+let param_name = "userId";
+let param_type = "number";
+let comment = format!("@param {{{}}} {} - The user ID", param_type, param_name);
+
+let code = ts_template! {
+    {>> @{comment} <<}
+    function getUser(userId: number) {}
+};
+```
+
+**Generates:**
+
+TypeScript
+
+```
+/** @param {number} userId - The user ID */
+function getUser(userId: number) {}
 ```

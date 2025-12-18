@@ -1,5 +1,4 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
@@ -87,30 +86,36 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function svelteAllMacrosTestDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<SvelteAllMacrosTest, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: SvelteAllMacrosTest }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = svelteAllMacrosTestDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'SvelteAllMacrosTest.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message:
+                            'SvelteAllMacrosTest.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -217,7 +222,7 @@ export function svelteAllMacrosTestIs(obj: unknown): obj is SvelteAllMacrosTest 
         return false;
     }
     const result = svelteAllMacrosTestDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 export function svelteAllMacrosTestHashCode(value: SvelteAllMacrosTest): number {

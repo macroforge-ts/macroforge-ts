@@ -54,23 +54,6 @@
       ]
     },
     {
-      "name": "unchanged",
-      "kind": "function",
-      "signature": "pub fn unchanged(code: &str) -> Self",
-      "description": "Creates a no-op result with the original code unchanged.\n\nUsed for early bailout when no macros need processing, avoiding\nunnecessary parsing and expansion overhead.",
-      "params": [
-        {
-          "name": "code",
-          "type": "",
-          "description": "The original source code to return unchanged"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "An `ExpandResult` with:\n- `code` set to the input\n- All other fields empty/None\n- No source mapping (identity mapping implied)"
-      }
-    },
-    {
       "name": "ImportSourceResult",
       "kind": "struct",
       "signature": "pub struct ImportSourceResult",
@@ -110,203 +93,9 @@
       "description": "Wrapper around `NativePositionMapper` for NAPI compatibility.\n\nThis provides the same functionality as `NativePositionMapper` but with a\ndifferent JavaScript class name. Used internally by [`NativePlugin::get_mapper`]."
     },
     {
-      "name": "new",
-      "kind": "function",
-      "signature": "pub fn new(mapping: SourceMappingResult) -> Self",
-      "description": "Creates a new position mapper from source mapping data.",
-      "params": [
-        {
-          "name": "mapping",
-          "type": "",
-          "description": "The source mapping result from macro expansion"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "A new `NativePositionMapper` ready for position translation."
-      }
-    },
-    {
-      "name": "is_empty",
-      "kind": "function",
-      "signature": "pub fn is_empty(&self) -> bool",
-      "description": "Checks if this mapper has no mapping data.\n\nAn empty mapper indicates no transformations occurred, so position\ntranslation is an identity operation.",
-      "returns": {
-        "type": "",
-        "description": "`true` if there are no segments and no generated regions."
-      }
-    },
-    {
-      "name": "original_to_expanded",
-      "kind": "function",
-      "signature": "pub fn original_to_expanded(&self, pos: u32) -> u32",
-      "description": "Converts a position in the original source to the corresponding position in expanded source.\n\nUses binary search for O(log n) lookup performance.",
-      "params": [
-        {
-          "name": "pos",
-          "type": "",
-          "description": "Byte offset in the original source"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "The corresponding byte offset in the expanded source. If the position falls\nin a gap between segments, returns the position unchanged. If after the last\nsegment, extrapolates based on the delta."
-      }
-    },
-    {
-      "name": "expanded_to_original",
-      "kind": "function",
-      "signature": "pub fn expanded_to_original(&self, pos: u32) -> Option<u32>",
-      "description": "Converts a position in the expanded source back to the original source position.\n\nReturns `None` if the position is inside macro-generated code that has no\ncorresponding location in the original source.",
-      "params": [
-        {
-          "name": "pos",
-          "type": "",
-          "description": "Byte offset in the expanded source"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "`Some(original_pos)` if the position maps to original code,\n`None` if the position is in macro-generated code."
-      }
-    },
-    {
-      "name": "generated_by",
-      "kind": "function",
-      "signature": "pub fn generated_by(&self, pos: u32) -> Option<String>",
-      "description": "Returns the name of the macro that generated code at the given position.",
-      "params": [
-        {
-          "name": "pos",
-          "type": "",
-          "description": "Byte offset in the expanded source"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "`Some(macro_name)` if the position is inside generated code (e.g., \"Debug\"),\n`None` if the position is in original (non-generated) code."
-      }
-    },
-    {
-      "name": "map_span_to_original",
-      "kind": "function",
-      "signature": "pub fn map_span_to_original(&self, start: u32, length: u32) -> Option<SpanResult>",
-      "description": "Maps a span (start + length) from expanded source to original source.",
-      "params": [
-        {
-          "name": "start",
-          "type": "",
-          "description": "Start byte offset in expanded source"
-        },
-        {
-          "name": "length",
-          "type": "",
-          "description": "Length of the span in bytes"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "`Some(SpanResult)` with the mapped span in original source,\n`None` if either endpoint is in generated code."
-      }
-    },
-    {
-      "name": "map_span_to_expanded",
-      "kind": "function",
-      "signature": "pub fn map_span_to_expanded(&self, start: u32, length: u32) -> SpanResult",
-      "description": "Maps a span (start + length) from original source to expanded source.\n\nThis always succeeds since every original position has an expanded equivalent.",
-      "params": [
-        {
-          "name": "start",
-          "type": "",
-          "description": "Start byte offset in original source"
-        },
-        {
-          "name": "length",
-          "type": "",
-          "description": "Length of the span in bytes"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "A `SpanResult` with the mapped span in expanded source."
-      }
-    },
-    {
-      "name": "is_in_generated",
-      "kind": "function",
-      "signature": "pub fn is_in_generated(&self, pos: u32) -> bool",
-      "description": "Checks if a position is inside macro-generated code.",
-      "params": [
-        {
-          "name": "pos",
-          "type": "",
-          "description": "Byte offset in the expanded source"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "`true` if the position is inside a generated region, `false` otherwise."
-      }
-    },
-    {
-      "name": "new",
-      "kind": "function",
-      "signature": "pub fn new(mapping: SourceMappingResult) -> Self",
-      "description": "Creates a new mapper wrapping the given source mapping.",
-      "params": [
-        {
-          "name": "mapping",
-          "type": "",
-          "description": "The source mapping result from macro expansion"
-        }
-      ]
-    },
-    {
-      "name": "is_empty",
-      "kind": "function",
-      "signature": "pub fn is_empty(&self) -> bool",
-      "description": "Checks if this mapper has no mapping data."
-    },
-    {
-      "name": "original_to_expanded",
-      "kind": "function",
-      "signature": "pub fn original_to_expanded(&self, pos: u32) -> u32",
-      "description": "Converts a position in the original source to expanded source.\nSee [`NativePositionMapper::original_to_expanded`] for details."
-    },
-    {
-      "name": "expanded_to_original",
-      "kind": "function",
-      "signature": "pub fn expanded_to_original(&self, pos: u32) -> Option<u32>",
-      "description": "Converts a position in the expanded source back to original.\nSee [`NativePositionMapper::expanded_to_original`] for details."
-    },
-    {
-      "name": "generated_by",
-      "kind": "function",
-      "signature": "pub fn generated_by(&self, pos: u32) -> Option<String>",
-      "description": "Returns the name of the macro that generated code at the given position.\nSee [`NativePositionMapper::generated_by`] for details."
-    },
-    {
-      "name": "map_span_to_original",
-      "kind": "function",
-      "signature": "pub fn map_span_to_original(&self, start: u32, length: u32) -> Option<SpanResult>",
-      "description": "Maps a span from expanded source to original source.\nSee [`NativePositionMapper::map_span_to_original`] for details."
-    },
-    {
-      "name": "map_span_to_expanded",
-      "kind": "function",
-      "signature": "pub fn map_span_to_expanded(&self, start: u32, length: u32) -> SpanResult",
-      "description": "Maps a span from original source to expanded source.\nSee [`NativePositionMapper::map_span_to_expanded`] for details."
-    },
-    {
-      "name": "is_in_generated",
-      "kind": "function",
-      "signature": "pub fn is_in_generated(&self, pos: u32) -> bool",
-      "description": "Checks if a position is inside macro-generated code.\nSee [`NativePositionMapper::is_in_generated`] for details."
-    },
-    {
       "name": "check_syntax",
       "kind": "function",
-      "signature": "pub fn check_syntax(code: String, filepath: String) -> SyntaxCheckResult",
+      "signature": "pub fn check_syntax(code : String, filepath : String) -> SyntaxCheckResult",
       "description": "Checks if the given TypeScript code has valid syntax.\n\nThis function attempts to parse the code using SWC's TypeScript parser\nwithout performing any macro expansion.",
       "params": [
         {
@@ -350,119 +139,9 @@
       ]
     },
     {
-      "name": "new",
-      "kind": "function",
-      "signature": "pub fn new() -> Self",
-      "description": "Creates a new `NativePlugin` instance.\n\nInitializes the plugin with an empty cache and sets up a default log file\nat `/tmp/macroforge-plugin.log` for debugging purposes.",
-      "returns": {
-        "type": "",
-        "description": "A new `NativePlugin` ready for processing files."
-      }
-    },
-    {
-      "name": "log",
-      "kind": "function",
-      "signature": "pub fn log(&self, message: String)",
-      "description": "Writes a message to the plugin's log file.\n\nUseful for debugging macro expansion issues in production environments.",
-      "params": [
-        {
-          "name": "message",
-          "type": "",
-          "description": "The message to log"
-        }
-      ],
-      "notes": "Messages are appended to the log file. If the log file hasn't been\nconfigured or cannot be written to, the message is silently dropped."
-    },
-    {
-      "name": "set_log_file",
-      "kind": "function",
-      "signature": "pub fn set_log_file(&self, path: String)",
-      "description": "Sets the path for the plugin's log file.",
-      "params": [
-        {
-          "name": "path",
-          "type": "",
-          "description": "The file path to use for logging"
-        }
-      ],
-      "notes": "This does not create the file; it will be created when the first\nmessage is logged."
-    },
-    {
-      "name": "process_file",
-      "kind": "function",
-      "signature": "pub fn process_file( &self, _env: Env, filepath: String, code: String, options: Option<ProcessFileOptions>, ) -> Result<ExpandResult>",
-      "description": "Processes a TypeScript file through the macro expansion system.\n\nThis is the main entry point for file processing. It handles caching,\nthread isolation (to prevent stack overflow), and error recovery.",
-      "params": [
-        {
-          "name": "_env",
-          "type": "",
-          "description": "NAPI environment (unused but required by NAPI)"
-        },
-        {
-          "name": "filepath",
-          "type": "",
-          "description": "Path to the file (used for TSX detection and caching)"
-        },
-        {
-          "name": "code",
-          "type": "",
-          "description": "The TypeScript source code to process"
-        },
-        {
-          "name": "options",
-          "type": "",
-          "description": "Optional configuration for expansion and caching"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "An [`ExpandResult`] containing the expanded code, diagnostics, and source mapping."
-      },
-      "errors": "Returns an error if:\n- Thread spawning fails\n- The worker thread panics (often due to stack overflow)\n- Macro expansion fails internally"
-    },
-    {
-      "name": "get_mapper",
-      "kind": "function",
-      "signature": "pub fn get_mapper(&self, filepath: String) -> Option<NativeMapper>",
-      "description": "Retrieves a position mapper for a previously processed file.\n\nThe mapper enables translation between original and expanded source positions,\nwhich is essential for IDE features like error reporting and navigation.",
-      "params": [
-        {
-          "name": "filepath",
-          "type": "",
-          "description": "Path to the file (must have been previously processed)"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "`Some(NativeMapper)` if the file has been processed and has source mapping data,\n`None` if the file hasn't been processed or has no mapping (no macros expanded)."
-      }
-    },
-    {
-      "name": "map_diagnostics",
-      "kind": "function",
-      "signature": "pub fn map_diagnostics(&self, filepath: String, diags: Vec<JsDiagnostic>) -> Vec<JsDiagnostic>",
-      "description": "Maps diagnostics from expanded source positions back to original source positions.\n\nThis is used by IDE integrations to show errors at the correct locations\nin the user's original code, rather than in the macro-expanded output.",
-      "params": [
-        {
-          "name": "filepath",
-          "type": "",
-          "description": "Path to the file the diagnostics are for"
-        },
-        {
-          "name": "diags",
-          "type": "",
-          "description": "Diagnostics with positions in the expanded source"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "Diagnostics with positions mapped back to the original source.\nIf no mapper is available for the file, returns diagnostics unchanged."
-      }
-    },
-    {
       "name": "parse_import_sources",
       "kind": "function",
-      "signature": "pub fn parse_import_sources(code: String, filepath: String) -> Result<Vec<ImportSourceResult>>",
+      "signature": "pub fn parse_import_sources(code : String, filepath : String) -> Result < Vec < ImportSourceResult > >",
       "description": "Parses import statements from TypeScript code and returns their sources.\n\nThis function extracts information about all import statements in the code,\nmapping each imported identifier to its source module. Useful for analyzing\ndependencies and understanding where decorators come from.",
       "params": [
         {
@@ -486,6 +165,12 @@
       "errors": "Returns an error if the code cannot be parsed."
     },
     {
+      "name": "derive_decorator",
+      "kind": "function",
+      "signature": "pub fn derive_decorator()",
+      "description": "The `@Derive` decorator function exported to JavaScript/TypeScript.\n\nThis is a no-op function that exists purely for TypeScript type checking.\nThe actual decorator processing happens during macro expansion, where\n`@derive(...)` decorators are recognized and transformed."
+    },
+    {
       "name": "LoadConfigResult",
       "kind": "struct",
       "signature": "pub struct LoadConfigResult",
@@ -494,7 +179,7 @@
     {
       "name": "load_config",
       "kind": "function",
-      "signature": "pub fn load_config(content: String, filepath: String) -> Result<LoadConfigResult>",
+      "signature": "pub fn load_config(content : String, filepath : String) -> Result < LoadConfigResult >",
       "description": "Load and parse a macroforge configuration file.\n\nParses a `macroforge.config.js/ts` file and caches the result for use\nduring macro expansion. The configuration includes both simple settings\n(like `keepDecorators`) and foreign type handlers.",
       "params": [
         {
@@ -528,7 +213,7 @@
     {
       "name": "transform_sync",
       "kind": "function",
-      "signature": "pub fn transform_sync(_env: Env, code: String, filepath: String) -> Result<TransformResult>",
+      "signature": "pub fn transform_sync(_env : Env, code : String, filepath : String) -> Result < TransformResult >",
       "description": "Synchronously transforms TypeScript code through the macro expansion system.\n\nThis is similar to [`expand_sync`] but returns a [`TransformResult`] which\nincludes source map information (when available).",
       "params": [
         {
@@ -556,7 +241,7 @@
     {
       "name": "expand_sync",
       "kind": "function",
-      "signature": "pub fn expand_sync( _env: Env, code: String, filepath: String, options: Option<ExpandOptions>, ) -> Result<ExpandResult>",
+      "signature": "pub fn expand_sync(_env : Env, code : String, filepath : String, options : Option < ExpandOptions >) -> Result < ExpandResult >",
       "description": "Synchronously expands macros in TypeScript code.\n\nThis is the standalone macro expansion function that doesn't use caching.\nFor cached expansion, use [`NativePlugin::process_file`] instead.",
       "params": [
         {
@@ -630,7 +315,7 @@
     {
       "name": "get_macro_names",
       "kind": "function",
-      "signature": "pub fn get_macro_names() -> Vec<String>",
+      "signature": "pub fn get_macro_names() -> Vec < String >",
       "description": "Returns the names of all registered macros.",
       "returns": {
         "type": "",
@@ -640,7 +325,7 @@
     {
       "name": "debug_get_modules",
       "kind": "function",
-      "signature": "pub fn debug_get_modules() -> Vec<String>",
+      "signature": "pub fn debug_get_modules() -> Vec < String >",
       "description": "Returns all registered macro module names (debug API).\n\nModules group related macros together (e.g., \"builtin\", \"serde\").",
       "returns": {
         "type": "",
@@ -650,7 +335,7 @@
     {
       "name": "debug_lookup",
       "kind": "function",
-      "signature": "pub fn debug_lookup(module: String, name: String) -> String",
+      "signature": "pub fn debug_lookup(module : String, name : String) -> String",
       "description": "Looks up a macro by module and name (debug API).\n\nUseful for testing macro registration and debugging lookup issues.",
       "params": [
         {
@@ -672,7 +357,7 @@
     {
       "name": "debug_descriptors",
       "kind": "function",
-      "signature": "pub fn debug_descriptors() -> Vec<String>",
+      "signature": "pub fn debug_descriptors() -> Vec < String >",
       "description": "Returns debug information about all registered macro descriptors (debug API).\n\nThis provides low-level access to the inventory-based macro registration\nsystem for debugging purposes.",
       "returns": {
         "type": "",

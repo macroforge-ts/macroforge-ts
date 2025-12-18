@@ -3,19 +3,17 @@
   "kind": "typescript_package",
   "version": "0.1.42",
   "description": "MCP server for Macroforge documentation and code analysis",
-  "overview": "@macroforge/mcp-server\n\nMacroforge MCP (Model Context Protocol) Server\n\nThis module provides the main entry point for the Macroforge MCP server,\nwhich enables AI assistants and other MCP clients to access Macroforge\ndocumentation, validate code with @derive decorators, and expand macros.\n\nThe server communicates over stdio transport and exposes the following tools:\n- `list-sections` - List available documentation sections\n- `get-documentation` - Retrieve documentation content\n- `macroforge-autofixer` - Validate TypeScript code with @derive decorators\n- `expand-code` - Expand Macroforge macros and show generated code\n- `get-macro-info` - Get documentation for macros and decorators\n\n@example\n```bash\n# Run the server directly\nnpx @macroforge/mcp-server\n\n# Or configure in your MCP client settings\n{\n\"mcpServers\": {\n\"macroforge\": {\n\"command\": \"npx\",\n\"args\": [\"@macroforge/mcp-server\"]\n}\n}\n}\n```",
+  "overview": "",
   "items": [
     {
       "name": "main",
       "kind": "function",
-      "signature": "import",
-      "description": "",
-      "returns": null,
-      "examples": [
-        "```bash\n# Run the server directly\nnpx @macroforge/mcp-server\n# Or configure in your MCP client settings\n{\n\"mcpServers\": {\n\"macroforge\": {\n\"command\": \"npx\",\n\"args\": [\"@macroforge/mcp-server\"]\n}\n}\n}\n```"
-      ],
-      "remarks": null,
-      "deprecated": null
+      "signature": "async function main(): Promise",
+      "description": "Initializes and starts the Macroforge MCP server.\n\nThis function performs the following setup:\n1. Creates an MCP Server instance with name and version from package.json\n2. Registers all Macroforge tools (documentation, validation, expansion)\n3. Sets up error handling for server errors\n4. Configures graceful shutdown on SIGINT (Ctrl+C)\n5. Connects to stdio transport for client communication\n\nThe server runs until terminated and logs status to stderr\n(stdout is reserved for MCP protocol communication).",
+      "returns": {
+        "type": "",
+        "description": "A promise that resolves when the server is connected"
+      }
     }
   ]
 }

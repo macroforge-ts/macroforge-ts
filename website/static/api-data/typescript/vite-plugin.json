@@ -3,48 +3,21 @@
   "kind": "typescript_package",
   "version": "0.1.42",
   "description": "",
-  "overview": "@macroforge/vite-plugin\n\nVite plugin for Macroforge compile-time TypeScript macro expansion.\n\nThis plugin integrates Macroforge's Rust-based macro expander into the Vite build pipeline,\nenabling compile-time code generation through `@derive` decorators. It processes TypeScript\nfiles during the build, expands macros, generates type definitions, and emits metadata.\n\n@example\n```typescript\nimport { defineConfig } from 'vite';\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: 'src/types/generated',\nemitMetadata: true,\n}),\n],\n});\n```",
+  "overview": "",
   "items": [
-    {
-      "name": "ensureRequire",
-      "kind": "function",
-      "signature": "import",
-      "description": "",
-      "returns": null,
-      "examples": [
-        "```typescript\nimport { defineConfig } from 'vite';\nimport macroforgePlugin from '@macroforge/vite-plugin';\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: 'src/types/generated',\nemitMetadata: true,\n}),\n],\n});\n```"
-      ],
-      "remarks": null,
-      "deprecated": null
-    },
     {
       "name": "NapiMacrosPluginOptions",
       "kind": "interface",
-      "signature": "export interface NapiMacrosPluginOptions",
+      "signature": "interface NapiMacrosPluginOptions",
       "description": "Configuration options for the Macroforge Vite plugin.",
-      "returns": null,
       "examples": [
         "```typescript\nconst options: NapiMacrosPluginOptions = {\ninclude: ['src/**\\/*.ts'],\nexclude: ['**\\/*.test.ts'],\ngenerateTypes: true,\ntypesOutputDir: 'src/types/generated',\nemitMetadata: true,\nmetadataOutputDir: 'src/macros/metadata',\n};\n```"
-      ],
-      "remarks": null,
-      "deprecated": null
-    },
-    {
-      "name": "getCompilerOptions",
-      "kind": "function",
-      "signature": "include?: string | RegExp | (string | RegExp)[];\n\n  /**\n   * Glob patterns, regular expressions, or arrays of either to specify which files\n   * should be excluded from macro processing.\n   *\n   * @remarks\n   * Files in `node_modules` are always excluded by default.\n   *\n   * @example\n   * ```typescript\n   * exclude: ['**\\/*.test.ts', '**\\/*.spec.ts']\n   * ```\n   */\n  exclude?: string | RegExp | (string | RegExp)[];\n\n  /**\n   * Whether to generate TypeScript declaration files (`.d.ts`) for transformed code.\n   *\n   * @remarks\n   * When enabled, the plugin uses the TypeScript compiler to emit declaration files\n   * based on the macro-expanded code. This ensures type definitions accurately reflect\n   * the generated code.\n   *\n   * @default true\n   */\n  generateTypes?: boolean;\n\n  /**\n   * Output directory for generated TypeScript declaration files.\n   *\n   * @remarks\n   * Path is relative to the project root. The directory structure of the source files\n   * is preserved within this output directory.\n   *\n   * @default \"src/macros/generated\"\n   *\n   * @example\n   * ```typescript\n   * // Source: src/models/User.ts\n   * // Output: src/types/generated/models/User.d.ts\n   * typesOutputDir: 'src/types/generated'\n   * ```\n   */\n  typesOutputDir?: string;\n\n  /**\n   * Whether to emit macro intermediate representation (IR) metadata as JSON files.\n   *\n   * @remarks\n   * The metadata contains information about which macros were applied, their configurations,\n   * and the transformation results. This can be useful for debugging, tooling integration,\n   * or build analysis.\n   *\n   * @default true\n   */\n  emitMetadata?: boolean;\n\n  /**\n   * Output directory for macro IR metadata JSON files.\n   *\n   * @remarks\n   * Path is relative to the project root. If not specified, defaults to the same\n   * directory as `typesOutputDir`. Metadata files are named with a `.macro-ir.json` suffix.\n   *\n   * @default Same as `typesOutputDir`\n   *\n   * @example\n   * ```typescript\n   * // Source: src/models/User.ts\n   * // Output: src/macros/metadata/models/User.macro-ir.json\n   * metadataOutputDir: 'src/macros/metadata'\n   * ```\n   */\n  metadataOutputDir?: string;\n}\n\n/**\n * Retrieves and normalizes TypeScript compiler options for declaration emission.\n *\n * @remarks\n * This function reads the project's `tsconfig.json` and adjusts the compiler options\n * specifically for generating declaration files from macro-expanded code. The function:\n *\n * 1. Locates `tsconfig.json` using TypeScript's built-in config file discovery\n * 2. Parses and validates the configuration\n * 3. Normalizes options for declaration-only emission\n * 4. Caches results per project root for performance\n *\n * **Forced Options:**\n * - `declaration: true` - Enable declaration file output\n * - `emitDeclarationOnly: true` - Only emit `.d.ts` files, not JavaScript\n * - `noEmitOnError: false` - Continue emission even with type errors\n * - `incremental: false` - Disable incremental compilation\n *\n * **Default Options** (applied if not specified in tsconfig):\n * - `moduleResolution: Bundler` - Modern bundler-style resolution\n * - `module: ESNext` - ES module output\n * - `target: ESNext` - Latest ECMAScript target\n * - `strict: true` - Enable strict type checking\n * - `skipLibCheck: true` - Skip type checking of declaration files\n *\n * **Removed Options:**\n * - `outDir` and `outFile` - Removed to allow programmatic output control\n *\n * @param projectRoot - The project root directory to search for tsconfig.json\n *\n * @returns Normalized compiler options, or `undefined` if TypeScript is not available\n *\n * @internal\n */\nfunction getCompilerOptions(\n  projectRoot: string,\n): ts.CompilerOptions | undefined",
-      "description": "Glob patterns, regular expressions, or arrays of either to specify which files\nshould be processed by the macro expander.",
-      "returns": null,
-      "examples": [
-        "```typescript\ninclude: ['src/**\\/*.ts', /components\\/.*\\.tsx$/]\n```"
-      ],
-      "remarks": "If not specified, all `.ts` and `.tsx` files (excluding `node_modules`) are processed.",
-      "deprecated": null
+      ]
     },
     {
       "name": "napiMacrosPlugin",
       "kind": "function",
-      "signature": "function napiMacrosPlugin(options: NapiMacrosPluginOptions =",
+      "signature": "function napiMacrosPlugin(options: NapiMacrosPluginOptions): Plugin",
       "description": "Creates a Vite plugin for Macroforge compile-time macro expansion.",
       "params": [
         {
@@ -58,120 +31,10 @@
         "description": "A Vite plugin instance"
       },
       "examples": [
-        "```typescript\nimport macroforgePlugin from '@macroforge/vite-plugin';\nexport default defineConfig({\nplugins: [macroforgePlugin()],\n});\n```",
-        "```typescript\nimport macroforgePlugin from '@macroforge/vite-plugin';\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: 'src/types/generated',\nemitMetadata: false,\n}),\n],\n});\n```"
+        "```typescript\n// Basic usage\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [macroforgePlugin()],\n});\n```",
+        "```typescript\n// With custom options\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: 'src/types/generated',\nemitMetadata: false,\n}),\n],\n});\n```"
       ],
-      "remarks": "This is the main entry point for integrating Macroforge into a Vite build pipeline.\nThe plugin:\n1. **Runs early** (`enforce: \"pre\"`) to transform code before other plugins\n2. **Processes TypeScript files** (`.ts` and `.tsx`) excluding `node_modules`\n3. **Expands macros** using the Macroforge Rust binary via `expandSync()`\n4. **Generates type definitions** for transformed code (optional, default: enabled)\n5. **Emits metadata** about macro transformations (optional, default: enabled)\n**Plugin Lifecycle:**\n- `configResolved`: Initializes project root, loads config, and attempts to load Rust binary\n- `transform`: Processes each TypeScript file through the macro expander\n**Error Handling:**\n- If the Rust binary is not available, files pass through unchanged\n- Macro expansion errors are reported via Vite's `this.error()` mechanism\n- TypeScript emission errors are logged as warnings",
-      "deprecated": null
-    },
-    {
-      "name": "rustTransformer",
-      "kind": "variable",
-      "signature": "let rustTransformer",
-      "description": "Reference to the loaded Macroforge Rust binary module.\nContains the `expandSync` function for synchronous macro expansion.\nWill be `undefined` if the binary failed to load.",
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
-    },
-    {
-      "name": "projectRoot",
-      "kind": "variable",
-      "signature": "let projectRoot",
-      "description": "",
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
-    },
-    {
-      "name": "macroConfig",
-      "kind": "variable",
-      "signature": "let macroConfig",
-      "description": "",
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
-    },
-    {
-      "name": "ensureDir",
-      "kind": "function",
-      "signature": "function ensureDir(dir: string)",
-      "description": "Ensures a directory exists, creating it recursively if necessary.",
-      "params": [
-        {
-          "name": "dir",
-          "type": "",
-          "description": "The directory path to ensure exists"
-        }
-      ],
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
-    },
-    {
-      "name": "writeTypeDefinitions",
-      "kind": "function",
-      "signature": "function writeTypeDefinitions(id: string, types: string)",
-      "description": "Writes generated TypeScript declaration files to the configured output directory.",
-      "params": [
-        {
-          "name": "id",
-          "type": "",
-          "description": "The absolute path of the source file"
-        },
-        {
-          "name": "types",
-          "type": "",
-          "description": "The generated declaration file content"
-        }
-      ],
-      "returns": null,
-      "remarks": "Preserves the source file's directory structure within the output directory.\nImplements change detection to avoid unnecessary file writes - only writes\nif the content differs from the existing file (or the file doesn't exist).\nOutput path formula:\n`{projectRoot}/{typesOutputDir}/{relative/path/to/source}/{filename}.d.ts`",
-      "deprecated": null
-    },
-    {
-      "name": "writeMetadata",
-      "kind": "function",
-      "signature": "function writeMetadata(id: string, metadata: string)",
-      "description": "Writes macro intermediate representation (IR) metadata to JSON files.",
-      "params": [
-        {
-          "name": "id",
-          "type": "",
-          "description": "The absolute path of the source file"
-        },
-        {
-          "name": "metadata",
-          "type": "",
-          "description": "The macro IR metadata as a JSON string"
-        }
-      ],
-      "returns": null,
-      "remarks": "Preserves the source file's directory structure within the output directory.\nImplements change detection to avoid unnecessary file writes - only writes\nif the content differs from the existing file (or the file doesn't exist).\nOutput path formula:\n`{projectRoot}/{metadataOutputDir}/{relative/path/to/source}/{filename}.macro-ir.json`\nThe metadata contains information about which macros were applied and their\ntransformation results, useful for debugging and tooling integration.",
-      "deprecated": null
-    },
-    {
-      "name": "formatTransformError",
-      "kind": "function",
-      "signature": "function formatTransformError(error: unknown, id: string): string",
-      "description": "Formats transformation errors into user-friendly messages.",
-      "params": [
-        {
-          "name": "error",
-          "type": "",
-          "description": "The caught error (can be any type)"
-        },
-        {
-          "name": "id",
-          "type": "",
-          "description": "The absolute path of the file that failed to transform"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "A formatted error message string with plugin prefix"
-      },
-      "remarks": "Handles both Error instances and unknown error types. For Error instances,\nincludes the full stack trace if available. Paths are made relative to the\nproject root for readability.",
-      "deprecated": null
+      "remarks": "This is the main entry point for integrating Macroforge into a Vite build pipeline.\nThe plugin:\n\n1. **Runs early** (`enforce: \"pre\"`) to transform code before other plugins\n2. **Processes TypeScript files** (`.ts` and `.tsx`) excluding `node_modules`\n3. **Expands macros** using the Macroforge Rust binary via `expandSync()`\n4. **Generates type definitions** for transformed code (optional, default: enabled)\n5. **Emits metadata** about macro transformations (optional, default: enabled)\n\n**Plugin Lifecycle:**\n- `configResolved`: Initializes project root, loads config, and attempts to load Rust binary\n- `transform`: Processes each TypeScript file through the macro expander\n\n**Error Handling:**\n- If the Rust binary is not available, files pass through unchanged\n- Macro expansion errors are reported via Vite's `this.error()` mechanism\n- TypeScript emission errors are logged as warnings"
     }
   ]
 }

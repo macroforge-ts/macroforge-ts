@@ -3,76 +3,37 @@
   "kind": "typescript_package",
   "version": "0.1.42",
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
-  "overview": "@macroforge/svelte-preprocessor\n\nSvelte preprocessor for expanding Macroforge macros in component script blocks.\n\nThis module provides integration between Macroforge's macro expansion system and\nSvelte's preprocessing pipeline. It intercepts `<script>` blocks in `.svelte` files,\ndetects `@derive` decorators, and expands them into generated code before TypeScript\ncompilation occurs.\n\n## How It Works\n\n1. The preprocessor is registered in `svelte.config.js` as part of the preprocess array\n2. When Svelte compiles a component, it passes each `<script>` block to this preprocessor\n3. The preprocessor checks if the script contains `@derive` decorators\n4. If found, it calls the native `macroforge` binding to expand the macros\n5. The expanded code replaces the original script content\n\n## Important Notes\n\n- Must be placed BEFORE other preprocessors (like `vitePreprocess()`) in the chain\n- Uses lazy-loading for native bindings to avoid initialization overhead\n- Gracefully degrades if native bindings are unavailable\n- Only processes TypeScript blocks by default (configurable via options)",
+  "overview": "",
   "items": [
-    {
-      "name": "ExpandOptions",
-      "kind": "interface",
-      "signature": "import type { PreprocessorGroup, Preprocessor } from \"svelte/compiler\";\n\n/**\n * Options passed to the native macro expansion engine.\n *\n * This interface mirrors the options accepted by `macroforge.expandSync()`.\n * It is defined locally to avoid requiring the macroforge package at type-check time,\n * enabling better decoupling and faster IDE performance.\n *\n * @internal\n */\ninterface ExpandOptions",
-      "description": "",
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
-    },
-    {
-      "name": "ExpandResult",
-      "kind": "interface",
-      "signature": "keepDecorators?: boolean;\n}\n\n/**\n * Result returned from the native macro expansion engine.\n *\n * Contains the expanded code along with any type information, metadata,\n * and diagnostics (errors/warnings) generated during expansion.\n *\n * @internal\n */\ninterface ExpandResult",
-      "description": "Whether to preserve `@derive` decorators in the expanded output.\nWhen `true`, decorators remain in the code after expansion, which can be useful\nfor debugging or when downstream tools need to see the original annotations.\nWhen `false` (default), decorators are stripped from the output.",
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
-    },
-    {
-      "name": "expandSync",
-      "kind": "variable",
-      "signature": "code: string;\n\n  /**\n   * Generated TypeScript type declarations, if any macros produce type output.\n   * Currently unused by the preprocessor but available for future enhancements.\n   */\n  types?: string | null;\n\n  /**\n   * Additional metadata from the expansion process.\n   * May contain information about which macros were applied, statistics, etc.\n   */\n  metadata?: string | null;\n\n  /**\n   * Array of diagnostic messages generated during macro expansion.\n   * These are logged to the console to help developers debug issues.\n   */\n  diagnostics: Array<{\n    /** Severity level: \"error\", \"warning\", or \"info\" */\n    level: string;\n    /** Human-readable description of the issue */\n    message: string;\n    /** Byte offset where the issue starts in the source (optional) */\n    start?: number;\n    /** Byte offset where the issue ends in the source (optional) */\n    end?: number;\n  }>;\n\n  /**\n   * Source mapping information for mapping expanded code back to original.\n   * Reserved for future source map support.\n   * @see https://github.com/nicksrandall/sourcemap-codec for mapping format\n   */\n  source_mapping?: unknown;\n}\n\n/**\n * Cached reference to the native `expandSync` function from the macroforge package.\n *\n * This variable implements a lazy-loading pattern:\n * - Initially `null`, indicating the binding hasn't been loaded yet\n * - Set to the actual function after first successful load\n * - Remains `null` if loading fails (graceful degradation)\n *\n * The lazy-loading approach avoids loading native bindings at module import time,\n * which improves startup performance when the preprocessor is registered but no\n * components contain macros.\n *\n * @internal\n */\nlet expandSync",
-      "description": "The expanded TypeScript/JavaScript code with all macros processed.\nThis replaces the original script content in the Svelte component.",
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
-    },
-    {
-      "name": "ensureExpandSync",
-      "kind": "function",
-      "signature": "code: string,\n  /** File path for error reporting and context */\n  filepath: string,\n  /** Optional expansion configuration */\n  options?: ExpandOptions | null\n) => ExpandResult) | null = null;\n\n/**\n * Lazily loads and caches the native `expandSync` function.\n *\n * This function implements the initialization logic for native bindings:\n *\n * 1. On first call, dynamically imports the `macroforge` package\n * 2. Extracts and caches the `expandSync` function\n * 3. On subsequent calls, returns the cached function immediately\n *\n * The function is async because dynamic imports return promises, even though\n * the underlying `expandSync` function is synchronous. This async wrapper\n * only runs once; after initialization, the cached sync function is used directly.\n *\n * ## Error Handling\n *\n * If the native bindings fail to load (e.g., missing native module, architecture\n * mismatch), the function logs a warning and returns `null`. This allows the\n * preprocessor to gracefully skip macro expansion rather than crashing the build.\n *\n * @returns The cached `expandSync` function, or `null` if loading failed\n * @internal\n */\nasync function ensureExpandSync(): Promise<typeof expandSync>",
-      "description": "",
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
-    },
     {
       "name": "MacroforgePreprocessorOptions",
       "kind": "interface",
-      "signature": "export interface MacroforgePreprocessorOptions",
-      "description": "Configuration options for the Macroforge Svelte preprocessor.\nThese options control how the preprocessor identifies and transforms\nscript blocks containing `@derive` decorators.",
-      "returns": null,
+      "signature": "interface MacroforgePreprocessorOptions",
+      "description": "Configuration options for the Macroforge Svelte preprocessor.\n\nThese options control how the preprocessor identifies and transforms\nscript blocks containing `@derive` decorators.",
       "examples": [
-        "```ts\nmacroforgePreprocess()\nmacroforgePreprocess({ keepDecorators: true })\nmacroforgePreprocess({ processJavaScript: true })\n```"
-      ],
-      "remarks": null,
-      "deprecated": null
+        "```ts\n// Default behavior - TypeScript only, decorators stripped\nmacroforgePreprocess()\n\n// Keep decorators for debugging\nmacroforgePreprocess({ keepDecorators: true })\n\n// Process both TypeScript and JavaScript\nmacroforgePreprocess({ processJavaScript: true })\n```"
+      ]
     },
     {
       "name": "macroforgePreprocess",
       "kind": "function",
-      "signature": "keepDecorators?: boolean;\n\n  /**\n   * Whether to process JavaScript script blocks in addition to TypeScript.\n   *\n   * By default, only `<script lang=\"ts\">` and `<script lang=\"typescript\">`\n   * blocks are processed, since Macroforge is primarily designed for TypeScript.\n   *\n   * Set to `true` to also process:\n   * - `<script>` (no lang attribute)\n   * - `<script lang=\"js\">`\n   * - `<script lang=\"javascript\">`\n   * - `<script type=\"module\">`\n   *\n   * @default false\n   */\n  processJavaScript?: boolean;\n}\n\n/**\n * Creates a Svelte preprocessor that expands Macroforge macros in `<script>` blocks.\n *\n * This is the main entry point for integrating Macroforge with Svelte. The returned\n * preprocessor intercepts script blocks, detects `@derive` decorators, and expands\n * them into generated code using the native Macroforge engine.\n *\n * ## Preprocessor Order\n *\n * **Important:** This preprocessor must be placed BEFORE other preprocessors like\n * `vitePreprocess()` in the preprocess array. Macros must be expanded before\n * TypeScript compilation occurs, or the TypeScript compiler will fail on the\n * decorator syntax.\n *\n * ## Processing Logic\n *\n * The preprocessor performs these steps for each script block:\n *\n * 1. **Language Check** - Verifies the script is TypeScript (or JavaScript if enabled)\n * 2. **Quick Scan** - Skips blocks without `@derive` (performance optimization)\n * 3. **Expansion** - Calls the native engine to expand macros\n * 4. **Diagnostics** - Logs any errors or warnings from expansion\n * 5. **Return** - Returns transformed code or `undefined` if unchanged\n *\n * ## Error Handling\n *\n * The preprocessor is designed to be resilient:\n * - If native bindings fail to load, it silently skips processing\n * - If macro expansion throws, it logs a warning and continues\n * - Svelte compilation proceeds even if preprocessing fails\n *\n * @param options - Configuration options for the preprocessor\n * @returns A Svelte `PreprocessorGroup` with name \"macroforge\" and a script preprocessor\n *\n * @example Basic usage\n * ```js\n * // svelte.config.js\n * import",
-      "description": "Whether to preserve `@derive` decorators in the expanded output.\nBy default, decorators are stripped after expansion since they've served\ntheir purpose. Set to `true` if you need to:\n- Debug macro expansion by seeing both decorators and generated code\n- Pass decorators through to another tool in the pipeline\n- Preserve decorators for documentation generation",
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
-    },
-    {
-      "name": "scriptPreprocessor",
-      "kind": "variable",
-      "signature": "const scriptPreprocessor",
-      "description": "The script preprocessor function that Svelte calls for each `<script>` block.\nSvelte passes three properties:\n- `content`: The text content of the script block\n- `filename`: Path to the .svelte file being processed\n- `attributes`: Object of attributes from the script tag (e.g., `{ lang: \"ts\" }`)",
+      "signature": "function macroforgePreprocess(options: MacroforgePreprocessorOptions): PreprocessorGroup",
+      "description": "Creates a Svelte preprocessor that expands Macroforge macros in `<script>` blocks.\n\nThis is the main entry point for integrating Macroforge with Svelte. The returned\npreprocessor intercepts script blocks, detects `@derive` decorators, and expands\nthem into generated code using the native Macroforge engine.\n\n## Preprocessor Order\n\n**Important:** This preprocessor must be placed BEFORE other preprocessors like\n`vitePreprocess()` in the preprocess array. Macros must be expanded before\nTypeScript compilation occurs, or the TypeScript compiler will fail on the\ndecorator syntax.\n\n## Processing Logic\n\nThe preprocessor performs these steps for each script block:\n\n1. **Language Check** - Verifies the script is TypeScript (or JavaScript if enabled)\n2. **Quick Scan** - Skips blocks without `@derive` (performance optimization)\n3. **Expansion** - Calls the native engine to expand macros\n4. **Diagnostics** - Logs any errors or warnings from expansion\n5. **Return** - Returns transformed code or `undefined` if unchanged\n\n## Error Handling\n\nThe preprocessor is designed to be resilient:\n- If native bindings fail to load, it silently skips processing\n- If macro expansion throws, it logs a warning and continues\n- Svelte compilation proceeds even if preprocessing fails",
+      "params": [
+        {
+          "name": "options",
+          "type": "",
+          "description": "Configuration options for the preprocessor"
+        }
+      ],
       "returns": {
         "type": "",
-        "description": "An object with `code` property if transformed, or `undefined` if no changes"
+        "description": "A Svelte `PreprocessorGroup` with name \"macroforge\" and a script preprocessor"
       },
-      "remarks": null,
-      "deprecated": null
+      "examples": [
+        "Basic usage\n```js\n// svelte.config.js\nimport { vitePreprocess } from '@sveltejs/vite-plugin-svelte';\nimport { macroforgePreprocess } from '@macroforge/svelte-preprocessor';\n\nexport default {\npreprocess: [\nmacroforgePreprocess(),   // Expand macros FIRST\nvitePreprocess()          // Then handle TypeScript/CSS\n]\n};\n```",
+        "With options\n```js\n// svelte.config.js\nimport { macroforgePreprocess } from '@macroforge/svelte-preprocessor';\n\nexport default {\npreprocess: [\nmacroforgePreprocess({\nkeepDecorators: true,      // Keep @derive in output for debugging\nprocessJavaScript: true    // Also process <script> blocks without lang=\"ts\"\n})\n]\n};\n```"
+      ]
     }
   ]
 }

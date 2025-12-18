@@ -1,5 +1,7 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
+import type { DateTime } from 'effect';
+import type { Option } from 'effect/Option';
 import type { Promotion } from './promotion.svelte';
 import type { Site } from './site.svelte';
 import type { Payment } from './payment.svelte';
@@ -54,7 +56,7 @@ export interface Order {
     /** @hiddenController({}) */
     upsale: number;
     /** @hiddenController({}) */
-    dateCreated: string;
+    dateCreated: DateTime.DateTime;
     /** @comboboxController({ label: "Appointment", allowCustom: false, fetchUrls: ["/api/appointments"] }) */
     /** @default("") */
     appointment: string | Appointment;
@@ -67,7 +69,7 @@ export interface Order {
     /** @hiddenController({}) */
     balance: number;
     /** @dateTimeController({ label: "Due" }) */
-    due: string;
+    due: DateTime.DateTime;
     /** @hiddenController({}) */
     total: number;
     /** @siteFieldsetController({ label: "Site" }) */
@@ -76,8 +78,7 @@ export interface Order {
     /** @arrayFieldsetController({ legend: "Billed Items" }) */
     billedItems: BilledItem[];
     /** @textAreaController({ label: "Memo" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
-    memo: string;
+    memo: Option<string>;
     /** @hiddenController({}) */
     discount: number;
     /** @hiddenController({}) */

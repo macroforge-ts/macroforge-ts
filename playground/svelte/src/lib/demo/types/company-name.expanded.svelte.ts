@@ -1,9 +1,9 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -49,30 +49,35 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function companyNameDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<CompanyName, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: CompanyName }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = companyNameDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'CompanyName.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'CompanyName.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -154,7 +159,7 @@ export function companyNameIs(obj: unknown): obj is CompanyName {
         return false;
     }
     const result = companyNameDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type CompanyNameErrors = {
@@ -205,7 +210,7 @@ export function companyNameCreateForm(overrides?: Partial<CompanyName>): Company
         }
     };
     function validate(): Result<CompanyName, Array<{ field: string; message: string }>> {
-        return companyNameFromObject(data);
+        return companyNameDeserialize(data);
     }
     function reset(newOverrides?: Partial<CompanyName>): void {
         data = { ...companyNameDefaultValue(), ...newOverrides };
@@ -235,13 +240,13 @@ export function companyNameCreateForm(overrides?: Partial<CompanyName>): Company
         validate,
         reset
     };
-} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
+} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function companyNameFromFormData(
     formData: FormData
 ): Result<CompanyName, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.companyName = formData.get('companyName') ?? '';
-    return companyNameFromStringifiedJSON(JSON.stringify(obj));
+    return companyNameDeserialize(obj);
 }
 
 export const CompanyName = {

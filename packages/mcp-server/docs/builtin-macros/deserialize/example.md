@@ -31,20 +31,6 @@ class User {
 Generated output:
 
 ```typescript
-class User {
-    id: number;
-
-    email: string;
-
-    name: string;
-
-    age?: number;
-}
-```
-
-Generated output:
-
-```typescript
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';

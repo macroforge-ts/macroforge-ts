@@ -1,9 +1,9 @@
 import { SerializeContext } from 'macroforge/serde';
-import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { Result } from 'macroforge/utils';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -50,30 +50,35 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized value or validation errors */ export function dataPathDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<DataPath, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: DataPath }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
         const resultOrRef = dataPathDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
-            return Result.err([
-                {
-                    field: '_root',
-                    message: 'DataPath.deserialize: root cannot be a forward reference'
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message: 'DataPath.deserialize: root cannot be a forward reference'
+                    }
+                ]
+            };
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return Result.ok(resultOrRef);
+        return { success: true, value: resultOrRef };
     } catch (e) {
         if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
+            return { success: false, errors: e.errors };
         }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
+        return { success: false, errors: [{ field: '_root', message }] };
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -144,7 +149,7 @@ export function dataPathIs(obj: unknown): obj is DataPath {
         return false;
     }
     const result = dataPathDeserialize(obj);
-    return Result.isOk(result);
+    return result.success;
 }
 
 /** Nested error structure matching the data shape */ export type DataPathErrors = {
@@ -181,7 +186,6 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
             path: ['path'] as const,
             name: 'path',
             constraints: { required: true },
-
             get: () => data.path,
             set: (value: string[]) => {
                 data.path = value;
@@ -234,7 +238,6 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
             path: ['formatter'] as const,
             name: 'formatter',
             constraints: { required: true },
-
             get: () => data.formatter,
             set: (value: string | null) => {
                 data.formatter = value;
@@ -255,7 +258,7 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
         }
     };
     function validate(): Result<DataPath, Array<{ field: string; message: string }>> {
-        return dataPathFromObject(data);
+        return dataPathDeserialize(data);
     }
     function reset(newOverrides?: Partial<DataPath>): void {
         data = { ...dataPathDefaultValue(), ...newOverrides };
@@ -285,14 +288,14 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
         validate,
         reset
     };
-} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */
+} /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function dataPathFromFormData(
     formData: FormData
 ): Result<DataPath, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.path = formData.getAll('path') as Array<string>;
     obj.formatter = formData.get('formatter') ?? '';
-    return dataPathFromStringifiedJSON(JSON.stringify(obj));
+    return dataPathDeserialize(obj);
 }
 
 export const DataPath = {

@@ -1,11 +1,12 @@
 //! Generates the createForm factory function with reactive state and field controllers.
 
+use convert_case::Casing;
 use macroforge_ts::macros::ts_template;
 use macroforge_ts::ts_syn::TsStream;
 
 use crate::gigaform::GenericInfo;
 use crate::gigaform::naming::{
-    call_default_value, call_default_value_for_type_ref, call_from_object, call_validate_field,
+    call_default_value, call_default_value_for_type_ref, call_deserialize, call_validate_field,
     fn_name, type_name_prefixed,
 };
 use crate::gigaform::parser::{
@@ -29,31 +30,35 @@ pub fn generate_factory(
     let default_init = generate_default_init(interface_name, options, "");
     let default_errors_init = generate_default_errors_init(fields);
     let default_tainted_init = generate_default_tainted_init(fields);
-    let validate_call = call_from_object(interface_name, "", "data");
+    // Generate again for reset function (TsStream doesn't implement Copy)
+    let default_init_reset = generate_default_init(interface_name, options, "");
+    let default_errors_init_reset = generate_default_errors_init(fields);
+    let default_tainted_init_reset = generate_default_tainted_init(fields);
+    let validate_call = call_deserialize(interface_name, "", "data");
 
     ts_template! {
         {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
         export function @{create_fn_name}(overrides?: Partial<@{interface_name}>): @{gigaform_name} {
             // Reactive state using Svelte 5 $state
-            let data = $state({ @{default_init}, ...overrides });
-            let errors = $state<@{errors_name}>(@{default_errors_init});
-            let tainted = $state<@{tainted_name}>(@{default_tainted_init});
+            let data = $state({ {$typescript default_init}, ...overrides });
+            let errors = $state<@{errors_name}>({$typescript default_errors_init});
+            let tainted = $state<@{tainted_name}>({$typescript default_tainted_init});
 
             // Field controllers with closures capturing reactive state
             const fields: @{field_controllers_name} = {
-                @{field_controllers}
+                {$typescript field_controllers}
             };
 
-            // Validate the entire form using Deserialize's fromObject
+            // Validate the entire form using Deserialize's deserialize
             function validate(): Result<@{interface_name}, Array<{ field: string; message: string }>> {
                 return @{validate_call};
             }
 
             // Reset form to defaults
             function reset(newOverrides?: Partial<@{interface_name}>): void {
-                data = { @{default_init}, ...newOverrides };
-                errors = @{default_errors_init};
-                tainted = @{default_tainted_init};
+                data = { {$typescript default_init_reset}, ...newOverrides };
+                errors = {$typescript default_errors_init_reset};
+                tainted = {$typescript default_tainted_init_reset};
             }
 
             return {
@@ -94,31 +99,35 @@ pub fn generate_factory_with_generics(
     let default_tainted_init = generate_default_tainted_init(fields);
     let generic_args = generics.args();
     let default_init = generate_default_init(interface_name, options, &generic_args);
-    let validate_call = call_from_object(interface_name, &generic_args, "data");
+    // Generate again for reset function (TsStream doesn't implement Copy)
+    let default_init_reset = generate_default_init(interface_name, options, &generic_args);
+    let default_errors_init_reset = generate_default_errors_init(fields);
+    let default_tainted_init_reset = generate_default_tainted_init(fields);
+    let validate_call = call_deserialize(interface_name, &generic_args, "data");
 
     ts_template! {
         {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
         export function @{create_fn_name}(overrides?: Partial<@{interface_name}@{generic_args}>): @{gigaform_name}@{generic_args} {
             // Reactive state using Svelte 5 $state
-            let data = $state({ @{default_init}, ...overrides });
-            let errors = $state<@{errors_name}@{generic_args}>(@{default_errors_init});
-            let tainted = $state<@{tainted_name}@{generic_args}>(@{default_tainted_init});
+            let data = $state({ {$typescript default_init}, ...overrides });
+            let errors = $state<@{errors_name}@{generic_args}>({$typescript default_errors_init});
+            let tainted = $state<@{tainted_name}@{generic_args}>({$typescript default_tainted_init});
 
             // Field controllers with closures capturing reactive state
             const fields: @{field_controllers_name}@{generic_args} = {
-                @{field_controllers}
+                {$typescript field_controllers}
             };
 
-            // Validate the entire form using Deserialize's fromObject
+            // Validate the entire form using Deserialize's deserialize
             function validate(): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
                 return @{validate_call};
             }
 
             // Reset form to defaults
             function reset(newOverrides?: Partial<@{interface_name}@{generic_args}>): void {
-                data = { @{default_init}, ...newOverrides };
-                errors = @{default_errors_init};
-                tainted = @{default_tainted_init};
+                data = { {$typescript default_init_reset}, ...newOverrides };
+                errors = {$typescript default_errors_init_reset};
+                tainted = {$typescript default_tainted_init_reset};
             }
 
             return {
@@ -185,8 +194,7 @@ pub fn generate_union_factory(
     let _default_init = generate_default_init(type_name, options, "");
 
     // Generate per-variant field controllers
-    let variant_controllers =
-        generate_union_variant_controllers(config, options, type_name);
+    let variant_controllers = generate_union_variant_controllers(config, options, type_name);
 
     // Generate getDefaultForVariant function
     let default_for_variant = generate_default_for_variant(
@@ -219,9 +227,11 @@ pub fn generate_union_factory(
         )
     };
 
+    let validate_call = call_deserialize(type_name, "", "data");
+
     ts_template! {
         {>> "Gets default value for a specific variant" <<}
-        @{default_for_variant}
+        {$typescript default_for_variant}
 
         {>> "Creates a new discriminated union Gigaform with variant switching" <<}
         export function @{create_fn_name}(initial?: @{type_name}): @{gigaform_name} {
@@ -236,7 +246,7 @@ pub fn generate_union_factory(
 
             // Per-variant field controllers
             const variants: @{variant_fields_name} = {
-                @{variant_controllers}
+                {$typescript variant_controllers}
             };
 
             // Switch to a different variant
@@ -247,11 +257,10 @@ pub fn generate_union_factory(
                 tainted = {} as @{tainted_name};
             }
 
-    // Validate the entire form using Deserialize's fromObject
-    function validate(): Result<@{type_name}, Array<{ field: string; message: string }>> {
-        {$let validate_call = call_from_object(type_name, "", "data")}
-        return @{validate_call};
-    }
+            // Validate the entire form using Deserialize's deserialize
+            function validate(): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                return @{validate_call};
+            }
 
             // Reset form
             function reset(overrides?: Partial<@{type_name}>): void {
@@ -286,25 +295,13 @@ fn generate_default_for_variant(
     config: &UnionConfig,
     discriminant_field: &str,
     fn_name: &str,
-) -> String {
+) -> TsStream {
     // Determine how to generate the default value based on the discriminant field
     // - "_value": literal union (e.g., "Home" | "About") - return the literal
     // - "_type": type ref union (e.g., DailyRule | WeeklyRule) - return TypeName.defaultValue()
     // - other: object union with tag field - return { field: "value" }
     let is_literal_union = discriminant_field == "_value";
     let is_type_ref_union = discriminant_field == "_type";
-
-    let cases = config.variants.iter().map(|variant| {
-        let value = &variant.discriminant_value;
-        if is_literal_union {
-            format!(r#"case "{value}": return "{value}" as {type_name};"#)
-        } else if is_type_ref_union {
-            let default_expr = get_type_ref_default_with_style(value, type_name);
-            format!(r#"case "{value}": return {default_expr};"#)
-        } else {
-            format!(r#"case "{value}": return {{ {discriminant_field}: "{value}" }} as {type_name};"#)
-        }
-    }).collect::<Vec<_>>().join("\n            ");
 
     let first_value = config
         .variants
@@ -321,14 +318,24 @@ fn generate_default_for_variant(
         format!(r#"return {{ {discriminant_field}: "{first_value}" }} as {type_name};"#)
     };
 
-    format!(
-        r#"function {fn_name}(variant: string): {type_name} {{
-        switch (variant) {{
-            {cases}
-            default: {default_return}
-        }}
-    }}"#
-    )
+    ts_template! {
+        function @{fn_name}(variant: string): @{type_name} {
+            switch (variant) {
+                {#for variant in &config.variants}
+                    {$let value = &variant.discriminant_value}
+                    {#if is_literal_union}
+                        case "@{value}": return "@{value}" as @{type_name};
+                    {:else if is_type_ref_union}
+                        {$let default_expr = get_type_ref_default_with_style(value, type_name)}
+                        case "@{value}": return @{default_expr};
+                    {:else}
+                        case "@{value}": return { @{discriminant_field}: "@{value}" } as @{type_name};
+                    {/if}
+                {/for}
+                default: @{default_return}
+            }
+        }
+    }
 }
 
 /// Generates per-variant field controllers.
@@ -336,33 +343,20 @@ fn generate_union_variant_controllers(
     config: &UnionConfig,
     options: &GigaformOptions,
     type_name: &str,
-) -> String {
-    config
-        .variants
-        .iter()
-        .map(|variant| {
-            let value = &variant.discriminant_value;
-            let variant_name = to_pascal_case(&variant.discriminant_value);
-            let field_controllers =
-                generate_field_controllers(&variant.fields, options, type_name);
-
-            // Quote the property key if it contains special characters
-            let prop_key = if needs_quoting(value) {
-                format!("\"{}\"", value)
-            } else {
-                value.clone()
-            };
-
-            format!(
-                r#"{prop_key}: {{
-                    fields: {{
-                        {field_controllers}
-                    }} as {type_name}{variant_name}FieldControllers
-                }}"#
-            )
-        })
-        .collect::<Vec<_>>()
-        .join(",\n                ")
+) -> TsStream {
+    ts_template! {
+        {#for variant in &config.variants}
+            {$let value = &variant.discriminant_value}
+            {$let variant_name = to_pascal_case(&variant.discriminant_value)}
+            {$let field_controllers = generate_field_controllers(&variant.fields, options, type_name)}
+            {$let prop_key = if needs_quoting(value) { format!("\"{}\"", value) } else { value.clone() }}
+            @{prop_key}: {
+                fields: {
+                    {$typescript field_controllers}
+                } as @{type_name}@{variant_name}FieldControllers
+            },
+        {/for}
+    }
 }
 
 /// Returns true if a string needs to be quoted when used as an object property key.
@@ -424,10 +418,7 @@ fn to_pascal_case(s: &str) -> String {
     }
 }
 
-fn get_type_ref_default_with_style(
-    type_ref: &str,
-    cast_type: &str,
-) -> String {
+fn get_type_ref_default_with_style(type_ref: &str, cast_type: &str) -> String {
     let tr = type_ref.trim();
     match tr {
         "number" => format!("0 as {cast_type}"),
@@ -453,39 +444,36 @@ fn generate_default_init(
     interface_name: &str,
     options: &GigaformOptions,
     generic_args: &str,
-) -> String {
+) -> TsStream {
     let default_expr = call_default_value(interface_name, generic_args);
     if let Some(override_fn) = &options.default_override {
-        format!("...{default_expr}, ...{override_fn}()")
+        ts_template! { ...@{default_expr}, ...@{override_fn}() }
     } else {
-        format!("...{default_expr}")
+        ts_template! { ...@{default_expr} }
     }
 }
 
 /// Generates the default errors initialization with all fields set to Option.none().
-fn generate_default_errors_init(fields: &[ParsedField]) -> String {
-    let field_inits: Vec<String> = fields
-        .iter()
-        .map(|field| {
-            let name = &field.name;
-            format!("{name}: Option.none()")
-        })
-        .collect();
-
-    format!("{{ _errors: Option.none(), {} }}", field_inits.join(", "))
+fn generate_default_errors_init(fields: &[ParsedField]) -> TsStream {
+    ts_template! {
+        {
+            _errors: Option.none(),
+            {#for field in fields}
+                @{&field.name}: Option.none(),
+            {/for}
+        }
+    }
 }
 
 /// Generates the default tainted initialization with all fields set to Option.none().
-fn generate_default_tainted_init(fields: &[ParsedField]) -> String {
-    let field_inits: Vec<String> = fields
-        .iter()
-        .map(|field| {
-            let name = &field.name;
-            format!("{name}: Option.none()")
-        })
-        .collect();
-
-    format!("{{ {} }}", field_inits.join(", "))
+fn generate_default_tainted_init(fields: &[ParsedField]) -> TsStream {
+    ts_template! {
+        {
+            {#for field in fields}
+                @{&field.name}: Option.none(),
+            {/for}
+        }
+    }
 }
 
 /// Generates all field controller entries.
@@ -493,12 +481,13 @@ fn generate_field_controllers(
     fields: &[ParsedField],
     options: &GigaformOptions,
     interface_name: &str,
-) -> String {
-    fields
-        .iter()
-        .map(|field| generate_field_controller(field, options, interface_name))
-        .collect::<Vec<_>>()
-        .join(",\n                ")
+) -> TsStream {
+    ts_template! {
+        {#for field in fields}
+            {$let controller = generate_field_controller(field, options, interface_name)}
+            {$typescript controller}
+        {/for}
+    }
 }
 
 /// Generates a single field controller with closure-based accessors.
@@ -506,13 +495,9 @@ fn generate_field_controller(
     field: &ParsedField,
     _options: &GigaformOptions,
     interface_name: &str,
-) -> String {
+) -> TsStream {
     let name = &field.name;
     let ts_type = &field.ts_type;
-
-    // Build the path array
-    let path_array = format!("\"{}\"", name);
-    let path_string = name.clone();
 
     // Generate constraints from validators
     let constraints = generate_constraints(&field.validators, !field.optional);
@@ -528,32 +513,34 @@ fn generate_field_controller(
 
     // For array fields, add array-specific methods
     let array_methods = if field.is_array {
-        generate_array_methods(field, name)
+        Some(generate_array_methods(field, name))
     } else {
-        String::new()
+        None
     };
 
-    format!(
-        r#"{name}: {{
-                    path: [{path_array}] as const,
-                    name: "{path_string}",
-                    constraints: {constraints},
-                    {ui_metadata}
-                    get: () => data.{name},
-                    set: (value: {ts_type}) => {{ data.{name} = value; }},
-                    {transform_fn}
-                    getError: () => errors.{name},
-                    setError: (value: Option<Array<string>>) => {{ errors.{name} = value; }},
-                    getTainted: () => tainted.{name},
-                    setTainted: (value: Option<boolean>) => {{ tainted.{name} = value; }},
-                    {validate_fn}
-                    {array_methods}
-                }}"#
-    )
+    ts_template! {
+        @{name}: {
+            path: ["@{name}"] as const,
+            name: "@{name}",
+            constraints: {$typescript constraints},
+            {$typescript ui_metadata}
+            get: () => data.@{name},
+            set: (value: @{ts_type}) => { data.@{name} = value; },
+            {$typescript transform_fn}
+            getError: () => errors.@{name},
+            setError: (value: Option<Array<string>>) => { errors.@{name} = value; },
+            getTainted: () => tainted.@{name},
+            setTainted: (value: Option<boolean>) => { tainted.@{name} = value; },
+            {$typescript validate_fn}
+            {#if let Some(methods) = array_methods}
+                {$typescript methods}
+            {/if}
+        },
+    }
 }
 
 /// Generates the transform function for a field based on controller options.
-fn generate_transform_function(field: &ParsedField, ts_type: &str) -> String {
+fn generate_transform_function(field: &ParsedField, ts_type: &str) -> TsStream {
     let default_base = BaseControllerOptions::default();
     let base = field
         .controller
@@ -576,9 +563,9 @@ fn generate_transform_function(field: &ParsedField, ts_type: &str) -> String {
             // Custom function name - call it directly
             custom_fn => format!("{custom_fn}(value)"),
         };
-        return format!(
-            r#"transform: (value: {ts_type}): {ts_type} => {{ return {transform_logic}; }},"#
-        );
+        return ts_template! {
+            transform: (value: @{ts_type}): @{ts_type} => { return @{transform_logic}; },
+        };
     }
 
     // Check for formatter in TextOptions (legacy support)
@@ -587,17 +574,17 @@ fn generate_transform_function(field: &ParsedField, ts_type: &str) -> String {
             &controller.options
         && let Some(formatter) = &text_opts.formatter
     {
-        return format!(
-            r#"transform: (value: {ts_type}): {ts_type} => {{ return {formatter}(value); }},"#
-        );
+        return ts_template! {
+            transform: (value: @{ts_type}): @{ts_type} => { return @{formatter}(value); },
+        };
     }
 
     // Default: identity transform
-    format!(r#"transform: (value: {ts_type}): {ts_type} => value,"#)
+    ts_template! { transform: (value: @{ts_type}): @{ts_type} => value, }
 }
 
 /// Generates UI metadata properties from controller options.
-fn generate_ui_metadata(field: &ParsedField) -> String {
+fn generate_ui_metadata(field: &ParsedField) -> TsStream {
     let default_base = BaseControllerOptions::default();
     let base = field
         .controller
@@ -605,29 +592,34 @@ fn generate_ui_metadata(field: &ParsedField) -> String {
         .map(|c| c.base())
         .unwrap_or(&default_base);
 
-    let mut props = Vec::new();
+    let label = base.get_label();
+    let description = &base.description;
+    let placeholder = &base.placeholder;
+    let disabled = base.disabled;
+    let readonly = base.readonly;
 
-    if let Some(label) = base.get_label() {
-        props.push(format!("label: \"{label}\","));
+    ts_template! {
+        {#if let Some(l) = label}
+            label: "@{l}",
+        {/if}
+        {#if let Some(d) = description}
+            description: "@{d}",
+        {/if}
+        {#if let Some(p) = placeholder}
+            placeholder: "@{p}",
+        {/if}
+        {#if let Some(d) = disabled}
+            disabled: @{d},
+        {/if}
+        {#if let Some(r) = readonly}
+            readonly: @{r},
+        {/if}
     }
-    if let Some(description) = &base.description {
-        props.push(format!("description: \"{description}\","));
-    }
-    if let Some(placeholder) = &base.placeholder {
-        props.push(format!("placeholder: \"{placeholder}\","));
-    }
-    if let Some(disabled) = base.disabled {
-        props.push(format!("disabled: {disabled},"));
-    }
-    if let Some(readonly) = base.readonly {
-        props.push(format!("readonly: {readonly},"));
-    }
-
-    props.join("\n                    ")
 }
 
 /// Generates the constraints object from validators.
-fn generate_constraints(validators: &[ValidatorSpec], required: bool) -> String {
+fn generate_constraints(validators: &[ValidatorSpec], required: bool) -> TsStream {
+    // Build a list of constraint strings to join
     let mut constraints = Vec::new();
 
     if required {
@@ -699,139 +691,56 @@ fn generate_constraints(validators: &[ValidatorSpec], required: bool) -> String 
         }
     }
 
-    if constraints.is_empty() {
+    let constraints_str = if constraints.is_empty() {
         "{}".to_string()
     } else {
         format!("{{ {} }}", constraints.join(", "))
-    }
+    };
+
+    ts_template! { @{constraints_str} }
 }
 
 /// Generates the field-level validate function that uses per-field validation.
-fn generate_field_validate_function(
-    field_name: &str,
-    interface_name: &str,
-) -> String {
+fn generate_field_validate_function(field_name: &str, interface_name: &str) -> TsStream {
     let validate_call = call_validate_field(
         interface_name,
         &format!("\"{field_name}\""),
         &format!("data.{field_name}"),
     );
-    format!(
-        r#"validate: (): Array<string> => {{
-                        const fieldErrors = {validate_call};
-                        return fieldErrors.map((e: {{ field: string; message: string }}) => e.message);
-                    }},"#
-    )
-}
-
-/// Generates array-specific methods (at, push, remove, swap) with closures.
-fn generate_array_methods(field: &ParsedField, name: &str) -> String {
-    let element_type = field.array_element_type.as_deref().unwrap_or("unknown");
-
-    format!(
-        r#"at: (index: number) => ({{
-                        path: ["{name}", index] as const,
-                        name: `{name}.${{index}}`,
-                        constraints: {{ required: true }},
-                        get: () => data.{name}[index]!,
-                        set: (value: {element_type}) => {{ data.{name}[index] = value; }},
-                        transform: (value: {element_type}): {element_type} => value,
-                        getError: () => errors.{name},
-                        setError: (value: Option<Array<string>>) => {{ errors.{name} = value; }},
-                        getTainted: () => tainted.{name},
-                        setTainted: (value: Option<boolean>) => {{ tainted.{name} = value; }},
-                        validate: (): Array<string> => [],
-                    }}),
-                    push: (item: {element_type}) => {{ data.{name}.push(item); }},
-                    remove: (index: number) => {{ data.{name}.splice(index, 1); }},
-                    swap: (a: number, b: number) => {{
-                        const tmp = data.{name}[a]!;
-                        data.{name}[a] = data.{name}[b]!;
-                        data.{name}[b] = tmp;
-                    }},"#
-    )
-}
-
-// Keep the old generate function for backward compatibility during migration
-#[allow(dead_code)]
-pub fn generate(
-    _interface_name: &str,
-    fields: &[ParsedField],
-    options: &GigaformOptions,
-) -> TsStream {
-    let field_descriptors = generate_old_field_descriptors(fields, options, &[]);
-
     ts_template! {
-        {>> "Field descriptors with type-safe accessors and validation." <<}
-        export const fields = {
-            @{field_descriptors}
-        } as const;
+        validate: (): Array<string> => {
+            const fieldErrors = @{validate_call};
+            return fieldErrors.map((e: { field: string; message: string }) => e.message);
+        },
     }
 }
 
-/// Old field descriptors generation (kept for reference during migration)
-#[allow(dead_code)]
-fn generate_old_field_descriptors(
-    fields: &[ParsedField],
-    options: &GigaformOptions,
-    path_prefix: &[&str],
-) -> String {
-    fields
-        .iter()
-        .map(|field| generate_old_field_descriptor(field, options, path_prefix))
-        .collect::<Vec<_>>()
-        .join(",\n            ")
-}
+/// Generates array-specific methods (at, push, remove, swap) with closures.
+fn generate_array_methods(field: &ParsedField, name: &str) -> TsStream {
+    let element_type = field.array_element_type.as_deref().unwrap_or("unknown");
 
-#[allow(dead_code)]
-fn generate_old_field_descriptor(
-    field: &ParsedField,
-    _options: &GigaformOptions,
-    path_prefix: &[&str],
-) -> String {
-    let name = &field.name;
-    let ts_type = &field.ts_type;
-
-    let mut full_path = path_prefix.to_vec();
-    full_path.push(name);
-    let path_array = full_path
-        .iter()
-        .map(|s| format!("\"{s}\""))
-        .collect::<Vec<_>>()
-        .join(", ");
-    let path_string = full_path.join(".");
-
-    let constraints = generate_constraints(&field.validators, !field.optional);
-    let ui_metadata = generate_ui_metadata(field);
-    let accessor = build_accessor_path(path_prefix, name);
-
-    format!(
-        r#"{name}: {{
-                path: [{path_array}] as const,
-                name: "{path_string}",
-                constraints: {constraints},
-                {ui_metadata}
-                get: (data: Data) => data{accessor},
-                set: (data: Data, value: {ts_type}) => {{ data{accessor} = value; }},
-                getError: (errors: Errors) => errors.{name},
-                setError: (errors: Errors, value: Option<Array<string>>) => {{ errors.{name} = value; }},
-                getTainted: (tainted: Tainted) => tainted.{name},
-                setTainted: (tainted: Tainted, value: Option<boolean>) => {{ tainted.{name} = value; }},
-                validate: (_value: {ts_type}): Array<string> => [],
-            }}"#
-    )
-}
-
-fn build_accessor_path(prefix: &[&str], field_name: &str) -> String {
-    let mut parts = prefix.to_vec();
-    parts.push(field_name);
-    parts.iter().map(|p| format!(".{p}")).collect()
-}
-
-fn build_optional_accessor_path(prefix: &[&str], field_name: &str) -> String {
-    let mut parts = prefix.to_vec();
-    parts.push(field_name);
-    parts.iter().map(|p| format!("?.{p}")).collect()
+    ts_template! {
+        at: (index: number) => ({
+            path: ["@{name}", index] as const,
+            name: "'^@{name}.${index}^'",
+            constraints: { required: true },
+            get: () => data.@{name}[index]!,
+            set: (value: @{element_type}) => { data.@{name}[index] = value; },
+            transform: (value: @{element_type}): @{element_type} => value,
+            getError: () => errors.@{name},
+            setError: (value: Option<Array<string>>) => { errors.@{name} = value; },
+            getTainted: () => tainted.@{name},
+            setTainted: (value: Option<boolean>) => { tainted.@{name} = value; },
+            validate: (): Array<string> => [],
+        }),
+        push: (item: @{element_type}) => { data.@{name}.push(item); },
+        remove: (index: number) => { data.@{name}.splice(index, 1); },
+        swap: (a: number, b: number) => {
+            const tmp = data.@{name}[a]!;
+            data.@{name}[a] = data.@{name}[b]!;
+            data.@{name}[b] = tmp;
+        },
+    }
 }
 
 // =============================================================================
@@ -843,17 +752,8 @@ use crate::gigaform::parser::EnumFormConfig;
 /// Generates the createForm factory for an enum step form.
 /// Note: Uses prefix-style naming.
 pub fn generate_enum_factory(enum_name: &str, config: &EnumFormConfig) -> TsStream {
-    // Helper to convert EnumName to enumName (camelCase)
-    fn to_camel_case(s: &str) -> String {
-        let mut chars = s.chars();
-        match chars.next() {
-            Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
-            None => String::new(),
-        }
-    }
-
     // Use prefix-style naming (the new default)
-    let create_fn_name = format!("{}CreateForm", to_camel_case(enum_name));
+    let create_fn_name = format!("{}CreateForm", enum_name.to_case(convert_case::Case::Camel));
     let gigaform_name = type_name_prefixed(enum_name, "Gigaform");
     let variants_name = type_name_prefixed(enum_name, "Variants");
 
