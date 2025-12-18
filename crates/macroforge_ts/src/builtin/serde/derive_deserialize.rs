@@ -1706,7 +1706,6 @@
 //! ## Required Imports
 //!
 //! The generated code automatically imports:
-//! - `Result` from `macroforge/reexports`
 //! - `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
 
 use crate::macros::{body, ts_macro_derive, ts_template};
@@ -1719,7 +1718,7 @@ use convert_case::{Case, Casing};
 
 use super::{
     SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec,
-    get_foreign_types, get_return_types_mode, rewrite_expression_namespaces,
+    get_foreign_types, rewrite_expression_namespaces,
 };
 use crate::builtin::return_types::{
     DESERIALIZE_CONTEXT, DESERIALIZE_ERROR, DESERIALIZE_OPTIONS, PENDING_REF,
@@ -2345,7 +2344,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     .join(" && ")
             };
 
-            // Compute return type and wrappers based on returnTypes mode
+            // Compute return type and wrappers
             let return_type = deserialize_return_type(&class_name);
             let success_result = wrap_success("resultOrRef");
             let error_root_ref = wrap_error(&format!(
@@ -2769,8 +2768,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     return @{is_ok_result};
                 }
             };
-            // Add return type imports based on mode (vanilla needs no import)
-            result.add_imports(get_return_types_mode().deserialize_imports());
             result.add_aliased_import("DeserializeContext", "macroforge/serde");
             result.add_aliased_import("DeserializeError", "macroforge/serde");
             result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
@@ -2793,8 +2790,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     return @{class_name}.is(value);
                 }
             };
-            // Add return type imports based on mode (vanilla needs no import)
-            standalone.add_imports(get_return_types_mode().deserialize_imports());
             standalone.add_aliased_import("DeserializeContext", "macroforge/serde");
             standalone.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
             standalone.add_aliased_import("PendingRef", "macroforge/serde");
@@ -2988,7 +2983,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 format!("{}HasShape", interface_name.to_case(Case::Camel)),
             );
 
-            // Compute return type and wrappers based on returnTypes mode
+            // Compute return type and wrappers
             let return_type = deserialize_return_type(&interface_name);
             let success_result = wrap_success("resultOrRef");
             let error_root_ref = wrap_error(&format!(
@@ -3318,8 +3313,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
             };
 
-            // Add return type imports based on mode (vanilla needs no import)
-            result.add_imports(get_return_types_mode().deserialize_imports());
             result.add_aliased_import("DeserializeContext", "macroforge/serde");
             result.add_aliased_import("DeserializeError", "macroforge/serde");
             result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
@@ -3459,7 +3452,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     format!("{}Is{}", type_name.to_case(Case::Camel), generic_decl),
                 );
 
-                // Compute return type and wrappers based on returnTypes mode
+                // Compute return type and wrappers
                 let return_type = deserialize_return_type(&full_type_name);
                 let success_result = wrap_success("resultOrRef");
                 let error_root_ref = wrap_error(&format!(
@@ -3781,8 +3774,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
                 };
 
-                // Add return type imports based on mode (vanilla needs no import)
-                result.add_imports(get_return_types_mode().deserialize_imports());
                 result.add_aliased_import("DeserializeContext", "macroforge/serde");
                 result.add_aliased_import("DeserializeError", "macroforge/serde");
                 result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
@@ -3892,7 +3883,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     format!("{}Is{}", type_name.to_case(Case::Camel), generic_decl),
                 );
 
-                // Compute return type and wrappers based on returnTypes mode
+                // Compute return type and wrappers
                 let return_type = deserialize_return_type(&full_type_name);
                 let success_result = wrap_success("resultOrRef");
                 let error_root_ref = wrap_error(&format!(
@@ -4078,8 +4069,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {/if}
                     }
                 };
-                // Add return type imports based on mode (vanilla needs no import)
-                result.add_imports(get_return_types_mode().deserialize_imports());
                 result.add_aliased_import("DeserializeContext", "macroforge/serde");
                 result.add_aliased_import("DeserializeError", "macroforge/serde");
                 result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
@@ -4113,7 +4102,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     format!("{}Is{}", type_name.to_case(Case::Camel), generic_decl),
                 );
 
-                // Compute return type and wrappers based on returnTypes mode
+                // Compute return type and wrappers
                 let return_type = deserialize_return_type(&full_type_name);
                 let success_result = wrap_success("result");
                 let error_from_catch = wrap_error("e.errors");
@@ -4167,8 +4156,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         return value != null;
                     }
                 };
-                // Add return type imports based on mode (vanilla needs no import)
-                result.add_imports(get_return_types_mode().deserialize_imports());
                 result.add_aliased_import("DeserializeContext", "macroforge/serde");
                 result.add_aliased_import("DeserializeError", "macroforge/serde");
                 result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");

@@ -1220,8 +1220,6 @@ pub struct LoadConfigResult {
     pub has_foreign_types: bool,
     /// Number of foreign types configured.
     pub foreign_type_count: u32,
-    /// Return types mode: "vanilla", "custom", or "effect".
-    pub return_types: String,
 }
 
 /// Load and parse a macroforge configuration file.
@@ -1271,11 +1269,6 @@ pub fn load_config(content: String, filepath: String) -> Result<LoadConfigResult
         generate_convenience_const: config.generate_convenience_const,
         has_foreign_types: !config.foreign_types.is_empty(),
         foreign_type_count: config.foreign_types.len() as u32,
-        return_types: match config.return_types {
-            crate::host::ReturnTypesMode::Vanilla => "vanilla".to_string(),
-            crate::host::ReturnTypesMode::Custom => "custom".to_string(),
-            crate::host::ReturnTypesMode::Effect => "effect".to_string(),
-        },
     })
 }
 
@@ -1482,13 +1475,12 @@ fn expand_inner(
         }
     }
 
-    // Set up foreign types, return types mode, and config imports from config if available
+    // Set up foreign types and config imports from config if available
     let config_path = options.as_ref().and_then(|o| o.config_path.as_ref());
     if let Some(path) = config_path
         && let Some(config) = CONFIG_CACHE.get(path)
     {
         crate::builtin::serde::set_foreign_types(config.foreign_types.clone());
-        crate::builtin::serde::set_return_types_mode(config.return_types);
         // Convert ImportInfo to just module source strings for the serde module
         let config_imports: std::collections::HashMap<String, String> = config
             .config_imports
@@ -1506,10 +1498,9 @@ fn expand_inner(
         Err(e) => {
             let error_msg = e.to_string();
 
-            // Clean up foreign types, config imports, and return types mode before returning
+            // Clean up foreign types and config imports before returning
             crate::builtin::serde::clear_foreign_types();
             crate::builtin::serde::clear_import_sources();
-            crate::builtin::serde::clear_return_types_mode();
             crate::builtin::serde::clear_config_imports();
 
             // Return a "no-op" expansion result: original code unchanged,
@@ -1545,7 +1536,6 @@ fn expand_inner(
     crate::builtin::serde::clear_import_aliases();
     crate::builtin::serde::clear_type_only_imports();
     crate::builtin::serde::clear_required_namespace_imports();
-    crate::builtin::serde::clear_return_types_mode();
     crate::builtin::serde::clear_config_imports();
 
     // Now propagate any error
