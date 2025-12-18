@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "fs";
 import path from "path";
-import napiMacrosPlugin from "../dist/index.js";
+import macroforge from "../src/index.js";
 import {
   initializePlugin,
   invokeTransform,
@@ -20,7 +20,7 @@ import {
 } from "./test-utils.js";
 
 test("successfully transforms valid macro code", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = loadFixture("simple-macro");
@@ -38,7 +38,7 @@ test("successfully transforms valid macro code", async () => {
 });
 
 test("processes code without macros", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = loadFixture("no-macro");
@@ -65,7 +65,7 @@ test("handles syntax errors gracefully", async (t) => {
 `
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/broken.ts"), "utf-8");
@@ -113,7 +113,7 @@ class Test {
 export { Test };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/unknown.ts"), "utf-8");
@@ -132,7 +132,7 @@ test("handles empty file", async (t) => {
 
   writeTestFile(tempDir, "src/empty.ts", "");
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/empty.ts"), "utf-8");
@@ -151,7 +151,7 @@ test("handles whitespace-only file", async (t) => {
 
   writeTestFile(tempDir, "src/whitespace.ts", "   \n\n   \t\t\n   ");
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/whitespace.ts"), "utf-8");
@@ -176,7 +176,7 @@ test("handles comment-only file", async (t) => {
 /** JSDoc comment */`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/comments.ts"), "utf-8");
@@ -202,7 +202,7 @@ test("handles large file", async (t) => {
 
   writeTestFile(tempDir, "src/large.ts", largeCode);
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/large.ts"), "utf-8");
@@ -243,7 +243,7 @@ class Comment {
 export { User, Post, Comment };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/multi.ts"), "utf-8");
@@ -275,7 +275,7 @@ class User {
 export { User };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/with-import.ts"), "utf-8");
@@ -305,7 +305,7 @@ class Container<T> {
 export { Container };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/generic.ts"), "utf-8");
@@ -334,7 +334,7 @@ test("handles TypeScript interfaces", async (t) => {
 export type { User };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/interface.ts"), "utf-8");
@@ -364,7 +364,7 @@ class DecoratedClass {
 export { DecoratedClass };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/decorated.ts"), "utf-8");
@@ -377,7 +377,7 @@ export { DecoratedClass };`
 });
 
 test("transform returns null source map", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = loadFixture("simple-macro");

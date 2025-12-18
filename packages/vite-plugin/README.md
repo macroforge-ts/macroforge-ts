@@ -21,7 +21,7 @@ export default defineConfig({
 plugins: [
 macroforgePlugin({
 generateTypes: true,
-typesOutputDir: 'src/types/generated',
+typesOutputDir: '.macroforge/types',
 emitMetadata: true,
 }),
 ],
@@ -59,7 +59,7 @@ export default defineConfig({
 plugins: [
 macroforgePlugin({
 generateTypes: true,
-typesOutputDir: 'src/types/generated',
+typesOutputDir: '.macroforge/types',
 emitMetadata: true,
 }),
 ],
