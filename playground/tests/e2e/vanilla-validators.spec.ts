@@ -294,8 +294,8 @@ test.describe("Vanilla Validator Form E2E Tests", () => {
       const results = await page.evaluate(() => (window as any).validatorFormResults);
       expect(results.userRegistration).toBeDefined();
       expect(results.userRegistration.success).toBe(true);
-      expect(results.userRegistration.data).toBeDefined();
-      expect(results.userRegistration.data.email).toBe("test@example.com");
+      expect(results.userRegistration.value).toBeDefined();
+      expect(results.userRegistration.value.email).toBe("test@example.com");
     });
 
     test("validation errors are stored in window object", async ({ page }) => {
