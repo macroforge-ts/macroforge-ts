@@ -78,7 +78,7 @@ use swc_core::{
     common::{FileName, SourceMap, sync::Lrc},
     ecma::{
         ast::*,
-        codegen::{text_writer::JsWriter, Config, Emitter, Node},
+        codegen::{Config, Emitter, Node, text_writer::JsWriter},
         parser::{EsSyntax, Parser, StringInput, Syntax, TsSyntax, lexer::Lexer},
     },
 };
@@ -447,9 +447,14 @@ impl MacroforgeConfig {
     /// - `Ok(Some((config, dir)))` - Found and loaded configuration
     /// - `Ok(None)` - No configuration file found
     /// - `Err(_)` - Error reading or parsing configuration
-    pub fn find_with_root_from_path(start_path: &Path) -> Result<Option<(Self, std::path::PathBuf)>> {
+    pub fn find_with_root_from_path(
+        start_path: &Path,
+    ) -> Result<Option<(Self, std::path::PathBuf)>> {
         let start_dir = if start_path.is_file() {
-            start_path.parent().map(|p| p.to_path_buf()).unwrap_or_else(|| start_path.to_path_buf())
+            start_path
+                .parent()
+                .map(|p| p.to_path_buf())
+                .unwrap_or_else(|| start_path.to_path_buf())
         } else {
             start_path.to_path_buf()
         };
@@ -475,7 +480,8 @@ impl MacroforgeConfig {
                 let config_path = current.join(config_name);
                 if config_path.exists() {
                     let content = std::fs::read_to_string(&config_path)?;
-                    let config = Self::from_config_file(&content, config_path.to_string_lossy().as_ref())?;
+                    let config =
+                        Self::from_config_file(&content, config_path.to_string_lossy().as_ref())?;
                     return Ok(Some((config, current.clone())));
                 }
             }
@@ -609,8 +615,7 @@ fn parse_config_object(
                     config.keep_decorators = get_bool_value(&kv.value).unwrap_or(false);
                 }
                 "generateConvenienceConst" => {
-                    config.generate_convenience_const =
-                        get_bool_value(&kv.value).unwrap_or(true);
+                    config.generate_convenience_const = get_bool_value(&kv.value).unwrap_or(true);
                 }
                 "foreignTypes" => {
                     if let Expr::Object(ft_obj) = &*kv.value {
@@ -916,7 +921,10 @@ pub fn extract_expression_namespaces(expr_str: &str) -> Vec<String> {
 ///
 /// For `DateTime.formatIso(v)`, this extracts `DateTime`.
 /// For `A.B.c()`, this extracts `A`.
-fn collect_member_expression_roots(expr: &Expr, namespaces: &mut std::collections::HashSet<String>) {
+fn collect_member_expression_roots(
+    expr: &Expr,
+    namespaces: &mut std::collections::HashSet<String>,
+) {
     match expr {
         // Member expression: DateTime.formatIso
         Expr::Member(member) => {
@@ -938,16 +946,14 @@ fn collect_member_expression_roots(expr: &Expr, namespaces: &mut std::collection
             }
         }
         // Arrow function: (v) => DateTime.formatIso(v)
-        Expr::Arrow(arrow) => {
-            match &*arrow.body {
-                BlockStmtOrExpr::Expr(e) => collect_member_expression_roots(e, namespaces),
-                BlockStmtOrExpr::BlockStmt(block) => {
-                    for stmt in &block.stmts {
-                        collect_statement_namespaces(stmt, namespaces);
-                    }
+        Expr::Arrow(arrow) => match &*arrow.body {
+            BlockStmtOrExpr::Expr(e) => collect_member_expression_roots(e, namespaces),
+            BlockStmtOrExpr::BlockStmt(block) => {
+                for stmt in &block.stmts {
+                    collect_statement_namespaces(stmt, namespaces);
                 }
             }
-        }
+        },
         // Function expression: function(v) { return DateTime.formatIso(v); }
         Expr::Fn(fn_expr) => {
             if let Some(body) = &fn_expr.function.body {
@@ -989,10 +995,10 @@ fn collect_member_expression_roots(expr: &Expr, namespaces: &mut std::collection
         // Object expression
         Expr::Object(obj) => {
             for prop in &obj.props {
-                if let PropOrSpread::Prop(p) = prop {
-                    if let Prop::KeyValue(kv) = &**p {
-                        collect_member_expression_roots(&kv.value, namespaces);
-                    }
+                if let PropOrSpread::Prop(p) = prop
+                    && let Prop::KeyValue(kv) = &**p
+                {
+                    collect_member_expression_roots(&kv.value, namespaces);
                 }
             }
         }
@@ -1035,12 +1041,10 @@ fn collect_statement_namespaces(stmt: &Stmt, namespaces: &mut std::collections::
                 collect_statement_namespaces(s, namespaces);
             }
         }
-        Stmt::Decl(decl) => {
-            if let Decl::Var(var) = decl {
-                for decl in &var.decls {
-                    if let Some(init) = &decl.init {
-                        collect_member_expression_roots(init, namespaces);
-                    }
+        Stmt::Decl(Decl::Var(var)) => {
+            for decl in &var.decls {
+                if let Some(init) = &decl.init {
+                    collect_member_expression_roots(init, namespaces);
                 }
             }
         }
