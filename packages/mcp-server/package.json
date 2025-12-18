@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsc && chmod +x dist/index.js",
-    "build:docs": "node scripts/extract-docs.cjs",
+    "build:docs": "rust-script scripts/extract-docs.rs",
     "clean": "rm -rf dist",
     "cleanbuild": "npm run clean && npm run build",
     "dev": "npx @modelcontextprotocol/inspector dist/index.js",
