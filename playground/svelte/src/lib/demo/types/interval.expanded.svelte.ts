@@ -12,8 +12,8 @@ import { dailyRecurrenceRuleDeserializeWithContext } from './daily-recurrence-ru
 import { monthlyRecurrenceRuleDeserializeWithContext } from './monthly-recurrence-rule.svelte';
 import { weeklyRecurrenceRuleDeserializeWithContext } from './weekly-recurrence-rule.svelte';
 import { yearlyRecurrenceRuleDeserializeWithContext } from './yearly-recurrence-rule.svelte';
-import { Result } from 'macroforge/reexports';
-import { Option } from 'macroforge/reexports';
+import { Result } from '@playground/macro/gigaform';
+import { Option } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { monthlyRecurrenceRuleDefaultValue } from './monthly-recurrence-rule.svelte';
 import { weeklyRecurrenceRuleDefaultValue } from './weekly-recurrence-rule.svelte';

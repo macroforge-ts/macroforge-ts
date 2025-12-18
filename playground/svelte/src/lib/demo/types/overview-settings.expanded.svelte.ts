@@ -12,8 +12,8 @@ import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/s
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { overviewDisplayDeserializeWithContext } from './overview-display.svelte';
 import { rowHeightDeserializeWithContext } from './row-height.svelte';
-import { Result } from 'macroforge/reexports';
-import { Option } from 'macroforge/reexports';
+import { Result } from '@playground/macro/gigaform';
+import { Option } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */

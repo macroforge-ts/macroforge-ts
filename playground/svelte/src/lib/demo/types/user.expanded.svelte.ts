@@ -15,8 +15,8 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { appPermissionsDeserializeWithContext } from './app-permissions.svelte';
 import { settingsDeserializeWithContext } from './settings.svelte';
 import { userRoleDeserializeWithContext } from './user-role.svelte';
-import { Result } from 'macroforge/reexports';
-import { Option } from 'macroforge/reexports';
+import { Result } from '@playground/macro/gigaform';
+import { Option } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 

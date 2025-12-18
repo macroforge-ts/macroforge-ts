@@ -12,8 +12,8 @@ import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/s
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { intervalDeserializeWithContext } from './interval.svelte';
 import { recurrenceEndDeserializeWithContext } from './recurrence-end.svelte';
-import { Result } from 'macroforge/reexports';
-import { Option } from 'macroforge/reexports';
+import { Result } from '@playground/macro/gigaform';
+import { Option } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
