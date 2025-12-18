@@ -3,8 +3,6 @@
  * Tests string, number, array, and date validators with real form validation.
  */
 
-import { Result } from 'macroforge/reexports';
-
 /** @derive(Deserialize) */
 export class UserRegistrationForm {
     /** @serde({ validate: ["email"] }) */
@@ -56,40 +54,26 @@ export class EventForm {
     maxAttendees: number;
 }
 
-// Type for validation result
-export type ValidationResult<T> = {
-    success: boolean;
-    data?: T;
-    errors?: string[];
-};
-
-// Helper to convert Result to ValidationResult
-// The Result type uses static methods
-export function toValidationResult<T>(result: any): ValidationResult<T> {
-    if (Result.isOk(result)) {
-        return { success: true, data: Result.unwrap(result) };
-    } else {
-        // Errors are now structured as {field, message} objects
-        const errors = Result.unwrapErr(result);
-        return {
-            success: false,
-            errors: errors.map((e: any) => (typeof e === 'string' ? e : e.message))
-        };
-    }
-}
+// Type for validation result (matches macroforge's vanilla return type)
+export type ValidationResult<T> =
+    | {
+          success: true;
+          value: T;
+      }
+    | { success: false; errors: Array<{ field: string; message: string }> };
 
 // Form validation functions
 export function validateUserRegistration(data: unknown): ValidationResult<UserRegistrationForm> {
-    const result = (UserRegistrationForm as any).deserialize(JSON.stringify(data));
-    return toValidationResult(result);
+    const result = UserRegistrationForm.deserialize(JSON.stringify(data));
+    return result;
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-    const result = (ProductForm as any).deserialize(JSON.stringify(data));
-    return toValidationResult(result);
+    const result = ProductForm.deserialize(JSON.stringify(data));
+    return result;
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-    const result = (EventForm as any).deserialize(JSON.stringify(data));
-    return toValidationResult(result);
+    const result = EventForm.deserialize(JSON.stringify(data));
+    return result;
 }

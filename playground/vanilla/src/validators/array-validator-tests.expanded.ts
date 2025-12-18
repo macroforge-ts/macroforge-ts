@@ -1,7 +1,3 @@
-import { ok as __mf_resultOk } from 'macroforge/reexports';
-import { error as __mf_resultErr } from 'macroforge/reexports';
-import { isOk as __mf_resultIsOk } from 'macroforge/reexports';
-import type { Result as __mf_Result } from 'macroforge/reexports';
 import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
@@ -29,41 +25,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        MaxItemsValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: MaxItemsValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = MaxItemsValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message: 'MaxItemsValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'MaxItemsValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -123,8 +137,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof MaxItemsValidator>(
-        field: K,
-        value: MaxItemsValidator[K]
+        _field: K,
+        _value: MaxItemsValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -133,9 +147,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'items': {
-                const __val = value as string[];
+                const __val = _value as string[];
                 if (__val.length > 5) {
                     errors.push({
                         field: 'items',
@@ -148,7 +162,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<MaxItemsValidator>): Array<{
+    static validateFields(_partial: Partial<MaxItemsValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -156,8 +170,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('items' in partial && partial.items !== undefined) {
-            const __val = partial.items as string[];
+        if ('items' in _partial && _partial.items !== undefined) {
+            const __val = _partial.items as string[];
             if (__val.length > 5) {
                 errors.push({
                     field: 'items',
@@ -184,7 +198,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = MaxItemsValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -195,7 +209,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function maxItemsValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<MaxItemsValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: MaxItemsValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return MaxItemsValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -231,41 +247,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        MinItemsValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: MinItemsValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = MinItemsValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message: 'MinItemsValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'MinItemsValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -325,8 +359,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof MinItemsValidator>(
-        field: K,
-        value: MinItemsValidator[K]
+        _field: K,
+        _value: MinItemsValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -335,9 +369,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'items': {
-                const __val = value as string[];
+                const __val = _value as string[];
                 if (__val.length < 2) {
                     errors.push({
                         field: 'items',
@@ -350,7 +384,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<MinItemsValidator>): Array<{
+    static validateFields(_partial: Partial<MinItemsValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -358,8 +392,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('items' in partial && partial.items !== undefined) {
-            const __val = partial.items as string[];
+        if ('items' in _partial && _partial.items !== undefined) {
+            const __val = _partial.items as string[];
             if (__val.length < 2) {
                 errors.push({
                     field: 'items',
@@ -386,7 +420,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = MinItemsValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -397,7 +431,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function minItemsValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<MinItemsValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: MinItemsValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return MinItemsValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -433,42 +469,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        ItemsCountValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: ItemsCountValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = ItemsCountValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'ItemsCountValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'ItemsCountValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -528,8 +581,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof ItemsCountValidator>(
-        field: K,
-        value: ItemsCountValidator[K]
+        _field: K,
+        _value: ItemsCountValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -538,9 +591,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'items': {
-                const __val = value as string[];
+                const __val = _value as string[];
                 if (__val.length !== 3) {
                     errors.push({
                         field: 'items',
@@ -553,7 +606,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<ItemsCountValidator>): Array<{
+    static validateFields(_partial: Partial<ItemsCountValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -561,8 +614,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('items' in partial && partial.items !== undefined) {
-            const __val = partial.items as string[];
+        if ('items' in _partial && _partial.items !== undefined) {
+            const __val = _partial.items as string[];
             if (__val.length !== 3) {
                 errors.push({
                     field: 'items',
@@ -589,7 +642,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = ItemsCountValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -600,7 +653,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function itemsCountValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<ItemsCountValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: ItemsCountValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return ItemsCountValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize

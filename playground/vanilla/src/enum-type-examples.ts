@@ -2,9 +2,9 @@
  * Examples demonstrating derive macros on enums and type aliases.
  * These showcase the new enum and type alias support for all built-in macros.
  *
- * Generated functions use suffix naming style (default):
- * - toStringStatus, cloneStatus, equalsStatus, etc.
- * - toStringPoint, clonePoint, equalsPoint, etc.
+ * Generated functions use prefix naming style:
+ * - statusToString, statusClone, statusEquals, etc.
+ * - pointToString, pointClone, pointEquals, etc.
  */
 
 // ==================== ENUM EXAMPLES ====================
@@ -64,30 +64,30 @@ export type ApiStatus = 'loading' | 'success' | 'error';
 export const currentStatus = Status.Active;
 export const highPriority = Priority.High;
 
-// Using generated standalone functions on enums (suffix naming style)
+// Using generated standalone functions on enums (prefix naming style)
 export function demoEnumFunctions() {
-    // Debug - toStringStatus
-    console.log('Status string:', toStringStatus(Status.Active));
-    console.log('Priority string:', toStringPriority(Priority.High));
+    // Debug - statusToString
+    console.log('Status string:', statusToString(Status.Active));
+    console.log('Priority string:', priorityToString(Priority.High));
 
     // Clone - returns the same value for enums (primitives)
-    const clonedStatus = cloneStatus(Status.Pending);
+    const clonedStatus = statusClone(Status.Pending);
     console.log('Cloned status:', clonedStatus);
 
-    // PartialEq - equalsStatus
-    const areEqual = equalsStatus(Status.Active, Status.Active);
+    // PartialEq - statusEquals
+    const areEqual = statusEquals(Status.Active, Status.Active);
     console.log('Are equal:', areEqual);
 
-    // Hash - hashCodeStatus
-    const hash = hashCodeStatus(Status.Active);
+    // Hash - statusHashCode
+    const hash = statusHashCode(Status.Active);
     console.log('Hash code:', hash);
 
-    // Serialize - toJSONStatus
-    const json = toJSONStatus(Status.Inactive);
+    // Serialize - statusSerialize
+    const json = statusSerialize(Status.Inactive);
     console.log('Serialized:', json);
 
-    // Deserialize - fromJSONStatus
-    const parsed = fromJSONStatus('pending');
+    // Deserialize - statusDeserialize
+    const parsed = statusDeserialize('pending');
     console.log('Parsed:', parsed);
 }
 
@@ -101,33 +101,33 @@ export const user: UserProfile = {
     isVerified: true
 };
 
-// Using generated standalone functions on type aliases (suffix naming style)
+// Using generated standalone functions on type aliases (prefix naming style)
 export function demoTypeFunctions() {
     const point1: Point = { x: 10, y: 20 };
     const point2: Point = { x: 10, y: 20 };
 
-    // Debug - toStringPoint
-    console.log('Point string:', toStringPoint(point1));
-    console.log('User string:', toStringUserProfile(user));
+    // Debug - pointToString
+    console.log('Point string:', pointToString(point1));
+    console.log('User string:', userProfileToString(user));
 
     // Clone - creates a shallow copy
-    const clonedPoint = clonePoint(point1);
+    const clonedPoint = pointClone(point1);
     console.log('Cloned point:', clonedPoint);
 
-    // PartialEq - equalsPoint
-    const pointsEqual = equalsPoint(point1, point2);
+    // PartialEq - pointEquals
+    const pointsEqual = pointEquals(point1, point2);
     console.log('Points equal:', pointsEqual);
 
-    // Hash - hashCodePoint
-    const pointHash = hashCodePoint(point1);
+    // Hash - pointHashCode
+    const pointHash = pointHashCode(point1);
     console.log('Point hash:', pointHash);
 
-    // Serialize - toJSONPoint
-    const pointJson = toJSONPoint(point1);
+    // Serialize - pointSerialize
+    const pointJson = pointSerialize(point1);
     console.log('Point JSON:', pointJson);
 
-    // Deserialize - fromJSONPoint
-    const parsedPoint = fromJSONPoint({ x: 5, y: 10 });
+    // Deserialize - pointDeserialize
+    const parsedPoint = pointDeserialize({ x: 5, y: 10 });
     console.log('Parsed point:', parsedPoint);
 }
 

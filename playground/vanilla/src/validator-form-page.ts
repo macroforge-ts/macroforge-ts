@@ -22,9 +22,9 @@ declare global {
 
 window.validatorFormResults = {};
 
-function renderErrors(errors: string[] | undefined): string {
+function renderErrors(errors: Array<{ field: string; message: string }> | undefined): string {
     if (!errors || errors.length === 0) return '';
-    return `<ul class="error-list">${errors.map((e) => `<li>${e}</li>`).join('')}</ul>`;
+    return `<ul class="error-list">${errors.map((e) => `<li><strong>${e.field}:</strong> ${e.message}</li>`).join('')}</ul>`;
 }
 
 function renderSuccess(data: any): string {
@@ -250,7 +250,7 @@ export function initValidatorFormPage() {
         const resultEl = document.getElementById('user-registration-result')!;
         if (result.success) {
             resultEl.className = 'result-container success';
-            resultEl.innerHTML = renderSuccess(result.data);
+            resultEl.innerHTML = renderSuccess(result.value);
             resultEl.setAttribute('data-validation-success', 'true');
         } else {
             resultEl.className = 'result-container error';
@@ -286,7 +286,7 @@ export function initValidatorFormPage() {
         const resultEl = document.getElementById('product-result')!;
         if (result.success) {
             resultEl.className = 'result-container success';
-            resultEl.innerHTML = renderSuccess(result.data);
+            resultEl.innerHTML = renderSuccess(result.value);
             resultEl.setAttribute('data-validation-success', 'true');
         } else {
             resultEl.className = 'result-container error';
@@ -318,7 +318,7 @@ export function initValidatorFormPage() {
         const resultEl = document.getElementById('event-result')!;
         if (result.success) {
             resultEl.className = 'result-container success';
-            resultEl.innerHTML = renderSuccess(result.data);
+            resultEl.innerHTML = renderSuccess(result.value);
             resultEl.setAttribute('data-validation-success', 'true');
         } else {
             resultEl.className = 'result-container error';

@@ -1,7 +1,3 @@
-import { ok as __mf_resultOk } from 'macroforge/reexports';
-import { error as __mf_resultErr } from 'macroforge/reexports';
-import { isOk as __mf_resultIsOk } from 'macroforge/reexports';
-import type { Result as __mf_Result } from 'macroforge/reexports';
 import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
@@ -39,42 +35,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        CustomNumberValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: CustomNumberValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = CustomNumberValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'CustomNumberValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'CustomNumberValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -135,8 +148,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof CustomNumberValidator>(
-        field: K,
-        value: CustomNumberValidator[K]
+        _field: K,
+        _value: CustomNumberValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -145,9 +158,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'evenNumber': {
-                const __val = value as number;
+                const __val = _value as number;
                 {
                     const __customResult = isEven(__val);
                     if (__customResult === false) {
@@ -163,7 +176,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<CustomNumberValidator>): Array<{
+    static validateFields(_partial: Partial<CustomNumberValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -171,8 +184,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('evenNumber' in partial && partial.evenNumber !== undefined) {
-            const __val = partial.evenNumber as number;
+        if ('evenNumber' in _partial && _partial.evenNumber !== undefined) {
+            const __val = _partial.evenNumber as number;
             {
                 const __customResult = isEven(__val);
                 if (__customResult === false) {
@@ -202,7 +215,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = CustomNumberValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -213,7 +226,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function customNumberValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<CustomNumberValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: CustomNumberValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return CustomNumberValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -249,42 +264,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        CustomStringValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: CustomStringValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = CustomStringValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'CustomStringValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'CustomStringValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -345,8 +377,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof CustomStringValidator>(
-        field: K,
-        value: CustomStringValidator[K]
+        _field: K,
+        _value: CustomStringValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -355,9 +387,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'username': {
-                const __val = value as string;
+                const __val = _value as string;
                 {
                     const __customResult = isValidUsername(__val);
                     if (__customResult === false) {
@@ -373,7 +405,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<CustomStringValidator>): Array<{
+    static validateFields(_partial: Partial<CustomStringValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -381,8 +413,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('username' in partial && partial.username !== undefined) {
-            const __val = partial.username as string;
+        if ('username' in _partial && _partial.username !== undefined) {
+            const __val = _partial.username as string;
             {
                 const __customResult = isValidUsername(__val);
                 if (__customResult === false) {
@@ -412,7 +444,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = CustomStringValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -423,7 +455,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function customStringValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<CustomStringValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: CustomStringValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return CustomStringValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
@@ -459,42 +493,59 @@ Automatically detects whether input is a JSON string or object.
     static deserialize(
         input: unknown,
         opts?: __mf_DeserializeOptions
-    ): __mf_Result<
-        CustomWithMessageValidator,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
+    ):
+        | {
+              success: true;
+              value: CustomWithMessageValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
             const resultOrRef = CustomWithMessageValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
-                return __mf_resultErr([
-                    {
-                        field: '_root',
-                        message:
-                            'CustomWithMessageValidator.deserialize: root cannot be a forward reference'
-                    }
-                ]);
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'CustomWithMessageValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return __mf_resultOk(resultOrRef);
+            return {
+                success: true,
+                value: resultOrRef
+            };
         } catch (e) {
             if (e instanceof __mf_DeserializeError) {
-                return __mf_resultErr(e.errors);
+                return {
+                    success: false,
+                    errors: e.errors
+                };
             }
             const message = e instanceof Error ? e.message : String(e);
-            return __mf_resultErr([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
+            return {
+                success: false,
+                errors: [
+                    {
+                        field: '_root',
+                        message
+                    }
+                ]
+            };
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
@@ -557,8 +608,8 @@ Automatically detects whether input is a JSON string or object.
     }
 
     static validateField<K extends keyof CustomWithMessageValidator>(
-        field: K,
-        value: CustomWithMessageValidator[K]
+        _field: K,
+        _value: CustomWithMessageValidator[K]
     ): Array<{
         field: string;
         message: string;
@@ -567,9 +618,9 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        switch (field) {
+        switch (_field) {
             case 'evenNumber': {
-                const __val = value as number;
+                const __val = _value as number;
                 {
                     const __customResult = isEven(__val);
                     if (__customResult === false) {
@@ -585,7 +636,7 @@ Automatically detects whether input is a JSON string or object.
         return errors;
     }
 
-    static validateFields(partial: Partial<CustomWithMessageValidator>): Array<{
+    static validateFields(_partial: Partial<CustomWithMessageValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -593,8 +644,8 @@ Automatically detects whether input is a JSON string or object.
             field: string;
             message: string;
         }> = [];
-        if ('evenNumber' in partial && partial.evenNumber !== undefined) {
-            const __val = partial.evenNumber as number;
+        if ('evenNumber' in _partial && _partial.evenNumber !== undefined) {
+            const __val = _partial.evenNumber as number;
             {
                 const __customResult = isEven(__val);
                 if (__customResult === false) {
@@ -624,7 +675,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = CustomWithMessageValidator.deserialize(obj);
-        return __mf_resultIsOk(result);
+        return result.success;
     }
 }
 
@@ -635,7 +686,9 @@ Automatically detects whether input is a JSON string or object.
 @returns Result containing the deserialized instance or validation errors */ export function customWithMessageValidatorDeserialize(
     input: unknown,
     opts?: __mf_DeserializeOptions
-): __mf_Result<CustomWithMessageValidator, Array<{ field: string; message: string }>> {
+):
+    | { success: true; value: CustomWithMessageValidator }
+    | { success: false; errors: Array<{ field: string; message: string }> } {
     return CustomWithMessageValidator.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
