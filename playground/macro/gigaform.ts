@@ -1,4 +1,6 @@
-import type { Result, Option } from "macroforge/reexports";
+// Re-export Result and Option for generated Gigaform code
+export { Result, Option } from "@rydshift/mirror/declarative";
+export type { Result as ResultType, Option as OptionType } from "@rydshift/mirror/declarative";
 
 /** Base interface for field controllers */
 export interface FieldController<T> {

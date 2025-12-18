@@ -115,9 +115,9 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
         {$typescript form_data_fn}
     };
 
-    // Add required imports
-    output.add_import("Result", "macroforge/reexports");
-    output.add_import("Option", "macroforge/reexports");
+    // Add required imports from @playground/macro/gigaform (which re-exports @rydshift/mirror)
+    output.add_import("Result", "@playground/macro/gigaform");
+    output.add_import("Option", "@playground/macro/gigaform");
 
     // Import FieldController from the canonical location
     output.add_type_import("FieldController", "@playground/macro/gigaform");
@@ -223,8 +223,8 @@ fn generate_union_form(
         {$typescript form_data_fn}
     };
 
-    output.add_import("Result", "macroforge/reexports");
-    output.add_import("Option", "macroforge/reexports");
+    output.add_import("Result", "@playground/macro/gigaform");
+    output.add_import("Option", "@playground/macro/gigaform");
 
     // Import FieldController from the canonical location
     output.add_type_import("FieldController", "@playground/macro/gigaform");
