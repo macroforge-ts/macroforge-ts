@@ -1550,7 +1550,7 @@ class User {
             "Should have static serialize method"
         );
         assert!(
-            type_output.contains("static serializeWithContext(value: User, ctx: SerializeContext)"),
+            type_output.contains("static serializeWithContext(value: User, ctx: __mf_SerializeContext)"),
             "Should have static serializeWithContext method"
         );
         assert!(
@@ -1620,7 +1620,7 @@ class User {
         );
         assert!(
             type_output
-                .contains("static deserializeWithContext(value: any, ctx: DeserializeContext)"),
+                .contains("static deserializeWithContext(value: any, ctx: __mf_DeserializeContext)"),
             "Should have deserializeWithContext method"
         );
     });

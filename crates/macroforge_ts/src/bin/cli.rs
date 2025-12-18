@@ -383,11 +383,10 @@ fn try_expand_file_builtin(
 ) -> Result<bool> {
     use macroforge_ts::host::MacroforgeConfig;
 
-    // Load config if available (for foreign types and return types mode support)
+    // Load config if available (for foreign types support)
     // Search from the input file's directory to find the correct project config
     if let Ok(Some(config)) = MacroforgeConfig::find_from_path(&input) {
         macroforge_ts::builtin::serde::set_foreign_types(config.foreign_types.clone());
-        macroforge_ts::builtin::serde::set_return_types_mode(config.return_types);
     }
 
     let source = fs::read_to_string(&input)
@@ -408,7 +407,6 @@ fn try_expand_file_builtin(
     macroforge_ts::builtin::serde::clear_foreign_types();
     macroforge_ts::builtin::serde::clear_import_sources();
     macroforge_ts::builtin::serde::clear_import_aliases();
-    macroforge_ts::builtin::serde::clear_return_types_mode();
 
     if !expansion.changed {
         return Ok(false);

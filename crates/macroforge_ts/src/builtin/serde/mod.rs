@@ -188,7 +188,6 @@ pub mod derive_deserialize;
 /// Serialize macro implementation.
 pub mod derive_serialize;
 
-use crate::host::config::ReturnTypesMode;
 use crate::host::ForeignTypeConfig;
 use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector, SpanIR};
 use std::cell::RefCell;
@@ -232,12 +231,6 @@ thread_local! {
     /// For example, if `DateTime.formatIso` is used and DateTime is type-only imported,
     /// this would contain `"DateTime" -> ("effect/DateTime", "__mf_DateTime")`.
     static REQUIRED_NS_IMPORTS: RefCell<HashMap<String, (String, String)>> = RefCell::new(HashMap::new());
-
-    /// Thread-local storage for return types mode during expansion.
-    ///
-    /// Controls how macros like `Deserialize` and `PartialOrd` express their return types.
-    /// Defaults to `Vanilla` (plain TypeScript discriminated unions).
-    static RETURN_TYPES_MODE: RefCell<ReturnTypesMode> = const { RefCell::new(ReturnTypesMode::Vanilla) };
 
     /// Thread-local storage for config file imports during expansion.
     ///
@@ -354,26 +347,6 @@ pub fn get_required_namespace_imports() -> HashMap<String, (String, String)> {
 /// Clear the required namespace imports after expansion.
 pub fn clear_required_namespace_imports() {
     REQUIRED_NS_IMPORTS.with(|ns| ns.borrow_mut().clear());
-}
-
-/// Set the return types mode for the current expansion.
-///
-/// This should be called by the expander before running macros.
-/// The previous value is returned so it can be restored after expansion.
-pub fn set_return_types_mode(mode: ReturnTypesMode) -> ReturnTypesMode {
-    RETURN_TYPES_MODE.with(|rtm| rtm.replace(mode))
-}
-
-/// Get the current return types mode.
-///
-/// Returns the current mode (defaults to `Vanilla`).
-pub fn get_return_types_mode() -> ReturnTypesMode {
-    RETURN_TYPES_MODE.with(|rtm| *rtm.borrow())
-}
-
-/// Clear the return types mode after expansion.
-pub fn clear_return_types_mode() {
-    RETURN_TYPES_MODE.with(|rtm| *rtm.borrow_mut() = ReturnTypesMode::Vanilla);
 }
 
 /// Set the config file imports for the current expansion.
