@@ -238,6 +238,13 @@ thread_local! {
     /// Controls how macros like `Deserialize` and `PartialOrd` express their return types.
     /// Defaults to `Vanilla` (plain TypeScript discriminated unions).
     static RETURN_TYPES_MODE: RefCell<ReturnTypesMode> = const { RefCell::new(ReturnTypesMode::Vanilla) };
+
+    /// Thread-local storage for config file imports during expansion.
+    ///
+    /// Stores the import sources from the config file (e.g., `import { DateTime } from "effect"`).
+    /// Maps identifier names to their module sources.
+    /// Used to determine the correct import source when generating namespace imports.
+    static CONFIG_IMPORTS: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
 }
 
 /// Set the foreign types for the current expansion.
@@ -367,6 +374,26 @@ pub fn get_return_types_mode() -> ReturnTypesMode {
 /// Clear the return types mode after expansion.
 pub fn clear_return_types_mode() {
     RETURN_TYPES_MODE.with(|rtm| *rtm.borrow_mut() = ReturnTypesMode::Vanilla);
+}
+
+/// Set the config file imports for the current expansion.
+///
+/// Maps identifier names to their module sources from the config file.
+/// This should be called by the expander before running macros.
+pub fn set_config_imports(imports: HashMap<String, String>) -> HashMap<String, String> {
+    CONFIG_IMPORTS.with(|ci| ci.replace(imports))
+}
+
+/// Get a reference to the current config file imports.
+///
+/// Returns a clone of the current imports for thread-safety.
+pub fn get_config_imports() -> HashMap<String, String> {
+    CONFIG_IMPORTS.with(|ci| ci.borrow().clone())
+}
+
+/// Clear the config file imports after expansion.
+pub fn clear_config_imports() {
+    CONFIG_IMPORTS.with(|ci| ci.borrow_mut().clear());
 }
 
 /// Naming convention for JSON field renaming
@@ -964,12 +991,17 @@ pub fn rewrite_expression_namespaces(expr: &str) -> String {
 /// Checks each namespace referenced in the foreign type's expressions and determines
 /// if it needs to be imported (i.e., if it's not already available as a value import).
 ///
+/// The import source is determined by looking at the config file's imports first
+/// (e.g., if the config has `import { DateTime } from "effect"`, we use "effect").
+/// This ensures we import from the same place the config uses for its expressions.
+///
 /// # Arguments
 /// * `ft` - The matched foreign type configuration
-/// * `import_module` - The module the type is imported from (used to determine import source)
+/// * `import_module` - The module the type is imported from (fallback if not in config)
 fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, import_module: &str) {
     let type_only_imports = get_type_only_imports();
     let import_sources = get_import_sources();
+    let config_imports = get_config_imports();
 
     for ns in &ft.expression_namespaces {
         // Check if this namespace is imported in the source file
@@ -991,18 +1023,18 @@ fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, import_module: &str)
         // 2. The namespace is imported as type-only (won't be available at runtime)
         if is_type_only {
             // Determine the module to import from
-            // Use the same module as the type is imported from (or first configured source)
-            let module = if !ft.from.is_empty() {
-                // Prefer the module that matches the actual import
-                ft.from
-                    .iter()
-                    .find(|f| {
-                        import_module == *f
-                            || import_module.ends_with(*f)
-                            || f.ends_with(import_module)
-                    })
-                    .unwrap_or(&ft.from[0])
-                    .clone()
+            // Priority:
+            // 1. Config file imports (where the config actually imports from)
+            // 2. First configured source in foreign type `from` array
+            // 3. Fall back to where the user imported from
+            let module = if let Some(config_source) = config_imports.get(ns) {
+                // Use the module source from the config file
+                // This is the correct source because the config uses this import
+                // for its expressions (e.g., `import { DateTime } from "effect"`)
+                config_source.clone()
+            } else if !ft.from.is_empty() {
+                // Fall back to the first configured source
+                ft.from[0].clone()
             } else {
                 import_module.to_string()
             };

@@ -76,37 +76,37 @@
 //!
 //! ```typescript
 //! import { SerializeContext } from 'macroforge/serde';
-//! 
+//!
 //! class User {
 //!     id: number;
-//! 
+//!
 //!     name: string;
-//! 
+//!
 //!     password: string;
-//! 
+//!
 //!     metadata: UserMetadata;
 //!     /** Serializes a value to a JSON string.
 //! @param value - The value to serialize
 //! @returns JSON string representation with cycle detection metadata  */
-//! 
+//!
 //!     static serialize(value: User): string {
 //!         return userSerialize(value);
 //!     }
 //!     /** @internal Serializes with an existing context for nested/cyclic object graphs.
 //! @param value - The value to serialize
 //! @param ctx - The serialization context  */
-//! 
-//!     static serializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown> {
+//!
+//!     static serializeWithContext(value: User, ctx: @{SERIALIZE_CONTEXT}): Record<string, unknown> {
 //!         return userSerializeWithContext(value, ctx);
 //!     }
 //! }
-//! 
+//!
 //! /** Serializes a value to a JSON string.
 //! @param value - The value to serialize
 //! @returns JSON string representation with cycle detection metadata */ export function userSerialize(
 //!     value: User
 //! ): string {
-//!     const ctx = SerializeContext.create();
+//!     const ctx = @{SERIALIZE_CONTEXT}.create();
 //!     return JSON.stringify(userSerializeWithContext(value, ctx));
 //! } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 //! @param value - The value to serialize
@@ -148,6 +148,7 @@ use super::{
     SerdeContainerOptions, SerdeFieldOptions, TypeCategory, get_foreign_types,
     rewrite_expression_namespaces,
 };
+use crate::builtin::return_types::SERIALIZE_CONTEXT;
 
 fn nested_serialize_fn_name(type_name: &str) -> String {
     format!("{}SerializeWithContext", type_name.to_case(Case::Camel))
@@ -311,7 +312,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
             // Generate function names (always prefix style)
             let fn_serialize = format!("{}Serialize", class_name.to_case(Case::Camel));
-            let fn_serialize_internal = format!("{}SerializeWithContext", class_name.to_case(Case::Camel));
+            let fn_serialize_internal =
+                format!("{}SerializeWithContext", class_name.to_case(Case::Camel));
 
             // Collect serializable fields with diagnostic collection
             let mut all_diagnostics = DiagnosticCollector::new();
@@ -400,7 +402,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     } else {
                         // Check if the field's type matches a configured foreign type
                         let foreign_types = get_foreign_types();
-                        let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                        let ft_match =
+                            TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
                         // Error if import source mismatch (type matches but wrong import)
                         if let Some(error) = ft_match.error {
                             all_diagnostics.error(field.span, error);
@@ -457,12 +460,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let mut standalone = ts_template! {
                 {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                 export function @{fn_serialize}(value: @{class_name}): string {
-                    const ctx = SerializeContext.create();
+                    const ctx = @{SERIALIZE_CONTEXT}.create();
                     return JSON.stringify(@{fn_serialize_internal}(value, ctx));
                 }
 
                 {>> "@internal Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
-                export function @{fn_serialize_internal}(value: @{class_name}, ctx: SerializeContext): Record<string, unknown> {
+                export function @{fn_serialize_internal}(value: @{class_name}, ctx: @{SERIALIZE_CONTEXT}): Record<string, unknown> {
                     // Check if already serialized (cycle detection)
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -885,7 +888,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     return result;
                 }
             };
-            standalone.add_import("SerializeContext", "macroforge/serde");
+            standalone.add_aliased_import("SerializeContext", "macroforge/serde");
 
             // Generate static wrapper methods that delegate to standalone functions
             let class_body = body! {
@@ -895,7 +898,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 }
 
                 {>> "@internal Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
-                static serializeWithContext(value: @{class_name}, ctx: SerializeContext): Record<string, unknown> {
+                static serializeWithContext(value: @{class_name}, ctx: @{SERIALIZE_CONTEXT}): Record<string, unknown> {
                     return @{fn_serialize_internal}(value, ctx);
                 }
             };
@@ -906,7 +909,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let mut combined = TsStream::from_string(combined_source);
             combined.runtime_patches = standalone.runtime_patches;
             combined.runtime_patches.extend(class_body.runtime_patches);
-            combined.add_import("SerializeContext", "macroforge/serde");
+            combined.add_aliased_import("SerializeContext", "macroforge/serde");
 
             Ok(combined)
         }
@@ -915,7 +918,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let enum_name = input.name();
 
             let fn_name = format!("{}Serialize", enum_name.to_case(Case::Camel));
-            let fn_name_internal = format!("{}SerializeWithContext", enum_name.to_case(Case::Camel));
+            let fn_name_internal =
+                format!("{}SerializeWithContext", enum_name.to_case(Case::Camel));
             Ok(ts_template! {
                 {>> "Serializes this enum value to a JSON string." <<}
                 export function @{fn_name}(value: @{enum_name}): string {
@@ -923,7 +927,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 }
 
                 {>> "Serializes with an existing context for nested/cyclic object graphs." <<}
-                export function @{fn_name_internal}(value: @{enum_name}, _ctx: SerializeContext): string | number {
+                export function @{fn_name_internal}(value: @{enum_name}, _ctx: @{SERIALIZE_CONTEXT}): string | number {
                     return value;
                 }
             })
@@ -1020,7 +1024,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     } else {
                         // Check if the field's type matches a configured foreign type
                         let foreign_types = get_foreign_types();
-                        let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                        let ft_match =
+                            TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
                         // Error if import source mismatch (type matches but wrong import)
                         if let Some(error) = ft_match.error {
                             all_diagnostics.error(field.span, error);
@@ -1076,18 +1081,21 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             // Generate function names based on naming style
             let (fn_serialize, fn_serialize_internal) = (
                 format!("{}Serialize", interface_name.to_case(Case::Camel)),
-                format!("{}SerializeWithContext", interface_name.to_case(Case::Camel)),
+                format!(
+                    "{}SerializeWithContext",
+                    interface_name.to_case(Case::Camel)
+                ),
             );
 
             let mut result = ts_template! {
                 {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                 export function @{fn_serialize}(value: @{interface_name}): string {
-                    const ctx = SerializeContext.create();
+                    const ctx = @{SERIALIZE_CONTEXT}.create();
                     return JSON.stringify(@{fn_serialize_internal}(value, ctx));
                 }
 
                 {>> "Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
-                export function @{fn_serialize_internal}(value: @{interface_name}, ctx: SerializeContext): Record<string, unknown> {
+                export function @{fn_serialize_internal}(value: @{interface_name}, ctx: @{SERIALIZE_CONTEXT}): Record<string, unknown> {
                     // Check if already serialized (cycle detection)
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1518,7 +1526,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     return result;
                 }
             };
-            result.add_import("SerializeContext", "macroforge/serde");
+            result.add_aliased_import("SerializeContext", "macroforge/serde");
             Ok(result)
         }
         Data::TypeAlias(type_alias) => {
@@ -1536,7 +1544,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
             // Generate function names based on naming style
             let (fn_serialize, fn_serialize_internal) = (
-                format!("{}Serialize{}", type_name.to_case(Case::Camel), generic_decl),
+                format!(
+                    "{}Serialize{}",
+                    type_name.to_case(Case::Camel),
+                    generic_decl
+                ),
                 format!(
                     "{}SerializeWithContext{}",
                     type_name.to_case(Case::Camel),
@@ -1593,7 +1605,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             _ => None,
                         };
                         let record_value_kind = match &type_cat {
-                            TypeCategory::Record(_, value) => Some(classify_serde_value_kind(value)),
+                            TypeCategory::Record(_, value) => {
+                                Some(classify_serde_value_kind(value))
+                            }
                             _ => None,
                         };
                         let wrapper_inner_kind = match &type_cat {
@@ -1668,12 +1682,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 let mut result = ts_template! {
                     {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                     export function {|@{fn_serialize}|}(value: @{full_type_name}): string {
-                        const ctx = SerializeContext.create();
+                        const ctx = @{SERIALIZE_CONTEXT}.create();
                         return JSON.stringify({|@{fn_serialize_internal}|}(value, ctx));
                     }
 
                     {>> "Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
-                    export function {|@{fn_serialize_internal}|}(value: @{full_type_name}, ctx: SerializeContext): Record<string, unknown> {
+                    export function {|@{fn_serialize_internal}|}(value: @{full_type_name}, ctx: @{SERIALIZE_CONTEXT}): Record<string, unknown> {
                         const existingId = ctx.getId(value);
                         if (existingId !== undefined) {
                             return { __ref: existingId };
@@ -1711,26 +1725,26 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         return result;
                     }
                 };
-                result.add_import("SerializeContext", "macroforge/serde");
+                result.add_aliased_import("SerializeContext", "macroforge/serde");
                 Ok(result)
             } else {
                 // Union, tuple, or simple alias: delegate to inner type's serializeWithContext if available
                 let mut result = ts_template! {
                     {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                     export function {|@{fn_serialize}|}(value: @{full_type_name}): string {
-                        const ctx = SerializeContext.create();
+                        const ctx = @{SERIALIZE_CONTEXT}.create();
                         return JSON.stringify({|@{fn_serialize_internal}|}(value, ctx));
                     }
 
                     {>> "Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
-                    export function {|@{fn_serialize_internal}|}(value: @{full_type_name}, ctx: SerializeContext): unknown {
+                    export function {|@{fn_serialize_internal}|}(value: @{full_type_name}, ctx: @{SERIALIZE_CONTEXT}): unknown {
                         if (typeof (value as any)?.serializeWithContext === "function") {
                             return (value as any).serializeWithContext(ctx);
                         }
                         return value;
                     }
                 };
-                result.add_import("SerializeContext", "macroforge/serde");
+                result.add_aliased_import("SerializeContext", "macroforge/serde");
                 Ok(result)
             }
         }
