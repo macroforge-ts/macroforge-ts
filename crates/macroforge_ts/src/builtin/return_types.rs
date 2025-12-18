@@ -44,7 +44,7 @@ use crate::ts_syn::ImportConfig;
 /// Deserialize imports for Custom mode (@rydshift/mirror Result)
 pub const CUSTOM_DESERIALIZE_IMPORTS: &[ImportConfig] = &[
     ImportConfig::value("ok", "__mf_resultOk", "macroforge/reexports"),
-    ImportConfig::value("err", "__mf_resultErr", "macroforge/reexports"),
+    ImportConfig::value("error", "__mf_resultErr", "macroforge/reexports"),
     ImportConfig::value("isOk", "__mf_resultIsOk", "macroforge/reexports"),
     ImportConfig::type_only("Result", "__mf_Result", "macroforge/reexports"),
 ];
