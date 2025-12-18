@@ -118,11 +118,11 @@
 //! ```typescript
 //! class User {
 //!     id: number;
-//! 
+//!
 //!     email: string;
-//! 
+//!
 //!     name: string;
-//! 
+//!
 //!     age?: number;
 //! }
 //! ```
@@ -166,7 +166,7 @@
 //!      */
 //!     static deserialize(
 //!         input: unknown,
-//!         opts?: DeserializeOptions
+//!         opts?: @{DESERIALIZE_OPTIONS}
 //!     ): Result<
 //!         User,
 //!         Array<{
@@ -178,9 +178,9 @@
 //!             // Auto-detect: if string, parse as JSON first
 //!             const data = typeof input === 'string' ? JSON.parse(input) : input;
 //!
-//!             const ctx = DeserializeContext.create();
+//!             const ctx = @{DESERIALIZE_CONTEXT}.create();
 //!             const resultOrRef = User.deserializeWithContext(data, ctx);
-//!             if (PendingRef.is(resultOrRef)) {
+//!             if (@{PENDING_REF}.is(resultOrRef)) {
 //!                 return Result.err([
 //!                     {
 //!                         field: '_root',
@@ -194,7 +194,7 @@
 //!             }
 //!             return Result.ok(resultOrRef);
 //!         } catch (e) {
-//!             if (e instanceof DeserializeError) {
+//!             if (e instanceof @{DESERIALIZE_ERROR}) {
 //!                 return Result.err(e.errors);
 //!             }
 //!             const message = e instanceof Error ? e.message : String(e);
@@ -208,12 +208,12 @@
 //!     }
 //!
 //!     /** @internal */
-//!     static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
+//!     static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
 //!         if (value?.__ref !== undefined) {
 //!             return ctx.getOrDefer(value.__ref);
 //!         }
 //!         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-//!             throw new DeserializeError([
+//!             throw new @{DESERIALIZE_ERROR}([
 //!                 {
 //!                     field: '_root',
 //!                     message: 'User.deserializeWithContext: expected an object'
@@ -247,7 +247,7 @@
 //!             });
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         const instance = Object.create(User.prototype) as User;
 //!         if (obj.__id !== undefined) {
@@ -273,7 +273,7 @@
 //!             instance.age = __raw_age;
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         return instance;
 //!     }
@@ -331,17 +331,17 @@
 //! import { DeserializeError } from 'macroforge/serde';
 //! import type { DeserializeOptions } from 'macroforge/serde';
 //! import { PendingRef } from 'macroforge/serde';
-//! 
+//!
 //! /** @serde({ denyUnknownFields: true }) */
 //! class User {
 //!     id: number;
-//! 
+//!
 //!     email: string;
-//! 
+//!
 //!     name: string;
-//! 
+//!
 //!     age?: number;
-//! 
+//!
 //!     constructor(props: {
 //!         id: number;
 //!         email: string;
@@ -353,7 +353,7 @@
 //!         this.name = props.name as string;
 //!         this.age = props.age as number;
 //!     }
-//! 
+//!
 //!     /**
 //!      * Deserializes input to an instance of this class.
 //!      * Automatically detects whether input is a JSON string or object.
@@ -363,7 +363,7 @@
 //!      */
 //!     static deserialize(
 //!         input: unknown,
-//!         opts?: DeserializeOptions
+//!         opts?: @{DESERIALIZE_OPTIONS}
 //!     ): Result<
 //!         User,
 //!         Array<{
@@ -374,10 +374,10 @@
 //!         try {
 //!             // Auto-detect: if string, parse as JSON first
 //!             const data = typeof input === 'string' ? JSON.parse(input) : input;
-//! 
-//!             const ctx = DeserializeContext.create();
+//!
+//!             const ctx = @{DESERIALIZE_CONTEXT}.create();
 //!             const resultOrRef = User.deserializeWithContext(data, ctx);
-//!             if (PendingRef.is(resultOrRef)) {
+//!             if (@{PENDING_REF}.is(resultOrRef)) {
 //!                 return Result.err([
 //!                     {
 //!                         field: '_root',
@@ -391,7 +391,7 @@
 //!             }
 //!             return Result.ok(resultOrRef);
 //!         } catch (e) {
-//!             if (e instanceof DeserializeError) {
+//!             if (e instanceof @{DESERIALIZE_ERROR}) {
 //!                 return Result.err(e.errors);
 //!             }
 //!             const message = e instanceof Error ? e.message : String(e);
@@ -403,14 +403,14 @@
 //!             ]);
 //!         }
 //!     }
-//! 
+//!
 //!     /** @internal */
-//!     static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
+//!     static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
 //!         if (value?.__ref !== undefined) {
 //!             return ctx.getOrDefer(value.__ref);
 //!         }
 //!         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-//!             throw new DeserializeError([
+//!             throw new @{DESERIALIZE_ERROR}([
 //!                 {
 //!                     field: '_root',
 //!                     message: 'User.deserializeWithContext: expected an object'
@@ -444,7 +444,7 @@
 //!             });
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         const instance = Object.create(User.prototype) as User;
 //!         if (obj.__id !== undefined) {
@@ -470,11 +470,11 @@
 //!             instance.age = __raw_age;
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         return instance;
 //!     }
-//! 
+//!
 //!     static validateField<K extends keyof User>(
 //!         field: K,
 //!         value: User[K]
@@ -484,14 +484,14 @@
 //!     }> {
 //!         return [];
 //!     }
-//! 
+//!
 //!     static validateFields(partial: Partial<User>): Array<{
 //!         field: string;
 //!         message: string;
 //!     }> {
 //!         return [];
 //!     }
-//! 
+//!
 //!     static hasShape(obj: unknown): boolean {
 //!         if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
 //!             return false;
@@ -499,7 +499,7 @@
 //!         const o = obj as Record<string, unknown>;
 //!         return 'id' in o && 'email' in o;
 //!     }
-//! 
+//!
 //!     static is(obj: unknown): obj is User {
 //!         if (obj instanceof User) {
 //!             return true;
@@ -511,7 +511,7 @@
 //!         return Result.isOk(result);
 //!     }
 //! }
-//! 
+//!
 //! // Usage:
 //! const result = User.deserialize('{"id":1,"email":"test@example.com"}');
 //! if (Result.isOk(result)) {
@@ -560,7 +560,7 @@
 //!      */
 //!     static deserialize(
 //!         input: unknown,
-//!         opts?: DeserializeOptions
+//!         opts?: @{DESERIALIZE_OPTIONS}
 //!     ): Result<
 //!         User,
 //!         Array<{
@@ -572,9 +572,9 @@
 //!             // Auto-detect: if string, parse as JSON first
 //!             const data = typeof input === 'string' ? JSON.parse(input) : input;
 //!
-//!             const ctx = DeserializeContext.create();
+//!             const ctx = @{DESERIALIZE_CONTEXT}.create();
 //!             const resultOrRef = User.deserializeWithContext(data, ctx);
-//!             if (PendingRef.is(resultOrRef)) {
+//!             if (@{PENDING_REF}.is(resultOrRef)) {
 //!                 return Result.err([
 //!                     {
 //!                         field: '_root',
@@ -588,7 +588,7 @@
 //!             }
 //!             return Result.ok(resultOrRef);
 //!         } catch (e) {
-//!             if (e instanceof DeserializeError) {
+//!             if (e instanceof @{DESERIALIZE_ERROR}) {
 //!                 return Result.err(e.errors);
 //!             }
 //!             const message = e instanceof Error ? e.message : String(e);
@@ -602,12 +602,12 @@
 //!     }
 //!
 //!     /** @internal */
-//!     static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
+//!     static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
 //!         if (value?.__ref !== undefined) {
 //!             return ctx.getOrDefer(value.__ref);
 //!         }
 //!         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-//!             throw new DeserializeError([
+//!             throw new @{DESERIALIZE_ERROR}([
 //!                 {
 //!                     field: '_root',
 //!                     message: 'User.deserializeWithContext: expected an object'
@@ -641,7 +641,7 @@
 //!             });
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         const instance = Object.create(User.prototype) as User;
 //!         if (obj.__id !== undefined) {
@@ -667,7 +667,7 @@
 //!             instance.age = __raw_age;
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         return instance;
 //!     }
@@ -725,17 +725,17 @@
 //! import { DeserializeError } from 'macroforge/serde';
 //! import type { DeserializeOptions } from 'macroforge/serde';
 //! import { PendingRef } from 'macroforge/serde';
-//! 
+//!
 //! /** @serde({ denyUnknownFields: true }) */
 //! class User {
 //!     id: number;
-//! 
+//!
 //!     email: string;
-//! 
+//!
 //!     name: string;
-//! 
+//!
 //!     age?: number;
-//! 
+//!
 //!     constructor(props: {
 //!         id: number;
 //!         email: string;
@@ -747,7 +747,7 @@
 //!         this.name = props.name as string;
 //!         this.age = props.age as number;
 //!     }
-//! 
+//!
 //!     /**
 //!      * Deserializes input to an instance of this class.
 //!      * Automatically detects whether input is a JSON string or object.
@@ -757,7 +757,7 @@
 //!      */
 //!     static deserialize(
 //!         input: unknown,
-//!         opts?: DeserializeOptions
+//!         opts?: @{DESERIALIZE_OPTIONS}
 //!     ): Result<
 //!         User,
 //!         Array<{
@@ -768,10 +768,10 @@
 //!         try {
 //!             // Auto-detect: if string, parse as JSON first
 //!             const data = typeof input === 'string' ? JSON.parse(input) : input;
-//! 
-//!             const ctx = DeserializeContext.create();
+//!
+//!             const ctx = @{DESERIALIZE_CONTEXT}.create();
 //!             const resultOrRef = User.deserializeWithContext(data, ctx);
-//!             if (PendingRef.is(resultOrRef)) {
+//!             if (@{PENDING_REF}.is(resultOrRef)) {
 //!                 return Result.err([
 //!                     {
 //!                         field: '_root',
@@ -785,7 +785,7 @@
 //!             }
 //!             return Result.ok(resultOrRef);
 //!         } catch (e) {
-//!             if (e instanceof DeserializeError) {
+//!             if (e instanceof @{DESERIALIZE_ERROR}) {
 //!                 return Result.err(e.errors);
 //!             }
 //!             const message = e instanceof Error ? e.message : String(e);
@@ -797,14 +797,14 @@
 //!             ]);
 //!         }
 //!     }
-//! 
+//!
 //!     /** @internal */
-//!     static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
+//!     static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
 //!         if (value?.__ref !== undefined) {
 //!             return ctx.getOrDefer(value.__ref);
 //!         }
 //!         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-//!             throw new DeserializeError([
+//!             throw new @{DESERIALIZE_ERROR}([
 //!                 {
 //!                     field: '_root',
 //!                     message: 'User.deserializeWithContext: expected an object'
@@ -838,7 +838,7 @@
 //!             });
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         const instance = Object.create(User.prototype) as User;
 //!         if (obj.__id !== undefined) {
@@ -864,11 +864,11 @@
 //!             instance.age = __raw_age;
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         return instance;
 //!     }
-//! 
+//!
 //!     static validateField<K extends keyof User>(
 //!         field: K,
 //!         value: User[K]
@@ -878,14 +878,14 @@
 //!     }> {
 //!         return [];
 //!     }
-//! 
+//!
 //!     static validateFields(partial: Partial<User>): Array<{
 //!         field: string;
 //!         message: string;
 //!     }> {
 //!         return [];
 //!     }
-//! 
+//!
 //!     static hasShape(obj: unknown): boolean {
 //!         if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
 //!             return false;
@@ -893,7 +893,7 @@
 //!         const o = obj as Record<string, unknown>;
 //!         return 'id' in o && 'email' in o;
 //!     }
-//! 
+//!
 //!     static is(obj: unknown): obj is User {
 //!         if (obj instanceof User) {
 //!             return true;
@@ -905,7 +905,7 @@
 //!         return Result.isOk(result);
 //!     }
 //! }
-//! 
+//!
 //! // Usage:
 //! const result = User.deserialize('{"id":1,"email":"test@example.com"}');
 //! if (Result.isOk(result)) {
@@ -954,7 +954,7 @@
 //!      */
 //!     static deserialize(
 //!         input: unknown,
-//!         opts?: DeserializeOptions
+//!         opts?: @{DESERIALIZE_OPTIONS}
 //!     ): Result<
 //!         User,
 //!         Array<{
@@ -966,9 +966,9 @@
 //!             // Auto-detect: if string, parse as JSON first
 //!             const data = typeof input === 'string' ? JSON.parse(input) : input;
 //!
-//!             const ctx = DeserializeContext.create();
+//!             const ctx = @{DESERIALIZE_CONTEXT}.create();
 //!             const resultOrRef = User.deserializeWithContext(data, ctx);
-//!             if (PendingRef.is(resultOrRef)) {
+//!             if (@{PENDING_REF}.is(resultOrRef)) {
 //!                 return Result.err([
 //!                     {
 //!                         field: '_root',
@@ -982,7 +982,7 @@
 //!             }
 //!             return Result.ok(resultOrRef);
 //!         } catch (e) {
-//!             if (e instanceof DeserializeError) {
+//!             if (e instanceof @{DESERIALIZE_ERROR}) {
 //!                 return Result.err(e.errors);
 //!             }
 //!             const message = e instanceof Error ? e.message : String(e);
@@ -996,12 +996,12 @@
 //!     }
 //!
 //!     /** @internal */
-//!     static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
+//!     static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
 //!         if (value?.__ref !== undefined) {
 //!             return ctx.getOrDefer(value.__ref);
 //!         }
 //!         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-//!             throw new DeserializeError([
+//!             throw new @{DESERIALIZE_ERROR}([
 //!                 {
 //!                     field: '_root',
 //!                     message: 'User.deserializeWithContext: expected an object'
@@ -1035,7 +1035,7 @@
 //!             });
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         const instance = Object.create(User.prototype) as User;
 //!         if (obj.__id !== undefined) {
@@ -1061,7 +1061,7 @@
 //!             instance.age = __raw_age;
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         return instance;
 //!     }
@@ -1119,17 +1119,17 @@
 //! import { DeserializeError } from 'macroforge/serde';
 //! import type { DeserializeOptions } from 'macroforge/serde';
 //! import { PendingRef } from 'macroforge/serde';
-//! 
+//!
 //! /** @serde({ denyUnknownFields: true }) */
 //! class User {
 //!     id: number;
-//! 
+//!
 //!     email: string;
-//! 
+//!
 //!     name: string;
-//! 
+//!
 //!     age?: number;
-//! 
+//!
 //!     constructor(props: {
 //!         id: number;
 //!         email: string;
@@ -1141,7 +1141,7 @@
 //!         this.name = props.name as string;
 //!         this.age = props.age as number;
 //!     }
-//! 
+//!
 //!     /**
 //!      * Deserializes input to an instance of this class.
 //!      * Automatically detects whether input is a JSON string or object.
@@ -1151,7 +1151,7 @@
 //!      */
 //!     static deserialize(
 //!         input: unknown,
-//!         opts?: DeserializeOptions
+//!         opts?: @{DESERIALIZE_OPTIONS}
 //!     ): Result<
 //!         User,
 //!         Array<{
@@ -1162,10 +1162,10 @@
 //!         try {
 //!             // Auto-detect: if string, parse as JSON first
 //!             const data = typeof input === 'string' ? JSON.parse(input) : input;
-//! 
-//!             const ctx = DeserializeContext.create();
+//!
+//!             const ctx = @{DESERIALIZE_CONTEXT}.create();
 //!             const resultOrRef = User.deserializeWithContext(data, ctx);
-//!             if (PendingRef.is(resultOrRef)) {
+//!             if (@{PENDING_REF}.is(resultOrRef)) {
 //!                 return Result.err([
 //!                     {
 //!                         field: '_root',
@@ -1179,7 +1179,7 @@
 //!             }
 //!             return Result.ok(resultOrRef);
 //!         } catch (e) {
-//!             if (e instanceof DeserializeError) {
+//!             if (e instanceof @{DESERIALIZE_ERROR}) {
 //!                 return Result.err(e.errors);
 //!             }
 //!             const message = e instanceof Error ? e.message : String(e);
@@ -1191,14 +1191,14 @@
 //!             ]);
 //!         }
 //!     }
-//! 
+//!
 //!     /** @internal */
-//!     static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
+//!     static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
 //!         if (value?.__ref !== undefined) {
 //!             return ctx.getOrDefer(value.__ref);
 //!         }
 //!         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-//!             throw new DeserializeError([
+//!             throw new @{DESERIALIZE_ERROR}([
 //!                 {
 //!                     field: '_root',
 //!                     message: 'User.deserializeWithContext: expected an object'
@@ -1232,7 +1232,7 @@
 //!             });
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         const instance = Object.create(User.prototype) as User;
 //!         if (obj.__id !== undefined) {
@@ -1258,204 +1258,7 @@
 //!             instance.age = __raw_age;
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
-//!         }
-//!         return instance;
-//!     }
-//! 
-//!     static validateField<K extends keyof User>(
-//!         field: K,
-//!         value: User[K]
-//!     ): Array<{
-//!         field: string;
-//!         message: string;
-//!     }> {
-//!         return [];
-//!     }
-//! 
-//!     static validateFields(partial: Partial<User>): Array<{
-//!         field: string;
-//!         message: string;
-//!     }> {
-//!         return [];
-//!     }
-//! 
-//!     static hasShape(obj: unknown): boolean {
-//!         if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-//!             return false;
-//!         }
-//!         const o = obj as Record<string, unknown>;
-//!         return 'id' in o && 'email' in o;
-//!     }
-//! 
-//!     static is(obj: unknown): obj is User {
-//!         if (obj instanceof User) {
-//!             return true;
-//!         }
-//!         if (!User.hasShape(obj)) {
-//!             return false;
-//!         }
-//!         const result = User.deserialize(obj);
-//!         return Result.isOk(result);
-//!     }
-//! }
-//! 
-//! // Usage:
-//! const result = User.deserialize('{"id":1,"email":"test@example.com"}');
-//! if (Result.isOk(result)) {
-//!     const user = result.value;
-//! } else {
-//!     console.error(result.error); // [{ field: "email", message: "must be a valid email" }]
-//! }
-//! ```
-//!
-//! Generated output:
-//!
-//! ```typescript
-//! import { DeserializeContext } from 'macroforge/serde';
-//! import { DeserializeError } from 'macroforge/serde';
-//! import type { DeserializeOptions } from 'macroforge/serde';
-//! import { PendingRef } from 'macroforge/serde';
-//!
-//! /** @serde({ denyUnknownFields: true }) */
-//! class User {
-//!     id: number;
-//!
-//!     email: string;
-//!
-//!     name: string;
-//!
-//!     age?: number;
-//!
-//!     constructor(props: {
-//!         id: number;
-//!         email: string;
-//!         name?: string;
-//!         age?: number;
-//!     }) {
-//!         this.id = props.id;
-//!         this.email = props.email;
-//!         this.name = props.name as string;
-//!         this.age = props.age as number;
-//!     }
-//!
-//!     /**
-//!      * Deserializes input to an instance of this class.
-//!      * Automatically detects whether input is a JSON string or object.
-//!      * @param input - JSON string or object to deserialize
-//!      * @param opts - Optional deserialization options
-//!      * @returns Result containing the deserialized instance or validation errors
-//!      */
-//!     static deserialize(
-//!         input: unknown,
-//!         opts?: DeserializeOptions
-//!     ): Result<
-//!         User,
-//!         Array<{
-//!             field: string;
-//!             message: string;
-//!         }>
-//!     > {
-//!         try {
-//!             // Auto-detect: if string, parse as JSON first
-//!             const data = typeof input === 'string' ? JSON.parse(input) : input;
-//!
-//!             const ctx = DeserializeContext.create();
-//!             const resultOrRef = User.deserializeWithContext(data, ctx);
-//!             if (PendingRef.is(resultOrRef)) {
-//!                 return Result.err([
-//!                     {
-//!                         field: '_root',
-//!                         message: 'User.deserialize: root cannot be a forward reference'
-//!                     }
-//!                 ]);
-//!             }
-//!             ctx.applyPatches();
-//!             if (opts?.freeze) {
-//!                 ctx.freezeAll();
-//!             }
-//!             return Result.ok(resultOrRef);
-//!         } catch (e) {
-//!             if (e instanceof DeserializeError) {
-//!                 return Result.err(e.errors);
-//!             }
-//!             const message = e instanceof Error ? e.message : String(e);
-//!             return Result.err([
-//!                 {
-//!                     field: '_root',
-//!                     message
-//!                 }
-//!             ]);
-//!         }
-//!     }
-//!
-//!     /** @internal */
-//!     static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
-//!         if (value?.__ref !== undefined) {
-//!             return ctx.getOrDefer(value.__ref);
-//!         }
-//!         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-//!             throw new DeserializeError([
-//!                 {
-//!                     field: '_root',
-//!                     message: 'User.deserializeWithContext: expected an object'
-//!                 }
-//!             ]);
-//!         }
-//!         const obj = value as Record<string, unknown>;
-//!         const errors: Array<{
-//!             field: string;
-//!             message: string;
-//!         }> = [];
-//!         const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
-//!         for (const key of Object.keys(obj)) {
-//!             if (!knownKeys.has(key)) {
-//!                 errors.push({
-//!                     field: key,
-//!                     message: 'unknown field'
-//!                 });
-//!             }
-//!         }
-//!         if (!('id' in obj)) {
-//!             errors.push({
-//!                 field: 'id',
-//!                 message: 'missing required field'
-//!             });
-//!         }
-//!         if (!('email' in obj)) {
-//!             errors.push({
-//!                 field: 'email',
-//!                 message: 'missing required field'
-//!             });
-//!         }
-//!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
-//!         }
-//!         const instance = Object.create(User.prototype) as User;
-//!         if (obj.__id !== undefined) {
-//!             ctx.register(obj.__id as number, instance);
-//!         }
-//!         ctx.trackForFreeze(instance);
-//!         {
-//!             const __raw_id = obj['id'] as number;
-//!             instance.id = __raw_id;
-//!         }
-//!         {
-//!             const __raw_email = obj['email'] as string;
-//!             instance.email = __raw_email;
-//!         }
-//!         if ('name' in obj && obj['name'] !== undefined) {
-//!             const __raw_name = obj['name'] as string;
-//!             instance.name = __raw_name;
-//!         } else {
-//!             instance.name = 'guest';
-//!         }
-//!         if ('age' in obj && obj['age'] !== undefined) {
-//!             const __raw_age = obj['age'] as number;
-//!             instance.age = __raw_age;
-//!         }
-//!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         return instance;
 //!     }
@@ -1513,17 +1316,17 @@
 //! import { DeserializeError } from 'macroforge/serde';
 //! import type { DeserializeOptions } from 'macroforge/serde';
 //! import { PendingRef } from 'macroforge/serde';
-//! 
+//!
 //! /** @serde({ denyUnknownFields: true }) */
 //! class User {
 //!     id: number;
-//! 
+//!
 //!     email: string;
-//! 
+//!
 //!     name: string;
-//! 
+//!
 //!     age?: number;
-//! 
+//!
 //!     constructor(props: {
 //!         id: number;
 //!         email: string;
@@ -1535,7 +1338,7 @@
 //!         this.name = props.name as string;
 //!         this.age = props.age as number;
 //!     }
-//! 
+//!
 //!     /**
 //!      * Deserializes input to an instance of this class.
 //!      * Automatically detects whether input is a JSON string or object.
@@ -1545,7 +1348,7 @@
 //!      */
 //!     static deserialize(
 //!         input: unknown,
-//!         opts?: DeserializeOptions
+//!         opts?: @{DESERIALIZE_OPTIONS}
 //!     ): Result<
 //!         User,
 //!         Array<{
@@ -1556,10 +1359,10 @@
 //!         try {
 //!             // Auto-detect: if string, parse as JSON first
 //!             const data = typeof input === 'string' ? JSON.parse(input) : input;
-//! 
-//!             const ctx = DeserializeContext.create();
+//!
+//!             const ctx = @{DESERIALIZE_CONTEXT}.create();
 //!             const resultOrRef = User.deserializeWithContext(data, ctx);
-//!             if (PendingRef.is(resultOrRef)) {
+//!             if (@{PENDING_REF}.is(resultOrRef)) {
 //!                 return Result.err([
 //!                     {
 //!                         field: '_root',
@@ -1573,7 +1376,7 @@
 //!             }
 //!             return Result.ok(resultOrRef);
 //!         } catch (e) {
-//!             if (e instanceof DeserializeError) {
+//!             if (e instanceof @{DESERIALIZE_ERROR}) {
 //!                 return Result.err(e.errors);
 //!             }
 //!             const message = e instanceof Error ? e.message : String(e);
@@ -1585,14 +1388,14 @@
 //!             ]);
 //!         }
 //!     }
-//! 
+//!
 //!     /** @internal */
-//!     static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
+//!     static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
 //!         if (value?.__ref !== undefined) {
 //!             return ctx.getOrDefer(value.__ref);
 //!         }
 //!         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-//!             throw new DeserializeError([
+//!             throw new @{DESERIALIZE_ERROR}([
 //!                 {
 //!                     field: '_root',
 //!                     message: 'User.deserializeWithContext: expected an object'
@@ -1626,7 +1429,7 @@
 //!             });
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         const instance = Object.create(User.prototype) as User;
 //!         if (obj.__id !== undefined) {
@@ -1652,11 +1455,11 @@
 //!             instance.age = __raw_age;
 //!         }
 //!         if (errors.length > 0) {
-//!             throw new DeserializeError(errors);
+//!             throw new @{DESERIALIZE_ERROR}(errors);
 //!         }
 //!         return instance;
 //!     }
-//! 
+//!
 //!     static validateField<K extends keyof User>(
 //!         field: K,
 //!         value: User[K]
@@ -1666,14 +1469,14 @@
 //!     }> {
 //!         return [];
 //!     }
-//! 
+//!
 //!     static validateFields(partial: Partial<User>): Array<{
 //!         field: string;
 //!         message: string;
 //!     }> {
 //!         return [];
 //!     }
-//! 
+//!
 //!     static hasShape(obj: unknown): boolean {
 //!         if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
 //!             return false;
@@ -1681,7 +1484,7 @@
 //!         const o = obj as Record<string, unknown>;
 //!         return 'id' in o && 'email' in o;
 //!     }
-//! 
+//!
 //!     static is(obj: unknown): obj is User {
 //!         if (obj instanceof User) {
 //!             return true;
@@ -1693,7 +1496,204 @@
 //!         return Result.isOk(result);
 //!     }
 //! }
-//! 
+//!
+//! // Usage:
+//! const result = User.deserialize('{"id":1,"email":"test@example.com"}');
+//! if (Result.isOk(result)) {
+//!     const user = result.value;
+//! } else {
+//!     console.error(result.error); // [{ field: "email", message: "must be a valid email" }]
+//! }
+//! ```
+//!
+//! Generated output:
+//!
+//! ```typescript
+//! import { DeserializeContext } from 'macroforge/serde';
+//! import { DeserializeError } from 'macroforge/serde';
+//! import type { DeserializeOptions } from 'macroforge/serde';
+//! import { PendingRef } from 'macroforge/serde';
+//!
+//! /** @serde({ denyUnknownFields: true }) */
+//! class User {
+//!     id: number;
+//!
+//!     email: string;
+//!
+//!     name: string;
+//!
+//!     age?: number;
+//!
+//!     constructor(props: {
+//!         id: number;
+//!         email: string;
+//!         name?: string;
+//!         age?: number;
+//!     }) {
+//!         this.id = props.id;
+//!         this.email = props.email;
+//!         this.name = props.name as string;
+//!         this.age = props.age as number;
+//!     }
+//!
+//!     /**
+//!      * Deserializes input to an instance of this class.
+//!      * Automatically detects whether input is a JSON string or object.
+//!      * @param input - JSON string or object to deserialize
+//!      * @param opts - Optional deserialization options
+//!      * @returns Result containing the deserialized instance or validation errors
+//!      */
+//!     static deserialize(
+//!         input: unknown,
+//!         opts?: @{DESERIALIZE_OPTIONS}
+//!     ): Result<
+//!         User,
+//!         Array<{
+//!             field: string;
+//!             message: string;
+//!         }>
+//!     > {
+//!         try {
+//!             // Auto-detect: if string, parse as JSON first
+//!             const data = typeof input === 'string' ? JSON.parse(input) : input;
+//!
+//!             const ctx = @{DESERIALIZE_CONTEXT}.create();
+//!             const resultOrRef = User.deserializeWithContext(data, ctx);
+//!             if (@{PENDING_REF}.is(resultOrRef)) {
+//!                 return Result.err([
+//!                     {
+//!                         field: '_root',
+//!                         message: 'User.deserialize: root cannot be a forward reference'
+//!                     }
+//!                 ]);
+//!             }
+//!             ctx.applyPatches();
+//!             if (opts?.freeze) {
+//!                 ctx.freezeAll();
+//!             }
+//!             return Result.ok(resultOrRef);
+//!         } catch (e) {
+//!             if (e instanceof @{DESERIALIZE_ERROR}) {
+//!                 return Result.err(e.errors);
+//!             }
+//!             const message = e instanceof Error ? e.message : String(e);
+//!             return Result.err([
+//!                 {
+//!                     field: '_root',
+//!                     message
+//!                 }
+//!             ]);
+//!         }
+//!     }
+//!
+//!     /** @internal */
+//!     static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
+//!         if (value?.__ref !== undefined) {
+//!             return ctx.getOrDefer(value.__ref);
+//!         }
+//!         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+//!             throw new @{DESERIALIZE_ERROR}([
+//!                 {
+//!                     field: '_root',
+//!                     message: 'User.deserializeWithContext: expected an object'
+//!                 }
+//!             ]);
+//!         }
+//!         const obj = value as Record<string, unknown>;
+//!         const errors: Array<{
+//!             field: string;
+//!             message: string;
+//!         }> = [];
+//!         const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+//!         for (const key of Object.keys(obj)) {
+//!             if (!knownKeys.has(key)) {
+//!                 errors.push({
+//!                     field: key,
+//!                     message: 'unknown field'
+//!                 });
+//!             }
+//!         }
+//!         if (!('id' in obj)) {
+//!             errors.push({
+//!                 field: 'id',
+//!                 message: 'missing required field'
+//!             });
+//!         }
+//!         if (!('email' in obj)) {
+//!             errors.push({
+//!                 field: 'email',
+//!                 message: 'missing required field'
+//!             });
+//!         }
+//!         if (errors.length > 0) {
+//!             throw new @{DESERIALIZE_ERROR}(errors);
+//!         }
+//!         const instance = Object.create(User.prototype) as User;
+//!         if (obj.__id !== undefined) {
+//!             ctx.register(obj.__id as number, instance);
+//!         }
+//!         ctx.trackForFreeze(instance);
+//!         {
+//!             const __raw_id = obj['id'] as number;
+//!             instance.id = __raw_id;
+//!         }
+//!         {
+//!             const __raw_email = obj['email'] as string;
+//!             instance.email = __raw_email;
+//!         }
+//!         if ('name' in obj && obj['name'] !== undefined) {
+//!             const __raw_name = obj['name'] as string;
+//!             instance.name = __raw_name;
+//!         } else {
+//!             instance.name = 'guest';
+//!         }
+//!         if ('age' in obj && obj['age'] !== undefined) {
+//!             const __raw_age = obj['age'] as number;
+//!             instance.age = __raw_age;
+//!         }
+//!         if (errors.length > 0) {
+//!             throw new @{DESERIALIZE_ERROR}(errors);
+//!         }
+//!         return instance;
+//!     }
+//!
+//!     static validateField<K extends keyof User>(
+//!         field: K,
+//!         value: User[K]
+//!     ): Array<{
+//!         field: string;
+//!         message: string;
+//!     }> {
+//!         return [];
+//!     }
+//!
+//!     static validateFields(partial: Partial<User>): Array<{
+//!         field: string;
+//!         message: string;
+//!     }> {
+//!         return [];
+//!     }
+//!
+//!     static hasShape(obj: unknown): boolean {
+//!         if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+//!             return false;
+//!         }
+//!         const o = obj as Record<string, unknown>;
+//!         return 'id' in o && 'email' in o;
+//!     }
+//!
+//!     static is(obj: unknown): obj is User {
+//!         if (obj instanceof User) {
+//!             return true;
+//!         }
+//!         if (!User.hasShape(obj)) {
+//!             return false;
+//!         }
+//!         const result = User.deserialize(obj);
+//!         return Result.isOk(result);
+//!     }
+//! }
+//!
 //! // Usage:
 //! const result = User.deserialize('{"id":1,"email":"test@example.com"}');
 //! if (Result.isOk(result)) {
@@ -1706,7 +1706,7 @@
 //! ## Required Imports
 //!
 //! The generated code automatically imports:
-//! - `Result` from `macroforge/utils`
+//! - `Result` from `macroforge/reexports`
 //! - `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
 
 use crate::macros::{body, ts_macro_derive, ts_template};
@@ -1719,9 +1719,12 @@ use convert_case::{Case, Casing};
 
 use super::{
     SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec,
-    get_foreign_types, rewrite_expression_namespaces,
+    get_foreign_types, get_return_types_mode, rewrite_expression_namespaces,
 };
-use crate::builtin::return_types::{deserialize_return_type, wrap_success, wrap_error, deserialize_import, is_ok_check};
+use crate::builtin::return_types::{
+    DESERIALIZE_CONTEXT, DESERIALIZE_ERROR, DESERIALIZE_OPTIONS, PENDING_REF,
+    deserialize_return_type, is_ok_check, wrap_error, wrap_success,
+};
 
 fn nested_deserialize_fn_name(type_name: &str) -> String {
     format!("{}DeserializeWithContext", type_name.to_case(Case::Camel))
@@ -2193,7 +2196,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             // Generate function names (always prefix style)
             let fn_deserialize = format!("{}Deserialize", class_name.to_case(Case::Camel));
-            let fn_deserialize_internal = format!("{}DeserializeWithContext", class_name.to_case(Case::Camel));
+            let fn_deserialize_internal =
+                format!("{}DeserializeWithContext", class_name.to_case(Case::Camel));
             let fn_is = format!("{}Is", class_name.to_case(Case::Camel));
 
             // Check for user-defined constructor with parameters
@@ -2253,7 +2257,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     } else {
                         // Check if the field's type matches a configured foreign type
                         let foreign_types = get_foreign_types();
-                        let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                        let ft_match =
+                            TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
                         // Error if import source mismatch (type matches but wrong import)
                         if let Some(error) = ft_match.error {
                             all_diagnostics.error(field.span, error);
@@ -2359,15 +2364,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
 
                 {>> "Deserializes input to an instance of this class.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized instance or validation errors" <<}
-                static deserialize(input: unknown, opts?: DeserializeOptions): @{return_type} {
+                static deserialize(input: unknown, opts?: @{DESERIALIZE_OPTIONS}): @{return_type} {
                     try {
                         // Auto-detect: if string, parse as JSON first
                         const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                        const ctx = DeserializeContext.create();
+                        const ctx = @{DESERIALIZE_CONTEXT}.create();
                         const resultOrRef = @{class_name}.deserializeWithContext(data, ctx);
 
-                        if (PendingRef.is(resultOrRef)) {
+                        if (@{PENDING_REF}.is(resultOrRef)) {
                             return @{error_root_ref};
                         }
 
@@ -2378,7 +2383,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                         return @{success_result};
                     } catch (e) {
-                        if (e instanceof DeserializeError) {
+                        if (e instanceof @{DESERIALIZE_ERROR}) {
                             return @{error_from_catch};
                         }
                         const message = e instanceof Error ? e.message : String(e);
@@ -2387,14 +2392,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
 
                 {>> "Deserializes with an existing context for nested/cyclic object graphs.\n@param value - The raw value to deserialize\n@param ctx - The deserialization context" <<}
-                static deserializeWithContext(value: any, ctx: DeserializeContext): @{class_name} | PendingRef {
+                static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): @{class_name} | @{PENDING_REF} {
                     // Handle reference to already-deserialized object
                     if (value?.__ref !== undefined) {
                         return ctx.getOrDefer(value.__ref);
                     }
 
                     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                        throw new DeserializeError([{ field: "_root", message: "@{class_name}.deserializeWithContext: expected an object" }]);
+                        throw new @{DESERIALIZE_ERROR}([{ field: "_root", message: "@{class_name}.deserializeWithContext: expected an object" }]);
                     }
 
                     const obj = value as Record<string, unknown>;
@@ -2418,7 +2423,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     {/if}
 
                     if (errors.length > 0) {
-                        throw new DeserializeError(errors);
+                        throw new @{DESERIALIZE_ERROR}(errors);
                     }
 
                     // Create instance using Object.create to avoid constructor
@@ -2490,7 +2495,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         const __arr = (@{raw_var} as any[]).map((item, idx) => {
                                                             if (typeof item?.deserializeWithContext === "function") {
                                                                 const result = item.deserializeWithContext(item, ctx);
-                                                                if (PendingRef.is(result)) {
+                                                                if (@{PENDING_REF}.is(result)) {
                                                                     return { __pendingIdx: idx, __refId: result.id };
                                                                 }
                                                                 return result;
@@ -2498,7 +2503,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                             // Check for __ref in array items
                                                             if (item?.__ref !== undefined) {
                                                                 const result = ctx.getOrDefer(item.__ref);
-                                                                if (PendingRef.is(result)) {
+                                                                if (@{PENDING_REF}.is(result)) {
                                                                     return { __pendingIdx: idx, __refId: result.id };
                                                                 }
                                                                 return result;
@@ -2620,7 +2625,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         const __arr = (@{raw_var} as any[]).map((item, idx) => {
                                                             if (item?.__ref !== undefined) {
                                                                 const result = ctx.getOrDefer(item.__ref);
-                                                                if (PendingRef.is(result)) {
+                                                                if (@{PENDING_REF}.is(result)) {
                                                                     return { __pendingIdx: idx, __refId: result.id };
                                                                 }
                                                                 return result;
@@ -2699,7 +2704,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     {/if}
 
                     if (errors.length > 0) {
-                        throw new DeserializeError(errors);
+                        throw new @{DESERIALIZE_ERROR}(errors);
                     }
 
                     return instance;
@@ -2764,24 +2769,22 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     return @{is_ok_result};
                 }
             };
-            // Add return type import based on mode (vanilla needs no import)
-            if let Some((name, source)) = deserialize_import() {
-                result.add_import(name, source);
-            }
-            result.add_import("DeserializeContext", "macroforge/serde");
-            result.add_import("DeserializeError", "macroforge/serde");
-            result.add_type_import("DeserializeOptions", "macroforge/serde");
-            result.add_import("PendingRef", "macroforge/serde");
+            // Add return type imports based on mode (vanilla needs no import)
+            result.add_imports(get_return_types_mode().deserialize_imports());
+            result.add_aliased_import("DeserializeContext", "macroforge/serde");
+            result.add_aliased_import("DeserializeError", "macroforge/serde");
+            result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
+            result.add_aliased_import("PendingRef", "macroforge/serde");
 
             // Generate standalone functions that delegate to static methods
             let mut standalone = ts_template! {
                 {>> "Deserializes input to an instance.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized instance or validation errors" <<}
-                export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
+                export function @{fn_deserialize}(input: unknown, opts?: @{DESERIALIZE_OPTIONS}): @{return_type} {
                     return @{class_name}.deserialize(input, opts);
                 }
 
                 {>> "Deserializes with an existing context for nested/cyclic object graphs.\n@param value - The raw value to deserialize\n@param ctx - The deserialization context" <<}
-                export function @{fn_deserialize_internal}(value: any, ctx: DeserializeContext): @{class_name} | PendingRef {
+                export function @{fn_deserialize_internal}(value: any, ctx: @{DESERIALIZE_CONTEXT}): @{class_name} | @{PENDING_REF} {
                     return @{class_name}.deserializeWithContext(value, ctx);
                 }
 
@@ -2790,13 +2793,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     return @{class_name}.is(value);
                 }
             };
-            // Add return type import based on mode (vanilla needs no import)
-            if let Some((name, source)) = deserialize_import() {
-                standalone.add_import(name, source);
-            }
-            standalone.add_import("DeserializeContext", "macroforge/serde");
-            standalone.add_type_import("DeserializeOptions", "macroforge/serde");
-            standalone.add_import("PendingRef", "macroforge/serde");
+            // Add return type imports based on mode (vanilla needs no import)
+            standalone.add_imports(get_return_types_mode().deserialize_imports());
+            standalone.add_aliased_import("DeserializeContext", "macroforge/serde");
+            standalone.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
+            standalone.add_aliased_import("PendingRef", "macroforge/serde");
 
             // Combine standalone functions with class body by concatenating sources
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
@@ -2841,7 +2842,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
             };
 
-            result.add_import("DeserializeContext", "macroforge/serde");
+            result.add_aliased_import("DeserializeContext", "macroforge/serde");
             Ok(result)
         }
         Data::Interface(interface) => {
@@ -2892,7 +2893,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     } else {
                         // Check if the field's type matches a configured foreign type
                         let foreign_types = get_foreign_types();
-                        let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                        let ft_match =
+                            TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
                         // Error if import source mismatch (type matches but wrong import)
                         if let Some(error) = ft_match.error {
                             all_diagnostics.error(field.span, error);
@@ -2976,7 +2978,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 fn_has_shape,
             ) = (
                 format!("{}Deserialize", interface_name.to_case(Case::Camel)),
-                format!("{}DeserializeWithContext", interface_name.to_case(Case::Camel)),
+                format!(
+                    "{}DeserializeWithContext",
+                    interface_name.to_case(Case::Camel)
+                ),
                 format!("{}ValidateField", interface_name.to_case(Case::Camel)),
                 format!("{}ValidateFields", interface_name.to_case(Case::Camel)),
                 format!("{}Is", interface_name.to_case(Case::Camel)),
@@ -2997,15 +3002,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let mut result = {
                 ts_template! {
                     {>> "Deserializes input to this interface type.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized value or validation errors" <<}
-                    export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
+                    export function @{fn_deserialize}(input: unknown, opts?: @{DESERIALIZE_OPTIONS}): @{return_type} {
                         try {
                             // Auto-detect: if string, parse as JSON first
                             const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                            const ctx = DeserializeContext.create();
+                            const ctx = @{DESERIALIZE_CONTEXT}.create();
                             const resultOrRef = @{fn_deserialize_internal}(data, ctx);
 
-                            if (PendingRef.is(resultOrRef)) {
+                            if (@{PENDING_REF}.is(resultOrRef)) {
                                 return @{error_root_ref};
                             }
 
@@ -3016,7 +3021,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                             return @{success_result};
                         } catch (e) {
-                            if (e instanceof DeserializeError) {
+                            if (e instanceof @{DESERIALIZE_ERROR}) {
                                 return @{error_from_catch};
                             }
                             const message = e instanceof Error ? e.message : String(e);
@@ -3025,13 +3030,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
 
                     {>> "Deserializes with an existing context for nested/cyclic object graphs.\n@param value - The raw value to deserialize\n@param ctx - The deserialization context" <<}
-                    export function @{fn_deserialize_internal}(value: any, ctx: DeserializeContext): @{interface_name} | PendingRef {
+                    export function @{fn_deserialize_internal}(value: any, ctx: @{DESERIALIZE_CONTEXT}): @{interface_name} | @{PENDING_REF} {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref);
                         }
 
                         if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                            throw new DeserializeError([{ field: "_root", message: "@{interface_name}.deserializeWithContext: expected an object" }]);
+                            throw new @{DESERIALIZE_ERROR}([{ field: "_root", message: "@{interface_name}.deserializeWithContext: expected an object" }]);
                         }
 
                         const obj = value as Record<string, unknown>;
@@ -3055,7 +3060,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {/if}
 
                         if (errors.length > 0) {
-                            throw new DeserializeError(errors);
+                            throw new @{DESERIALIZE_ERROR}(errors);
                         }
 
                         const instance: any = {};
@@ -3249,7 +3254,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {/if}
 
                         if (errors.length > 0) {
-                            throw new DeserializeError(errors);
+                            throw new @{DESERIALIZE_ERROR}(errors);
                         }
 
                         return instance as @{interface_name};
@@ -3313,14 +3318,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
             };
 
-            // Add return type import based on mode (vanilla needs no import)
-            if let Some((name, source)) = deserialize_import() {
-                result.add_import(name, source);
-            }
-            result.add_import("DeserializeContext", "macroforge/serde");
-            result.add_import("DeserializeError", "macroforge/serde");
-            result.add_type_import("DeserializeOptions", "macroforge/serde");
-            result.add_import("PendingRef", "macroforge/serde");
+            // Add return type imports based on mode (vanilla needs no import)
+            result.add_imports(get_return_types_mode().deserialize_imports());
+            result.add_aliased_import("DeserializeContext", "macroforge/serde");
+            result.add_aliased_import("DeserializeError", "macroforge/serde");
+            result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
+            result.add_aliased_import("PendingRef", "macroforge/serde");
             Ok(result)
         }
         Data::TypeAlias(type_alias) => {
@@ -3441,7 +3444,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     fn_validate_fields,
                     fn_is,
                 ) = (
-                    format!("{}Deserialize{}", type_name.to_case(Case::Camel), generic_decl),
+                    format!(
+                        "{}Deserialize{}",
+                        type_name.to_case(Case::Camel),
+                        generic_decl
+                    ),
                     format!("{}DeserializeWithContext", type_name.to_case(Case::Camel)),
                     format!(
                         "{}ValidateField{}",
@@ -3465,15 +3472,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let mut result = {
                     ts_template! {
                         {>> "Deserializes input to this type.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized value or validation errors" <<}
-                        export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
+                        export function @{fn_deserialize}(input: unknown, opts?: @{DESERIALIZE_OPTIONS}): @{return_type} {
                             try {
                                 // Auto-detect: if string, parse as JSON first
                                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                                const ctx = DeserializeContext.create();
+                                const ctx = @{DESERIALIZE_CONTEXT}.create();
                                 const resultOrRef = @{fn_deserialize_internal}(data, ctx);
 
-                                if (PendingRef.is(resultOrRef)) {
+                                if (@{PENDING_REF}.is(resultOrRef)) {
                                     return @{error_root_ref};
                                 }
 
@@ -3484,7 +3491,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                 return @{success_result};
                             } catch (e) {
-                                if (e instanceof DeserializeError) {
+                                if (e instanceof @{DESERIALIZE_ERROR}) {
                                     return @{error_from_catch};
                                 }
                                 const message = e instanceof Error ? e.message : String(e);
@@ -3493,13 +3500,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         }
 
                         {>> "Deserializes with an existing context for nested/cyclic object graphs.\n@param value - The raw value to deserialize\n@param ctx - The deserialization context" <<}
-                        export function @{fn_deserialize_internal}(value: any, ctx: DeserializeContext): @{type_name} | PendingRef {
+                        export function @{fn_deserialize_internal}(value: any, ctx: @{DESERIALIZE_CONTEXT}): @{type_name} | @{PENDING_REF} {
                             if (value?.__ref !== undefined) {
-                                return ctx.getOrDefer(value.__ref) as @{type_name} | PendingRef;
+                                return ctx.getOrDefer(value.__ref) as @{type_name} | @{PENDING_REF};
                             }
 
                             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                                throw new DeserializeError([{ field: "_root", message: "@{type_name}.deserializeWithContext: expected an object" }]);
+                                throw new @{DESERIALIZE_ERROR}([{ field: "_root", message: "@{type_name}.deserializeWithContext: expected an object" }]);
                             }
 
                             const obj = value as Record<string, unknown>;
@@ -3523,7 +3530,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {/if}
 
                             if (errors.length > 0) {
-                                throw new DeserializeError(errors);
+                                throw new @{DESERIALIZE_ERROR}(errors);
                             }
 
                             const instance: any = {};
@@ -3713,7 +3720,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {/if}
 
                             if (errors.length > 0) {
-                                throw new DeserializeError(errors);
+                                throw new @{DESERIALIZE_ERROR}(errors);
                             }
 
                             return instance as @{type_name};
@@ -3774,14 +3781,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
                 };
 
-                // Add return type import based on mode (vanilla needs no import)
-                if let Some((name, source)) = deserialize_import() {
-                    result.add_import(name, source);
-                }
-                result.add_import("DeserializeContext", "macroforge/serde");
-                result.add_import("DeserializeError", "macroforge/serde");
-                result.add_type_import("DeserializeOptions", "macroforge/serde");
-                result.add_import("PendingRef", "macroforge/serde");
+                // Add return type imports based on mode (vanilla needs no import)
+                result.add_imports(get_return_types_mode().deserialize_imports());
+                result.add_aliased_import("DeserializeContext", "macroforge/serde");
+                result.add_aliased_import("DeserializeError", "macroforge/serde");
+                result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
+                result.add_aliased_import("PendingRef", "macroforge/serde");
                 Ok(result)
             } else if let Some(members) = type_alias.as_union() {
                 // Union type - could be literal union, type ref union, or mixed
@@ -3874,7 +3879,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 };
 
                 let (fn_deserialize, fn_deserialize_internal, fn_is) = (
-                    format!("{}Deserialize{}", type_name.to_case(Case::Camel), generic_decl),
+                    format!(
+                        "{}Deserialize{}",
+                        type_name.to_case(Case::Camel),
+                        generic_decl
+                    ),
                     format!(
                         "{}DeserializeWithContext{}",
                         type_name.to_case(Case::Camel),
@@ -3893,190 +3902,188 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let error_from_catch = wrap_error("e.errors");
                 let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
 
-            let mut result = ts_template! {
-                {>> "Deserializes input to this type.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized value or validation errors" <<}
-                export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
-                    try {
-                        // Auto-detect: if string, parse as JSON first
-                        const data = typeof input === "string" ? JSON.parse(input) : input;
+                let mut result = ts_template! {
+                    {>> "Deserializes input to this type.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized value or validation errors" <<}
+                    export function @{fn_deserialize}(input: unknown, opts?: @{DESERIALIZE_OPTIONS}): @{return_type} {
+                        try {
+                            // Auto-detect: if string, parse as JSON first
+                            const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                        const ctx = DeserializeContext.create();
-                        const resultOrRef = @{fn_deserialize_internal}(data, ctx);
+                            const ctx = @{DESERIALIZE_CONTEXT}.create();
+                            const resultOrRef = @{fn_deserialize_internal}(data, ctx);
 
-                        if (PendingRef.is(resultOrRef)) {
-                            return @{error_root_ref};
-                        }
+                            if (@{PENDING_REF}.is(resultOrRef)) {
+                                return @{error_root_ref};
+                            }
 
-                        ctx.applyPatches();
-                        if (opts?.freeze) {
-                            ctx.freezeAll();
+                            ctx.applyPatches();
+                            if (opts?.freeze) {
+                                ctx.freezeAll();
+                            }
+                            return @{success_result};
+                        } catch (e) {
+                            if (e instanceof @{DESERIALIZE_ERROR}) {
+                                return @{error_from_catch};
+                            }
+                            const message = e instanceof Error ? e.message : String(e);
+                            return @{error_generic_message};
                         }
-                        return @{success_result};
-                    } catch (e) {
-                        if (e instanceof DeserializeError) {
-                            return @{error_from_catch};
-                        }
-                        const message = e instanceof Error ? e.message : String(e);
-                        return @{error_generic_message};
                     }
-                }
 
-                {>> "Deserializes with an existing context for nested/cyclic object graphs.\n@param value - The raw value to deserialize\n@param ctx - The deserialization context" <<}
-                export function @{fn_deserialize_internal}(value: any, ctx: DeserializeContext): @{full_type_name} | PendingRef {
-                                if (value?.__ref !== undefined) {
-                                    return ctx.getOrDefer(value.__ref) as @{full_type_name} | PendingRef;
-                                }
-
-                                {#if is_literal_only}
-                                    const allowedValues = [{#for lit in &literals}@{lit}, {/for}] as const;
-                                    if (!allowedValues.includes(value)) {
-                                        throw new DeserializeError([{
-                                            field: "_root",
-                                            message: "Invalid value for @{type_name}: expected one of " + allowedValues.map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
-                                        }]);
-                                    }
-                                    return value as @{full_type_name};
-                                {:else if is_primitive_only}
-                                    {#for prim in &primitive_types}
-                                        if (typeof value === "@{prim}") {
-                                            return value as @{full_type_name};
-                                        }
-                                    {/for}
-
-                                    throw new DeserializeError([{
-                                        field: "_root",
-                                        message: "@{type_name}.deserializeWithContext: expected @{expected_types_str}, got " + typeof value
-                                    }]);
-                                {:else if is_serializable_only}
-                                    if (typeof value !== "object" || value === null) {
-                                        throw new DeserializeError([{
-                                            field: "_root",
-                                            message: "@{type_name}.deserializeWithContext: expected an object"
-                                        }]);
+                    {>> "Deserializes with an existing context for nested/cyclic object graphs.\n@param value - The raw value to deserialize\n@param ctx - The deserialization context" <<}
+                    export function @{fn_deserialize_internal}(value: any, ctx: @{DESERIALIZE_CONTEXT}): @{full_type_name} | @{PENDING_REF} {
+                                    if (value?.__ref !== undefined) {
+                                        return ctx.getOrDefer(value.__ref) as @{full_type_name} | @{PENDING_REF};
                                     }
 
-                                    const __typeName = (value as any).__type;
-                                    if (typeof __typeName !== "string") {
-                                        throw new DeserializeError([{
-                                            field: "_root",
-                                            message: "@{type_name}.deserializeWithContext: missing __type field for union dispatch"
-                                        }]);
-                                    }
-
-                                    {#for type_ref in &serializable_types}
-                                        if (__typeName === "@{type_ref.full_type}") {
-                                            {$let deserialize_with_context_fn = nested_deserialize_fn_name(&type_ref.base_type)}
-                                            return @{deserialize_with_context_fn}(value, ctx) as @{full_type_name};
+                                    {#if is_literal_only}
+                                        const allowedValues = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                        if (!allowedValues.includes(value)) {
+                                            throw new @{DESERIALIZE_ERROR}([{
+                                                field: "_root",
+                                                message: "Invalid value for @{type_name}: expected one of " + allowedValues.map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                                            }]);
                                         }
-                                    {/for}
-
-                                    throw new DeserializeError([{
-                                        field: "_root",
-                                        message: "@{type_name}.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
-                                    }]);
-                                {:else}
-                                    {#if has_literals}
-                                        const allowedLiterals = [{#for lit in &literals}@{lit}, {/for}] as const;
-                                        if (allowedLiterals.includes(value as any)) {
-                                            return value as @{full_type_name};
-                                        }
-                                    {/if}
-
-                                    {#if has_primitives}
+                                        return value as @{full_type_name};
+                                    {:else if is_primitive_only}
                                         {#for prim in &primitive_types}
                                             if (typeof value === "@{prim}") {
                                                 return value as @{full_type_name};
                                             }
                                         {/for}
-                                    {/if}
 
-                                    {#if has_dates}
-                                        if (value instanceof Date) {
-                                            return value as @{full_type_name};
+                                        throw new @{DESERIALIZE_ERROR}([{
+                                            field: "_root",
+                                            message: "@{type_name}.deserializeWithContext: expected @{expected_types_str}, got " + typeof value
+                                        }]);
+                                    {:else if is_serializable_only}
+                                        if (typeof value !== "object" || value === null) {
+                                            throw new @{DESERIALIZE_ERROR}([{
+                                                field: "_root",
+                                                message: "@{type_name}.deserializeWithContext: expected an object"
+                                            }]);
                                         }
-                                        if (typeof value === "string") {
-                                            const __dateVal = new Date(value);
-                                            if (!isNaN(__dateVal.getTime())) {
-                                                return __dateVal as unknown as @{full_type_name};
+
+                                        const __typeName = (value as any).__type;
+                                        if (typeof __typeName !== "string") {
+                                            throw new @{DESERIALIZE_ERROR}([{
+                                                field: "_root",
+                                                message: "@{type_name}.deserializeWithContext: missing __type field for union dispatch"
+                                            }]);
+                                        }
+
+                                        {#for type_ref in &serializable_types}
+                                            if (__typeName === "@{type_ref.full_type}") {
+                                                {$let deserialize_with_context_fn = nested_deserialize_fn_name(&type_ref.base_type)}
+                                                return @{deserialize_with_context_fn}(value, ctx) as @{full_type_name};
                                             }
-                                        }
-                                    {/if}
-
-                                    {#if has_serializables}
-                                        if (typeof value === "object" && value !== null) {
-                                            const __typeName = (value as any).__type;
-                                            if (typeof __typeName === "string") {
-                                                {#for type_ref in &serializable_types}
-                                                    if (__typeName === "@{type_ref.full_type}") {
-                                                        {$let deserialize_with_context_fn = nested_deserialize_fn_name(&type_ref.base_type)}
-                                                        return @{deserialize_with_context_fn}(value, ctx) as @{full_type_name};
-                                                    }
-                                                {/for}
-                                            }
-                                        }
-                                    {/if}
-
-                                    {#if has_generic_params}
-                                        return value as @{full_type_name};
-                                    {/if}
-
-                                    throw new DeserializeError([{
-                                        field: "_root",
-                                        message: "@{type_name}.deserializeWithContext: value does not match any union member"
-                                    }]);
-                    {/if}
-                }
-
-                export function @{fn_is}(value: unknown): value is @{full_type_name} {
-                                {#if is_literal_only}
-                                    const allowedValues = [{#for lit in &literals}@{lit}, {/for}] as const;
-                                    return allowedValues.includes(value as any);
-                                {:else if is_primitive_only}
-                                    {$let mut first = true}
-                                    return {#for prim in &primitive_types}{#if !first} || {/if}{$do first = false}typeof value === "@{prim}"{/for};
-                                {:else if is_serializable_only}
-                                    if (typeof value !== "object" || value === null) {
-                                        return false;
-                                    }
-                                    const __typeName = (value as any).__type;
-                                    {$let mut first = true}
-                                    return {#for type_ref in &serializable_types}{#if !first} || {/if}{$do first = false}__typeName === "@{type_ref.full_type}"{/for};
-                                {:else}
-                                    {#if has_literals}
-                                        const allowedLiterals = [{#for lit in &literals}@{lit}, {/for}] as const;
-                                        if (allowedLiterals.includes(value as any)) return true;
-                                    {/if}
-                                    {#if has_primitives}
-                                        {#for prim in &primitive_types}
-                                            if (typeof value === "@{prim}") return true;
                                         {/for}
-                                    {/if}
-                                    {#if has_dates}
-                                        if (value instanceof Date) return true;
-                                    {/if}
-                                    {#if has_serializables}
-                                        if (typeof value === "object" && value !== null) {
-                                            const __typeName = (value as any).__type;
-                                            {$let mut first = true}
-                                            if ({#for type_ref in &serializable_types}{#if !first} || {/if}{$do first = false}__typeName === "@{type_ref.full_type}"{/for}) return true;
-                                        }
-                                    {/if}
-                                    {#if has_generic_params}
-                                        return true;
+
+                                        throw new @{DESERIALIZE_ERROR}([{
+                                            field: "_root",
+                                            message: "@{type_name}.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
+                                        }]);
                                     {:else}
-                                        return false;
-                                    {/if}
-                    {/if}
-                }
-            };
-                // Add return type import based on mode (vanilla needs no import)
-                if let Some((name, source)) = deserialize_import() {
-                    result.add_import(name, source);
-                }
-                result.add_import("DeserializeContext", "macroforge/serde");
-                result.add_import("DeserializeError", "macroforge/serde");
-                result.add_type_import("DeserializeOptions", "macroforge/serde");
-                result.add_import("PendingRef", "macroforge/serde");
+                                        {#if has_literals}
+                                            const allowedLiterals = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                            if (allowedLiterals.includes(value as any)) {
+                                                return value as @{full_type_name};
+                                            }
+                                        {/if}
+
+                                        {#if has_primitives}
+                                            {#for prim in &primitive_types}
+                                                if (typeof value === "@{prim}") {
+                                                    return value as @{full_type_name};
+                                                }
+                                            {/for}
+                                        {/if}
+
+                                        {#if has_dates}
+                                            if (value instanceof Date) {
+                                                return value as @{full_type_name};
+                                            }
+                                            if (typeof value === "string") {
+                                                const __dateVal = new Date(value);
+                                                if (!isNaN(__dateVal.getTime())) {
+                                                    return __dateVal as unknown as @{full_type_name};
+                                                }
+                                            }
+                                        {/if}
+
+                                        {#if has_serializables}
+                                            if (typeof value === "object" && value !== null) {
+                                                const __typeName = (value as any).__type;
+                                                if (typeof __typeName === "string") {
+                                                    {#for type_ref in &serializable_types}
+                                                        if (__typeName === "@{type_ref.full_type}") {
+                                                            {$let deserialize_with_context_fn = nested_deserialize_fn_name(&type_ref.base_type)}
+                                                            return @{deserialize_with_context_fn}(value, ctx) as @{full_type_name};
+                                                        }
+                                                    {/for}
+                                                }
+                                            }
+                                        {/if}
+
+                                        {#if has_generic_params}
+                                            return value as @{full_type_name};
+                                        {/if}
+
+                                        throw new @{DESERIALIZE_ERROR}([{
+                                            field: "_root",
+                                            message: "@{type_name}.deserializeWithContext: value does not match any union member"
+                                        }]);
+                        {/if}
+                    }
+
+                    export function @{fn_is}(value: unknown): value is @{full_type_name} {
+                                    {#if is_literal_only}
+                                        const allowedValues = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                        return allowedValues.includes(value as any);
+                                    {:else if is_primitive_only}
+                                        {$let mut first = true}
+                                        return {#for prim in &primitive_types}{#if !first} || {/if}{$do first = false}typeof value === "@{prim}"{/for};
+                                    {:else if is_serializable_only}
+                                        if (typeof value !== "object" || value === null) {
+                                            return false;
+                                        }
+                                        const __typeName = (value as any).__type;
+                                        {$let mut first = true}
+                                        return {#for type_ref in &serializable_types}{#if !first} || {/if}{$do first = false}__typeName === "@{type_ref.full_type}"{/for};
+                                    {:else}
+                                        {#if has_literals}
+                                            const allowedLiterals = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                            if (allowedLiterals.includes(value as any)) return true;
+                                        {/if}
+                                        {#if has_primitives}
+                                            {#for prim in &primitive_types}
+                                                if (typeof value === "@{prim}") return true;
+                                            {/for}
+                                        {/if}
+                                        {#if has_dates}
+                                            if (value instanceof Date) return true;
+                                        {/if}
+                                        {#if has_serializables}
+                                            if (typeof value === "object" && value !== null) {
+                                                const __typeName = (value as any).__type;
+                                                {$let mut first = true}
+                                                if ({#for type_ref in &serializable_types}{#if !first} || {/if}{$do first = false}__typeName === "@{type_ref.full_type}"{/for}) return true;
+                                            }
+                                        {/if}
+                                        {#if has_generic_params}
+                                            return true;
+                                        {:else}
+                                            return false;
+                                        {/if}
+                        {/if}
+                    }
+                };
+                // Add return type imports based on mode (vanilla needs no import)
+                result.add_imports(get_return_types_mode().deserialize_imports());
+                result.add_aliased_import("DeserializeContext", "macroforge/serde");
+                result.add_aliased_import("DeserializeError", "macroforge/serde");
+                result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
+                result.add_aliased_import("PendingRef", "macroforge/serde");
                 Ok(result)
             } else {
                 // Fallback for other type alias forms (simple alias, tuple, etc.)
@@ -4087,7 +4094,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     fn_validate_fields,
                     fn_is,
                 ) = (
-                    format!("{}Deserialize{}", type_name.to_case(Case::Camel), generic_decl),
+                    format!(
+                        "{}Deserialize{}",
+                        type_name.to_case(Case::Camel),
+                        generic_decl
+                    ),
                     format!(
                         "{}DeserializeWithContext{}",
                         type_name.to_case(Case::Camel),
@@ -4110,12 +4121,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                 let mut result = ts_template! {
                     {>> "Deserializes input to this type.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized value or validation errors" <<}
-                    export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): @{return_type} {
+                    export function @{fn_deserialize}(input: unknown, opts?: @{DESERIALIZE_OPTIONS}): @{return_type} {
                         try {
                             // Auto-detect: if string, parse as JSON first
                             const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                            const ctx = DeserializeContext.create();
+                            const ctx = @{DESERIALIZE_CONTEXT}.create();
                             const result = @{fn_deserialize_internal}(data, ctx);
                             ctx.applyPatches();
                             if (opts?.freeze) {
@@ -4123,7 +4134,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
                             return @{success_result};
                         } catch (e) {
-                            if (e instanceof DeserializeError) {
+                            if (e instanceof @{DESERIALIZE_ERROR}) {
                                 return @{error_from_catch};
                             }
                             const message = e instanceof Error ? e.message : String(e);
@@ -4132,7 +4143,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
 
                     {>> "Deserializes with an existing context for nested/cyclic object graphs.\n@param value - The raw value to deserialize\n@param ctx - The deserialization context" <<}
-                    export function @{fn_deserialize_internal}(value: any, ctx: DeserializeContext): @{full_type_name} {
+                    export function @{fn_deserialize_internal}(value: any, ctx: @{DESERIALIZE_CONTEXT}): @{full_type_name} {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as @{full_type_name};
                         }
@@ -4156,13 +4167,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         return value != null;
                     }
                 };
-                // Add return type import based on mode (vanilla needs no import)
-                if let Some((name, source)) = deserialize_import() {
-                    result.add_import(name, source);
-                }
-                result.add_import("DeserializeContext", "macroforge/serde");
-                result.add_import("DeserializeError", "macroforge/serde");
-                result.add_type_import("DeserializeOptions", "macroforge/serde");
+                // Add return type imports based on mode (vanilla needs no import)
+                result.add_imports(get_return_types_mode().deserialize_imports());
+                result.add_aliased_import("DeserializeContext", "macroforge/serde");
+                result.add_aliased_import("DeserializeError", "macroforge/serde");
+                result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
                 Ok(result)
             }
         }
