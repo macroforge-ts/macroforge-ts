@@ -26,13 +26,17 @@ function assertDecoratorsStripped(output, fileLabel) {
   );
 }
 
-function assertMethodsGenerated(output, fileLabel, serializeMethod = "serialize") {
+function assertMethodsGenerated(
+  output,
+  fileLabel,
+  serializeMethod = "serialize",
+) {
   // Debug macro now generates static toString method
   assert.ok(
     /static\s+toString\s*\(value:/.test(output),
     `${fileLabel}: expected generated static toString(value:) implementation`,
   );
-  // Some macros (like JSON) still use instance methods, others (like Serialize) use static
+  // Users can choose any api they want, like JSON uses instance methods. Built-in, in order to unify the API across classes, interfaces, and enum, like Serialize, use static
   // Check for either static or instance method depending on the macro
   if (serializeMethod === "toJSON") {
     // JSON macro generates instance method
@@ -43,7 +47,9 @@ function assertMethodsGenerated(output, fileLabel, serializeMethod = "serialize"
     );
   } else {
     // Serialize macro generates static method
-    const methodPattern = new RegExp(`static\\s+${serializeMethod}\\s*\\(value:`);
+    const methodPattern = new RegExp(
+      `static\\s+${serializeMethod}\\s*\\(value:`,
+    );
     assert.ok(
       methodPattern.test(output),
       `${fileLabel}: expected generated static ${serializeMethod}(value:) method`,
