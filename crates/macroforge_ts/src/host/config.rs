@@ -74,42 +74,6 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::sync::LazyLock;
 
-/// Return type style for generated macro code.
-///
-/// Controls how macros like `Deserialize` and `PartialOrd` express their return types.
-///
-/// ## Modes
-///
-/// - **Vanilla** (default): Plain TypeScript discriminated unions
-///   - Deserialize: `{ success: true; value: T } | { success: false; errors: FieldError[] }`
-///   - PartialOrd: `number | null`
-///
-/// - **Custom**: Uses `@rydshift/mirror` types
-///   - Deserialize: `Result<T, Array<FieldError>>`
-///   - PartialOrd: `Option<number>`
-///
-/// - **Effect**: Uses Effect library types
-///   - Deserialize: `Exit<FieldError[], T>`
-///   - PartialOrd: `Option.Option<number>`
-///
-/// ## Example Configuration
-///
-/// ```javascript
-/// export default {
-///   returnTypes: 'vanilla',  // or 'custom' or 'effect'
-/// }
-/// ```
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "lowercase")]
-pub enum ReturnTypesMode {
-    /// Plain TypeScript discriminated unions (default).
-    #[default]
-    Vanilla,
-    /// Uses `@rydshift/mirror` Result/Option types.
-    Custom,
-    /// Uses Effect library Exit/Option types.
-    Effect,
-}
 use swc_core::{
     common::{FileName, SourceMap, sync::Lrc},
     ecma::{
@@ -341,15 +305,6 @@ pub struct MacroforgeConfig {
     #[serde(default)]
     pub foreign_types: Vec<ForeignTypeConfig>,
 
-    /// Return type style for generated macro code.
-    ///
-    /// Controls how macros express their return types:
-    /// - `vanilla` (default): Plain TypeScript discriminated unions
-    /// - `custom`: Uses `@rydshift/mirror` Result/Option types
-    /// - `effect`: Uses Effect library Exit/Option types
-    #[serde(default)]
-    pub return_types: ReturnTypesMode,
-
     /// Import sources from the config file itself.
     ///
     /// Maps imported names (e.g., "DateTime", "Option") to their import info
@@ -370,7 +325,6 @@ impl Default for MacroforgeConfig {
             keep_decorators: false,
             generate_convenience_const: true, // Default to true
             foreign_types: Vec::new(),
-            return_types: ReturnTypesMode::default(),
             config_imports: HashMap::new(),
         }
     }
@@ -663,16 +617,6 @@ fn parse_config_object(
                         config.foreign_types = parse_foreign_types(ft_obj, imports, cm)?;
                     }
                 }
-                "returnTypes" => {
-                    if let Some(mode_str) = get_string_value(&kv.value) {
-                        config.return_types = match mode_str.to_lowercase().as_str() {
-                            "vanilla" => ReturnTypesMode::Vanilla,
-                            "custom" => ReturnTypesMode::Custom,
-                            "effect" => ReturnTypesMode::Effect,
-                            _ => ReturnTypesMode::default(),
-                        };
-                    }
-                }
                 _ => {}
             }
         }
@@ -846,14 +790,6 @@ fn get_prop_key(key: &PropName) -> String {
 fn get_bool_value(expr: &Expr) -> Option<bool> {
     match expr {
         Expr::Lit(Lit::Bool(b)) => Some(b.value),
-        _ => None,
-    }
-}
-
-/// Get string value from expression.
-fn get_string_value(expr: &Expr) -> Option<String> {
-    match expr {
-        Expr::Lit(Lit::Str(s)) => Some(atom_to_string(&s.value)),
         _ => None,
     }
 }
@@ -1158,10 +1094,6 @@ pub struct MacroConfig {
     /// Whether to generate a convenience const for non-class types.
     #[serde(default = "default_generate_convenience_const")]
     pub generate_convenience_const: bool,
-
-    /// Return type style for generated macro code.
-    #[serde(default)]
-    pub return_types: ReturnTypesMode,
 }
 
 impl Default for MacroConfig {
@@ -1173,7 +1105,6 @@ impl Default for MacroConfig {
             limits: Default::default(),
             keep_decorators: false,
             generate_convenience_const: default_generate_convenience_const(),
-            return_types: ReturnTypesMode::default(),
         }
     }
 }
@@ -1183,7 +1114,6 @@ impl From<MacroforgeConfig> for MacroConfig {
         MacroConfig {
             keep_decorators: cfg.keep_decorators,
             generate_convenience_const: cfg.generate_convenience_const,
-            return_types: cfg.return_types,
             ..Default::default()
         }
     }
@@ -1356,53 +1286,11 @@ mod tests {
             keep_decorators: true,
             generate_convenience_const: false,
             foreign_types: vec![],
-            return_types: ReturnTypesMode::Effect,
             config_imports: HashMap::new(),
         };
 
         let legacy: MacroConfig = mf_config.into();
         assert!(legacy.keep_decorators);
         assert!(!legacy.generate_convenience_const);
-        assert_eq!(legacy.return_types, ReturnTypesMode::Effect);
-    }
-
-    #[test]
-    fn test_parse_return_types_vanilla() {
-        let content = r#"
-            export default {
-                returnTypes: "vanilla"
-            }
-        "#;
-        let config = MacroforgeConfig::from_config_file(content, "macroforge.config.js").unwrap();
-        assert_eq!(config.return_types, ReturnTypesMode::Vanilla);
-    }
-
-    #[test]
-    fn test_parse_return_types_custom() {
-        let content = r#"
-            export default {
-                returnTypes: "custom"
-            }
-        "#;
-        let config = MacroforgeConfig::from_config_file(content, "macroforge.config.js").unwrap();
-        assert_eq!(config.return_types, ReturnTypesMode::Custom);
-    }
-
-    #[test]
-    fn test_parse_return_types_effect() {
-        let content = r#"
-            export default {
-                returnTypes: "effect"
-            }
-        "#;
-        let config = MacroforgeConfig::from_config_file(content, "macroforge.config.js").unwrap();
-        assert_eq!(config.return_types, ReturnTypesMode::Effect);
-    }
-
-    #[test]
-    fn test_return_types_defaults_to_vanilla() {
-        let content = "export default {}";
-        let config = MacroforgeConfig::from_config_file(content, "macroforge.config.js").unwrap();
-        assert_eq!(config.return_types, ReturnTypesMode::Vanilla);
     }
 }
