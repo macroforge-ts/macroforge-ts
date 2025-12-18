@@ -38,7 +38,11 @@ export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
     typeof optionsOrRunner === "function" ? optionsOrRunner : maybeRunner;
   const { useProjectCwd = true } = options ?? {};
 
-  const configFile = path.join(rootDir, "vite.config.ts");
+  // Try .ts first, then fall back to .js
+  const configFileTs = path.join(rootDir, "vite.config.ts");
+  const configFileJs = path.join(rootDir, "vite.config.js");
+  const configFile = fs.existsSync(configFileTs) ? configFileTs :
+                     fs.existsSync(configFileJs) ? configFileJs : undefined;
   const previousCwd = process.cwd();
   let server;
   let copiedConfig = false;
