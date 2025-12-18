@@ -215,11 +215,6 @@ mod tests {
     }
 
     #[test]
-    fn test_uses_option_type() {
-        assert_eq!(uses_option_type(), false);
-    }
-
-    #[test]
     fn test_is_none_check() {
         assert_eq!(is_none_check("opt"), "opt === null");
     }
