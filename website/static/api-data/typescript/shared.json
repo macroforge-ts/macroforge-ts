@@ -3,16 +3,32 @@
   "kind": "typescript_package",
   "version": "0.1.42",
   "description": "Shared utilities for Macroforge plugins",
-  "overview": "@macroforge/shared\n\nShared utilities for Macroforge plugins.\n\nThis package provides common functionality used by both `@macroforge/vite-plugin`\nand `@macroforge/typescript-plugin`, ensuring consistent behavior across\ndifferent build tools.",
+  "overview": "",
   "items": [
     {
       "name": "collectExternalDecoratorModules",
       "kind": "function",
-      "signature": "// Re-export all utilities\nexport",
-      "description": "",
-      "returns": null,
-      "remarks": null,
-      "deprecated": null
+      "signature": "function collectExternalDecoratorModules(code: string, requireFn: RequireFunction): string[]",
+      "description": "Collects decorator modules from external macro packages referenced in the code.\n\nThis function parses macro import comments in the code to find external packages,\nthen loads their manifests and collects all decorator module names.",
+      "params": [
+        {
+          "name": "code",
+          "type": "",
+          "description": "The TypeScript source code to scan"
+        },
+        {
+          "name": "requireFn",
+          "type": "",
+          "description": "Optional custom require function for loading external packages"
+        }
+      ],
+      "returns": {
+        "type": "",
+        "description": "Array of decorator module names from external packages"
+      },
+      "examples": [
+        "```typescript\nconst code = `/** import macro {Gigaform} from \"@playground/macro\"; *​/\n/** @derive(Gigaform) *​/\nclass MyForm {}`;\n\nconst modules = collectExternalDecoratorModules(code);\n// => [\"hiddenController\", \"fieldController\", ...]\n```"
+      ]
     }
   ]
 }

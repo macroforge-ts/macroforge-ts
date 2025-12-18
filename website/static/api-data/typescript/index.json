@@ -1,35 +1,35 @@
 {
-  "generated": "2025-12-17T13:52:23.392Z",
+  "generated": "1766026366Z",
   "packages": [
     {
       "name": "@macroforge/shared",
       "version": "0.1.42",
       "itemCount": 1,
-      "hasOverview": true
+      "hasOverview": false
     },
     {
       "name": "@macroforge/typescript-plugin",
       "version": "0.1.42",
-      "itemCount": 50,
-      "hasOverview": true
+      "itemCount": 9,
+      "hasOverview": false
     },
     {
       "name": "@macroforge/vite-plugin",
       "version": "0.1.42",
-      "itemCount": 11,
-      "hasOverview": true
+      "itemCount": 2,
+      "hasOverview": false
     },
     {
       "name": "@macroforge/svelte-preprocessor",
       "version": "0.1.42",
-      "itemCount": 7,
-      "hasOverview": true
+      "itemCount": 2,
+      "hasOverview": false
     },
     {
       "name": "@macroforge/mcp-server",
       "version": "0.1.42",
       "itemCount": 1,
-      "hasOverview": true
+      "hasOverview": false
     }
   ]
 }

@@ -1,10 +1,10 @@
 {
-  "generated": "2025-12-17T13:52:23.254Z",
+  "generated": "1766024431Z",
   "crates": [
     {
       "name": "macroforge_ts",
       "version": "0.1.42",
-      "itemCount": 55
+      "itemCount": 33
     },
     {
       "name": "macroforge_ts_syn",
@@ -14,7 +14,7 @@
     {
       "name": "macroforge_ts_quote",
       "version": "0.1.42",
-      "itemCount": 7
+      "itemCount": 6
     },
     {
       "name": "macroforge_ts_macros",
@@ -23,18 +23,15 @@
     }
   ],
   "builtinMacros": [
-    "debug",
-    "clone",
     "default",
+    "deserialize",
+    "clone",
     "hash",
     "ord",
-    "partial_eq",
     "partial_ord",
     "serialize",
-    "deserialize"
+    "debug",
+    "partial_eq"
   ],
-  "cli": {
-    "version": "0.1.42",
-    "commandCount": 2
-  }
+  "cli": null
 }
