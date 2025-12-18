@@ -109,7 +109,7 @@ export function temperaturePartialCompare(a: Temperature, b: Temperature): numbe
 }
 ```
 
-## Required Import
+## Return Type
 
-The generated code automatically adds an import for `Option` from `macroforge/reexports`.
+The generated functions return `number | null` where `null` indicates incomparable values.
 
