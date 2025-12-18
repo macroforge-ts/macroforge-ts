@@ -1,8 +1,12 @@
-import { SerializeContext } from 'macroforge/serde';
-import { DeserializeContext } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
+import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
+import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
+import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 /** import macro { JSON } from "@playground/macro"; */
 
 export class MacroUser {
@@ -28,7 +32,10 @@ export class MacroUser {
 @param value - The value to serialize
 @param ctx - The serialization context  */
 
-    static serializeWithContext(value: MacroUser, ctx: SerializeContext): Record<string, unknown> {
+    static serializeWithContext(
+        value: MacroUser,
+        ctx: __mf_SerializeContext
+    ): Record<string, unknown> {
         return macroUserSerializeWithContext(value, ctx);
     }
 
@@ -55,71 +62,57 @@ Automatically detects whether input is a JSON string or object.
 
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
-    ):
-        | {
-              success: true;
-              value: MacroUser;
-          }
-        | {
-              success: false;
-              errors: Array<{
-                  field: string;
-                  message: string;
-              }>;
-          } {
+        opts?: __mf_DeserializeOptions
+    ): __mf_Exit<
+        Array<{
+            field: string;
+            message: string;
+        }>,
+        MacroUser
+    > {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = DeserializeContext.create();
+            const ctx = __mf_DeserializeContext.create();
             const resultOrRef = MacroUser.deserializeWithContext(data, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message: 'MacroUser.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return __mf_exitFail([
+                    {
+                        field: '_root',
+                        message: 'MacroUser.deserialize: root cannot be a forward reference'
+                    }
+                ]);
             }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return {
-                success: true,
-                value: resultOrRef
-            };
+            return __mf_exitSucceed(resultOrRef);
         } catch (e) {
-            if (e instanceof DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
+            if (e instanceof __mf_DeserializeError) {
+                return __mf_exitFail(e.errors);
             }
             const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+            return __mf_exitFail([
+                {
+                    field: '_root',
+                    message
+                }
+            ]);
         }
     }
     /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context  */
 
-    static deserializeWithContext(value: any, ctx: DeserializeContext): MacroUser | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: __mf_DeserializeContext
+    ): MacroUser | __mf_PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
+            throw new __mf_DeserializeError([
                 {
                     field: '_root',
                     message: 'MacroUser.deserializeWithContext: expected an object'
@@ -168,7 +161,7 @@ Automatically detects whether input is a JSON string or object.
             });
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         const instance = Object.create(MacroUser.prototype) as MacroUser;
         if (obj.__id !== undefined) {
@@ -200,7 +193,7 @@ Automatically detects whether input is a JSON string or object.
             instance.apiToken = __raw_apiToken;
         }
         if (errors.length > 0) {
-            throw new DeserializeError(errors);
+            throw new __mf_DeserializeError(errors);
         }
         return instance;
     }
@@ -245,7 +238,7 @@ Automatically detects whether input is a JSON string or object.
             return false;
         }
         const result = MacroUser.deserialize(obj);
-        return result.success;
+        return __mf_exitIsSuccess(result);
     }
 }
 
@@ -264,14 +257,14 @@ export function macroUserToString(value: MacroUser): string {
 @returns JSON string representation with cycle detection metadata */ export function macroUserSerialize(
     value: MacroUser
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(macroUserSerializeWithContext(value, ctx));
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function macroUserSerializeWithContext(
     value: MacroUser,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -294,18 +287,16 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized instance or validation errors */ export function macroUserDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-):
-    | { success: true; value: MacroUser }
-    | { success: false; errors: Array<{ field: string; message: string }> } {
+    opts?: __mf_DeserializeOptions
+): __mf_Exit<Array<{ field: string; message: string }>, MacroUser> {
     return MacroUser.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function macroUserDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): MacroUser | PendingRef {
+    ctx: __mf_DeserializeContext
+): MacroUser | __mf_PendingRef {
     return MacroUser.deserializeWithContext(value, ctx);
 } /** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check

@@ -1,8 +1,12 @@
-import { SerializeContext } from 'macroforge/serde';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
+import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
+import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
+import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
+import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
+import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 /**
  * Comprehensive test class for Svelte playground.
  */
@@ -55,14 +59,14 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 @returns JSON string representation with cycle detection metadata */ export function svelteAllMacrosTestSerialize(
     value: SvelteAllMacrosTest
 ): string {
-    const ctx = SerializeContext.create();
+    const ctx = __mf_SerializeContext.create();
     return JSON.stringify(svelteAllMacrosTestSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function svelteAllMacrosTestSerializeWithContext(
     value: SvelteAllMacrosTest,
-    ctx: SerializeContext
+    ctx: __mf_SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -85,50 +89,44 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function svelteAllMacrosTestDeserialize(
     input: unknown,
-    opts?: DeserializeOptions
-):
-    | { success: true; value: SvelteAllMacrosTest }
-    | { success: false; errors: Array<{ field: string; message: string }> } {
+    opts?: __mf_DeserializeOptions
+): __mf_Exit<Array<{ field: string; message: string }>, SvelteAllMacrosTest> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = DeserializeContext.create();
+        const ctx = __mf_DeserializeContext.create();
         const resultOrRef = svelteAllMacrosTestDeserializeWithContext(data, ctx);
-        if (PendingRef.is(resultOrRef)) {
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message:
-                            'SvelteAllMacrosTest.deserialize: root cannot be a forward reference'
-                    }
-                ]
-            };
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return __mf_exitFail([
+                {
+                    field: '_root',
+                    message: 'SvelteAllMacrosTest.deserialize: root cannot be a forward reference'
+                }
+            ]);
         }
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return { success: true, value: resultOrRef };
+        return __mf_exitSucceed(resultOrRef);
     } catch (e) {
-        if (e instanceof DeserializeError) {
-            return { success: false, errors: e.errors };
+        if (e instanceof __mf_DeserializeError) {
+            return __mf_exitFail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return { success: false, errors: [{ field: '_root', message }] };
+        return __mf_exitFail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function svelteAllMacrosTestDeserializeWithContext(
     value: any,
-    ctx: DeserializeContext
-): SvelteAllMacrosTest | PendingRef {
+    ctx: __mf_DeserializeContext
+): SvelteAllMacrosTest | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new DeserializeError([
+        throw new __mf_DeserializeError([
             {
                 field: '_root',
                 message: 'SvelteAllMacrosTest.deserializeWithContext: expected an object'
@@ -156,7 +154,7 @@ export function svelteAllMacrosTestDeserializeWithContext(
         errors.push({ field: 'enabled', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -188,7 +186,7 @@ export function svelteAllMacrosTestDeserializeWithContext(
         instance.enabled = __raw_enabled;
     }
     if (errors.length > 0) {
-        throw new DeserializeError(errors);
+        throw new __mf_DeserializeError(errors);
     }
     return instance as SvelteAllMacrosTest;
 }
@@ -222,7 +220,7 @@ export function svelteAllMacrosTestIs(obj: unknown): obj is SvelteAllMacrosTest 
         return false;
     }
     const result = svelteAllMacrosTestDeserialize(obj);
-    return result.success;
+    return __mf_exitIsSuccess(result);
 }
 
 export function svelteAllMacrosTestHashCode(value: SvelteAllMacrosTest): number {
