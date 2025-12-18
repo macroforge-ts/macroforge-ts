@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "fs";
 import path from "path";
-import napiMacrosPlugin from "../dist/index.js";
+import macroforge from "../src/index.js";
 import {
   initializePlugin,
   invokeTransform,
@@ -50,11 +50,7 @@ export { User };`
   );
 
   const typesDir = "generated-types";
-  const plugin = napiMacrosPlugin({
-    generateTypes: true,
-    typesOutputDir: typesDir,
-    emitMetadata: false,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -104,11 +100,7 @@ export { User };`
   );
 
   const typesDir = "no-types";
-  const plugin = napiMacrosPlugin({
-    generateTypes: false,
-    typesOutputDir: typesDir,
-    emitMetadata: false,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -149,11 +141,8 @@ class User {
 export { User };`
   );
 
-  // Don't specify typesOutputDir - should default to "src/macros/generated"
-  const plugin = napiMacrosPlugin({
-    generateTypes: true,
-    emitMetadata: false,
-  });
+  // Don't specify typesOutputDir - should default to ".macroforge/types"
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -164,7 +153,7 @@ export { User };`
   assert.equal(error, null);
 
   // Check default path
-  const defaultTypesPath = path.join(tempDir, "src/macros/generated");
+  const defaultTypesPath = path.join(tempDir, ".macroforge/types");
   // Directory might be created if transformation occurred
   if (result && result.code) {
     // Types may or may not be generated depending on TS availability
@@ -200,11 +189,7 @@ export { User };`
   );
 
   const typesDir = "types";
-  const plugin = napiMacrosPlugin({
-    generateTypes: true,
-    typesOutputDir: typesDir,
-    emitMetadata: false,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/models/entities/user.ts"), "utf-8");
@@ -249,11 +234,7 @@ export { User };`
   );
 
   const typesDir = "types";
-  const plugin = napiMacrosPlugin({
-    generateTypes: true,
-    typesOutputDir: typesDir,
-    emitMetadata: false,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -299,11 +280,7 @@ class User {
 export { User };`
   );
 
-  const plugin = napiMacrosPlugin({
-    generateTypes: true,
-    typesOutputDir: "types",
-    emitMetadata: false,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -343,11 +320,7 @@ export { User };`
 
   // Use deeply nested output directory that doesn't exist
   const typesDir = "deep/nested/types/directory";
-  const plugin = napiMacrosPlugin({
-    generateTypes: true,
-    typesOutputDir: typesDir,
-    emitMetadata: false,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");

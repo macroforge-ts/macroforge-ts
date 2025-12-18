@@ -4,7 +4,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import napiMacrosPlugin from "../dist/index.js";
+import macroforge from "../src/index.js";
 import {
   initializePlugin,
   invokeTransform,
@@ -16,7 +16,7 @@ import {
 } from "./test-utils.js";
 
 test("transforms .ts files", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = loadFixture("no-macro");
@@ -33,7 +33,7 @@ test("transforms .ts files", async () => {
 });
 
 test("transforms .tsx files", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = `
@@ -57,7 +57,7 @@ export { PlainComponent };
 });
 
 test("skips .js files (returns null)", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = `class PlainClass { value = 1; }`;
@@ -70,7 +70,7 @@ test("skips .js files (returns null)", async () => {
 });
 
 test("skips .jsx files (returns null)", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = `function Component() { return <div>Hello</div>; }`;
@@ -83,7 +83,7 @@ test("skips .jsx files (returns null)", async () => {
 });
 
 test("skips .css files (returns null)", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = `.class { color: red; }`;
@@ -96,7 +96,7 @@ test("skips .css files (returns null)", async () => {
 });
 
 test("skips .json files (returns null)", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = `{ "key": "value" }`;
@@ -109,7 +109,7 @@ test("skips .json files (returns null)", async () => {
 });
 
 test("skips node_modules by default", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = `
@@ -128,7 +128,7 @@ class User {
 });
 
 test("skips deeply nested node_modules", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = loadFixture("simple-macro");
@@ -141,7 +141,7 @@ test("skips deeply nested node_modules", async () => {
 });
 
 test("transforms files with macros", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = loadFixture("simple-macro");
@@ -157,7 +157,7 @@ test("transforms files with macros", async () => {
 });
 
 test("handles empty TypeScript file", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = "";
@@ -171,7 +171,7 @@ test("handles empty TypeScript file", async () => {
 });
 
 test("handles TypeScript file with only comments", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = `// This is a comment\n/* Another comment */`;
@@ -184,7 +184,7 @@ test("handles TypeScript file with only comments", async () => {
 });
 
 test("handles .d.ts files (declaration files)", async () => {
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
   const code = `declare class User { id: string; }`;

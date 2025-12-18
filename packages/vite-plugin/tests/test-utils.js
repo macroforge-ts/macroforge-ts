@@ -105,6 +105,18 @@ export function initializePlugin(plugin, root = process.cwd()) {
 }
 
 /**
+ * Create and initialize a plugin from an async factory.
+ * @param {() => Promise<object>} pluginFactory - Async plugin factory function
+ * @param {string} root - Project root path
+ * @returns {Promise<object>} Initialized plugin
+ */
+export async function createAndInitializePlugin(pluginFactory, root = process.cwd()) {
+  const plugin = await pluginFactory();
+  initializePlugin(plugin, root);
+  return plugin;
+}
+
+/**
  * Invoke the plugin's transform function.
  * @param {object} plugin - The Vite plugin object
  * @param {string} code - Source code to transform

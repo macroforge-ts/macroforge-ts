@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "fs";
 import path from "path";
-import napiMacrosPlugin from "../dist/index.js";
+import macroforge from "../src/index.js";
 import {
   initializePlugin,
   invokeTransform,
@@ -33,11 +33,7 @@ export { User };`
   );
 
   const metadataDir = "metadata";
-  const plugin = napiMacrosPlugin({
-    generateTypes: false,
-    emitMetadata: true,
-    metadataOutputDir: metadataDir,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -73,11 +69,7 @@ export { User };`
   );
 
   const metadataDir = "no-metadata";
-  const plugin = napiMacrosPlugin({
-    generateTypes: false,
-    emitMetadata: false,
-    metadataOutputDir: metadataDir,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -92,7 +84,7 @@ export { User };`
   assert.equal(fs.existsSync(metadataPath), false, "Metadata directory should not exist");
 });
 
-test("uses typesOutputDir as default metadataOutputDir", async (t) => {
+test("uses default metadataOutputDir when not specified", async (t) => {
   const tempDir = createTempDir();
 
   t.after(() => cleanupTempDir(tempDir));
@@ -107,14 +99,8 @@ class User {
 export { User };`
   );
 
-  // Specify typesOutputDir but not metadataOutputDir
-  const typesDir = "custom-output";
-  const plugin = napiMacrosPlugin({
-    generateTypes: false,
-    typesOutputDir: typesDir,
-    emitMetadata: true,
-    // metadataOutputDir not specified - should default to typesOutputDir
-  });
+  // Don't specify metadataOutputDir - should default to ".macroforge/meta"
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -124,8 +110,8 @@ export { User };`
 
   assert.equal(error, null);
 
-  // Metadata should be in typesOutputDir
-  const expectedMetadataPath = path.join(tempDir, typesDir, "src", "user.macro-ir.json");
+  // Metadata should be in default .macroforge/meta directory
+  const expectedMetadataPath = path.join(tempDir, ".macroforge/meta", "src", "user.macro-ir.json");
   if (result && result.code && fs.existsSync(expectedMetadataPath)) {
     const content = fs.readFileSync(expectedMetadataPath, "utf-8");
     assert.ok(content.length > 0, "Metadata file should have content");
@@ -149,11 +135,7 @@ export { User };`
   );
 
   const metadataDir = "metadata";
-  const plugin = napiMacrosPlugin({
-    generateTypes: false,
-    emitMetadata: true,
-    metadataOutputDir: metadataDir,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/models/entities/user.ts"), "utf-8");
@@ -188,11 +170,7 @@ export { User };`
   );
 
   const metadataDir = "metadata";
-  const plugin = napiMacrosPlugin({
-    generateTypes: false,
-    emitMetadata: true,
-    metadataOutputDir: metadataDir,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -236,11 +214,7 @@ export { PlainClass };`
   );
 
   const metadataDir = "metadata";
-  const plugin = napiMacrosPlugin({
-    generateTypes: false,
-    emitMetadata: true,
-    metadataOutputDir: metadataDir,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/plain.ts"), "utf-8");
@@ -272,11 +246,7 @@ export { User };`
 
   // Use deeply nested output directory
   const metadataDir = "deep/nested/metadata/dir";
-  const plugin = napiMacrosPlugin({
-    generateTypes: false,
-    emitMetadata: true,
-    metadataOutputDir: metadataDir,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");
@@ -312,11 +282,7 @@ export { User };`
   );
 
   const metadataDir = "metadata";
-  const plugin = napiMacrosPlugin({
-    generateTypes: false,
-    emitMetadata: true,
-    metadataOutputDir: metadataDir,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/user.ts"), "utf-8");

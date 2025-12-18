@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "fs";
 import path from "path";
-import napiMacrosPlugin from "../dist/index.js";
+import macroforge from "../src/index.js";
 import {
   initializePlugin,
   invokeTransform,
@@ -35,7 +35,7 @@ class User {
 export { User };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/test.ts"), "utf-8");
@@ -68,7 +68,7 @@ test("falls back to default config when macroforge.json not found", async (t) =>
 export { PlainClass };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/test.ts"), "utf-8");
@@ -98,7 +98,7 @@ test("handles malformed macroforge.json gracefully", async (t) => {
 export { PlainClass };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/test.ts"), "utf-8");
@@ -128,7 +128,7 @@ test("handles empty macroforge.json gracefully", async (t) => {
 export { PlainClass };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/test.ts"), "utf-8");
@@ -159,7 +159,7 @@ export { PlainClass };`
   );
 
   const projectRoot = path.join(tempDir, "packages/my-package");
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, projectRoot);
 
   const code = fs.readFileSync(path.join(projectRoot, "src/test.ts"), "utf-8");
@@ -200,11 +200,7 @@ class User {
 export { User };`
   );
 
-  const plugin = napiMacrosPlugin({
-    generateTypes: true,
-    typesOutputDir: "generated",
-    emitMetadata: false,
-  });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/test.ts"), "utf-8");
@@ -233,7 +229,7 @@ test("works without tsconfig.json", async (t) => {
 export { PlainClass };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/test.ts"), "utf-8");
@@ -263,7 +259,7 @@ test("handles malformed tsconfig.json gracefully", async (t) => {
 export { PlainClass };`
   );
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
   const code = fs.readFileSync(path.join(tempDir, "src/test.ts"), "utf-8");
@@ -279,7 +275,7 @@ test("uses config from fixtures directory", async () => {
   // Test using the pre-created fixtures
   const configDir = path.join(FIXTURES_DIR, "config");
 
-  const plugin = napiMacrosPlugin({ generateTypes: false, emitMetadata: false });
+  const plugin = await macroforge();
   initializePlugin(plugin, configDir);
 
   // Create inline test code

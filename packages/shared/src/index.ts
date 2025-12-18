@@ -29,6 +29,7 @@ export {
   findConfigFile,
   loadMacroConfig,
   type MacroConfig,
+  type VitePluginConfig,
   type ConfigLoader,
   type ConfigLoadResult,
 } from "./config.js";
