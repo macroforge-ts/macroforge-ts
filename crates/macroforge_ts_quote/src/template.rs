@@ -1072,9 +1072,17 @@ fn parse_fragment(
                     }
                 }
 
-                // No space if followed by @ (for @{a}@{b} patterns inside {| |})
-                if matches!(next, Some(TokenTree::Punct(p)) if p.as_char() == '@') {
-                    add_space = false;
+                // No space if followed by @{ interpolation (for @{a}@{b} patterns)
+                if let Some(TokenTree::Punct(p)) = next
+                    && p.as_char() == '@'
+                {
+                    // Peek ahead to check if it's @{ (interpolation)
+                    let mut peek_iter = iter.clone();
+                    peek_iter.next(); // skip the @
+                    if matches!(peek_iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace)
+                    {
+                        add_space = false;
+                    }
                 }
 
                 if add_space {
@@ -1262,7 +1270,51 @@ fn parse_fragment(
                                 parse_fragment_no_spacing(&mut content.into_iter().peekable())?;
                             output.extend(inner_output);
                         }
-                        // No space added after the block - that's the point
+
+                        // Spacing logic after ident block - same as @{} interpolation
+                        // Add space unless followed by punctuation or function call
+                        let next = iter.peek();
+                        let next_char = match next {
+                            Some(TokenTree::Punct(p)) => Some(p.as_char()),
+                            _ => None,
+                        };
+
+                        let mut add_space = true;
+
+                        // No space at end of stream
+                        if next.is_none() {
+                            add_space = false;
+                        }
+
+                        // No space before punctuation
+                        if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
+                            add_space = false;
+                        }
+
+                        // No space before ( or [ groups (function calls, indexing)
+                        if let Some(TokenTree::Group(g)) = next {
+                            match g.delimiter() {
+                                Delimiter::Parenthesis | Delimiter::Bracket => add_space = false,
+                                _ => {}
+                            }
+                        }
+
+                        // No space if followed by @{ interpolation (for {|a|}@{b} concatenation)
+                        if let Some(TokenTree::Punct(p)) = next
+                            && p.as_char() == '@'
+                        {
+                            // Peek ahead to check if it's @{ (interpolation)
+                            let mut peek_iter = iter.clone();
+                            peek_iter.next(); // skip the @
+                            if matches!(peek_iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace)
+                            {
+                                add_space = false;
+                            }
+                        }
+
+                        if add_space {
+                            output.extend(quote! { __out.push_str(" "); });
+                        }
                     }
                     TagType::BlockComment(content) => {
                         iter.next(); // Consume {> "..." <}
