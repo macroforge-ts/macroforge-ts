@@ -51,7 +51,7 @@ pub fn generate_factory(
 
             // Validate the entire form using Deserialize's deserialize
             function validate(): Exit<Array<{ field: string; message: string }>, @{interface_name}> {
-                return @{validate_call};
+                return toExit(@{validate_call});
             }
 
             // Reset form to defaults
@@ -120,7 +120,7 @@ pub fn generate_factory_with_generics(
 
             // Validate the entire form using Deserialize's deserialize
             function validate(): Exit<Array<{ field: string; message: string }>, @{interface_name}@{generic_args}> {
-                return @{validate_call};
+                return toExit(@{validate_call});
             }
 
             // Reset form to defaults
@@ -259,7 +259,7 @@ pub fn generate_union_factory(
 
             // Validate the entire form using Deserialize's deserialize
             function validate(): Exit<Array<{ field: string; message: string }>, @{type_name}> {
-                return @{validate_call};
+                return toExit(@{validate_call});
             }
 
             // Reset form

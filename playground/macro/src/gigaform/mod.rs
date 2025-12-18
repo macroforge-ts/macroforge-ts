@@ -116,8 +116,10 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     };
 
     // Add required imports from @playground/macro/gigaform (Effect types)
-    // Exit for deserialize return
+    // Exit for deserialize return type
     output.add_type_import("Exit", "@playground/macro/gigaform");
+    // toExit helper to convert vanilla result to Exit
+    output.add_import("toExit", "@playground/macro/gigaform");
     // Option for field controller state
     output.add_type_import("Option", "@playground/macro/gigaform");
     output.add_import("optionNone", "@playground/macro/gigaform");
@@ -227,9 +229,10 @@ fn generate_union_form(
     };
 
     // Add required imports from @playground/macro/gigaform (Effect types)
-    // Exit for deserialize return
+    // Exit for deserialize return type
     output.add_type_import("Exit", "@playground/macro/gigaform");
-    output.add_import("exitFail", "@playground/macro/gigaform");
+    // toExit helper to convert vanilla result to Exit
+    output.add_import("toExit", "@playground/macro/gigaform");
     // Option for field controller state
     output.add_type_import("Option", "@playground/macro/gigaform");
     output.add_import("optionNone", "@playground/macro/gigaform");

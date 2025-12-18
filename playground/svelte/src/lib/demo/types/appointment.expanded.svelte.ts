@@ -1,21 +1,17 @@
-import { DateTime as __mf_DateTime } from 'effect';
-import { Option as __mf_Option } from 'effect';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from 'macroforge/serde';
 import { colorsSerializeWithContext } from './colors.svelte';
 import { recurrenceRuleSerializeWithContext } from './recurrence-rule.svelte';
 import { statusSerializeWithContext } from './status.svelte';
-import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
-import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
-import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
-import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { Exit } from 'macroforge/utils/effect';
+import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 import { colorsDeserializeWithContext } from './colors.svelte';
 import { recurrenceRuleDeserializeWithContext } from './recurrence-rule.svelte';
 import { statusDeserializeWithContext } from './status.svelte';
 import type { Exit } from '@playground/macro/gigaform';
+import { toExit } from '@playground/macro/gigaform';
 import type { Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
@@ -65,7 +61,7 @@ export function appointmentDefaultValue(): Appointment {
         id: '',
         title: '',
         status: 'Scheduled',
-        begins: (() => __mf_DateTime.unsafeNow())(),
+        begins: (() => DateTime.unsafeNow())(),
         duration: 0,
         timeZone: '',
         offsetMs: 0,
@@ -73,7 +69,7 @@ export function appointmentDefaultValue(): Appointment {
         multiDay: false,
         employees: [],
         location: '',
-        description: (() => __mf_Option.none())(),
+        description: (() => Option.none())(),
         colors: { main: '#000000', hover: '#333333', active: '#666666' },
         recurrenceRule: null
     } as Appointment;
@@ -84,14 +80,14 @@ export function appointmentDefaultValue(): Appointment {
 @returns JSON string representation with cycle detection metadata */ export function appointmentSerialize(
     value: Appointment
 ): string {
-    const ctx = __mf_SerializeContext.create();
+    const ctx = SerializeContext.create();
     return JSON.stringify(appointmentSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function appointmentSerializeWithContext(
     value: Appointment,
-    ctx: __mf_SerializeContext
+    ctx: SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
@@ -102,7 +98,7 @@ export function appointmentSerializeWithContext(
     result['id'] = value.id;
     result['title'] = value.title;
     result['status'] = statusSerializeWithContext(value.status, ctx);
-    result['begins'] = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(value.begins);
+    result['begins'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.begins);
     result['duration'] = value.duration;
     result['timeZone'] = value.timeZone;
     result['offsetMs'] = value.offsetMs;
@@ -110,9 +106,7 @@ export function appointmentSerializeWithContext(
     result['multiDay'] = value.multiDay;
     result['employees'] = value.employees;
     result['location'] = value.location;
-    result['description'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(
-        value.description
-    );
+    result['description'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.description);
     result['colors'] = colorsSerializeWithContext(value.colors, ctx);
     if (value.recurrenceRule !== null) {
         result['recurrenceRule'] = recurrenceRuleSerializeWithContext(value.recurrenceRule, ctx);
@@ -128,14 +122,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function appointmentDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, Appointment> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, Appointment> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = appointmentDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 {
                     field: '_root',
                     message: 'Appointment.deserialize: root cannot be a forward reference'
@@ -146,26 +140,26 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function appointmentDeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): Appointment | __mf_PendingRef {
+    ctx: DeserializeContext
+): Appointment | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             { field: '_root', message: 'Appointment.deserializeWithContext: expected an object' }
         ]);
     }
@@ -214,7 +208,7 @@ export function appointmentDeserializeWithContext(
         errors.push({ field: 'recurrenceRule', message: 'missing required field' });
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     const instance: any = {};
     if (obj.__id !== undefined) {
@@ -239,7 +233,7 @@ export function appointmentDeserializeWithContext(
             ctx.assignOrDefer(instance, 'status', __result);
         }
     }
-    instance.begins = ((raw: unknown) => __mf_DateTime.unsafeFromDate(new Date(raw as string)))(
+    instance.begins = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(
         obj['begins']
     );
     {
@@ -272,8 +266,9 @@ export function appointmentDeserializeWithContext(
         const __raw_location = obj['location'] as string | Site;
         instance.location = __raw_location;
     }
-    instance.description = ((raw: unknown) =>
-        raw === null ? __mf_Option.none() : __mf_Option.some(raw))(obj['description']);
+    instance.description = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
+        obj['description']
+    );
     {
         const __raw_colors = obj['colors'] as Colors;
         {
@@ -291,7 +286,7 @@ export function appointmentDeserializeWithContext(
         }
     }
     if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
+        throw new DeserializeError(errors);
     }
     return instance as Appointment;
 }
@@ -350,7 +345,7 @@ export function appointmentIs(obj: unknown): obj is Appointment {
         return false;
     }
     const result = appointmentDeserialize(obj);
-    return __mf_exitIsSuccess(result);
+    return Exit.isSuccess(result);
 }
 
 /** Nested error structure matching the data shape */ export type AppointmentErrors = {
@@ -796,7 +791,7 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
         }
     };
     function validate(): Exit<Array<{ field: string; message: string }>, Appointment> {
-        return appointmentDeserialize(data);
+        return toExit(appointmentDeserialize(data));
     }
     function reset(newOverrides?: Partial<Appointment>): void {
         data = { ...appointmentDefaultValue(), ...newOverrides };
@@ -984,7 +979,7 @@ export function appointmentFromFormData(
         obj.colors = colorsObj;
     }
     obj.recurrenceRule = formData.get('recurrenceRule') ?? '';
-    return appointmentDeserialize(obj);
+    return toExit(appointmentDeserialize(obj));
 }
 
 export const Appointment = {

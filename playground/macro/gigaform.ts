@@ -1,16 +1,46 @@
-// Re-export Effect types for Gigaform
-// NOTE: Gigaform requires returnTypes: "effect" in macroforge.config.ts
+// Import directly from effect library
+import {
+  succeed as exitSucceed,
+  fail as exitFail,
+  isSuccess as exitIsSuccess,
+} from "effect/Exit";
+import type { Exit } from "effect/Exit";
+import {
+  some as optionSome,
+  none as optionNone,
+  isNone as optionIsNone,
+} from "effect/Option";
+import type { Option } from "effect/Option";
+
+// Re-export for Gigaform consumers
 export {
-  // Exit functions (deserialize return)
   exitSucceed,
   exitFail,
   exitIsSuccess,
-  // Option functions (field controller state)
   optionSome,
   optionNone,
   optionIsNone,
-} from "macroforge/reexports/effect";
-export type { Exit, Option } from "macroforge/reexports/effect";
+};
+export type { Exit, Option };
+
+/** Vanilla result type from builtin macros */
+export type VanillaResult<
+  T,
+  E = Array<{ field: string; message: string }>,
+> =
+  | { success: true; value: T }
+  | { success: false; errors: E };
+
+/** Convert vanilla result to Exit type */
+export function toExit<T>(
+  result: VanillaResult<T>
+): Exit<Array<{ field: string; message: string }>, T> {
+  if (result.success) {
+    return exitSucceed(result.value);
+  } else {
+    return exitFail(result.errors);
+  }
+}
 
 /** Base interface for field controllers */
 export interface FieldController<T> {

@@ -1,16 +1,13 @@
 import { recordLinkDefaultValue } from './record-link.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
-import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
-import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
-import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { SerializeContext } from 'macroforge/serde';
+import { Exit } from 'macroforge/utils/effect';
+import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 import { recordLinkDeserializeWithContext } from './record-link.svelte';
 import type { Exit } from '@playground/macro/gigaform';
-import { exitFail } from '@playground/macro/gigaform';
+import { toExit } from '@playground/macro/gigaform';
 import type { Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
@@ -31,12 +28,12 @@ export function itemDefaultValue(): Item {
 @returns JSON string representation with cycle detection metadata */ export function itemSerialize(
     value: Item
 ): string {
-    const ctx = __mf_SerializeContext.create();
+    const ctx = SerializeContext.create();
     return JSON.stringify(itemSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function itemSerializeWithContext(value: Item, ctx: __mf_SerializeContext): unknown {
+export function itemSerializeWithContext(value: Item, ctx: SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -49,14 +46,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function itemDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, Item> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, Item> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = itemDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 { field: '_root', message: 'Item.deserialize: root cannot be a forward reference' }
             ]);
         }
@@ -64,32 +61,29 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function itemDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): Item | __mf_PendingRef {
+export function itemDeserializeWithContext(value: any, ctx: DeserializeContext): Item | PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Item | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref) as Item | PendingRef;
     }
     if (typeof value !== 'object' || value === null) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             { field: '_root', message: 'Item.deserializeWithContext: expected an object' }
         ]);
     }
     const __typeName = (value as any).__type;
     if (typeof __typeName !== 'string') {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             {
                 field: '_root',
                 message: 'Item.deserializeWithContext: missing __type field for union dispatch'
@@ -102,7 +96,7 @@ export function itemDeserializeWithContext(
     if (__typeName === 'RecordLink<Service>') {
         return recordLinkDeserializeWithContext(value, ctx) as Item;
     }
-    throw new __mf_DeserializeError([
+    throw new DeserializeError([
         {
             field: '_root',
             message:
@@ -179,7 +173,7 @@ export function itemCreateForm(initial?: Item): ItemGigaform {
         tainted = {} as ItemTainted;
     }
     function validate(): Exit<Array<{ field: string; message: string }>, Item> {
-        return itemDeserialize(data);
+        return toExit(itemDeserialize(data));
     }
     function reset(overrides?: Partial<Item>): void {
         data = overrides ? (overrides as typeof data) : itemGetDefaultForVariant(currentVariant);
@@ -222,14 +216,17 @@ export function itemFromFormData(
         | 'RecordLink<Service>'
         | null;
     if (!discriminant) {
-        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
+        return toExit({
+            success: false,
+            errors: [{ field: '_type', message: 'Missing discriminant field' }]
+        });
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;
     if (discriminant === 'RecordLink<Product>') {
     } else if (discriminant === 'RecordLink<Service>') {
     }
-    return itemDeserialize(obj);
+    return toExit(itemDeserialize(obj));
 }
 
 export const Item = {

@@ -1,14 +1,11 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
-import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
-import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
-import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { SerializeContext } from 'macroforge/serde';
+import { Exit } from 'macroforge/utils/effect';
+import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 import type { Exit } from '@playground/macro/gigaform';
-import { exitFail } from '@playground/macro/gigaform';
+import { toExit } from '@playground/macro/gigaform';
 import type { Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
@@ -27,14 +24,14 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
 @returns JSON string representation with cycle detection metadata */ export function overviewDisplaySerialize(
     value: OverviewDisplay
 ): string {
-    const ctx = __mf_SerializeContext.create();
+    const ctx = SerializeContext.create();
     return JSON.stringify(overviewDisplaySerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
 export function overviewDisplaySerializeWithContext(
     value: OverviewDisplay,
-    ctx: __mf_SerializeContext
+    ctx: SerializeContext
 ): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
@@ -48,14 +45,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function overviewDisplayDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, OverviewDisplay> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, OverviewDisplay> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = overviewDisplayDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 {
                     field: '_root',
                     message: 'OverviewDisplay.deserialize: root cannot be a forward reference'
@@ -66,27 +63,27 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function overviewDisplayDeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): OverviewDisplay | __mf_PendingRef {
+    ctx: DeserializeContext
+): OverviewDisplay | PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as OverviewDisplay | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref) as OverviewDisplay | PendingRef;
     }
     const allowedValues = ['Card', 'Table'] as const;
     if (!allowedValues.includes(value)) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             {
                 field: '_root',
                 message:
@@ -163,7 +160,7 @@ export function overviewDisplayCreateForm(initial?: OverviewDisplay): OverviewDi
         tainted = {} as OverviewDisplayTainted;
     }
     function validate(): Exit<Array<{ field: string; message: string }>, OverviewDisplay> {
-        return overviewDisplayDeserialize(data);
+        return toExit(overviewDisplayDeserialize(data));
     }
     function reset(overrides?: Partial<OverviewDisplay>): void {
         data = overrides
@@ -205,14 +202,17 @@ export function overviewDisplayFromFormData(
 ): Exit<Array<{ field: string; message: string }>, OverviewDisplay> {
     const discriminant = formData.get('_value') as 'Card' | 'Table' | null;
     if (!discriminant) {
-        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
+        return toExit({
+            success: false,
+            errors: [{ field: '_value', message: 'Missing discriminant field' }]
+        });
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
     if (discriminant === 'Card') {
     } else if (discriminant === 'Table') {
     }
-    return overviewDisplayDeserialize(obj);
+    return toExit(overviewDisplayDeserialize(obj));
 }
 
 export const OverviewDisplay = {

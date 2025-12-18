@@ -1,13 +1,10 @@
 import { accountDefaultValue } from './account.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { exitSucceed as __mf_exitSucceed } from 'macroforge/reexports/effect';
-import { exitFail as __mf_exitFail } from 'macroforge/reexports/effect';
-import { exitIsSuccess as __mf_exitIsSuccess } from 'macroforge/reexports/effect';
-import type { Exit as __mf_Exit } from 'macroforge/reexports/effect';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { SerializeContext } from 'macroforge/serde';
+import { Exit } from 'macroforge/utils/effect';
+import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 import { accountDeserializeWithContext } from './account.svelte';
 import { appointmentDeserializeWithContext } from './appointment.svelte';
 import { companyDeserializeWithContext } from './company.svelte';
@@ -26,7 +23,7 @@ import { siteDeserializeWithContext } from './site.svelte';
 import { taxRateDeserializeWithContext } from './tax-rate.svelte';
 import { userDeserializeWithContext } from './user.svelte';
 import type { Exit } from '@playground/macro/gigaform';
-import { exitFail } from '@playground/macro/gigaform';
+import { toExit } from '@playground/macro/gigaform';
 import type { Option } from '@playground/macro/gigaform';
 import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
@@ -94,12 +91,12 @@ export function targetDefaultValue(): Target {
 @returns JSON string representation with cycle detection metadata */ export function targetSerialize(
     value: Target
 ): string {
-    const ctx = __mf_SerializeContext.create();
+    const ctx = SerializeContext.create();
     return JSON.stringify(targetSerializeWithContext(value, ctx));
 } /** Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function targetSerializeWithContext(value: Target, ctx: __mf_SerializeContext): unknown {
+export function targetSerializeWithContext(value: Target, ctx: SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === 'function') {
         return (value as any).serializeWithContext(ctx);
     }
@@ -112,14 +109,14 @@ Automatically detects whether input is a JSON string or object.
 @param opts - Optional deserialization options
 @returns Result containing the deserialized value or validation errors */ export function targetDeserialize(
     input: unknown,
-    opts?: __mf_DeserializeOptions
-): __mf_Exit<Array<{ field: string; message: string }>, Target> {
+    opts?: DeserializeOptions
+): Exit.Exit<Array<{ field: string; message: string }>, Target> {
     try {
         const data = typeof input === 'string' ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
+        const ctx = DeserializeContext.create();
         const resultOrRef = targetDeserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return __mf_exitFail([
+        if (PendingRef.is(resultOrRef)) {
+            return Exit.fail([
                 {
                     field: '_root',
                     message: 'Target.deserialize: root cannot be a forward reference'
@@ -130,32 +127,32 @@ Automatically detects whether input is a JSON string or object.
         if (opts?.freeze) {
             ctx.freezeAll();
         }
-        return __mf_exitSucceed(resultOrRef);
+        return Exit.succeed(resultOrRef);
     } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return __mf_exitFail(e.errors);
+        if (e instanceof DeserializeError) {
+            return Exit.fail(e.errors);
         }
         const message = e instanceof Error ? e.message : String(e);
-        return __mf_exitFail([{ field: '_root', message }]);
+        return Exit.fail([{ field: '_root', message }]);
     }
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
 export function targetDeserializeWithContext(
     value: any,
-    ctx: __mf_DeserializeContext
-): Target | __mf_PendingRef {
+    ctx: DeserializeContext
+): Target | PendingRef {
     if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref) as Target | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref) as Target | PendingRef;
     }
     if (typeof value !== 'object' || value === null) {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             { field: '_root', message: 'Target.deserializeWithContext: expected an object' }
         ]);
     }
     const __typeName = (value as any).__type;
     if (typeof __typeName !== 'string') {
-        throw new __mf_DeserializeError([
+        throw new DeserializeError([
             {
                 field: '_root',
                 message: 'Target.deserializeWithContext: missing __type field for union dispatch'
@@ -213,7 +210,7 @@ export function targetDeserializeWithContext(
     if (__typeName === 'Ordered') {
         return orderedDeserializeWithContext(value, ctx) as Target;
     }
-    throw new __mf_DeserializeError([
+    throw new DeserializeError([
         {
             field: '_root',
             message:
@@ -529,7 +526,7 @@ export function targetCreateForm(initial?: Target): TargetGigaform {
         tainted = {} as TargetTainted;
     }
     function validate(): Exit<Array<{ field: string; message: string }>, Target> {
-        return targetDeserialize(data);
+        return toExit(targetDeserialize(data));
     }
     function reset(overrides?: Partial<Target>): void {
         data = overrides ? (overrides as typeof data) : targetGetDefaultForVariant(currentVariant);
@@ -587,7 +584,10 @@ export function targetFromFormData(
         | 'Ordered'
         | null;
     if (!discriminant) {
-        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
+        return toExit({
+            success: false,
+            errors: [{ field: '_type', message: 'Missing discriminant field' }]
+        });
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;
@@ -609,7 +609,7 @@ export function targetFromFormData(
     } else if (discriminant === 'Represents') {
     } else if (discriminant === 'Ordered') {
     }
-    return targetDeserialize(obj);
+    return toExit(targetDeserialize(obj));
 }
 
 export const Target = {
