@@ -384,7 +384,8 @@ fn try_expand_file_builtin(
     use macroforge_ts::host::MacroforgeConfig;
 
     // Load config if available (for foreign types and return types mode support)
-    if let Ok(Some(config)) = MacroforgeConfig::find_and_load() {
+    // Search from the input file's directory to find the correct project config
+    if let Ok(Some(config)) = MacroforgeConfig::find_from_path(&input) {
         macroforge_ts::builtin::serde::set_foreign_types(config.foreign_types.clone());
         macroforge_ts::builtin::serde::set_return_types_mode(config.return_types);
     }
