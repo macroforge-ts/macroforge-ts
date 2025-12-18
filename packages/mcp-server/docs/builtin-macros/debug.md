@@ -59,26 +59,3 @@ export function userToString(value: User): string {
     return 'User { ' + parts.join(', ') + ' }';
 }
 ```
-
-Generated output:
-
-```typescript
-class User {
-    userId: number;
-
-    password: string;
-
-    email: string;
-
-    static toString(value: User): string {
-        return userToString(value);
-    }
-}
-
-export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push('id: ' + value.userId);
-    parts.push('email: ' + value.email);
-    return 'User { ' + parts.join(', ') + ' }';
-}
-```

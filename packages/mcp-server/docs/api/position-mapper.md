@@ -1,54 +1,110 @@
 # PositionMapper
-  *Bidirectional position mapper for translating between original and expanded source positions. This mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with macro-expanded code by translating positions between the original source (what the user wrote) and the expanded source (what the compiler sees).*
- ## Getting a Mapper
- ```
-import&nbsp;&#123;&nbsp;NativePlugin,&nbsp;PositionMapper&nbsp;&#125;&nbsp;from&nbsp;"macroforge";
 
-const&nbsp;plugin&nbsp;=&nbsp;new&nbsp;NativePlugin();
-const&nbsp;result&nbsp;=&nbsp;plugin.processFile("user.ts",&nbsp;code,&nbsp;&#123;&nbsp;version:&nbsp;"1"&nbsp;&#125;);
+macroforge v0.1.42
 
-//&nbsp;Get&nbsp;the&nbsp;mapper&nbsp;for&nbsp;this&nbsp;file
-const&nbsp;mapper&nbsp;=&nbsp;plugin.getMapper("user.ts");
-if&nbsp;(mapper)&nbsp;&#123;
-&nbsp;&nbsp;//&nbsp;Use&nbsp;the&nbsp;mapper...
-&#125;
-``` ## Methods
- ### isEmpty()
- Check if the mapper has any mappings:
- ```
-isEmpty():&nbsp;boolean
-``` ### originalToExpanded()
- Map a position from original to expanded code:
- ```
-originalToExpanded(pos:&nbsp;number):&nbsp;number
-``` ### expandedToOriginal()
- Map a position from expanded to original code:
- ```
-expandedToOriginal(pos:&nbsp;number):&nbsp;number&nbsp;|&nbsp;null
-``` Returns <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#79B8FF;--shiki-light:#005CC5">null</code> if the position is in generated code.
- ### isInGenerated()
- Check if a position is in macro-generated code:
- ```
-isInGenerated(pos:&nbsp;number):&nbsp;boolean
-``` ### generatedBy()
- Get the name of the macro that generated code at a position:
- ```
-generatedBy(pos:&nbsp;number):&nbsp;string&nbsp;|&nbsp;null
-``` ### mapSpanToOriginal()
- Map a span (range) from expanded to original code:
- ```
-mapSpanToOriginal(start:&nbsp;number,&nbsp;length:&nbsp;number):&nbsp;SpanResult&nbsp;|&nbsp;null
+Bidirectional position mapper for translating between original and expanded source positions. This mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with macro-expanded code by translating positions between the original source (what the user wrote) and the expanded source (what the compiler sees).
 
-interface&nbsp;SpanResult&nbsp;&#123;
-&nbsp;&nbsp;start:&nbsp;number;
-&nbsp;&nbsp;length:&nbsp;number;
-&#125;
-``` ### mapSpanToExpanded()
- Map a span from original to expanded code:
- ```
-mapSpanToExpanded(start:&nbsp;number,&nbsp;length:&nbsp;number):&nbsp;SpanResult
-``` ## Example: Error Position Mapping
- ```
+## Getting a Mapper
+
+TypeScript
+
+```
+import { NativePlugin, PositionMapper } from "macroforge";
+
+const plugin = new NativePlugin();
+const result = plugin.processFile("user.ts", code, { version: "1" });
+
+// Get the mapper for this file
+const mapper = plugin.getMapper("user.ts");
+if (mapper) {
+  // Use the mapper...
+}
+```
+
+## Methods
+
+### isEmpty()
+
+Check if the mapper has any mappings:
+
+TypeScript
+
+```
+isEmpty(): boolean
+```
+
+### originalToExpanded()
+
+Map a position from original to expanded code:
+
+TypeScript
+
+```
+originalToExpanded(pos: number): number
+```
+
+### expandedToOriginal()
+
+Map a position from expanded to original code:
+
+TypeScript
+
+```
+expandedToOriginal(pos: number): number | null
+```
+
+Returns `null` if the position is in generated code.
+
+### isInGenerated()
+
+Check if a position is in macro-generated code:
+
+TypeScript
+
+```
+isInGenerated(pos: number): boolean
+```
+
+### generatedBy()
+
+Get the name of the macro that generated code at a position:
+
+TypeScript
+
+```
+generatedBy(pos: number): string | null
+```
+
+### mapSpanToOriginal()
+
+Map a span (range) from expanded to original code:
+
+TypeScript
+
+```
+mapSpanToOriginal(start: number, length: number): SpanResult | null
+
+interface SpanResult {
+  start: number;
+  length: number;
+}
+```
+
+### mapSpanToExpanded()
+
+Map a span from original to expanded code:
+
+TypeScript
+
+```
+mapSpanToExpanded(start: number, length: number): SpanResult
+```
+
+## Example: Error Position Mapping
+
+TypeScript
+
+```
 import { NativePlugin } from "macroforge";
 
 const plugin = new NativePlugin();
@@ -78,8 +134,12 @@ function mapError(filepath: string, expandedPos: number, message: string) {
 
   return null;
 }
-``` ## Performance
- Position mapping uses binary search with O(log n) complexity:
- - Fast lookups even for large files
- - Minimal memory overhead
- - Thread-safe access
+```
+
+## Performance
+
+Position mapping uses binary search with O(log n) complexity:
+
+*   Fast lookups even for large files
+*   Minimal memory overhead
+*   Thread-safe access

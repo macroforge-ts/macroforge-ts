@@ -1,66 +1,92 @@
 # transformSync()
-  *Synchronously transforms TypeScript code through the macro expansion system. This is similar to [`expand_sync`] but returns a [`TransformResult`] which includes source map information (when available).*
- ## Signature
- ```
-function&nbsp;transformSync(
-&nbsp;&nbsp;code:&nbsp;string,
-&nbsp;&nbsp;filepath:&nbsp;string
-):&nbsp;TransformResult
-``` ## Parameters
- | Parameter | Type | Description |
-| --- | --- | --- |
-| code | string | TypeScript source code to transform |
-| filepath | string | File path (used for error reporting) |
- ## TransformResult
- ```
-interface&nbsp;TransformResult&nbsp;&#123;
-&nbsp;&nbsp;//&nbsp;Transformed&nbsp;TypeScript&nbsp;code
-&nbsp;&nbsp;code:&nbsp;string;
 
-&nbsp;&nbsp;//&nbsp;Source&nbsp;map&nbsp;(JSON&nbsp;string,&nbsp;not&nbsp;yet&nbsp;implemented)
-&nbsp;&nbsp;map?:&nbsp;string;
+macroforge v0.1.42
 
-&nbsp;&nbsp;//&nbsp;Generated&nbsp;type&nbsp;declarations
-&nbsp;&nbsp;types?:&nbsp;string;
+Synchronously transforms TypeScript code through the macro expansion system. This is similar to \[\`expand\_sync\`\] but returns a \[\`TransformResult\`\] which includes source map information (when available).
 
-&nbsp;&nbsp;//&nbsp;Macro&nbsp;expansion&nbsp;metadata
-&nbsp;&nbsp;metadata?:&nbsp;string;
-&#125;
-``` ## Comparison with expandSync()
- | Feature | expandSync | transformSync |
-| --- | --- | --- |
-| Options | Yes | No |
-| Diagnostics | Yes | No |
-| Source Mapping | Yes | Limited |
-| Use Case | General purpose | Build tools |
- ## Example
- ```
-import&nbsp;&#123;&nbsp;transformSync&nbsp;&#125;&nbsp;from&nbsp;"macroforge";
+## Signature
 
-const&nbsp;sourceCode&nbsp;=&nbsp;\`
-/**&nbsp;@derive(Debug)&nbsp;*/
-class&nbsp;User&nbsp;&#123;
-&nbsp;&nbsp;name:&nbsp;string;
-&#125;
+TypeScript
+
+```
+function transformSync(
+  code: string,
+  filepath: string
+): TransformResult
+```
+
+## Parameters
+
+| Parameter  | Type     | Description                          |
+| ---------- | -------- | ------------------------------------ |
+| `code`     | `string` | TypeScript source code to transform  |
+| `filepath` | `string` | File path (used for error reporting) |
+
+## TransformResult
+
+TypeScript
+
+```
+interface TransformResult {
+  // Transformed TypeScript code
+  code: string;
+
+  // Source map (JSON string, not yet implemented)
+  map?: string;
+
+  // Generated type declarations
+  types?: string;
+
+  // Macro expansion metadata
+  metadata?: string;
+}
+```
+
+## Comparison with expandSync()
+
+| Feature        | `expandSync`    | `transformSync` |
+| -------------- | --------------- | --------------- |
+| Options        | Yes             | No              |
+| Diagnostics    | Yes             | No              |
+| Source Mapping | Yes             | Limited         |
+| Use Case       | General purpose | Build tools     |
+
+## Example
+
+TypeScript
+
+```
+import { transformSync } from "macroforge";
+
+const sourceCode = \`
+/** @derive(Debug) */
+class User {
+  name: string;
+}
 \`;
 
-const&nbsp;result&nbsp;=&nbsp;transformSync(sourceCode,&nbsp;"user.ts");
+const result = transformSync(sourceCode, "user.ts");
 
 console.log(result.code);
 
-if&nbsp;(result.types)&nbsp;&#123;
-&nbsp;&nbsp;//&nbsp;Write&nbsp;to&nbsp;.d.ts&nbsp;file
-&nbsp;&nbsp;fs.writeFileSync("user.d.ts",&nbsp;result.types);
-&#125;
+if (result.types) {
+  // Write to .d.ts file
+  fs.writeFileSync("user.d.ts", result.types);
+}
 
-if&nbsp;(result.metadata)&nbsp;&#123;
-&nbsp;&nbsp;//&nbsp;Parse&nbsp;and&nbsp;use&nbsp;metadata
-&nbsp;&nbsp;const&nbsp;meta&nbsp;=&nbsp;JSON.parse(result.metadata);
-&nbsp;&nbsp;console.log("Macros&nbsp;expanded:",&nbsp;meta);
-&#125;
-``` ## When to Use
- Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">transformSync</code> when:
- - Building custom integrations
- - You need raw output without diagnostics
- - You're implementing a build tool plugin
- Use <code class="shiki-inline"><span class="line"><span style="--shiki-dark:#E1E4E8;--shiki-light:#24292E">expandSync</code> for most other use cases, as it provides better error handling.
+if (result.metadata) {
+  // Parse and use metadata
+  const meta = JSON.parse(result.metadata);
+  console.log("Macros expanded:", meta);
+}
+```
+
+## When to Use
+
+Use `transformSync` when:
+
+*   Building custom integrations
+*   You need raw output without diagnostics
+*   You're implementing a build tool plugin
+
+Use `expandSync` for most other use cases, as it provides better error handling.
