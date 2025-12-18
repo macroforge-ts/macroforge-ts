@@ -1,7 +1,7 @@
 {
   "name": "@macroforge/vite-plugin",
   "kind": "typescript_package",
-  "version": "0.1.42",
+  "version": "0.1.43",
   "description": "",
   "overview": "",
   "items": [
@@ -11,7 +11,7 @@
       "signature": "interface NapiMacrosPluginOptions",
       "description": "Configuration options for the Macroforge Vite plugin.",
       "examples": [
-        "```typescript\nconst options: NapiMacrosPluginOptions = {\ninclude: ['src/**\\/*.ts'],\nexclude: ['**\\/*.test.ts'],\ngenerateTypes: true,\ntypesOutputDir: 'src/types/generated',\nemitMetadata: true,\nmetadataOutputDir: 'src/macros/metadata',\n};\n```"
+        "```typescript\nconst options: NapiMacrosPluginOptions = {\ninclude: ['src/**\\/*.ts'],\nexclude: ['**\\/*.test.ts'],\ngenerateTypes: true,\ntypesOutputDir: '.macroforge/types',\nemitMetadata: true,\nmetadataOutputDir: '.macroforge/meta',\n};\n```"
       ]
     },
     {
@@ -32,7 +32,7 @@
       },
       "examples": [
         "```typescript\n// Basic usage\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [macroforgePlugin()],\n});\n```",
-        "```typescript\n// With custom options\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: 'src/types/generated',\nemitMetadata: false,\n}),\n],\n});\n```"
+        "```typescript\n// With custom options\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: '.macroforge/types',\nemitMetadata: false,\n}),\n],\n});\n```"
       ],
       "remarks": "This is the main entry point for integrating Macroforge into a Vite build pipeline.\nThe plugin:\n\n1. **Runs early** (`enforce: \"pre\"`) to transform code before other plugins\n2. **Processes TypeScript files** (`.ts` and `.tsx`) excluding `node_modules`\n3. **Expands macros** using the Macroforge Rust binary via `expandSync()`\n4. **Generates type definitions** for transformed code (optional, default: enabled)\n5. **Emits metadata** about macro transformations (optional, default: enabled)\n\n**Plugin Lifecycle:**\n- `configResolved`: Initializes project root, loads config, and attempts to load Rust binary\n- `transform`: Processes each TypeScript file through the macro expander\n\n**Error Handling:**\n- If the Rust binary is not available, files pass through unchanged\n- Macro expansion errors are reported via Vite's `this.error()` mechanism\n- TypeScript emission errors are logged as warnings"
     }
