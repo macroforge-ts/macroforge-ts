@@ -48,6 +48,38 @@ export interface ConfigLoadResult {
 }
 
 /**
+ * Vite plugin configuration options.
+ *
+ * @remarks
+ * These options control the Vite plugin behavior for type generation and metadata emission.
+ */
+export interface VitePluginConfig {
+  /**
+   * Whether to generate `.d.ts` type definition files from expanded code.
+   * @default true
+   */
+  generateTypes?: boolean;
+
+  /**
+   * Output directory for generated type definitions, relative to project root.
+   * @default ".macroforge/types"
+   */
+  typesOutputDir?: string;
+
+  /**
+   * Whether to emit macro IR metadata as JSON files.
+   * @default true
+   */
+  emitMetadata?: boolean;
+
+  /**
+   * Output directory for metadata JSON files, relative to project root.
+   * @default ".macroforge/meta"
+   */
+  metadataOutputDir?: string;
+}
+
+/**
  * Configuration options loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).
  *
  * @remarks
@@ -95,6 +127,14 @@ export interface MacroConfig {
    * - `'effect'`: Uses Effect library Exit/Option types
    */
   returnTypes?: ReturnTypesMode;
+
+  /**
+   * Vite plugin configuration options.
+   *
+   * @remarks
+   * These options configure the `@macroforge/vite-plugin` behavior.
+   */
+  vite?: VitePluginConfig;
 }
 
 /**
