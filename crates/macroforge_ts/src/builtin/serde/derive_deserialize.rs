@@ -1717,7 +1717,10 @@ use crate::ts_syn::{
 
 use convert_case::{Case, Casing};
 
-use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec, get_foreign_types};
+use super::{
+    SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec,
+    get_foreign_types, rewrite_expression_namespaces,
+};
 use crate::builtin::return_types::{deserialize_return_type, wrap_success, wrap_error, deserialize_import, is_ok_check};
 
 fn nested_deserialize_fn_name(type_name: &str) -> String {
@@ -2259,7 +2262,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         if let Some(warning) = ft_match.warning {
                             all_diagnostics.warning(field.span, warning);
                         }
-                        ft_match.config.and_then(|ft| ft.deserialize_expr.clone())
+                        // Rewrite namespace references to use generated aliases
+                        ft_match
+                            .config
+                            .and_then(|ft| ft.deserialize_expr.clone())
+                            .map(|expr| rewrite_expression_namespaces(&expr))
                     };
 
                     Some(DeserializeField {
@@ -2894,7 +2901,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         if let Some(warning) = ft_match.warning {
                             all_diagnostics.warning(field.span, warning);
                         }
-                        ft_match.config.and_then(|ft| ft.deserialize_expr.clone())
+                        // Rewrite namespace references to use generated aliases
+                        ft_match
+                            .config
+                            .and_then(|ft| ft.deserialize_expr.clone())
+                            .map(|expr| rewrite_expression_namespaces(&expr))
                     };
 
                     Some(DeserializeField {

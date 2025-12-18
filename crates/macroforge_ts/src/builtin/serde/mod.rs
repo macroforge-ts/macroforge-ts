@@ -218,6 +218,21 @@ thread_local! {
     /// this would contain `"EffectOption" -> "Option"`.
     static IMPORT_ALIASES: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
 
+    /// Thread-local storage for type-only import tracking during expansion.
+    ///
+    /// Maps identifier names to whether they are type-only imports.
+    /// For `import type { DateTime } from "effect"`, this contains `"DateTime" -> true`.
+    /// For `import { DateTime } from "effect"`, this contains `"DateTime" -> false`.
+    static TYPE_ONLY_IMPORTS: RefCell<HashMap<String, bool>> = RefCell::new(HashMap::new());
+
+    /// Thread-local storage for required namespace imports during expansion.
+    ///
+    /// Accumulates namespaces that need to be imported for foreign type expressions.
+    /// Maps namespace name -> (module_source, alias_to_use).
+    /// For example, if `DateTime.formatIso` is used and DateTime is type-only imported,
+    /// this would contain `"DateTime" -> ("effect/DateTime", "__mf_DateTime")`.
+    static REQUIRED_NS_IMPORTS: RefCell<HashMap<String, (String, String)>> = RefCell::new(HashMap::new());
+
     /// Thread-local storage for return types mode during expansion.
     ///
     /// Controls how macros like `Deserialize` and `PartialOrd` express their return types.
@@ -283,6 +298,55 @@ pub fn get_import_aliases() -> HashMap<String, String> {
 /// Clear the import aliases after expansion.
 pub fn clear_import_aliases() {
     IMPORT_ALIASES.with(|ia| ia.borrow_mut().clear());
+}
+
+/// Set the type-only import tracking for the current expansion.
+///
+/// Maps identifier names to whether they are type-only imports.
+/// This should be called by the expander before running macros.
+pub fn set_type_only_imports(imports: HashMap<String, bool>) -> HashMap<String, bool> {
+    TYPE_ONLY_IMPORTS.with(|toi| toi.replace(imports))
+}
+
+/// Get a reference to the current type-only import tracking.
+///
+/// Returns a clone of the current tracking for thread-safety.
+pub fn get_type_only_imports() -> HashMap<String, bool> {
+    TYPE_ONLY_IMPORTS.with(|toi| toi.borrow().clone())
+}
+
+/// Clear the type-only import tracking after expansion.
+pub fn clear_type_only_imports() {
+    TYPE_ONLY_IMPORTS.with(|toi| toi.borrow_mut().clear());
+}
+
+/// Register a required namespace import for foreign type expressions.
+///
+/// When a foreign type expression uses a namespace (e.g., `DateTime.formatIso`),
+/// and that namespace is not available as a value import, this registers the
+/// need to generate an import for it.
+///
+/// # Arguments
+/// * `namespace` - The namespace identifier (e.g., "DateTime")
+/// * `module` - The module to import from (e.g., "effect/DateTime")
+/// * `alias` - The alias to use in generated code (e.g., "__mf_DateTime")
+pub fn register_required_namespace(namespace: &str, module: &str, alias: &str) {
+    REQUIRED_NS_IMPORTS.with(|ns| {
+        ns.borrow_mut()
+            .insert(namespace.to_string(), (module.to_string(), alias.to_string()));
+    });
+}
+
+/// Get all required namespace imports accumulated during expansion.
+///
+/// Returns a HashMap where keys are namespace names and values are (module, alias) tuples.
+pub fn get_required_namespace_imports() -> HashMap<String, (String, String)> {
+    REQUIRED_NS_IMPORTS.with(|ns| ns.borrow().clone())
+}
+
+/// Clear the required namespace imports after expansion.
+pub fn clear_required_namespace_imports() {
+    REQUIRED_NS_IMPORTS.with(|ns| ns.borrow_mut().clear());
 }
 
 /// Set the return types mode for the current expansion.
@@ -782,6 +846,8 @@ impl TypeCategory {
                     });
 
                     if source_matches {
+                        // Register required namespace imports for this foreign type
+                        register_foreign_type_namespaces(ft, actual_source);
                         return ForeignTypeMatch::matched(ft);
                     }
                     // Type is imported from a different source - don't match
@@ -839,6 +905,8 @@ impl TypeCategory {
                             || actual_source.ends_with(&alias.from)
                             || alias.from.ends_with(actual_source)
                         {
+                            // Register required namespace imports for this foreign type
+                            register_foreign_type_namespaces(ft, actual_source);
                             return ForeignTypeMatch::matched(ft);
                         }
                     }
@@ -850,6 +918,97 @@ impl TypeCategory {
             ForeignTypeMatch::near_match(ft, warning)
         } else {
             ForeignTypeMatch::none()
+        }
+    }
+}
+
+/// Rewrite namespace references in an expression to use the generated aliases.
+///
+/// For namespaces that need to be imported (registered via `register_required_namespace`),
+/// this function replaces the namespace identifier with its alias.
+///
+/// For example, if `DateTime` is registered with alias `__mf_DateTime`, then:
+/// - `(v) => DateTime.formatIso(v)` becomes `(v) => __mf_DateTime.formatIso(v)`
+/// - `DateTime.unsafeNow()` becomes `__mf_DateTime.unsafeNow()`
+///
+/// # Arguments
+/// * `expr` - The expression string to rewrite
+///
+/// # Returns
+/// The rewritten expression string with namespace aliases applied
+pub fn rewrite_expression_namespaces(expr: &str) -> String {
+    let required_imports = get_required_namespace_imports();
+
+    if required_imports.is_empty() {
+        return expr.to_string();
+    }
+
+    let mut result = expr.to_string();
+
+    for (namespace, (_module, alias)) in &required_imports {
+        // Replace namespace references in member expressions
+        // We need to be careful to only replace the namespace when it's followed by a dot
+        // to avoid replacing unrelated identifiers
+        //
+        // Pattern: namespace. -> alias.
+        let pattern = format!("{}.", namespace);
+        let replacement = format!("{}.", alias);
+        result = result.replace(&pattern, &replacement);
+    }
+
+    result
+}
+
+/// Register required namespace imports for a matched foreign type.
+///
+/// Checks each namespace referenced in the foreign type's expressions and determines
+/// if it needs to be imported (i.e., if it's not already available as a value import).
+///
+/// # Arguments
+/// * `ft` - The matched foreign type configuration
+/// * `import_module` - The module the type is imported from (used to determine import source)
+fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, import_module: &str) {
+    let type_only_imports = get_type_only_imports();
+    let import_sources = get_import_sources();
+
+    for ns in &ft.expression_namespaces {
+        // Check if this namespace is imported in the source file
+        let has_import = import_sources.contains_key(ns);
+
+        // If the namespace is not imported at all, assume it's either:
+        // - A global (like JSON, Math, Date, console)
+        // - A local variable defined in the expression
+        // In either case, we don't need to generate an import for it
+        if !has_import {
+            continue;
+        }
+
+        // Check if the import is type-only (won't be available at runtime)
+        let is_type_only = type_only_imports.get(ns).copied().unwrap_or(false);
+
+        // Only need to generate an import if:
+        // 1. The namespace IS imported (it's a known external dependency), AND
+        // 2. The namespace is imported as type-only (won't be available at runtime)
+        if is_type_only {
+            // Determine the module to import from
+            // Use the same module as the type is imported from (or first configured source)
+            let module = if !ft.from.is_empty() {
+                // Prefer the module that matches the actual import
+                ft.from
+                    .iter()
+                    .find(|f| {
+                        import_module == *f
+                            || import_module.ends_with(*f)
+                            || f.ends_with(import_module)
+                    })
+                    .unwrap_or(&ft.from[0])
+                    .clone()
+            } else {
+                import_module.to_string()
+            };
+
+            let alias = format!("__mf_{}", ns);
+            register_required_namespace(ns, &module, &alias);
         }
     }
 }

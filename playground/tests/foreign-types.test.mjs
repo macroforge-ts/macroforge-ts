@@ -788,3 +788,433 @@ describe("Local import alias tracking", () => {
     );
   });
 });
+
+// ============================================================================
+// Type-only import namespace generation tests
+// ============================================================================
+
+describe("Type-only import namespace generation", () => {
+  const configContent = `
+    export default {
+      foreignTypes: {
+        "DateTime.DateTime": {
+          from: ["effect", "effect/DateTime"],
+          aliases: [
+            { name: "DateTime", from: "effect/DateTime" }
+          ],
+          serialize: (v) => DateTime.formatIso(v),
+          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          default: () => DateTime.unsafeNow()
+        }
+      }
+    }
+  `;
+  const configPath = "/test/type-only-imports/macroforge.config.js";
+
+  test("generates value import when type-only import is used", () => {
+    clearConfigCache();
+    loadConfig(configContent, configPath);
+
+    // Use 'import type' which is a type-only import
+    const code = `
+      import type { DateTime } from 'effect/DateTime';
+
+      /** @derive(Serialize, Default) */
+      interface Event {
+        startTime: DateTime;
+      }
+    `;
+
+    const result = expandSync(code, "test.ts", { configPath });
+
+    // Should generate a value import for DateTime with __mf_ prefix
+    assert.ok(
+      result.code.includes('import { DateTime as __mf_DateTime }'),
+      `Should generate value import with alias. Got: ${result.code}`
+    );
+
+    // The generated code should use the aliased namespace
+    assert.ok(
+      result.code.includes('__mf_DateTime.formatIso'),
+      `Should use aliased namespace in serialize. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_DateTime.unsafeNow'),
+      `Should use aliased namespace in default. Got: ${result.code}`
+    );
+  });
+
+  test("does not generate import when value import already exists", () => {
+    clearConfigCache();
+    loadConfig(configContent, configPath);
+
+    // Use regular import (not type-only)
+    const code = `
+      import { DateTime } from 'effect/DateTime';
+
+      /** @derive(Serialize) */
+      interface Event {
+        startTime: DateTime;
+      }
+    `;
+
+    const result = expandSync(code, "test.ts", { configPath });
+
+    // Should NOT generate a duplicate import
+    assert.ok(
+      !result.code.includes('__mf_DateTime'),
+      `Should not generate aliased import when value import exists. Got: ${result.code}`
+    );
+
+    // Should use the original namespace directly
+    assert.ok(
+      result.code.includes('DateTime.formatIso'),
+      `Should use original namespace. Got: ${result.code}`
+    );
+  });
+
+  test("handles mixed type-only and value imports", () => {
+    clearConfigCache();
+    const multiConfig = `
+      export default {
+        foreignTypes: {
+          "DateTime.DateTime": {
+            from: ["effect/DateTime"],
+            aliases: [
+              { name: "DateTime", from: "effect/DateTime" }
+            ],
+            serialize: (v) => DateTime.formatIso(v),
+            default: () => DateTime.unsafeNow()
+          },
+          "Option": {
+            from: ["effect/Option"],
+            serialize: (v) => Option.getOrNull(v),
+            default: () => Option.none()
+          }
+        }
+      }
+    `;
+    const multiConfigPath = "/test/mixed-imports/macroforge.config.js";
+    loadConfig(multiConfig, multiConfigPath);
+
+    // DateTime is type-only, Option is value import
+    const code = `
+      import type { DateTime } from 'effect/DateTime';
+      import { Option } from 'effect/Option';
+
+      /** @derive(Serialize, Default) */
+      interface Event {
+        startTime: DateTime;
+        description: Option<string>;
+      }
+    `;
+
+    const result = expandSync(code, "test.ts", { configPath: multiConfigPath });
+
+    // Should generate import for DateTime (type-only)
+    assert.ok(
+      result.code.includes('import { DateTime as __mf_DateTime }'),
+      `Should generate import for type-only DateTime. Got: ${result.code}`
+    );
+
+    // Should NOT generate import for Option (already value import)
+    assert.ok(
+      !result.code.includes('__mf_Option'),
+      `Should not generate import for Option (already value import). Got: ${result.code}`
+    );
+
+    // Should use aliased DateTime
+    assert.ok(
+      result.code.includes('__mf_DateTime.formatIso'),
+      `Should use aliased DateTime. Got: ${result.code}`
+    );
+
+    // Should use original Option
+    assert.ok(
+      result.code.includes('Option.getOrNull'),
+      `Should use original Option. Got: ${result.code}`
+    );
+  });
+
+  test("handles namespaced type with standalone function in serialize and namespaced function in deserialize", () => {
+    clearConfigCache();
+    const mixedExprConfig = `
+      export default {
+        foreignTypes: {
+          "DateTime.DateTime": {
+            from: ["effect/DateTime"],
+            aliases: [
+              { name: "DateTime", from: "effect/DateTime" }
+            ],
+            // serialize uses DateTime namespace AND a standalone function (formatIsoString)
+            serialize: (v) => formatIsoString(DateTime.toDate(v)),
+            // deserialize uses DateTime namespace with a method call
+            deserialize: (raw) => DateTime.fromDate(new Date(raw)),
+            default: () => DateTime.unsafeNow()
+          }
+        }
+      }
+    `;
+    const mixedExprConfigPath = "/test/mixed-expr/macroforge.config.js";
+    loadConfig(mixedExprConfig, mixedExprConfigPath);
+
+    // Type-only import - needs generated value import
+    const code = `
+      import type { DateTime } from 'effect/DateTime';
+
+      // Standalone function that doesn't need namespace import
+      function formatIsoString(date: Date): string {
+        return date.toISOString();
+      }
+
+      /** @derive(Serialize, Deserialize, Default) */
+      interface Event {
+        startTime: DateTime;
+      }
+    `;
+
+    const result = expandSync(code, "test.ts", { configPath: mixedExprConfigPath });
+
+    // Should generate import for DateTime (type-only)
+    assert.ok(
+      result.code.includes('import { DateTime as __mf_DateTime }'),
+      `Should generate import for type-only DateTime. Got: ${result.code}`
+    );
+
+    // Serialize: should use aliased DateTime namespace but keep standalone function as-is
+    assert.ok(
+      result.code.includes('__mf_DateTime.toDate'),
+      `Serialize should use aliased DateTime.toDate. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('formatIsoString('),
+      `Serialize should keep standalone formatIsoString function. Got: ${result.code}`
+    );
+    // Should NOT alias the standalone function
+    assert.ok(
+      !result.code.includes('__mf_formatIsoString'),
+      `Should NOT alias standalone function. Got: ${result.code}`
+    );
+
+    // Deserialize: should use aliased DateTime namespace
+    assert.ok(
+      result.code.includes('__mf_DateTime.fromDate'),
+      `Deserialize should use aliased DateTime.fromDate. Got: ${result.code}`
+    );
+
+    // Default: should use aliased DateTime namespace
+    assert.ok(
+      result.code.includes('__mf_DateTime.unsafeNow'),
+      `Default should use aliased DateTime.unsafeNow. Got: ${result.code}`
+    );
+  });
+
+  test("complex case: multiple namespaces, standalone functions, nested calls, and chained expressions", () => {
+    clearConfigCache();
+    const complexConfig = `
+      export default {
+        foreignTypes: {
+          // Deep namespace: Effect.Data.DateTime.Zoned
+          "Effect.Data.DateTime.Zoned": {
+            from: ["effect"],
+            aliases: [
+              { name: "Zoned", from: "effect/DateTime" }
+            ],
+            // Complex serialize: multiple namespace calls + standalone functions + chaining
+            serialize: (v) => JSON.stringify({
+              iso: Effect.Data.DateTime.Zoned.format(v, "iso"),
+              epoch: Effect.Data.DateTime.Zoned.toEpochMillis(v),
+              zone: Effect.Data.DateTime.Zoned.getZone(v).name
+            }),
+            // Complex deserialize: nested namespace calls + standalone + ternary
+            deserialize: (raw) => {
+              const parsed = JSON.parse(raw);
+              return parsed.iso
+                ? Effect.Data.DateTime.Zoned.fromString(parsed.iso)
+                : Effect.Data.DateTime.Zoned.unsafeNow();
+            },
+            default: () => Effect.Data.DateTime.Zoned.unsafeNow()
+          },
+          // Another namespace at different depth
+          "Option": {
+            from: ["effect/Option"],
+            serialize: (v) => Option.isSome(v) ? Option.getOrThrow(v) : null,
+            deserialize: (raw) => raw === null ? Option.none() : Option.some(raw),
+            default: () => Option.none()
+          },
+          // Third namespace with method chaining in expressions
+          "Duration.Duration": {
+            from: ["effect"],
+            aliases: [
+              { name: "Duration", from: "effect/Duration" }
+            ],
+            // Chained namespace calls
+            serialize: (v) => Duration.toMillis(Duration.abs(v)),
+            deserialize: (raw) => Duration.millis(Math.abs(raw)),
+            default: () => Duration.zero
+          }
+        }
+      }
+    `;
+    const complexConfigPath = "/test/complex-namespaces/macroforge.config.js";
+    loadConfig(complexConfig, complexConfigPath);
+
+    // All type-only imports to force namespace import generation
+    const code = `
+      import type { Effect } from 'effect';
+      import type { Option } from 'effect/Option';
+      import type { Duration } from 'effect/Duration';
+
+      // Local standalone functions (should NOT be aliased)
+      function validateTimestamp(ts: number): boolean {
+        return ts > 0 && ts < Date.now();
+      }
+
+      function formatForDisplay(value: unknown): string {
+        return String(value);
+      }
+
+      const processData = (x: unknown) => x;
+
+      /** @derive(Serialize, Deserialize, Default) */
+      interface ComplexEvent {
+        // Uses deep namespace Effect.Data.DateTime.Zoned
+        timestamp: Effect.Data.DateTime.Zoned;
+        // Uses Option namespace
+        optionalNote: Option<string>;
+        // Uses Duration namespace
+        duration: Duration;
+      }
+    `;
+
+    const result = expandSync(code, "test.ts", { configPath: complexConfigPath });
+
+    // === Import generation checks ===
+
+    // Should generate import for Effect (deep namespace root)
+    assert.ok(
+      result.code.includes('import { Effect as __mf_Effect }'),
+      `Should generate import for Effect namespace. Got: ${result.code}`
+    );
+
+    // Should generate import for Option
+    assert.ok(
+      result.code.includes('import { Option as __mf_Option }'),
+      `Should generate import for Option namespace. Got: ${result.code}`
+    );
+
+    // Should generate import for Duration
+    assert.ok(
+      result.code.includes('import { Duration as __mf_Duration }'),
+      `Should generate import for Duration namespace. Got: ${result.code}`
+    );
+
+    // === Deep namespace rewriting checks ===
+
+    // Effect.Data.DateTime.Zoned should become __mf_Effect.Data.DateTime.Zoned
+    assert.ok(
+      result.code.includes('__mf_Effect.Data.DateTime.Zoned.format'),
+      `Should rewrite deep namespace in serialize. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Effect.Data.DateTime.Zoned.toEpochMillis'),
+      `Should rewrite deep namespace toEpochMillis. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Effect.Data.DateTime.Zoned.getZone'),
+      `Should rewrite deep namespace getZone. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Effect.Data.DateTime.Zoned.fromString'),
+      `Should rewrite deep namespace in deserialize. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Effect.Data.DateTime.Zoned.unsafeNow'),
+      `Should rewrite deep namespace in default/deserialize fallback. Got: ${result.code}`
+    );
+
+    // === Option namespace rewriting checks ===
+
+    assert.ok(
+      result.code.includes('__mf_Option.isSome'),
+      `Should rewrite Option.isSome. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Option.getOrThrow'),
+      `Should rewrite Option.getOrThrow. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Option.none'),
+      `Should rewrite Option.none. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Option.some'),
+      `Should rewrite Option.some. Got: ${result.code}`
+    );
+
+    // === Duration namespace rewriting checks ===
+
+    assert.ok(
+      result.code.includes('__mf_Duration.toMillis'),
+      `Should rewrite Duration.toMillis. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Duration.abs'),
+      `Should rewrite Duration.abs. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Duration.millis'),
+      `Should rewrite Duration.millis. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('__mf_Duration.zero'),
+      `Should rewrite Duration.zero. Got: ${result.code}`
+    );
+
+    // === Standalone functions should NOT be aliased ===
+
+    // JSON.stringify and JSON.parse are globals, should not be prefixed
+    assert.ok(
+      result.code.includes('JSON.stringify') && !result.code.includes('__mf_JSON'),
+      `Should NOT alias JSON global. Got: ${result.code}`
+    );
+    assert.ok(
+      result.code.includes('JSON.parse') && !result.code.includes('__mf_JSON'),
+      `Should NOT alias JSON.parse global. Got: ${result.code}`
+    );
+
+    // Math.abs is a global, should not be prefixed
+    assert.ok(
+      result.code.includes('Math.abs') && !result.code.includes('__mf_Math'),
+      `Should NOT alias Math global. Got: ${result.code}`
+    );
+
+    // Local functions should remain unchanged (they don't use dot notation in calls)
+    // validateTimestamp, formatForDisplay, processData should not appear with __mf_ prefix
+    assert.ok(
+      !result.code.includes('__mf_validateTimestamp'),
+      `Should NOT alias local function validateTimestamp. Got: ${result.code}`
+    );
+    assert.ok(
+      !result.code.includes('__mf_formatForDisplay'),
+      `Should NOT alias local function formatForDisplay. Got: ${result.code}`
+    );
+    assert.ok(
+      !result.code.includes('__mf_processData'),
+      `Should NOT alias local function processData. Got: ${result.code}`
+    );
+
+    // === Original namespaces should NOT appear (all should be rewritten) ===
+
+    // Check that unrewritten namespace patterns don't exist (except in type annotations)
+    // The serialize/deserialize code should not have bare Effect., Option., Duration.
+    const codeWithoutTypes = result.code.replace(/:\s*\w+(\.\w+)*(<[^>]+>)?/g, ''); // Remove type annotations
+
+    // This is a rough check - the expressions should use __mf_ prefixed versions
+    const hasUnrewrittenEffect = /[^_]Effect\.Data\.DateTime\.Zoned\./.test(codeWithoutTypes);
+    assert.ok(
+      !hasUnrewrittenEffect,
+      `Should not have unrewritten Effect.Data.DateTime.Zoned in code. Got: ${result.code}`
+    );
+  });
+});
