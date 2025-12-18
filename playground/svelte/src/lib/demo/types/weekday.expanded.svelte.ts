@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type Weekday =
@@ -174,7 +176,7 @@ export interface WeekdayGigaform {
     switchVariant(
         variant: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'
     ): void;
-    validate(): Result<Weekday, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Weekday>;
     reset(overrides?: Partial<Weekday>): void;
 } /** Variant fields container */
 export interface WeekdayVariantFields {
@@ -246,7 +248,7 @@ export function weekdayCreateForm(initial?: Weekday): WeekdayGigaform {
         errors = {} as WeekdayErrors;
         tainted = {} as WeekdayTainted;
     }
-    function validate(): Result<Weekday, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Weekday> {
         return weekdayDeserialize(data);
     }
     function reset(overrides?: Partial<Weekday>): void {
@@ -284,7 +286,7 @@ export function weekdayCreateForm(initial?: Weekday): WeekdayGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function weekdayFromFormData(
     formData: FormData
-): Result<Weekday, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Weekday> {
     const discriminant = formData.get('_value') as
         | 'Monday'
         | 'Tuesday'
@@ -295,7 +297,7 @@ export function weekdayFromFormData(
         | 'Sunday'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

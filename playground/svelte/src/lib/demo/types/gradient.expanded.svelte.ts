@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -154,13 +155,13 @@ export interface GradientGigaform {
     readonly errors: GradientErrors;
     readonly tainted: GradientTainted;
     readonly fields: GradientFieldControllers;
-    validate(): Result<Gradient, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Gradient>;
     reset(overrides?: Partial<Gradient>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function gradientCreateForm(overrides?: Partial<Gradient>): GradientGigaform {
     let data = $state({ ...gradientDefaultValue(), ...overrides });
-    let errors = $state<GradientErrors>({ _errors: Option.none(), startHue: Option.none() });
-    let tainted = $state<GradientTainted>({ startHue: Option.none() });
+    let errors = $state<GradientErrors>({ _errors: optionNone(), startHue: optionNone() });
+    let tainted = $state<GradientTainted>({ startHue: optionNone() });
     const fields: GradientFieldControllers = {
         startHue: {
             path: ['startHue'] as const,
@@ -185,13 +186,13 @@ export function gradientCreateForm(overrides?: Partial<Gradient>): GradientGigaf
             }
         }
     };
-    function validate(): Result<Gradient, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Gradient> {
         return gradientDeserialize(data);
     }
     function reset(newOverrides?: Partial<Gradient>): void {
         data = { ...gradientDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), startHue: Option.none() };
-        tainted = { startHue: Option.none() };
+        errors = { _errors: optionNone(), startHue: optionNone() };
+        tainted = { startHue: optionNone() };
     }
     return {
         get data() {
@@ -219,7 +220,7 @@ export function gradientCreateForm(overrides?: Partial<Gradient>): GradientGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function gradientFromFormData(
     formData: FormData
-): Result<Gradient, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Gradient> {
     const obj: Record<string, unknown> = {};
     {
         const startHueStr = formData.get('startHue');

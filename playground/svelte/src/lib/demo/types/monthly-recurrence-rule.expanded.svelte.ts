@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -202,7 +203,7 @@ export interface MonthlyRecurrenceRuleGigaform {
     readonly errors: MonthlyRecurrenceRuleErrors;
     readonly tainted: MonthlyRecurrenceRuleTainted;
     readonly fields: MonthlyRecurrenceRuleFieldControllers;
-    validate(): Result<MonthlyRecurrenceRule, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, MonthlyRecurrenceRule>;
     reset(overrides?: Partial<MonthlyRecurrenceRule>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function monthlyRecurrenceRuleCreateForm(
@@ -210,15 +211,15 @@ export function monthlyRecurrenceRuleCreateForm(
 ): MonthlyRecurrenceRuleGigaform {
     let data = $state({ ...monthlyRecurrenceRuleDefaultValue(), ...overrides });
     let errors = $state<MonthlyRecurrenceRuleErrors>({
-        _errors: Option.none(),
-        quantityOfMonths: Option.none(),
-        day: Option.none(),
-        name: Option.none()
+        _errors: optionNone(),
+        quantityOfMonths: optionNone(),
+        day: optionNone(),
+        name: optionNone()
     });
     let tainted = $state<MonthlyRecurrenceRuleTainted>({
-        quantityOfMonths: Option.none(),
-        day: Option.none(),
-        name: Option.none()
+        quantityOfMonths: optionNone(),
+        day: optionNone(),
+        name: optionNone()
     });
     const fields: MonthlyRecurrenceRuleFieldControllers = {
         quantityOfMonths: {
@@ -291,18 +292,18 @@ export function monthlyRecurrenceRuleCreateForm(
             }
         }
     };
-    function validate(): Result<MonthlyRecurrenceRule, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, MonthlyRecurrenceRule> {
         return monthlyRecurrenceRuleDeserialize(data);
     }
     function reset(newOverrides?: Partial<MonthlyRecurrenceRule>): void {
         data = { ...monthlyRecurrenceRuleDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            quantityOfMonths: Option.none(),
-            day: Option.none(),
-            name: Option.none()
+            _errors: optionNone(),
+            quantityOfMonths: optionNone(),
+            day: optionNone(),
+            name: optionNone()
         };
-        tainted = { quantityOfMonths: Option.none(), day: Option.none(), name: Option.none() };
+        tainted = { quantityOfMonths: optionNone(), day: optionNone(), name: optionNone() };
     }
     return {
         get data() {
@@ -330,7 +331,7 @@ export function monthlyRecurrenceRuleCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function monthlyRecurrenceRuleFromFormData(
     formData: FormData
-): Result<MonthlyRecurrenceRule, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, MonthlyRecurrenceRule> {
     const obj: Record<string, unknown> = {};
     {
         const quantityOfMonthsStr = formData.get('quantityOfMonths');

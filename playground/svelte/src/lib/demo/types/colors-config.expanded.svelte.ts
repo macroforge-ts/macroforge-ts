@@ -12,8 +12,10 @@ import { cardinalDeserializeWithContext } from './cardinal.svelte';
 import { customDeserializeWithContext } from './custom.svelte';
 import { gradientDeserializeWithContext } from './gradient.svelte';
 import { ordinalDeserializeWithContext } from './ordinal.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { cardinalDefaultValue } from './cardinal.svelte';
 import { customDefaultValue } from './custom.svelte';
@@ -178,7 +180,7 @@ export interface ColorsConfigGigaform {
     readonly tainted: ColorsConfigTainted;
     readonly variants: ColorsConfigVariantFields;
     switchVariant(variant: 'Cardinal' | 'Ordinal' | 'Custom' | 'Gradient'): void;
-    validate(): Result<ColorsConfig, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, ColorsConfig>;
     reset(overrides?: Partial<ColorsConfig>): void;
 } /** Variant fields container */
 export interface ColorsConfigVariantFields {
@@ -219,7 +221,7 @@ export function colorsConfigCreateForm(initial?: ColorsConfig): ColorsConfigGiga
         errors = {} as ColorsConfigErrors;
         tainted = {} as ColorsConfigTainted;
     }
-    function validate(): Result<ColorsConfig, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, ColorsConfig> {
         return colorsConfigDeserialize(data);
     }
     function reset(overrides?: Partial<ColorsConfig>): void {
@@ -259,7 +261,7 @@ export function colorsConfigCreateForm(initial?: ColorsConfig): ColorsConfigGiga
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function colorsConfigFromFormData(
     formData: FormData
-): Result<ColorsConfig, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, ColorsConfig> {
     const discriminant = formData.get('_type') as
         | 'Cardinal'
         | 'Ordinal'
@@ -267,7 +269,7 @@ export function colorsConfigFromFormData(
         | 'Gradient'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_type', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;

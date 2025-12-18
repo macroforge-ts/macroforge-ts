@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -235,7 +236,7 @@ export interface AppointmentNotificationsGigaform {
     readonly errors: AppointmentNotificationsErrors;
     readonly tainted: AppointmentNotificationsTainted;
     readonly fields: AppointmentNotificationsFieldControllers;
-    validate(): Result<AppointmentNotifications, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, AppointmentNotifications>;
     reset(overrides?: Partial<AppointmentNotifications>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function appointmentNotificationsCreateForm(
@@ -243,13 +244,13 @@ export function appointmentNotificationsCreateForm(
 ): AppointmentNotificationsGigaform {
     let data = $state({ ...appointmentNotificationsDefaultValue(), ...overrides });
     let errors = $state<AppointmentNotificationsErrors>({
-        _errors: Option.none(),
-        personalScheduleChangeNotifications: Option.none(),
-        allScheduleChangeNotifications: Option.none()
+        _errors: optionNone(),
+        personalScheduleChangeNotifications: optionNone(),
+        allScheduleChangeNotifications: optionNone()
     });
     let tainted = $state<AppointmentNotificationsTainted>({
-        personalScheduleChangeNotifications: Option.none(),
-        allScheduleChangeNotifications: Option.none()
+        personalScheduleChangeNotifications: optionNone(),
+        allScheduleChangeNotifications: optionNone()
     });
     const fields: AppointmentNotificationsFieldControllers = {
         personalScheduleChangeNotifications: {
@@ -303,22 +304,19 @@ export function appointmentNotificationsCreateForm(
             }
         }
     };
-    function validate(): Result<
-        AppointmentNotifications,
-        Array<{ field: string; message: string }>
-    > {
+    function validate(): Exit<Array<{ field: string; message: string }>, AppointmentNotifications> {
         return appointmentNotificationsDeserialize(data);
     }
     function reset(newOverrides?: Partial<AppointmentNotifications>): void {
         data = { ...appointmentNotificationsDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            personalScheduleChangeNotifications: Option.none(),
-            allScheduleChangeNotifications: Option.none()
+            _errors: optionNone(),
+            personalScheduleChangeNotifications: optionNone(),
+            allScheduleChangeNotifications: optionNone()
         };
         tainted = {
-            personalScheduleChangeNotifications: Option.none(),
-            allScheduleChangeNotifications: Option.none()
+            personalScheduleChangeNotifications: optionNone(),
+            allScheduleChangeNotifications: optionNone()
         };
     }
     return {
@@ -347,7 +345,7 @@ export function appointmentNotificationsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function appointmentNotificationsFromFormData(
     formData: FormData
-): Result<AppointmentNotifications, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, AppointmentNotifications> {
     const obj: Record<string, unknown> = {};
     obj.personalScheduleChangeNotifications =
         formData.get('personalScheduleChangeNotifications') ?? '';

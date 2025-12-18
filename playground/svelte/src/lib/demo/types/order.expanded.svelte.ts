@@ -1,3 +1,5 @@
+import { DateTime as __mf_DateTime } from 'effect';
+import { Option as __mf_Option } from 'effect';
 import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
 import { billedItemSerializeWithContext } from './billed-item.svelte';
 import { orderStageSerializeWithContext } from './order-stage.svelte';
@@ -10,8 +12,9 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { orderStageDeserializeWithContext } from './order-stage.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -107,17 +110,17 @@ export function orderDefaultValue(): Order {
         needsReview: false,
         actionItem: '',
         upsale: 0,
-        dateCreated: (() => DateTime.unsafeNow())(),
+        dateCreated: (() => __mf_DateTime.unsafeNow())(),
         appointment: '',
         lastTechs: [],
         package: null,
         promotion: null,
         balance: 0,
-        due: (() => DateTime.unsafeNow())(),
+        due: (() => __mf_DateTime.unsafeNow())(),
         total: 0,
         site: '',
         billedItems: [],
-        memo: (() => Option.none())(),
+        memo: (() => __mf_Option.none())(),
         discount: 0,
         tip: 0,
         commissions: []
@@ -159,7 +162,9 @@ export function orderSerializeWithContext(
     result['needsReview'] = value.needsReview;
     result['actionItem'] = value.actionItem;
     result['upsale'] = value.upsale;
-    result['dateCreated'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.dateCreated);
+    result['dateCreated'] = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(
+        value.dateCreated
+    );
     result['appointment'] = value.appointment;
     result['lastTechs'] = value.lastTechs;
     if (value.package !== null) {
@@ -173,13 +178,13 @@ export function orderSerializeWithContext(
         result['promotion'] = null;
     }
     result['balance'] = value.balance;
-    result['due'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.due);
+    result['due'] = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(value.due);
     result['total'] = value.total;
     result['site'] = value.site;
     result['billedItems'] = value.billedItems.map((item) =>
         billedItemSerializeWithContext(item, ctx)
     );
-    result['memo'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.memo);
+    result['memo'] = ((v: __mf_Option.Option<unknown>) => __mf_Option.getOrNull(v))(value.memo);
     result['discount'] = value.discount;
     result['tip'] = value.tip;
     result['commissions'] = value.commissions;
@@ -410,9 +415,8 @@ export function orderDeserializeWithContext(
         const __raw_upsale = obj['upsale'] as number;
         instance.upsale = __raw_upsale;
     }
-    instance.dateCreated = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(
-        obj['dateCreated']
-    );
+    instance.dateCreated = ((raw: unknown) =>
+        __mf_DateTime.unsafeFromDate(new Date(raw as string)))(obj['dateCreated']);
     {
         const __raw_appointment = obj['appointment'] as string | Appointment;
         instance.appointment = __raw_appointment;
@@ -443,7 +447,9 @@ export function orderDeserializeWithContext(
         const __raw_balance = obj['balance'] as number;
         instance.balance = __raw_balance;
     }
-    instance.due = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(obj['due']);
+    instance.due = ((raw: unknown) => __mf_DateTime.unsafeFromDate(new Date(raw as string)))(
+        obj['due']
+    );
     {
         const __raw_total = obj['total'] as number;
         instance.total = __raw_total;
@@ -458,7 +464,7 @@ export function orderDeserializeWithContext(
             instance.billedItems = __raw_billedItems as BilledItem[];
         }
     }
-    instance.memo = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
+    instance.memo = ((raw: unknown) => (raw === null ? __mf_Option.none() : __mf_Option.some(raw)))(
         obj['memo']
     );
     {
@@ -717,73 +723,73 @@ export interface OrderGigaform {
     readonly errors: OrderErrors;
     readonly tainted: OrderTainted;
     readonly fields: OrderFieldControllers;
-    validate(): Result<Order, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Order>;
     reset(overrides?: Partial<Order>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
     let data = $state({ ...orderDefaultValue(), ...overrides });
     let errors = $state<OrderErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        account: Option.none(),
-        stage: Option.none(),
-        number: Option.none(),
-        payments: Option.none(),
-        opportunity: Option.none(),
-        reference: Option.none(),
-        leadSource: Option.none(),
-        salesRep: Option.none(),
-        group: Option.none(),
-        subgroup: Option.none(),
-        isPosted: Option.none(),
-        needsReview: Option.none(),
-        actionItem: Option.none(),
-        upsale: Option.none(),
-        dateCreated: Option.none(),
-        appointment: Option.none(),
-        lastTechs: Option.none(),
-        package: Option.none(),
-        promotion: Option.none(),
-        balance: Option.none(),
-        due: Option.none(),
-        total: Option.none(),
-        site: Option.none(),
-        billedItems: Option.none(),
-        memo: Option.none(),
-        discount: Option.none(),
-        tip: Option.none(),
-        commissions: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        account: optionNone(),
+        stage: optionNone(),
+        number: optionNone(),
+        payments: optionNone(),
+        opportunity: optionNone(),
+        reference: optionNone(),
+        leadSource: optionNone(),
+        salesRep: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        isPosted: optionNone(),
+        needsReview: optionNone(),
+        actionItem: optionNone(),
+        upsale: optionNone(),
+        dateCreated: optionNone(),
+        appointment: optionNone(),
+        lastTechs: optionNone(),
+        package: optionNone(),
+        promotion: optionNone(),
+        balance: optionNone(),
+        due: optionNone(),
+        total: optionNone(),
+        site: optionNone(),
+        billedItems: optionNone(),
+        memo: optionNone(),
+        discount: optionNone(),
+        tip: optionNone(),
+        commissions: optionNone()
     });
     let tainted = $state<OrderTainted>({
-        id: Option.none(),
-        account: Option.none(),
-        stage: Option.none(),
-        number: Option.none(),
-        payments: Option.none(),
-        opportunity: Option.none(),
-        reference: Option.none(),
-        leadSource: Option.none(),
-        salesRep: Option.none(),
-        group: Option.none(),
-        subgroup: Option.none(),
-        isPosted: Option.none(),
-        needsReview: Option.none(),
-        actionItem: Option.none(),
-        upsale: Option.none(),
-        dateCreated: Option.none(),
-        appointment: Option.none(),
-        lastTechs: Option.none(),
-        package: Option.none(),
-        promotion: Option.none(),
-        balance: Option.none(),
-        due: Option.none(),
-        total: Option.none(),
-        site: Option.none(),
-        billedItems: Option.none(),
-        memo: Option.none(),
-        discount: Option.none(),
-        tip: Option.none(),
-        commissions: Option.none()
+        id: optionNone(),
+        account: optionNone(),
+        stage: optionNone(),
+        number: optionNone(),
+        payments: optionNone(),
+        opportunity: optionNone(),
+        reference: optionNone(),
+        leadSource: optionNone(),
+        salesRep: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        isPosted: optionNone(),
+        needsReview: optionNone(),
+        actionItem: optionNone(),
+        upsale: optionNone(),
+        dateCreated: optionNone(),
+        appointment: optionNone(),
+        lastTechs: optionNone(),
+        package: optionNone(),
+        promotion: optionNone(),
+        balance: optionNone(),
+        due: optionNone(),
+        total: optionNone(),
+        site: optionNone(),
+        billedItems: optionNone(),
+        memo: optionNone(),
+        discount: optionNone(),
+        tip: optionNone(),
+        commissions: optionNone()
     });
     const fields: OrderFieldControllers = {
         id: {
@@ -1562,73 +1568,73 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             }
         }
     };
-    function validate(): Result<Order, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Order> {
         return orderDeserialize(data);
     }
     function reset(newOverrides?: Partial<Order>): void {
         data = { ...orderDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            account: Option.none(),
-            stage: Option.none(),
-            number: Option.none(),
-            payments: Option.none(),
-            opportunity: Option.none(),
-            reference: Option.none(),
-            leadSource: Option.none(),
-            salesRep: Option.none(),
-            group: Option.none(),
-            subgroup: Option.none(),
-            isPosted: Option.none(),
-            needsReview: Option.none(),
-            actionItem: Option.none(),
-            upsale: Option.none(),
-            dateCreated: Option.none(),
-            appointment: Option.none(),
-            lastTechs: Option.none(),
-            package: Option.none(),
-            promotion: Option.none(),
-            balance: Option.none(),
-            due: Option.none(),
-            total: Option.none(),
-            site: Option.none(),
-            billedItems: Option.none(),
-            memo: Option.none(),
-            discount: Option.none(),
-            tip: Option.none(),
-            commissions: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            account: optionNone(),
+            stage: optionNone(),
+            number: optionNone(),
+            payments: optionNone(),
+            opportunity: optionNone(),
+            reference: optionNone(),
+            leadSource: optionNone(),
+            salesRep: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            isPosted: optionNone(),
+            needsReview: optionNone(),
+            actionItem: optionNone(),
+            upsale: optionNone(),
+            dateCreated: optionNone(),
+            appointment: optionNone(),
+            lastTechs: optionNone(),
+            package: optionNone(),
+            promotion: optionNone(),
+            balance: optionNone(),
+            due: optionNone(),
+            total: optionNone(),
+            site: optionNone(),
+            billedItems: optionNone(),
+            memo: optionNone(),
+            discount: optionNone(),
+            tip: optionNone(),
+            commissions: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            account: Option.none(),
-            stage: Option.none(),
-            number: Option.none(),
-            payments: Option.none(),
-            opportunity: Option.none(),
-            reference: Option.none(),
-            leadSource: Option.none(),
-            salesRep: Option.none(),
-            group: Option.none(),
-            subgroup: Option.none(),
-            isPosted: Option.none(),
-            needsReview: Option.none(),
-            actionItem: Option.none(),
-            upsale: Option.none(),
-            dateCreated: Option.none(),
-            appointment: Option.none(),
-            lastTechs: Option.none(),
-            package: Option.none(),
-            promotion: Option.none(),
-            balance: Option.none(),
-            due: Option.none(),
-            total: Option.none(),
-            site: Option.none(),
-            billedItems: Option.none(),
-            memo: Option.none(),
-            discount: Option.none(),
-            tip: Option.none(),
-            commissions: Option.none()
+            id: optionNone(),
+            account: optionNone(),
+            stage: optionNone(),
+            number: optionNone(),
+            payments: optionNone(),
+            opportunity: optionNone(),
+            reference: optionNone(),
+            leadSource: optionNone(),
+            salesRep: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            isPosted: optionNone(),
+            needsReview: optionNone(),
+            actionItem: optionNone(),
+            upsale: optionNone(),
+            dateCreated: optionNone(),
+            appointment: optionNone(),
+            lastTechs: optionNone(),
+            package: optionNone(),
+            promotion: optionNone(),
+            balance: optionNone(),
+            due: optionNone(),
+            total: optionNone(),
+            site: optionNone(),
+            billedItems: optionNone(),
+            memo: optionNone(),
+            discount: optionNone(),
+            tip: optionNone(),
+            commissions: optionNone()
         };
     }
     return {
@@ -1657,7 +1663,7 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function orderFromFormData(
     formData: FormData
-): Result<Order, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Order> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.account = formData.get('account') ?? '';

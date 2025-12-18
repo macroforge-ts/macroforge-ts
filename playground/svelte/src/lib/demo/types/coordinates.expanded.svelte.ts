@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -166,17 +167,17 @@ export interface CoordinatesGigaform {
     readonly errors: CoordinatesErrors;
     readonly tainted: CoordinatesTainted;
     readonly fields: CoordinatesFieldControllers;
-    validate(): Result<Coordinates, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Coordinates>;
     reset(overrides?: Partial<Coordinates>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function coordinatesCreateForm(overrides?: Partial<Coordinates>): CoordinatesGigaform {
     let data = $state({ ...coordinatesDefaultValue(), ...overrides });
     let errors = $state<CoordinatesErrors>({
-        _errors: Option.none(),
-        lat: Option.none(),
-        lng: Option.none()
+        _errors: optionNone(),
+        lat: optionNone(),
+        lng: optionNone()
     });
-    let tainted = $state<CoordinatesTainted>({ lat: Option.none(), lng: Option.none() });
+    let tainted = $state<CoordinatesTainted>({ lat: optionNone(), lng: optionNone() });
     const fields: CoordinatesFieldControllers = {
         lat: {
             path: ['lat'] as const,
@@ -223,13 +224,13 @@ export function coordinatesCreateForm(overrides?: Partial<Coordinates>): Coordin
             }
         }
     };
-    function validate(): Result<Coordinates, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Coordinates> {
         return coordinatesDeserialize(data);
     }
     function reset(newOverrides?: Partial<Coordinates>): void {
         data = { ...coordinatesDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), lat: Option.none(), lng: Option.none() };
-        tainted = { lat: Option.none(), lng: Option.none() };
+        errors = { _errors: optionNone(), lat: optionNone(), lng: optionNone() };
+        tainted = { lat: optionNone(), lng: optionNone() };
     }
     return {
         get data() {
@@ -257,7 +258,7 @@ export function coordinatesCreateForm(overrides?: Partial<Coordinates>): Coordin
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function coordinatesFromFormData(
     formData: FormData
-): Result<Coordinates, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Coordinates> {
     const obj: Record<string, unknown> = {};
     {
         const latStr = formData.get('lat');

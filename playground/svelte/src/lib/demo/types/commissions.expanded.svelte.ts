@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -203,20 +204,17 @@ export interface CommissionsGigaform {
     readonly errors: CommissionsErrors;
     readonly tainted: CommissionsTainted;
     readonly fields: CommissionsFieldControllers;
-    validate(): Result<Commissions, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Commissions>;
     reset(overrides?: Partial<Commissions>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function commissionsCreateForm(overrides?: Partial<Commissions>): CommissionsGigaform {
     let data = $state({ ...commissionsDefaultValue(), ...overrides });
     let errors = $state<CommissionsErrors>({
-        _errors: Option.none(),
-        technician: Option.none(),
-        salesRep: Option.none()
+        _errors: optionNone(),
+        technician: optionNone(),
+        salesRep: optionNone()
     });
-    let tainted = $state<CommissionsTainted>({
-        technician: Option.none(),
-        salesRep: Option.none()
-    });
+    let tainted = $state<CommissionsTainted>({ technician: optionNone(), salesRep: optionNone() });
     const fields: CommissionsFieldControllers = {
         technician: {
             path: ['technician'] as const,
@@ -263,13 +261,13 @@ export function commissionsCreateForm(overrides?: Partial<Commissions>): Commiss
             }
         }
     };
-    function validate(): Result<Commissions, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Commissions> {
         return commissionsDeserialize(data);
     }
     function reset(newOverrides?: Partial<Commissions>): void {
         data = { ...commissionsDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), technician: Option.none(), salesRep: Option.none() };
-        tainted = { technician: Option.none(), salesRep: Option.none() };
+        errors = { _errors: optionNone(), technician: optionNone(), salesRep: optionNone() };
+        tainted = { technician: optionNone(), salesRep: optionNone() };
     }
     return {
         get data() {
@@ -297,7 +295,7 @@ export function commissionsCreateForm(overrides?: Partial<Commissions>): Commiss
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function commissionsFromFormData(
     formData: FormData
-): Result<Commissions, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Commissions> {
     const obj: Record<string, unknown> = {};
     obj.technician = formData.get('technician') ?? '';
     obj.salesRep = formData.get('salesRep') ?? '';

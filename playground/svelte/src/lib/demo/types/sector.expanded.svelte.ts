@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type Sector = /** @default */ 'Residential' | 'Commercial';
@@ -121,7 +123,7 @@ export interface SectorGigaform {
     readonly tainted: SectorTainted;
     readonly variants: SectorVariantFields;
     switchVariant(variant: 'Residential' | 'Commercial'): void;
-    validate(): Result<Sector, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Sector>;
     reset(overrides?: Partial<Sector>): void;
 } /** Variant fields container */
 export interface SectorVariantFields {
@@ -155,7 +157,7 @@ export function sectorCreateForm(initial?: Sector): SectorGigaform {
         errors = {} as SectorErrors;
         tainted = {} as SectorTainted;
     }
-    function validate(): Result<Sector, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Sector> {
         return sectorDeserialize(data);
     }
     function reset(overrides?: Partial<Sector>): void {
@@ -193,10 +195,10 @@ export function sectorCreateForm(initial?: Sector): SectorGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function sectorFromFormData(
     formData: FormData
-): Result<Sector, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Sector> {
     const discriminant = formData.get('_value') as 'Residential' | 'Commercial' | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

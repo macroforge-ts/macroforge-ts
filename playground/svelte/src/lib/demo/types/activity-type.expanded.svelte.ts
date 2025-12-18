@@ -14,8 +14,10 @@ import { editedDeserializeWithContext } from './edited.svelte';
 import { paidDeserializeWithContext } from './paid.svelte';
 import { sentDeserializeWithContext } from './sent.svelte';
 import { viewedDeserializeWithContext } from './viewed.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { commentedDefaultValue } from './commented.svelte';
 import { editedDefaultValue } from './edited.svelte';
@@ -200,7 +202,7 @@ export interface ActivityTypeGigaform {
     readonly tainted: ActivityTypeTainted;
     readonly variants: ActivityTypeVariantFields;
     switchVariant(variant: 'Created' | 'Edited' | 'Sent' | 'Viewed' | 'Commented' | 'Paid'): void;
-    validate(): Result<ActivityType, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, ActivityType>;
     reset(overrides?: Partial<ActivityType>): void;
 } /** Variant fields container */
 export interface ActivityTypeVariantFields {
@@ -254,7 +256,7 @@ export function activityTypeCreateForm(initial?: ActivityType): ActivityTypeGiga
         errors = {} as ActivityTypeErrors;
         tainted = {} as ActivityTypeTainted;
     }
-    function validate(): Result<ActivityType, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, ActivityType> {
         return activityTypeDeserialize(data);
     }
     function reset(overrides?: Partial<ActivityType>): void {
@@ -294,7 +296,7 @@ export function activityTypeCreateForm(initial?: ActivityType): ActivityTypeGiga
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function activityTypeFromFormData(
     formData: FormData
-): Result<ActivityType, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, ActivityType> {
     const discriminant = formData.get('_type') as
         | 'Created'
         | 'Edited'
@@ -304,7 +306,7 @@ export function activityTypeFromFormData(
         | 'Paid'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_type', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;

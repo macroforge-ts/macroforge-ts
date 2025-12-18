@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -198,21 +199,21 @@ export interface EditedGigaform {
     readonly errors: EditedErrors;
     readonly tainted: EditedTainted;
     readonly fields: EditedFieldControllers;
-    validate(): Result<Edited, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Edited>;
     reset(overrides?: Partial<Edited>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function editedCreateForm(overrides?: Partial<Edited>): EditedGigaform {
     let data = $state({ ...editedDefaultValue(), ...overrides });
     let errors = $state<EditedErrors>({
-        _errors: Option.none(),
-        fieldName: Option.none(),
-        oldValue: Option.none(),
-        newValue: Option.none()
+        _errors: optionNone(),
+        fieldName: optionNone(),
+        oldValue: optionNone(),
+        newValue: optionNone()
     });
     let tainted = $state<EditedTainted>({
-        fieldName: Option.none(),
-        oldValue: Option.none(),
-        newValue: Option.none()
+        fieldName: optionNone(),
+        oldValue: optionNone(),
+        newValue: optionNone()
     });
     const fields: EditedFieldControllers = {
         fieldName: {
@@ -282,18 +283,18 @@ export function editedCreateForm(overrides?: Partial<Edited>): EditedGigaform {
             }
         }
     };
-    function validate(): Result<Edited, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Edited> {
         return editedDeserialize(data);
     }
     function reset(newOverrides?: Partial<Edited>): void {
         data = { ...editedDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            fieldName: Option.none(),
-            oldValue: Option.none(),
-            newValue: Option.none()
+            _errors: optionNone(),
+            fieldName: optionNone(),
+            oldValue: optionNone(),
+            newValue: optionNone()
         };
-        tainted = { fieldName: Option.none(), oldValue: Option.none(), newValue: Option.none() };
+        tainted = { fieldName: optionNone(), oldValue: optionNone(), newValue: optionNone() };
     }
     return {
         get data() {
@@ -321,7 +322,7 @@ export function editedCreateForm(overrides?: Partial<Edited>): EditedGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function editedFromFormData(
     formData: FormData
-): Result<Edited, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Edited> {
     const obj: Record<string, unknown> = {};
     obj.fieldName = formData.get('fieldName') ?? '';
     obj.oldValue = formData.get('oldValue') ?? '';

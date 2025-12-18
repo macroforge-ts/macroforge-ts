@@ -50,7 +50,7 @@ pub fn generate_factory(
             };
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Result<@{interface_name}, Array<{ field: string; message: string }>> {
+            function validate(): Exit<Array<{ field: string; message: string }>, @{interface_name}> {
                 return @{validate_call};
             }
 
@@ -119,7 +119,7 @@ pub fn generate_factory_with_generics(
             };
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
+            function validate(): Exit<Array<{ field: string; message: string }>, @{interface_name}@{generic_args}> {
                 return @{validate_call};
             }
 
@@ -258,7 +258,7 @@ pub fn generate_union_factory(
             }
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Result<@{type_name}, Array<{ field: string; message: string }>> {
+            function validate(): Exit<Array<{ field: string; message: string }>, @{type_name}> {
                 return @{validate_call};
             }
 
@@ -453,24 +453,24 @@ fn generate_default_init(
     }
 }
 
-/// Generates the default errors initialization with all fields set to Option.none().
+/// Generates the default errors initialization with all fields set to optionNone().
 fn generate_default_errors_init(fields: &[ParsedField]) -> TsStream {
     ts_template! {
         {
-            _errors: Option.none(),
+            _errors: optionNone(),
             {#for field in fields}
-                @{&field.name}: Option.none(),
+                @{&field.name}: optionNone(),
             {/for}
         }
     }
 }
 
-/// Generates the default tainted initialization with all fields set to Option.none().
+/// Generates the default tainted initialization with all fields set to optionNone().
 fn generate_default_tainted_init(fields: &[ParsedField]) -> TsStream {
     ts_template! {
         {
             {#for field in fields}
-                @{&field.name}: Option.none(),
+                @{&field.name}: optionNone(),
             {/for}
         }
     }

@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -163,17 +164,17 @@ export interface SentGigaform {
     readonly errors: SentErrors;
     readonly tainted: SentTainted;
     readonly fields: SentFieldControllers;
-    validate(): Result<Sent, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Sent>;
     reset(overrides?: Partial<Sent>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function sentCreateForm(overrides?: Partial<Sent>): SentGigaform {
     let data = $state({ ...sentDefaultValue(), ...overrides });
     let errors = $state<SentErrors>({
-        _errors: Option.none(),
-        recipient: Option.none(),
-        method: Option.none()
+        _errors: optionNone(),
+        recipient: optionNone(),
+        method: optionNone()
     });
-    let tainted = $state<SentTainted>({ recipient: Option.none(), method: Option.none() });
+    let tainted = $state<SentTainted>({ recipient: optionNone(), method: optionNone() });
     const fields: SentFieldControllers = {
         recipient: {
             path: ['recipient'] as const,
@@ -220,13 +221,13 @@ export function sentCreateForm(overrides?: Partial<Sent>): SentGigaform {
             }
         }
     };
-    function validate(): Result<Sent, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Sent> {
         return sentDeserialize(data);
     }
     function reset(newOverrides?: Partial<Sent>): void {
         data = { ...sentDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), recipient: Option.none(), method: Option.none() };
-        tainted = { recipient: Option.none(), method: Option.none() };
+        errors = { _errors: optionNone(), recipient: optionNone(), method: optionNone() };
+        tainted = { recipient: optionNone(), method: optionNone() };
     }
     return {
         get data() {
@@ -254,7 +255,7 @@ export function sentCreateForm(overrides?: Partial<Sent>): SentGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function sentFromFormData(
     formData: FormData
-): Result<Sent, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Sent> {
     const obj: Record<string, unknown> = {};
     obj.recipient = formData.get('recipient') ?? '';
     obj.method = formData.get('method') ?? '';

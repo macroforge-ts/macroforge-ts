@@ -1,5 +1,5 @@
 import { ok as __mf_resultOk } from 'macroforge/reexports';
-import { err as __mf_resultErr } from 'macroforge/reexports';
+import { error as __mf_resultErr } from 'macroforge/reexports';
 import { isOk as __mf_resultIsOk } from 'macroforge/reexports';
 import type { Result as __mf_Result } from 'macroforge/reexports';
 import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';

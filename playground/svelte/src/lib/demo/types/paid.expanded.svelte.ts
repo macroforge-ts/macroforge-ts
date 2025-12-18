@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -175,21 +176,21 @@ export interface PaidGigaform {
     readonly errors: PaidErrors;
     readonly tainted: PaidTainted;
     readonly fields: PaidFieldControllers;
-    validate(): Result<Paid, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Paid>;
     reset(overrides?: Partial<Paid>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
     let data = $state({ ...paidDefaultValue(), ...overrides });
     let errors = $state<PaidErrors>({
-        _errors: Option.none(),
-        amount: Option.none(),
-        currency: Option.none(),
-        paymentMethod: Option.none()
+        _errors: optionNone(),
+        amount: optionNone(),
+        currency: optionNone(),
+        paymentMethod: optionNone()
     });
     let tainted = $state<PaidTainted>({
-        amount: Option.none(),
-        currency: Option.none(),
-        paymentMethod: Option.none()
+        amount: optionNone(),
+        currency: optionNone(),
+        paymentMethod: optionNone()
     });
     const fields: PaidFieldControllers = {
         amount: {
@@ -259,18 +260,18 @@ export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
             }
         }
     };
-    function validate(): Result<Paid, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Paid> {
         return paidDeserialize(data);
     }
     function reset(newOverrides?: Partial<Paid>): void {
         data = { ...paidDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            amount: Option.none(),
-            currency: Option.none(),
-            paymentMethod: Option.none()
+            _errors: optionNone(),
+            amount: optionNone(),
+            currency: optionNone(),
+            paymentMethod: optionNone()
         };
-        tainted = { amount: Option.none(), currency: Option.none(), paymentMethod: Option.none() };
+        tainted = { amount: optionNone(), currency: optionNone(), paymentMethod: optionNone() };
     }
     return {
         get data() {
@@ -298,7 +299,7 @@ export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function paidFromFormData(
     formData: FormData
-): Result<Paid, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Paid> {
     const obj: Record<string, unknown> = {};
     {
         const amountStr = formData.get('amount');

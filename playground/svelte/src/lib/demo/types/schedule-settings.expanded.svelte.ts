@@ -9,8 +9,9 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { rowHeightDeserializeWithContext } from './row-height.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -209,7 +210,7 @@ export interface ScheduleSettingsGigaform {
     readonly errors: ScheduleSettingsErrors;
     readonly tainted: ScheduleSettingsTainted;
     readonly fields: ScheduleSettingsFieldControllers;
-    validate(): Result<ScheduleSettings, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, ScheduleSettings>;
     reset(overrides?: Partial<ScheduleSettings>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function scheduleSettingsCreateForm(
@@ -217,17 +218,17 @@ export function scheduleSettingsCreateForm(
 ): ScheduleSettingsGigaform {
     let data = $state({ ...scheduleSettingsDefaultValue(), ...overrides });
     let errors = $state<ScheduleSettingsErrors>({
-        _errors: Option.none(),
-        daysPerWeek: Option.none(),
-        rowHeight: Option.none(),
-        visibleRoutes: Option.none(),
-        detailedCards: Option.none()
+        _errors: optionNone(),
+        daysPerWeek: optionNone(),
+        rowHeight: optionNone(),
+        visibleRoutes: optionNone(),
+        detailedCards: optionNone()
     });
     let tainted = $state<ScheduleSettingsTainted>({
-        daysPerWeek: Option.none(),
-        rowHeight: Option.none(),
-        visibleRoutes: Option.none(),
-        detailedCards: Option.none()
+        daysPerWeek: optionNone(),
+        rowHeight: optionNone(),
+        visibleRoutes: optionNone(),
+        detailedCards: optionNone()
     });
     const fields: ScheduleSettingsFieldControllers = {
         daysPerWeek: {
@@ -355,23 +356,23 @@ export function scheduleSettingsCreateForm(
             }
         }
     };
-    function validate(): Result<ScheduleSettings, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, ScheduleSettings> {
         return scheduleSettingsDeserialize(data);
     }
     function reset(newOverrides?: Partial<ScheduleSettings>): void {
         data = { ...scheduleSettingsDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            daysPerWeek: Option.none(),
-            rowHeight: Option.none(),
-            visibleRoutes: Option.none(),
-            detailedCards: Option.none()
+            _errors: optionNone(),
+            daysPerWeek: optionNone(),
+            rowHeight: optionNone(),
+            visibleRoutes: optionNone(),
+            detailedCards: optionNone()
         };
         tainted = {
-            daysPerWeek: Option.none(),
-            rowHeight: Option.none(),
-            visibleRoutes: Option.none(),
-            detailedCards: Option.none()
+            daysPerWeek: optionNone(),
+            rowHeight: optionNone(),
+            visibleRoutes: optionNone(),
+            detailedCards: optionNone()
         };
     }
     return {
@@ -400,7 +401,7 @@ export function scheduleSettingsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function scheduleSettingsFromFormData(
     formData: FormData
-): Result<ScheduleSettings, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, ScheduleSettings> {
     const obj: Record<string, unknown> = {};
     {
         const daysPerWeekStr = formData.get('daysPerWeek');

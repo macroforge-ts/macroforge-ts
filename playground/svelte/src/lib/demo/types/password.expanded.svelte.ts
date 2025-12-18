@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -174,13 +175,13 @@ export interface PasswordGigaform {
     readonly errors: PasswordErrors;
     readonly tainted: PasswordTainted;
     readonly fields: PasswordFieldControllers;
-    validate(): Result<Password, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Password>;
     reset(overrides?: Partial<Password>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function passwordCreateForm(overrides?: Partial<Password>): PasswordGigaform {
     let data = $state({ ...passwordDefaultValue(), ...overrides });
-    let errors = $state<PasswordErrors>({ _errors: Option.none(), password: Option.none() });
-    let tainted = $state<PasswordTainted>({ password: Option.none() });
+    let errors = $state<PasswordErrors>({ _errors: optionNone(), password: optionNone() });
+    let tainted = $state<PasswordTainted>({ password: optionNone() });
     const fields: PasswordFieldControllers = {
         password: {
             path: ['password'] as const,
@@ -205,13 +206,13 @@ export function passwordCreateForm(overrides?: Partial<Password>): PasswordGigaf
             }
         }
     };
-    function validate(): Result<Password, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Password> {
         return passwordDeserialize(data);
     }
     function reset(newOverrides?: Partial<Password>): void {
         data = { ...passwordDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), password: Option.none() };
-        tainted = { password: Option.none() };
+        errors = { _errors: optionNone(), password: optionNone() };
+        tainted = { password: optionNone() };
     }
     return {
         get data() {
@@ -239,7 +240,7 @@ export function passwordCreateForm(overrides?: Partial<Password>): PasswordGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function passwordFromFormData(
     formData: FormData
-): Result<Password, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Password> {
     const obj: Record<string, unknown> = {};
     obj.password = formData.get('password') ?? '';
     return passwordDeserialize(obj);

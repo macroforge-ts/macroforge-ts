@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -190,23 +191,23 @@ export interface CardinalGigaform {
     readonly errors: CardinalErrors;
     readonly tainted: CardinalTainted;
     readonly fields: CardinalFieldControllers;
-    validate(): Result<Cardinal, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Cardinal>;
     reset(overrides?: Partial<Cardinal>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaform {
     let data = $state({ ...cardinalDefaultValue(), ...overrides });
     let errors = $state<CardinalErrors>({
-        _errors: Option.none(),
-        north: Option.none(),
-        east: Option.none(),
-        south: Option.none(),
-        west: Option.none()
+        _errors: optionNone(),
+        north: optionNone(),
+        east: optionNone(),
+        south: optionNone(),
+        west: optionNone()
     });
     let tainted = $state<CardinalTainted>({
-        north: Option.none(),
-        east: Option.none(),
-        south: Option.none(),
-        west: Option.none()
+        north: optionNone(),
+        east: optionNone(),
+        south: optionNone(),
+        west: optionNone()
     });
     const fields: CardinalFieldControllers = {
         north: {
@@ -298,23 +299,23 @@ export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaf
             }
         }
     };
-    function validate(): Result<Cardinal, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Cardinal> {
         return cardinalDeserialize(data);
     }
     function reset(newOverrides?: Partial<Cardinal>): void {
         data = { ...cardinalDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            north: Option.none(),
-            east: Option.none(),
-            south: Option.none(),
-            west: Option.none()
+            _errors: optionNone(),
+            north: optionNone(),
+            east: optionNone(),
+            south: optionNone(),
+            west: optionNone()
         };
         tainted = {
-            north: Option.none(),
-            east: Option.none(),
-            south: Option.none(),
-            west: Option.none()
+            north: optionNone(),
+            east: optionNone(),
+            south: optionNone(),
+            west: optionNone()
         };
     }
     return {
@@ -343,7 +344,7 @@ export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function cardinalFromFormData(
     formData: FormData
-): Result<Cardinal, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Cardinal> {
     const obj: Record<string, unknown> = {};
     {
         const northStr = formData.get('north');

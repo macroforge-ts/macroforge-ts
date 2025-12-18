@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -174,13 +175,13 @@ export interface LastNameGigaform {
     readonly errors: LastNameErrors;
     readonly tainted: LastNameTainted;
     readonly fields: LastNameFieldControllers;
-    validate(): Result<LastName, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, LastName>;
     reset(overrides?: Partial<LastName>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function lastNameCreateForm(overrides?: Partial<LastName>): LastNameGigaform {
     let data = $state({ ...lastNameDefaultValue(), ...overrides });
-    let errors = $state<LastNameErrors>({ _errors: Option.none(), name: Option.none() });
-    let tainted = $state<LastNameTainted>({ name: Option.none() });
+    let errors = $state<LastNameErrors>({ _errors: optionNone(), name: optionNone() });
+    let tainted = $state<LastNameTainted>({ name: optionNone() });
     const fields: LastNameFieldControllers = {
         name: {
             path: ['name'] as const,
@@ -205,13 +206,13 @@ export function lastNameCreateForm(overrides?: Partial<LastName>): LastNameGigaf
             }
         }
     };
-    function validate(): Result<LastName, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, LastName> {
         return lastNameDeserialize(data);
     }
     function reset(newOverrides?: Partial<LastName>): void {
         data = { ...lastNameDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), name: Option.none() };
-        tainted = { name: Option.none() };
+        errors = { _errors: optionNone(), name: optionNone() };
+        tainted = { name: optionNone() };
     }
     return {
         get data() {
@@ -239,7 +240,7 @@ export function lastNameCreateForm(overrides?: Partial<LastName>): LastNameGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function lastNameFromFormData(
     formData: FormData
-): Result<LastName, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, LastName> {
     const obj: Record<string, unknown> = {};
     obj.name = formData.get('name') ?? '';
     return lastNameDeserialize(obj);

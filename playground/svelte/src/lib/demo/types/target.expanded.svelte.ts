@@ -25,8 +25,10 @@ import { serviceDeserializeWithContext } from './service.svelte';
 import { siteDeserializeWithContext } from './site.svelte';
 import { taxRateDeserializeWithContext } from './tax-rate.svelte';
 import { userDeserializeWithContext } from './user.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import { appointmentDefaultValue } from './appointment.svelte';
 import { companyDefaultValue } from './company.svelte';
@@ -379,7 +381,7 @@ export interface TargetGigaform {
             | 'Represents'
             | 'Ordered'
     ): void;
-    validate(): Result<Target, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Target>;
     reset(overrides?: Partial<Target>): void;
 } /** Variant fields container */
 export interface TargetVariantFields {
@@ -526,7 +528,7 @@ export function targetCreateForm(initial?: Target): TargetGigaform {
         errors = {} as TargetErrors;
         tainted = {} as TargetTainted;
     }
-    function validate(): Result<Target, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Target> {
         return targetDeserialize(data);
     }
     function reset(overrides?: Partial<Target>): void {
@@ -564,7 +566,7 @@ export function targetCreateForm(initial?: Target): TargetGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function targetFromFormData(
     formData: FormData
-): Result<Target, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Target> {
     const discriminant = formData.get('_type') as
         | 'Account'
         | 'User'
@@ -585,7 +587,7 @@ export function targetFromFormData(
         | 'Ordered'
         | null;
     if (!discriminant) {
-        return Result.err([{ field: '_type', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;

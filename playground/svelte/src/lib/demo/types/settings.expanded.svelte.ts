@@ -19,8 +19,9 @@ import { commissionsDeserializeWithContext } from './commissions.svelte';
 import { overviewSettingsDeserializeWithContext } from './overview-settings.svelte';
 import { pageDeserializeWithContext } from './page.svelte';
 import { scheduleSettingsDeserializeWithContext } from './schedule-settings.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -437,39 +438,39 @@ export interface SettingsGigaform {
     readonly errors: SettingsErrors;
     readonly tainted: SettingsTainted;
     readonly fields: SettingsFieldControllers;
-    validate(): Result<Settings, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Settings>;
     reset(overrides?: Partial<Settings>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaform {
     let data = $state({ ...settingsDefaultValue(), ...overrides });
     let errors = $state<SettingsErrors>({
-        _errors: Option.none(),
-        appointmentNotifications: Option.none(),
-        commissions: Option.none(),
-        scheduleSettings: Option.none(),
-        accountOverviewSettings: Option.none(),
-        serviceOverviewSettings: Option.none(),
-        appointmentOverviewSettings: Option.none(),
-        leadOverviewSettings: Option.none(),
-        packageOverviewSettings: Option.none(),
-        productOverviewSettings: Option.none(),
-        orderOverviewSettings: Option.none(),
-        taxRateOverviewSettings: Option.none(),
-        homePage: Option.none()
+        _errors: optionNone(),
+        appointmentNotifications: optionNone(),
+        commissions: optionNone(),
+        scheduleSettings: optionNone(),
+        accountOverviewSettings: optionNone(),
+        serviceOverviewSettings: optionNone(),
+        appointmentOverviewSettings: optionNone(),
+        leadOverviewSettings: optionNone(),
+        packageOverviewSettings: optionNone(),
+        productOverviewSettings: optionNone(),
+        orderOverviewSettings: optionNone(),
+        taxRateOverviewSettings: optionNone(),
+        homePage: optionNone()
     });
     let tainted = $state<SettingsTainted>({
-        appointmentNotifications: Option.none(),
-        commissions: Option.none(),
-        scheduleSettings: Option.none(),
-        accountOverviewSettings: Option.none(),
-        serviceOverviewSettings: Option.none(),
-        appointmentOverviewSettings: Option.none(),
-        leadOverviewSettings: Option.none(),
-        packageOverviewSettings: Option.none(),
-        productOverviewSettings: Option.none(),
-        orderOverviewSettings: Option.none(),
-        taxRateOverviewSettings: Option.none(),
-        homePage: Option.none()
+        appointmentNotifications: optionNone(),
+        commissions: optionNone(),
+        scheduleSettings: optionNone(),
+        accountOverviewSettings: optionNone(),
+        serviceOverviewSettings: optionNone(),
+        appointmentOverviewSettings: optionNone(),
+        leadOverviewSettings: optionNone(),
+        packageOverviewSettings: optionNone(),
+        productOverviewSettings: optionNone(),
+        orderOverviewSettings: optionNone(),
+        taxRateOverviewSettings: optionNone(),
+        homePage: optionNone()
     });
     const fields: SettingsFieldControllers = {
         appointmentNotifications: {
@@ -768,39 +769,39 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
             }
         }
     };
-    function validate(): Result<Settings, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Settings> {
         return settingsDeserialize(data);
     }
     function reset(newOverrides?: Partial<Settings>): void {
         data = { ...settingsDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            appointmentNotifications: Option.none(),
-            commissions: Option.none(),
-            scheduleSettings: Option.none(),
-            accountOverviewSettings: Option.none(),
-            serviceOverviewSettings: Option.none(),
-            appointmentOverviewSettings: Option.none(),
-            leadOverviewSettings: Option.none(),
-            packageOverviewSettings: Option.none(),
-            productOverviewSettings: Option.none(),
-            orderOverviewSettings: Option.none(),
-            taxRateOverviewSettings: Option.none(),
-            homePage: Option.none()
+            _errors: optionNone(),
+            appointmentNotifications: optionNone(),
+            commissions: optionNone(),
+            scheduleSettings: optionNone(),
+            accountOverviewSettings: optionNone(),
+            serviceOverviewSettings: optionNone(),
+            appointmentOverviewSettings: optionNone(),
+            leadOverviewSettings: optionNone(),
+            packageOverviewSettings: optionNone(),
+            productOverviewSettings: optionNone(),
+            orderOverviewSettings: optionNone(),
+            taxRateOverviewSettings: optionNone(),
+            homePage: optionNone()
         };
         tainted = {
-            appointmentNotifications: Option.none(),
-            commissions: Option.none(),
-            scheduleSettings: Option.none(),
-            accountOverviewSettings: Option.none(),
-            serviceOverviewSettings: Option.none(),
-            appointmentOverviewSettings: Option.none(),
-            leadOverviewSettings: Option.none(),
-            packageOverviewSettings: Option.none(),
-            productOverviewSettings: Option.none(),
-            orderOverviewSettings: Option.none(),
-            taxRateOverviewSettings: Option.none(),
-            homePage: Option.none()
+            appointmentNotifications: optionNone(),
+            commissions: optionNone(),
+            scheduleSettings: optionNone(),
+            accountOverviewSettings: optionNone(),
+            serviceOverviewSettings: optionNone(),
+            appointmentOverviewSettings: optionNone(),
+            leadOverviewSettings: optionNone(),
+            packageOverviewSettings: optionNone(),
+            productOverviewSettings: optionNone(),
+            orderOverviewSettings: optionNone(),
+            taxRateOverviewSettings: optionNone(),
+            homePage: optionNone()
         };
     }
     return {
@@ -829,7 +830,7 @@ export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaf
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function settingsFromFormData(
     formData: FormData
-): Result<Settings, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Settings> {
     const obj: Record<string, unknown> = {};
     obj.appointmentNotifications = formData.get('appointmentNotifications') ?? '';
     obj.commissions = formData.get('commissions') ?? '';

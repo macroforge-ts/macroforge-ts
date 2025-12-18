@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -186,17 +187,17 @@ export interface CommentedGigaform {
     readonly errors: CommentedErrors;
     readonly tainted: CommentedTainted;
     readonly fields: CommentedFieldControllers;
-    validate(): Result<Commented, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Commented>;
     reset(overrides?: Partial<Commented>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGigaform {
     let data = $state({ ...commentedDefaultValue(), ...overrides });
     let errors = $state<CommentedErrors>({
-        _errors: Option.none(),
-        comment: Option.none(),
-        replyTo: Option.none()
+        _errors: optionNone(),
+        comment: optionNone(),
+        replyTo: optionNone()
     });
-    let tainted = $state<CommentedTainted>({ comment: Option.none(), replyTo: Option.none() });
+    let tainted = $state<CommentedTainted>({ comment: optionNone(), replyTo: optionNone() });
     const fields: CommentedFieldControllers = {
         comment: {
             path: ['comment'] as const,
@@ -243,13 +244,13 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
             }
         }
     };
-    function validate(): Result<Commented, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Commented> {
         return commentedDeserialize(data);
     }
     function reset(newOverrides?: Partial<Commented>): void {
         data = { ...commentedDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), comment: Option.none(), replyTo: Option.none() };
-        tainted = { comment: Option.none(), replyTo: Option.none() };
+        errors = { _errors: optionNone(), comment: optionNone(), replyTo: optionNone() };
+        tainted = { comment: optionNone(), replyTo: optionNone() };
     }
     return {
         get data() {
@@ -277,7 +278,7 @@ export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGi
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function commentedFromFormData(
     formData: FormData
-): Result<Commented, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Commented> {
     const obj: Record<string, unknown> = {};
     obj.comment = formData.get('comment') ?? '';
     obj.replyTo = formData.get('replyTo') ?? '';

@@ -27,7 +27,7 @@ and the caller should clone them explicitly.
 
 ## Example
 
-```typescript before
+```typescript
 /** @derive(Clone) */
 class Point {
     x: number;
@@ -35,7 +35,9 @@ class Point {
 }
 ```
 
-```typescript after
+Generated output:
+
+```typescript
 class Point {
     x: number;
     y: number;

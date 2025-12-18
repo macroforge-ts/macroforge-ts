@@ -12,8 +12,9 @@ import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/s
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { overviewDisplayDeserializeWithContext } from './overview-display.svelte';
 import { rowHeightDeserializeWithContext } from './row-height.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -220,7 +221,7 @@ export interface OverviewSettingsGigaform {
     readonly errors: OverviewSettingsErrors;
     readonly tainted: OverviewSettingsTainted;
     readonly fields: OverviewSettingsFieldControllers;
-    validate(): Result<OverviewSettings, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, OverviewSettings>;
     reset(overrides?: Partial<OverviewSettings>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function overviewSettingsCreateForm(
@@ -228,17 +229,17 @@ export function overviewSettingsCreateForm(
 ): OverviewSettingsGigaform {
     let data = $state({ ...overviewSettingsDefaultValue(), ...overrides });
     let errors = $state<OverviewSettingsErrors>({
-        _errors: Option.none(),
-        rowHeight: Option.none(),
-        cardOrRow: Option.none(),
-        perPage: Option.none(),
-        columnConfigs: Option.none()
+        _errors: optionNone(),
+        rowHeight: optionNone(),
+        cardOrRow: optionNone(),
+        perPage: optionNone(),
+        columnConfigs: optionNone()
     });
     let tainted = $state<OverviewSettingsTainted>({
-        rowHeight: Option.none(),
-        cardOrRow: Option.none(),
-        perPage: Option.none(),
-        columnConfigs: Option.none()
+        rowHeight: optionNone(),
+        cardOrRow: optionNone(),
+        perPage: optionNone(),
+        columnConfigs: optionNone()
     });
     const fields: OverviewSettingsFieldControllers = {
         rowHeight: {
@@ -363,23 +364,23 @@ export function overviewSettingsCreateForm(
             }
         }
     };
-    function validate(): Result<OverviewSettings, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, OverviewSettings> {
         return overviewSettingsDeserialize(data);
     }
     function reset(newOverrides?: Partial<OverviewSettings>): void {
         data = { ...overviewSettingsDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            rowHeight: Option.none(),
-            cardOrRow: Option.none(),
-            perPage: Option.none(),
-            columnConfigs: Option.none()
+            _errors: optionNone(),
+            rowHeight: optionNone(),
+            cardOrRow: optionNone(),
+            perPage: optionNone(),
+            columnConfigs: optionNone()
         };
         tainted = {
-            rowHeight: Option.none(),
-            cardOrRow: Option.none(),
-            perPage: Option.none(),
-            columnConfigs: Option.none()
+            rowHeight: optionNone(),
+            cardOrRow: optionNone(),
+            perPage: optionNone(),
+            columnConfigs: optionNone()
         };
     }
     return {
@@ -408,7 +409,7 @@ export function overviewSettingsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function overviewSettingsFromFormData(
     formData: FormData
-): Result<OverviewSettings, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, OverviewSettings> {
     const obj: Record<string, unknown> = {};
     {
         const rowHeightObj: Record<string, unknown> = {};

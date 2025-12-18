@@ -11,8 +11,9 @@ import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { colorsConfigDeserializeWithContext } from './colors-config.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -768,73 +769,73 @@ export interface CompanyGigaform {
     readonly errors: CompanyErrors;
     readonly tainted: CompanyTainted;
     readonly fields: CompanyFieldControllers;
-    validate(): Result<Company, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Company>;
     reset(overrides?: Partial<Company>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform {
     let data = $state({ ...companyDefaultValue(), ...overrides });
     let errors = $state<CompanyErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        legalName: Option.none(),
-        headquarters: Option.none(),
-        phones: Option.none(),
-        fax: Option.none(),
-        email: Option.none(),
-        website: Option.none(),
-        taxId: Option.none(),
-        referenceNumber: Option.none(),
-        postalCodeLookup: Option.none(),
-        timeZone: Option.none(),
-        defaultTax: Option.none(),
-        defaultTaxLocation: Option.none(),
-        defaultAreaCode: Option.none(),
-        defaultAccountType: Option.none(),
-        lookupFormatting: Option.none(),
-        accountNameFormat: Option.none(),
-        merchantServiceProvider: Option.none(),
-        dateDisplayStyle: Option.none(),
-        hasAutoCommission: Option.none(),
-        hasAutoDaylightSavings: Option.none(),
-        hasAutoFmsTracking: Option.none(),
-        hasNotifications: Option.none(),
-        hasRequiredLeadSource: Option.none(),
-        hasRequiredEmail: Option.none(),
-        hasSortServiceItemsAlphabetically: Option.none(),
-        hasAttachOrderToAppointmentEmails: Option.none(),
-        scheduleInterval: Option.none(),
-        colorsConfig: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        legalName: optionNone(),
+        headquarters: optionNone(),
+        phones: optionNone(),
+        fax: optionNone(),
+        email: optionNone(),
+        website: optionNone(),
+        taxId: optionNone(),
+        referenceNumber: optionNone(),
+        postalCodeLookup: optionNone(),
+        timeZone: optionNone(),
+        defaultTax: optionNone(),
+        defaultTaxLocation: optionNone(),
+        defaultAreaCode: optionNone(),
+        defaultAccountType: optionNone(),
+        lookupFormatting: optionNone(),
+        accountNameFormat: optionNone(),
+        merchantServiceProvider: optionNone(),
+        dateDisplayStyle: optionNone(),
+        hasAutoCommission: optionNone(),
+        hasAutoDaylightSavings: optionNone(),
+        hasAutoFmsTracking: optionNone(),
+        hasNotifications: optionNone(),
+        hasRequiredLeadSource: optionNone(),
+        hasRequiredEmail: optionNone(),
+        hasSortServiceItemsAlphabetically: optionNone(),
+        hasAttachOrderToAppointmentEmails: optionNone(),
+        scheduleInterval: optionNone(),
+        colorsConfig: optionNone()
     });
     let tainted = $state<CompanyTainted>({
-        id: Option.none(),
-        legalName: Option.none(),
-        headquarters: Option.none(),
-        phones: Option.none(),
-        fax: Option.none(),
-        email: Option.none(),
-        website: Option.none(),
-        taxId: Option.none(),
-        referenceNumber: Option.none(),
-        postalCodeLookup: Option.none(),
-        timeZone: Option.none(),
-        defaultTax: Option.none(),
-        defaultTaxLocation: Option.none(),
-        defaultAreaCode: Option.none(),
-        defaultAccountType: Option.none(),
-        lookupFormatting: Option.none(),
-        accountNameFormat: Option.none(),
-        merchantServiceProvider: Option.none(),
-        dateDisplayStyle: Option.none(),
-        hasAutoCommission: Option.none(),
-        hasAutoDaylightSavings: Option.none(),
-        hasAutoFmsTracking: Option.none(),
-        hasNotifications: Option.none(),
-        hasRequiredLeadSource: Option.none(),
-        hasRequiredEmail: Option.none(),
-        hasSortServiceItemsAlphabetically: Option.none(),
-        hasAttachOrderToAppointmentEmails: Option.none(),
-        scheduleInterval: Option.none(),
-        colorsConfig: Option.none()
+        id: optionNone(),
+        legalName: optionNone(),
+        headquarters: optionNone(),
+        phones: optionNone(),
+        fax: optionNone(),
+        email: optionNone(),
+        website: optionNone(),
+        taxId: optionNone(),
+        referenceNumber: optionNone(),
+        postalCodeLookup: optionNone(),
+        timeZone: optionNone(),
+        defaultTax: optionNone(),
+        defaultTaxLocation: optionNone(),
+        defaultAreaCode: optionNone(),
+        defaultAccountType: optionNone(),
+        lookupFormatting: optionNone(),
+        accountNameFormat: optionNone(),
+        merchantServiceProvider: optionNone(),
+        dateDisplayStyle: optionNone(),
+        hasAutoCommission: optionNone(),
+        hasAutoDaylightSavings: optionNone(),
+        hasAutoFmsTracking: optionNone(),
+        hasNotifications: optionNone(),
+        hasRequiredLeadSource: optionNone(),
+        hasRequiredEmail: optionNone(),
+        hasSortServiceItemsAlphabetically: optionNone(),
+        hasAttachOrderToAppointmentEmails: optionNone(),
+        scheduleInterval: optionNone(),
+        colorsConfig: optionNone()
     });
     const fields: CompanyFieldControllers = {
         id: {
@@ -1536,73 +1537,73 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             }
         }
     };
-    function validate(): Result<Company, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Company> {
         return companyDeserialize(data);
     }
     function reset(newOverrides?: Partial<Company>): void {
         data = { ...companyDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            legalName: Option.none(),
-            headquarters: Option.none(),
-            phones: Option.none(),
-            fax: Option.none(),
-            email: Option.none(),
-            website: Option.none(),
-            taxId: Option.none(),
-            referenceNumber: Option.none(),
-            postalCodeLookup: Option.none(),
-            timeZone: Option.none(),
-            defaultTax: Option.none(),
-            defaultTaxLocation: Option.none(),
-            defaultAreaCode: Option.none(),
-            defaultAccountType: Option.none(),
-            lookupFormatting: Option.none(),
-            accountNameFormat: Option.none(),
-            merchantServiceProvider: Option.none(),
-            dateDisplayStyle: Option.none(),
-            hasAutoCommission: Option.none(),
-            hasAutoDaylightSavings: Option.none(),
-            hasAutoFmsTracking: Option.none(),
-            hasNotifications: Option.none(),
-            hasRequiredLeadSource: Option.none(),
-            hasRequiredEmail: Option.none(),
-            hasSortServiceItemsAlphabetically: Option.none(),
-            hasAttachOrderToAppointmentEmails: Option.none(),
-            scheduleInterval: Option.none(),
-            colorsConfig: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            legalName: optionNone(),
+            headquarters: optionNone(),
+            phones: optionNone(),
+            fax: optionNone(),
+            email: optionNone(),
+            website: optionNone(),
+            taxId: optionNone(),
+            referenceNumber: optionNone(),
+            postalCodeLookup: optionNone(),
+            timeZone: optionNone(),
+            defaultTax: optionNone(),
+            defaultTaxLocation: optionNone(),
+            defaultAreaCode: optionNone(),
+            defaultAccountType: optionNone(),
+            lookupFormatting: optionNone(),
+            accountNameFormat: optionNone(),
+            merchantServiceProvider: optionNone(),
+            dateDisplayStyle: optionNone(),
+            hasAutoCommission: optionNone(),
+            hasAutoDaylightSavings: optionNone(),
+            hasAutoFmsTracking: optionNone(),
+            hasNotifications: optionNone(),
+            hasRequiredLeadSource: optionNone(),
+            hasRequiredEmail: optionNone(),
+            hasSortServiceItemsAlphabetically: optionNone(),
+            hasAttachOrderToAppointmentEmails: optionNone(),
+            scheduleInterval: optionNone(),
+            colorsConfig: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            legalName: Option.none(),
-            headquarters: Option.none(),
-            phones: Option.none(),
-            fax: Option.none(),
-            email: Option.none(),
-            website: Option.none(),
-            taxId: Option.none(),
-            referenceNumber: Option.none(),
-            postalCodeLookup: Option.none(),
-            timeZone: Option.none(),
-            defaultTax: Option.none(),
-            defaultTaxLocation: Option.none(),
-            defaultAreaCode: Option.none(),
-            defaultAccountType: Option.none(),
-            lookupFormatting: Option.none(),
-            accountNameFormat: Option.none(),
-            merchantServiceProvider: Option.none(),
-            dateDisplayStyle: Option.none(),
-            hasAutoCommission: Option.none(),
-            hasAutoDaylightSavings: Option.none(),
-            hasAutoFmsTracking: Option.none(),
-            hasNotifications: Option.none(),
-            hasRequiredLeadSource: Option.none(),
-            hasRequiredEmail: Option.none(),
-            hasSortServiceItemsAlphabetically: Option.none(),
-            hasAttachOrderToAppointmentEmails: Option.none(),
-            scheduleInterval: Option.none(),
-            colorsConfig: Option.none()
+            id: optionNone(),
+            legalName: optionNone(),
+            headquarters: optionNone(),
+            phones: optionNone(),
+            fax: optionNone(),
+            email: optionNone(),
+            website: optionNone(),
+            taxId: optionNone(),
+            referenceNumber: optionNone(),
+            postalCodeLookup: optionNone(),
+            timeZone: optionNone(),
+            defaultTax: optionNone(),
+            defaultTaxLocation: optionNone(),
+            defaultAreaCode: optionNone(),
+            defaultAccountType: optionNone(),
+            lookupFormatting: optionNone(),
+            accountNameFormat: optionNone(),
+            merchantServiceProvider: optionNone(),
+            dateDisplayStyle: optionNone(),
+            hasAutoCommission: optionNone(),
+            hasAutoDaylightSavings: optionNone(),
+            hasAutoFmsTracking: optionNone(),
+            hasNotifications: optionNone(),
+            hasRequiredLeadSource: optionNone(),
+            hasRequiredEmail: optionNone(),
+            hasSortServiceItemsAlphabetically: optionNone(),
+            hasAttachOrderToAppointmentEmails: optionNone(),
+            scheduleInterval: optionNone(),
+            colorsConfig: optionNone()
         };
     }
     return {
@@ -1631,7 +1632,7 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function companyFromFormData(
     formData: FormData
-): Result<Company, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Company> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.legalName = formData.get('legalName') ?? '';

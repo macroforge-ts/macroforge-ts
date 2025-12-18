@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -261,23 +262,23 @@ export interface AddressGigaform {
     readonly errors: AddressErrors;
     readonly tainted: AddressTainted;
     readonly fields: AddressFieldControllers;
-    validate(): Result<Address, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Address>;
     reset(overrides?: Partial<Address>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform {
     let data = $state({ ...addressDefaultValue(), ...overrides });
     let errors = $state<AddressErrors>({
-        _errors: Option.none(),
-        street: Option.none(),
-        city: Option.none(),
-        state: Option.none(),
-        zipcode: Option.none()
+        _errors: optionNone(),
+        street: optionNone(),
+        city: optionNone(),
+        state: optionNone(),
+        zipcode: optionNone()
     });
     let tainted = $state<AddressTainted>({
-        street: Option.none(),
-        city: Option.none(),
-        state: Option.none(),
-        zipcode: Option.none()
+        street: optionNone(),
+        city: optionNone(),
+        state: optionNone(),
+        zipcode: optionNone()
     });
     const fields: AddressFieldControllers = {
         street: {
@@ -369,23 +370,23 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
             }
         }
     };
-    function validate(): Result<Address, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Address> {
         return addressDeserialize(data);
     }
     function reset(newOverrides?: Partial<Address>): void {
         data = { ...addressDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            street: Option.none(),
-            city: Option.none(),
-            state: Option.none(),
-            zipcode: Option.none()
+            _errors: optionNone(),
+            street: optionNone(),
+            city: optionNone(),
+            state: optionNone(),
+            zipcode: optionNone()
         };
         tainted = {
-            street: Option.none(),
-            city: Option.none(),
-            state: Option.none(),
-            zipcode: Option.none()
+            street: optionNone(),
+            city: optionNone(),
+            state: optionNone(),
+            zipcode: optionNone()
         };
     }
     return {
@@ -414,7 +415,7 @@ export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function addressFromFormData(
     formData: FormData
-): Result<Address, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Address> {
     const obj: Record<string, unknown> = {};
     obj.street = formData.get('street') ?? '';
     obj.city = formData.get('city') ?? '';

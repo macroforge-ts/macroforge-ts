@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -166,17 +167,17 @@ export interface ViewedGigaform {
     readonly errors: ViewedErrors;
     readonly tainted: ViewedTainted;
     readonly fields: ViewedFieldControllers;
-    validate(): Result<Viewed, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Viewed>;
     reset(overrides?: Partial<Viewed>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function viewedCreateForm(overrides?: Partial<Viewed>): ViewedGigaform {
     let data = $state({ ...viewedDefaultValue(), ...overrides });
     let errors = $state<ViewedErrors>({
-        _errors: Option.none(),
-        durationSeconds: Option.none(),
-        source: Option.none()
+        _errors: optionNone(),
+        durationSeconds: optionNone(),
+        source: optionNone()
     });
-    let tainted = $state<ViewedTainted>({ durationSeconds: Option.none(), source: Option.none() });
+    let tainted = $state<ViewedTainted>({ durationSeconds: optionNone(), source: optionNone() });
     const fields: ViewedFieldControllers = {
         durationSeconds: {
             path: ['durationSeconds'] as const,
@@ -223,13 +224,13 @@ export function viewedCreateForm(overrides?: Partial<Viewed>): ViewedGigaform {
             }
         }
     };
-    function validate(): Result<Viewed, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Viewed> {
         return viewedDeserialize(data);
     }
     function reset(newOverrides?: Partial<Viewed>): void {
         data = { ...viewedDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), durationSeconds: Option.none(), source: Option.none() };
-        tainted = { durationSeconds: Option.none(), source: Option.none() };
+        errors = { _errors: optionNone(), durationSeconds: optionNone(), source: optionNone() };
+        tainted = { durationSeconds: optionNone(), source: optionNone() };
     }
     return {
         get data() {
@@ -257,7 +258,7 @@ export function viewedCreateForm(overrides?: Partial<Viewed>): ViewedGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function viewedFromFormData(
     formData: FormData
-): Result<Viewed, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Viewed> {
     const obj: Record<string, unknown> = {};
     {
         const durationSecondsStr = formData.get('durationSeconds');

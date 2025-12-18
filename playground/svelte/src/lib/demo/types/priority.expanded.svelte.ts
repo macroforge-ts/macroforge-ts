@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type Priority = /** @default */ 'Medium' | 'High' | 'Low';
@@ -122,7 +124,7 @@ export interface PriorityGigaform {
     readonly tainted: PriorityTainted;
     readonly variants: PriorityVariantFields;
     switchVariant(variant: 'Medium' | 'High' | 'Low'): void;
-    validate(): Result<Priority, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Priority>;
     reset(overrides?: Partial<Priority>): void;
 } /** Variant fields container */
 export interface PriorityVariantFields {
@@ -160,7 +162,7 @@ export function priorityCreateForm(initial?: Priority): PriorityGigaform {
         errors = {} as PriorityErrors;
         tainted = {} as PriorityTainted;
     }
-    function validate(): Result<Priority, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Priority> {
         return priorityDeserialize(data);
     }
     function reset(overrides?: Partial<Priority>): void {
@@ -200,10 +202,10 @@ export function priorityCreateForm(initial?: Priority): PriorityGigaform {
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function priorityFromFormData(
     formData: FormData
-): Result<Priority, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Priority> {
     const discriminant = formData.get('_value') as 'Medium' | 'High' | 'Low' | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

@@ -115,9 +115,12 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
         {$typescript form_data_fn}
     };
 
-    // Add required imports from @playground/macro/gigaform (which re-exports @rydshift/mirror)
-    output.add_import("Result", "@playground/macro/gigaform");
-    output.add_import("Option", "@playground/macro/gigaform");
+    // Add required imports from @playground/macro/gigaform (Effect types)
+    // Exit for deserialize return
+    output.add_type_import("Exit", "@playground/macro/gigaform");
+    // Option for field controller state
+    output.add_type_import("Option", "@playground/macro/gigaform");
+    output.add_import("optionNone", "@playground/macro/gigaform");
 
     // Import FieldController from the canonical location
     output.add_type_import("FieldController", "@playground/macro/gigaform");
@@ -223,8 +226,13 @@ fn generate_union_form(
         {$typescript form_data_fn}
     };
 
-    output.add_import("Result", "@playground/macro/gigaform");
-    output.add_import("Option", "@playground/macro/gigaform");
+    // Add required imports from @playground/macro/gigaform (Effect types)
+    // Exit for deserialize return
+    output.add_type_import("Exit", "@playground/macro/gigaform");
+    output.add_import("exitFail", "@playground/macro/gigaform");
+    // Option for field controller state
+    output.add_type_import("Option", "@playground/macro/gigaform");
+    output.add_import("optionNone", "@playground/macro/gigaform");
 
     // Import FieldController from the canonical location
     output.add_type_import("FieldController", "@playground/macro/gigaform");
@@ -306,7 +314,7 @@ fn generate_enum_form(
 /// export interface UserFormFieldControllers { name: FieldController<string>; ... }
 /// export interface UserFormGigaform { data, errors, tainted, fields, validate(), reset() };
 /// export function userFormCreateForm(overrides?: Partial<UserForm>): UserFormGigaform;
-/// export function userFormFromFormData(fd: FormData): Result<UserForm, Array<{ field: string; message: string }>>;
+/// export function userFormFromFormData(fd: FormData): Exit<Array<{ field: string; message: string }>, UserForm>;
 ///
 /// // Usage in Svelte component:
 /// const form = userFormCreateForm();

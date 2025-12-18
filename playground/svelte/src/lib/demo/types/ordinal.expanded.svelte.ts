@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -256,31 +257,31 @@ export interface OrdinalGigaform {
     readonly errors: OrdinalErrors;
     readonly tainted: OrdinalTainted;
     readonly fields: OrdinalFieldControllers;
-    validate(): Result<Ordinal, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Ordinal>;
     reset(overrides?: Partial<Ordinal>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform {
     let data = $state({ ...ordinalDefaultValue(), ...overrides });
     let errors = $state<OrdinalErrors>({
-        _errors: Option.none(),
-        north: Option.none(),
-        northeast: Option.none(),
-        east: Option.none(),
-        southeast: Option.none(),
-        south: Option.none(),
-        southwest: Option.none(),
-        west: Option.none(),
-        northwest: Option.none()
+        _errors: optionNone(),
+        north: optionNone(),
+        northeast: optionNone(),
+        east: optionNone(),
+        southeast: optionNone(),
+        south: optionNone(),
+        southwest: optionNone(),
+        west: optionNone(),
+        northwest: optionNone()
     });
     let tainted = $state<OrdinalTainted>({
-        north: Option.none(),
-        northeast: Option.none(),
-        east: Option.none(),
-        southeast: Option.none(),
-        south: Option.none(),
-        southwest: Option.none(),
-        west: Option.none(),
-        northwest: Option.none()
+        north: optionNone(),
+        northeast: optionNone(),
+        east: optionNone(),
+        southeast: optionNone(),
+        south: optionNone(),
+        southwest: optionNone(),
+        west: optionNone(),
+        northwest: optionNone()
     });
     const fields: OrdinalFieldControllers = {
         north: {
@@ -460,31 +461,31 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
             }
         }
     };
-    function validate(): Result<Ordinal, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Ordinal> {
         return ordinalDeserialize(data);
     }
     function reset(newOverrides?: Partial<Ordinal>): void {
         data = { ...ordinalDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            north: Option.none(),
-            northeast: Option.none(),
-            east: Option.none(),
-            southeast: Option.none(),
-            south: Option.none(),
-            southwest: Option.none(),
-            west: Option.none(),
-            northwest: Option.none()
+            _errors: optionNone(),
+            north: optionNone(),
+            northeast: optionNone(),
+            east: optionNone(),
+            southeast: optionNone(),
+            south: optionNone(),
+            southwest: optionNone(),
+            west: optionNone(),
+            northwest: optionNone()
         };
         tainted = {
-            north: Option.none(),
-            northeast: Option.none(),
-            east: Option.none(),
-            southeast: Option.none(),
-            south: Option.none(),
-            southwest: Option.none(),
-            west: Option.none(),
-            northwest: Option.none()
+            north: optionNone(),
+            northeast: optionNone(),
+            east: optionNone(),
+            southeast: optionNone(),
+            south: optionNone(),
+            southwest: optionNone(),
+            west: optionNone(),
+            northwest: optionNone()
         };
     }
     return {
@@ -513,7 +514,7 @@ export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function ordinalFromFormData(
     formData: FormData
-): Result<Ordinal, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Ordinal> {
     const obj: Record<string, unknown> = {};
     {
         const northStr = formData.get('north');

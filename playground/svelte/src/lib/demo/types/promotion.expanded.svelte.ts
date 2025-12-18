@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -166,17 +167,17 @@ export interface PromotionGigaform {
     readonly errors: PromotionErrors;
     readonly tainted: PromotionTainted;
     readonly fields: PromotionFieldControllers;
-    validate(): Result<Promotion, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Promotion>;
     reset(overrides?: Partial<Promotion>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function promotionCreateForm(overrides?: Partial<Promotion>): PromotionGigaform {
     let data = $state({ ...promotionDefaultValue(), ...overrides });
     let errors = $state<PromotionErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        date: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        date: optionNone()
     });
-    let tainted = $state<PromotionTainted>({ id: Option.none(), date: Option.none() });
+    let tainted = $state<PromotionTainted>({ id: optionNone(), date: optionNone() });
     const fields: PromotionFieldControllers = {
         id: {
             path: ['id'] as const,
@@ -223,13 +224,13 @@ export function promotionCreateForm(overrides?: Partial<Promotion>): PromotionGi
             }
         }
     };
-    function validate(): Result<Promotion, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Promotion> {
         return promotionDeserialize(data);
     }
     function reset(newOverrides?: Partial<Promotion>): void {
         data = { ...promotionDefaultValue(), ...newOverrides };
-        errors = { _errors: Option.none(), id: Option.none(), date: Option.none() };
-        tainted = { id: Option.none(), date: Option.none() };
+        errors = { _errors: optionNone(), id: optionNone(), date: optionNone() };
+        tainted = { id: optionNone(), date: optionNone() };
     }
     return {
         get data() {
@@ -257,7 +258,7 @@ export function promotionCreateForm(overrides?: Partial<Promotion>): PromotionGi
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function promotionFromFormData(
     formData: FormData
-): Result<Promotion, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Promotion> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.date = formData.get('date') ?? '';

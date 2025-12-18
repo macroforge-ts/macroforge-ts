@@ -43,7 +43,7 @@ The `@default` decorator allows specifying explicit default values:
 
 ## Example
 
-```typescript before
+```typescript
 /** @derive(Default) */
 class UserSettings {
     /** @default("light") */
@@ -56,7 +56,9 @@ class UserSettings {
 }
 ```
 
-```typescript after
+Generated output:
+
+```typescript
 class UserSettings {
     theme: string;
 
@@ -78,7 +80,7 @@ class UserSettings {
 
 For enums, mark one variant with `@default`:
 
-```typescript before
+```typescript
 /** @derive(Default) */
 enum Status {
     /** @default */
@@ -88,7 +90,9 @@ enum Status {
 }
 ```
 
-```typescript after
+Generated output:
+
+```typescript
 enum Status {
     /** @default */
     Pending,

@@ -12,8 +12,9 @@ import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/s
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 import { intervalDeserializeWithContext } from './interval.svelte';
 import { recurrenceEndDeserializeWithContext } from './recurrence-end.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -250,7 +251,7 @@ export interface RecurrenceRuleGigaform {
     readonly errors: RecurrenceRuleErrors;
     readonly tainted: RecurrenceRuleTainted;
     readonly fields: RecurrenceRuleFieldControllers;
-    validate(): Result<RecurrenceRule, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, RecurrenceRule>;
     reset(overrides?: Partial<RecurrenceRule>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function recurrenceRuleCreateForm(
@@ -258,19 +259,19 @@ export function recurrenceRuleCreateForm(
 ): RecurrenceRuleGigaform {
     let data = $state({ ...recurrenceRuleDefaultValue(), ...overrides });
     let errors = $state<RecurrenceRuleErrors>({
-        _errors: Option.none(),
-        interval: Option.none(),
-        recurrenceBegins: Option.none(),
-        recurrenceEnds: Option.none(),
-        cancelledInstances: Option.none(),
-        additionalInstances: Option.none()
+        _errors: optionNone(),
+        interval: optionNone(),
+        recurrenceBegins: optionNone(),
+        recurrenceEnds: optionNone(),
+        cancelledInstances: optionNone(),
+        additionalInstances: optionNone()
     });
     let tainted = $state<RecurrenceRuleTainted>({
-        interval: Option.none(),
-        recurrenceBegins: Option.none(),
-        recurrenceEnds: Option.none(),
-        cancelledInstances: Option.none(),
-        additionalInstances: Option.none()
+        interval: optionNone(),
+        recurrenceBegins: optionNone(),
+        recurrenceEnds: optionNone(),
+        cancelledInstances: optionNone(),
+        additionalInstances: optionNone()
     });
     const fields: RecurrenceRuleFieldControllers = {
         interval: {
@@ -396,25 +397,25 @@ export function recurrenceRuleCreateForm(
             }
         }
     };
-    function validate(): Result<RecurrenceRule, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, RecurrenceRule> {
         return recurrenceRuleDeserialize(data);
     }
     function reset(newOverrides?: Partial<RecurrenceRule>): void {
         data = { ...recurrenceRuleDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            interval: Option.none(),
-            recurrenceBegins: Option.none(),
-            recurrenceEnds: Option.none(),
-            cancelledInstances: Option.none(),
-            additionalInstances: Option.none()
+            _errors: optionNone(),
+            interval: optionNone(),
+            recurrenceBegins: optionNone(),
+            recurrenceEnds: optionNone(),
+            cancelledInstances: optionNone(),
+            additionalInstances: optionNone()
         };
         tainted = {
-            interval: Option.none(),
-            recurrenceBegins: Option.none(),
-            recurrenceEnds: Option.none(),
-            cancelledInstances: Option.none(),
-            additionalInstances: Option.none()
+            interval: optionNone(),
+            recurrenceBegins: optionNone(),
+            recurrenceEnds: optionNone(),
+            cancelledInstances: optionNone(),
+            additionalInstances: optionNone()
         };
     }
     return {
@@ -443,7 +444,7 @@ export function recurrenceRuleCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function recurrenceRuleFromFormData(
     formData: FormData
-): Result<RecurrenceRule, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, RecurrenceRule> {
     const obj: Record<string, unknown> = {};
     {
         const intervalObj: Record<string, unknown> = {};

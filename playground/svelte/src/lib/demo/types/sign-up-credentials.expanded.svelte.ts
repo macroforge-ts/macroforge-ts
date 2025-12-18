@@ -19,8 +19,9 @@ import { emailPartsDeserializeWithContext } from './email-parts.svelte';
 import { firstNameDeserializeWithContext } from './first-name.svelte';
 import { lastNameDeserializeWithContext } from './last-name.svelte';
 import { passwordDeserializeWithContext } from './password.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -242,7 +243,7 @@ export interface SignUpCredentialsGigaform {
     readonly errors: SignUpCredentialsErrors;
     readonly tainted: SignUpCredentialsTainted;
     readonly fields: SignUpCredentialsFieldControllers;
-    validate(): Result<SignUpCredentials, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, SignUpCredentials>;
     reset(overrides?: Partial<SignUpCredentials>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function signUpCredentialsCreateForm(
@@ -250,19 +251,19 @@ export function signUpCredentialsCreateForm(
 ): SignUpCredentialsGigaform {
     let data = $state({ ...signUpCredentialsDefaultValue(), ...overrides });
     let errors = $state<SignUpCredentialsErrors>({
-        _errors: Option.none(),
-        firstName: Option.none(),
-        lastName: Option.none(),
-        email: Option.none(),
-        password: Option.none(),
-        rememberMe: Option.none()
+        _errors: optionNone(),
+        firstName: optionNone(),
+        lastName: optionNone(),
+        email: optionNone(),
+        password: optionNone(),
+        rememberMe: optionNone()
     });
     let tainted = $state<SignUpCredentialsTainted>({
-        firstName: Option.none(),
-        lastName: Option.none(),
-        email: Option.none(),
-        password: Option.none(),
-        rememberMe: Option.none()
+        firstName: optionNone(),
+        lastName: optionNone(),
+        email: optionNone(),
+        password: optionNone(),
+        rememberMe: optionNone()
     });
     const fields: SignUpCredentialsFieldControllers = {
         firstName: {
@@ -376,25 +377,25 @@ export function signUpCredentialsCreateForm(
             }
         }
     };
-    function validate(): Result<SignUpCredentials, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, SignUpCredentials> {
         return signUpCredentialsDeserialize(data);
     }
     function reset(newOverrides?: Partial<SignUpCredentials>): void {
         data = { ...signUpCredentialsDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            firstName: Option.none(),
-            lastName: Option.none(),
-            email: Option.none(),
-            password: Option.none(),
-            rememberMe: Option.none()
+            _errors: optionNone(),
+            firstName: optionNone(),
+            lastName: optionNone(),
+            email: optionNone(),
+            password: optionNone(),
+            rememberMe: optionNone()
         };
         tainted = {
-            firstName: Option.none(),
-            lastName: Option.none(),
-            email: Option.none(),
-            password: Option.none(),
-            rememberMe: Option.none()
+            firstName: optionNone(),
+            lastName: optionNone(),
+            email: optionNone(),
+            password: optionNone(),
+            rememberMe: optionNone()
         };
     }
     return {
@@ -423,7 +424,7 @@ export function signUpCredentialsCreateForm(
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function signUpCredentialsFromFormData(
     formData: FormData
-): Result<SignUpCredentials, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, SignUpCredentials> {
     const obj: Record<string, unknown> = {};
     {
         const firstNameObj: Record<string, unknown> = {};

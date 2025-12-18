@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type RecurrenceEnd = /** @default(0) */ number | string;
@@ -120,7 +122,7 @@ export interface RecurrenceEndGigaform {
     readonly tainted: RecurrenceEndTainted;
     readonly variants: RecurrenceEndVariantFields;
     switchVariant(variant: 'number' | 'string'): void;
-    validate(): Result<RecurrenceEnd, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, RecurrenceEnd>;
     reset(overrides?: Partial<RecurrenceEnd>): void;
 } /** Variant fields container */
 export interface RecurrenceEndVariantFields {
@@ -153,7 +155,7 @@ export function recurrenceEndCreateForm(initial?: RecurrenceEnd): RecurrenceEndG
         errors = {} as RecurrenceEndErrors;
         tainted = {} as RecurrenceEndTainted;
     }
-    function validate(): Result<RecurrenceEnd, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, RecurrenceEnd> {
         return recurrenceEndDeserialize(data);
     }
     function reset(overrides?: Partial<RecurrenceEnd>): void {
@@ -193,10 +195,10 @@ export function recurrenceEndCreateForm(initial?: RecurrenceEnd): RecurrenceEndG
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function recurrenceEndFromFormData(
     formData: FormData
-): Result<RecurrenceEnd, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, RecurrenceEnd> {
     const discriminant = formData.get('_type') as 'number' | 'string' | null;
     if (!discriminant) {
-        return Result.err([{ field: '_type', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_type', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;

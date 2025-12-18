@@ -7,8 +7,9 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
@@ -175,21 +176,21 @@ export interface ColorGigaform {
     readonly errors: ColorErrors;
     readonly tainted: ColorTainted;
     readonly fields: ColorFieldControllers;
-    validate(): Result<Color, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Color>;
     reset(overrides?: Partial<Color>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function colorCreateForm(overrides?: Partial<Color>): ColorGigaform {
     let data = $state({ ...colorDefaultValue(), ...overrides });
     let errors = $state<ColorErrors>({
-        _errors: Option.none(),
-        red: Option.none(),
-        green: Option.none(),
-        blue: Option.none()
+        _errors: optionNone(),
+        red: optionNone(),
+        green: optionNone(),
+        blue: optionNone()
     });
     let tainted = $state<ColorTainted>({
-        red: Option.none(),
-        green: Option.none(),
-        blue: Option.none()
+        red: optionNone(),
+        green: optionNone(),
+        blue: optionNone()
     });
     const fields: ColorFieldControllers = {
         red: {
@@ -259,18 +260,18 @@ export function colorCreateForm(overrides?: Partial<Color>): ColorGigaform {
             }
         }
     };
-    function validate(): Result<Color, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Color> {
         return colorDeserialize(data);
     }
     function reset(newOverrides?: Partial<Color>): void {
         data = { ...colorDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            red: Option.none(),
-            green: Option.none(),
-            blue: Option.none()
+            _errors: optionNone(),
+            red: optionNone(),
+            green: optionNone(),
+            blue: optionNone()
         };
-        tainted = { red: Option.none(), green: Option.none(), blue: Option.none() };
+        tainted = { red: optionNone(), green: optionNone(), blue: optionNone() };
     }
     return {
         get data() {
@@ -298,7 +299,7 @@ export function colorCreateForm(overrides?: Partial<Color>): ColorGigaform {
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function colorFromFormData(
     formData: FormData
-): Result<Color, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Color> {
     const obj: Record<string, unknown> = {};
     {
         const redStr = formData.get('red');

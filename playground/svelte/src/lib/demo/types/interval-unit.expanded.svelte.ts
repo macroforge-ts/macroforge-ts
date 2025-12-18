@@ -7,8 +7,10 @@ import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde'
 import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
 import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import { exitFail } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 
 export type IntervalUnit = /** @default */ 'Day' | 'Week' | 'Month' | 'Year';
@@ -132,7 +134,7 @@ export interface IntervalUnitGigaform {
     readonly tainted: IntervalUnitTainted;
     readonly variants: IntervalUnitVariantFields;
     switchVariant(variant: 'Day' | 'Week' | 'Month' | 'Year'): void;
-    validate(): Result<IntervalUnit, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, IntervalUnit>;
     reset(overrides?: Partial<IntervalUnit>): void;
 } /** Variant fields container */
 export interface IntervalUnitVariantFields {
@@ -174,7 +176,7 @@ export function intervalUnitCreateForm(initial?: IntervalUnit): IntervalUnitGiga
         errors = {} as IntervalUnitErrors;
         tainted = {} as IntervalUnitTainted;
     }
-    function validate(): Result<IntervalUnit, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, IntervalUnit> {
         return intervalUnitDeserialize(data);
     }
     function reset(overrides?: Partial<IntervalUnit>): void {
@@ -214,10 +216,10 @@ export function intervalUnitCreateForm(initial?: IntervalUnit): IntervalUnitGiga
 } /** Parses FormData for union type, determining variant from discriminant field */
 export function intervalUnitFromFormData(
     formData: FormData
-): Result<IntervalUnit, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, IntervalUnit> {
     const discriminant = formData.get('_value') as 'Day' | 'Week' | 'Month' | 'Year' | null;
     if (!discriminant) {
-        return Result.err([{ field: '_value', message: 'Missing discriminant field' }]);
+        return exitFail([{ field: '_value', message: 'Missing discriminant field' }]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;

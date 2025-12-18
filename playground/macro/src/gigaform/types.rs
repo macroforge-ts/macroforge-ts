@@ -44,7 +44,7 @@ pub fn generate(type_name: &str, fields: &[ParsedField]) -> TsStream {
             readonly errors: @{errors_name};
             readonly tainted: @{tainted_name};
             readonly fields: @{field_controllers_name};
-            validate(): Result<@{type_name}, Array<{ field: string; message: string }>>;
+            validate(): Exit<Array<{ field: string; message: string }>, @{type_name}>;
             reset(overrides?: Partial<@{type_name}>): void;
         }
     }
@@ -94,7 +94,7 @@ pub fn generate_with_generics(
             readonly errors: @{errors_name}@{generic_args};
             readonly tainted: @{tainted_name}@{generic_args};
             readonly fields: @{field_controllers_name}@{generic_args};
-            validate(): Result<@{type_name}@{generic_args}, Array<{ field: string; message: string }>>;
+            validate(): Exit<Array<{ field: string; message: string }>, @{type_name}@{generic_args}>;
             reset(overrides?: Partial<@{type_name}@{generic_args}>): void;
         }
     }
@@ -196,7 +196,7 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
             readonly tainted: @{tainted_name};
             readonly variants: @{variant_fields_name};
             switchVariant(variant: @{variant_union_literal}): void;
-            validate(): Result<@{type_name}, Array<{ field: string; message: string }>>;
+            validate(): Exit<Array<{ field: string; message: string }>, @{type_name}>;
             reset(overrides?: Partial<@{type_name}>): void;
         }
 

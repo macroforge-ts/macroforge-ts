@@ -48,7 +48,7 @@ The `@hash` decorator supports:
 
 ## Example
 
-```typescript before
+```typescript
 /** @derive(Hash, PartialEq) */
 class User {
     id: number;
@@ -59,7 +59,9 @@ class User {
 }
 ```
 
-```typescript after
+Generated output:
+
+```typescript
 class User {
     id: number;
     name: string;

@@ -21,8 +21,9 @@ import { accountNameDeserializeWithContext } from './account-name.svelte';
 import { colorsDeserializeWithContext } from './colors.svelte';
 import { emailDeserializeWithContext } from './email.svelte';
 import { sectorDeserializeWithContext } from './sector.svelte';
-import { Result } from '@playground/macro/gigaform';
-import { Option } from '@playground/macro/gigaform';
+import type { Exit } from '@playground/macro/gigaform';
+import type { Option } from '@playground/macro/gigaform';
+import { optionNone } from '@playground/macro/gigaform';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 import type { Did } from './did.svelte';
@@ -602,59 +603,59 @@ export interface AccountGigaform {
     readonly errors: AccountErrors;
     readonly tainted: AccountTainted;
     readonly fields: AccountFieldControllers;
-    validate(): Result<Account, Array<{ field: string; message: string }>>;
+    validate(): Exit<Array<{ field: string; message: string }>, Account>;
     reset(overrides?: Partial<Account>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform {
     let data = $state({ ...accountDefaultValue(), ...overrides });
     let errors = $state<AccountErrors>({
-        _errors: Option.none(),
-        id: Option.none(),
-        taxRate: Option.none(),
-        site: Option.none(),
-        salesRep: Option.none(),
-        orders: Option.none(),
-        activity: Option.none(),
-        customFields: Option.none(),
-        accountName: Option.none(),
-        sector: Option.none(),
-        memo: Option.none(),
-        phones: Option.none(),
-        email: Option.none(),
-        leadSource: Option.none(),
-        colors: Option.none(),
-        needsReview: Option.none(),
-        hasAlert: Option.none(),
-        accountType: Option.none(),
-        subtype: Option.none(),
-        isTaxExempt: Option.none(),
-        paymentTerms: Option.none(),
-        tags: Option.none(),
-        dateAdded: Option.none()
+        _errors: optionNone(),
+        id: optionNone(),
+        taxRate: optionNone(),
+        site: optionNone(),
+        salesRep: optionNone(),
+        orders: optionNone(),
+        activity: optionNone(),
+        customFields: optionNone(),
+        accountName: optionNone(),
+        sector: optionNone(),
+        memo: optionNone(),
+        phones: optionNone(),
+        email: optionNone(),
+        leadSource: optionNone(),
+        colors: optionNone(),
+        needsReview: optionNone(),
+        hasAlert: optionNone(),
+        accountType: optionNone(),
+        subtype: optionNone(),
+        isTaxExempt: optionNone(),
+        paymentTerms: optionNone(),
+        tags: optionNone(),
+        dateAdded: optionNone()
     });
     let tainted = $state<AccountTainted>({
-        id: Option.none(),
-        taxRate: Option.none(),
-        site: Option.none(),
-        salesRep: Option.none(),
-        orders: Option.none(),
-        activity: Option.none(),
-        customFields: Option.none(),
-        accountName: Option.none(),
-        sector: Option.none(),
-        memo: Option.none(),
-        phones: Option.none(),
-        email: Option.none(),
-        leadSource: Option.none(),
-        colors: Option.none(),
-        needsReview: Option.none(),
-        hasAlert: Option.none(),
-        accountType: Option.none(),
-        subtype: Option.none(),
-        isTaxExempt: Option.none(),
-        paymentTerms: Option.none(),
-        tags: Option.none(),
-        dateAdded: Option.none()
+        id: optionNone(),
+        taxRate: optionNone(),
+        site: optionNone(),
+        salesRep: optionNone(),
+        orders: optionNone(),
+        activity: optionNone(),
+        customFields: optionNone(),
+        accountName: optionNone(),
+        sector: optionNone(),
+        memo: optionNone(),
+        phones: optionNone(),
+        email: optionNone(),
+        leadSource: optionNone(),
+        colors: optionNone(),
+        needsReview: optionNone(),
+        hasAlert: optionNone(),
+        accountType: optionNone(),
+        subtype: optionNone(),
+        isTaxExempt: optionNone(),
+        paymentTerms: optionNone(),
+        tags: optionNone(),
+        dateAdded: optionNone()
     });
     const fields: AccountFieldControllers = {
         id: {
@@ -1306,59 +1307,59 @@ export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform
             }
         }
     };
-    function validate(): Result<Account, Array<{ field: string; message: string }>> {
+    function validate(): Exit<Array<{ field: string; message: string }>, Account> {
         return accountDeserialize(data);
     }
     function reset(newOverrides?: Partial<Account>): void {
         data = { ...accountDefaultValue(), ...newOverrides };
         errors = {
-            _errors: Option.none(),
-            id: Option.none(),
-            taxRate: Option.none(),
-            site: Option.none(),
-            salesRep: Option.none(),
-            orders: Option.none(),
-            activity: Option.none(),
-            customFields: Option.none(),
-            accountName: Option.none(),
-            sector: Option.none(),
-            memo: Option.none(),
-            phones: Option.none(),
-            email: Option.none(),
-            leadSource: Option.none(),
-            colors: Option.none(),
-            needsReview: Option.none(),
-            hasAlert: Option.none(),
-            accountType: Option.none(),
-            subtype: Option.none(),
-            isTaxExempt: Option.none(),
-            paymentTerms: Option.none(),
-            tags: Option.none(),
-            dateAdded: Option.none()
+            _errors: optionNone(),
+            id: optionNone(),
+            taxRate: optionNone(),
+            site: optionNone(),
+            salesRep: optionNone(),
+            orders: optionNone(),
+            activity: optionNone(),
+            customFields: optionNone(),
+            accountName: optionNone(),
+            sector: optionNone(),
+            memo: optionNone(),
+            phones: optionNone(),
+            email: optionNone(),
+            leadSource: optionNone(),
+            colors: optionNone(),
+            needsReview: optionNone(),
+            hasAlert: optionNone(),
+            accountType: optionNone(),
+            subtype: optionNone(),
+            isTaxExempt: optionNone(),
+            paymentTerms: optionNone(),
+            tags: optionNone(),
+            dateAdded: optionNone()
         };
         tainted = {
-            id: Option.none(),
-            taxRate: Option.none(),
-            site: Option.none(),
-            salesRep: Option.none(),
-            orders: Option.none(),
-            activity: Option.none(),
-            customFields: Option.none(),
-            accountName: Option.none(),
-            sector: Option.none(),
-            memo: Option.none(),
-            phones: Option.none(),
-            email: Option.none(),
-            leadSource: Option.none(),
-            colors: Option.none(),
-            needsReview: Option.none(),
-            hasAlert: Option.none(),
-            accountType: Option.none(),
-            subtype: Option.none(),
-            isTaxExempt: Option.none(),
-            paymentTerms: Option.none(),
-            tags: Option.none(),
-            dateAdded: Option.none()
+            id: optionNone(),
+            taxRate: optionNone(),
+            site: optionNone(),
+            salesRep: optionNone(),
+            orders: optionNone(),
+            activity: optionNone(),
+            customFields: optionNone(),
+            accountName: optionNone(),
+            sector: optionNone(),
+            memo: optionNone(),
+            phones: optionNone(),
+            email: optionNone(),
+            leadSource: optionNone(),
+            colors: optionNone(),
+            needsReview: optionNone(),
+            hasAlert: optionNone(),
+            accountType: optionNone(),
+            subtype: optionNone(),
+            isTaxExempt: optionNone(),
+            paymentTerms: optionNone(),
+            tags: optionNone(),
+            dateAdded: optionNone()
         };
     }
     return {
@@ -1387,7 +1388,7 @@ export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform
 } /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
 export function accountFromFormData(
     formData: FormData
-): Result<Account, Array<{ field: string; message: string }>> {
+): Exit<Array<{ field: string; message: string }>, Account> {
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.taxRate = formData.get('taxRate') ?? '';
