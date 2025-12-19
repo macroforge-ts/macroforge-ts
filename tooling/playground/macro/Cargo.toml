@@ -1,0 +1,30 @@
+[package]
+name = "playground-macros"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[package.metadata.cargo-machete]
+# napi is required: napi_derive::napi generates code referencing ::napi
+ignored = ["napi"]
+
+[lib]
+name = "playground_macros"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+# Core macro framework - re-exports macroforge_ts_syn, macroforge_ts_quote, macroforge_ts_macros, inventory, serde_json
+macroforge_ts = { path = "../../crates/macroforge_ts" }
+# NAPI deps required directly (napi_derive generates ::napi references)
+napi = { version = "3.5.2", features = ["napi8", "compat-mode"] }
+napi-derive = "3.3.3"
+
+# Serialization for parsing decorator options
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+convert_case = "0.10.0"
+
+[build-dependencies]
+napi-build = "2.3.1"
+macroforge_ts = { path = "../../crates/macroforge_ts", features = ["build"] }
