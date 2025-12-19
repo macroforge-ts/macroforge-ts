@@ -2,7 +2,14 @@
     "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
     "files": {
         "ignoreUnknown": false,
-        "includes": ["**", "!!**/dist", "!!**/build", "!!**/node_modules"],
+        "includes": [
+            "**",
+            "!!**/dist",
+            "!!**/build",
+            "!!**/node_modules",
+            "!!**/*.expanded.svelte.ts",
+            "!!**/*.expanded.ts"
+        ],
         "maxSize": 2097152
     },
     "formatter": {
@@ -112,18 +119,6 @@
             },
             "assist": {
                 "actions": { "source": { "organizeImports": "off" } }
-            }
-        },
-        {
-            "includes": ["**/*.expanded.svelte.ts", "**/*.expanded.ts"],
-            "linter": {
-                "enabled": false
-            },
-            "formatter": {
-                "enabled": false
-            },
-            "assist": {
-                "enabled": false
             }
         },
         {
