@@ -61,11 +61,11 @@
 //! ```typescript
 //! class UserSettings {
 //!     theme: string;
-//! 
+//!
 //!     pageSize: number;
-//! 
+//!
 //!     notifications: boolean; // Uses type default: false
-//! 
+//!
 //!     static defaultValue(): UserSettings {
 //!         const instance = new UserSettings();
 //!         instance.theme = 'light';
@@ -99,11 +99,11 @@
 //!     Active,
 //!     Completed
 //! }
-//! 
+//!
 //! export function statusDefaultValue(): Status {
 //!     return Status.Pending;
 //! }
-//! 
+//!
 //! namespace Status {
 //!     export const defaultValue = statusDefaultValue;
 //! }
@@ -192,7 +192,9 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let opts = DefaultFieldOptions::from_decorators(&field.decorators);
                     DefaultField {
                         name: field.name.clone(),
-                        value: opts.value.unwrap_or_else(|| get_type_default(&field.ts_type)),
+                        value: opts
+                            .value
+                            .unwrap_or_else(|| get_type_default(&field.ts_type)),
                     }
                 })
                 .collect();
@@ -306,7 +308,9 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let opts = DefaultFieldOptions::from_decorators(&field.decorators);
                     DefaultField {
                         name: field.name.clone(),
-                        value: opts.value.unwrap_or_else(|| get_type_default(&field.ts_type)),
+                        value: opts
+                            .value
+                            .unwrap_or_else(|| get_type_default(&field.ts_type)),
                     }
                 })
                 .collect();

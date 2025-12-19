@@ -332,8 +332,10 @@ pub fn clear_type_only_imports() {
 /// * `alias` - The alias to use in generated code (e.g., "__mf_DateTime")
 pub fn register_required_namespace(namespace: &str, module: &str, alias: &str) {
     REQUIRED_NS_IMPORTS.with(|ns| {
-        ns.borrow_mut()
-            .insert(namespace.to_string(), (module.to_string(), alias.to_string()));
+        ns.borrow_mut().insert(
+            namespace.to_string(),
+            (module.to_string(), alias.to_string()),
+        );
     });
 }
 
