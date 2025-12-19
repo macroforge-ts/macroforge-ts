@@ -1,5 +1,5 @@
 {
-  "generated": "1766122770Z",
+  "generated": "1766127633Z",
   "packages": [
     {
       "name": "@macroforge/shared",
@@ -15,7 +15,7 @@
     },
     {
       "name": "@macroforge/svelte-preprocessor",
-      "version": "0.1.49",
+      "version": "0.1.46",
       "itemCount": 2,
       "hasOverview": false
     },
