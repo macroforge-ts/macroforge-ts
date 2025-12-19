@@ -1,5 +1,5 @@
 {
-  "generated": "1766138762Z",
+  "generated": "1766139406Z",
   "crates": [
     {
       "name": "macroforge_ts",
@@ -23,15 +23,15 @@
     }
   ],
   "builtinMacros": [
+    "default",
+    "partial_ord",
+    "hash",
+    "serialize",
     "deserialize",
-    "ord",
+    "partial_eq",
     "debug",
     "clone",
-    "default",
-    "serialize",
-    "partial_eq",
-    "hash",
-    "partial_ord"
+    "ord"
   ],
   "cli": null
 }
