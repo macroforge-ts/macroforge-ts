@@ -230,7 +230,7 @@ fn commit_repo(
     root: &Path,
     repo: &Repo,
     version: &str,
-    commit_msg: &str,
+    cli_msg: Option<&str>,
     auto_yes: bool,
     dry_run: bool,
 ) -> Result<Action, String> {
@@ -302,8 +302,23 @@ fn commit_repo(
         println!("  {} more files...", format!("... and {}", status.lines().count() - 20).dimmed());
     }
 
+    // Get commit message for this repo
+    let default_msg = format!("Bump to {}", version);
+    let commit_msg = match cli_msg {
+        Some(msg) => msg.to_string(),
+        None => {
+            println!();
+            Input::new()
+                .with_prompt("Commit message")
+                .default(default_msg.clone())
+                .interact_text()
+                .unwrap_or(default_msg)
+        }
+    };
+
     // Confirm
-    if !auto_yes {
+    if !auto_yes && cli_msg.is_some() {
+        // Only confirm if message was provided via CLI (otherwise the prompt serves as confirmation)
         println!();
         if !Confirm::new()
             .with_prompt("Commit these changes?")
@@ -319,7 +334,7 @@ fn commit_repo(
         let would_tag = !tag_exists_remotely(&tag, &repo_path);
         println!("\n{} Would run:", "[dry-run]".yellow());
         println!("  git add -A");
-        println!("  git commit -m \"{}\"", commit_msg);
+        println!("  git commit -m \"{}\"", &commit_msg);
         if would_tag {
             println!("  git tag {}", tag);
             println!("  git push && git push --tags");
@@ -339,7 +354,7 @@ fn commit_repo(
     // Commit
     print!("  {} Committing... ", "→".blue());
     io::stdout().flush().ok();
-    match run_git(&["commit", "-m", commit_msg], &repo_path) {
+    match run_git(&["commit", "-m", &commit_msg], &repo_path) {
         Ok(_) => println!("{}", "✓".green()),
         Err(e) => {
             println!("{}", "✗".red());
@@ -479,27 +494,15 @@ fn main() -> ExitCode {
         println!("{} {}", "Mode:".bold(), "DRY RUN".yellow());
     }
 
-    // Get commit message
-    let default_msg = format!("Bump to {}", version);
-    let commit_msg = match args.message {
-        Some(msg) => msg,
-        None => {
-            println!();
-            Input::new()
-                .with_prompt("Commit message")
-                .default(default_msg.clone())
-                .interact_text()
-                .unwrap_or(default_msg)
-        }
-    };
-
-    println!("{} {}", "Message:".bold(), commit_msg.cyan());
+    if let Some(ref msg) = args.message {
+        println!("{} {}", "Message:".bold(), msg.cyan());
+    }
 
     let mut completed = Vec::new();
     let mut skipped = Vec::new();
 
     for repo in &repos {
-        match commit_repo(&root, repo, &version, &commit_msg, args.yes, args.dry_run) {
+        match commit_repo(&root, repo, &version, args.message.as_deref(), args.yes, args.dry_run) {
             Ok(Action::Continue) => completed.push(repo.name),
             Ok(Action::Skip) => {
                 println!("  {} Skipping {}", "→".yellow(), repo.name);
