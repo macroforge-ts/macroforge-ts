@@ -1,11 +1,10 @@
 <script lang="ts">
     import CodeBlock from "./CodeBlock.svelte";
-    import { resolve } from "$app/paths";
     import { slide } from "svelte/transition";
 
     interface Props {
         code: string;
-        expanded?: string;
+        expanded: string;
         codeHtml?: string;
         expandedHtml?: string;
     }
@@ -13,52 +12,6 @@
     let { code, expanded, codeHtml, expandedHtml }: Props = $props();
 
     let showExpanded = $state(false);
-    let fetchedCode = $state<string | null>(null);
-    let fetchedCodeHtml = $state<string | null>(null);
-    let fetchedExpandedHtml = $state<string | null>(null);
-    let isLoading = $state(false);
-    let error = $state<string | null>(null);
-
-    // Use prop if provided, otherwise use fetched result
-    let expandedCode = $derived(expanded ?? fetchedCode);
-    let sourceHtml = $derived(codeHtml ?? fetchedCodeHtml);
-    let generatedHtml = $derived(expandedHtml ?? fetchedExpandedHtml);
-
-    async function fetchExpanded() {
-        if (fetchedCode !== null) return;
-
-        isLoading = true;
-        error = null;
-
-        try {
-            const response = await fetch(resolve('/api/expand'), {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code }),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || "Expansion failed");
-            }
-
-            fetchedCode = result.code;
-            fetchedCodeHtml = result.codeHtml;
-            fetchedExpandedHtml = result.expandedHtml;
-        } catch (e) {
-            error = e instanceof Error ? e.message : "Expansion failed";
-        } finally {
-            isLoading = false;
-        }
-    }
-
-    function toggle() {
-        showExpanded = !showExpanded;
-        if (showExpanded && expandedCode === null) {
-            fetchExpanded();
-        }
-    }
 </script>
 
 <div class="space-y-4">
@@ -66,15 +19,13 @@
         <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-warning"></div>
-                <span class="text-sm font-medium text-muted-foreground"
-                    >Source</span
-                >
+                <span class="text-sm font-medium text-muted-foreground">Source</span>
             </div>
             <button
-                onclick={toggle}
+                onclick={() => showExpanded = !showExpanded}
                 class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md
-					bg-primary text-primary-foreground hover:bg-primary/90
-					transition-colors"
+                    bg-primary text-primary-foreground hover:bg-primary/90
+                    transition-colors"
             >
                 {#if showExpanded}
                     <svg
@@ -101,51 +52,16 @@
                 {/if}
             </button>
         </div>
-        <CodeBlock {code} lang="typescript" html={sourceHtml ?? undefined} />
+        <CodeBlock {code} lang="typescript" html={codeHtml} />
     </div>
 
     {#if showExpanded}
         <div transition:slide>
-            {#if isLoading}
-                <div class="flex items-center gap-2 text-muted-foreground">
-                    <svg
-                        class="w-4 h-4 animate-spin"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                    >
-                        <circle
-                            class="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            stroke-width="4"
-                        ></circle>
-                        <path
-                            class="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                    </svg>
-                    <span class="text-sm">Expanding...</span>
-                </div>
-            {:else if error}
-                <div
-                    class="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm"
-                >
-                    {error}
-                </div>
-            {:else if expandedCode}
-                <div>
-                    <div class="flex items-center gap-2 mb-3">
-                        <div class="w-3 h-3 rounded-full bg-success"></div>
-                        <span class="text-sm font-medium text-muted-foreground"
-                            >Generated</span
-                        >
-                    </div>
-                    <CodeBlock code={expandedCode} lang="typescript" html={generatedHtml ?? undefined} />
-                </div>
-            {/if}
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-3 h-3 rounded-full bg-success"></div>
+                <span class="text-sm font-medium text-muted-foreground">Generated</span>
+            </div>
+            <CodeBlock code={expanded} lang="typescript" html={expandedHtml} />
         </div>
     {/if}
 </div>

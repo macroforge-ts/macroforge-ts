@@ -1,5 +1,6 @@
 import { visit } from 'unist-util-visit';
 import { highlightCode } from './shiki-highlighter.js';
+import { expandSync } from 'macroforge';
 
 /**
  * Escape code for use in a Svelte expression.
@@ -155,16 +156,28 @@ export function remarkMacroBlocks() {
 		}
 
 		for (const { parent, index, node, lang } of interactiveMacros) {
-			const codeHtml = await highlightCode(node.value, lang);
+			// Expand the macro at build time
+			const result = expandSync(node.value, 'example.ts');
+			let expandedCode = result.code;
+			// Remove the macroforge import line if present
+			expandedCode = expandedCode.replace(/^import\s+\{[^}]+\}\s+from\s+['"]macroforge['"];\s*\n?/m, '');
+
+			const [codeHtml, expandedHtml] = await Promise.all([
+				highlightCode(node.value, lang),
+				highlightCode(expandedCode, lang)
+			]);
+
 			const code = escapeForSvelte(node.value);
+			const expanded = escapeForSvelte(expandedCode);
 			const codeHtmlEscaped = escapeForSvelte(codeHtml);
+			const expandedHtmlEscaped = escapeForSvelte(expandedHtml);
 
 			replacements.push({
 				parent,
 				index,
 				node: {
 					type: 'html',
-					value: `<InteractiveMacro code={${code}} codeHtml={${codeHtmlEscaped}} />`
+					value: `<InteractiveMacro code={${code}} expanded={${expanded}} codeHtml={${codeHtmlEscaped}} expandedHtml={${expandedHtmlEscaped}} />`
 				}
 			});
 		}

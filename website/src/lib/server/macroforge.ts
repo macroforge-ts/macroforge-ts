@@ -1,5 +1,4 @@
 import { expandSync } from 'macroforge';
-import { execSync } from 'child_process';
 import { highlightCode } from '../shiki-highlighter.js';
 
 export interface ExpandedExample {
@@ -7,46 +6,6 @@ export interface ExpandedExample {
 	after: string;
 	beforeHtml: string;
 	afterHtml: string;
-}
-
-/**
- * Format TypeScript code using Biome CLI
- * Fails during production builds to catch code generation bugs early
- */
-function formatCode(code: string, debugName?: string): string {
-	const isProduction = process.env.NODE_ENV === 'production';
-
-	try {
-		const result = execSync('npx @biomejs/biome format --stdin-file-path=example.ts', {
-			input: code,
-			encoding: 'utf-8',
-			maxBuffer: 10 * 1024 * 1024,
-			stdio: ['pipe', 'pipe', 'pipe'] // Suppress stderr output
-		});
-		return result.trim();
-	} catch (error) {
-		const snippet = code.slice(0, 500).replace(/\n/g, '\\n');
-		const errorMessage = error instanceof Error ? error.message : String(error);
-
-		if (isProduction) {
-			// Fail build in production to catch code generation bugs
-			console.error(`[macroforge] Biome format failed for "${debugName || 'unknown'}"`);
-			console.error(`  Code snippet: ${snippet}...`);
-			console.error(`  Error: ${errorMessage}`);
-			throw new Error(
-				`Build failed: Generated code could not be formatted. ` +
-					`This usually indicates a bug in macro expansion. ` +
-					`File: ${debugName || 'unknown'}`
-			);
-		}
-
-		// In development, log warning and continue
-		if (debugName) {
-			console.warn(`[macroforge] Biome format failed for "${debugName}"`);
-			console.warn(`  Code snippet: ${snippet}...`);
-		}
-		return code.trim();
-	}
 }
 
 /**
@@ -62,19 +21,15 @@ export async function expandExample(code: string, filename = 'example.ts'): Prom
 	// Remove the macroforge import line if present
 	after = after.replace(/^import\s+\{[^}]+\}\s+from\s+['"]macroforge['"];\s*\n?/m, '');
 
-	// Format the output with Biome
-	const beforeFormatted = formatCode(code.trim(), `${filename}:before`);
-	const afterFormatted = formatCode(after, `${filename}:after`);
-
 	// Pre-highlight with Shiki
 	const [beforeHtml, afterHtml] = await Promise.all([
-		highlightCode(beforeFormatted),
-		highlightCode(afterFormatted)
+		highlightCode(code.trim()),
+		highlightCode(after.trim())
 	]);
 
 	return {
-		before: beforeFormatted,
-		after: afterFormatted,
+		before: code.trim(),
+		after: after.trim(),
 		beforeHtml,
 		afterHtml
 	};
