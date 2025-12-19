@@ -111,8 +111,8 @@ pub mod build;
 // Re-export abi types from ts_syn
 pub use ts_syn::abi;
 
-use host::derived;
 use host::CONFIG_CACHE;
+use host::derived;
 use ts_syn::{Diagnostic, DiagnosticLevel};
 
 pub mod builtin;

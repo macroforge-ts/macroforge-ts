@@ -448,10 +448,7 @@ fn extract_import_sources_from_code(
         source.to_string(),
     );
 
-    let is_tsx = filepath
-        .extension()
-        .map(|e| e == "tsx")
-        .unwrap_or(false);
+    let is_tsx = filepath.extension().map(|e| e == "tsx").unwrap_or(false);
 
     let lexer = Lexer::new(
         Syntax::Typescript(TsSyntax {
@@ -1196,7 +1193,10 @@ mod tests {
         let path = Path::new("test.ts");
         let (imports, _aliases) = extract_import_sources_from_code(code, path);
 
-        assert_eq!(imports.get("DateTime"), Some(&"effect/DateTime".to_string()));
+        assert_eq!(
+            imports.get("DateTime"),
+            Some(&"effect/DateTime".to_string())
+        );
     }
 
     #[test]
@@ -1304,7 +1304,10 @@ mod tests {
         let (imports, aliases) = extract_import_sources_from_code(code, path);
 
         // Check sources
-        assert_eq!(imports.get("EffectOption"), Some(&"effect/Option".to_string()));
+        assert_eq!(
+            imports.get("EffectOption"),
+            Some(&"effect/Option".to_string())
+        );
         assert_eq!(imports.get("EffectDateTime"), Some(&"effect".to_string()));
 
         // Check aliases (local name -> original name)
