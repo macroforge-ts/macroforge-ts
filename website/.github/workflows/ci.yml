@@ -1,40 +1,40 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "24"
+                  cache: "npm"
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Sync SvelteKit
-        run: npx svelte-kit sync
+            - name: Sync SvelteKit
+              run: npx svelte-kit sync
 
-      - name: Type check
-        run: npm run check
+            - name: Type check
+              run: npm run check
 
-      - name: Lint
-        run: npm run lint --if-present
+            - name: Lint
+              run: npm run lint --if-present
 
-      - name: Build
-        run: npm run build
+            - name: Build
+              run: npm run build
 
-      - name: Deploy website
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          curl -X POST "${{ secrets.DEPLOY_WEBHOOK_URL }}" \
-            -H "Authorization: Bearer ${{ secrets.DEPLOY_API_TOKEN }}"
+            - name: Deploy website
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+              run: |
+                  curl -X POST "${{ secrets.DEPLOY_WEBHOOK_URL }}" \
+                    -H "Authorization: Bearer ${{ secrets.DEPLOY_API_TOKEN }}"
