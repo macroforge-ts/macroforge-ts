@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import favicon from '$lib/assets/favicon.svg';
+import { onMount } from 'svelte';
+import favicon from '$lib/assets/favicon.svg';
 
-	let { children } = $props();
+let { children } = $props();
 
-	// Mark when hydration is complete for Playwright tests
-	onMount(() => {
-		document.body.classList.add('hydrated');
-	});
+// Mark when hydration is complete for Playwright tests
+onMount(() => {
+    document.body.classList.add('hydrated');
+});
 </script>
 
 <svelte:head>

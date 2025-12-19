@@ -2,6 +2,6 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface DataPath {
-    path: string[];
+    path: Array<string>;
     formatter: string | null;
 }

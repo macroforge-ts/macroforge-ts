@@ -1,82 +1,94 @@
 <script lang="ts">
-  import {
+import {
     phoneNumberCreateForm,
     gradientCreateForm,
     coordinatesCreateForm,
     type PhoneNumber,
     type Gradient,
-    type Coordinates,
-  } from "$lib/demo/types";
+    type Coordinates
+} from '$lib/demo/types';
 
-  // Create form instances
-  const phoneForm = phoneNumberCreateForm();
-  const gradientForm = gradientCreateForm();
-  const coordinatesForm = coordinatesCreateForm();
+// Create form instances
+const phoneForm = phoneNumberCreateForm();
+const gradientForm = gradientCreateForm();
+const coordinatesForm = coordinatesCreateForm();
 
-  // Track validation results
-  let phoneResult: { success: boolean; data?: PhoneNumber; errors?: Array<{ field: string; message: string }> } | null = $state(null);
-  let gradientResult: { success: boolean; data?: Gradient; errors?: Array<{ field: string; message: string }> } | null = $state(null);
-  let coordinatesResult: { success: boolean; data?: Coordinates; errors?: Array<{ field: string; message: string }> } | null = $state(null);
+// Track validation results
+let phoneResult: {
+    success: boolean;
+    data?: PhoneNumber;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
+let gradientResult: {
+    success: boolean;
+    data?: Gradient;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
+let coordinatesResult: {
+    success: boolean;
+    data?: Coordinates;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
 
-  // Expose forms to Playwright for programmatic testing
-  if (typeof window !== "undefined") {
+// Expose forms to Playwright for programmatic testing
+if (typeof window !== 'undefined') {
     (window as any).gigaformResults = {
-      phoneNumber: phoneForm,
-      gradient: gradientForm,
-      coordinates: coordinatesForm,
+        phoneNumber: phoneForm,
+        gradient: gradientForm,
+        coordinates: coordinatesForm
     };
-  }
+}
 
-  function submitPhone() {
+function submitPhone() {
     const result = phoneForm.validate();
     if (result.isOk()) {
-      phoneResult = { success: true, data: result.unwrap() };
+        phoneResult = { success: true, data: result.unwrap() };
     } else {
-      phoneResult = { success: false, errors: result.unwrapErr() };
+        phoneResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.phoneValidation = phoneResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.phoneValidation = phoneResult;
     }
-  }
+}
 
-  function submitGradient() {
+function submitGradient() {
     const result = gradientForm.validate();
     if (result.isOk()) {
-      gradientResult = { success: true, data: result.unwrap() };
+        gradientResult = { success: true, data: result.unwrap() };
     } else {
-      gradientResult = { success: false, errors: result.unwrapErr() };
+        gradientResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.gradientValidation = gradientResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.gradientValidation = gradientResult;
     }
-  }
+}
 
-  function submitCoordinates() {
+function submitCoordinates() {
     const result = coordinatesForm.validate();
     if (result.isOk()) {
-      coordinatesResult = { success: true, data: result.unwrap() };
+        coordinatesResult = { success: true, data: result.unwrap() };
     } else {
-      coordinatesResult = { success: false, errors: result.unwrapErr() };
+        coordinatesResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.coordinatesValidation = coordinatesResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.coordinatesValidation = coordinatesResult;
     }
-  }
+}
 
-  function resetPhone() {
+function resetPhone() {
     phoneForm.reset();
     phoneResult = null;
-  }
+}
 
-  function resetGradient() {
+function resetGradient() {
     gradientForm.reset();
     gradientResult = null;
-  }
+}
 
-  function resetCoordinates() {
+function resetCoordinates() {
     coordinatesForm.reset();
     coordinatesResult = null;
-  }
+}
 </script>
 
 <svelte:head>

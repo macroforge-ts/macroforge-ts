@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Number {
@@ -42,9 +41,9 @@ export function numberSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Number', __id };
-    result['countryCode'] = value.countryCode;
-    result['areaCode'] = value.areaCode;
-    result['localNumber'] = value.localNumber;
+    result.countryCode = value.countryCode;
+    result.areaCode = value.areaCode;
+    result.localNumber = value.localNumber;
     return result;
 }
 
@@ -120,21 +119,21 @@ export function numberDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_countryCode = obj['countryCode'] as string;
+        const __raw_countryCode = obj.countryCode as string;
         if (__raw_countryCode.length === 0) {
             errors.push({ field: 'countryCode', message: 'must not be empty' });
         }
         instance.countryCode = __raw_countryCode;
     }
     {
-        const __raw_areaCode = obj['areaCode'] as string;
+        const __raw_areaCode = obj.areaCode as string;
         if (__raw_areaCode.length === 0) {
             errors.push({ field: 'areaCode', message: 'must not be empty' });
         }
         instance.areaCode = __raw_areaCode;
     }
     {
-        const __raw_localNumber = obj['localNumber'] as string;
+        const __raw_localNumber = obj.localNumber as string;
         if (__raw_localNumber.length === 0) {
             errors.push({ field: 'localNumber', message: 'must not be empty' });
         }

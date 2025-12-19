@@ -1,16 +1,17 @@
-import { coordinatesDefaultValue } from './coordinates.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { coordinatesSerializeWithContext } from './coordinates.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { coordinatesDeserializeWithContext } from './coordinates.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    coordinatesDefaultValue,
+    coordinatesDeserializeWithContext,
+    coordinatesSerializeWithContext
+} from './coordinates.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { Coordinates } from './coordinates.svelte';
@@ -72,18 +73,18 @@ export function siteSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Site', __id };
-    result['id'] = value.id;
-    result['addressLine1'] = value.addressLine1;
-    result['addressLine2'] = value.addressLine2;
-    result['sublocalityLevel1'] = value.sublocalityLevel1;
-    result['locality'] = value.locality;
-    result['administrativeAreaLevel3'] = value.administrativeAreaLevel3;
-    result['administrativeAreaLevel2'] = value.administrativeAreaLevel2;
-    result['administrativeAreaLevel1'] = value.administrativeAreaLevel1;
-    result['country'] = value.country;
-    result['postalCode'] = value.postalCode;
-    result['postalCodeSuffix'] = value.postalCodeSuffix;
-    result['coordinates'] = coordinatesSerializeWithContext(value.coordinates, ctx);
+    result.id = value.id;
+    result.addressLine1 = value.addressLine1;
+    result.addressLine2 = value.addressLine2;
+    result.sublocalityLevel1 = value.sublocalityLevel1;
+    result.locality = value.locality;
+    result.administrativeAreaLevel3 = value.administrativeAreaLevel3;
+    result.administrativeAreaLevel2 = value.administrativeAreaLevel2;
+    result.administrativeAreaLevel1 = value.administrativeAreaLevel1;
+    result.country = value.country;
+    result.postalCode = value.postalCode;
+    result.postalCodeSuffix = value.postalCodeSuffix;
+    result.coordinates = coordinatesSerializeWithContext(value.coordinates, ctx);
     return result;
 }
 
@@ -186,66 +187,66 @@ export function siteDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_addressLine1 = obj['addressLine1'] as string;
+        const __raw_addressLine1 = obj.addressLine1 as string;
         if (__raw_addressLine1.length === 0) {
             errors.push({ field: 'addressLine1', message: 'must not be empty' });
         }
         instance.addressLine1 = __raw_addressLine1;
     }
     {
-        const __raw_addressLine2 = obj['addressLine2'] as string | null;
+        const __raw_addressLine2 = obj.addressLine2 as string | null;
         instance.addressLine2 = __raw_addressLine2;
     }
     {
-        const __raw_sublocalityLevel1 = obj['sublocalityLevel1'] as string | null;
+        const __raw_sublocalityLevel1 = obj.sublocalityLevel1 as string | null;
         instance.sublocalityLevel1 = __raw_sublocalityLevel1;
     }
     {
-        const __raw_locality = obj['locality'] as string;
+        const __raw_locality = obj.locality as string;
         if (__raw_locality.length === 0) {
             errors.push({ field: 'locality', message: 'must not be empty' });
         }
         instance.locality = __raw_locality;
     }
     {
-        const __raw_administrativeAreaLevel3 = obj['administrativeAreaLevel3'] as string | null;
+        const __raw_administrativeAreaLevel3 = obj.administrativeAreaLevel3 as string | null;
         instance.administrativeAreaLevel3 = __raw_administrativeAreaLevel3;
     }
     {
-        const __raw_administrativeAreaLevel2 = obj['administrativeAreaLevel2'] as string | null;
+        const __raw_administrativeAreaLevel2 = obj.administrativeAreaLevel2 as string | null;
         instance.administrativeAreaLevel2 = __raw_administrativeAreaLevel2;
     }
     {
-        const __raw_administrativeAreaLevel1 = obj['administrativeAreaLevel1'] as string;
+        const __raw_administrativeAreaLevel1 = obj.administrativeAreaLevel1 as string;
         if (__raw_administrativeAreaLevel1.length === 0) {
             errors.push({ field: 'administrativeAreaLevel1', message: 'must not be empty' });
         }
         instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
     }
     {
-        const __raw_country = obj['country'] as string;
+        const __raw_country = obj.country as string;
         if (__raw_country.length === 0) {
             errors.push({ field: 'country', message: 'must not be empty' });
         }
         instance.country = __raw_country;
     }
     {
-        const __raw_postalCode = obj['postalCode'] as string;
+        const __raw_postalCode = obj.postalCode as string;
         if (__raw_postalCode.length === 0) {
             errors.push({ field: 'postalCode', message: 'must not be empty' });
         }
         instance.postalCode = __raw_postalCode;
     }
     {
-        const __raw_postalCodeSuffix = obj['postalCodeSuffix'] as string | null;
+        const __raw_postalCodeSuffix = obj.postalCodeSuffix as string | null;
         instance.postalCodeSuffix = __raw_postalCodeSuffix;
     }
     {
-        const __raw_coordinates = obj['coordinates'] as Coordinates;
+        const __raw_coordinates = obj.coordinates as Coordinates;
         {
             const __result = coordinatesDeserializeWithContext(__raw_coordinates, ctx);
             ctx.assignOrDefer(instance, 'coordinates', __result);

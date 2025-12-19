@@ -1,27 +1,26 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import type { Option as __gf_Option, ArrayFieldController, Exit } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 import { applicationsSerializeWithContext } from './applications.svelte';
 import { pageSerializeWithContext } from './page.svelte';
 import { tableSerializeWithContext } from './table.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { Page } from './page.svelte';
 import type { Applications } from './applications.svelte';
+import type { Page } from './page.svelte';
 import type { Table } from './table.svelte';
 
 export interface AppPermissions {
-    applications: Applications[];
-    pages: Page[];
-    data: Table[];
+    applications: Array<Applications>;
+    pages: Array<Page>;
+    data: Array<Table>;
 }
 
 export function appPermissionsDefaultValue(): AppPermissions {
@@ -48,11 +47,11 @@ export function appPermissionsSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'AppPermissions', __id };
-    result['applications'] = value.applications.map((item) =>
+    result.applications = value.applications.map((item) =>
         applicationsSerializeWithContext(item, ctx)
     );
-    result['pages'] = value.pages.map((item) => pageSerializeWithContext(item, ctx));
-    result['data'] = value.data.map((item) => tableSerializeWithContext(item, ctx));
+    result.pages = value.pages.map((item) => pageSerializeWithContext(item, ctx));
+    result.data = value.data.map((item) => tableSerializeWithContext(item, ctx));
     return result;
 }
 
@@ -128,21 +127,21 @@ export function appPermissionsDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_applications = obj['applications'] as Applications[];
+        const __raw_applications = obj.applications as Array<Applications>;
         if (Array.isArray(__raw_applications)) {
-            instance.applications = __raw_applications as Applications[];
+            instance.applications = __raw_applications as Array<Applications>;
         }
     }
     {
-        const __raw_pages = obj['pages'] as Page[];
+        const __raw_pages = obj.pages as Array<Page>;
         if (Array.isArray(__raw_pages)) {
-            instance.pages = __raw_pages as Page[];
+            instance.pages = __raw_pages as Array<Page>;
         }
     }
     {
-        const __raw_data = obj['data'] as Table[];
+        const __raw_data = obj.data as Array<Table>;
         if (Array.isArray(__raw_data)) {
-            instance.data = __raw_data as Table[];
+            instance.data = __raw_data as Array<Table>;
         }
     }
     if (errors.length > 0) {
@@ -221,10 +220,10 @@ export function appPermissionsCreateForm(
             name: 'applications',
             constraints: { required: true },
             get: () => data.applications,
-            set: (value: Applications[]) => {
+            set: (value: Array<Applications>) => {
                 data.applications = value;
             },
-            transform: (value: Applications[]): Applications[] => value,
+            transform: (value: Array<Applications>): Array<Applications> => value,
             getError: () => errors.applications,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.applications = value;
@@ -273,10 +272,10 @@ export function appPermissionsCreateForm(
             name: 'pages',
             constraints: { required: true },
             get: () => data.pages,
-            set: (value: Page[]) => {
+            set: (value: Array<Page>) => {
                 data.pages = value;
             },
-            transform: (value: Page[]): Page[] => value,
+            transform: (value: Array<Page>): Array<Page> => value,
             getError: () => errors.pages,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.pages = value;
@@ -325,10 +324,10 @@ export function appPermissionsCreateForm(
             name: 'data',
             constraints: { required: true },
             get: () => data.data,
-            set: (value: Table[]) => {
+            set: (value: Array<Table>) => {
                 data.data = value;
             },
-            transform: (value: Table[]): Table[] => value,
+            transform: (value: Array<Table>): Array<Table> => value,
             getError: () => errors.data,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.data = value;
@@ -417,15 +416,15 @@ export function appPermissionsFromFormData(
     {
         const applicationsItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('applications.' + idx + '.') || idx === 0) {
+        while (formData.has(`applications.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('applications.' + idx + '.')
+                k.startsWith(`applications.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('applications.' + idx + '.')) {
+                    if (key.startsWith(`applications.${idx}.`)) {
                         const fieldName = key.slice(
                             'applications.'.length + String(idx).length + 1
                         );
@@ -442,15 +441,13 @@ export function appPermissionsFromFormData(
     {
         const pagesItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('pages.' + idx + '.') || idx === 0) {
-            const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('pages.' + idx + '.')
-            );
+        while (formData.has(`pages.${idx}.`) || idx === 0) {
+            const hasAny = Array.from(formData.keys()).some((k) => k.startsWith(`pages.${idx}.`));
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('pages.' + idx + '.')) {
+                    if (key.startsWith(`pages.${idx}.`)) {
                         const fieldName = key.slice('pages.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }
@@ -465,15 +462,13 @@ export function appPermissionsFromFormData(
     {
         const dataItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('data.' + idx + '.') || idx === 0) {
-            const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('data.' + idx + '.')
-            );
+        while (formData.has(`data.${idx}.`) || idx === 0) {
+            const hasAny = Array.from(formData.keys()).some((k) => k.startsWith(`data.${idx}.`));
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('data.' + idx + '.')) {
+                    if (key.startsWith(`data.${idx}.`)) {
                         const fieldName = key.slice('data.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }

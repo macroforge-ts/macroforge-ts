@@ -1,18 +1,19 @@
-import { dataPathDefaultValue } from './data-path.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { dataPathSerializeWithContext } from './data-path.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { dataPathDeserializeWithContext } from './data-path.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
-import { DataPath } from './data-path.svelte';
+import {
+    type DataPath,
+    dataPathDefaultValue,
+    dataPathDeserializeWithContext,
+    dataPathSerializeWithContext
+} from './data-path.svelte';
 
 export interface ColumnConfig {
     heading: string;
@@ -43,8 +44,8 @@ export function columnConfigSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'ColumnConfig', __id };
-    result['heading'] = value.heading;
-    result['dataPath'] = dataPathSerializeWithContext(value.dataPath, ctx);
+    result.heading = value.heading;
+    result.dataPath = dataPathSerializeWithContext(value.dataPath, ctx);
     return result;
 }
 
@@ -117,14 +118,14 @@ export function columnConfigDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_heading = obj['heading'] as string;
+        const __raw_heading = obj.heading as string;
         if (__raw_heading.length === 0) {
             errors.push({ field: 'heading', message: 'must not be empty' });
         }
         instance.heading = __raw_heading;
     }
     {
-        const __raw_dataPath = obj['dataPath'] as DataPath;
+        const __raw_dataPath = obj.dataPath as DataPath;
         {
             const __result = dataPathDeserializeWithContext(__raw_dataPath, ctx);
             ctx.assignOrDefer(instance, 'dataPath', __result);

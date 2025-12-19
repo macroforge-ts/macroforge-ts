@@ -1,22 +1,15 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { PersonName } from './person-name.svelte';
-import type { Site } from './site.svelte';
-import type { PhoneNumber } from './phone-number.svelte';
-import type { Represents } from './represents.svelte';
-import type { Payment } from './payment.svelte';
-import type { CompanyName } from './company-name.svelte';
-import type { Account } from './account.svelte';
-import type { Custom } from './custom.svelte';
-import type { TaxRate } from './tax-rate.svelte';
-import type { Company } from './company.svelte';
-import type { Email } from './email.svelte';
-import type { Sector } from './sector.svelte';
-import type { Status } from './status.svelte';
-import type { NextStep } from './next-step.svelte';
-import type { LeadStage } from './lead-stage.svelte';
 import type { AccountName } from './account-name.svelte';
+import type { Email } from './email.svelte';
+import type { LeadStage } from './lead-stage.svelte';
+import type { NextStep } from './next-step.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
 import type { Priority } from './priority.svelte';
+import type { Represents } from './represents.svelte';
+import type { Sector } from './sector.svelte';
+import type { Site } from './site.svelte';
+import type { TaxRate } from './tax-rate.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Lead {
@@ -60,7 +53,7 @@ export interface Lead {
     /** @enumFieldsetController({ legend: "Name", variants: { CompanyName: { label: "Company" }, PersonName: { label: "Person" } } }) */
     leadName: AccountName;
     /** @arrayFieldsetController({ legend: "Phones" }) */
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
     /** @emailFieldController({ label: "Email" }) */
     email: Email;
     /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
@@ -76,7 +69,7 @@ export interface Lead {
     /** @toggleController({ label: "Has Alert" }) */
     hasAlert: boolean;
     /** @comboboxMultipleController({ label: "Sales Rep", fetchUrls: ["/api/employees"] }) */
-    salesRep: Represents[] | null;
+    salesRep: Array<Represents> | null;
     /** @hiddenController({}) */
     color: string | null;
     /** @comboboxController({ label: "Account Type", allowCustom: true }) */
@@ -91,7 +84,7 @@ export interface Lead {
     /** @serde({ validate: ["nonEmpty"] }) */
     paymentTerms: string;
     /** @tagsController({ label: "Tags" }) */
-    tags: string[];
+    tags: Array<string>;
     /** @arrayFieldsetController({ legend: "Custom Fields" }) */
-    customFields: [string, string][];
+    customFields: Array<[string, string]>;
 }

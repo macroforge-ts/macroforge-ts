@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Cardinal {
@@ -41,10 +40,10 @@ export function cardinalSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Cardinal', __id };
-    result['north'] = value.north;
-    result['east'] = value.east;
-    result['south'] = value.south;
-    result['west'] = value.west;
+    result.north = value.north;
+    result.east = value.east;
+    result.south = value.south;
+    result.west = value.west;
     return result;
 }
 
@@ -123,19 +122,19 @@ export function cardinalDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_north = obj['north'] as number;
+        const __raw_north = obj.north as number;
         instance.north = __raw_north;
     }
     {
-        const __raw_east = obj['east'] as number;
+        const __raw_east = obj.east as number;
         instance.east = __raw_east;
     }
     {
-        const __raw_south = obj['south'] as number;
+        const __raw_south = obj.south as number;
         instance.south = __raw_south;
     }
     {
-        const __raw_west = obj['west'] as number;
+        const __raw_west = obj.west as number;
         instance.west = __raw_west;
     }
     if (errors.length > 0) {
@@ -351,22 +350,22 @@ export function cardinalFromFormData(
     {
         const northStr = formData.get('north');
         obj.north = northStr ? parseFloat(northStr as string) : 0;
-        if (obj.north !== undefined && isNaN(obj.north as number)) obj.north = 0;
+        if (obj.north !== undefined && Number.isNaN(obj.north as number)) obj.north = 0;
     }
     {
         const eastStr = formData.get('east');
         obj.east = eastStr ? parseFloat(eastStr as string) : 0;
-        if (obj.east !== undefined && isNaN(obj.east as number)) obj.east = 0;
+        if (obj.east !== undefined && Number.isNaN(obj.east as number)) obj.east = 0;
     }
     {
         const southStr = formData.get('south');
         obj.south = southStr ? parseFloat(southStr as string) : 0;
-        if (obj.south !== undefined && isNaN(obj.south as number)) obj.south = 0;
+        if (obj.south !== undefined && Number.isNaN(obj.south as number)) obj.south = 0;
     }
     {
         const westStr = formData.get('west');
         obj.west = westStr ? parseFloat(westStr as string) : 0;
-        if (obj.west !== undefined && isNaN(obj.west as number)) obj.west = 0;
+        if (obj.west !== undefined && Number.isNaN(obj.west as number)) obj.west = 0;
     }
     return toExit(cardinalDeserialize(obj));
 }

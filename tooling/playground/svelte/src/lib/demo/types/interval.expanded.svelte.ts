@@ -1,27 +1,35 @@
-import { dailyRecurrenceRuleDefaultValue } from './daily-recurrence-rule.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { dailyRecurrenceRuleDeserializeWithContext } from './daily-recurrence-rule.svelte';
-import { monthlyRecurrenceRuleDeserializeWithContext } from './monthly-recurrence-rule.svelte';
-import { weeklyRecurrenceRuleDeserializeWithContext } from './weekly-recurrence-rule.svelte';
-import { yearlyRecurrenceRuleDeserializeWithContext } from './yearly-recurrence-rule.svelte';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import { monthlyRecurrenceRuleDefaultValue } from './monthly-recurrence-rule.svelte';
-import { weeklyRecurrenceRuleDefaultValue } from './weekly-recurrence-rule.svelte';
-import { yearlyRecurrenceRuleDefaultValue } from './yearly-recurrence-rule.svelte';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    dailyRecurrenceRuleDefaultValue,
+    dailyRecurrenceRuleDeserializeWithContext
+} from './daily-recurrence-rule.svelte';
+import {
+    monthlyRecurrenceRuleDefaultValue,
+    monthlyRecurrenceRuleDeserializeWithContext
+} from './monthly-recurrence-rule.svelte';
+import {
+    weeklyRecurrenceRuleDefaultValue,
+    weeklyRecurrenceRuleDeserializeWithContext
+} from './weekly-recurrence-rule.svelte';
+import {
+    yearlyRecurrenceRuleDefaultValue,
+    yearlyRecurrenceRuleDeserializeWithContext
+} from './yearly-recurrence-rule.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { YearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
-import type { MonthlyRecurrenceRule } from './monthly-recurrence-rule.svelte';
 import type { DailyRecurrenceRule } from './daily-recurrence-rule.svelte';
+import type { MonthlyRecurrenceRule } from './monthly-recurrence-rule.svelte';
 import type { WeeklyRecurrenceRule } from './weekly-recurrence-rule.svelte';
+import type { YearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
 
 export type Interval =
     | /** @default */ DailyRecurrenceRule
@@ -172,10 +180,11 @@ export type IntervalTainted =
     | ({
           _type: 'YearlyRecurrenceRule';
       } & IntervalYearlyRecurrenceRuleTainted); /** Per-variant field controller types */
-export interface IntervalDailyRecurrenceRuleFieldControllers {}
-export interface IntervalWeeklyRecurrenceRuleFieldControllers {}
-export interface IntervalMonthlyRecurrenceRuleFieldControllers {}
-export interface IntervalYearlyRecurrenceRuleFieldControllers {} /** Union Gigaform interface with variant switching */
+export type IntervalDailyRecurrenceRuleFieldControllers = {};
+export type IntervalWeeklyRecurrenceRuleFieldControllers = {};
+export type IntervalMonthlyRecurrenceRuleFieldControllers = {};
+export type IntervalYearlyRecurrenceRuleFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface IntervalGigaform {
     readonly currentVariant:
         | 'DailyRecurrenceRule'

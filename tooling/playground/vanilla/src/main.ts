@@ -1,5 +1,5 @@
-import { User } from './user';
 import { AllMacrosTestClass, testInstance } from './all-macros-test';
+import { User } from './user';
 
 // Global results object for Playwright assertions
 declare global {
@@ -158,5 +158,3 @@ if (document.readyState === 'loading') {
 } else {
     testMacros();
 }
-
-export {};

@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 
 export type Page =
     | /** @default */ 'SalesHomeDashboard'
@@ -282,31 +281,32 @@ export type PageTainted =
     | ({ _value: 'SalesSchedulingRoutes' } & PageSalesSchedulingRoutesTainted)
     | ({ _value: 'SalesSchedulingReminders' } & PageSalesSchedulingRemindersTainted)
     | ({ _value: 'UserHome' } & PageUserHomeTainted); /** Per-variant field controller types */
-export interface PageSalesHomeDashboardFieldControllers {}
-export interface PageSalesHomeProductsFieldControllers {}
-export interface PageSalesHomeServicesFieldControllers {}
-export interface PageSalesHomePackagesFieldControllers {}
-export interface PageSalesHomeTaxRatesFieldControllers {}
-export interface PageSalesLeadsOverviewFieldControllers {}
-export interface PageSalesLeadsActivitiesFieldControllers {}
-export interface PageSalesLeadsCampaignsFieldControllers {}
-export interface PageSalesLeadsDripCampaignsFieldControllers {}
-export interface PageSalesLeadsOpportunitiesFieldControllers {}
-export interface PageSalesLeadsPromotionsFieldControllers {}
-export interface PageSalesAccountsOverviewFieldControllers {}
-export interface PageSalesAccountsActivitiesFieldControllers {}
-export interface PageSalesAccountsBillingFieldControllers {}
-export interface PageSalesAccountsContractsFieldControllers {}
-export interface PageSalesOrdersOverviewFieldControllers {}
-export interface PageSalesOrdersActivitiesFieldControllers {}
-export interface PageSalesOrdersPaymentsFieldControllers {}
-export interface PageSalesOrdersCommissionsFieldControllers {}
-export interface PageSalesSchedulingScheduleFieldControllers {}
-export interface PageSalesSchedulingAppointmentsFieldControllers {}
-export interface PageSalesSchedulingRecurringFieldControllers {}
-export interface PageSalesSchedulingRoutesFieldControllers {}
-export interface PageSalesSchedulingRemindersFieldControllers {}
-export interface PageUserHomeFieldControllers {} /** Union Gigaform interface with variant switching */
+export type PageSalesHomeDashboardFieldControllers = {};
+export type PageSalesHomeProductsFieldControllers = {};
+export type PageSalesHomeServicesFieldControllers = {};
+export type PageSalesHomePackagesFieldControllers = {};
+export type PageSalesHomeTaxRatesFieldControllers = {};
+export type PageSalesLeadsOverviewFieldControllers = {};
+export type PageSalesLeadsActivitiesFieldControllers = {};
+export type PageSalesLeadsCampaignsFieldControllers = {};
+export type PageSalesLeadsDripCampaignsFieldControllers = {};
+export type PageSalesLeadsOpportunitiesFieldControllers = {};
+export type PageSalesLeadsPromotionsFieldControllers = {};
+export type PageSalesAccountsOverviewFieldControllers = {};
+export type PageSalesAccountsActivitiesFieldControllers = {};
+export type PageSalesAccountsBillingFieldControllers = {};
+export type PageSalesAccountsContractsFieldControllers = {};
+export type PageSalesOrdersOverviewFieldControllers = {};
+export type PageSalesOrdersActivitiesFieldControllers = {};
+export type PageSalesOrdersPaymentsFieldControllers = {};
+export type PageSalesOrdersCommissionsFieldControllers = {};
+export type PageSalesSchedulingScheduleFieldControllers = {};
+export type PageSalesSchedulingAppointmentsFieldControllers = {};
+export type PageSalesSchedulingRecurringFieldControllers = {};
+export type PageSalesSchedulingRoutesFieldControllers = {};
+export type PageSalesSchedulingRemindersFieldControllers = {};
+export type PageUserHomeFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface PageGigaform {
     readonly currentVariant:
         | 'SalesHomeDashboard'

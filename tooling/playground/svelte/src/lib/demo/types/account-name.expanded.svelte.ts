@@ -1,22 +1,18 @@
-import { companyNameDefaultValue } from './company-name.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { companyNameDeserializeWithContext } from './company-name.svelte';
-import { personNameDeserializeWithContext } from './person-name.svelte';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import { personNameDefaultValue } from './person-name.svelte';
-/** import macro {Gigaform} from "@playground/macro"; */
-
-import type { PersonName } from './person-name.svelte';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 import type { CompanyName } from './company-name.svelte';
-import type { Company } from './company.svelte';
+import { companyNameDefaultValue, companyNameDeserializeWithContext } from './company-name.svelte';
+import type { PersonName } from './person-name.svelte';
+import { personNameDefaultValue, personNameDeserializeWithContext } from './person-name.svelte';
+
+/** import macro {Gigaform} from "@playground/macro"; */
 
 export type AccountName = /** @default */ CompanyName | PersonName;
 
@@ -146,8 +142,9 @@ export type AccountNameTainted =
     | ({
           _type: 'PersonName';
       } & AccountNamePersonNameTainted); /** Per-variant field controller types */
-export interface AccountNameCompanyNameFieldControllers {}
-export interface AccountNamePersonNameFieldControllers {} /** Union Gigaform interface with variant switching */
+export type AccountNameCompanyNameFieldControllers = {};
+export type AccountNamePersonNameFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface AccountNameGigaform {
     readonly currentVariant: 'CompanyName' | 'PersonName';
     readonly data: AccountName;

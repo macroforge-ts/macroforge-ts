@@ -1,15 +1,13 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { itemSerializeWithContext } from './item.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { itemDeserializeWithContext } from './item.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { itemDeserializeWithContext, itemSerializeWithContext } from './item.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { Item } from './item.svelte';
@@ -48,10 +46,10 @@ export function billedItemSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'BilledItem', __id };
-    result['item'] = itemSerializeWithContext(value.item, ctx);
-    result['quantity'] = value.quantity;
-    result['taxed'] = value.taxed;
-    result['upsale'] = value.upsale;
+    result.item = itemSerializeWithContext(value.item, ctx);
+    result.quantity = value.quantity;
+    result.taxed = value.taxed;
+    result.upsale = value.upsale;
     return result;
 }
 
@@ -130,22 +128,22 @@ export function billedItemDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_item = obj['item'] as Item;
+        const __raw_item = obj.item as Item;
         {
             const __result = itemDeserializeWithContext(__raw_item, ctx);
             ctx.assignOrDefer(instance, 'item', __result);
         }
     }
     {
-        const __raw_quantity = obj['quantity'] as number;
+        const __raw_quantity = obj.quantity as number;
         instance.quantity = __raw_quantity;
     }
     {
-        const __raw_taxed = obj['taxed'] as boolean;
+        const __raw_taxed = obj.taxed as boolean;
         instance.taxed = __raw_taxed;
     }
     {
-        const __raw_upsale = obj['upsale'] as boolean;
+        const __raw_upsale = obj.upsale as boolean;
         instance.upsale = __raw_upsale;
     }
     if (errors.length > 0) {
@@ -384,7 +382,7 @@ export function billedItemFromFormData(
     {
         const quantityStr = formData.get('quantity');
         obj.quantity = quantityStr ? parseFloat(quantityStr as string) : 0;
-        if (obj.quantity !== undefined && isNaN(obj.quantity as number)) obj.quantity = 0;
+        if (obj.quantity !== undefined && Number.isNaN(obj.quantity as number)) obj.quantity = 0;
     }
     {
         const taxedVal = formData.get('taxed');

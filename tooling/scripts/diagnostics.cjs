@@ -8,7 +8,9 @@ const { root: ROOT_DIR, resolve } = require('./env.cjs');
 
 program
     .name('diagnostics')
-    .description('Run comprehensive multi-tool diagnostics (Biome, Clippy, TypeScript, Svelte, macroforge)')
+    .description(
+        'Run comprehensive multi-tool diagnostics (Biome, Clippy, TypeScript, Svelte, macroforge)'
+    )
     .option('--log', 'Write logs to .tmp/diagnostics/ directory');
 
 const LOGS_DIR = resolve('.tmp', 'diagnostics');
@@ -110,7 +112,7 @@ async function parseTypeScriptErrors(output) {
             column: parseInt(match[3], 10),
             code: match[4],
             message: match[5],
-            raw: match[0],
+            raw: match[0]
         });
     }
 
@@ -141,7 +143,7 @@ function parseBiomeErrors(output) {
     const errorRegex = /^(.*?): (error|warning) (.*?): (.*)$/gm; // Basic match for now
     const ruleRegex = /(lint\/[a-zA-Z]+\/[a-zA-Z]+)/;
 
-    let match;
+    let _match;
     for (const line of output.split('\n')) {
         const lineMatch = line.match(errorRegex);
         if (lineMatch) {
@@ -181,7 +183,8 @@ async function parseClippyErrors(output) {
             const code = diagnostic.code?.code || 'clippy-general';
 
             // Get file location from the primary span
-            const primarySpan = diagnostic.spans?.find(s => s.is_primary) || diagnostic.spans?.[0];
+            const primarySpan =
+                diagnostic.spans?.find((s) => s.is_primary) || diagnostic.spans?.[0];
             const file = primarySpan?.file_name || 'unknown';
             const line_num = primarySpan?.line_start || 0;
             const column = primarySpan?.column_start || 0;
@@ -226,11 +229,7 @@ function loadCompilerOptions(ts, tsConfigPath) {
     if (configFile.error) {
         return { options: undefined, projectRoot };
     }
-    const parsed = ts.parseJsonConfigFileContent(
-        configFile.config,
-        ts.sys,
-        projectRoot
-    );
+    const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, projectRoot);
 
     const options = {
         ...parsed.options,
@@ -241,8 +240,8 @@ function loadCompilerOptions(ts, tsConfigPath) {
         incremental: false
     };
 
-    delete options.outDir;
-    delete options.outFile;
+    options.outDir = undefined;
+    options.outFile = undefined;
     options.moduleResolution ??= ts.ModuleResolutionKind.Bundler;
     options.module ??= ts.ModuleKind.ESNext;
     options.target ??= ts.ScriptTarget.ESNext;
@@ -276,7 +275,8 @@ function emitDeclarationsFromCode(ts, code, fileName, options, projectRoot) {
 
     compilerHost.fileExists = (requestedFileName) => {
         return (
-            path.resolve(requestedFileName) === normalizedFileName || ts.sys.fileExists(requestedFileName)
+            path.resolve(requestedFileName) === normalizedFileName ||
+            ts.sys.fileExists(requestedFileName)
         );
     };
 
@@ -296,7 +296,9 @@ function emitDeclarationsFromCode(ts, code, fileName, options, projectRoot) {
             getCanonicalFileName: (fileName) => fileName,
             getNewLine: () => ts.sys.newLine
         });
-        console.warn(`[diagnostics] Declaration emit failed for ${path.relative(projectRoot, fileName)}\n${formatted}`);
+        console.warn(
+            `[diagnostics] Declaration emit failed for ${path.relative(projectRoot, fileName)}\n${formatted}`
+        );
         return undefined;
     }
 
@@ -323,7 +325,11 @@ async function parseSvelteCheckErrors(output) {
 
         // Extract error code if present (e.g., "ts(2322)" or "svelte(a11y-click-events-have-key-events)")
         const codeMatch = message.match(/^(\w+\([^)]+\))\s*/);
-        const code = codeMatch ? codeMatch[1] : (level === 'error' ? 'svelte-error' : 'svelte-warning');
+        const code = codeMatch
+            ? codeMatch[1]
+            : level === 'error'
+              ? 'svelte-error'
+              : 'svelte-warning';
 
         const raw = `${level}[${code}]: ${message}\n  --> ${filePath}:${line}:${column}`;
 
@@ -348,10 +354,12 @@ async function getSvelteProjectPaths() {
     try {
         const files = await fs.readdir(ROOT_DIR, { recursive: true });
         for (const file of files) {
-            if ((file.endsWith('svelte.config.js') || file.endsWith('svelte.config.ts'))
-                && !file.includes('node_modules')
-                && !file.includes('test/')
-                && !file.includes('/fixtures/')) {
+            if (
+                (file.endsWith('svelte.config.js') || file.endsWith('svelte.config.ts')) &&
+                !file.includes('node_modules') &&
+                !file.includes('test/') &&
+                !file.includes('/fixtures/')
+            ) {
                 const configPath = path.join(ROOT_DIR, file);
                 if (!(await isGitIgnored(configPath))) {
                     svelteConfigs.push(path.dirname(configPath));
@@ -399,7 +407,9 @@ async function getLanguageServiceDiagnostics(tsConfigPath) {
             return [];
         }
 
-        console.log(`    Found ${plugins.length} plugin(s): ${plugins.map(p => p.name).join(', ')}`);
+        console.log(
+            `    Found ${plugins.length} plugin(s): ${plugins.map((p) => p.name).join(', ')}`
+        );
 
         // Create a language service host
         const files = new Map();
@@ -445,7 +455,7 @@ async function getLanguageServiceDiagnostics(tsConfigPath) {
             readFile: typescript.sys.readFile,
             readDirectory: typescript.sys.readDirectory,
             directoryExists: typescript.sys.directoryExists,
-            getDirectories: typescript.sys.getDirectories,
+            getDirectories: typescript.sys.getDirectories
         };
 
         // Create the language service
@@ -494,16 +504,20 @@ async function getLanguageServiceDiagnostics(tsConfigPath) {
                         column = pos.character + 1;
                     }
 
-                    const message = typescript.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+                    const message = typescript.flattenDiagnosticMessageText(
+                        diagnostic.messageText,
+                        '\n'
+                    );
                     const code = diagnostic.source
                         ? `${diagnostic.source}(${diagnostic.code})`
                         : `ts-plugin(${diagnostic.code})`;
 
-                    const level = diagnostic.category === typescript.DiagnosticCategory.Error
-                        ? 'error'
-                        : diagnostic.category === typescript.DiagnosticCategory.Warning
-                            ? 'warning'
-                            : 'suggestion';
+                    const level =
+                        diagnostic.category === typescript.DiagnosticCategory.Error
+                            ? 'error'
+                            : diagnostic.category === typescript.DiagnosticCategory.Warning
+                              ? 'warning'
+                              : 'suggestion';
 
                     const raw = `${level}[${code}]: ${message}\n  --> ${file}:${line}:${column}`;
 
@@ -517,14 +531,13 @@ async function getLanguageServiceDiagnostics(tsConfigPath) {
                         tool: 'ts-language-service'
                     });
                 }
-            } catch (e) {
+            } catch (_e) {
                 // Skip files that cause errors
             }
         }
 
         // Clean up
         service.dispose();
-
     } catch (e) {
         console.warn(`  Warning: Language Service error for ${tsConfigPath}: ${e.message}`);
     }
@@ -547,10 +560,11 @@ async function getMacroDiagnostics(projectDir) {
     try {
         // Find all TypeScript files in the project
         const files = await fs.readdir(projectDir, { recursive: true });
-        const tsFiles = files.filter(f =>
-            (f.endsWith('.ts') || f.endsWith('.tsx')) &&
-            !f.includes('node_modules') &&
-            !f.includes('.d.ts')
+        const tsFiles = files.filter(
+            (f) =>
+                (f.endsWith('.ts') || f.endsWith('.tsx')) &&
+                !f.includes('node_modules') &&
+                !f.includes('.d.ts')
         );
 
         for (const file of tsFiles) {
@@ -603,7 +617,7 @@ async function getMacroDiagnostics(projectDir) {
                         });
                     }
                 }
-            } catch (e) {
+            } catch (_e) {
                 // Skip files that cause expansion errors (syntax errors, etc.)
             }
         }
@@ -670,7 +684,13 @@ async function generateMacroTypes(tsConfigPaths) {
 
             try {
                 const result = macroModule.expandSync(content, fullPath);
-                const decls = emitDeclarationsFromCode(ts, result.code || content, fullPath, options, projectRoot);
+                const decls = emitDeclarationsFromCode(
+                    ts,
+                    result.code || content,
+                    fullPath,
+                    options,
+                    projectRoot
+                );
                 if (!decls) continue;
 
                 const parsed = path.parse(path.relative(projectRoot, fullPath));
@@ -689,8 +709,8 @@ async function generateMacroTypes(tsConfigPaths) {
 
 async function getTsConfigPaths() {
     const allTsConfigs = (await fs.readdir(ROOT_DIR, { recursive: true }))
-        .filter(file => file.endsWith('tsconfig.json') && !file.includes('node_modules'))
-        .map(file => path.join(ROOT_DIR, file));
+        .filter((file) => file.endsWith('tsconfig.json') && !file.includes('node_modules'))
+        .map((file) => path.join(ROOT_DIR, file));
 
     const trackedTsConfigs = [];
     for (const configPath of allTsConfigs) {
@@ -700,17 +720,21 @@ async function getTsConfigPaths() {
     }
 
     // Filter out test-related tsconfig files
-    const primaryTsConfigs = trackedTsConfigs.filter(configPath =>
-        !configPath.includes('test/') &&
-        (
-            configPath.includes('packages/') ||
-            configPath.includes('playground/')
-        )
+    const primaryTsConfigs = trackedTsConfigs.filter(
+        (configPath) =>
+            !configPath.includes('test/') &&
+            (configPath.includes('packages/') || configPath.includes('playground/'))
     );
 
     // Add root tsconfig if it exists and is not a test one
     const rootTsConfig = path.join(ROOT_DIR, 'tsconfig.json');
-    if (await fs.stat(rootTsConfig).then(stat => stat.isFile()).catch(() => false) && !rootTsConfig.includes('test/')) {
+    if (
+        (await fs
+            .stat(rootTsConfig)
+            .then((stat) => stat.isFile())
+            .catch(() => false)) &&
+        !rootTsConfig.includes('test/')
+    ) {
         // Not all projects have a root tsconfig.json that's meant for building the whole thing.
         // For monorepos, typically it's configured via project references.
         // If it exists, we'll include it for a comprehensive check.
@@ -745,7 +769,9 @@ async function main(options) {
 
     // --- Clippy Check (Rust) ---
     console.log('\nRunning Clippy check for Rust files...');
-    const clippyResult = await runCommand('cargo clippy --workspace --all-targets --message-format=json 2>&1');
+    const clippyResult = await runCommand(
+        'cargo clippy --workspace --all-targets --message-format=json 2>&1'
+    );
     if (clippyResult.stdout || clippyResult.stderr) {
         const clippyErrors = await parseClippyErrors(clippyResult.stdout + clippyResult.stderr);
         if (clippyErrors.length > 0) {
@@ -823,7 +849,7 @@ async function main(options) {
         // Check playground directories and any other directories with @derive usage
         const dirsToCheck = [
             path.join(ROOT_DIR, 'playground'),
-            ...tsConfigPaths.map(p => path.dirname(p))
+            ...tsConfigPaths.map((p) => path.dirname(p))
         ];
         const checkedDirs = new Set();
 
@@ -856,7 +882,7 @@ async function main(options) {
     // --- Deduplicate Errors ---
     // Some errors may be reported multiple times from different check passes
     const seenErrors = new Set();
-    const deduplicatedErrors = allErrors.filter(error => {
+    const deduplicatedErrors = allErrors.filter((error) => {
         const key = `${error.file}:${error.line}:${error.column}:${error.code}:${error.message}`;
         if (seenErrors.has(key)) {
             return false;
@@ -880,7 +906,7 @@ async function main(options) {
     for (const [category, errors] of categorizedErrors.entries()) {
         if (WRITE_LOGS) {
             const logFileName = path.join(LOGS_DIR, `${category}.log`);
-            await fs.writeFile(logFileName, errors.join('\n') + '\n');
+            await fs.writeFile(logFileName, `${errors.join('\n')}\n`);
             console.log(`  ${category}: ${errors.length} errors -> ${logFileName}`);
         } else {
             console.log(`  ${category}: ${errors.length} errors`);

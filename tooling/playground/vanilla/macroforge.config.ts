@@ -1,3 +1,3 @@
 export default {
-  keepDecorators: true,
+    keepDecorators: true
 };

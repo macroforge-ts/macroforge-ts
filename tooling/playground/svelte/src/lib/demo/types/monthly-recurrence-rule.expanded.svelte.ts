@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface MonthlyRecurrenceRule {
@@ -41,9 +40,9 @@ export function monthlyRecurrenceRuleSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'MonthlyRecurrenceRule', __id };
-    result['quantityOfMonths'] = value.quantityOfMonths;
-    result['day'] = value.day;
-    result['name'] = value.name;
+    result.quantityOfMonths = value.quantityOfMonths;
+    result.day = value.day;
+    result.name = value.name;
     return result;
 }
 
@@ -123,15 +122,15 @@ export function monthlyRecurrenceRuleDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_quantityOfMonths = obj['quantityOfMonths'] as number;
+        const __raw_quantityOfMonths = obj.quantityOfMonths as number;
         instance.quantityOfMonths = __raw_quantityOfMonths;
     }
     {
-        const __raw_day = obj['day'] as number;
+        const __raw_day = obj.day as number;
         instance.day = __raw_day;
     }
     {
-        const __raw_name = obj['name'] as string;
+        const __raw_name = obj.name as string;
         if (__raw_name.length === 0) {
             errors.push({ field: 'name', message: 'must not be empty' });
         }
@@ -339,13 +338,13 @@ export function monthlyRecurrenceRuleFromFormData(
     {
         const quantityOfMonthsStr = formData.get('quantityOfMonths');
         obj.quantityOfMonths = quantityOfMonthsStr ? parseFloat(quantityOfMonthsStr as string) : 0;
-        if (obj.quantityOfMonths !== undefined && isNaN(obj.quantityOfMonths as number))
+        if (obj.quantityOfMonths !== undefined && Number.isNaN(obj.quantityOfMonths as number))
             obj.quantityOfMonths = 0;
     }
     {
         const dayStr = formData.get('day');
         obj.day = dayStr ? parseFloat(dayStr as string) : 0;
-        if (obj.day !== undefined && isNaN(obj.day as number)) obj.day = 0;
+        if (obj.day !== undefined && Number.isNaN(obj.day as number)) obj.day = 0;
     }
     obj.name = formData.get('name') ?? '';
     return toExit(monthlyRecurrenceRuleDeserialize(obj));

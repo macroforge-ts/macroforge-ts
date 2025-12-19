@@ -2,17 +2,15 @@
 
 import type { DateTime } from 'effect';
 import type { Option } from 'effect/Option';
+import type { Account } from './account.svelte';
+import type { Appointment } from './appointment.svelte';
+import type { BilledItem } from './billed-item.svelte';
+import type { Employee } from './employee.svelte';
+import type { OrderStage } from './order-stage.svelte';
+import type { Package } from './package.svelte';
+import type { Payment } from './payment.svelte';
 import type { Promotion } from './promotion.svelte';
 import type { Site } from './site.svelte';
-import type { Payment } from './payment.svelte';
-import type { Appointment } from './appointment.svelte';
-import type { Package } from './package.svelte';
-import type { Account } from './account.svelte';
-import type { Lead } from './lead.svelte';
-import type { Employee } from './employee.svelte';
-import type { BilledItem } from './billed-item.svelte';
-import type { OrderStage } from './order-stage.svelte';
-import type { Item } from './item.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Order {
@@ -27,7 +25,7 @@ export interface Order {
     /** @hiddenController({}) */
     number: number;
     /** @hiddenController({}) */
-    payments: (string | Payment)[];
+    payments: Array<string | Payment>;
     /** @textController({ label: "Opportunity" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     opportunity: string;
@@ -61,11 +59,11 @@ export interface Order {
     /** @default("") */
     appointment: string | Appointment;
     /** @comboboxMultipleController({ label: "Technicians", fetchUrls: ["/api/employees"] }) */
-    lastTechs: (string | Employee)[];
+    lastTechs: Array<string | Employee>;
     /** @hiddenController({}) */
-    package: (string | Package)[] | null;
+    package: Array<string | Package> | null;
     /** @hiddenController({}) */
-    promotion: (string | Promotion)[] | null;
+    promotion: Array<string | Promotion> | null;
     /** @hiddenController({}) */
     balance: number;
     /** @dateTimeController({ label: "Due" }) */
@@ -76,7 +74,7 @@ export interface Order {
     /** @default("") */
     site: string | Site;
     /** @arrayFieldsetController({ legend: "Billed Items" }) */
-    billedItems: BilledItem[];
+    billedItems: Array<BilledItem>;
     /** @textAreaController({ label: "Memo" }) */
     memo: Option<string>;
     /** @hiddenController({}) */
@@ -84,5 +82,5 @@ export interface Order {
     /** @hiddenController({}) */
     tip: number;
     /** @hiddenController({}) */
-    commissions: number[];
+    commissions: Array<number>;
 }

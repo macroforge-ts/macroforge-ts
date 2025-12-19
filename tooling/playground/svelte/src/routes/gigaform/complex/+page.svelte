@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {
+import {
     employeeCreateForm,
     orderCreateForm,
     settingsDefaultValue,
@@ -7,44 +7,44 @@
     type Order,
     type Settings,
     type PhoneNumber,
-    type JobTitle,
-  } from "$lib/demo/types";
+    type JobTitle
+} from '$lib/demo/types';
 
-  // Create Employee form - complex type with nested Settings, arrays, nullable fields
-  const employeeForm = employeeCreateForm({
-    id: "emp-001",
-    name: "John Smith",
+// Create Employee form - complex type with nested Settings, arrays, nullable fields
+const employeeForm = employeeCreateForm({
+    id: 'emp-001',
+    name: 'John Smith',
     imageUrl: null,
     phones: [
-      { main: true, phoneType: "Mobile", number: "555-123-4567", canText: true, canCall: true },
+        { main: true, phoneType: 'Mobile', number: '555-123-4567', canText: true, canCall: true }
     ],
-    role: "Developer",
-    title: "Technician",
-    email: { canEmail: true, emailString: "john.smith@company.com" },
-    address: "123 Main St, Springfield, IL 62701",
-    username: "jsmith",
-    route: "route-001",
+    role: 'Developer',
+    title: 'Technician',
+    email: { canEmail: true, emailString: 'john.smith@company.com' },
+    address: '123 Main St, Springfield, IL 62701',
+    username: 'jsmith',
+    route: 'route-001',
     ratePerHour: 75.0,
     active: true,
     isTechnician: true,
     isSalesRep: false,
-    description: "Senior developer with 10 years experience",
-    linkedinUrl: "https://linkedin.com/in/jsmith",
-    attendance: ["2025-01-01", "2025-01-02", "2025-01-03"],
-  });
+    description: 'Senior developer with 10 years experience',
+    linkedinUrl: 'https://linkedin.com/in/jsmith',
+    attendance: ['2025-01-01', '2025-01-02', '2025-01-03']
+});
 
-  // Create Order form - deeply nested with multiple arrays
-  const orderForm = orderCreateForm({
-    id: "ord-001",
+// Create Order form - deeply nested with multiple arrays
+const orderForm = orderCreateForm({
+    id: 'ord-001',
     number: 1001,
-    stage: "Active",
-    opportunity: "Website Redesign",
-    reference: "REF-2025-001",
-    leadSource: "Referral",
-    group: "Services",
-    subgroup: "Development",
-    memo: "Priority project for Q1",
-    actionItem: "Schedule kickoff meeting",
+    stage: 'Active',
+    opportunity: 'Website Redesign',
+    reference: 'REF-2025-001',
+    leadSource: 'Referral',
+    group: 'Services',
+    subgroup: 'Development',
+    memo: 'Priority project for Q1',
+    actionItem: 'Schedule kickoff meeting',
     dateCreated: new Date().toISOString(),
     due: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     isPosted: false,
@@ -55,92 +55,105 @@
     tip: 0,
     commissions: [0.1, 0.05],
     billedItems: [
-      { item: "prod-001", quantity: 2, taxed: true, upsale: false },
-      { item: "svc-001", quantity: 1, taxed: true, upsale: true },
+        { item: 'prod-001', quantity: 2, taxed: true, upsale: false },
+        { item: 'svc-001', quantity: 1, taxed: true, upsale: true }
     ],
     site: {
-      id: "site-001",
-      addressLine1: "456 Business Ave",
-      addressLine2: "Suite 200",
-      sublocalityLevel1: null,
-      locality: "Chicago",
-      administrativeAreaLevel3: null,
-      administrativeAreaLevel2: "Cook",
-      administrativeAreaLevel1: "IL",
-      country: "USA",
-      postalCode: "60601",
-      postalCodeSuffix: null,
-      coordinates: { lat: 41.8781, lng: -87.6298 },
-    },
-  });
+        id: 'site-001',
+        addressLine1: '456 Business Ave',
+        addressLine2: 'Suite 200',
+        sublocalityLevel1: null,
+        locality: 'Chicago',
+        administrativeAreaLevel3: null,
+        administrativeAreaLevel2: 'Cook',
+        administrativeAreaLevel1: 'IL',
+        country: 'USA',
+        postalCode: '60601',
+        postalCodeSuffix: null,
+        coordinates: { lat: 41.8781, lng: -87.6298 }
+    }
+});
 
-  // Validation results
-  let employeeResult: { success: boolean; data?: Employee; errors?: Array<{ field: string; message: string }> } | null = $state(null);
-  let orderResult: { success: boolean; data?: Order; errors?: Array<{ field: string; message: string }> } | null = $state(null);
+// Validation results
+let employeeResult: {
+    success: boolean;
+    data?: Employee;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
+let orderResult: {
+    success: boolean;
+    data?: Order;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
 
-  // Expose to Playwright
-  if (typeof window !== "undefined") {
+// Expose to Playwright
+if (typeof window !== 'undefined') {
     (window as any).gigaformResults = {
-      employee: employeeForm,
-      order: orderForm,
+        employee: employeeForm,
+        order: orderForm
     };
-  }
+}
 
-  function submitEmployee() {
+function submitEmployee() {
     const result = employeeForm.validate();
     if (result.isOk()) {
-      employeeResult = { success: true, data: result.unwrap() };
+        employeeResult = { success: true, data: result.unwrap() };
     } else {
-      employeeResult = { success: false, errors: result.unwrapErr() };
+        employeeResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.employeeValidation = employeeResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.employeeValidation = employeeResult;
     }
-  }
+}
 
-  function submitOrder() {
+function submitOrder() {
     const result = orderForm.validate();
     if (result.isOk()) {
-      orderResult = { success: true, data: result.unwrap() };
+        orderResult = { success: true, data: result.unwrap() };
     } else {
-      orderResult = { success: false, errors: result.unwrapErr() };
+        orderResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.orderValidation = orderResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.orderValidation = orderResult;
     }
-  }
+}
 
-  function resetEmployee() {
+function resetEmployee() {
     employeeForm.reset();
     employeeResult = null;
-  }
+}
 
-  function resetOrder() {
+function resetOrder() {
     orderForm.reset();
     orderResult = null;
-  }
+}
 
-  // Employee phone operations
-  function addEmployeePhone() {
+// Employee phone operations
+function addEmployeePhone() {
     employeeForm.fields.phones.push({
-      main: false,
-      phoneType: "Work",
-      number: "555-000-0000",
-      canText: false,
-      canCall: true,
+        main: false,
+        phoneType: 'Work',
+        number: '555-000-0000',
+        canText: false,
+        canCall: true
     });
-  }
+}
 
-  // Order billed item operations
-  function addBilledItem() {
+// Order billed item operations
+function addBilledItem() {
     const currentItems = orderForm.fields.billedItems.get();
     orderForm.fields.billedItems.set([
-      ...currentItems,
-      { item: "new-item", quantity: 1, taxed: true, upsale: false },
+        ...currentItems,
+        { item: 'new-item', quantity: 1, taxed: true, upsale: false }
     ]);
-  }
+}
 
-  const jobTitleOptions: JobTitle[] = ["Technician", "SalesRepresentative", "HumanResources", "InformationTechnology"];
+const jobTitleOptions: Array<JobTitle> = [
+    'Technician',
+    'SalesRepresentative',
+    'HumanResources',
+    'InformationTechnology'
+];
 </script>
 
 <svelte:head>

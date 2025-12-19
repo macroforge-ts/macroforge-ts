@@ -5,29 +5,21 @@
 import { vi } from 'vitest';
 
 // Mock $state - returns a simple reactive-like object
-globalThis.$state = function (initial) {
-    return initial;
-};
+globalThis.$state = (initial) => initial;
 
 // Mock $derived - returns the computed value
-globalThis.$derived = function (fn) {
-    return typeof fn === 'function' ? fn() : fn;
-};
+globalThis.$derived = (fn) => (typeof fn === 'function' ? fn() : fn);
 
 // Mock $effect - no-op in tests
-globalThis.$effect = function (fn) {
+globalThis.$effect = (_fn) => {
     // Don't run effects in tests by default
 };
 
 // Mock $props - returns default props
-globalThis.$props = function () {
-    return {};
-};
+globalThis.$props = () => ({});
 
 // Mock $bindable - returns the value
-globalThis.$bindable = function (initial) {
-    return initial;
-};
+globalThis.$bindable = (initial) => initial;
 
 // Mock Svelte lifecycle hooks that require component context
 vi.mock('svelte', async (importOriginal) => {

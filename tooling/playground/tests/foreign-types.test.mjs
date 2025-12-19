@@ -6,24 +6,24 @@
  * without needing per-field decorators.
  */
 
-import { test, describe } from "node:test";
-import assert from "node:assert/strict";
-import path from "node:path";
-import { createRequire } from "node:module";
-import { repoRoot } from "./test-utils.mjs";
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { describe, test } from 'node:test';
+import { repoRoot } from './test-utils.mjs';
 
 const require = createRequire(import.meta.url);
-const swcMacrosPath = path.join(repoRoot, "crates/macroforge_ts/index.js");
+const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
 const { expandSync, loadConfig, clearConfigCache } = require(swcMacrosPath);
 
 // ============================================================================
 // Foreign Type Configuration Tests
 // ============================================================================
 
-describe("Foreign types configuration", () => {
-  test("loadConfig parses foreign types from config content", () => {
-    clearConfigCache();
-    const configContent = `
+describe('Foreign types configuration', () => {
+    test('loadConfig parses foreign types from config content', () => {
+        clearConfigCache();
+        const configContent = `
       export default {
         foreignTypes: {
           "DateTime.DateTime": {
@@ -36,15 +36,15 @@ describe("Foreign types configuration", () => {
       }
     `;
 
-    const result = loadConfig(configContent, "macroforge.config.js");
+        const result = loadConfig(configContent, 'macroforge.config.js');
 
-    assert.equal(result.hasForeignTypes, true, "Should have foreign types");
-    assert.equal(result.foreignTypeCount, 1, "Should have 1 foreign type");
-  });
+        assert.equal(result.hasForeignTypes, true, 'Should have foreign types');
+        assert.equal(result.foreignTypeCount, 1, 'Should have 1 foreign type');
+    });
 
-  test("loadConfig handles multiple foreign types", () => {
-    clearConfigCache();
-    const configContent = `
+    test('loadConfig handles multiple foreign types', () => {
+        clearConfigCache();
+        const configContent = `
       export default {
         foreignTypes: {
           "DateTime.DateTime": {
@@ -61,33 +61,33 @@ describe("Foreign types configuration", () => {
       }
     `;
 
-    const result = loadConfig(configContent, "macroforge.config.js");
+        const result = loadConfig(configContent, 'macroforge.config.js');
 
-    assert.equal(result.hasForeignTypes, true, "Should have foreign types");
-    assert.equal(result.foreignTypeCount, 2, "Should have 2 foreign types");
-  });
+        assert.equal(result.hasForeignTypes, true, 'Should have foreign types');
+        assert.equal(result.foreignTypeCount, 2, 'Should have 2 foreign types');
+    });
 
-  test("loadConfig handles config without foreign types", () => {
-    clearConfigCache();
-    const configContent = `
+    test('loadConfig handles config without foreign types', () => {
+        clearConfigCache();
+        const configContent = `
       export default {
         keepDecorators: false
       }
     `;
 
-    const result = loadConfig(configContent, "macroforge.config.js");
+        const result = loadConfig(configContent, 'macroforge.config.js');
 
-    assert.equal(result.hasForeignTypes, false, "Should not have foreign types");
-    assert.equal(result.foreignTypeCount, 0, "Should have 0 foreign types");
-  });
+        assert.equal(result.hasForeignTypes, false, 'Should not have foreign types');
+        assert.equal(result.foreignTypeCount, 0, 'Should have 0 foreign types');
+    });
 });
 
 // ============================================================================
 // Foreign Type Expansion Tests - Default Macro
 // ============================================================================
 
-describe("Foreign types in Default macro", () => {
-  const configContent = `
+describe('Foreign types in Default macro', () => {
+    const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
@@ -99,15 +99,15 @@ describe("Foreign types in Default macro", () => {
       }
     }
   `;
-  // Use unique config path to avoid caching issues
-  const configPath = "/test/default-macro/macroforge.config.js";
+    // Use unique config path to avoid caching issues
+    const configPath = '/test/default-macro/macroforge.config.js';
 
-  test("default value uses foreign type default function", () => {
-    // Clear cache and load config
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('default value uses foreign type default function', () => {
+        // Clear cache and load config
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect';
 
       /** @derive(Default) */
@@ -117,22 +117,22 @@ describe("Foreign types in Default macro", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // The default value should call the configured default function as an IIFE
-    assert.ok(
-      result.code.includes("DateTime.unsafeNow()"),
-      `Default should use the foreign type default function. Got: ${result.code}`
-    );
-  });
+        // The default value should call the configured default function as an IIFE
+        assert.ok(
+            result.code.includes('DateTime.unsafeNow()'),
+            `Default should use the foreign type default function. Got: ${result.code}`
+        );
+    });
 });
 
 // ============================================================================
 // Foreign Type Expansion Tests - Serialize Macro
 // ============================================================================
 
-describe("Foreign types in Serialize macro", () => {
-  const configContent = `
+describe('Foreign types in Serialize macro', () => {
+    const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
@@ -144,14 +144,14 @@ describe("Foreign types in Serialize macro", () => {
       }
     }
   `;
-  // Use unique config path to avoid caching issues
-  const configPath = "/test/serialize-macro/macroforge.config.js";
+    // Use unique config path to avoid caching issues
+    const configPath = '/test/serialize-macro/macroforge.config.js';
 
-  test("serialize uses foreign type serialize function", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('serialize uses foreign type serialize function', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect';
 
       /** @derive(Serialize) */
@@ -161,27 +161,27 @@ describe("Foreign types in Serialize macro", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // The serialize should use the configured serialize function
-    assert.ok(
-      result.code.includes("DateTime.formatIso"),
-      `Serialize should use the foreign type serialize function. Got: ${result.code}`
-    );
-    // Should NOT generate a generic helper call like dateTime.DateTimeSerializeWithContext
-    assert.ok(
-      !result.code.includes("dateTime.DateTime"),
-      `Should not generate generic helper namespace. Got: ${result.code}`
-    );
-  });
+        // The serialize should use the configured serialize function
+        assert.ok(
+            result.code.includes('DateTime.formatIso'),
+            `Serialize should use the foreign type serialize function. Got: ${result.code}`
+        );
+        // Should NOT generate a generic helper call like dateTime.DateTimeSerializeWithContext
+        assert.ok(
+            !result.code.includes('dateTime.DateTime'),
+            `Should not generate generic helper namespace. Got: ${result.code}`
+        );
+    });
 });
 
 // ============================================================================
 // Foreign Type Expansion Tests - Deserialize Macro
 // ============================================================================
 
-describe("Foreign types in Deserialize macro", () => {
-  const configContent = `
+describe('Foreign types in Deserialize macro', () => {
+    const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
@@ -193,14 +193,14 @@ describe("Foreign types in Deserialize macro", () => {
       }
     }
   `;
-  // Use unique config path to avoid caching issues
-  const configPath = "/test/deserialize-macro/macroforge.config.js";
+    // Use unique config path to avoid caching issues
+    const configPath = '/test/deserialize-macro/macroforge.config.js';
 
-  test("deserialize uses foreign type deserialize function", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('deserialize uses foreign type deserialize function', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect';
 
       /** @derive(Deserialize) */
@@ -210,27 +210,27 @@ describe("Foreign types in Deserialize macro", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // The deserialize should use the configured deserialize function
-    assert.ok(
-      result.code.includes("DateTime.unsafeFromDate"),
-      `Deserialize should use the foreign type deserialize function. Got: ${result.code}`
-    );
-    // Should NOT generate a generic helper call
-    assert.ok(
-      !result.code.includes("dateTime.DateTime"),
-      `Should not generate generic helper namespace. Got: ${result.code}`
-    );
-  });
+        // The deserialize should use the configured deserialize function
+        assert.ok(
+            result.code.includes('DateTime.unsafeFromDate'),
+            `Deserialize should use the foreign type deserialize function. Got: ${result.code}`
+        );
+        // Should NOT generate a generic helper call
+        assert.ok(
+            !result.code.includes('dateTime.DateTime'),
+            `Should not generate generic helper namespace. Got: ${result.code}`
+        );
+    });
 });
 
 // ============================================================================
 // Foreign Type Expansion Tests - Combined Macros
 // ============================================================================
 
-describe("Foreign types with combined macros", () => {
-  const configContent = `
+describe('Foreign types with combined macros', () => {
+    const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
@@ -242,14 +242,14 @@ describe("Foreign types with combined macros", () => {
       }
     }
   `;
-  // Use unique config path to avoid caching issues
-  const configPath = "/test/combined-macros/macroforge.config.js";
+    // Use unique config path to avoid caching issues
+    const configPath = '/test/combined-macros/macroforge.config.js';
 
-  test("all macros use foreign type functions when combined", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('all macros use foreign type functions when combined', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect';
 
       /** @derive(Default, Serialize, Deserialize) */
@@ -259,30 +259,30 @@ describe("Foreign types with combined macros", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Check all three foreign type functions are used
-    assert.ok(
-      result.code.includes("DateTime.unsafeNow()"),
-      `Default should use foreign type default. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes("DateTime.formatIso"),
-      `Serialize should use foreign type serialize. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes("DateTime.unsafeFromDate"),
-      `Deserialize should use foreign type deserialize. Got: ${result.code}`
-    );
-  });
+        // Check all three foreign type functions are used
+        assert.ok(
+            result.code.includes('DateTime.unsafeNow()'),
+            `Default should use foreign type default. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('DateTime.formatIso'),
+            `Serialize should use foreign type serialize. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('DateTime.unsafeFromDate'),
+            `Deserialize should use foreign type deserialize. Got: ${result.code}`
+        );
+    });
 });
 
 // ============================================================================
 // Foreign Type Import Matching Tests
 // ============================================================================
 
-describe("Foreign type import matching", () => {
-  const configContent = `
+describe('Foreign type import matching', () => {
+    const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
@@ -294,14 +294,14 @@ describe("Foreign type import matching", () => {
       }
     }
   `;
-  // Use unique config path to avoid caching issues
-  const configPath = "/test/import-matching/macroforge.config.js";
+    // Use unique config path to avoid caching issues
+    const configPath = '/test/import-matching/macroforge.config.js';
 
-  test("matches foreign type from effect import", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('matches foreign type from effect import', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect';
 
       /** @derive(Default) */
@@ -310,19 +310,19 @@ describe("Foreign type import matching", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    assert.ok(
-      result.code.includes("DateTime.unsafeNow()"),
-      `Should match DateTime from effect import. Got: ${result.code}`
-    );
-  });
+        assert.ok(
+            result.code.includes('DateTime.unsafeNow()'),
+            `Should match DateTime from effect import. Got: ${result.code}`
+        );
+    });
 
-  test("matches foreign type from @effect/schema import", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('matches foreign type from @effect/schema import', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from '@effect/schema';
 
       /** @derive(Default) */
@@ -331,19 +331,19 @@ describe("Foreign type import matching", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    assert.ok(
-      result.code.includes("DateTime.unsafeNow()"),
-      `Should match DateTime from @effect/schema import. Got: ${result.code}`
-    );
-  });
+        assert.ok(
+            result.code.includes('DateTime.unsafeNow()'),
+            `Should match DateTime from @effect/schema import. Got: ${result.code}`
+        );
+    });
 
-  test("ignores type from different library with same name", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('ignores type from different library with same name', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'some-other-library';
 
       /** @derive(Serialize) */
@@ -353,55 +353,55 @@ describe("Foreign type import matching", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should NOT use the foreign type handler - falls back to generic handling
-    // We can't know if some-other-library's DateTime has the right methods
-    assert.ok(
-      !result.code.includes("DateTime.formatIso"),
-      `Should NOT use foreign type serialize for different library. Got: ${result.code}`
-    );
-    // Should not have any errors - just ignore and let tsc catch issues downstream
-    assert.ok(
-      !result.diagnostics || !result.diagnostics.some(d => d.level === "error"),
-      `Should not error for types from other libraries. Got: ${JSON.stringify(result.diagnostics)}`
-    );
-  });
+        // Should NOT use the foreign type handler - falls back to generic handling
+        // We can't know if some-other-library's DateTime has the right methods
+        assert.ok(
+            !result.code.includes('DateTime.formatIso'),
+            `Should NOT use foreign type serialize for different library. Got: ${result.code}`
+        );
+        // Should not have any errors - just ignore and let tsc catch issues downstream
+        assert.ok(
+            !result.diagnostics || !result.diagnostics.some((d) => d.level === 'error'),
+            `Should not error for types from other libraries. Got: ${JSON.stringify(result.diagnostics)}`
+        );
+    });
 
-  test("does not match local types with same name as foreign type", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('does not match local types with same name as foreign type', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    // No import - this is a "local" type scenario
-    const code = `
+        // No import - this is a "local" type scenario
+        const code = `
       /** @derive(Default) */
       interface Event {
         startTime: DateTime.DateTime;
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should NOT use the foreign type handler because we can't verify the import source
-    // Falls back to generic handling
-    assert.ok(
-      !result.code.includes("DateTime.unsafeNow()"),
-      `Should NOT match unimported type. Got: ${result.code}`
-    );
-    // Should not have any errors either
-    assert.ok(
-      !result.diagnostics || !result.diagnostics.some(d => d.level === "error"),
-      `Should not have errors for unimported types. Got: ${JSON.stringify(result.diagnostics)}`
-    );
-  });
+        // Should NOT use the foreign type handler because we can't verify the import source
+        // Falls back to generic handling
+        assert.ok(
+            !result.code.includes('DateTime.unsafeNow()'),
+            `Should NOT match unimported type. Got: ${result.code}`
+        );
+        // Should not have any errors either
+        assert.ok(
+            !result.diagnostics || !result.diagnostics.some((d) => d.level === 'error'),
+            `Should not have errors for unimported types. Got: ${JSON.stringify(result.diagnostics)}`
+        );
+    });
 });
 
 // ============================================================================
 // Field Decorator Override Tests
 // ============================================================================
 
-describe("Field decorators override foreign type config", () => {
-  const configContent = `
+describe('Field decorators override foreign type config', () => {
+    const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
@@ -413,13 +413,13 @@ describe("Field decorators override foreign type config", () => {
       }
     }
   `;
-  const configPath = "/test/decorator-override/macroforge.config.js";
+    const configPath = '/test/decorator-override/macroforge.config.js';
 
-  test("serializeWith decorator overrides foreign type serialize", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('serializeWith decorator overrides foreign type serialize', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect';
       import { serializeWith } from 'macroforge/serde';
 
@@ -431,24 +431,24 @@ describe("Field decorators override foreign type config", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should use the explicit serializeWith, NOT the foreign type config
-    assert.ok(
-      result.code.includes("toEpochMillis"),
-      `Should use explicit serializeWith decorator. Got: ${result.code}`
-    );
-    assert.ok(
-      !result.code.includes("DateTime.formatIso"),
-      `Should NOT use foreign type serialize when serializeWith is specified. Got: ${result.code}`
-    );
-  });
+        // Should use the explicit serializeWith, NOT the foreign type config
+        assert.ok(
+            result.code.includes('toEpochMillis'),
+            `Should use explicit serializeWith decorator. Got: ${result.code}`
+        );
+        assert.ok(
+            !result.code.includes('DateTime.formatIso'),
+            `Should NOT use foreign type serialize when serializeWith is specified. Got: ${result.code}`
+        );
+    });
 
-  test("deserializeWith decorator overrides foreign type deserialize", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('deserializeWith decorator overrides foreign type deserialize', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect';
       import { deserializeWith } from 'macroforge/serde';
 
@@ -460,24 +460,24 @@ describe("Field decorators override foreign type config", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should use the explicit deserializeWith, NOT the foreign type config
-    assert.ok(
-      result.code.includes("fromEpochMillis"),
-      `Should use explicit deserializeWith decorator. Got: ${result.code}`
-    );
-    assert.ok(
-      !result.code.includes("DateTime.unsafeFromDate"),
-      `Should NOT use foreign type deserialize when deserializeWith is specified. Got: ${result.code}`
-    );
-  });
+        // Should use the explicit deserializeWith, NOT the foreign type config
+        assert.ok(
+            result.code.includes('fromEpochMillis'),
+            `Should use explicit deserializeWith decorator. Got: ${result.code}`
+        );
+        assert.ok(
+            !result.code.includes('DateTime.unsafeFromDate'),
+            `Should NOT use foreign type deserialize when deserializeWith is specified. Got: ${result.code}`
+        );
+    });
 
-  test("default decorator overrides foreign type default", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('default decorator overrides foreign type default', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect';
       import { default as defaultValue } from 'macroforge/serde';
 
@@ -489,26 +489,26 @@ describe("Field decorators override foreign type config", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should use the explicit default, NOT the foreign type config
-    assert.ok(
-      result.code.includes("DateTime.make(2024, 1, 1)"),
-      `Should use explicit default decorator. Got: ${result.code}`
-    );
-    assert.ok(
-      !result.code.includes("DateTime.unsafeNow"),
-      `Should NOT use foreign type default when default decorator is specified. Got: ${result.code}`
-    );
-  });
+        // Should use the explicit default, NOT the foreign type config
+        assert.ok(
+            result.code.includes('DateTime.make(2024, 1, 1)'),
+            `Should use explicit default decorator. Got: ${result.code}`
+        );
+        assert.ok(
+            !result.code.includes('DateTime.unsafeNow'),
+            `Should NOT use foreign type default when default decorator is specified. Got: ${result.code}`
+        );
+    });
 });
 
 // ============================================================================
 // Foreign Type Alias Tests
 // ============================================================================
 
-describe("Foreign type aliases", () => {
-  const configContent = `
+describe('Foreign type aliases', () => {
+    const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
@@ -524,21 +524,21 @@ describe("Foreign type aliases", () => {
       }
     }
   `;
-  const configPath = "/test/aliases/macroforge.config.js";
+    const configPath = '/test/aliases/macroforge.config.js';
 
-  test("loadConfig parses aliases from config", () => {
-    clearConfigCache();
-    const result = loadConfig(configContent, configPath);
+    test('loadConfig parses aliases from config', () => {
+        clearConfigCache();
+        const result = loadConfig(configContent, configPath);
 
-    assert.equal(result.hasForeignTypes, true, "Should have foreign types");
-    assert.equal(result.foreignTypeCount, 1, "Should have 1 foreign type");
-  });
+        assert.equal(result.hasForeignTypes, true, 'Should have foreign types');
+        assert.equal(result.foreignTypeCount, 1, 'Should have 1 foreign type');
+    });
 
-  test("matches foreign type via alias name and source", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('matches foreign type via alias name and source', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect/DateTime';
 
       /** @derive(Serialize) */
@@ -548,20 +548,20 @@ describe("Foreign type aliases", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should use the foreign type serialize function via alias match
-    assert.ok(
-      result.code.includes("DateTime.formatIso"),
-      `Should match via alias and use foreign type serialize. Got: ${result.code}`
-    );
-  });
+        // Should use the foreign type serialize function via alias match
+        assert.ok(
+            result.code.includes('DateTime.formatIso'),
+            `Should match via alias and use foreign type serialize. Got: ${result.code}`
+        );
+    });
 
-  test("matches foreign type via different alias", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('matches foreign type via different alias', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { MyDateTime } from 'my-effect-wrapper';
 
       /** @derive(Default) */
@@ -571,20 +571,20 @@ describe("Foreign type aliases", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should use the foreign type default function via MyDateTime alias
-    assert.ok(
-      result.code.includes("DateTime.unsafeNow()"),
-      `Should match MyDateTime alias and use foreign type default. Got: ${result.code}`
-    );
-  });
+        // Should use the foreign type default function via MyDateTime alias
+        assert.ok(
+            result.code.includes('DateTime.unsafeNow()'),
+            `Should match MyDateTime alias and use foreign type default. Got: ${result.code}`
+        );
+    });
 
-  test("alias does not match when import source differs", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('alias does not match when import source differs', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'some-other-library';
 
       /** @derive(Serialize) */
@@ -594,20 +594,20 @@ describe("Foreign type aliases", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should NOT use foreign type - import source doesn't match main or aliases
-    assert.ok(
-      !result.code.includes("DateTime.formatIso"),
-      `Should NOT match when import source doesn't match any alias. Got: ${result.code}`
-    );
-  });
+        // Should NOT use foreign type - import source doesn't match main or aliases
+        assert.ok(
+            !result.code.includes('DateTime.formatIso'),
+            `Should NOT match when import source doesn't match any alias. Got: ${result.code}`
+        );
+    });
 
-  test("primary from still works alongside aliases", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('primary from still works alongside aliases', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { DateTime } from 'effect';
 
       /** @derive(Serialize) */
@@ -617,22 +617,22 @@ describe("Foreign type aliases", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should still work with the primary from: ["effect"]
-    assert.ok(
-      result.code.includes("DateTime.formatIso"),
-      `Primary from should still work. Got: ${result.code}`
-    );
-  });
+        // Should still work with the primary from: ["effect"]
+        assert.ok(
+            result.code.includes('DateTime.formatIso'),
+            `Primary from should still work. Got: ${result.code}`
+        );
+    });
 });
 
 // ============================================================================
 // Local Import Alias Tracking Tests
 // ============================================================================
 
-describe("Local import alias tracking", () => {
-  const configContent = `
+describe('Local import alias tracking', () => {
+    const configContent = `
     export default {
       foreignTypes: {
         "Option": {
@@ -644,13 +644,13 @@ describe("Local import alias tracking", () => {
       }
     }
   `;
-  const configPath = "/test/local-alias/macroforge.config.js";
+    const configPath = '/test/local-alias/macroforge.config.js';
 
-  test("tracks local import alias (import { Option as EffectOption })", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('tracks local import alias (import { Option as EffectOption })', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    const code = `
+        const code = `
       import type { Option as EffectOption } from 'effect/Option';
 
       /** @derive(Serialize, Deserialize, Default) */
@@ -660,22 +660,22 @@ describe("Local import alias tracking", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should recognize EffectOption as the foreign type Option from effect/Option
-    assert.ok(
-      result.code.includes("Option.getOrNull"),
-      `Should use foreign type serialize for aliased import. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes("Option.none()"),
-      `Should use foreign type default/deserialize for aliased import. Got: ${result.code}`
-    );
-  });
+        // Should recognize EffectOption as the foreign type Option from effect/Option
+        assert.ok(
+            result.code.includes('Option.getOrNull'),
+            `Should use foreign type serialize for aliased import. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('Option.none()'),
+            `Should use foreign type default/deserialize for aliased import. Got: ${result.code}`
+        );
+    });
 
-  test("tracks multiple local aliases in same file", () => {
-    clearConfigCache();
-    const multiAliasConfig = `
+    test('tracks multiple local aliases in same file', () => {
+        clearConfigCache();
+        const multiAliasConfig = `
       export default {
         foreignTypes: {
           "Option": {
@@ -693,10 +693,10 @@ describe("Local import alias tracking", () => {
         }
       }
     `;
-    const multiConfigPath = "/test/multi-local-alias/macroforge.config.js";
-    loadConfig(multiAliasConfig, multiConfigPath);
+        const multiConfigPath = '/test/multi-local-alias/macroforge.config.js';
+        loadConfig(multiAliasConfig, multiConfigPath);
 
-    const code = `
+        const code = `
       import type { Option as MaybeValue } from 'effect/Option';
       import type { DateTime as EffectDateTime } from 'effect';
 
@@ -708,25 +708,25 @@ describe("Local import alias tracking", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath: multiConfigPath });
+        const result = expandSync(code, 'test.ts', { configPath: multiConfigPath });
 
-    // Both aliased types should be recognized
-    assert.ok(
-      result.code.includes("Option.getOrNull"),
-      `Should use foreign type serialize for MaybeValue alias. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes("DateTime.formatIso"),
-      `Should use foreign type serialize for EffectDateTime alias. Got: ${result.code}`
-    );
-  });
+        // Both aliased types should be recognized
+        assert.ok(
+            result.code.includes('Option.getOrNull'),
+            `Should use foreign type serialize for MaybeValue alias. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('DateTime.formatIso'),
+            `Should use foreign type serialize for EffectDateTime alias. Got: ${result.code}`
+        );
+    });
 
-  test("local alias does not affect other types with same name", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('local alias does not affect other types with same name', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    // Import Option with alias, but also have a local Option type
-    const code = `
+        // Import Option with alias, but also have a local Option type
+        const code = `
       import type { Option as EffectOption } from 'effect/Option';
 
       // Local type with same base name
@@ -739,19 +739,19 @@ describe("Local import alias tracking", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // EffectOption should use foreign type handler
-    // Local Option should NOT (no import matches)
-    assert.ok(
-      result.code.includes("Option.getOrNull"),
-      `Should use foreign type for EffectOption. Got: ${result.code}`
-    );
-  });
+        // EffectOption should use foreign type handler
+        // Local Option should NOT (no import matches)
+        assert.ok(
+            result.code.includes('Option.getOrNull'),
+            `Should use foreign type for EffectOption. Got: ${result.code}`
+        );
+    });
 
-  test("handles deeply nested namespace (10 levels) with alias", () => {
-    clearConfigCache();
-    const deepConfig = `
+    test('handles deeply nested namespace (10 levels) with alias', () => {
+        clearConfigCache();
+        const deepConfig = `
       export default {
         foreignTypes: {
           "Deep.A.B.C.D.E.F.G.H.I.Type": {
@@ -763,10 +763,10 @@ describe("Local import alias tracking", () => {
         }
       }
     `;
-    const deepConfigPath = "/test/deep-namespace/macroforge.config.js";
-    loadConfig(deepConfig, deepConfigPath);
+        const deepConfigPath = '/test/deep-namespace/macroforge.config.js';
+        loadConfig(deepConfig, deepConfigPath);
 
-    const code = `
+        const code = `
       import type { Deep as AliasedDeep } from 'deep-module';
 
       /** @derive(Serialize, Default) */
@@ -775,26 +775,26 @@ describe("Local import alias tracking", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath: deepConfigPath });
+        const result = expandSync(code, 'test.ts', { configPath: deepConfigPath });
 
-    // Should resolve AliasedDeep -> Deep and match the foreign type
-    assert.ok(
-      result.code.includes("Deep.serialize"),
-      `Should use foreign type serialize for deeply nested aliased namespace. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes("Deep.empty()"),
-      `Should use foreign type default for deeply nested aliased namespace. Got: ${result.code}`
-    );
-  });
+        // Should resolve AliasedDeep -> Deep and match the foreign type
+        assert.ok(
+            result.code.includes('Deep.serialize'),
+            `Should use foreign type serialize for deeply nested aliased namespace. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('Deep.empty()'),
+            `Should use foreign type default for deeply nested aliased namespace. Got: ${result.code}`
+        );
+    });
 });
 
 // ============================================================================
 // Type-only import namespace generation tests
 // ============================================================================
 
-describe("Type-only import namespace generation", () => {
-  const configContent = `
+describe('Type-only import namespace generation', () => {
+    const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
@@ -809,14 +809,14 @@ describe("Type-only import namespace generation", () => {
       }
     }
   `;
-  const configPath = "/test/type-only-imports/macroforge.config.js";
+    const configPath = '/test/type-only-imports/macroforge.config.js';
 
-  test("generates value import when type-only import is used", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('generates value import when type-only import is used', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    // Use 'import type' which is a type-only import
-    const code = `
+        // Use 'import type' which is a type-only import
+        const code = `
       import type { DateTime } from 'effect/DateTime';
 
       /** @derive(Serialize, Default) */
@@ -825,31 +825,31 @@ describe("Type-only import namespace generation", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should generate a value import for DateTime with __mf_ prefix
-    assert.ok(
-      result.code.includes('import { DateTime as __mf_DateTime }'),
-      `Should generate value import with alias. Got: ${result.code}`
-    );
+        // Should generate a value import for DateTime with __mf_ prefix
+        assert.ok(
+            result.code.includes('import { DateTime as __mf_DateTime }'),
+            `Should generate value import with alias. Got: ${result.code}`
+        );
 
-    // The generated code should use the aliased namespace
-    assert.ok(
-      result.code.includes('__mf_DateTime.formatIso'),
-      `Should use aliased namespace in serialize. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_DateTime.unsafeNow'),
-      `Should use aliased namespace in default. Got: ${result.code}`
-    );
-  });
+        // The generated code should use the aliased namespace
+        assert.ok(
+            result.code.includes('__mf_DateTime.formatIso'),
+            `Should use aliased namespace in serialize. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_DateTime.unsafeNow'),
+            `Should use aliased namespace in default. Got: ${result.code}`
+        );
+    });
 
-  test("does not generate import when value import already exists", () => {
-    clearConfigCache();
-    loadConfig(configContent, configPath);
+    test('does not generate import when value import already exists', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
 
-    // Use regular import (not type-only)
-    const code = `
+        // Use regular import (not type-only)
+        const code = `
       import { DateTime } from 'effect/DateTime';
 
       /** @derive(Serialize) */
@@ -858,24 +858,24 @@ describe("Type-only import namespace generation", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath });
+        const result = expandSync(code, 'test.ts', { configPath });
 
-    // Should NOT generate a duplicate import
-    assert.ok(
-      !result.code.includes('__mf_DateTime'),
-      `Should not generate aliased import when value import exists. Got: ${result.code}`
-    );
+        // Should NOT generate a duplicate import
+        assert.ok(
+            !result.code.includes('__mf_DateTime'),
+            `Should not generate aliased import when value import exists. Got: ${result.code}`
+        );
 
-    // Should use the original namespace directly
-    assert.ok(
-      result.code.includes('DateTime.formatIso'),
-      `Should use original namespace. Got: ${result.code}`
-    );
-  });
+        // Should use the original namespace directly
+        assert.ok(
+            result.code.includes('DateTime.formatIso'),
+            `Should use original namespace. Got: ${result.code}`
+        );
+    });
 
-  test("handles mixed type-only and value imports", () => {
-    clearConfigCache();
-    const multiConfig = `
+    test('handles mixed type-only and value imports', () => {
+        clearConfigCache();
+        const multiConfig = `
       export default {
         foreignTypes: {
           "DateTime.DateTime": {
@@ -894,11 +894,11 @@ describe("Type-only import namespace generation", () => {
         }
       }
     `;
-    const multiConfigPath = "/test/mixed-imports/macroforge.config.js";
-    loadConfig(multiConfig, multiConfigPath);
+        const multiConfigPath = '/test/mixed-imports/macroforge.config.js';
+        loadConfig(multiConfig, multiConfigPath);
 
-    // DateTime is type-only, Option is value import
-    const code = `
+        // DateTime is type-only, Option is value import
+        const code = `
       import type { DateTime } from 'effect/DateTime';
       import { Option } from 'effect/Option';
 
@@ -909,36 +909,36 @@ describe("Type-only import namespace generation", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath: multiConfigPath });
+        const result = expandSync(code, 'test.ts', { configPath: multiConfigPath });
 
-    // Should generate import for DateTime (type-only)
-    assert.ok(
-      result.code.includes('import { DateTime as __mf_DateTime }'),
-      `Should generate import for type-only DateTime. Got: ${result.code}`
-    );
+        // Should generate import for DateTime (type-only)
+        assert.ok(
+            result.code.includes('import { DateTime as __mf_DateTime }'),
+            `Should generate import for type-only DateTime. Got: ${result.code}`
+        );
 
-    // Should NOT generate import for Option (already value import)
-    assert.ok(
-      !result.code.includes('__mf_Option'),
-      `Should not generate import for Option (already value import). Got: ${result.code}`
-    );
+        // Should NOT generate import for Option (already value import)
+        assert.ok(
+            !result.code.includes('__mf_Option'),
+            `Should not generate import for Option (already value import). Got: ${result.code}`
+        );
 
-    // Should use aliased DateTime
-    assert.ok(
-      result.code.includes('__mf_DateTime.formatIso'),
-      `Should use aliased DateTime. Got: ${result.code}`
-    );
+        // Should use aliased DateTime
+        assert.ok(
+            result.code.includes('__mf_DateTime.formatIso'),
+            `Should use aliased DateTime. Got: ${result.code}`
+        );
 
-    // Should use original Option
-    assert.ok(
-      result.code.includes('Option.getOrNull'),
-      `Should use original Option. Got: ${result.code}`
-    );
-  });
+        // Should use original Option
+        assert.ok(
+            result.code.includes('Option.getOrNull'),
+            `Should use original Option. Got: ${result.code}`
+        );
+    });
 
-  test("handles namespaced type with standalone function in serialize and namespaced function in deserialize", () => {
-    clearConfigCache();
-    const mixedExprConfig = `
+    test('handles namespaced type with standalone function in serialize and namespaced function in deserialize', () => {
+        clearConfigCache();
+        const mixedExprConfig = `
       export default {
         foreignTypes: {
           "DateTime.DateTime": {
@@ -955,11 +955,11 @@ describe("Type-only import namespace generation", () => {
         }
       }
     `;
-    const mixedExprConfigPath = "/test/mixed-expr/macroforge.config.js";
-    loadConfig(mixedExprConfig, mixedExprConfigPath);
+        const mixedExprConfigPath = '/test/mixed-expr/macroforge.config.js';
+        loadConfig(mixedExprConfig, mixedExprConfigPath);
 
-    // Type-only import - needs generated value import
-    const code = `
+        // Type-only import - needs generated value import
+        const code = `
       import type { DateTime } from 'effect/DateTime';
 
       // Standalone function that doesn't need namespace import
@@ -973,45 +973,45 @@ describe("Type-only import namespace generation", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath: mixedExprConfigPath });
+        const result = expandSync(code, 'test.ts', { configPath: mixedExprConfigPath });
 
-    // Should generate import for DateTime (type-only)
-    assert.ok(
-      result.code.includes('import { DateTime as __mf_DateTime }'),
-      `Should generate import for type-only DateTime. Got: ${result.code}`
-    );
+        // Should generate import for DateTime (type-only)
+        assert.ok(
+            result.code.includes('import { DateTime as __mf_DateTime }'),
+            `Should generate import for type-only DateTime. Got: ${result.code}`
+        );
 
-    // Serialize: should use aliased DateTime namespace but keep standalone function as-is
-    assert.ok(
-      result.code.includes('__mf_DateTime.toDate'),
-      `Serialize should use aliased DateTime.toDate. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('formatIsoString('),
-      `Serialize should keep standalone formatIsoString function. Got: ${result.code}`
-    );
-    // Should NOT alias the standalone function
-    assert.ok(
-      !result.code.includes('__mf_formatIsoString'),
-      `Should NOT alias standalone function. Got: ${result.code}`
-    );
+        // Serialize: should use aliased DateTime namespace but keep standalone function as-is
+        assert.ok(
+            result.code.includes('__mf_DateTime.toDate'),
+            `Serialize should use aliased DateTime.toDate. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('formatIsoString('),
+            `Serialize should keep standalone formatIsoString function. Got: ${result.code}`
+        );
+        // Should NOT alias the standalone function
+        assert.ok(
+            !result.code.includes('__mf_formatIsoString'),
+            `Should NOT alias standalone function. Got: ${result.code}`
+        );
 
-    // Deserialize: should use aliased DateTime namespace
-    assert.ok(
-      result.code.includes('__mf_DateTime.fromDate'),
-      `Deserialize should use aliased DateTime.fromDate. Got: ${result.code}`
-    );
+        // Deserialize: should use aliased DateTime namespace
+        assert.ok(
+            result.code.includes('__mf_DateTime.fromDate'),
+            `Deserialize should use aliased DateTime.fromDate. Got: ${result.code}`
+        );
 
-    // Default: should use aliased DateTime namespace
-    assert.ok(
-      result.code.includes('__mf_DateTime.unsafeNow'),
-      `Default should use aliased DateTime.unsafeNow. Got: ${result.code}`
-    );
-  });
+        // Default: should use aliased DateTime namespace
+        assert.ok(
+            result.code.includes('__mf_DateTime.unsafeNow'),
+            `Default should use aliased DateTime.unsafeNow. Got: ${result.code}`
+        );
+    });
 
-  test("complex case: multiple namespaces, standalone functions, nested calls, and chained expressions", () => {
-    clearConfigCache();
-    const complexConfig = `
+    test('complex case: multiple namespaces, standalone functions, nested calls, and chained expressions', () => {
+        clearConfigCache();
+        const complexConfig = `
       export default {
         foreignTypes: {
           // Deep namespace: Effect.Data.DateTime.Zoned
@@ -1056,11 +1056,11 @@ describe("Type-only import namespace generation", () => {
         }
       }
     `;
-    const complexConfigPath = "/test/complex-namespaces/macroforge.config.js";
-    loadConfig(complexConfig, complexConfigPath);
+        const complexConfigPath = '/test/complex-namespaces/macroforge.config.js';
+        loadConfig(complexConfig, complexConfigPath);
 
-    // All type-only imports to force namespace import generation
-    const code = `
+        // All type-only imports to force namespace import generation
+        const code = `
       import type { Effect } from 'effect';
       import type { Option } from 'effect/Option';
       import type { Duration } from 'effect/Duration';
@@ -1087,134 +1087,134 @@ describe("Type-only import namespace generation", () => {
       }
     `;
 
-    const result = expandSync(code, "test.ts", { configPath: complexConfigPath });
+        const result = expandSync(code, 'test.ts', { configPath: complexConfigPath });
 
-    // === Import generation checks ===
+        // === Import generation checks ===
 
-    // Should generate import for Effect (deep namespace root)
-    assert.ok(
-      result.code.includes('import { Effect as __mf_Effect }'),
-      `Should generate import for Effect namespace. Got: ${result.code}`
-    );
+        // Should generate import for Effect (deep namespace root)
+        assert.ok(
+            result.code.includes('import { Effect as __mf_Effect }'),
+            `Should generate import for Effect namespace. Got: ${result.code}`
+        );
 
-    // Should generate import for Option
-    assert.ok(
-      result.code.includes('import { Option as __mf_Option }'),
-      `Should generate import for Option namespace. Got: ${result.code}`
-    );
+        // Should generate import for Option
+        assert.ok(
+            result.code.includes('import { Option as __mf_Option }'),
+            `Should generate import for Option namespace. Got: ${result.code}`
+        );
 
-    // Should generate import for Duration
-    assert.ok(
-      result.code.includes('import { Duration as __mf_Duration }'),
-      `Should generate import for Duration namespace. Got: ${result.code}`
-    );
+        // Should generate import for Duration
+        assert.ok(
+            result.code.includes('import { Duration as __mf_Duration }'),
+            `Should generate import for Duration namespace. Got: ${result.code}`
+        );
 
-    // === Deep namespace rewriting checks ===
+        // === Deep namespace rewriting checks ===
 
-    // Effect.Data.DateTime.Zoned should become __mf_Effect.Data.DateTime.Zoned
-    assert.ok(
-      result.code.includes('__mf_Effect.Data.DateTime.Zoned.format'),
-      `Should rewrite deep namespace in serialize. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Effect.Data.DateTime.Zoned.toEpochMillis'),
-      `Should rewrite deep namespace toEpochMillis. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Effect.Data.DateTime.Zoned.getZone'),
-      `Should rewrite deep namespace getZone. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Effect.Data.DateTime.Zoned.fromString'),
-      `Should rewrite deep namespace in deserialize. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Effect.Data.DateTime.Zoned.unsafeNow'),
-      `Should rewrite deep namespace in default/deserialize fallback. Got: ${result.code}`
-    );
+        // Effect.Data.DateTime.Zoned should become __mf_Effect.Data.DateTime.Zoned
+        assert.ok(
+            result.code.includes('__mf_Effect.Data.DateTime.Zoned.format'),
+            `Should rewrite deep namespace in serialize. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Effect.Data.DateTime.Zoned.toEpochMillis'),
+            `Should rewrite deep namespace toEpochMillis. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Effect.Data.DateTime.Zoned.getZone'),
+            `Should rewrite deep namespace getZone. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Effect.Data.DateTime.Zoned.fromString'),
+            `Should rewrite deep namespace in deserialize. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Effect.Data.DateTime.Zoned.unsafeNow'),
+            `Should rewrite deep namespace in default/deserialize fallback. Got: ${result.code}`
+        );
 
-    // === Option namespace rewriting checks ===
+        // === Option namespace rewriting checks ===
 
-    assert.ok(
-      result.code.includes('__mf_Option.isSome'),
-      `Should rewrite Option.isSome. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Option.getOrThrow'),
-      `Should rewrite Option.getOrThrow. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Option.none'),
-      `Should rewrite Option.none. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Option.some'),
-      `Should rewrite Option.some. Got: ${result.code}`
-    );
+        assert.ok(
+            result.code.includes('__mf_Option.isSome'),
+            `Should rewrite Option.isSome. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Option.getOrThrow'),
+            `Should rewrite Option.getOrThrow. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Option.none'),
+            `Should rewrite Option.none. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Option.some'),
+            `Should rewrite Option.some. Got: ${result.code}`
+        );
 
-    // === Duration namespace rewriting checks ===
+        // === Duration namespace rewriting checks ===
 
-    assert.ok(
-      result.code.includes('__mf_Duration.toMillis'),
-      `Should rewrite Duration.toMillis. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Duration.abs'),
-      `Should rewrite Duration.abs. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Duration.millis'),
-      `Should rewrite Duration.millis. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('__mf_Duration.zero'),
-      `Should rewrite Duration.zero. Got: ${result.code}`
-    );
+        assert.ok(
+            result.code.includes('__mf_Duration.toMillis'),
+            `Should rewrite Duration.toMillis. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Duration.abs'),
+            `Should rewrite Duration.abs. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Duration.millis'),
+            `Should rewrite Duration.millis. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('__mf_Duration.zero'),
+            `Should rewrite Duration.zero. Got: ${result.code}`
+        );
 
-    // === Standalone functions should NOT be aliased ===
+        // === Standalone functions should NOT be aliased ===
 
-    // JSON.stringify and JSON.parse are globals, should not be prefixed
-    assert.ok(
-      result.code.includes('JSON.stringify') && !result.code.includes('__mf_JSON'),
-      `Should NOT alias JSON global. Got: ${result.code}`
-    );
-    assert.ok(
-      result.code.includes('JSON.parse') && !result.code.includes('__mf_JSON'),
-      `Should NOT alias JSON.parse global. Got: ${result.code}`
-    );
+        // JSON.stringify and JSON.parse are globals, should not be prefixed
+        assert.ok(
+            result.code.includes('JSON.stringify') && !result.code.includes('__mf_JSON'),
+            `Should NOT alias JSON global. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('JSON.parse') && !result.code.includes('__mf_JSON'),
+            `Should NOT alias JSON.parse global. Got: ${result.code}`
+        );
 
-    // Math.abs is a global, should not be prefixed
-    assert.ok(
-      result.code.includes('Math.abs') && !result.code.includes('__mf_Math'),
-      `Should NOT alias Math global. Got: ${result.code}`
-    );
+        // Math.abs is a global, should not be prefixed
+        assert.ok(
+            result.code.includes('Math.abs') && !result.code.includes('__mf_Math'),
+            `Should NOT alias Math global. Got: ${result.code}`
+        );
 
-    // Local functions should remain unchanged (they don't use dot notation in calls)
-    // validateTimestamp, formatForDisplay, processData should not appear with __mf_ prefix
-    assert.ok(
-      !result.code.includes('__mf_validateTimestamp'),
-      `Should NOT alias local function validateTimestamp. Got: ${result.code}`
-    );
-    assert.ok(
-      !result.code.includes('__mf_formatForDisplay'),
-      `Should NOT alias local function formatForDisplay. Got: ${result.code}`
-    );
-    assert.ok(
-      !result.code.includes('__mf_processData'),
-      `Should NOT alias local function processData. Got: ${result.code}`
-    );
+        // Local functions should remain unchanged (they don't use dot notation in calls)
+        // validateTimestamp, formatForDisplay, processData should not appear with __mf_ prefix
+        assert.ok(
+            !result.code.includes('__mf_validateTimestamp'),
+            `Should NOT alias local function validateTimestamp. Got: ${result.code}`
+        );
+        assert.ok(
+            !result.code.includes('__mf_formatForDisplay'),
+            `Should NOT alias local function formatForDisplay. Got: ${result.code}`
+        );
+        assert.ok(
+            !result.code.includes('__mf_processData'),
+            `Should NOT alias local function processData. Got: ${result.code}`
+        );
 
-    // === Original namespaces should NOT appear (all should be rewritten) ===
+        // === Original namespaces should NOT appear (all should be rewritten) ===
 
-    // Check that unrewritten namespace patterns don't exist (except in type annotations)
-    // The serialize/deserialize code should not have bare Effect., Option., Duration.
-    const codeWithoutTypes = result.code.replace(/:\s*\w+(\.\w+)*(<[^>]+>)?/g, ''); // Remove type annotations
+        // Check that unrewritten namespace patterns don't exist (except in type annotations)
+        // The serialize/deserialize code should not have bare Effect., Option., Duration.
+        const codeWithoutTypes = result.code.replace(/:\s*\w+(\.\w+)*(<[^>]+>)?/g, ''); // Remove type annotations
 
-    // This is a rough check - the expressions should use __mf_ prefixed versions
-    const hasUnrewrittenEffect = /[^_]Effect\.Data\.DateTime\.Zoned\./.test(codeWithoutTypes);
-    assert.ok(
-      !hasUnrewrittenEffect,
-      `Should not have unrewritten Effect.Data.DateTime.Zoned in code. Got: ${result.code}`
-    );
-  });
+        // This is a rough check - the expressions should use __mf_ prefixed versions
+        const hasUnrewrittenEffect = /[^_]Effect\.Data\.DateTime\.Zoned\./.test(codeWithoutTypes);
+        assert.ok(
+            !hasUnrewrittenEffect,
+            `Should not have unrewritten Effect.Data.DateTime.Zoned in code. Got: ${result.code}`
+        );
+    });
 });

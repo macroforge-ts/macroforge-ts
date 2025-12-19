@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Paid {
@@ -40,9 +39,9 @@ export function paidSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Paid', __id };
-    result['amount'] = value.amount;
-    result['currency'] = value.currency;
-    result['paymentMethod'] = value.paymentMethod;
+    result.amount = value.amount;
+    result.currency = value.currency;
+    result.paymentMethod = value.paymentMethod;
     return result;
 }
 
@@ -118,15 +117,15 @@ export function paidDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_amount = obj['amount'] as number | null;
+        const __raw_amount = obj.amount as number | null;
         instance.amount = __raw_amount;
     }
     {
-        const __raw_currency = obj['currency'] as string | null;
+        const __raw_currency = obj.currency as string | null;
         instance.currency = __raw_currency;
     }
     {
-        const __raw_paymentMethod = obj['paymentMethod'] as string | null;
+        const __raw_paymentMethod = obj.paymentMethod as string | null;
         instance.paymentMethod = __raw_paymentMethod;
     }
     if (errors.length > 0) {
@@ -309,7 +308,7 @@ export function paidFromFormData(
     {
         const amountStr = formData.get('amount');
         obj.amount = amountStr ? parseFloat(amountStr as string) : 0;
-        if (obj.amount !== undefined && isNaN(obj.amount as number)) obj.amount = 0;
+        if (obj.amount !== undefined && Number.isNaN(obj.amount as number)) obj.amount = 0;
     }
     obj.currency = formData.get('currency') ?? '';
     obj.paymentMethod = formData.get('paymentMethod') ?? '';

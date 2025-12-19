@@ -1,61 +1,77 @@
 <script lang="ts">
-  import { userCreateForm, settingsDefaultValue, type User, type Settings, type UserRole } from "$lib/demo/types";
+import {
+    userCreateForm,
+    settingsDefaultValue,
+    type User,
+    type Settings,
+    type UserRole
+} from '$lib/demo/types';
 
-  // Create User form with nested Settings, Metadata, AppPermissions
-  const userForm = userCreateForm();
+// Create User form with nested Settings, Metadata, AppPermissions
+const userForm = userCreateForm();
 
-  // Track validation results
-  let userResult: { success: boolean; data?: User; errors?: Array<{ field: string; message: string }> } | null = $state(null);
+// Track validation results
+let userResult: {
+    success: boolean;
+    data?: User;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
 
-  // Expose to Playwright
-  if (typeof window !== "undefined") {
+// Expose to Playwright
+if (typeof window !== 'undefined') {
     (window as any).gigaformResults = {
-      user: userForm,
+        user: userForm
     };
-  }
+}
 
-  function submitUser() {
+function submitUser() {
     const result = userForm.validate();
     if (result.isOk()) {
-      userResult = { success: true, data: result.unwrap() };
+        userResult = { success: true, data: result.unwrap() };
     } else {
-      userResult = { success: false, errors: result.unwrapErr() };
+        userResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.userValidation = userResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.userValidation = userResult;
     }
-  }
+}
 
-  function resetUser() {
+function resetUser() {
     userForm.reset();
     userResult = null;
-  }
+}
 
-  // Helper to update nested settings
-  function updateScheduleDaysPerWeek(value: number) {
+// Helper to update nested settings
+function updateScheduleDaysPerWeek(value: number) {
     const currentSettings = userForm.fields.settings.get();
     userForm.fields.settings.set({
-      ...currentSettings,
-      scheduleSettings: {
-        ...currentSettings.scheduleSettings,
-        daysPerWeek: value,
-      },
+        ...currentSettings,
+        scheduleSettings: {
+            ...currentSettings.scheduleSettings,
+            daysPerWeek: value
+        }
     });
-  }
+}
 
-  function updateScheduleRowHeight(value: "ExtraSmall" | "Small" | "Medium" | "Large") {
+function updateScheduleRowHeight(value: 'ExtraSmall' | 'Small' | 'Medium' | 'Large') {
     const currentSettings = userForm.fields.settings.get();
     userForm.fields.settings.set({
-      ...currentSettings,
-      scheduleSettings: {
-        ...currentSettings.scheduleSettings,
-        rowHeight: value,
-      },
+        ...currentSettings,
+        scheduleSettings: {
+            ...currentSettings.scheduleSettings,
+            rowHeight: value
+        }
     });
-  }
+}
 
-  const roleOptions: UserRole[] = ["Administrator", "SalesRepresentative", "Technician", "HumanResources", "InformationTechnology"];
-  const rowHeightOptions = ["ExtraSmall", "Small", "Medium", "Large"] as const;
+const roleOptions: Array<UserRole> = [
+    'Administrator',
+    'SalesRepresentative',
+    'Technician',
+    'HumanResources',
+    'InformationTechnology'
+];
+const rowHeightOptions = ['ExtraSmall', 'Small', 'Medium', 'Large'] as const;
 </script>
 
 <svelte:head>

@@ -1,19 +1,13 @@
+import type { AccountName } from './account-name.svelte';
+import type { Colors } from './colors.svelte';
 import type { Did } from './did.svelte';
-import type { PersonName } from './person-name.svelte';
-import type { Site } from './site.svelte';
+import type { Email } from './email.svelte';
+import type { Ordered } from './ordered.svelte';
 import type { PhoneNumber } from './phone-number.svelte';
 import type { Represents } from './represents.svelte';
-import type { Payment } from './payment.svelte';
-import type { CompanyName } from './company-name.svelte';
-import type { Custom } from './custom.svelte';
-import type { Colors } from './colors.svelte';
-import type { TaxRate } from './tax-rate.svelte';
-import type { Lead } from './lead.svelte';
-import type { Company } from './company.svelte';
-import type { Ordered } from './ordered.svelte';
-import type { Email } from './email.svelte';
 import type { Sector } from './sector.svelte';
-import type { AccountName } from './account-name.svelte';
+import type { Site } from './site.svelte';
+import type { TaxRate } from './tax-rate.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
@@ -27,13 +21,13 @@ export interface Account {
     /** @default("") */
     site: string | Site;
     /** @comboboxMultipleController({ label: "Sales Rep", fetchUrls: ["/api/employees"] }) */
-    salesRep: Represents[] | null;
+    salesRep: Array<Represents> | null;
     /** @hiddenController({}) */
-    orders: Ordered[];
+    orders: Array<Ordered>;
     /** @hiddenController({}) */
-    activity: Did[];
+    activity: Array<Did>;
     /** @arrayFieldsetController({ legend: "Custom Fields" }) */
-    customFields: [string, string][];
+    customFields: Array<[string, string]>;
     /** @enumFieldsetController({ legend: "Name", variants: { CompanyName: { label: "Company" }, PersonName: { label: "Person" } } }) */
     accountName: AccountName;
     /** @radioGroupController({ label: "Sector", options: [{ label: "Residential", value: "Residential" }, { label: "Commercial", value: "Commercial" }], orientation: "horizontal" }) */
@@ -42,7 +36,7 @@ export interface Account {
     /** @textAreaController({ label: "Memo" }) */
     memo: string | null;
     /** @arrayFieldsetController({ legend: "Phones" }) */
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
     /** @emailFieldController({ label: "Email" }) */
     email: Email;
     /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
@@ -66,7 +60,7 @@ export interface Account {
     /** @serde({ validate: ["nonEmpty"] }) */
     paymentTerms: string;
     /** @tagsController({ label: "Tags" }) */
-    tags: string[];
+    tags: Array<string>;
     /** @hiddenController({}) */
     dateAdded: string;
 }

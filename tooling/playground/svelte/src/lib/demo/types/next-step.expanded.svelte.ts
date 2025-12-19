@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 
 export type NextStep = /** @default */ 'InitialContact' | 'Qualified' | 'Estimate' | 'Negotiation';
 
@@ -123,10 +122,11 @@ export type NextStepTainted =
     | ({
           _value: 'Negotiation';
       } & NextStepNegotiationTainted); /** Per-variant field controller types */
-export interface NextStepInitialContactFieldControllers {}
-export interface NextStepQualifiedFieldControllers {}
-export interface NextStepEstimateFieldControllers {}
-export interface NextStepNegotiationFieldControllers {} /** Union Gigaform interface with variant switching */
+export type NextStepInitialContactFieldControllers = {};
+export type NextStepQualifiedFieldControllers = {};
+export type NextStepEstimateFieldControllers = {};
+export type NextStepNegotiationFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface NextStepGigaform {
     readonly currentVariant: 'InitialContact' | 'Qualified' | 'Estimate' | 'Negotiation';
     readonly data: NextStep;

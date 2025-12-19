@@ -30,18 +30,19 @@ let currentTypeName = null;
 
 // Helper to check if a line is the start of a new declaration
 function isStartOfDeclaration(line) {
-    return line.trim().startsWith('/** @derive') || 
-           (line.trim().startsWith('export ') && !currentBlockLines.some(l => l.trim().startsWith('/** @derive')));
+    return (
+        line.trim().startsWith('/** @derive') ||
+        (line.trim().startsWith('export ') &&
+            !currentBlockLines.some((l) => l.trim().startsWith('/** @derive')))
+    );
 }
 
 // Global imports/macros that need to be in every file or handled specially
-const globalImports = [
-    '/** import macro {Gigaform} from "@playground/macro"; */'
-];
+const globalImports = ['/** import macro {Gigaform} from "@playground/macro"; */'];
 
 for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    
+
     // Check if this line marks the start of a new type definition
     // We assume mostly standard formatting where @derive starts the block
     if (isStartOfDeclaration(line) && currentBlockLines.length > 0 && currentTypeName) {
@@ -87,20 +88,20 @@ function toKebabCase(str) {
 }
 
 // 3. Process and write files
-blocks.forEach(block => {
+blocks.forEach((block) => {
     const filename = `${toKebabCase(block.name)}.svelte.ts`;
     const filepath = path.join(OUTPUT_DIR, filename);
-    
-    let fileContent = block.content.trim() + '\n';
-    
+
+    const fileContent = `${block.content.trim()}\n`;
+
     // Detect dependencies
     const imports = new Set();
-    
-    typeNames.forEach(type => {
+
+    typeNames.forEach((type) => {
         if (type === block.name) return; // Don't import self
-        
+
         // Use word boundary to ensure we don't match substrings (e.g. "User" in "UserRole")
-        const regex = new RegExp('\\b' + type + '\\b');
+        const regex = new RegExp(`\\b${type}\\b`);
         if (regex.test(fileContent)) {
             imports.add(`import { ${type} } from './${toKebabCase(type)}.svelte';`);
         }
@@ -108,14 +109,14 @@ blocks.forEach(block => {
 
     // Construct final content
     let finalContent = '';
-    
+
     // Add macro import if Gigaform is used (which is in the @derive)
     if (fileContent.includes('Gigaform')) {
-        finalContent += globalImports[0] + '\n\n';
+        finalContent += `${globalImports[0]}\n\n`;
     }
 
     if (imports.size > 0) {
-        finalContent += Array.from(imports).join('\n') + '\n\n';
+        finalContent += `${Array.from(imports).join('\n')}\n\n`;
     }
 
     finalContent += fileContent;

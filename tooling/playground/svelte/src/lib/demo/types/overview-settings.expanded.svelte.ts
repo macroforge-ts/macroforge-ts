@@ -1,32 +1,38 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { columnConfigSerializeWithContext } from './column-config.svelte';
-import { overviewDisplaySerializeWithContext } from './overview-display.svelte';
-import { rowHeightSerializeWithContext } from './row-height.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { overviewDisplayDeserializeWithContext } from './overview-display.svelte';
-import { rowHeightDeserializeWithContext } from './row-height.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { columnConfigSerializeWithContext } from './column-config.svelte';
+import {
+    overviewDisplayDeserializeWithContext,
+    overviewDisplaySerializeWithContext
+} from './overview-display.svelte';
+import {
+    rowHeightDeserializeWithContext,
+    rowHeightSerializeWithContext
+} from './row-height.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { ColumnConfig } from './column-config.svelte';
 import type { OverviewDisplay } from './overview-display.svelte';
 import type { RowHeight } from './row-height.svelte';
-import type { Table } from './table.svelte';
 
 export interface OverviewSettings {
     rowHeight: RowHeight;
 
     cardOrRow: OverviewDisplay;
     perPage: number;
-    columnConfigs: ColumnConfig[];
+    columnConfigs: Array<ColumnConfig>;
 }
 
 export function overviewSettingsDefaultValue(): OverviewSettings {
@@ -58,10 +64,10 @@ export function overviewSettingsSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'OverviewSettings', __id };
-    result['rowHeight'] = rowHeightSerializeWithContext(value.rowHeight, ctx);
-    result['cardOrRow'] = overviewDisplaySerializeWithContext(value.cardOrRow, ctx);
-    result['perPage'] = value.perPage;
-    result['columnConfigs'] = value.columnConfigs.map((item) =>
+    result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);
+    result.cardOrRow = overviewDisplaySerializeWithContext(value.cardOrRow, ctx);
+    result.perPage = value.perPage;
+    result.columnConfigs = value.columnConfigs.map((item) =>
         columnConfigSerializeWithContext(item, ctx)
     );
     return result;
@@ -145,27 +151,27 @@ export function overviewSettingsDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_rowHeight = obj['rowHeight'] as RowHeight;
+        const __raw_rowHeight = obj.rowHeight as RowHeight;
         {
             const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
             ctx.assignOrDefer(instance, 'rowHeight', __result);
         }
     }
     {
-        const __raw_cardOrRow = obj['cardOrRow'] as OverviewDisplay;
+        const __raw_cardOrRow = obj.cardOrRow as OverviewDisplay;
         {
             const __result = overviewDisplayDeserializeWithContext(__raw_cardOrRow, ctx);
             ctx.assignOrDefer(instance, 'cardOrRow', __result);
         }
     }
     {
-        const __raw_perPage = obj['perPage'] as number;
+        const __raw_perPage = obj.perPage as number;
         instance.perPage = __raw_perPage;
     }
     {
-        const __raw_columnConfigs = obj['columnConfigs'] as ColumnConfig[];
+        const __raw_columnConfigs = obj.columnConfigs as Array<ColumnConfig>;
         if (Array.isArray(__raw_columnConfigs)) {
-            instance.columnConfigs = __raw_columnConfigs as ColumnConfig[];
+            instance.columnConfigs = __raw_columnConfigs as Array<ColumnConfig>;
         }
     }
     if (errors.length > 0) {
@@ -315,10 +321,10 @@ export function overviewSettingsCreateForm(
             name: 'columnConfigs',
             constraints: { required: true },
             get: () => data.columnConfigs,
-            set: (value: ColumnConfig[]) => {
+            set: (value: Array<ColumnConfig>) => {
                 data.columnConfigs = value;
             },
-            transform: (value: ColumnConfig[]): ColumnConfig[] => value,
+            transform: (value: Array<ColumnConfig>): Array<ColumnConfig> => value,
             getError: () => errors.columnConfigs,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.columnConfigs = value;
@@ -454,20 +460,20 @@ export function overviewSettingsFromFormData(
     {
         const perPageStr = formData.get('perPage');
         obj.perPage = perPageStr ? parseFloat(perPageStr as string) : 0;
-        if (obj.perPage !== undefined && isNaN(obj.perPage as number)) obj.perPage = 0;
+        if (obj.perPage !== undefined && Number.isNaN(obj.perPage as number)) obj.perPage = 0;
     }
     {
         const columnConfigsItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('columnConfigs.' + idx + '.') || idx === 0) {
+        while (formData.has(`columnConfigs.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('columnConfigs.' + idx + '.')
+                k.startsWith(`columnConfigs.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('columnConfigs.' + idx + '.')) {
+                    if (key.startsWith(`columnConfigs.${idx}.`)) {
                         const fieldName = key.slice(
                             'columnConfigs.'.length + String(idx).length + 1
                         );

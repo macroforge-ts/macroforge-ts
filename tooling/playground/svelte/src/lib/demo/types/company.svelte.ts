@@ -1,9 +1,9 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { Site } from './site.svelte';
-import type { PhoneNumber } from './phone-number.svelte';
-import type { TaxRate } from './tax-rate.svelte';
 import type { ColorsConfig } from './colors-config.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { Site } from './site.svelte';
+import type { TaxRate } from './tax-rate.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Company {
@@ -12,7 +12,7 @@ export interface Company {
     legalName: string;
     /** @default("") */
     headquarters: string | Site;
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
     /** @serde({ validate: ["nonEmpty"] }) */
     fax: string;
     /** @serde({ validate: ["nonEmpty"] }) */

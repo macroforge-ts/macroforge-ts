@@ -24,7 +24,7 @@ export class FormModel {
     description: string;
 
     /** @inspect */
-    tags: string[];
+    tags: Array<string>;
 
     metadata: Record<string, unknown> | null;
 
@@ -32,7 +32,7 @@ export class FormModel {
         memo: string | null,
         username: string,
         description: string,
-        tags: string[] = [],
+        tags: Array<string> = [],
         metadata: Record<string, unknown> | null = null
     ) {
         this.memo = memo;

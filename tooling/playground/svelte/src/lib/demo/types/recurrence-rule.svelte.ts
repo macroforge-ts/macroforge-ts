@@ -8,6 +8,6 @@ export interface RecurrenceRule {
     interval: Interval;
     recurrenceBegins: string;
     recurrenceEnds: RecurrenceEnd | null;
-    cancelledInstances: string[] | null;
-    additionalInstances: string[] | null;
+    cancelledInstances: Array<string> | null;
+    additionalInstances: Array<string> | null;
 }

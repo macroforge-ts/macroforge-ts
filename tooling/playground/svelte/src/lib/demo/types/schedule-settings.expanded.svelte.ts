@@ -1,16 +1,21 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { rowHeightSerializeWithContext } from './row-height.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { rowHeightDeserializeWithContext } from './row-height.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    rowHeightDeserializeWithContext,
+    rowHeightSerializeWithContext
+} from './row-height.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { RowHeight } from './row-height.svelte';
@@ -19,7 +24,7 @@ export interface ScheduleSettings {
     daysPerWeek: number;
 
     rowHeight: RowHeight;
-    visibleRoutes: string[];
+    visibleRoutes: Array<string>;
     detailedCards: boolean;
 }
 
@@ -52,10 +57,10 @@ export function scheduleSettingsSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'ScheduleSettings', __id };
-    result['daysPerWeek'] = value.daysPerWeek;
-    result['rowHeight'] = rowHeightSerializeWithContext(value.rowHeight, ctx);
-    result['visibleRoutes'] = value.visibleRoutes;
-    result['detailedCards'] = value.detailedCards;
+    result.daysPerWeek = value.daysPerWeek;
+    result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);
+    result.visibleRoutes = value.visibleRoutes;
+    result.detailedCards = value.detailedCards;
     return result;
 }
 
@@ -137,24 +142,24 @@ export function scheduleSettingsDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_daysPerWeek = obj['daysPerWeek'] as number;
+        const __raw_daysPerWeek = obj.daysPerWeek as number;
         instance.daysPerWeek = __raw_daysPerWeek;
     }
     {
-        const __raw_rowHeight = obj['rowHeight'] as RowHeight;
+        const __raw_rowHeight = obj.rowHeight as RowHeight;
         {
             const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
             ctx.assignOrDefer(instance, 'rowHeight', __result);
         }
     }
     {
-        const __raw_visibleRoutes = obj['visibleRoutes'] as string[];
+        const __raw_visibleRoutes = obj.visibleRoutes as Array<string>;
         if (Array.isArray(__raw_visibleRoutes)) {
-            instance.visibleRoutes = __raw_visibleRoutes as string[];
+            instance.visibleRoutes = __raw_visibleRoutes as Array<string>;
         }
     }
     {
-        const __raw_detailedCards = obj['detailedCards'] as boolean;
+        const __raw_detailedCards = obj.detailedCards as boolean;
         instance.detailedCards = __raw_detailedCards;
     }
     if (errors.length > 0) {
@@ -282,10 +287,10 @@ export function scheduleSettingsCreateForm(
             name: 'visibleRoutes',
             constraints: { required: true },
             get: () => data.visibleRoutes,
-            set: (value: string[]) => {
+            set: (value: Array<string>) => {
                 data.visibleRoutes = value;
             },
-            transform: (value: string[]): string[] => value,
+            transform: (value: Array<string>): Array<string> => value,
             getError: () => errors.visibleRoutes,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.visibleRoutes = value;
@@ -408,7 +413,8 @@ export function scheduleSettingsFromFormData(
     {
         const daysPerWeekStr = formData.get('daysPerWeek');
         obj.daysPerWeek = daysPerWeekStr ? parseFloat(daysPerWeekStr as string) : 0;
-        if (obj.daysPerWeek !== undefined && isNaN(obj.daysPerWeek as number)) obj.daysPerWeek = 0;
+        if (obj.daysPerWeek !== undefined && Number.isNaN(obj.daysPerWeek as number))
+            obj.daysPerWeek = 0;
     }
     {
         const rowHeightObj: Record<string, unknown> = {};

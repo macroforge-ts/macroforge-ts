@@ -86,7 +86,7 @@ vi.mock('svelte', async (original) => {
 
 // Mock $app/forms
 vi.mock('$app/forms', () => ({
-    enhance: vi.fn((form, handlers) => {
+    enhance: vi.fn((_form, _handlers) => {
         return {
             destroy: vi.fn()
         };

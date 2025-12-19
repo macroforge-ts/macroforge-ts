@@ -1,28 +1,30 @@
-import { appPermissionsDefaultValue } from './app-permissions.svelte';
-import { settingsDefaultValue } from './settings.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { appPermissionsSerializeWithContext } from './app-permissions.svelte';
-import { settingsSerializeWithContext } from './settings.svelte';
-import { userRoleSerializeWithContext } from './user-role.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { appPermissionsDeserializeWithContext } from './app-permissions.svelte';
-import { settingsDeserializeWithContext } from './settings.svelte';
-import { userRoleDeserializeWithContext } from './user-role.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    appPermissionsDefaultValue,
+    appPermissionsDeserializeWithContext,
+    appPermissionsSerializeWithContext
+} from './app-permissions.svelte';
+import {
+    settingsDefaultValue,
+    settingsDeserializeWithContext,
+    settingsSerializeWithContext
+} from './settings.svelte';
+import { userRoleDeserializeWithContext, userRoleSerializeWithContext } from './user-role.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { DateTime } from 'effect';
 import type { Option } from 'effect/Option';
+import type { AppPermissions } from './app-permissions.svelte';
 import type { Metadata } from './metadata.svelte';
 import type { Settings } from './settings.svelte';
-import type { AppPermissions } from './app-permissions.svelte';
 import type { UserRole } from './user-role.svelte';
 
 export interface User {
@@ -88,30 +90,30 @@ export function userSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'User', __id };
-    result['id'] = value.id;
-    result['email'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.email);
-    result['firstName'] = value.firstName;
-    result['lastName'] = value.lastName;
-    result['password'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.password);
-    result['metadata'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.metadata);
-    result['settings'] = settingsSerializeWithContext(value.settings, ctx);
-    result['role'] = userRoleSerializeWithContext(value.role, ctx);
-    result['emailVerified'] = value.emailVerified;
-    result['verificationToken'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
+    result.id = value.id;
+    result.email = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.email);
+    result.firstName = value.firstName;
+    result.lastName = value.lastName;
+    result.password = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.password);
+    result.metadata = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.metadata);
+    result.settings = settingsSerializeWithContext(value.settings, ctx);
+    result.role = userRoleSerializeWithContext(value.role, ctx);
+    result.emailVerified = value.emailVerified;
+    result.verificationToken = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
         value.verificationToken
     );
-    result['verificationExpires'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
+    result.verificationExpires = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
         value.verificationExpires
     );
-    result['passwordResetToken'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
+    result.passwordResetToken = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
         value.passwordResetToken
     );
-    result['passwordResetExpires'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
+    result.passwordResetExpires = ((v: Option.Option<unknown>) => Option.getOrNull(v))(
         value.passwordResetExpires
     );
-    result['permissions'] = appPermissionsSerializeWithContext(value.permissions, ctx);
-    result['createdAt'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.createdAt);
-    result['lastLoginAt'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.lastLoginAt);
+    result.permissions = appPermissionsSerializeWithContext(value.permissions, ctx);
+    result.createdAt = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.createdAt);
+    result.lastLoginAt = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.lastLoginAt);
     return result;
 }
 
@@ -226,70 +228,70 @@ export function userDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     instance.email = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['email']
+        obj.email
     );
     {
-        const __raw_firstName = obj['firstName'] as string;
+        const __raw_firstName = obj.firstName as string;
         if (__raw_firstName.length === 0) {
             errors.push({ field: 'firstName', message: 'must not be empty' });
         }
         instance.firstName = __raw_firstName;
     }
     {
-        const __raw_lastName = obj['lastName'] as string;
+        const __raw_lastName = obj.lastName as string;
         if (__raw_lastName.length === 0) {
             errors.push({ field: 'lastName', message: 'must not be empty' });
         }
         instance.lastName = __raw_lastName;
     }
     instance.password = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['password']
+        obj.password
     );
     instance.metadata = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['metadata']
+        obj.metadata
     );
     {
-        const __raw_settings = obj['settings'] as Settings;
+        const __raw_settings = obj.settings as Settings;
         {
             const __result = settingsDeserializeWithContext(__raw_settings, ctx);
             ctx.assignOrDefer(instance, 'settings', __result);
         }
     }
     {
-        const __raw_role = obj['role'] as UserRole;
+        const __raw_role = obj.role as UserRole;
         {
             const __result = userRoleDeserializeWithContext(__raw_role, ctx);
             ctx.assignOrDefer(instance, 'role', __result);
         }
     }
     {
-        const __raw_emailVerified = obj['emailVerified'] as boolean;
+        const __raw_emailVerified = obj.emailVerified as boolean;
         instance.emailVerified = __raw_emailVerified;
     }
     instance.verificationToken = ((raw: unknown) =>
-        raw === null ? Option.none() : Option.some(raw))(obj['verificationToken']);
+        raw === null ? Option.none() : Option.some(raw))(obj.verificationToken);
     instance.verificationExpires = ((raw: unknown) =>
-        raw === null ? Option.none() : Option.some(raw))(obj['verificationExpires']);
+        raw === null ? Option.none() : Option.some(raw))(obj.verificationExpires);
     instance.passwordResetToken = ((raw: unknown) =>
-        raw === null ? Option.none() : Option.some(raw))(obj['passwordResetToken']);
+        raw === null ? Option.none() : Option.some(raw))(obj.passwordResetToken);
     instance.passwordResetExpires = ((raw: unknown) =>
-        raw === null ? Option.none() : Option.some(raw))(obj['passwordResetExpires']);
+        raw === null ? Option.none() : Option.some(raw))(obj.passwordResetExpires);
     {
-        const __raw_permissions = obj['permissions'] as AppPermissions;
+        const __raw_permissions = obj.permissions as AppPermissions;
         {
             const __result = appPermissionsDeserializeWithContext(__raw_permissions, ctx);
             ctx.assignOrDefer(instance, 'permissions', __result);
         }
     }
     instance.createdAt = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(
-        obj['createdAt']
+        obj.createdAt
     );
     instance.lastLoginAt = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['lastLoginAt']
+        obj.lastLoginAt
     );
     if (errors.length > 0) {
         throw new __mf_DeserializeError(errors);

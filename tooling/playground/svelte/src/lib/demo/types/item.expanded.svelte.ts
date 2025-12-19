@@ -1,20 +1,19 @@
-import { recordLinkDefaultValue } from './record-link.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { recordLinkDeserializeWithContext } from './record-link.svelte';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { recordLinkDefaultValue, recordLinkDeserializeWithContext } from './record-link.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { Service } from './service.svelte';
 import type { Product } from './product.svelte';
 import type { RecordLink } from './record-link.svelte';
+import type { Service } from './service.svelte';
 
 export type Item = RecordLink<Product> | /** @default */ RecordLink<Service>;
 
@@ -140,8 +139,9 @@ export type ItemTainted =
     | ({
           _type: 'RecordLink<Service>';
       } & ItemRecordLinkServiceTainted); /** Per-variant field controller types */
-export interface ItemRecordLinkProductFieldControllers {}
-export interface ItemRecordLinkServiceFieldControllers {} /** Union Gigaform interface with variant switching */
+export type ItemRecordLinkProductFieldControllers = {};
+export type ItemRecordLinkServiceFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface ItemGigaform {
     readonly currentVariant: 'RecordLink<Product>' | 'RecordLink<Service>';
     readonly data: Item;

@@ -2,9 +2,9 @@
 
 import type { DateTime } from 'effect';
 import type { Option } from 'effect/Option';
+import type { AppPermissions } from './app-permissions.svelte';
 import type { Metadata } from './metadata.svelte';
 import type { Settings } from './settings.svelte';
-import type { AppPermissions } from './app-permissions.svelte';
 import type { UserRole } from './user-role.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */

@@ -7,6 +7,6 @@ export interface ScheduleSettings {
     daysPerWeek: number;
     /** @default("Medium") */
     rowHeight: RowHeight;
-    visibleRoutes: string[];
+    visibleRoutes: Array<string>;
     detailedCards: boolean;
 }

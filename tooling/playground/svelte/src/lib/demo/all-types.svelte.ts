@@ -111,7 +111,7 @@ export interface Metadata {
     createdAt: string;
     lastLogin: string | null;
     isActive: boolean;
-    roles: string[];
+    roles: Array<string>;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
@@ -264,7 +264,7 @@ export interface Appointment {
     /** @switchController({ label: "Multi Day" }) */
     multiDay: boolean;
     /** @comboboxMultipleController({ label: "Employees", fetchUrls: ["/api/employees"] }) */
-    employees: (string | Employee)[];
+    employees: Array<string | Employee>;
     /** @siteFieldsetController({ label: "Location" }) */
     /** @default("") */
     location: string | Site;
@@ -290,7 +290,7 @@ export interface ScheduleSettings {
     daysPerWeek: number;
     /** @default("Medium") */
     rowHeight: RowHeight;
-    visibleRoutes: string[];
+    visibleRoutes: Array<string>;
     detailedCards: boolean;
 }
 
@@ -315,7 +315,7 @@ export interface OverviewSettings {
     /** @default("Table") */
     cardOrRow: OverviewDisplay;
     perPage: number;
-    columnConfigs: ColumnConfig[];
+    columnConfigs: Array<ColumnConfig>;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
@@ -335,13 +335,13 @@ export interface Account {
     /** @default("") */
     site: string | Site;
     /** @comboboxMultipleController({ label: "Sales Rep", fetchUrls: ["/api/employees"] }) */
-    salesRep: Represents[] | null;
+    salesRep: Array<Represents> | null;
     /** @hiddenController({}) */
-    orders: Ordered[];
+    orders: Array<Ordered>;
     /** @hiddenController({}) */
-    activity: Did[];
+    activity: Array<Did>;
     /** @arrayFieldsetController({ legend: "Custom Fields" }) */
-    customFields: [string, string][];
+    customFields: Array<[string, string]>;
     /** @enumFieldsetController({ legend: "Name", variants: { CompanyName: { label: "Company" }, PersonName: { label: "Person" } } }) */
     accountName: AccountName;
     /** @radioGroupController({ label: "Sector", options: [{ label: "Residential", value: "Residential" }, { label: "Commercial", value: "Commercial" }], orientation: "horizontal" }) */
@@ -350,7 +350,7 @@ export interface Account {
     /** @textAreaController({ label: "Memo" }) */
     memo: string | null;
     /** @arrayFieldsetController({ legend: "Phones" }) */
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
     /** @emailFieldController({ label: "Email" }) */
     email: Email;
     /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
@@ -374,7 +374,7 @@ export interface Account {
     /** @serde({ validate: ["nonEmpty"] }) */
     paymentTerms: string;
     /** @tagsController({ label: "Tags" }) */
-    tags: string[];
+    tags: Array<string>;
     /** @hiddenController({}) */
     dateAdded: string;
 }
@@ -400,7 +400,7 @@ export interface Order {
     /** @hiddenController({}) */
     number: number;
     /** @hiddenController({}) */
-    payments: (string | Payment)[];
+    payments: Array<string | Payment>;
     /** @textController({ label: "Opportunity" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     opportunity: string;
@@ -434,11 +434,11 @@ export interface Order {
     /** @default("") */
     appointment: string | Appointment;
     /** @comboboxMultipleController({ label: "Technicians", fetchUrls: ["/api/employees"] }) */
-    lastTechs: (string | Employee)[];
+    lastTechs: Array<string | Employee>;
     /** @hiddenController({}) */
-    package: (string | Package)[] | null;
+    package: Array<string | Package> | null;
     /** @hiddenController({}) */
-    promotion: (string | Promotion)[] | null;
+    promotion: Array<string | Promotion> | null;
     /** @hiddenController({}) */
     balance: number;
     /** @dateTimeController({ label: "Due" }) */
@@ -449,7 +449,7 @@ export interface Order {
     /** @default("") */
     site: string | Site;
     /** @arrayFieldsetController({ legend: "Billed Items" }) */
-    billedItems: BilledItem[];
+    billedItems: Array<BilledItem>;
     /** @textAreaController({ label: "Memo" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     memo: string;
@@ -458,7 +458,7 @@ export interface Order {
     /** @hiddenController({}) */
     tip: number;
     /** @hiddenController({}) */
-    commissions: number[];
+    commissions: Array<number>;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
@@ -470,7 +470,7 @@ export interface Commented {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Custom {
-    mappings: DirectionHue[];
+    mappings: Array<DirectionHue>;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
@@ -501,7 +501,7 @@ export interface Viewed {
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface WeeklyRecurrenceRule {
     quantityOfWeeks: number;
-    weekdays: Weekday[];
+    weekdays: Array<Weekday>;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
@@ -596,7 +596,7 @@ export interface Lead {
     /** @enumFieldsetController({ legend: "Name", variants: { CompanyName: { label: "Company" }, PersonName: { label: "Person" } } }) */
     leadName: AccountName;
     /** @arrayFieldsetController({ legend: "Phones" }) */
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
     /** @emailFieldController({ label: "Email" }) */
     email: Email;
     /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
@@ -612,7 +612,7 @@ export interface Lead {
     /** @toggleController({ label: "Has Alert" }) */
     hasAlert: boolean;
     /** @comboboxMultipleController({ label: "Sales Rep", fetchUrls: ["/api/employees"] }) */
-    salesRep: Represents[] | null;
+    salesRep: Array<Represents> | null;
     /** @hiddenController({}) */
     color: string | null;
     /** @comboboxController({ label: "Account Type", allowCustom: true }) */
@@ -627,16 +627,16 @@ export interface Lead {
     /** @serde({ validate: ["nonEmpty"] }) */
     paymentTerms: string;
     /** @tagsController({ label: "Tags" }) */
-    tags: string[];
+    tags: Array<string>;
     /** @arrayFieldsetController({ legend: "Custom Fields" }) */
-    customFields: [string, string][];
+    customFields: Array<[string, string]>;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface AppPermissions {
-    applications: Applications[];
-    pages: Page[];
-    data: Table[];
+    applications: Array<Applications>;
+    pages: Array<Page>;
+    data: Array<Table>;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
@@ -646,7 +646,7 @@ export interface Company {
     legalName: string;
     /** @default("") */
     headquarters: string | Site;
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
     /** @serde({ validate: ["nonEmpty"] }) */
     fax: string;
     /** @serde({ validate: ["nonEmpty"] }) */
@@ -714,7 +714,7 @@ export interface Employee {
     imageUrl: string | null;
     /** @serde({ validate: ["nonEmpty"] }) */
     name: string;
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
     /** @serde({ validate: ["nonEmpty"] }) */
     role: string;
     /** @default("Technician") */
@@ -732,7 +732,7 @@ export interface Employee {
     isSalesRep: boolean;
     description: string | null;
     linkedinUrl: string | null;
-    attendance: string[];
+    attendance: Array<string>;
     settings: Settings;
 }
 
@@ -756,14 +756,14 @@ export interface Number {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface DataPath {
-    path: string[];
+    path: Array<string>;
     formatter: string | null;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Route {
     id: string;
-    techs: (string | Employee)[] | null;
+    techs: Array<string | Employee> | null;
     active: boolean;
     /** @serde({ validate: ["nonEmpty"] }) */
     name: string;
@@ -773,7 +773,7 @@ export interface Route {
     position: string;
     serviceRoute: boolean;
     defaultDurationHours: number;
-    tags: string[];
+    tags: Array<string>;
     icon: string | null;
     color: string | null;
 }
@@ -837,8 +837,8 @@ export interface RecurrenceRule {
     interval: Interval;
     recurrenceBegins: string;
     recurrenceEnds: RecurrenceEnd | null;
-    cancelledInstances: string[] | null;
-    additionalInstances: string[] | null;
+    cancelledInstances: Array<string> | null;
+    additionalInstances: Array<string> | null;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */

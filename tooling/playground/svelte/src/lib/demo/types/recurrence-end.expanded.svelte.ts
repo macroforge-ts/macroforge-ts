@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 
 export type RecurrenceEnd = /** @default(0) */ number | string;
 
@@ -91,8 +90,7 @@ export function recurrenceEndDeserializeWithContext(
     throw new __mf_DeserializeError([
         {
             field: '_root',
-            message:
-                'RecurrenceEnd.deserializeWithContext: expected number, string, got ' + typeof value
+            message: `RecurrenceEnd.deserializeWithContext: expected number, string, got ${typeof value}`
         }
     ]);
 }
@@ -114,8 +112,9 @@ export type RecurrenceEndErrors =
 export type RecurrenceEndTainted =
     | ({ _type: 'number' } & RecurrenceEndNumberTainted)
     | ({ _type: 'string' } & RecurrenceEndStringTainted); /** Per-variant field controller types */
-export interface RecurrenceEndNumberFieldControllers {}
-export interface RecurrenceEndStringFieldControllers {} /** Union Gigaform interface with variant switching */
+export type RecurrenceEndNumberFieldControllers = {};
+export type RecurrenceEndStringFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface RecurrenceEndGigaform {
     readonly currentVariant: 'number' | 'string';
     readonly data: RecurrenceEnd;

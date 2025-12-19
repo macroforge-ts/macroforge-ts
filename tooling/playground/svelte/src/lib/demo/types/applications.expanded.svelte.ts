@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 
 export type Applications =
     | /** @default */ 'Sales'
@@ -161,13 +160,14 @@ export type ApplicationsTainted =
     | ({
           _value: 'Website';
       } & ApplicationsWebsiteTainted); /** Per-variant field controller types */
-export interface ApplicationsSalesFieldControllers {}
-export interface ApplicationsAccountingFieldControllers {}
-export interface ApplicationsErrandFieldControllers {}
-export interface ApplicationsHumanResourcesFieldControllers {}
-export interface ApplicationsLogisticsFieldControllers {}
-export interface ApplicationsMarketingFieldControllers {}
-export interface ApplicationsWebsiteFieldControllers {} /** Union Gigaform interface with variant switching */
+export type ApplicationsSalesFieldControllers = {};
+export type ApplicationsAccountingFieldControllers = {};
+export type ApplicationsErrandFieldControllers = {};
+export type ApplicationsHumanResourcesFieldControllers = {};
+export type ApplicationsLogisticsFieldControllers = {};
+export type ApplicationsMarketingFieldControllers = {};
+export type ApplicationsWebsiteFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface ApplicationsGigaform {
     readonly currentVariant:
         | 'Sales'

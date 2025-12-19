@@ -1,7 +1,5 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { Number } from './number.svelte';
-
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface PhoneNumber {
     /** @switchController({ label: "Main" }) */

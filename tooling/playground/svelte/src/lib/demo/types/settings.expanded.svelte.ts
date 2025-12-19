@@ -1,32 +1,38 @@
-import { overviewSettingsDefaultValue } from './overview-settings.svelte';
-import { scheduleSettingsDefaultValue } from './schedule-settings.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { appointmentNotificationsSerializeWithContext } from './appointment-notifications.svelte';
-import { commissionsSerializeWithContext } from './commissions.svelte';
-import { overviewSettingsSerializeWithContext } from './overview-settings.svelte';
-import { pageSerializeWithContext } from './page.svelte';
-import { scheduleSettingsSerializeWithContext } from './schedule-settings.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { appointmentNotificationsDeserializeWithContext } from './appointment-notifications.svelte';
-import { commissionsDeserializeWithContext } from './commissions.svelte';
-import { overviewSettingsDeserializeWithContext } from './overview-settings.svelte';
-import { pageDeserializeWithContext } from './page.svelte';
-import { scheduleSettingsDeserializeWithContext } from './schedule-settings.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    appointmentNotificationsDeserializeWithContext,
+    appointmentNotificationsSerializeWithContext
+} from './appointment-notifications.svelte';
+import {
+    commissionsDeserializeWithContext,
+    commissionsSerializeWithContext
+} from './commissions.svelte';
+import {
+    overviewSettingsDefaultValue,
+    overviewSettingsDeserializeWithContext,
+    overviewSettingsSerializeWithContext
+} from './overview-settings.svelte';
+import { pageDeserializeWithContext, pageSerializeWithContext } from './page.svelte';
+import {
+    scheduleSettingsDefaultValue,
+    scheduleSettingsDeserializeWithContext,
+    scheduleSettingsSerializeWithContext
+} from './schedule-settings.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { AppointmentNotifications } from './appointment-notifications.svelte';
-import type { ScheduleSettings } from './schedule-settings.svelte';
-import type { OverviewSettings } from './overview-settings.svelte';
 import type { Commissions } from './commissions.svelte';
+import type { OverviewSettings } from './overview-settings.svelte';
 import type { Page } from './page.svelte';
+import type { ScheduleSettings } from './schedule-settings.svelte';
 
 export interface Settings {
     appointmentNotifications: AppointmentNotifications | null;
@@ -82,52 +88,52 @@ export function settingsSerializeWithContext(
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Settings', __id };
     if (value.appointmentNotifications !== null) {
-        result['appointmentNotifications'] = appointmentNotificationsSerializeWithContext(
+        result.appointmentNotifications = appointmentNotificationsSerializeWithContext(
             value.appointmentNotifications,
             ctx
         );
     } else {
-        result['appointmentNotifications'] = null;
+        result.appointmentNotifications = null;
     }
     if (value.commissions !== null) {
-        result['commissions'] = commissionsSerializeWithContext(value.commissions, ctx);
+        result.commissions = commissionsSerializeWithContext(value.commissions, ctx);
     } else {
-        result['commissions'] = null;
+        result.commissions = null;
     }
-    result['scheduleSettings'] = scheduleSettingsSerializeWithContext(value.scheduleSettings, ctx);
-    result['accountOverviewSettings'] = overviewSettingsSerializeWithContext(
+    result.scheduleSettings = scheduleSettingsSerializeWithContext(value.scheduleSettings, ctx);
+    result.accountOverviewSettings = overviewSettingsSerializeWithContext(
         value.accountOverviewSettings,
         ctx
     );
-    result['serviceOverviewSettings'] = overviewSettingsSerializeWithContext(
+    result.serviceOverviewSettings = overviewSettingsSerializeWithContext(
         value.serviceOverviewSettings,
         ctx
     );
-    result['appointmentOverviewSettings'] = overviewSettingsSerializeWithContext(
+    result.appointmentOverviewSettings = overviewSettingsSerializeWithContext(
         value.appointmentOverviewSettings,
         ctx
     );
-    result['leadOverviewSettings'] = overviewSettingsSerializeWithContext(
+    result.leadOverviewSettings = overviewSettingsSerializeWithContext(
         value.leadOverviewSettings,
         ctx
     );
-    result['packageOverviewSettings'] = overviewSettingsSerializeWithContext(
+    result.packageOverviewSettings = overviewSettingsSerializeWithContext(
         value.packageOverviewSettings,
         ctx
     );
-    result['productOverviewSettings'] = overviewSettingsSerializeWithContext(
+    result.productOverviewSettings = overviewSettingsSerializeWithContext(
         value.productOverviewSettings,
         ctx
     );
-    result['orderOverviewSettings'] = overviewSettingsSerializeWithContext(
+    result.orderOverviewSettings = overviewSettingsSerializeWithContext(
         value.orderOverviewSettings,
         ctx
     );
-    result['taxRateOverviewSettings'] = overviewSettingsSerializeWithContext(
+    result.taxRateOverviewSettings = overviewSettingsSerializeWithContext(
         value.taxRateOverviewSettings,
         ctx
     );
-    result['homePage'] = pageSerializeWithContext(value.homePage, ctx);
+    result.homePage = pageSerializeWithContext(value.homePage, ctx);
     return result;
 }
 
@@ -230,9 +236,8 @@ export function settingsDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_appointmentNotifications = obj[
-            'appointmentNotifications'
-        ] as AppointmentNotifications | null;
+        const __raw_appointmentNotifications =
+            obj.appointmentNotifications as AppointmentNotifications | null;
         if (__raw_appointmentNotifications === null) {
             instance.appointmentNotifications = null;
         } else {
@@ -244,7 +249,7 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_commissions = obj['commissions'] as Commissions | null;
+        const __raw_commissions = obj.commissions as Commissions | null;
         if (__raw_commissions === null) {
             instance.commissions = null;
         } else {
@@ -253,14 +258,14 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_scheduleSettings = obj['scheduleSettings'] as ScheduleSettings;
+        const __raw_scheduleSettings = obj.scheduleSettings as ScheduleSettings;
         {
             const __result = scheduleSettingsDeserializeWithContext(__raw_scheduleSettings, ctx);
             ctx.assignOrDefer(instance, 'scheduleSettings', __result);
         }
     }
     {
-        const __raw_accountOverviewSettings = obj['accountOverviewSettings'] as OverviewSettings;
+        const __raw_accountOverviewSettings = obj.accountOverviewSettings as OverviewSettings;
         {
             const __result = overviewSettingsDeserializeWithContext(
                 __raw_accountOverviewSettings,
@@ -270,7 +275,7 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_serviceOverviewSettings = obj['serviceOverviewSettings'] as OverviewSettings;
+        const __raw_serviceOverviewSettings = obj.serviceOverviewSettings as OverviewSettings;
         {
             const __result = overviewSettingsDeserializeWithContext(
                 __raw_serviceOverviewSettings,
@@ -280,9 +285,8 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_appointmentOverviewSettings = obj[
-            'appointmentOverviewSettings'
-        ] as OverviewSettings;
+        const __raw_appointmentOverviewSettings =
+            obj.appointmentOverviewSettings as OverviewSettings;
         {
             const __result = overviewSettingsDeserializeWithContext(
                 __raw_appointmentOverviewSettings,
@@ -292,7 +296,7 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_leadOverviewSettings = obj['leadOverviewSettings'] as OverviewSettings;
+        const __raw_leadOverviewSettings = obj.leadOverviewSettings as OverviewSettings;
         {
             const __result = overviewSettingsDeserializeWithContext(
                 __raw_leadOverviewSettings,
@@ -302,7 +306,7 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_packageOverviewSettings = obj['packageOverviewSettings'] as OverviewSettings;
+        const __raw_packageOverviewSettings = obj.packageOverviewSettings as OverviewSettings;
         {
             const __result = overviewSettingsDeserializeWithContext(
                 __raw_packageOverviewSettings,
@@ -312,7 +316,7 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_productOverviewSettings = obj['productOverviewSettings'] as OverviewSettings;
+        const __raw_productOverviewSettings = obj.productOverviewSettings as OverviewSettings;
         {
             const __result = overviewSettingsDeserializeWithContext(
                 __raw_productOverviewSettings,
@@ -322,7 +326,7 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_orderOverviewSettings = obj['orderOverviewSettings'] as OverviewSettings;
+        const __raw_orderOverviewSettings = obj.orderOverviewSettings as OverviewSettings;
         {
             const __result = overviewSettingsDeserializeWithContext(
                 __raw_orderOverviewSettings,
@@ -332,7 +336,7 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_taxRateOverviewSettings = obj['taxRateOverviewSettings'] as OverviewSettings;
+        const __raw_taxRateOverviewSettings = obj.taxRateOverviewSettings as OverviewSettings;
         {
             const __result = overviewSettingsDeserializeWithContext(
                 __raw_taxRateOverviewSettings,
@@ -342,7 +346,7 @@ export function settingsDeserializeWithContext(
         }
     }
     {
-        const __raw_homePage = obj['homePage'] as Page;
+        const __raw_homePage = obj.homePage as Page;
         {
             const __result = pageDeserializeWithContext(__raw_homePage, ctx);
             ctx.assignOrDefer(instance, 'homePage', __result);

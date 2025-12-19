@@ -5,5 +5,5 @@ export interface Metadata {
     createdAt: string;
     lastLogin: string | null;
     isActive: boolean;
-    roles: string[];
+    roles: Array<string>;
 }

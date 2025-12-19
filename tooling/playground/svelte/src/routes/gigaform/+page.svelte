@@ -1,15 +1,52 @@
 <script lang="ts">
-  const routes = [
-    { path: "/gigaform/basic", name: "Basic Fields", description: "PhoneNumber, Gradient, Coordinates - simple field types and validators" },
-    { path: "/gigaform/nested", name: "Nested Objects", description: "User with Settings, Metadata, AppPermissions - deep object nesting" },
-    { path: "/gigaform/arrays", name: "Array Operations", description: "Account with phones[], tags[], customFields - array methods (push, remove, swap, at)" },
-    { path: "/gigaform/unions", name: "Union Types", description: "Lead with AccountName (CompanyName | PersonName) - polymorphic fields" },
-    { path: "/gigaform/nullable", name: "Nullable Fields", description: "User.metadata, nullable primitives - null handling" },
-    { path: "/gigaform/records", name: "Record/Map Types", description: "TaxRate.taxComponents - dynamic key-value structures" },
-    { path: "/gigaform/deeply-nested", name: "Deep Nesting", description: "Order -> Site -> Coordinates - multi-level navigation" },
-    { path: "/gigaform/enums", name: "Enum Fields", description: "UserRole, Status, Sector, Priority - enum validation" },
-    { path: "/gigaform/complex", name: "Complex Integration", description: "Employee, Order - full integration with all features" },
-  ];
+const routes = [
+    {
+        path: '/gigaform/basic',
+        name: 'Basic Fields',
+        description: 'PhoneNumber, Gradient, Coordinates - simple field types and validators'
+    },
+    {
+        path: '/gigaform/nested',
+        name: 'Nested Objects',
+        description: 'User with Settings, Metadata, AppPermissions - deep object nesting'
+    },
+    {
+        path: '/gigaform/arrays',
+        name: 'Array Operations',
+        description:
+            'Account with phones[], tags[], customFields - array methods (push, remove, swap, at)'
+    },
+    {
+        path: '/gigaform/unions',
+        name: 'Union Types',
+        description: 'Lead with AccountName (CompanyName | PersonName) - polymorphic fields'
+    },
+    {
+        path: '/gigaform/nullable',
+        name: 'Nullable Fields',
+        description: 'User.metadata, nullable primitives - null handling'
+    },
+    {
+        path: '/gigaform/records',
+        name: 'Record/Map Types',
+        description: 'TaxRate.taxComponents - dynamic key-value structures'
+    },
+    {
+        path: '/gigaform/deeply-nested',
+        name: 'Deep Nesting',
+        description: 'Order -> Site -> Coordinates - multi-level navigation'
+    },
+    {
+        path: '/gigaform/enums',
+        name: 'Enum Fields',
+        description: 'UserRole, Status, Sector, Priority - enum validation'
+    },
+    {
+        path: '/gigaform/complex',
+        name: 'Complex Integration',
+        description: 'Employee, Order - full integration with all features'
+    }
+];
 </script>
 
 <svelte:head>

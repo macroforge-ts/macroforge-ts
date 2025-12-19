@@ -1,10 +1,10 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { PhoneNumber } from './phone-number.svelte';
-import type { Settings } from './settings.svelte';
-import type { Route } from './route.svelte';
 import type { Email } from './email.svelte';
 import type { JobTitle } from './job-title.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { Route } from './route.svelte';
+import type { Settings } from './settings.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Employee {
@@ -12,7 +12,7 @@ export interface Employee {
     imageUrl: string | null;
     /** @serde({ validate: ["nonEmpty"] }) */
     name: string;
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
     /** @serde({ validate: ["nonEmpty"] }) */
     role: string;
     /** @default("Technician") */
@@ -30,6 +30,6 @@ export interface Employee {
     isSalesRep: boolean;
     description: string | null;
     linkedinUrl: string | null;
-    attendance: string[];
+    attendance: Array<string>;
     settings: Settings;
 }

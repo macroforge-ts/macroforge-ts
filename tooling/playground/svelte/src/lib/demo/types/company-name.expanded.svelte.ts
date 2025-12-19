@@ -1,16 +1,13 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
-
-import type { Company } from './company.svelte';
 
 export interface CompanyName {
     companyName: string;
@@ -40,7 +37,7 @@ export function companyNameSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'CompanyName', __id };
-    result['companyName'] = value.companyName;
+    result.companyName = value.companyName;
     return result;
 }
 
@@ -110,7 +107,7 @@ export function companyNameDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_companyName = obj['companyName'] as string;
+        const __raw_companyName = obj.companyName as string;
         if (__raw_companyName.length === 0) {
             errors.push({ field: 'companyName', message: 'must not be empty' });
         }

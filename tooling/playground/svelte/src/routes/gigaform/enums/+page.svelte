@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {
+import {
     appointmentCreateForm,
     type Appointment,
     type Status,
@@ -9,77 +9,101 @@
     type LeadStage,
     type RowHeight,
     type OrderStage,
-    type Weekday,
-  } from "$lib/demo/types";
+    type Weekday
+} from '$lib/demo/types';
 
-  // Create Appointment form to test enum fields
-  const appointmentForm = appointmentCreateForm({
-    id: "appt-001",
-    title: "Client Meeting",
-    status: "Scheduled",
+// Create Appointment form to test enum fields
+const appointmentForm = appointmentCreateForm({
+    id: 'appt-001',
+    title: 'Client Meeting',
+    status: 'Scheduled',
     begins: new Date().toISOString(),
     duration: 60,
-    timeZone: "America/New_York",
+    timeZone: 'America/New_York',
     offsetMs: -18000000,
     allDay: false,
     multiDay: false,
     employees: [],
-    location: "site-001",
-    description: "Initial consultation",
-    colors: { main: "#4f46e5", hover: "#4338ca", active: "#3730a3" },
-    recurrenceRule: null,
-  });
+    location: 'site-001',
+    description: 'Initial consultation',
+    colors: { main: '#4f46e5', hover: '#4338ca', active: '#3730a3' },
+    recurrenceRule: null
+});
 
-  // Track validation results
-  let appointmentResult: { success: boolean; data?: Appointment; errors?: Array<{ field: string; message: string }> } | null = $state(null);
+// Track validation results
+let appointmentResult: {
+    success: boolean;
+    data?: Appointment;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
 
-  // Expose to Playwright
-  if (typeof window !== "undefined") {
+// Expose to Playwright
+if (typeof window !== 'undefined') {
     (window as any).gigaformResults = {
-      appointment: appointmentForm,
+        appointment: appointmentForm
     };
-  }
+}
 
-  function submitAppointment() {
+function submitAppointment() {
     const result = appointmentForm.validate();
     if (result.isOk()) {
-      appointmentResult = { success: true, data: result.unwrap() };
+        appointmentResult = { success: true, data: result.unwrap() };
     } else {
-      appointmentResult = { success: false, errors: result.unwrapErr() };
+        appointmentResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.appointmentValidation = appointmentResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.appointmentValidation = appointmentResult;
     }
-  }
+}
 
-  function resetAppointment() {
+function resetAppointment() {
     appointmentForm.reset({
-      id: "appt-001",
-      title: "Client Meeting",
-      status: "Scheduled",
-      begins: new Date().toISOString(),
-      duration: 60,
-      timeZone: "America/New_York",
+        id: 'appt-001',
+        title: 'Client Meeting',
+        status: 'Scheduled',
+        begins: new Date().toISOString(),
+        duration: 60,
+        timeZone: 'America/New_York'
     });
     appointmentResult = null;
-  }
+}
 
-  // All enum options for testing
-  const statusOptions: Status[] = ["Scheduled", "OnDeck", "Waiting"];
-  const userRoleOptions: UserRole[] = ["Administrator", "SalesRepresentative", "Technician", "HumanResources", "InformationTechnology"];
-  const sectorOptions: Sector[] = ["Residential", "Commercial"];
-  const priorityOptions: Priority[] = ["High", "Medium", "Low"];
-  const leadStageOptions: LeadStage[] = ["Open", "InitialContact", "Qualified", "Estimate", "Negotiation"];
-  const rowHeightOptions: RowHeight[] = ["ExtraSmall", "Small", "Medium", "Large"];
-  const orderStageOptions: OrderStage[] = ["Estimate", "Active", "Invoice"];
-  const weekdayOptions: Weekday[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+// All enum options for testing
+const statusOptions: Array<Status> = ['Scheduled', 'OnDeck', 'Waiting'];
+const userRoleOptions: Array<UserRole> = [
+    'Administrator',
+    'SalesRepresentative',
+    'Technician',
+    'HumanResources',
+    'InformationTechnology'
+];
+const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
+const priorityOptions: Array<Priority> = ['High', 'Medium', 'Low'];
+const leadStageOptions: Array<LeadStage> = [
+    'Open',
+    'InitialContact',
+    'Qualified',
+    'Estimate',
+    'Negotiation'
+];
+const rowHeightOptions: Array<RowHeight> = ['ExtraSmall', 'Small', 'Medium', 'Large'];
+const orderStageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
+const weekdayOptions: Array<Weekday> = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+];
 
-  // Test enum for demonstration
-  let selectedUserRole: UserRole = $state("Administrator");
-  let selectedSector: Sector = $state("Residential");
-  let selectedPriority: Priority = $state("Medium");
-  let selectedRowHeight: RowHeight = $state("Medium");
-  let selectedWeekdays: Weekday[] = $state(["Monday", "Wednesday", "Friday"]);
+// Test enum for demonstration
+let selectedUserRole: UserRole = $state('Administrator');
+let selectedSector: Sector = $state('Residential');
+let selectedPriority: Priority = $state('Medium');
+let selectedRowHeight: RowHeight = $state('Medium');
+let selectedWeekdays: Array<Weekday> = $state(['Monday', 'Wednesday', 'Friday']);
 </script>
 
 <svelte:head>
