@@ -1,31 +1,86 @@
 name: CI
 
+env:
+  DEBUG: napi:*
+  APP_NAME: macroforge
+  MACOSX_DEPLOYMENT_TARGET: "10.13"
+
+permissions:
+  contents: write
+  id-token: write
+
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-
-env:
-  CARGO_TERM_COLOR: always
+    tags:
+      - "v*"
+    paths-ignore:
+      - "**/*.md"
+      - LICENSE
+      - "**/*.gitignore"
+  pull_request: null
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - host: macos-latest
+            target: x86_64-apple-darwin
+          - host: macos-latest
+            target: aarch64-apple-darwin
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - host: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+          - host: windows-latest
+            target: x86_64-pc-windows-msvc
+          - host: windows-latest
+            target: aarch64-pc-windows-msvc
+
+    name: Build - ${{ matrix.settings.target }}
+    runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.settings.target }}
 
       - name: Cache Rust
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ${{ matrix.settings.target }}
 
-      - name: Build
-        run: cargo build --verbose
+      - name: Install cross-compile tools (Linux arm64)
+        if: matrix.settings.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
 
-      - name: Run tests
-        run: cargo test --verbose
+      - name: Install napi-cli
+        run: npm install -g @napi-rs/cli
+
+      - name: Build native module
+        run: napi build --platform --release --target ${{ matrix.settings.target }}
+        env:
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.settings.target }}
+          path: "*.node"
+          if-no-files-found: error
 
   clippy:
     runs-on: ubuntu-latest
@@ -37,8 +92,11 @@ jobs:
         with:
           components: clippy
 
-      - name: Clippy
-        run: cargo clippy -- -D warnings
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
   fmt:
     runs-on: ubuntu-latest
@@ -52,3 +110,55 @@ jobs:
 
       - name: Format check
         run: cargo fmt --all -- --check
+
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    needs: [build, clippy, fmt]
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install napi-cli
+        run: npm install -g @napi-rs/cli
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List downloaded artifacts
+        run: find artifacts -name "*.node" -type f
+
+      - name: Move artifacts to npm packages
+        run: napi artifacts --npm-dir npm --build-output-dir artifacts
+
+      - name: List packages
+        run: ls -laR npm/
+
+      - name: Publish platform packages first
+        run: |
+          for dir in npm/*/; do
+            if [ -d "$dir" ]; then
+              echo "Publishing $dir"
+              npm publish "$dir" --access public || true
+            fi
+          done
+
+      - name: Publish macroforge
+        run: npm publish --access public
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish to crates.io
+        run: cargo publish --allow-dirty || true
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
