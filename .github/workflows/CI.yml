@@ -214,13 +214,9 @@ jobs:
                   npm publish --access public
               working-directory: packages/svelte-language-server
 
-            - name: Install vite-plugin dependencies
-              run: npm install
-              working-directory: packages/vite-plugin
-
-            - name: Build and publish @macroforge/vite-plugin
+            - name: Install vite-plugin dependencies and publish
               run: |
-                  npm run build
+                  npm install
                   npm publish --access public
               working-directory: packages/vite-plugin
 
