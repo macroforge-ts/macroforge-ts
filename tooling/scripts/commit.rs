@@ -15,7 +15,7 @@
 
 use clap::Parser;
 use colored::*;
-use dialoguer::{Confirm, Select};
+use dialoguer::{Confirm, Input, Select};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -46,6 +46,10 @@ struct Args {
     /// Dry run - show what would be done without doing it
     #[arg(long)]
     dry_run: bool,
+
+    /// Custom commit message (will prompt if not provided)
+    #[arg(short, long)]
+    message: Option<String>,
 }
 
 // ============================================================================
@@ -184,6 +188,17 @@ fn tag_exists_remotely(tag: &str, cwd: &Path) -> bool {
         .unwrap_or(false)
 }
 
+fn get_unpushed_count(cwd: &Path) -> usize {
+    run_git(&["rev-list", "@{u}..HEAD", "--count"], cwd)
+        .ok()
+        .and_then(|s| s.trim().parse().ok())
+        .unwrap_or(0)
+}
+
+fn has_unpushed_commits(cwd: &Path) -> bool {
+    get_unpushed_count(cwd) > 0
+}
+
 // ============================================================================
 // Commit Flow
 // ============================================================================
@@ -215,6 +230,7 @@ fn commit_repo(
     root: &Path,
     repo: &Repo,
     version: &str,
+    commit_msg: &str,
     auto_yes: bool,
     dry_run: bool,
 ) -> Result<Action, String> {
@@ -235,7 +251,44 @@ fn commit_repo(
 
     // Check for changes
     if !has_changes(&repo_path) {
-        println!("{} No changes to commit", "ℹ".blue());
+        let unpushed = get_unpushed_count(&repo_path);
+        if unpushed > 0 {
+            println!("{} No changes to commit, but {} unpushed commit{}",
+                "ℹ".blue(),
+                unpushed.to_string().yellow(),
+                if unpushed == 1 { "" } else { "s" }
+            );
+
+            if !auto_yes {
+                if !Confirm::new()
+                    .with_prompt("Push unpushed commits?")
+                    .default(true)
+                    .interact()
+                    .unwrap_or(false)
+                {
+                    return Ok(Action::Skip);
+                }
+            }
+
+            if dry_run {
+                println!("\n{} Would run: git push", "[dry-run]".yellow());
+                return Ok(Action::Continue);
+            }
+
+            print!("  {} Pushing commits... ", "→".blue());
+            io::stdout().flush().ok();
+            match run_git(&["push"], &repo_path) {
+                Ok(_) => println!("{}", "✓".green()),
+                Err(e) => {
+                    println!("{}", "✗".red());
+                    println!("    {}", e.dimmed());
+                    return Ok(Action::Skip);
+                }
+            }
+            println!("\n  {} {} pushed!", "✓".green().bold(), repo.name.cyan());
+        } else {
+            println!("{} No changes to commit", "ℹ".blue());
+        }
         return Ok(Action::Continue);
     }
 
@@ -263,11 +316,17 @@ fn commit_repo(
     }
 
     if dry_run {
+        let would_tag = !tag_exists_remotely(&tag, &repo_path);
         println!("\n{} Would run:", "[dry-run]".yellow());
         println!("  git add -A");
-        println!("  git commit -m \"Bump to {}\"", version);
-        println!("  git tag {}", tag);
-        println!("  git push && git push --tags");
+        println!("  git commit -m \"{}\"", commit_msg);
+        if would_tag {
+            println!("  git tag {}", tag);
+            println!("  git push && git push --tags");
+        } else {
+            println!("  {} (tag {} already exists)", "skip tagging".dimmed(), tag);
+            println!("  git push");
+        }
         return Ok(Action::Continue);
     }
 
@@ -280,8 +339,7 @@ fn commit_repo(
     // Commit
     print!("  {} Committing... ", "→".blue());
     io::stdout().flush().ok();
-    let commit_msg = format!("Bump to {}", version);
-    match run_git(&["commit", "-m", &commit_msg], &repo_path) {
+    match run_git(&["commit", "-m", commit_msg], &repo_path) {
         Ok(_) => println!("{}", "✓".green()),
         Err(e) => {
             println!("{}", "✗".red());
@@ -294,48 +352,40 @@ fn commit_repo(
         }
     }
 
-    // Handle existing tags
-    if tag_exists_locally(&tag, &repo_path) {
-        print!("  {} Deleting local tag {}... ", "→".blue(), tag.yellow());
-        io::stdout().flush().ok();
-        match run_git(&["tag", "-d", &tag], &repo_path) {
-            Ok(_) => println!("{}", "✓".green()),
-            Err(e) => {
-                println!("{}", "✗".red());
-                println!("    {}", e.dimmed());
-            }
-        }
-    }
+    // Check if this is a new version (tag doesn't exist remotely)
+    let should_tag = !tag_exists_remotely(&tag, &repo_path);
 
-    if tag_exists_remotely(&tag, &repo_path) {
-        print!("  {} Deleting remote tag {}... ", "→".blue(), tag.yellow());
-        io::stdout().flush().ok();
-        let remote_ref = format!("refs/tags/{}", tag);
-        match run_git(&["push", "origin", "--delete", &remote_ref], &repo_path) {
-            Ok(_) => println!("{}", "✓".green()),
-            Err(e) => {
-                println!("{} (may not exist)", "⚠".yellow());
-                if !e.is_empty() {
+    if should_tag {
+        // Clean up local tag if it exists
+        if tag_exists_locally(&tag, &repo_path) {
+            print!("  {} Deleting stale local tag {}... ", "→".blue(), tag.yellow());
+            io::stdout().flush().ok();
+            match run_git(&["tag", "-d", &tag], &repo_path) {
+                Ok(_) => println!("{}", "✓".green()),
+                Err(e) => {
+                    println!("{}", "✗".red());
                     println!("    {}", e.dimmed());
                 }
             }
         }
-    }
 
-    // Create tag
-    print!("  {} Creating tag {}... ", "→".blue(), tag.cyan());
-    io::stdout().flush().ok();
-    match run_git(&["tag", &tag], &repo_path) {
-        Ok(_) => println!("{}", "✓".green()),
-        Err(e) => {
-            println!("{}", "✗".red());
-            println!("    {}", e.dimmed());
-            match prompt_action("Failed to create tag. What do you want to do?") {
-                Action::Continue => {}
-                Action::Skip => return Ok(Action::Skip),
-                Action::Abort => return Ok(Action::Abort),
+        // Create tag
+        print!("  {} Creating tag {}... ", "→".blue(), tag.cyan());
+        io::stdout().flush().ok();
+        match run_git(&["tag", &tag], &repo_path) {
+            Ok(_) => println!("{}", "✓".green()),
+            Err(e) => {
+                println!("{}", "✗".red());
+                println!("    {}", e.dimmed());
+                match prompt_action("Failed to create tag. What do you want to do?") {
+                    Action::Continue => {}
+                    Action::Skip => return Ok(Action::Skip),
+                    Action::Abort => return Ok(Action::Abort),
+                }
             }
         }
+    } else {
+        println!("  {} Tag {} already exists, skipping", "ℹ".blue(), tag.dimmed());
     }
 
     // Push commits
@@ -354,23 +404,25 @@ fn commit_repo(
         }
     }
 
-    // Push tags
-    print!("  {} Pushing tags... ", "→".blue());
-    io::stdout().flush().ok();
-    match run_git(&["push", "--tags"], &repo_path) {
-        Ok(_) => println!("{}", "✓".green()),
-        Err(e) => {
-            println!("{}", "✗".red());
-            println!("    {}", e.dimmed());
-            match prompt_action("Push tags failed. What do you want to do?") {
-                Action::Continue => {}
-                Action::Skip => return Ok(Action::Skip),
-                Action::Abort => return Ok(Action::Abort),
+    // Push tags only if we created one
+    if should_tag {
+        print!("  {} Pushing tags... ", "→".blue());
+        io::stdout().flush().ok();
+        match run_git(&["push", "--tags"], &repo_path) {
+            Ok(_) => println!("{}", "✓".green()),
+            Err(e) => {
+                println!("{}", "✗".red());
+                println!("    {}", e.dimmed());
+                match prompt_action("Push tags failed. What do you want to do?") {
+                    Action::Continue => {}
+                    Action::Skip => return Ok(Action::Skip),
+                    Action::Abort => return Ok(Action::Abort),
+                }
             }
         }
     }
 
-    println!("\n  {} {} released!", "✓".green().bold(), repo.name.cyan());
+    println!("\n  {} {} committed!", "✓".green().bold(), repo.name.cyan());
 
     Ok(Action::Continue)
 }
@@ -427,11 +479,27 @@ fn main() -> ExitCode {
         println!("{} {}", "Mode:".bold(), "DRY RUN".yellow());
     }
 
+    // Get commit message
+    let default_msg = format!("Bump to {}", version);
+    let commit_msg = match args.message {
+        Some(msg) => msg,
+        None => {
+            println!();
+            Input::new()
+                .with_prompt("Commit message")
+                .default(default_msg.clone())
+                .interact_text()
+                .unwrap_or(default_msg)
+        }
+    };
+
+    println!("{} {}", "Message:".bold(), commit_msg.cyan());
+
     let mut completed = Vec::new();
     let mut skipped = Vec::new();
 
     for repo in &repos {
-        match commit_repo(&root, repo, &version, args.yes, args.dry_run) {
+        match commit_repo(&root, repo, &version, &commit_msg, args.yes, args.dry_run) {
             Ok(Action::Continue) => completed.push(repo.name),
             Ok(Action::Skip) => {
                 println!("  {} Skipping {}", "→".yellow(), repo.name);
