@@ -3,8 +3,7 @@
 const { program } = require('commander');
 const fs = require('node:fs');
 const path = require('node:path');
-const { execSync } = require('node:child_process');
-const { root, resolve, REPOS, ALL_REPO_NAMES, parseRepos } = require('./env.cjs');
+const { root, ALL_REPO_NAMES, parseRepos } = require('./env.cjs');
 
 program
     .name('bump-version')

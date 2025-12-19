@@ -6,7 +6,7 @@
  */
 
 const { program } = require('commander');
-const { root, resolve } = require('./env.cjs');
+const { resolve } = require('./env.cjs');
 const { expandSync } = require(resolve('crates', 'macroforge_ts'));
 const fs = require('node:fs');
 

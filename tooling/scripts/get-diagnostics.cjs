@@ -8,7 +8,7 @@ const { program } = require('commander');
 const ts = require('typescript');
 const path = require('node:path');
 const fs = require('node:fs');
-const { root: projectRoot, resolve } = require('./env.cjs');
+const { root: projectRoot } = require('./env.cjs');
 
 const defaultTargetFile = 'tooling/playground/svelte/src/lib/demo/macro-user.ts';
 

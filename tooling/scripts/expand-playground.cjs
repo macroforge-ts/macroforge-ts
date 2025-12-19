@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execSync } = require('node:child_process');
 const Module = require('node:module');
-const { root, resolve } = require('./env.cjs');
+const { resolve } = require('./env.cjs');
 
 program
     .name('expand-playground')
@@ -80,9 +80,7 @@ function main(options) {
         }
     } else {
         // Use Node.js API
-        const { expandSync, loadConfig, clearConfigCache } = require(
-            resolve('crates', 'macroforge_ts')
-        );
+        const { expandSync, loadConfig } = require(resolve('crates', 'macroforge_ts'));
 
         // Config file names in order of precedence
         const CONFIG_FILES = [

@@ -4,7 +4,7 @@ const { program } = require('commander');
 const { execSync } = require('node:child_process');
 const path = require('node:path');
 const fs = require('node:fs');
-const { root, resolve, REPOS, ALL_REPO_NAMES, parseRepos } = require('./env.cjs');
+const { root, resolve, ALL_REPO_NAMES, parseRepos } = require('./env.cjs');
 
 program
     .name('cleanbuild-all')

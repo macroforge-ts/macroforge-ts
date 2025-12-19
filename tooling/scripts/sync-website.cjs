@@ -12,7 +12,7 @@ const { program } = require('commander');
 const { execSync } = require('node:child_process');
 const path = require('node:path');
 const fs = require('node:fs');
-const { root, resolve } = require('./env.cjs');
+const { resolve } = require('./env.cjs');
 
 program
     .name('sync-website')
