@@ -33,7 +33,7 @@ export class ProductForm {
     quantity: number;
 
     /** @serde({ validate: ["minItems(1)", "maxItems(5)"] }) */
-    tags: string[];
+    tags: Array<string>;
 
     /** @serde({ validate: ["uuid"] }) */
     sku: string;
@@ -58,7 +58,7 @@ export class EventForm {
 export type ValidationResult<T> = {
     success: boolean;
     data?: T;
-    errors?: string[];
+    errors?: Array<string>;
 };
 
 // Helper to convert Result to ValidationResult

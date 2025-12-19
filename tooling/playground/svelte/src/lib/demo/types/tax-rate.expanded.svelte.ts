@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface TaxRate {
@@ -67,16 +66,16 @@ export function taxRateSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'TaxRate', __id };
-    result['id'] = value.id;
-    result['name'] = value.name;
-    result['taxAgency'] = value.taxAgency;
-    result['zip'] = value.zip;
-    result['city'] = value.city;
-    result['county'] = value.county;
-    result['state'] = value.state;
-    result['isActive'] = value.isActive;
-    result['description'] = value.description;
-    result['taxComponents'] = value.taxComponents;
+    result.id = value.id;
+    result.name = value.name;
+    result.taxAgency = value.taxAgency;
+    result.zip = value.zip;
+    result.city = value.city;
+    result.county = value.county;
+    result.state = value.state;
+    result.isActive = value.isActive;
+    result.description = value.description;
+    result.taxComponents = value.taxComponents;
     return result;
 }
 
@@ -173,61 +172,61 @@ export function taxRateDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_name = obj['name'] as string;
+        const __raw_name = obj.name as string;
         if (__raw_name.length === 0) {
             errors.push({ field: 'name', message: 'must not be empty' });
         }
         instance.name = __raw_name;
     }
     {
-        const __raw_taxAgency = obj['taxAgency'] as string;
+        const __raw_taxAgency = obj.taxAgency as string;
         if (__raw_taxAgency.length === 0) {
             errors.push({ field: 'taxAgency', message: 'must not be empty' });
         }
         instance.taxAgency = __raw_taxAgency;
     }
     {
-        const __raw_zip = obj['zip'] as number;
+        const __raw_zip = obj.zip as number;
         instance.zip = __raw_zip;
     }
     {
-        const __raw_city = obj['city'] as string;
+        const __raw_city = obj.city as string;
         if (__raw_city.length === 0) {
             errors.push({ field: 'city', message: 'must not be empty' });
         }
         instance.city = __raw_city;
     }
     {
-        const __raw_county = obj['county'] as string;
+        const __raw_county = obj.county as string;
         if (__raw_county.length === 0) {
             errors.push({ field: 'county', message: 'must not be empty' });
         }
         instance.county = __raw_county;
     }
     {
-        const __raw_state = obj['state'] as string;
+        const __raw_state = obj.state as string;
         if (__raw_state.length === 0) {
             errors.push({ field: 'state', message: 'must not be empty' });
         }
         instance.state = __raw_state;
     }
     {
-        const __raw_isActive = obj['isActive'] as boolean;
+        const __raw_isActive = obj.isActive as boolean;
         instance.isActive = __raw_isActive;
     }
     {
-        const __raw_description = obj['description'] as string;
+        const __raw_description = obj.description as string;
         if (__raw_description.length === 0) {
             errors.push({ field: 'description', message: 'must not be empty' });
         }
         instance.description = __raw_description;
     }
     {
-        const __raw_taxComponents = obj['taxComponents'] as { [key: string]: number };
+        const __raw_taxComponents = obj.taxComponents as { [key: string]: number };
         instance.taxComponents = __raw_taxComponents;
     }
     if (errors.length > 0) {
@@ -721,7 +720,7 @@ export function taxRateFromFormData(
     {
         const zipStr = formData.get('zip');
         obj.zip = zipStr ? parseFloat(zipStr as string) : 0;
-        if (obj.zip !== undefined && isNaN(obj.zip as number)) obj.zip = 0;
+        if (obj.zip !== undefined && Number.isNaN(obj.zip as number)) obj.zip = 0;
     }
     obj.city = formData.get('city') ?? '';
     obj.county = formData.get('county') ?? '';

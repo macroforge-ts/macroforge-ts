@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 
 export type WeekOfMonth = /** @default */ 'First' | 'Second' | 'Third' | 'Fourth' | 'Last';
 
@@ -128,11 +127,12 @@ export type WeekOfMonthTainted =
     | ({ _value: 'Third' } & WeekOfMonthThirdTainted)
     | ({ _value: 'Fourth' } & WeekOfMonthFourthTainted)
     | ({ _value: 'Last' } & WeekOfMonthLastTainted); /** Per-variant field controller types */
-export interface WeekOfMonthFirstFieldControllers {}
-export interface WeekOfMonthSecondFieldControllers {}
-export interface WeekOfMonthThirdFieldControllers {}
-export interface WeekOfMonthFourthFieldControllers {}
-export interface WeekOfMonthLastFieldControllers {} /** Union Gigaform interface with variant switching */
+export type WeekOfMonthFirstFieldControllers = {};
+export type WeekOfMonthSecondFieldControllers = {};
+export type WeekOfMonthThirdFieldControllers = {};
+export type WeekOfMonthFourthFieldControllers = {};
+export type WeekOfMonthLastFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface WeekOfMonthGigaform {
     readonly currentVariant: 'First' | 'Second' | 'Third' | 'Fourth' | 'Last';
     readonly data: WeekOfMonth;

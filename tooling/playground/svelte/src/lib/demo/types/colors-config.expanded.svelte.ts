@@ -1,27 +1,23 @@
-import { gradientDefaultValue } from './gradient.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { cardinalDeserializeWithContext } from './cardinal.svelte';
-import { customDeserializeWithContext } from './custom.svelte';
-import { gradientDeserializeWithContext } from './gradient.svelte';
-import { ordinalDeserializeWithContext } from './ordinal.svelte';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import { cardinalDefaultValue } from './cardinal.svelte';
-import { customDefaultValue } from './custom.svelte';
-import { ordinalDefaultValue } from './ordinal.svelte';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { cardinalDefaultValue, cardinalDeserializeWithContext } from './cardinal.svelte';
+import { customDefaultValue, customDeserializeWithContext } from './custom.svelte';
+import { gradientDefaultValue, gradientDeserializeWithContext } from './gradient.svelte';
+import { ordinalDefaultValue, ordinalDeserializeWithContext } from './ordinal.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { Gradient } from './gradient.svelte';
-import type { Custom } from './custom.svelte';
-import type { Ordinal } from './ordinal.svelte';
 import type { Cardinal } from './cardinal.svelte';
+import type { Custom } from './custom.svelte';
+import type { Gradient } from './gradient.svelte';
+import type { Ordinal } from './ordinal.svelte';
 
 export type ColorsConfig = Cardinal | Ordinal | Custom | /** @default */ Gradient;
 
@@ -170,10 +166,11 @@ export type ColorsConfigTainted =
     | ({
           _type: 'Gradient';
       } & ColorsConfigGradientTainted); /** Per-variant field controller types */
-export interface ColorsConfigCardinalFieldControllers {}
-export interface ColorsConfigOrdinalFieldControllers {}
-export interface ColorsConfigCustomFieldControllers {}
-export interface ColorsConfigGradientFieldControllers {} /** Union Gigaform interface with variant switching */
+export type ColorsConfigCardinalFieldControllers = {};
+export type ColorsConfigOrdinalFieldControllers = {};
+export type ColorsConfigCustomFieldControllers = {};
+export type ColorsConfigGradientFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface ColorsConfigGigaform {
     readonly currentVariant: 'Cardinal' | 'Ordinal' | 'Custom' | 'Gradient';
     readonly data: ColorsConfig;

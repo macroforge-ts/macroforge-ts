@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Edited {
@@ -40,9 +39,9 @@ export function editedSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Edited', __id };
-    result['fieldName'] = value.fieldName;
-    result['oldValue'] = value.oldValue;
-    result['newValue'] = value.newValue;
+    result.fieldName = value.fieldName;
+    result.oldValue = value.oldValue;
+    result.newValue = value.newValue;
     return result;
 }
 
@@ -118,18 +117,18 @@ export function editedDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_fieldName = obj['fieldName'] as string;
+        const __raw_fieldName = obj.fieldName as string;
         if (__raw_fieldName.length === 0) {
             errors.push({ field: 'fieldName', message: 'must not be empty' });
         }
         instance.fieldName = __raw_fieldName;
     }
     {
-        const __raw_oldValue = obj['oldValue'] as string | null;
+        const __raw_oldValue = obj.oldValue as string | null;
         instance.oldValue = __raw_oldValue;
     }
     {
-        const __raw_newValue = obj['newValue'] as string | null;
+        const __raw_newValue = obj.newValue as string | null;
         instance.newValue = __raw_newValue;
     }
     if (errors.length > 0) {

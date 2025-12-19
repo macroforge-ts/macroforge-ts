@@ -1,66 +1,49 @@
-import { accountDefaultValue } from './account.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { accountDeserializeWithContext } from './account.svelte';
-import { appointmentDeserializeWithContext } from './appointment.svelte';
-import { companyDeserializeWithContext } from './company.svelte';
-import { employeeDeserializeWithContext } from './employee.svelte';
-import { leadDeserializeWithContext } from './lead.svelte';
-import { orderDeserializeWithContext } from './order.svelte';
-import { orderedDeserializeWithContext } from './ordered.svelte';
-import { packageDeserializeWithContext } from './package.svelte';
-import { paymentDeserializeWithContext } from './payment.svelte';
-import { productDeserializeWithContext } from './product.svelte';
-import { promotionDeserializeWithContext } from './promotion.svelte';
-import { representsDeserializeWithContext } from './represents.svelte';
-import { routeDeserializeWithContext } from './route.svelte';
-import { serviceDeserializeWithContext } from './service.svelte';
-import { siteDeserializeWithContext } from './site.svelte';
-import { taxRateDeserializeWithContext } from './tax-rate.svelte';
-import { userDeserializeWithContext } from './user.svelte';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import { appointmentDefaultValue } from './appointment.svelte';
-import { companyDefaultValue } from './company.svelte';
-import { employeeDefaultValue } from './employee.svelte';
-import { leadDefaultValue } from './lead.svelte';
-import { orderDefaultValue } from './order.svelte';
-import { orderedDefaultValue } from './ordered.svelte';
-import { packageDefaultValue } from './package.svelte';
-import { paymentDefaultValue } from './payment.svelte';
-import { productDefaultValue } from './product.svelte';
-import { promotionDefaultValue } from './promotion.svelte';
-import { representsDefaultValue } from './represents.svelte';
-import { routeDefaultValue } from './route.svelte';
-import { serviceDefaultValue } from './service.svelte';
-import { siteDefaultValue } from './site.svelte';
-import { taxRateDefaultValue } from './tax-rate.svelte';
-import { userDefaultValue } from './user.svelte';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { accountDefaultValue, accountDeserializeWithContext } from './account.svelte';
+import { appointmentDefaultValue, appointmentDeserializeWithContext } from './appointment.svelte';
+import { companyDefaultValue, companyDeserializeWithContext } from './company.svelte';
+import { employeeDefaultValue, employeeDeserializeWithContext } from './employee.svelte';
+import { leadDefaultValue, leadDeserializeWithContext } from './lead.svelte';
+import { orderDefaultValue, orderDeserializeWithContext } from './order.svelte';
+import { orderedDefaultValue, orderedDeserializeWithContext } from './ordered.svelte';
+import { packageDefaultValue, packageDeserializeWithContext } from './package.svelte';
+import { paymentDefaultValue, paymentDeserializeWithContext } from './payment.svelte';
+import { productDefaultValue, productDeserializeWithContext } from './product.svelte';
+import { promotionDefaultValue, promotionDeserializeWithContext } from './promotion.svelte';
+import { representsDefaultValue, representsDeserializeWithContext } from './represents.svelte';
+import { routeDefaultValue, routeDeserializeWithContext } from './route.svelte';
+import { serviceDefaultValue, serviceDeserializeWithContext } from './service.svelte';
+import { siteDefaultValue, siteDeserializeWithContext } from './site.svelte';
+import { taxRateDefaultValue, taxRateDeserializeWithContext } from './tax-rate.svelte';
+import { userDefaultValue, userDeserializeWithContext } from './user.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { User } from './user.svelte';
-import type { Service } from './service.svelte';
-import type { Promotion } from './promotion.svelte';
-import type { Site } from './site.svelte';
-import type { Product } from './product.svelte';
-import type { Represents } from './represents.svelte';
-import type { Payment } from './payment.svelte';
-import type { Appointment } from './appointment.svelte';
-import type { Package } from './package.svelte';
 import type { Account } from './account.svelte';
-import type { Order } from './order.svelte';
-import type { TaxRate } from './tax-rate.svelte';
-import type { Lead } from './lead.svelte';
+import type { Appointment } from './appointment.svelte';
 import type { Company } from './company.svelte';
 import type { Employee } from './employee.svelte';
-import type { Route } from './route.svelte';
+import type { Lead } from './lead.svelte';
+import type { Order } from './order.svelte';
 import type { Ordered } from './ordered.svelte';
+import type { Package } from './package.svelte';
+import type { Payment } from './payment.svelte';
+import type { Product } from './product.svelte';
+import type { Promotion } from './promotion.svelte';
+import type { Represents } from './represents.svelte';
+import type { Route } from './route.svelte';
+import type { Service } from './service.svelte';
+import type { Site } from './site.svelte';
+import type { TaxRate } from './tax-rate.svelte';
+import type { User } from './user.svelte';
 
 export type Target =
     | /** @default */ Account
@@ -324,23 +307,24 @@ export type TargetTainted =
     | ({ _type: 'Promotion' } & TargetPromotionTainted)
     | ({ _type: 'Represents' } & TargetRepresentsTainted)
     | ({ _type: 'Ordered' } & TargetOrderedTainted); /** Per-variant field controller types */
-export interface TargetAccountFieldControllers {}
-export interface TargetUserFieldControllers {}
-export interface TargetEmployeeFieldControllers {}
-export interface TargetAppointmentFieldControllers {}
-export interface TargetLeadFieldControllers {}
-export interface TargetTaxRateFieldControllers {}
-export interface TargetSiteFieldControllers {}
-export interface TargetRouteFieldControllers {}
-export interface TargetCompanyFieldControllers {}
-export interface TargetProductFieldControllers {}
-export interface TargetServiceFieldControllers {}
-export interface TargetOrderFieldControllers {}
-export interface TargetPaymentFieldControllers {}
-export interface TargetPackageFieldControllers {}
-export interface TargetPromotionFieldControllers {}
-export interface TargetRepresentsFieldControllers {}
-export interface TargetOrderedFieldControllers {} /** Union Gigaform interface with variant switching */
+export type TargetAccountFieldControllers = {};
+export type TargetUserFieldControllers = {};
+export type TargetEmployeeFieldControllers = {};
+export type TargetAppointmentFieldControllers = {};
+export type TargetLeadFieldControllers = {};
+export type TargetTaxRateFieldControllers = {};
+export type TargetSiteFieldControllers = {};
+export type TargetRouteFieldControllers = {};
+export type TargetCompanyFieldControllers = {};
+export type TargetProductFieldControllers = {};
+export type TargetServiceFieldControllers = {};
+export type TargetOrderFieldControllers = {};
+export type TargetPaymentFieldControllers = {};
+export type TargetPackageFieldControllers = {};
+export type TargetPromotionFieldControllers = {};
+export type TargetRepresentsFieldControllers = {};
+export type TargetOrderedFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface TargetGigaform {
     readonly currentVariant:
         | 'Account'

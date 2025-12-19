@@ -1,21 +1,19 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { directionHueSerializeWithContext } from './direction-hue.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, ArrayFieldController, Exit } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { directionHueSerializeWithContext } from './direction-hue.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { DirectionHue } from './direction-hue.svelte';
 
 export interface Custom {
-    mappings: DirectionHue[];
+    mappings: Array<DirectionHue>;
 }
 
 export function customDefaultValue(): Custom {
@@ -42,7 +40,7 @@ export function customSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Custom', __id };
-    result['mappings'] = value.mappings.map((item) => directionHueSerializeWithContext(item, ctx));
+    result.mappings = value.mappings.map((item) => directionHueSerializeWithContext(item, ctx));
     return result;
 }
 
@@ -112,9 +110,9 @@ export function customDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_mappings = obj['mappings'] as DirectionHue[];
+        const __raw_mappings = obj.mappings as Array<DirectionHue>;
         if (Array.isArray(__raw_mappings)) {
-            instance.mappings = __raw_mappings as DirectionHue[];
+            instance.mappings = __raw_mappings as Array<DirectionHue>;
         }
     }
     if (errors.length > 0) {
@@ -176,10 +174,10 @@ export function customCreateForm(overrides?: Partial<Custom>): CustomGigaform {
             name: 'mappings',
             constraints: { required: true },
             get: () => data.mappings,
-            set: (value: DirectionHue[]) => {
+            set: (value: Array<DirectionHue>) => {
                 data.mappings = value;
             },
-            transform: (value: DirectionHue[]): DirectionHue[] => value,
+            transform: (value: Array<DirectionHue>): Array<DirectionHue> => value,
             getError: () => errors.mappings,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.mappings = value;
@@ -263,15 +261,15 @@ export function customFromFormData(
     {
         const mappingsItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('mappings.' + idx + '.') || idx === 0) {
+        while (formData.has(`mappings.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('mappings.' + idx + '.')
+                k.startsWith(`mappings.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('mappings.' + idx + '.')) {
+                    if (key.startsWith(`mappings.${idx}.`)) {
                         const fieldName = key.slice('mappings.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }

@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Created {
@@ -38,7 +37,7 @@ export function createdSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Created', __id };
-    result['initialData'] = value.initialData;
+    result.initialData = value.initialData;
     return result;
 }
 
@@ -108,7 +107,7 @@ export function createdDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_initialData = obj['initialData'] as string | null;
+        const __raw_initialData = obj.initialData as string | null;
         instance.initialData = __raw_initialData;
     }
     if (errors.length > 0) {

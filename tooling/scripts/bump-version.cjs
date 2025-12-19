@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 
 const { program } = require('commander');
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
-const { root, resolve, REPOS, ALL_REPO_NAMES, parseRepos } = require("./env.cjs");
+const fs = require('node:fs');
+const path = require('node:path');
+const { execSync } = require('node:child_process');
+const { root, resolve, REPOS, ALL_REPO_NAMES, parseRepos } = require('./env.cjs');
 
 program
     .name('bump-version')
     .description('Update version numbers across packages, crates, and config files')
     .argument('<version>', 'Version string (e.g., 0.1.4)')
-    .option('-r, --repos <repos>', `Repos to update (comma-separated, or 'all', 'rust', 'ts'). Available: ${ALL_REPO_NAMES.join(', ')}`, 'all');
+    .option(
+        '-r, --repos <repos>',
+        `Repos to update (comma-separated, or 'all', 'rust', 'ts'). Available: ${ALL_REPO_NAMES.join(', ')}`,
+        'all'
+    );
 
 // Helper to update package.json
 function updatePackageJson(pkgPath, updates) {
@@ -19,12 +23,12 @@ function updatePackageJson(pkgPath, updates) {
         console.log(`  Skipping ${pkgPath} (not found)`);
         return;
     }
-    const pkg = JSON.parse(fs.readFileSync(fullPath, "utf8"));
+    const pkg = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
 
     for (const [key, value] of Object.entries(updates)) {
-        if (key.includes(".")) {
+        if (key.includes('.')) {
             // Handle nested keys like "dependencies.macroforge"
-            const parts = key.split(".");
+            const parts = key.split('.');
             let obj = pkg;
             for (let i = 0; i < parts.length - 1; i++) {
                 if (!obj[parts[i]]) obj[parts[i]] = {};
@@ -36,7 +40,7 @@ function updatePackageJson(pkgPath, updates) {
         }
     }
 
-    fs.writeFileSync(fullPath, JSON.stringify(pkg, null, 2) + "\n");
+    fs.writeFileSync(fullPath, `${JSON.stringify(pkg, null, 2)}\n`);
     console.log(`  Updated ${pkgPath}`);
 }
 
@@ -47,7 +51,7 @@ function updateCargoToml(cargoPath, version) {
         console.log(`  Skipping ${cargoPath} (not found)`);
         return;
     }
-    let content = fs.readFileSync(fullPath, "utf8");
+    let content = fs.readFileSync(fullPath, 'utf8');
     content = content.replace(/^version = ".*"$/m, `version = "${version}"`);
     fs.writeFileSync(fullPath, content);
     console.log(`  Updated ${cargoPath}`);
@@ -55,33 +59,33 @@ function updateCargoToml(cargoPath, version) {
 
 function main(version, options) {
     const repos = parseRepos(options.repos);
-    const repoNames = repos.map(r => r.name);
+    const repoNames = repos.map((r) => r.name);
 
     console.log(`Bumping version to ${version} for repos: ${repoNames.join(', ')}\n`);
 
     // Platform packages (for core)
     const platforms = [
-        "darwin-x64",
-        "darwin-arm64",
-        "linux-x64-gnu",
-        "linux-arm64-gnu",
-        "win32-x64-msvc",
-        "win32-arm64-msvc",
+        'darwin-x64',
+        'darwin-arm64',
+        'linux-x64-gnu',
+        'linux-arm64-gnu',
+        'win32-x64-msvc',
+        'win32-arm64-msvc'
     ];
 
     // Update core (macroforge_ts)
     if (repoNames.includes('core')) {
         console.log('\n[core]');
-        updatePackageJson("crates/macroforge_ts/package.json", {
+        updatePackageJson('crates/macroforge_ts/package.json', {
             version,
-            "optionalDependencies.@macroforge/bin-darwin-x64": version,
-            "optionalDependencies.@macroforge/bin-darwin-arm64": version,
-            "optionalDependencies.@macroforge/bin-linux-x64-gnu": version,
-            "optionalDependencies.@macroforge/bin-linux-arm64-gnu": version,
-            "optionalDependencies.@macroforge/bin-win32-x64-msvc": version,
-            "optionalDependencies.@macroforge/bin-win32-arm64-msvc": version,
+            'optionalDependencies.@macroforge/bin-darwin-x64': version,
+            'optionalDependencies.@macroforge/bin-darwin-arm64': version,
+            'optionalDependencies.@macroforge/bin-linux-x64-gnu': version,
+            'optionalDependencies.@macroforge/bin-linux-arm64-gnu': version,
+            'optionalDependencies.@macroforge/bin-win32-x64-msvc': version,
+            'optionalDependencies.@macroforge/bin-win32-arm64-msvc': version
         });
-        updateCargoToml("crates/macroforge_ts/Cargo.toml", version);
+        updateCargoToml('crates/macroforge_ts/Cargo.toml', version);
 
         // Update platform packages
         for (const platform of platforms) {
@@ -89,8 +93,8 @@ function main(version, options) {
         }
 
         // Update internal crate dependencies in core
-        const macroforgeTsCargoPath = path.join(root, "crates/macroforge_ts/Cargo.toml");
-        let macroforgeTsCargo = fs.readFileSync(macroforgeTsCargoPath, "utf8");
+        const macroforgeTsCargoPath = path.join(root, 'crates/macroforge_ts/Cargo.toml');
+        let macroforgeTsCargo = fs.readFileSync(macroforgeTsCargoPath, 'utf8');
         macroforgeTsCargo = macroforgeTsCargo.replace(
             /macroforge_ts_syn = "[^"]+"/g,
             `macroforge_ts_syn = "${version}"`
@@ -110,84 +114,84 @@ function main(version, options) {
     // Update macros
     if (repoNames.includes('macros')) {
         console.log('\n[macros]');
-        updateCargoToml("crates/macroforge_ts_macros/Cargo.toml", version);
+        updateCargoToml('crates/macroforge_ts_macros/Cargo.toml', version);
     }
 
     // Update syn
     if (repoNames.includes('syn')) {
         console.log('\n[syn]');
-        updateCargoToml("crates/macroforge_ts_syn/Cargo.toml", version);
+        updateCargoToml('crates/macroforge_ts_syn/Cargo.toml', version);
     }
 
     // Update template (quote)
     if (repoNames.includes('template')) {
         console.log('\n[template]');
-        updateCargoToml("crates/macroforge_ts_quote/Cargo.toml", version);
+        updateCargoToml('crates/macroforge_ts_quote/Cargo.toml', version);
     }
 
     // Update shared
     if (repoNames.includes('shared')) {
         console.log('\n[shared]');
-        updatePackageJson("packages/shared/package.json", {
+        updatePackageJson('packages/shared/package.json', {
             version,
-            "dependencies.macroforge": `^${version}`,
+            'dependencies.macroforge': `^${version}`
         });
     }
 
     // Update typescript-plugin
     if (repoNames.includes('typescript-plugin')) {
         console.log('\n[typescript-plugin]');
-        updatePackageJson("packages/typescript-plugin/package.json", {
+        updatePackageJson('packages/typescript-plugin/package.json', {
             version,
-            "dependencies.@macroforge/shared": `^${version}`,
-            "dependencies.macroforge": `^${version}`,
+            'dependencies.@macroforge/shared': `^${version}`,
+            'dependencies.macroforge': `^${version}`
         });
     }
 
     // Update svelte-language-server
     if (repoNames.includes('svelte-language-server')) {
         console.log('\n[svelte-language-server]');
-        updatePackageJson("packages/svelte-language-server/package.json", {
+        updatePackageJson('packages/svelte-language-server/package.json', {
             version,
-            "dependencies.macroforge": `^${version}`,
-            "dependencies.@macroforge/typescript-plugin": `^${version}`,
+            'dependencies.macroforge': `^${version}`,
+            'dependencies.@macroforge/typescript-plugin': `^${version}`
         });
     }
 
     // Update vite-plugin
     if (repoNames.includes('vite-plugin')) {
         console.log('\n[vite-plugin]');
-        updatePackageJson("packages/vite-plugin/package.json", {
+        updatePackageJson('packages/vite-plugin/package.json', {
             version,
-            "dependencies.@macroforge/shared": `^${version}`,
-            "dependencies.macroforge": `^${version}`,
+            'dependencies.@macroforge/shared': `^${version}`,
+            'dependencies.macroforge': `^${version}`
         });
     }
 
     // Update mcp-server
     if (repoNames.includes('mcp-server')) {
         console.log('\n[mcp-server]');
-        updatePackageJson("packages/mcp-server/package.json", {
+        updatePackageJson('packages/mcp-server/package.json', {
             version,
-            "peerDependencies.macroforge": `^${version}`,
+            'peerDependencies.macroforge': `^${version}`
         });
     }
 
     // Update svelte-preprocessor
     if (repoNames.includes('svelte-preprocessor')) {
         console.log('\n[svelte-preprocessor]');
-        updatePackageJson("packages/svelte-preprocessor/package.json", {
+        updatePackageJson('packages/svelte-preprocessor/package.json', {
             version,
-            "dependencies.macroforge": `^${version}`,
+            'dependencies.macroforge': `^${version}`
         });
     }
 
     // Update website
     if (repoNames.includes('website')) {
         console.log('\n[website]');
-        updatePackageJson("website/package.json", {
+        updatePackageJson('website/package.json', {
             version,
-            "dependencies.macroforge": `file:../crates/macroforge_ts`,
+            'dependencies.macroforge': `file:../crates/macroforge_ts`
         });
     }
 
@@ -196,9 +200,9 @@ function main(version, options) {
         console.log('\n[zed-extensions]');
 
         // Update vtsls-macroforge Zed extension lib.rs
-        const vtslsLibRsPath = path.join(root, "crates/extensions/vtsls-macroforge/src/lib.rs");
+        const vtslsLibRsPath = path.join(root, 'crates/extensions/vtsls-macroforge/src/lib.rs');
         if (fs.existsSync(vtslsLibRsPath)) {
-            let vtslsLibRs = fs.readFileSync(vtslsLibRsPath, "utf8");
+            let vtslsLibRs = fs.readFileSync(vtslsLibRsPath, 'utf8');
             vtslsLibRs = vtslsLibRs.replace(
                 /const TS_PLUGIN_VERSION: &str = ".*";/,
                 `const TS_PLUGIN_VERSION: &str = "${version}";`
@@ -212,9 +216,9 @@ function main(version, options) {
         }
 
         // Update svelte-macroforge Zed extension lib.rs
-        const svelteLibRsPath = path.join(root, "crates/extensions/svelte-macroforge/src/lib.rs");
+        const svelteLibRsPath = path.join(root, 'crates/extensions/svelte-macroforge/src/lib.rs');
         if (fs.existsSync(svelteLibRsPath)) {
-            let svelteLibRs = fs.readFileSync(svelteLibRsPath, "utf8");
+            let svelteLibRs = fs.readFileSync(svelteLibRsPath, 'utf8');
             svelteLibRs = svelteLibRs.replace(
                 /const SVELTE_LS_VERSION: &str = ".*";/,
                 `const SVELTE_LS_VERSION: &str = "${version}";`

@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface EmailParts {
@@ -42,9 +41,9 @@ export function emailPartsSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'EmailParts', __id };
-    result['local'] = value.local;
-    result['domainName'] = value.domainName;
-    result['topLevelDomain'] = value.topLevelDomain;
+    result.local = value.local;
+    result.domainName = value.domainName;
+    result.topLevelDomain = value.topLevelDomain;
     return result;
 }
 
@@ -120,21 +119,21 @@ export function emailPartsDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_local = obj['local'] as string;
+        const __raw_local = obj.local as string;
         if (__raw_local.length === 0) {
             errors.push({ field: 'local', message: 'must not be empty' });
         }
         instance.local = __raw_local;
     }
     {
-        const __raw_domainName = obj['domainName'] as string;
+        const __raw_domainName = obj.domainName as string;
         if (__raw_domainName.length === 0) {
             errors.push({ field: 'domainName', message: 'must not be empty' });
         }
         instance.domainName = __raw_domainName;
     }
     {
-        const __raw_topLevelDomain = obj['topLevelDomain'] as string;
+        const __raw_topLevelDomain = obj.topLevelDomain as string;
         if (__raw_topLevelDomain.length === 0) {
             errors.push({ field: 'topLevelDomain', message: 'must not be empty' });
         }

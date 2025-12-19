@@ -1,92 +1,80 @@
 <script lang="ts">
-    import {
-        MacroUser,
-        showcaseUserJson,
-        showcaseUserSummary,
-    } from "$lib/demo/macro-user";
-    import {
-        SvelteAllMacrosTest,
-        svelteTestInstance,
-    } from "$lib/demo/all-macros-test";
+import { MacroUser, showcaseUserJson, showcaseUserSummary } from '$lib/demo/macro-user';
+import { SvelteAllMacrosTest, svelteTestInstance } from '$lib/demo/all-macros-test';
 
-    const derivedUser = new MacroUser({
-        id: "usr_1001",
-        name: "Cam Solar",
-        role: "Runtime Tinkerer",
-        favoriteMacro: "Derive",
-        since: "2025-01-07",
-        apiToken: "sk-live-token",
-    });
-    const derivedSummary = MacroUser.toString(derivedUser);
-    const derivedUserJson = JSON.parse(MacroUser.serialize(derivedUser));
-    const derivedJsonPretty = JSON.stringify(derivedUserJson, null, 2);
-    const showcaseJsonPretty = JSON.stringify(showcaseUserJson, null, 2);
+const derivedUser = new MacroUser({
+    id: 'usr_1001',
+    name: 'Cam Solar',
+    role: 'Runtime Tinkerer',
+    favoriteMacro: 'Derive',
+    since: '2025-01-07',
+    apiToken: 'sk-live-token'
+});
+const derivedSummary = MacroUser.toString(derivedUser);
+const derivedUserJson = JSON.parse(MacroUser.serialize(derivedUser));
+const derivedJsonPretty = JSON.stringify(derivedUserJson, null, 2);
+const showcaseJsonPretty = JSON.stringify(showcaseUserJson, null, 2);
 
-    // Test results state
-    let testsComplete = $state(false);
-    let testResults: {
-        debug?: string;
-        clone?: object;
-        equals?: boolean;
-        hashCode?: number;
-        serialize?: object;
-        deserialize?: object;
-    } = $state({});
+// Test results state
+let testsComplete = $state(false);
+let testResults: {
+    debug?: string;
+    clone?: object;
+    equals?: boolean;
+    hashCode?: number;
+    serialize?: object;
+    deserialize?: object;
+} = $state({});
 
-    function runAllMacroTests() {
-        // Test Debug macro -> toString() (static method for interfaces)
-        if (typeof SvelteAllMacrosTest.toString === "function") {
-            testResults.debug =
-                SvelteAllMacrosTest.toString(svelteTestInstance);
-        }
-
-        // Test Clone macro -> clone()
-        if (typeof SvelteAllMacrosTest.clone === "function") {
-            testResults.clone = SvelteAllMacrosTest.clone(svelteTestInstance);
-        }
-
-        // Test Eq macro -> equals()
-        if (typeof SvelteAllMacrosTest.equals === "function") {
-            testResults.equals = SvelteAllMacrosTest.equals(
-                svelteTestInstance,
-                svelteTestInstance,
-            );
-        }
-
-        // Test Eq macro -> hashCode()
-        if (typeof SvelteAllMacrosTest.hashCode === "function") {
-            testResults.hashCode =
-                SvelteAllMacrosTest.hashCode(svelteTestInstance);
-        }
-
-        // Test Serialize macro -> toStringifiedJSON()
-        if (typeof SvelteAllMacrosTest.toStringifiedJSON === "function") {
-            const jsonString = SvelteAllMacrosTest.toStringifiedJSON(svelteTestInstance);
-            testResults.serialize = JSON.parse(jsonString);
-        }
-
-        // Test Deserialize macro -> fromStringifiedJSON()
-        if (typeof SvelteAllMacrosTest.fromStringifiedJSON === "function") {
-            const testData = {
-                id: "deser-001",
-                title: "Deserialized",
-                content: "From JSON",
-                apiKey: "key",
-                count: 99,
-                enabled: false,
-            };
-            const result = SvelteAllMacrosTest.fromStringifiedJSON(JSON.stringify(testData));
-            // fromStringifiedJSON returns a Result, unwrap it
-            if (result && typeof result.isOk === "function" && result.isOk()) {
-                testResults.deserialize = result.unwrap();
-            } else {
-                testResults.deserialize = result;
-            }
-        }
-
-        // Trigger reactivity
-        testsComplete = true;
+function runAllMacroTests() {
+    // Test Debug macro -> toString() (static method for interfaces)
+    if (typeof SvelteAllMacrosTest.toString === 'function') {
+        testResults.debug = SvelteAllMacrosTest.toString(svelteTestInstance);
     }
+
+    // Test Clone macro -> clone()
+    if (typeof SvelteAllMacrosTest.clone === 'function') {
+        testResults.clone = SvelteAllMacrosTest.clone(svelteTestInstance);
+    }
+
+    // Test Eq macro -> equals()
+    if (typeof SvelteAllMacrosTest.equals === 'function') {
+        testResults.equals = SvelteAllMacrosTest.equals(svelteTestInstance, svelteTestInstance);
+    }
+
+    // Test Eq macro -> hashCode()
+    if (typeof SvelteAllMacrosTest.hashCode === 'function') {
+        testResults.hashCode = SvelteAllMacrosTest.hashCode(svelteTestInstance);
+    }
+
+    // Test Serialize macro -> toStringifiedJSON()
+    if (typeof SvelteAllMacrosTest.toStringifiedJSON === 'function') {
+        const jsonString = SvelteAllMacrosTest.toStringifiedJSON(svelteTestInstance);
+        testResults.serialize = JSON.parse(jsonString);
+    }
+
+    // Test Deserialize macro -> fromStringifiedJSON()
+    if (typeof SvelteAllMacrosTest.fromStringifiedJSON === 'function') {
+        const testData = {
+            id: 'deser-001',
+            title: 'Deserialized',
+            content: 'From JSON',
+            apiKey: 'key',
+            count: 99,
+            enabled: false
+        };
+        const result = SvelteAllMacrosTest.fromStringifiedJSON(JSON.stringify(testData));
+        // fromStringifiedJSON returns a Result, unwrap it
+        if (result && typeof result.isOk === 'function' && result.isOk()) {
+            testResults.deserialize = result.unwrap();
+        } else {
+            testResults.deserialize = result;
+        }
+    }
+
+    // Trigger reactivity
+    testsComplete = true;
+}
 </script>
 
 <main class="page">

@@ -1,7 +1,9 @@
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef
+} from 'macroforge/serde';
 /**
  * Stress test for aliased imports and tree-shaking.
  *
@@ -106,15 +108,15 @@ export function userWithDeserializeDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_name = obj['name'] as string;
+        const __raw_name = obj.name as string;
         instance.name = __raw_name;
     }
     {
-        const __raw_age = obj['age'] as number;
+        const __raw_age = obj.age as number;
         instance.age = __raw_age;
     }
     {
-        const __raw_email = obj['email'] as string;
+        const __raw_email = obj.email as string;
         instance.email = __raw_email;
     }
     if (errors.length > 0) {
@@ -261,15 +263,15 @@ export function fullFeaturedTypeDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as number;
+        const __raw_id = obj.id as number;
         instance.id = __raw_id;
     }
     {
-        const __raw_value = obj['value'] as string;
+        const __raw_value = obj.value as string;
         instance.value = __raw_value;
     }
     {
-        const __raw_score = obj['score'] as number;
+        const __raw_score = obj.score as number;
         instance.score = __raw_score;
     }
     if (errors.length > 0) {
@@ -401,7 +403,7 @@ export function typeADeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_fieldA = obj['fieldA'] as string;
+        const __raw_fieldA = obj.fieldA as string;
         instance.fieldA = __raw_fieldA;
     }
     if (errors.length > 0) {
@@ -513,7 +515,7 @@ export function typeBDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_fieldB = obj['fieldB'] as number;
+        const __raw_fieldB = obj.fieldB as number;
         instance.fieldB = __raw_fieldB;
     }
     if (errors.length > 0) {

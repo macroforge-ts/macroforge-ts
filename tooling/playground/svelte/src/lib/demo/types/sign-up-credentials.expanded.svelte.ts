@@ -1,31 +1,39 @@
-import { emailPartsDefaultValue } from './email-parts.svelte';
-import { firstNameDefaultValue } from './first-name.svelte';
-import { lastNameDefaultValue } from './last-name.svelte';
-import { passwordDefaultValue } from './password.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { emailPartsSerializeWithContext } from './email-parts.svelte';
-import { firstNameSerializeWithContext } from './first-name.svelte';
-import { lastNameSerializeWithContext } from './last-name.svelte';
-import { passwordSerializeWithContext } from './password.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { emailPartsDeserializeWithContext } from './email-parts.svelte';
-import { firstNameDeserializeWithContext } from './first-name.svelte';
-import { lastNameDeserializeWithContext } from './last-name.svelte';
-import { passwordDeserializeWithContext } from './password.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    emailPartsDefaultValue,
+    emailPartsDeserializeWithContext,
+    emailPartsSerializeWithContext
+} from './email-parts.svelte';
+import {
+    firstNameDefaultValue,
+    firstNameDeserializeWithContext,
+    firstNameSerializeWithContext
+} from './first-name.svelte';
+import {
+    lastNameDefaultValue,
+    lastNameDeserializeWithContext,
+    lastNameSerializeWithContext
+} from './last-name.svelte';
+import {
+    passwordDefaultValue,
+    passwordDeserializeWithContext,
+    passwordSerializeWithContext
+} from './password.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { FirstName } from './first-name.svelte';
-import type { Password } from './password.svelte';
 import type { EmailParts } from './email-parts.svelte';
+import type { FirstName } from './first-name.svelte';
 import type { LastName } from './last-name.svelte';
+import type { Password } from './password.svelte';
 
 export interface SignUpCredentials {
     firstName: FirstName;
@@ -65,11 +73,11 @@ export function signUpCredentialsSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'SignUpCredentials', __id };
-    result['firstName'] = firstNameSerializeWithContext(value.firstName, ctx);
-    result['lastName'] = lastNameSerializeWithContext(value.lastName, ctx);
-    result['email'] = emailPartsSerializeWithContext(value.email, ctx);
-    result['password'] = passwordSerializeWithContext(value.password, ctx);
-    result['rememberMe'] = value.rememberMe;
+    result.firstName = firstNameSerializeWithContext(value.firstName, ctx);
+    result.lastName = lastNameSerializeWithContext(value.lastName, ctx);
+    result.email = emailPartsSerializeWithContext(value.email, ctx);
+    result.password = passwordSerializeWithContext(value.password, ctx);
+    result.rememberMe = value.rememberMe;
     return result;
 }
 
@@ -154,35 +162,35 @@ export function signUpCredentialsDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_firstName = obj['firstName'] as FirstName;
+        const __raw_firstName = obj.firstName as FirstName;
         {
             const __result = firstNameDeserializeWithContext(__raw_firstName, ctx);
             ctx.assignOrDefer(instance, 'firstName', __result);
         }
     }
     {
-        const __raw_lastName = obj['lastName'] as LastName;
+        const __raw_lastName = obj.lastName as LastName;
         {
             const __result = lastNameDeserializeWithContext(__raw_lastName, ctx);
             ctx.assignOrDefer(instance, 'lastName', __result);
         }
     }
     {
-        const __raw_email = obj['email'] as EmailParts;
+        const __raw_email = obj.email as EmailParts;
         {
             const __result = emailPartsDeserializeWithContext(__raw_email, ctx);
             ctx.assignOrDefer(instance, 'email', __result);
         }
     }
     {
-        const __raw_password = obj['password'] as Password;
+        const __raw_password = obj.password as Password;
         {
             const __result = passwordDeserializeWithContext(__raw_password, ctx);
             ctx.assignOrDefer(instance, 'password', __result);
         }
     }
     {
-        const __raw_rememberMe = obj['rememberMe'] as boolean;
+        const __raw_rememberMe = obj.rememberMe as boolean;
         instance.rememberMe = __raw_rememberMe;
     }
     if (errors.length > 0) {

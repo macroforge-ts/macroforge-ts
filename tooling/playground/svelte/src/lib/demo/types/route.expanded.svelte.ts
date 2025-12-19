@@ -1,21 +1,24 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { Employee } from './employee.svelte';
 
 export interface Route {
     id: string;
-    techs: (string | Employee)[] | null;
+    techs: Array<string | Employee> | null;
     active: boolean;
 
     name: string;
@@ -25,7 +28,7 @@ export interface Route {
     position: string;
     serviceRoute: boolean;
     defaultDurationHours: number;
-    tags: string[];
+    tags: Array<string>;
     icon: string | null;
     color: string | null;
 }
@@ -66,21 +69,21 @@ export function routeSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Route', __id };
-    result['id'] = value.id;
+    result.id = value.id;
     if (value.techs !== null) {
-        result['techs'] = value.techs;
+        result.techs = value.techs;
     } else {
-        result['techs'] = null;
+        result.techs = null;
     }
-    result['active'] = value.active;
-    result['name'] = value.name;
-    result['phone'] = value.phone;
-    result['position'] = value.position;
-    result['serviceRoute'] = value.serviceRoute;
-    result['defaultDurationHours'] = value.defaultDurationHours;
-    result['tags'] = value.tags;
-    result['icon'] = value.icon;
-    result['color'] = value.color;
+    result.active = value.active;
+    result.name = value.name;
+    result.phone = value.phone;
+    result.position = value.position;
+    result.serviceRoute = value.serviceRoute;
+    result.defaultDurationHours = value.defaultDurationHours;
+    result.tags = value.tags;
+    result.icon = value.icon;
+    result.color = value.color;
     return result;
 }
 
@@ -180,11 +183,11 @@ export function routeDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_techs = obj['techs'] as (string | Employee)[] | null;
+        const __raw_techs = obj.techs as Array<string | Employee> | null;
         if (__raw_techs === null) {
             instance.techs = null;
         } else {
@@ -192,50 +195,50 @@ export function routeDeserializeWithContext(
         }
     }
     {
-        const __raw_active = obj['active'] as boolean;
+        const __raw_active = obj.active as boolean;
         instance.active = __raw_active;
     }
     {
-        const __raw_name = obj['name'] as string;
+        const __raw_name = obj.name as string;
         if (__raw_name.length === 0) {
             errors.push({ field: 'name', message: 'must not be empty' });
         }
         instance.name = __raw_name;
     }
     {
-        const __raw_phone = obj['phone'] as string;
+        const __raw_phone = obj.phone as string;
         if (__raw_phone.length === 0) {
             errors.push({ field: 'phone', message: 'must not be empty' });
         }
         instance.phone = __raw_phone;
     }
     {
-        const __raw_position = obj['position'] as string;
+        const __raw_position = obj.position as string;
         if (__raw_position.length === 0) {
             errors.push({ field: 'position', message: 'must not be empty' });
         }
         instance.position = __raw_position;
     }
     {
-        const __raw_serviceRoute = obj['serviceRoute'] as boolean;
+        const __raw_serviceRoute = obj.serviceRoute as boolean;
         instance.serviceRoute = __raw_serviceRoute;
     }
     {
-        const __raw_defaultDurationHours = obj['defaultDurationHours'] as number;
+        const __raw_defaultDurationHours = obj.defaultDurationHours as number;
         instance.defaultDurationHours = __raw_defaultDurationHours;
     }
     {
-        const __raw_tags = obj['tags'] as string[];
+        const __raw_tags = obj.tags as Array<string>;
         if (Array.isArray(__raw_tags)) {
-            instance.tags = __raw_tags as string[];
+            instance.tags = __raw_tags as Array<string>;
         }
     }
     {
-        const __raw_icon = obj['icon'] as string | null;
+        const __raw_icon = obj.icon as string | null;
         instance.icon = __raw_icon;
     }
     {
-        const __raw_color = obj['color'] as string | null;
+        const __raw_color = obj.color as string | null;
         instance.color = __raw_color;
     }
     if (errors.length > 0) {
@@ -353,7 +356,7 @@ export type RouteTainted = {
 }; /** Type-safe field controllers for this form */
 export interface RouteFieldControllers {
     readonly id: FieldController<string>;
-    readonly techs: FieldController<(string | Employee)[] | null>;
+    readonly techs: FieldController<Array<string | Employee> | null>;
     readonly active: FieldController<boolean>;
     readonly name: FieldController<string>;
     readonly phone: FieldController<string>;
@@ -429,10 +432,11 @@ export function routeCreateForm(overrides?: Partial<Route>): RouteGigaform {
             name: 'techs',
             constraints: { required: true },
             get: () => data.techs,
-            set: (value: (string | Employee)[] | null) => {
+            set: (value: Array<string | Employee> | null) => {
                 data.techs = value;
             },
-            transform: (value: (string | Employee)[] | null): (string | Employee)[] | null => value,
+            transform: (value: Array<string | Employee> | null): Array<string | Employee> | null =>
+                value,
             getError: () => errors.techs,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.techs = value;
@@ -586,10 +590,10 @@ export function routeCreateForm(overrides?: Partial<Route>): RouteGigaform {
             name: 'tags',
             constraints: { required: true },
             get: () => data.tags,
-            set: (value: string[]) => {
+            set: (value: Array<string>) => {
                 data.tags = value;
             },
-            transform: (value: string[]): string[] => value,
+            transform: (value: Array<string>): Array<string> => value,
             getError: () => errors.tags,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.tags = value;
@@ -758,7 +762,10 @@ export function routeFromFormData(
         obj.defaultDurationHours = defaultDurationHoursStr
             ? parseFloat(defaultDurationHoursStr as string)
             : 0;
-        if (obj.defaultDurationHours !== undefined && isNaN(obj.defaultDurationHours as number))
+        if (
+            obj.defaultDurationHours !== undefined &&
+            Number.isNaN(obj.defaultDurationHours as number)
+        )
             obj.defaultDurationHours = 0;
     }
     obj.tags = formData.getAll('tags') as Array<string>;

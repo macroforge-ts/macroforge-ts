@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Ordinal {
@@ -54,14 +53,14 @@ export function ordinalSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Ordinal', __id };
-    result['north'] = value.north;
-    result['northeast'] = value.northeast;
-    result['east'] = value.east;
-    result['southeast'] = value.southeast;
-    result['south'] = value.south;
-    result['southwest'] = value.southwest;
-    result['west'] = value.west;
-    result['northwest'] = value.northwest;
+    result.north = value.north;
+    result.northeast = value.northeast;
+    result.east = value.east;
+    result.southeast = value.southeast;
+    result.south = value.south;
+    result.southwest = value.southwest;
+    result.west = value.west;
+    result.northwest = value.northwest;
     return result;
 }
 
@@ -152,35 +151,35 @@ export function ordinalDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_north = obj['north'] as number;
+        const __raw_north = obj.north as number;
         instance.north = __raw_north;
     }
     {
-        const __raw_northeast = obj['northeast'] as number;
+        const __raw_northeast = obj.northeast as number;
         instance.northeast = __raw_northeast;
     }
     {
-        const __raw_east = obj['east'] as number;
+        const __raw_east = obj.east as number;
         instance.east = __raw_east;
     }
     {
-        const __raw_southeast = obj['southeast'] as number;
+        const __raw_southeast = obj.southeast as number;
         instance.southeast = __raw_southeast;
     }
     {
-        const __raw_south = obj['south'] as number;
+        const __raw_south = obj.south as number;
         instance.south = __raw_south;
     }
     {
-        const __raw_southwest = obj['southwest'] as number;
+        const __raw_southwest = obj.southwest as number;
         instance.southwest = __raw_southwest;
     }
     {
-        const __raw_west = obj['west'] as number;
+        const __raw_west = obj.west as number;
         instance.west = __raw_west;
     }
     {
-        const __raw_northwest = obj['northwest'] as number;
+        const __raw_northwest = obj.northwest as number;
         instance.northwest = __raw_northwest;
     }
     if (errors.length > 0) {
@@ -521,42 +520,42 @@ export function ordinalFromFormData(
     {
         const northStr = formData.get('north');
         obj.north = northStr ? parseFloat(northStr as string) : 0;
-        if (obj.north !== undefined && isNaN(obj.north as number)) obj.north = 0;
+        if (obj.north !== undefined && Number.isNaN(obj.north as number)) obj.north = 0;
     }
     {
         const northeastStr = formData.get('northeast');
         obj.northeast = northeastStr ? parseFloat(northeastStr as string) : 0;
-        if (obj.northeast !== undefined && isNaN(obj.northeast as number)) obj.northeast = 0;
+        if (obj.northeast !== undefined && Number.isNaN(obj.northeast as number)) obj.northeast = 0;
     }
     {
         const eastStr = formData.get('east');
         obj.east = eastStr ? parseFloat(eastStr as string) : 0;
-        if (obj.east !== undefined && isNaN(obj.east as number)) obj.east = 0;
+        if (obj.east !== undefined && Number.isNaN(obj.east as number)) obj.east = 0;
     }
     {
         const southeastStr = formData.get('southeast');
         obj.southeast = southeastStr ? parseFloat(southeastStr as string) : 0;
-        if (obj.southeast !== undefined && isNaN(obj.southeast as number)) obj.southeast = 0;
+        if (obj.southeast !== undefined && Number.isNaN(obj.southeast as number)) obj.southeast = 0;
     }
     {
         const southStr = formData.get('south');
         obj.south = southStr ? parseFloat(southStr as string) : 0;
-        if (obj.south !== undefined && isNaN(obj.south as number)) obj.south = 0;
+        if (obj.south !== undefined && Number.isNaN(obj.south as number)) obj.south = 0;
     }
     {
         const southwestStr = formData.get('southwest');
         obj.southwest = southwestStr ? parseFloat(southwestStr as string) : 0;
-        if (obj.southwest !== undefined && isNaN(obj.southwest as number)) obj.southwest = 0;
+        if (obj.southwest !== undefined && Number.isNaN(obj.southwest as number)) obj.southwest = 0;
     }
     {
         const westStr = formData.get('west');
         obj.west = westStr ? parseFloat(westStr as string) : 0;
-        if (obj.west !== undefined && isNaN(obj.west as number)) obj.west = 0;
+        if (obj.west !== undefined && Number.isNaN(obj.west as number)) obj.west = 0;
     }
     {
         const northwestStr = formData.get('northwest');
         obj.northwest = northwestStr ? parseFloat(northwestStr as string) : 0;
-        if (obj.northwest !== undefined && isNaN(obj.northwest as number)) obj.northwest = 0;
+        if (obj.northwest !== undefined && Number.isNaN(obj.northwest as number)) obj.northwest = 0;
     }
     return toExit(ordinalDeserialize(obj));
 }

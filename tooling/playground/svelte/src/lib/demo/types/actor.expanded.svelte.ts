@@ -1,24 +1,21 @@
-import { userDefaultValue } from './user.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { accountDeserializeWithContext } from './account.svelte';
-import { employeeDeserializeWithContext } from './employee.svelte';
-import { userDeserializeWithContext } from './user.svelte';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import { accountDefaultValue } from './account.svelte';
-import { employeeDefaultValue } from './employee.svelte';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { accountDefaultValue, accountDeserializeWithContext } from './account.svelte';
+import { employeeDefaultValue, employeeDeserializeWithContext } from './employee.svelte';
+import { userDefaultValue, userDeserializeWithContext } from './user.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { User } from './user.svelte';
 import type { Account } from './account.svelte';
 import type { Employee } from './employee.svelte';
+import type { User } from './user.svelte';
 
 export type Actor = /** @default */ User | Employee | Account;
 
@@ -149,9 +146,10 @@ export type ActorTainted =
     | ({ _type: 'User' } & ActorUserTainted)
     | ({ _type: 'Employee' } & ActorEmployeeTainted)
     | ({ _type: 'Account' } & ActorAccountTainted); /** Per-variant field controller types */
-export interface ActorUserFieldControllers {}
-export interface ActorEmployeeFieldControllers {}
-export interface ActorAccountFieldControllers {} /** Union Gigaform interface with variant switching */
+export type ActorUserFieldControllers = {};
+export type ActorEmployeeFieldControllers = {};
+export type ActorAccountFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface ActorGigaform {
     readonly currentVariant: 'User' | 'Employee' | 'Account';
     readonly data: Actor;

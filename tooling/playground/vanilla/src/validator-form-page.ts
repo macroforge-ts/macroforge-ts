@@ -3,10 +3,10 @@
  */
 
 import {
-    validateUserRegistration,
-    validateProduct,
+    type ValidationResult,
     validateEvent,
-    type ValidationResult
+    validateProduct,
+    validateUserRegistration
 } from './validator-form';
 
 // Global results for Playwright
@@ -240,7 +240,7 @@ export function initValidatorFormPage() {
             email: formData.get('email'),
             password: formData.get('password'),
             username: formData.get('username'),
-            age: parseInt(formData.get('age') as string) || 0,
+            age: parseInt(formData.get('age') as string, 10) || 0,
             website: formData.get('website')
         };
 
@@ -276,7 +276,7 @@ export function initValidatorFormPage() {
             name: formData.get('name'),
             sku: formData.get('sku'),
             price: parseFloat(formData.get('price') as string) || 0,
-            quantity: parseInt(formData.get('quantity') as string) || 0,
+            quantity: parseInt(formData.get('quantity') as string, 10) || 0,
             tags
         };
 
@@ -309,7 +309,7 @@ export function initValidatorFormPage() {
             title: formData.get('title'),
             startDate: new Date(startDateStr),
             endDate: new Date(endDateStr),
-            maxAttendees: parseInt(formData.get('maxAttendees') as string) || 0
+            maxAttendees: parseInt(formData.get('maxAttendees') as string, 10) || 0
         };
 
         const result = validateEvent(data);

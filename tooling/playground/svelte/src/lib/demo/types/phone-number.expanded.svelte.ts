@@ -1,16 +1,13 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
-
-import type { Number } from './number.svelte';
 
 export interface PhoneNumber {
     main: boolean;
@@ -54,11 +51,11 @@ export function phoneNumberSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'PhoneNumber', __id };
-    result['main'] = value.main;
-    result['phoneType'] = value.phoneType;
-    result['number'] = value.number;
-    result['canText'] = value.canText;
-    result['canCall'] = value.canCall;
+    result.main = value.main;
+    result.phoneType = value.phoneType;
+    result.number = value.number;
+    result.canText = value.canText;
+    result.canCall = value.canCall;
     return result;
 }
 
@@ -140,29 +137,29 @@ export function phoneNumberDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_main = obj['main'] as boolean;
+        const __raw_main = obj.main as boolean;
         instance.main = __raw_main;
     }
     {
-        const __raw_phoneType = obj['phoneType'] as string;
+        const __raw_phoneType = obj.phoneType as string;
         if (__raw_phoneType.length === 0) {
             errors.push({ field: 'phoneType', message: 'must not be empty' });
         }
         instance.phoneType = __raw_phoneType;
     }
     {
-        const __raw_number = obj['number'] as string;
+        const __raw_number = obj.number as string;
         if (__raw_number.length === 0) {
             errors.push({ field: 'number', message: 'must not be empty' });
         }
         instance.number = __raw_number;
     }
     {
-        const __raw_canText = obj['canText'] as boolean;
+        const __raw_canText = obj.canText as boolean;
         instance.canText = __raw_canText;
     }
     {
-        const __raw_canCall = obj['canCall'] as boolean;
+        const __raw_canCall = obj.canCall as boolean;
         instance.canCall = __raw_canCall;
     }
     if (errors.length > 0) {

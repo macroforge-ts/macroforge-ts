@@ -1,28 +1,31 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { colorsSerializeWithContext } from './colors.svelte';
-import { recurrenceRuleSerializeWithContext } from './recurrence-rule.svelte';
-import { statusSerializeWithContext } from './status.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { colorsDeserializeWithContext } from './colors.svelte';
-import { recurrenceRuleDeserializeWithContext } from './recurrence-rule.svelte';
-import { statusDeserializeWithContext } from './status.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { colorsDeserializeWithContext, colorsSerializeWithContext } from './colors.svelte';
+import {
+    recurrenceRuleDeserializeWithContext,
+    recurrenceRuleSerializeWithContext
+} from './recurrence-rule.svelte';
+import { statusDeserializeWithContext, statusSerializeWithContext } from './status.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { DateTime } from 'effect';
 import type { Option } from 'effect/Option';
-import type { Site } from './site.svelte';
 import type { Colors } from './colors.svelte';
 import type { Employee } from './employee.svelte';
 import type { RecurrenceRule } from './recurrence-rule.svelte';
+import type { Site } from './site.svelte';
 import type { Status } from './status.svelte';
 
 export interface Appointment {
@@ -44,7 +47,7 @@ export interface Appointment {
 
     multiDay: boolean;
 
-    employees: (string | Employee)[];
+    employees: Array<string | Employee>;
 
     location: string | Site;
 
@@ -94,23 +97,23 @@ export function appointmentSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Appointment', __id };
-    result['id'] = value.id;
-    result['title'] = value.title;
-    result['status'] = statusSerializeWithContext(value.status, ctx);
-    result['begins'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.begins);
-    result['duration'] = value.duration;
-    result['timeZone'] = value.timeZone;
-    result['offsetMs'] = value.offsetMs;
-    result['allDay'] = value.allDay;
-    result['multiDay'] = value.multiDay;
-    result['employees'] = value.employees;
-    result['location'] = value.location;
-    result['description'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.description);
-    result['colors'] = colorsSerializeWithContext(value.colors, ctx);
+    result.id = value.id;
+    result.title = value.title;
+    result.status = statusSerializeWithContext(value.status, ctx);
+    result.begins = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.begins);
+    result.duration = value.duration;
+    result.timeZone = value.timeZone;
+    result.offsetMs = value.offsetMs;
+    result.allDay = value.allDay;
+    result.multiDay = value.multiDay;
+    result.employees = value.employees;
+    result.location = value.location;
+    result.description = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.description);
+    result.colors = colorsSerializeWithContext(value.colors, ctx);
     if (value.recurrenceRule !== null) {
-        result['recurrenceRule'] = recurrenceRuleSerializeWithContext(value.recurrenceRule, ctx);
+        result.recurrenceRule = recurrenceRuleSerializeWithContext(value.recurrenceRule, ctx);
     } else {
-        result['recurrenceRule'] = null;
+        result.recurrenceRule = null;
     }
     return result;
 }
@@ -220,68 +223,68 @@ export function appointmentDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_title = obj['title'] as string;
+        const __raw_title = obj.title as string;
         if (__raw_title.length === 0) {
             errors.push({ field: 'title', message: 'must not be empty' });
         }
         instance.title = __raw_title;
     }
     {
-        const __raw_status = obj['status'] as Status;
+        const __raw_status = obj.status as Status;
         {
             const __result = statusDeserializeWithContext(__raw_status, ctx);
             ctx.assignOrDefer(instance, 'status', __result);
         }
     }
     instance.begins = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(
-        obj['begins']
+        obj.begins
     );
     {
-        const __raw_duration = obj['duration'] as number;
+        const __raw_duration = obj.duration as number;
         instance.duration = __raw_duration;
     }
     {
-        const __raw_timeZone = obj['timeZone'] as string;
+        const __raw_timeZone = obj.timeZone as string;
         instance.timeZone = __raw_timeZone;
     }
     {
-        const __raw_offsetMs = obj['offsetMs'] as number;
+        const __raw_offsetMs = obj.offsetMs as number;
         instance.offsetMs = __raw_offsetMs;
     }
     {
-        const __raw_allDay = obj['allDay'] as boolean;
+        const __raw_allDay = obj.allDay as boolean;
         instance.allDay = __raw_allDay;
     }
     {
-        const __raw_multiDay = obj['multiDay'] as boolean;
+        const __raw_multiDay = obj.multiDay as boolean;
         instance.multiDay = __raw_multiDay;
     }
     {
-        const __raw_employees = obj['employees'] as (string | Employee)[];
+        const __raw_employees = obj.employees as Array<string | Employee>;
         if (Array.isArray(__raw_employees)) {
-            instance.employees = __raw_employees as (string | Employee)[];
+            instance.employees = __raw_employees as Array<string | Employee>;
         }
     }
     {
-        const __raw_location = obj['location'] as string | Site;
+        const __raw_location = obj.location as string | Site;
         instance.location = __raw_location;
     }
     instance.description = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['description']
+        obj.description
     );
     {
-        const __raw_colors = obj['colors'] as Colors;
+        const __raw_colors = obj.colors as Colors;
         {
             const __result = colorsDeserializeWithContext(__raw_colors, ctx);
             ctx.assignOrDefer(instance, 'colors', __result);
         }
     }
     {
-        const __raw_recurrenceRule = obj['recurrenceRule'] as RecurrenceRule | null;
+        const __raw_recurrenceRule = obj.recurrenceRule as RecurrenceRule | null;
         if (__raw_recurrenceRule === null) {
             instance.recurrenceRule = null;
         } else {
@@ -656,10 +659,10 @@ export function appointmentCreateForm(overrides?: Partial<Appointment>): Appoint
             constraints: { required: true },
             label: 'Employees',
             get: () => data.employees,
-            set: (value: (string | Employee)[]) => {
+            set: (value: Array<string | Employee>) => {
                 data.employees = value;
             },
-            transform: (value: (string | Employee)[]): (string | Employee)[] => value,
+            transform: (value: Array<string | Employee>): Array<string | Employee> => value,
             getError: () => errors.employees,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.employees = value;
@@ -904,13 +907,13 @@ export function appointmentFromFormData(
     {
         const durationStr = formData.get('duration');
         obj.duration = durationStr ? parseFloat(durationStr as string) : 0;
-        if (obj.duration !== undefined && isNaN(obj.duration as number)) obj.duration = 0;
+        if (obj.duration !== undefined && Number.isNaN(obj.duration as number)) obj.duration = 0;
     }
     obj.timeZone = formData.get('timeZone') ?? '';
     {
         const offsetMsStr = formData.get('offsetMs');
         obj.offsetMs = offsetMsStr ? parseFloat(offsetMsStr as string) : 0;
-        if (obj.offsetMs !== undefined && isNaN(obj.offsetMs as number)) obj.offsetMs = 0;
+        if (obj.offsetMs !== undefined && Number.isNaN(obj.offsetMs as number)) obj.offsetMs = 0;
     }
     {
         const allDayVal = formData.get('allDay');
@@ -923,15 +926,15 @@ export function appointmentFromFormData(
     {
         const employeesItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('employees.' + idx + '.') || idx === 0) {
+        while (formData.has(`employees.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('employees.' + idx + '.')
+                k.startsWith(`employees.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('employees.' + idx + '.')) {
+                    if (key.startsWith(`employees.${idx}.`)) {
                         const fieldName = key.slice('employees.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }

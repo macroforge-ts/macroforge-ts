@@ -1,21 +1,23 @@
-import { activityTypeDefaultValue } from './activity-type.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { activityTypeSerializeWithContext } from './activity-type.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { activityTypeDeserializeWithContext } from './activity-type.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    activityTypeDefaultValue,
+    activityTypeDeserializeWithContext,
+    activityTypeSerializeWithContext
+} from './activity-type.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { Target } from './target.svelte';
 import type { ActivityType } from './activity-type.svelte';
 import type { Actor } from './actor.svelte';
+import type { Target } from './target.svelte';
 
 export interface Did {
     in: string | Actor;
@@ -58,12 +60,12 @@ export function didSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Did', __id };
-    result['in'] = value.in;
-    result['out'] = value.out;
-    result['id'] = value.id;
-    result['activityType'] = activityTypeSerializeWithContext(value.activityType, ctx);
-    result['createdAt'] = value.createdAt;
-    result['metadata'] = value.metadata;
+    result.in = value.in;
+    result.out = value.out;
+    result.id = value.id;
+    result.activityType = activityTypeSerializeWithContext(value.activityType, ctx);
+    result.createdAt = value.createdAt;
+    result.metadata = value.metadata;
     return result;
 }
 
@@ -148,30 +150,30 @@ export function didDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_in = obj['in'] as string | Actor;
+        const __raw_in = obj.in as string | Actor;
         instance.in = __raw_in;
     }
     {
-        const __raw_out = obj['out'] as string | Target;
+        const __raw_out = obj.out as string | Target;
         instance.out = __raw_out;
     }
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_activityType = obj['activityType'] as ActivityType;
+        const __raw_activityType = obj.activityType as ActivityType;
         {
             const __result = activityTypeDeserializeWithContext(__raw_activityType, ctx);
             ctx.assignOrDefer(instance, 'activityType', __result);
         }
     }
     {
-        const __raw_createdAt = obj['createdAt'] as string;
+        const __raw_createdAt = obj.createdAt as string;
         instance.createdAt = __raw_createdAt;
     }
     {
-        const __raw_metadata = obj['metadata'] as string | null;
+        const __raw_metadata = obj.metadata as string | null;
         instance.metadata = __raw_metadata;
     }
     if (errors.length > 0) {

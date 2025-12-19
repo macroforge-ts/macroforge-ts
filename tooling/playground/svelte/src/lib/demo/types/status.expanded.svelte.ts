@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 
 export type Status = /** @default */ 'Scheduled' | 'OnDeck' | 'Waiting';
 
@@ -117,9 +116,10 @@ export type StatusTainted =
     | ({ _value: 'Scheduled' } & StatusScheduledTainted)
     | ({ _value: 'OnDeck' } & StatusOnDeckTainted)
     | ({ _value: 'Waiting' } & StatusWaitingTainted); /** Per-variant field controller types */
-export interface StatusScheduledFieldControllers {}
-export interface StatusOnDeckFieldControllers {}
-export interface StatusWaitingFieldControllers {} /** Union Gigaform interface with variant switching */
+export type StatusScheduledFieldControllers = {};
+export type StatusOnDeckFieldControllers = {};
+export type StatusWaitingFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface StatusGigaform {
     readonly currentVariant: 'Scheduled' | 'OnDeck' | 'Waiting';
     readonly data: Status;

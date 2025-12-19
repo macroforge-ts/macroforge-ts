@@ -1,33 +1,27 @@
-import { createdDefaultValue } from './created.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { commentedDeserializeWithContext } from './commented.svelte';
-import { createdDeserializeWithContext } from './created.svelte';
-import { editedDeserializeWithContext } from './edited.svelte';
-import { paidDeserializeWithContext } from './paid.svelte';
-import { sentDeserializeWithContext } from './sent.svelte';
-import { viewedDeserializeWithContext } from './viewed.svelte';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import { commentedDefaultValue } from './commented.svelte';
-import { editedDefaultValue } from './edited.svelte';
-import { paidDefaultValue } from './paid.svelte';
-import { sentDefaultValue } from './sent.svelte';
-import { viewedDefaultValue } from './viewed.svelte';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { commentedDefaultValue, commentedDeserializeWithContext } from './commented.svelte';
+import { createdDefaultValue, createdDeserializeWithContext } from './created.svelte';
+import { editedDefaultValue, editedDeserializeWithContext } from './edited.svelte';
+import { paidDefaultValue, paidDeserializeWithContext } from './paid.svelte';
+import { sentDefaultValue, sentDeserializeWithContext } from './sent.svelte';
+import { viewedDefaultValue, viewedDeserializeWithContext } from './viewed.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { Edited } from './edited.svelte';
 import type { Commented } from './commented.svelte';
-import type { Viewed } from './viewed.svelte';
-import type { Paid } from './paid.svelte';
 import type { Created } from './created.svelte';
+import type { Edited } from './edited.svelte';
+import type { Paid } from './paid.svelte';
 import type { Sent } from './sent.svelte';
+import type { Viewed } from './viewed.svelte';
 
 export type ActivityType = /** @default */ Created | Edited | Sent | Viewed | Commented | Paid;
 
@@ -190,12 +184,13 @@ export type ActivityTypeTainted =
     | ({ _type: 'Viewed' } & ActivityTypeViewedTainted)
     | ({ _type: 'Commented' } & ActivityTypeCommentedTainted)
     | ({ _type: 'Paid' } & ActivityTypePaidTainted); /** Per-variant field controller types */
-export interface ActivityTypeCreatedFieldControllers {}
-export interface ActivityTypeEditedFieldControllers {}
-export interface ActivityTypeSentFieldControllers {}
-export interface ActivityTypeViewedFieldControllers {}
-export interface ActivityTypeCommentedFieldControllers {}
-export interface ActivityTypePaidFieldControllers {} /** Union Gigaform interface with variant switching */
+export type ActivityTypeCreatedFieldControllers = {};
+export type ActivityTypeEditedFieldControllers = {};
+export type ActivityTypeSentFieldControllers = {};
+export type ActivityTypeViewedFieldControllers = {};
+export type ActivityTypeCommentedFieldControllers = {};
+export type ActivityTypePaidFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface ActivityTypeGigaform {
     readonly currentVariant: 'Created' | 'Edited' | 'Sent' | 'Viewed' | 'Commented' | 'Paid';
     readonly data: ActivityType;

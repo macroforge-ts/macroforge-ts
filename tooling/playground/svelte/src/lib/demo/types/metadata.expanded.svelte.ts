@@ -1,21 +1,24 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Metadata {
     createdAt: string;
     lastLogin: string | null;
     isActive: boolean;
-    roles: string[];
+    roles: Array<string>;
 }
 
 export function metadataDefaultValue(): Metadata {
@@ -42,10 +45,10 @@ export function metadataSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Metadata', __id };
-    result['createdAt'] = value.createdAt;
-    result['lastLogin'] = value.lastLogin;
-    result['isActive'] = value.isActive;
-    result['roles'] = value.roles;
+    result.createdAt = value.createdAt;
+    result.lastLogin = value.lastLogin;
+    result.isActive = value.isActive;
+    result.roles = value.roles;
     return result;
 }
 
@@ -124,21 +127,21 @@ export function metadataDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_createdAt = obj['createdAt'] as string;
+        const __raw_createdAt = obj.createdAt as string;
         instance.createdAt = __raw_createdAt;
     }
     {
-        const __raw_lastLogin = obj['lastLogin'] as string | null;
+        const __raw_lastLogin = obj.lastLogin as string | null;
         instance.lastLogin = __raw_lastLogin;
     }
     {
-        const __raw_isActive = obj['isActive'] as boolean;
+        const __raw_isActive = obj.isActive as boolean;
         instance.isActive = __raw_isActive;
     }
     {
-        const __raw_roles = obj['roles'] as string[];
+        const __raw_roles = obj.roles as Array<string>;
         if (Array.isArray(__raw_roles)) {
-            instance.roles = __raw_roles as string[];
+            instance.roles = __raw_roles as Array<string>;
         }
     }
     if (errors.length > 0) {
@@ -286,10 +289,10 @@ export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaf
             name: 'roles',
             constraints: { required: true },
             get: () => data.roles,
-            set: (value: string[]) => {
+            set: (value: Array<string>) => {
                 data.roles = value;
             },
-            transform: (value: string[]): string[] => value,
+            transform: (value: Array<string>): Array<string> => value,
             getError: () => errors.roles,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.roles = value;

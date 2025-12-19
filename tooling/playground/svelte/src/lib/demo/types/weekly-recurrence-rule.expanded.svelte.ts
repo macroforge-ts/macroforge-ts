@@ -1,22 +1,25 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { weekdaySerializeWithContext } from './weekday.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { weekdaySerializeWithContext } from './weekday.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { Weekday } from './weekday.svelte';
 
 export interface WeeklyRecurrenceRule {
     quantityOfWeeks: number;
-    weekdays: Weekday[];
+    weekdays: Array<Weekday>;
 }
 
 export function weeklyRecurrenceRuleDefaultValue(): WeeklyRecurrenceRule {
@@ -43,8 +46,8 @@ export function weeklyRecurrenceRuleSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'WeeklyRecurrenceRule', __id };
-    result['quantityOfWeeks'] = value.quantityOfWeeks;
-    result['weekdays'] = value.weekdays.map((item) => weekdaySerializeWithContext(item, ctx));
+    result.quantityOfWeeks = value.quantityOfWeeks;
+    result.weekdays = value.weekdays.map((item) => weekdaySerializeWithContext(item, ctx));
     return result;
 }
 
@@ -121,13 +124,13 @@ export function weeklyRecurrenceRuleDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_quantityOfWeeks = obj['quantityOfWeeks'] as number;
+        const __raw_quantityOfWeeks = obj.quantityOfWeeks as number;
         instance.quantityOfWeeks = __raw_quantityOfWeeks;
     }
     {
-        const __raw_weekdays = obj['weekdays'] as Weekday[];
+        const __raw_weekdays = obj.weekdays as Array<Weekday>;
         if (Array.isArray(__raw_weekdays)) {
-            instance.weekdays = __raw_weekdays as Weekday[];
+            instance.weekdays = __raw_weekdays as Array<Weekday>;
         }
     }
     if (errors.length > 0) {
@@ -226,10 +229,10 @@ export function weeklyRecurrenceRuleCreateForm(
             name: 'weekdays',
             constraints: { required: true },
             get: () => data.weekdays,
-            set: (value: Weekday[]) => {
+            set: (value: Array<Weekday>) => {
                 data.weekdays = value;
             },
-            transform: (value: Weekday[]): Weekday[] => value,
+            transform: (value: Array<Weekday>): Array<Weekday> => value,
             getError: () => errors.weekdays,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.weekdays = value;
@@ -313,21 +316,21 @@ export function weeklyRecurrenceRuleFromFormData(
     {
         const quantityOfWeeksStr = formData.get('quantityOfWeeks');
         obj.quantityOfWeeks = quantityOfWeeksStr ? parseFloat(quantityOfWeeksStr as string) : 0;
-        if (obj.quantityOfWeeks !== undefined && isNaN(obj.quantityOfWeeks as number))
+        if (obj.quantityOfWeeks !== undefined && Number.isNaN(obj.quantityOfWeeks as number))
             obj.quantityOfWeeks = 0;
     }
     {
         const weekdaysItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('weekdays.' + idx + '.') || idx === 0) {
+        while (formData.has(`weekdays.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('weekdays.' + idx + '.')
+                k.startsWith(`weekdays.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('weekdays.' + idx + '.')) {
+                    if (key.startsWith(`weekdays.${idx}.`)) {
                         const fieldName = key.slice('weekdays.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }

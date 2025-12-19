@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface ServiceDefaults {
@@ -40,8 +39,8 @@ export function serviceDefaultsSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'ServiceDefaults', __id };
-    result['price'] = value.price;
-    result['description'] = value.description;
+    result.price = value.price;
+    result.description = value.description;
     return result;
 }
 
@@ -117,11 +116,11 @@ export function serviceDefaultsDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_price = obj['price'] as number;
+        const __raw_price = obj.price as number;
         instance.price = __raw_price;
     }
     {
-        const __raw_description = obj['description'] as string;
+        const __raw_description = obj.description as string;
         if (__raw_description.length === 0) {
             errors.push({ field: 'description', message: 'must not be empty' });
         }
@@ -296,7 +295,7 @@ export function serviceDefaultsFromFormData(
     {
         const priceStr = formData.get('price');
         obj.price = priceStr ? parseFloat(priceStr as string) : 0;
-        if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
+        if (obj.price !== undefined && Number.isNaN(obj.price as number)) obj.price = 0;
     }
     obj.description = formData.get('description') ?? '';
     return toExit(serviceDefaultsDeserialize(obj));

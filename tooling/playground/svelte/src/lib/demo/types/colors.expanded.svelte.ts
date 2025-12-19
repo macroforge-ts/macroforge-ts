@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Colors {
@@ -42,9 +41,9 @@ export function colorsSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Colors', __id };
-    result['main'] = value.main;
-    result['hover'] = value.hover;
-    result['active'] = value.active;
+    result.main = value.main;
+    result.hover = value.hover;
+    result.active = value.active;
     return result;
 }
 
@@ -120,21 +119,21 @@ export function colorsDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_main = obj['main'] as string;
+        const __raw_main = obj.main as string;
         if (__raw_main.length === 0) {
             errors.push({ field: 'main', message: 'must not be empty' });
         }
         instance.main = __raw_main;
     }
     {
-        const __raw_hover = obj['hover'] as string;
+        const __raw_hover = obj.hover as string;
         if (__raw_hover.length === 0) {
             errors.push({ field: 'hover', message: 'must not be empty' });
         }
         instance.hover = __raw_hover;
     }
     {
-        const __raw_active = obj['active'] as string;
+        const __raw_active = obj.active as string;
         if (__raw_active.length === 0) {
             errors.push({ field: 'active', message: 'must not be empty' });
         }

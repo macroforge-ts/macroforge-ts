@@ -1,130 +1,141 @@
 <script lang="ts">
-  import { orderCreateForm, siteDefaultValue, type Order, type Site, type Coordinates, type OrderStage } from "$lib/demo/types";
+import {
+    orderCreateForm,
+    siteDefaultValue,
+    type Order,
+    type Site,
+    type Coordinates,
+    type OrderStage
+} from '$lib/demo/types';
 
-  // Create Order form to test deeply nested paths
-  // Order -> site (Site) -> coordinates (Coordinates) -> lat/lng
-  const orderForm = orderCreateForm({
-    id: "order-001",
+// Create Order form to test deeply nested paths
+// Order -> site (Site) -> coordinates (Coordinates) -> lat/lng
+const orderForm = orderCreateForm({
+    id: 'order-001',
     number: 1001,
-    stage: "Active",
-    opportunity: "New Sale",
-    reference: "REF-001",
-    leadSource: "Web",
-    group: "Sales",
-    subgroup: "Direct",
-    memo: "Test order",
-    actionItem: "Follow up",
+    stage: 'Active',
+    opportunity: 'New Sale',
+    reference: 'REF-001',
+    leadSource: 'Web',
+    group: 'Sales',
+    subgroup: 'Direct',
+    memo: 'Test order',
+    actionItem: 'Follow up',
     dateCreated: new Date().toISOString(),
     due: new Date().toISOString(),
     // Site as embedded object (not string reference)
     site: {
-      id: "site-001",
-      addressLine1: "123 Main Street",
-      addressLine2: null,
-      sublocalityLevel1: null,
-      locality: "Springfield",
-      administrativeAreaLevel3: null,
-      administrativeAreaLevel2: null,
-      administrativeAreaLevel1: "IL",
-      country: "USA",
-      postalCode: "62701",
-      postalCodeSuffix: null,
-      coordinates: {
-        lat: 39.7817,
-        lng: -89.6501,
-      },
-    },
-  });
-
-  // Track validation results
-  let orderResult: { success: boolean; data?: Order; errors?: Array<{ field: string; message: string }> } | null = $state(null);
-
-  // Expose to Playwright
-  if (typeof window !== "undefined") {
-    (window as any).gigaformResults = {
-      order: orderForm,
-    };
-  }
-
-  function submitOrder() {
-    const result = orderForm.validate();
-    if (result.isOk()) {
-      orderResult = { success: true, data: result.unwrap() };
-    } else {
-      orderResult = { success: false, errors: result.unwrapErr() };
-    }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.orderValidation = orderResult;
-    }
-  }
-
-  function resetOrder() {
-    orderForm.reset({
-      id: "order-001",
-      number: 1001,
-      stage: "Active",
-      site: {
-        id: "site-001",
-        addressLine1: "123 Main Street",
+        id: 'site-001',
+        addressLine1: '123 Main Street',
         addressLine2: null,
         sublocalityLevel1: null,
-        locality: "Springfield",
+        locality: 'Springfield',
         administrativeAreaLevel3: null,
         administrativeAreaLevel2: null,
-        administrativeAreaLevel1: "IL",
-        country: "USA",
-        postalCode: "62701",
+        administrativeAreaLevel1: 'IL',
+        country: 'USA',
+        postalCode: '62701',
         postalCodeSuffix: null,
-        coordinates: { lat: 39.7817, lng: -89.6501 },
-      },
+        coordinates: {
+            lat: 39.7817,
+            lng: -89.6501
+        }
+    }
+});
+
+// Track validation results
+let orderResult: {
+    success: boolean;
+    data?: Order;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
+
+// Expose to Playwright
+if (typeof window !== 'undefined') {
+    (window as any).gigaformResults = {
+        order: orderForm
+    };
+}
+
+function submitOrder() {
+    const result = orderForm.validate();
+    if (result.isOk()) {
+        orderResult = { success: true, data: result.unwrap() };
+    } else {
+        orderResult = { success: false, errors: result.unwrapErr() };
+    }
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.orderValidation = orderResult;
+    }
+}
+
+function resetOrder() {
+    orderForm.reset({
+        id: 'order-001',
+        number: 1001,
+        stage: 'Active',
+        site: {
+            id: 'site-001',
+            addressLine1: '123 Main Street',
+            addressLine2: null,
+            sublocalityLevel1: null,
+            locality: 'Springfield',
+            administrativeAreaLevel3: null,
+            administrativeAreaLevel2: null,
+            administrativeAreaLevel1: 'IL',
+            country: 'USA',
+            postalCode: '62701',
+            postalCodeSuffix: null,
+            coordinates: { lat: 39.7817, lng: -89.6501 }
+        }
     });
     orderResult = null;
-  }
+}
 
-  // Helper to get site as object (handling string | Site union)
-  function getSiteAsObject(): Site | null {
+// Helper to get site as object (handling string | Site union)
+function getSiteAsObject(): Site | null {
     const site = orderForm.fields.site.get();
-    if (typeof site === "string") return null;
+    if (typeof site === 'string') return null;
     return site;
-  }
+}
 
-  // Deep update: Order -> site -> coordinates -> lat
-  function updateCoordinatesLat(lat: number) {
+// Deep update: Order -> site -> coordinates -> lat
+function updateCoordinatesLat(lat: number) {
     const currentSite = getSiteAsObject();
     if (!currentSite) return;
     orderForm.fields.site.set({
-      ...currentSite,
-      coordinates: {
-        ...currentSite.coordinates,
-        lat,
-      },
+        ...currentSite,
+        coordinates: {
+            ...currentSite.coordinates,
+            lat
+        }
     });
-  }
+}
 
-  // Deep update: Order -> site -> coordinates -> lng
-  function updateCoordinatesLng(lng: number) {
+// Deep update: Order -> site -> coordinates -> lng
+function updateCoordinatesLng(lng: number) {
     const currentSite = getSiteAsObject();
     if (!currentSite) return;
     orderForm.fields.site.set({
-      ...currentSite,
-      coordinates: {
-        ...currentSite.coordinates,
-        lng,
-      },
+        ...currentSite,
+        coordinates: {
+            ...currentSite.coordinates,
+            lng
+        }
     });
-  }
+}
 
-  // Deep update: Order -> site -> addressLine1
-  function updateSiteAddress(addressLine1: string) {
+// Deep update: Order -> site -> addressLine1
+function updateSiteAddress(addressLine1: string) {
     const currentSite = getSiteAsObject();
     if (!currentSite) return;
     orderForm.fields.site.set({
-      ...currentSite,
-      addressLine1,
+        ...currentSite,
+        addressLine1
     });
-  }
+}
 
-  const stageOptions: OrderStage[] = ["Estimate", "Active", "Invoice"];
+const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
 </script>
 
 <svelte:head>

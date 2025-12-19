@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface YearlyRecurrenceRule {
@@ -38,7 +37,7 @@ export function yearlyRecurrenceRuleSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'YearlyRecurrenceRule', __id };
-    result['quantityOfYears'] = value.quantityOfYears;
+    result.quantityOfYears = value.quantityOfYears;
     return result;
 }
 
@@ -112,7 +111,7 @@ export function yearlyRecurrenceRuleDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_quantityOfYears = obj['quantityOfYears'] as number;
+        const __raw_quantityOfYears = obj.quantityOfYears as number;
         instance.quantityOfYears = __raw_quantityOfYears;
     }
     if (errors.length > 0) {
@@ -239,7 +238,7 @@ export function yearlyRecurrenceRuleFromFormData(
     {
         const quantityOfYearsStr = formData.get('quantityOfYears');
         obj.quantityOfYears = quantityOfYearsStr ? parseFloat(quantityOfYearsStr as string) : 0;
-        if (obj.quantityOfYears !== undefined && isNaN(obj.quantityOfYears as number))
+        if (obj.quantityOfYears !== undefined && Number.isNaN(obj.quantityOfYears as number))
             obj.quantityOfYears = 0;
     }
     return toExit(yearlyRecurrenceRuleDeserialize(obj));

@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { Account } from './account.svelte';
@@ -46,10 +45,10 @@ export function orderedSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Ordered', __id };
-    result['id'] = value.id;
-    result['in'] = value.in;
-    result['out'] = value.out;
-    result['date'] = value.date;
+    result.id = value.id;
+    result.in = value.in;
+    result.out = value.out;
+    result.date = value.date;
     return result;
 }
 
@@ -128,19 +127,19 @@ export function orderedDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_in = obj['in'] as string | Account;
+        const __raw_in = obj.in as string | Account;
         instance.in = __raw_in;
     }
     {
-        const __raw_out = obj['out'] as string | Order;
+        const __raw_out = obj.out as string | Order;
         instance.out = __raw_out;
     }
     {
-        const __raw_date = obj['date'] as string;
+        const __raw_date = obj.date as string;
         instance.date = __raw_date;
     }
     if (errors.length > 0) {

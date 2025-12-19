@@ -1,117 +1,121 @@
 <script lang="ts">
-  import { accountCreateForm, type Account, type PhoneNumber, type Sector } from "$lib/demo/types";
+import { accountCreateForm, type Account, type PhoneNumber, type Sector } from '$lib/demo/types';
 
-  // Create Account form with arrays
-  const accountForm = accountCreateForm({
-    id: "acc-001",
-    accountName: { companyName: "Test Company" },
-    sector: "Commercial",
-    leadSource: "Web",
-    accountType: "Customer",
-    subtype: "Regular",
-    paymentTerms: "Net30",
-    dateAdded: new Date().toISOString(),
-  });
+// Create Account form with arrays
+const accountForm = accountCreateForm({
+    id: 'acc-001',
+    accountName: { companyName: 'Test Company' },
+    sector: 'Commercial',
+    leadSource: 'Web',
+    accountType: 'Customer',
+    subtype: 'Regular',
+    paymentTerms: 'Net30',
+    dateAdded: new Date().toISOString()
+});
 
-  // Track validation results
-  let accountResult: { success: boolean; data?: Account; errors?: Array<{ field: string; message: string }> } | null = $state(null);
+// Track validation results
+let accountResult: {
+    success: boolean;
+    data?: Account;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
 
-  // New phone form fields
-  let newPhoneType = $state("");
-  let newPhoneNumber = $state("");
-  let newPhoneMain = $state(false);
-  let newPhoneCanText = $state(true);
-  let newPhoneCanCall = $state(true);
+// New phone form fields
+let newPhoneType = $state('');
+let newPhoneNumber = $state('');
+let newPhoneMain = $state(false);
+let newPhoneCanText = $state(true);
+let newPhoneCanCall = $state(true);
 
-  // New tag field
-  let newTag = $state("");
+// New tag field
+let newTag = $state('');
 
-  // New custom field
-  let newCustomKey = $state("");
-  let newCustomValue = $state("");
+// New custom field
+let newCustomKey = $state('');
+let newCustomValue = $state('');
 
-  // Expose to Playwright
-  if (typeof window !== "undefined") {
+// Expose to Playwright
+if (typeof window !== 'undefined') {
     (window as any).gigaformResults = {
-      account: accountForm,
+        account: accountForm
     };
-  }
+}
 
-  function submitAccount() {
+function submitAccount() {
     const result = accountForm.validate();
     if (result.isOk()) {
-      accountResult = { success: true, data: result.unwrap() };
+        accountResult = { success: true, data: result.unwrap() };
     } else {
-      accountResult = { success: false, errors: result.unwrapErr() };
+        accountResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.accountValidation = accountResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.accountValidation = accountResult;
     }
-  }
+}
 
-  function resetAccount() {
+function resetAccount() {
     accountForm.reset({
-      id: "acc-001",
-      accountName: { companyName: "Test Company" },
-      sector: "Commercial",
-      leadSource: "Web",
-      accountType: "Customer",
-      subtype: "Regular",
-      paymentTerms: "Net30",
-      dateAdded: new Date().toISOString(),
+        id: 'acc-001',
+        accountName: { companyName: 'Test Company' },
+        sector: 'Commercial',
+        leadSource: 'Web',
+        accountType: 'Customer',
+        subtype: 'Regular',
+        paymentTerms: 'Net30',
+        dateAdded: new Date().toISOString()
     });
     accountResult = null;
-  }
+}
 
-  function addPhone() {
+function addPhone() {
     if (!newPhoneType || !newPhoneNumber) return;
     accountForm.fields.phones.push({
-      phoneType: newPhoneType,
-      number: newPhoneNumber,
-      main: newPhoneMain,
-      canText: newPhoneCanText,
-      canCall: newPhoneCanCall,
+        phoneType: newPhoneType,
+        number: newPhoneNumber,
+        main: newPhoneMain,
+        canText: newPhoneCanText,
+        canCall: newPhoneCanCall
     });
     // Reset form
-    newPhoneType = "";
-    newPhoneNumber = "";
+    newPhoneType = '';
+    newPhoneNumber = '';
     newPhoneMain = false;
     newPhoneCanText = true;
     newPhoneCanCall = true;
-  }
+}
 
-  function removePhone(index: number) {
+function removePhone(index: number) {
     accountForm.fields.phones.remove(index);
-  }
+}
 
-  function swapPhones(a: number, b: number) {
+function swapPhones(a: number, b: number) {
     accountForm.fields.phones.swap(a, b);
-  }
+}
 
-  function addTag() {
+function addTag() {
     if (!newTag) return;
     const currentTags = accountForm.fields.tags.get();
     accountForm.fields.tags.set([...currentTags, newTag]);
-    newTag = "";
-  }
+    newTag = '';
+}
 
-  function removeTag(index: number) {
+function removeTag(index: number) {
     const currentTags = accountForm.fields.tags.get();
     accountForm.fields.tags.set(currentTags.filter((_, i) => i !== index));
-  }
+}
 
-  function addCustomField() {
+function addCustomField() {
     if (!newCustomKey || !newCustomValue) return;
     const currentFields = accountForm.fields.customFields.get();
     accountForm.fields.customFields.set([...currentFields, [newCustomKey, newCustomValue]]);
-    newCustomKey = "";
-    newCustomValue = "";
-  }
+    newCustomKey = '';
+    newCustomValue = '';
+}
 
-  function removeCustomField(index: number) {
+function removeCustomField(index: number) {
     const currentFields = accountForm.fields.customFields.get();
     accountForm.fields.customFields.set(currentFields.filter((_, i) => i !== index));
-  }
+}
 </script>
 
 <svelte:head>

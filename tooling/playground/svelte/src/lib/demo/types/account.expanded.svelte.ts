@@ -1,44 +1,46 @@
-import { accountNameDefaultValue } from './account-name.svelte';
-import { colorsDefaultValue } from './colors.svelte';
-import { emailDefaultValue } from './email.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { accountNameSerializeWithContext } from './account-name.svelte';
-import { colorsSerializeWithContext } from './colors.svelte';
-import { didSerializeWithContext } from './did.svelte';
-import { emailSerializeWithContext } from './email.svelte';
-import { orderedSerializeWithContext } from './ordered.svelte';
-import { phoneNumberSerializeWithContext } from './phone-number.svelte';
-import { sectorSerializeWithContext } from './sector.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { accountNameDeserializeWithContext } from './account-name.svelte';
-import { colorsDeserializeWithContext } from './colors.svelte';
-import { emailDeserializeWithContext } from './email.svelte';
-import { sectorDeserializeWithContext } from './sector.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
-import type { Did } from './did.svelte';
-import type { PersonName } from './person-name.svelte';
-import type { Site } from './site.svelte';
-import type { PhoneNumber } from './phone-number.svelte';
-import type { Represents } from './represents.svelte';
-import type { Payment } from './payment.svelte';
-import type { CompanyName } from './company-name.svelte';
-import type { Custom } from './custom.svelte';
-import type { Colors } from './colors.svelte';
-import type { TaxRate } from './tax-rate.svelte';
-import type { Lead } from './lead.svelte';
-import type { Company } from './company.svelte';
-import type { Ordered } from './ordered.svelte';
-import type { Email } from './email.svelte';
-import type { Sector } from './sector.svelte';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 import type { AccountName } from './account-name.svelte';
+import {
+    accountNameDefaultValue,
+    accountNameDeserializeWithContext,
+    accountNameSerializeWithContext
+} from './account-name.svelte';
+import type { Colors } from './colors.svelte';
+import {
+    colorsDefaultValue,
+    colorsDeserializeWithContext,
+    colorsSerializeWithContext
+} from './colors.svelte';
+import type { Did } from './did.svelte';
+import { didSerializeWithContext } from './did.svelte';
+import type { Email } from './email.svelte';
+import {
+    emailDefaultValue,
+    emailDeserializeWithContext,
+    emailSerializeWithContext
+} from './email.svelte';
+import type { Ordered } from './ordered.svelte';
+import { orderedSerializeWithContext } from './ordered.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import { phoneNumberSerializeWithContext } from './phone-number.svelte';
+import type { Represents } from './represents.svelte';
+import type { Sector } from './sector.svelte';
+import { sectorDeserializeWithContext, sectorSerializeWithContext } from './sector.svelte';
+import type { Site } from './site.svelte';
+import type { TaxRate } from './tax-rate.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Account {
@@ -48,13 +50,13 @@ export interface Account {
 
     site: string | Site;
 
-    salesRep: Represents[] | null;
+    salesRep: Array<Represents> | null;
 
-    orders: Ordered[];
+    orders: Array<Ordered>;
 
-    activity: Did[];
+    activity: Array<Did>;
 
-    customFields: [string, string][];
+    customFields: Array<[string, string]>;
 
     accountName: AccountName;
 
@@ -62,7 +64,7 @@ export interface Account {
 
     memo: string | null;
 
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
 
     email: Email;
 
@@ -82,7 +84,7 @@ export interface Account {
 
     paymentTerms: string;
 
-    tags: string[];
+    tags: Array<string>;
 
     dateAdded: string;
 }
@@ -134,32 +136,32 @@ export function accountSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Account', __id };
-    result['id'] = value.id;
-    result['taxRate'] = value.taxRate;
-    result['site'] = value.site;
+    result.id = value.id;
+    result.taxRate = value.taxRate;
+    result.site = value.site;
     if (value.salesRep !== null) {
-        result['salesRep'] = value.salesRep;
+        result.salesRep = value.salesRep;
     } else {
-        result['salesRep'] = null;
+        result.salesRep = null;
     }
-    result['orders'] = value.orders.map((item) => orderedSerializeWithContext(item, ctx));
-    result['activity'] = value.activity.map((item) => didSerializeWithContext(item, ctx));
-    result['customFields'] = value.customFields;
-    result['accountName'] = accountNameSerializeWithContext(value.accountName, ctx);
-    result['sector'] = sectorSerializeWithContext(value.sector, ctx);
-    result['memo'] = value.memo;
-    result['phones'] = value.phones.map((item) => phoneNumberSerializeWithContext(item, ctx));
-    result['email'] = emailSerializeWithContext(value.email, ctx);
-    result['leadSource'] = value.leadSource;
-    result['colors'] = colorsSerializeWithContext(value.colors, ctx);
-    result['needsReview'] = value.needsReview;
-    result['hasAlert'] = value.hasAlert;
-    result['accountType'] = value.accountType;
-    result['subtype'] = value.subtype;
-    result['isTaxExempt'] = value.isTaxExempt;
-    result['paymentTerms'] = value.paymentTerms;
-    result['tags'] = value.tags;
-    result['dateAdded'] = value.dateAdded;
+    result.orders = value.orders.map((item) => orderedSerializeWithContext(item, ctx));
+    result.activity = value.activity.map((item) => didSerializeWithContext(item, ctx));
+    result.customFields = value.customFields;
+    result.accountName = accountNameSerializeWithContext(value.accountName, ctx);
+    result.sector = sectorSerializeWithContext(value.sector, ctx);
+    result.memo = value.memo;
+    result.phones = value.phones.map((item) => phoneNumberSerializeWithContext(item, ctx));
+    result.email = emailSerializeWithContext(value.email, ctx);
+    result.leadSource = value.leadSource;
+    result.colors = colorsSerializeWithContext(value.colors, ctx);
+    result.needsReview = value.needsReview;
+    result.hasAlert = value.hasAlert;
+    result.accountType = value.accountType;
+    result.subtype = value.subtype;
+    result.isTaxExempt = value.isTaxExempt;
+    result.paymentTerms = value.paymentTerms;
+    result.tags = value.tags;
+    result.dateAdded = value.dateAdded;
     return result;
 }
 
@@ -292,19 +294,19 @@ export function accountDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_taxRate = obj['taxRate'] as string | TaxRate;
+        const __raw_taxRate = obj.taxRate as string | TaxRate;
         instance.taxRate = __raw_taxRate;
     }
     {
-        const __raw_site = obj['site'] as string | Site;
+        const __raw_site = obj.site as string | Site;
         instance.site = __raw_site;
     }
     {
-        const __raw_salesRep = obj['salesRep'] as Represents[] | null;
+        const __raw_salesRep = obj.salesRep as Array<Represents> | null;
         if (__raw_salesRep === null) {
             instance.salesRep = null;
         } else {
@@ -312,109 +314,109 @@ export function accountDeserializeWithContext(
         }
     }
     {
-        const __raw_orders = obj['orders'] as Ordered[];
+        const __raw_orders = obj.orders as Array<Ordered>;
         if (Array.isArray(__raw_orders)) {
-            instance.orders = __raw_orders as Ordered[];
+            instance.orders = __raw_orders as Array<Ordered>;
         }
     }
     {
-        const __raw_activity = obj['activity'] as Did[];
+        const __raw_activity = obj.activity as Array<Did>;
         if (Array.isArray(__raw_activity)) {
-            instance.activity = __raw_activity as Did[];
+            instance.activity = __raw_activity as Array<Did>;
         }
     }
     {
-        const __raw_customFields = obj['customFields'] as [string, string][];
+        const __raw_customFields = obj.customFields as Array<[string, string]>;
         if (Array.isArray(__raw_customFields)) {
-            instance.customFields = __raw_customFields as [string, string][];
+            instance.customFields = __raw_customFields as Array<[string, string]>;
         }
     }
     {
-        const __raw_accountName = obj['accountName'] as AccountName;
+        const __raw_accountName = obj.accountName as AccountName;
         {
             const __result = accountNameDeserializeWithContext(__raw_accountName, ctx);
             ctx.assignOrDefer(instance, 'accountName', __result);
         }
     }
     {
-        const __raw_sector = obj['sector'] as Sector;
+        const __raw_sector = obj.sector as Sector;
         {
             const __result = sectorDeserializeWithContext(__raw_sector, ctx);
             ctx.assignOrDefer(instance, 'sector', __result);
         }
     }
     {
-        const __raw_memo = obj['memo'] as string | null;
+        const __raw_memo = obj.memo as string | null;
         instance.memo = __raw_memo;
     }
     {
-        const __raw_phones = obj['phones'] as PhoneNumber[];
+        const __raw_phones = obj.phones as Array<PhoneNumber>;
         if (Array.isArray(__raw_phones)) {
-            instance.phones = __raw_phones as PhoneNumber[];
+            instance.phones = __raw_phones as Array<PhoneNumber>;
         }
     }
     {
-        const __raw_email = obj['email'] as Email;
+        const __raw_email = obj.email as Email;
         {
             const __result = emailDeserializeWithContext(__raw_email, ctx);
             ctx.assignOrDefer(instance, 'email', __result);
         }
     }
     {
-        const __raw_leadSource = obj['leadSource'] as string;
+        const __raw_leadSource = obj.leadSource as string;
         if (__raw_leadSource.length === 0) {
             errors.push({ field: 'leadSource', message: 'must not be empty' });
         }
         instance.leadSource = __raw_leadSource;
     }
     {
-        const __raw_colors = obj['colors'] as Colors;
+        const __raw_colors = obj.colors as Colors;
         {
             const __result = colorsDeserializeWithContext(__raw_colors, ctx);
             ctx.assignOrDefer(instance, 'colors', __result);
         }
     }
     {
-        const __raw_needsReview = obj['needsReview'] as boolean;
+        const __raw_needsReview = obj.needsReview as boolean;
         instance.needsReview = __raw_needsReview;
     }
     {
-        const __raw_hasAlert = obj['hasAlert'] as boolean;
+        const __raw_hasAlert = obj.hasAlert as boolean;
         instance.hasAlert = __raw_hasAlert;
     }
     {
-        const __raw_accountType = obj['accountType'] as string;
+        const __raw_accountType = obj.accountType as string;
         if (__raw_accountType.length === 0) {
             errors.push({ field: 'accountType', message: 'must not be empty' });
         }
         instance.accountType = __raw_accountType;
     }
     {
-        const __raw_subtype = obj['subtype'] as string;
+        const __raw_subtype = obj.subtype as string;
         if (__raw_subtype.length === 0) {
             errors.push({ field: 'subtype', message: 'must not be empty' });
         }
         instance.subtype = __raw_subtype;
     }
     {
-        const __raw_isTaxExempt = obj['isTaxExempt'] as boolean;
+        const __raw_isTaxExempt = obj.isTaxExempt as boolean;
         instance.isTaxExempt = __raw_isTaxExempt;
     }
     {
-        const __raw_paymentTerms = obj['paymentTerms'] as string;
+        const __raw_paymentTerms = obj.paymentTerms as string;
         if (__raw_paymentTerms.length === 0) {
             errors.push({ field: 'paymentTerms', message: 'must not be empty' });
         }
         instance.paymentTerms = __raw_paymentTerms;
     }
     {
-        const __raw_tags = obj['tags'] as string[];
+        const __raw_tags = obj.tags as Array<string>;
         if (Array.isArray(__raw_tags)) {
-            instance.tags = __raw_tags as string[];
+            instance.tags = __raw_tags as Array<string>;
         }
     }
     {
-        const __raw_dateAdded = obj['dateAdded'] as string;
+        const __raw_dateAdded = obj.dateAdded as string;
         instance.dateAdded = __raw_dateAdded;
     }
     if (errors.length > 0) {
@@ -580,7 +582,7 @@ export interface AccountFieldControllers {
     readonly id: FieldController<string>;
     readonly taxRate: FieldController<string | TaxRate>;
     readonly site: FieldController<string | Site>;
-    readonly salesRep: FieldController<Represents[] | null>;
+    readonly salesRep: FieldController<Array<Represents> | null>;
     readonly orders: ArrayFieldController<Ordered>;
     readonly activity: ArrayFieldController<Did>;
     readonly customFields: ArrayFieldController<[string, string]>;
@@ -734,10 +736,10 @@ export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform
             constraints: { required: true },
             label: 'Sales Rep',
             get: () => data.salesRep,
-            set: (value: Represents[] | null) => {
+            set: (value: Array<Represents> | null) => {
                 data.salesRep = value;
             },
-            transform: (value: Represents[] | null): Represents[] | null => value,
+            transform: (value: Array<Represents> | null): Array<Represents> | null => value,
             getError: () => errors.salesRep,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.salesRep = value;
@@ -756,10 +758,10 @@ export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform
             name: 'orders',
             constraints: { required: true },
             get: () => data.orders,
-            set: (value: Ordered[]) => {
+            set: (value: Array<Ordered>) => {
                 data.orders = value;
             },
-            transform: (value: Ordered[]): Ordered[] => value,
+            transform: (value: Array<Ordered>): Array<Ordered> => value,
             getError: () => errors.orders,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.orders = value;
@@ -808,10 +810,10 @@ export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform
             name: 'activity',
             constraints: { required: true },
             get: () => data.activity,
-            set: (value: Did[]) => {
+            set: (value: Array<Did>) => {
                 data.activity = value;
             },
-            transform: (value: Did[]): Did[] => value,
+            transform: (value: Array<Did>): Array<Did> => value,
             getError: () => errors.activity,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.activity = value;
@@ -860,10 +862,10 @@ export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform
             name: 'customFields',
             constraints: { required: true },
             get: () => data.customFields,
-            set: (value: [string, string][]) => {
+            set: (value: Array<[string, string]>) => {
                 data.customFields = value;
             },
-            transform: (value: [string, string][]): [string, string][] => value,
+            transform: (value: Array<[string, string]>): Array<[string, string]> => value,
             getError: () => errors.customFields,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.customFields = value;
@@ -980,10 +982,10 @@ export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform
             name: 'phones',
             constraints: { required: true },
             get: () => data.phones,
-            set: (value: PhoneNumber[]) => {
+            set: (value: Array<PhoneNumber>) => {
                 data.phones = value;
             },
-            transform: (value: PhoneNumber[]): PhoneNumber[] => value,
+            transform: (value: Array<PhoneNumber>): Array<PhoneNumber> => value,
             getError: () => errors.phones,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.phones = value;
@@ -1239,10 +1241,10 @@ export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform
             constraints: { required: true },
             label: 'Tags',
             get: () => data.tags,
-            set: (value: string[]) => {
+            set: (value: Array<string>) => {
                 data.tags = value;
             },
-            transform: (value: string[]): string[] => value,
+            transform: (value: Array<string>): Array<string> => value,
             getError: () => errors.tags,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.tags = value;
@@ -1399,15 +1401,13 @@ export function accountFromFormData(
     {
         const ordersItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('orders.' + idx + '.') || idx === 0) {
-            const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('orders.' + idx + '.')
-            );
+        while (formData.has(`orders.${idx}.`) || idx === 0) {
+            const hasAny = Array.from(formData.keys()).some((k) => k.startsWith(`orders.${idx}.`));
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('orders.' + idx + '.')) {
+                    if (key.startsWith(`orders.${idx}.`)) {
                         const fieldName = key.slice('orders.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }
@@ -1422,15 +1422,15 @@ export function accountFromFormData(
     {
         const activityItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('activity.' + idx + '.') || idx === 0) {
+        while (formData.has(`activity.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('activity.' + idx + '.')
+                k.startsWith(`activity.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('activity.' + idx + '.')) {
+                    if (key.startsWith(`activity.${idx}.`)) {
                         const fieldName = key.slice('activity.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }
@@ -1445,15 +1445,15 @@ export function accountFromFormData(
     {
         const customFieldsItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('customFields.' + idx + '.') || idx === 0) {
+        while (formData.has(`customFields.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('customFields.' + idx + '.')
+                k.startsWith(`customFields.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('customFields.' + idx + '.')) {
+                    if (key.startsWith(`customFields.${idx}.`)) {
                         const fieldName = key.slice(
                             'customFields.'.length + String(idx).length + 1
                         );
@@ -1509,15 +1509,13 @@ export function accountFromFormData(
     {
         const phonesItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('phones.' + idx + '.') || idx === 0) {
-            const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('phones.' + idx + '.')
-            );
+        while (formData.has(`phones.${idx}.`) || idx === 0) {
+            const hasAny = Array.from(formData.keys()).some((k) => k.startsWith(`phones.${idx}.`));
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('phones.' + idx + '.')) {
+                    if (key.startsWith(`phones.${idx}.`)) {
                         const fieldName = key.slice('phones.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }

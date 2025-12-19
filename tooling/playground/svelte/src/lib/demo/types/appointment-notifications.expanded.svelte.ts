@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface AppointmentNotifications {
@@ -43,8 +42,8 @@ export function appointmentNotificationsSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'AppointmentNotifications', __id };
-    result['personalScheduleChangeNotifications'] = value.personalScheduleChangeNotifications;
-    result['allScheduleChangeNotifications'] = value.allScheduleChangeNotifications;
+    result.personalScheduleChangeNotifications = value.personalScheduleChangeNotifications;
+    result.allScheduleChangeNotifications = value.allScheduleChangeNotifications;
     return result;
 }
 
@@ -124,9 +123,8 @@ export function appointmentNotificationsDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_personalScheduleChangeNotifications = obj[
-            'personalScheduleChangeNotifications'
-        ] as string;
+        const __raw_personalScheduleChangeNotifications =
+            obj.personalScheduleChangeNotifications as string;
         if (__raw_personalScheduleChangeNotifications.length === 0) {
             errors.push({
                 field: 'personalScheduleChangeNotifications',
@@ -136,9 +134,7 @@ export function appointmentNotificationsDeserializeWithContext(
         instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
     }
     {
-        const __raw_allScheduleChangeNotifications = obj[
-            'allScheduleChangeNotifications'
-        ] as string;
+        const __raw_allScheduleChangeNotifications = obj.allScheduleChangeNotifications as string;
         if (__raw_allScheduleChangeNotifications.length === 0) {
             errors.push({ field: 'allScheduleChangeNotifications', message: 'must not be empty' });
         }

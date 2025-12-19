@@ -1,6 +1,7 @@
 // --- Utilities ---
-import type * as EffectOption from 'effect/Option';
+
 import type { Duration } from 'effect/Duration';
+import type * as EffectOption from 'effect/Option';
 import type { DurationEncoded } from 'effect/Schema';
 
 type Key = string | number;

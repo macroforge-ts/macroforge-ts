@@ -1,48 +1,48 @@
-import { accountNameDefaultValue } from './account-name.svelte';
-import { emailDefaultValue } from './email.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { accountNameSerializeWithContext } from './account-name.svelte';
-import { emailSerializeWithContext } from './email.svelte';
-import { leadStageSerializeWithContext } from './lead-stage.svelte';
-import { nextStepSerializeWithContext } from './next-step.svelte';
-import { phoneNumberSerializeWithContext } from './phone-number.svelte';
-import { prioritySerializeWithContext } from './priority.svelte';
-import { sectorSerializeWithContext } from './sector.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { accountNameDeserializeWithContext } from './account-name.svelte';
-import { emailDeserializeWithContext } from './email.svelte';
-import { leadStageDeserializeWithContext } from './lead-stage.svelte';
-import { nextStepDeserializeWithContext } from './next-step.svelte';
-import { priorityDeserializeWithContext } from './priority.svelte';
-import { sectorDeserializeWithContext } from './sector.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import type { AccountName } from './account-name.svelte';
+import {
+    accountNameDefaultValue,
+    accountNameDeserializeWithContext,
+    accountNameSerializeWithContext
+} from './account-name.svelte';
+import type { Email } from './email.svelte';
+import {
+    emailDefaultValue,
+    emailDeserializeWithContext,
+    emailSerializeWithContext
+} from './email.svelte';
+import type { LeadStage } from './lead-stage.svelte';
+import {
+    leadStageDeserializeWithContext,
+    leadStageSerializeWithContext
+} from './lead-stage.svelte';
+import type { NextStep } from './next-step.svelte';
+import { nextStepDeserializeWithContext, nextStepSerializeWithContext } from './next-step.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import { phoneNumberSerializeWithContext } from './phone-number.svelte';
+import type { Priority } from './priority.svelte';
+import { priorityDeserializeWithContext, prioritySerializeWithContext } from './priority.svelte';
+import type { Represents } from './represents.svelte';
+import type { Sector } from './sector.svelte';
+import { sectorDeserializeWithContext, sectorSerializeWithContext } from './sector.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { PersonName } from './person-name.svelte';
 import type { Site } from './site.svelte';
-import type { PhoneNumber } from './phone-number.svelte';
-import type { Represents } from './represents.svelte';
-import type { Payment } from './payment.svelte';
-import type { CompanyName } from './company-name.svelte';
-import type { Account } from './account.svelte';
-import type { Custom } from './custom.svelte';
 import type { TaxRate } from './tax-rate.svelte';
-import type { Company } from './company.svelte';
-import type { Email } from './email.svelte';
-import type { Sector } from './sector.svelte';
-import type { Status } from './status.svelte';
-import type { NextStep } from './next-step.svelte';
-import type { LeadStage } from './lead-stage.svelte';
-import type { AccountName } from './account-name.svelte';
-import type { Priority } from './priority.svelte';
 
 export interface Lead {
     id: string;
@@ -79,7 +79,7 @@ export interface Lead {
 
     leadName: AccountName;
 
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
 
     email: Email;
 
@@ -93,7 +93,7 @@ export interface Lead {
 
     hasAlert: boolean;
 
-    salesRep: Represents[] | null;
+    salesRep: Array<Represents> | null;
 
     color: string | null;
 
@@ -105,9 +105,9 @@ export interface Lead {
 
     paymentTerms: string;
 
-    tags: string[];
+    tags: Array<string>;
 
-    customFields: [string, string][];
+    customFields: Array<[string, string]>;
 }
 
 export function leadDefaultValue(): Lead {
@@ -167,46 +167,46 @@ export function leadSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Lead', __id };
-    result['id'] = value.id;
-    result['number'] = value.number;
-    result['accepted'] = value.accepted;
-    result['probability'] = value.probability;
-    result['priority'] = prioritySerializeWithContext(value.priority, ctx);
-    result['dueDate'] = value.dueDate;
-    result['closeDate'] = value.closeDate;
-    result['value'] = value.value;
-    result['stage'] = leadStageSerializeWithContext(value.stage, ctx);
-    result['status'] = value.status;
-    result['description'] = value.description;
-    result['nextStep'] = nextStepSerializeWithContext(value.nextStep, ctx);
-    result['favorite'] = value.favorite;
-    result['dateAdded'] = value.dateAdded;
+    result.id = value.id;
+    result.number = value.number;
+    result.accepted = value.accepted;
+    result.probability = value.probability;
+    result.priority = prioritySerializeWithContext(value.priority, ctx);
+    result.dueDate = value.dueDate;
+    result.closeDate = value.closeDate;
+    result.value = value.value;
+    result.stage = leadStageSerializeWithContext(value.stage, ctx);
+    result.status = value.status;
+    result.description = value.description;
+    result.nextStep = nextStepSerializeWithContext(value.nextStep, ctx);
+    result.favorite = value.favorite;
+    result.dateAdded = value.dateAdded;
     if (value.taxRate !== null) {
-        result['taxRate'] = value.taxRate;
+        result.taxRate = value.taxRate;
     } else {
-        result['taxRate'] = null;
+        result.taxRate = null;
     }
-    result['sector'] = sectorSerializeWithContext(value.sector, ctx);
-    result['leadName'] = accountNameSerializeWithContext(value.leadName, ctx);
-    result['phones'] = value.phones.map((item) => phoneNumberSerializeWithContext(item, ctx));
-    result['email'] = emailSerializeWithContext(value.email, ctx);
-    result['leadSource'] = value.leadSource;
-    result['site'] = value.site;
-    result['memo'] = value.memo;
-    result['needsReview'] = value.needsReview;
-    result['hasAlert'] = value.hasAlert;
+    result.sector = sectorSerializeWithContext(value.sector, ctx);
+    result.leadName = accountNameSerializeWithContext(value.leadName, ctx);
+    result.phones = value.phones.map((item) => phoneNumberSerializeWithContext(item, ctx));
+    result.email = emailSerializeWithContext(value.email, ctx);
+    result.leadSource = value.leadSource;
+    result.site = value.site;
+    result.memo = value.memo;
+    result.needsReview = value.needsReview;
+    result.hasAlert = value.hasAlert;
     if (value.salesRep !== null) {
-        result['salesRep'] = value.salesRep;
+        result.salesRep = value.salesRep;
     } else {
-        result['salesRep'] = null;
+        result.salesRep = null;
     }
-    result['color'] = value.color;
-    result['accountType'] = value.accountType;
-    result['subtype'] = value.subtype;
-    result['isTaxExempt'] = value.isTaxExempt;
-    result['paymentTerms'] = value.paymentTerms;
-    result['tags'] = value.tags;
-    result['customFields'] = value.customFields;
+    result.color = value.color;
+    result.accountType = value.accountType;
+    result.subtype = value.subtype;
+    result.isTaxExempt = value.isTaxExempt;
+    result.paymentTerms = value.paymentTerms;
+    result.tags = value.tags;
+    result.customFields = value.customFields;
     return result;
 }
 
@@ -369,75 +369,75 @@ export function leadDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_number = obj['number'] as number | null;
+        const __raw_number = obj.number as number | null;
         instance.number = __raw_number;
     }
     {
-        const __raw_accepted = obj['accepted'] as boolean;
+        const __raw_accepted = obj.accepted as boolean;
         instance.accepted = __raw_accepted;
     }
     {
-        const __raw_probability = obj['probability'] as number;
+        const __raw_probability = obj.probability as number;
         instance.probability = __raw_probability;
     }
     {
-        const __raw_priority = obj['priority'] as Priority;
+        const __raw_priority = obj.priority as Priority;
         {
             const __result = priorityDeserializeWithContext(__raw_priority, ctx);
             ctx.assignOrDefer(instance, 'priority', __result);
         }
     }
     {
-        const __raw_dueDate = obj['dueDate'] as string | null;
+        const __raw_dueDate = obj.dueDate as string | null;
         instance.dueDate = __raw_dueDate;
     }
     {
-        const __raw_closeDate = obj['closeDate'] as string | null;
+        const __raw_closeDate = obj.closeDate as string | null;
         instance.closeDate = __raw_closeDate;
     }
     {
-        const __raw_value = obj['value'] as number;
+        const __raw_value = obj.value as number;
         instance.value = __raw_value;
     }
     {
-        const __raw_stage = obj['stage'] as LeadStage;
+        const __raw_stage = obj.stage as LeadStage;
         {
             const __result = leadStageDeserializeWithContext(__raw_stage, ctx);
             ctx.assignOrDefer(instance, 'stage', __result);
         }
     }
     {
-        const __raw_status = obj['status'] as string;
+        const __raw_status = obj.status as string;
         if (__raw_status.length === 0) {
             errors.push({ field: 'status', message: 'must not be empty' });
         }
         instance.status = __raw_status;
     }
     {
-        const __raw_description = obj['description'] as string | null;
+        const __raw_description = obj.description as string | null;
         instance.description = __raw_description;
     }
     {
-        const __raw_nextStep = obj['nextStep'] as NextStep;
+        const __raw_nextStep = obj.nextStep as NextStep;
         {
             const __result = nextStepDeserializeWithContext(__raw_nextStep, ctx);
             ctx.assignOrDefer(instance, 'nextStep', __result);
         }
     }
     {
-        const __raw_favorite = obj['favorite'] as boolean;
+        const __raw_favorite = obj.favorite as boolean;
         instance.favorite = __raw_favorite;
     }
     {
-        const __raw_dateAdded = obj['dateAdded'] as string | null;
+        const __raw_dateAdded = obj.dateAdded as string | null;
         instance.dateAdded = __raw_dateAdded;
     }
     {
-        const __raw_taxRate = obj['taxRate'] as (string | TaxRate) | null;
+        const __raw_taxRate = obj.taxRate as (string | TaxRate) | null;
         if (__raw_taxRate === null) {
             instance.taxRate = null;
         } else {
@@ -445,57 +445,57 @@ export function leadDeserializeWithContext(
         }
     }
     {
-        const __raw_sector = obj['sector'] as Sector;
+        const __raw_sector = obj.sector as Sector;
         {
             const __result = sectorDeserializeWithContext(__raw_sector, ctx);
             ctx.assignOrDefer(instance, 'sector', __result);
         }
     }
     {
-        const __raw_leadName = obj['leadName'] as AccountName;
+        const __raw_leadName = obj.leadName as AccountName;
         {
             const __result = accountNameDeserializeWithContext(__raw_leadName, ctx);
             ctx.assignOrDefer(instance, 'leadName', __result);
         }
     }
     {
-        const __raw_phones = obj['phones'] as PhoneNumber[];
+        const __raw_phones = obj.phones as Array<PhoneNumber>;
         if (Array.isArray(__raw_phones)) {
-            instance.phones = __raw_phones as PhoneNumber[];
+            instance.phones = __raw_phones as Array<PhoneNumber>;
         }
     }
     {
-        const __raw_email = obj['email'] as Email;
+        const __raw_email = obj.email as Email;
         {
             const __result = emailDeserializeWithContext(__raw_email, ctx);
             ctx.assignOrDefer(instance, 'email', __result);
         }
     }
     {
-        const __raw_leadSource = obj['leadSource'] as string | null;
+        const __raw_leadSource = obj.leadSource as string | null;
         instance.leadSource = __raw_leadSource;
     }
     {
-        const __raw_site = obj['site'] as string | Site;
+        const __raw_site = obj.site as string | Site;
         instance.site = __raw_site;
     }
     {
-        const __raw_memo = obj['memo'] as string;
+        const __raw_memo = obj.memo as string;
         if (__raw_memo.length === 0) {
             errors.push({ field: 'memo', message: 'must not be empty' });
         }
         instance.memo = __raw_memo;
     }
     {
-        const __raw_needsReview = obj['needsReview'] as boolean;
+        const __raw_needsReview = obj.needsReview as boolean;
         instance.needsReview = __raw_needsReview;
     }
     {
-        const __raw_hasAlert = obj['hasAlert'] as boolean;
+        const __raw_hasAlert = obj.hasAlert as boolean;
         instance.hasAlert = __raw_hasAlert;
     }
     {
-        const __raw_salesRep = obj['salesRep'] as Represents[] | null;
+        const __raw_salesRep = obj.salesRep as Array<Represents> | null;
         if (__raw_salesRep === null) {
             instance.salesRep = null;
         } else {
@@ -503,44 +503,44 @@ export function leadDeserializeWithContext(
         }
     }
     {
-        const __raw_color = obj['color'] as string | null;
+        const __raw_color = obj.color as string | null;
         instance.color = __raw_color;
     }
     {
-        const __raw_accountType = obj['accountType'] as string;
+        const __raw_accountType = obj.accountType as string;
         if (__raw_accountType.length === 0) {
             errors.push({ field: 'accountType', message: 'must not be empty' });
         }
         instance.accountType = __raw_accountType;
     }
     {
-        const __raw_subtype = obj['subtype'] as string;
+        const __raw_subtype = obj.subtype as string;
         if (__raw_subtype.length === 0) {
             errors.push({ field: 'subtype', message: 'must not be empty' });
         }
         instance.subtype = __raw_subtype;
     }
     {
-        const __raw_isTaxExempt = obj['isTaxExempt'] as boolean;
+        const __raw_isTaxExempt = obj.isTaxExempt as boolean;
         instance.isTaxExempt = __raw_isTaxExempt;
     }
     {
-        const __raw_paymentTerms = obj['paymentTerms'] as string;
+        const __raw_paymentTerms = obj.paymentTerms as string;
         if (__raw_paymentTerms.length === 0) {
             errors.push({ field: 'paymentTerms', message: 'must not be empty' });
         }
         instance.paymentTerms = __raw_paymentTerms;
     }
     {
-        const __raw_tags = obj['tags'] as string[];
+        const __raw_tags = obj.tags as Array<string>;
         if (Array.isArray(__raw_tags)) {
-            instance.tags = __raw_tags as string[];
+            instance.tags = __raw_tags as Array<string>;
         }
     }
     {
-        const __raw_customFields = obj['customFields'] as [string, string][];
+        const __raw_customFields = obj.customFields as Array<[string, string]>;
         if (Array.isArray(__raw_customFields)) {
-            instance.customFields = __raw_customFields as [string, string][];
+            instance.customFields = __raw_customFields as Array<[string, string]>;
         }
     }
     if (errors.length > 0) {
@@ -770,7 +770,7 @@ export interface LeadFieldControllers {
     readonly memo: FieldController<string>;
     readonly needsReview: FieldController<boolean>;
     readonly hasAlert: FieldController<boolean>;
-    readonly salesRep: FieldController<Represents[] | null>;
+    readonly salesRep: FieldController<Array<Represents> | null>;
     readonly color: FieldController<string | null>;
     readonly accountType: FieldController<string>;
     readonly subtype: FieldController<string>;
@@ -1249,10 +1249,10 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             name: 'phones',
             constraints: { required: true },
             get: () => data.phones,
-            set: (value: PhoneNumber[]) => {
+            set: (value: Array<PhoneNumber>) => {
                 data.phones = value;
             },
-            transform: (value: PhoneNumber[]): PhoneNumber[] => value,
+            transform: (value: Array<PhoneNumber>): Array<PhoneNumber> => value,
             getError: () => errors.phones,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.phones = value;
@@ -1440,10 +1440,10 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             constraints: { required: true },
             label: 'Sales Rep',
             get: () => data.salesRep,
-            set: (value: Represents[] | null) => {
+            set: (value: Array<Represents> | null) => {
                 data.salesRep = value;
             },
-            transform: (value: Represents[] | null): Represents[] | null => value,
+            transform: (value: Array<Represents> | null): Array<Represents> | null => value,
             getError: () => errors.salesRep,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.salesRep = value;
@@ -1577,10 +1577,10 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             constraints: { required: true },
             label: 'Tags',
             get: () => data.tags,
-            set: (value: string[]) => {
+            set: (value: Array<string>) => {
                 data.tags = value;
             },
-            transform: (value: string[]): string[] => value,
+            transform: (value: Array<string>): Array<string> => value,
             getError: () => errors.tags,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.tags = value;
@@ -1629,10 +1629,10 @@ export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
             name: 'customFields',
             constraints: { required: true },
             get: () => data.customFields,
-            set: (value: [string, string][]) => {
+            set: (value: Array<[string, string]>) => {
                 data.customFields = value;
             },
-            transform: (value: [string, string][]): [string, string][] => value,
+            transform: (value: Array<[string, string]>): Array<[string, string]> => value,
             getError: () => errors.customFields,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.customFields = value;
@@ -1784,7 +1784,7 @@ export function leadFromFormData(
     {
         const numberStr = formData.get('number');
         obj.number = numberStr ? parseFloat(numberStr as string) : 0;
-        if (obj.number !== undefined && isNaN(obj.number as number)) obj.number = 0;
+        if (obj.number !== undefined && Number.isNaN(obj.number as number)) obj.number = 0;
     }
     {
         const acceptedVal = formData.get('accepted');
@@ -1793,7 +1793,8 @@ export function leadFromFormData(
     {
         const probabilityStr = formData.get('probability');
         obj.probability = probabilityStr ? parseFloat(probabilityStr as string) : 0;
-        if (obj.probability !== undefined && isNaN(obj.probability as number)) obj.probability = 0;
+        if (obj.probability !== undefined && Number.isNaN(obj.probability as number))
+            obj.probability = 0;
     }
     {
         const priorityObj: Record<string, unknown> = {};
@@ -1819,7 +1820,7 @@ export function leadFromFormData(
     {
         const valueStr = formData.get('value');
         obj.value = valueStr ? parseFloat(valueStr as string) : 0;
-        if (obj.value !== undefined && isNaN(obj.value as number)) obj.value = 0;
+        if (obj.value !== undefined && Number.isNaN(obj.value as number)) obj.value = 0;
     }
     {
         const stageObj: Record<string, unknown> = {};
@@ -1908,15 +1909,13 @@ export function leadFromFormData(
     {
         const phonesItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('phones.' + idx + '.') || idx === 0) {
-            const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('phones.' + idx + '.')
-            );
+        while (formData.has(`phones.${idx}.`) || idx === 0) {
+            const hasAny = Array.from(formData.keys()).some((k) => k.startsWith(`phones.${idx}.`));
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('phones.' + idx + '.')) {
+                    if (key.startsWith(`phones.${idx}.`)) {
                         const fieldName = key.slice('phones.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }
@@ -1973,15 +1972,15 @@ export function leadFromFormData(
     {
         const customFieldsItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('customFields.' + idx + '.') || idx === 0) {
+        while (formData.has(`customFields.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('customFields.' + idx + '.')
+                k.startsWith(`customFields.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('customFields.' + idx + '.')) {
+                    if (key.startsWith(`customFields.${idx}.`)) {
                         const fieldName = key.slice(
                             'customFields.'.length + String(idx).length + 1
                         );

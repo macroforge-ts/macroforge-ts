@@ -1,16 +1,17 @@
-import { serviceDefaultsDefaultValue } from './service-defaults.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { serviceDefaultsSerializeWithContext } from './service-defaults.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { serviceDefaultsDeserializeWithContext } from './service-defaults.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    serviceDefaultsDefaultValue,
+    serviceDefaultsDeserializeWithContext,
+    serviceDefaultsSerializeWithContext
+} from './service-defaults.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { ServiceDefaults } from './service-defaults.svelte';
@@ -74,17 +75,17 @@ export function serviceSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Service', __id };
-    result['id'] = value.id;
-    result['name'] = value.name;
-    result['quickCode'] = value.quickCode;
-    result['group'] = value.group;
-    result['subgroup'] = value.subgroup;
-    result['unit'] = value.unit;
-    result['active'] = value.active;
-    result['commission'] = value.commission;
-    result['favorite'] = value.favorite;
-    result['averageTime'] = value.averageTime;
-    result['defaults'] = serviceDefaultsSerializeWithContext(value.defaults, ctx);
+    result.id = value.id;
+    result.name = value.name;
+    result.quickCode = value.quickCode;
+    result.group = value.group;
+    result.subgroup = value.subgroup;
+    result.unit = value.unit;
+    result.active = value.active;
+    result.commission = value.commission;
+    result.favorite = value.favorite;
+    result.averageTime = value.averageTime;
+    result.defaults = serviceDefaultsSerializeWithContext(value.defaults, ctx);
     return result;
 }
 
@@ -184,53 +185,53 @@ export function serviceDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_name = obj['name'] as string;
+        const __raw_name = obj.name as string;
         if (__raw_name.length === 0) {
             errors.push({ field: 'name', message: 'must not be empty' });
         }
         instance.name = __raw_name;
     }
     {
-        const __raw_quickCode = obj['quickCode'] as string;
+        const __raw_quickCode = obj.quickCode as string;
         if (__raw_quickCode.length === 0) {
             errors.push({ field: 'quickCode', message: 'must not be empty' });
         }
         instance.quickCode = __raw_quickCode;
     }
     {
-        const __raw_group = obj['group'] as string | null;
+        const __raw_group = obj.group as string | null;
         instance.group = __raw_group;
     }
     {
-        const __raw_subgroup = obj['subgroup'] as string | null;
+        const __raw_subgroup = obj.subgroup as string | null;
         instance.subgroup = __raw_subgroup;
     }
     {
-        const __raw_unit = obj['unit'] as string | null;
+        const __raw_unit = obj.unit as string | null;
         instance.unit = __raw_unit;
     }
     {
-        const __raw_active = obj['active'] as boolean;
+        const __raw_active = obj.active as boolean;
         instance.active = __raw_active;
     }
     {
-        const __raw_commission = obj['commission'] as boolean;
+        const __raw_commission = obj.commission as boolean;
         instance.commission = __raw_commission;
     }
     {
-        const __raw_favorite = obj['favorite'] as boolean;
+        const __raw_favorite = obj.favorite as boolean;
         instance.favorite = __raw_favorite;
     }
     {
-        const __raw_averageTime = obj['averageTime'] as string | null;
+        const __raw_averageTime = obj.averageTime as string | null;
         instance.averageTime = __raw_averageTime;
     }
     {
-        const __raw_defaults = obj['defaults'] as ServiceDefaults;
+        const __raw_defaults = obj.defaults as ServiceDefaults;
         {
             const __result = serviceDefaultsDeserializeWithContext(__raw_defaults, ctx);
             ctx.assignOrDefer(instance, 'defaults', __result);

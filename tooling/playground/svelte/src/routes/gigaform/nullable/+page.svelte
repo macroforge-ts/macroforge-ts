@@ -1,100 +1,104 @@
 <script lang="ts">
-  import { userCreateForm, metadataDefaultValue, type User, type Metadata } from "$lib/demo/types";
+import { userCreateForm, metadataDefaultValue, type User, type Metadata } from '$lib/demo/types';
 
-  // Create User form to test nullable fields
-  const userForm = userCreateForm({
-    id: "user-001",
-    firstName: "John",
-    lastName: "Doe",
+// Create User form to test nullable fields
+const userForm = userCreateForm({
+    id: 'user-001',
+    firstName: 'John',
+    lastName: 'Doe',
     email: null, // nullable string
     metadata: null, // nullable nested object
     password: null,
     verificationToken: null,
     verificationExpires: null,
     passwordResetToken: null,
-    passwordResetExpires: null,
-  });
+    passwordResetExpires: null
+});
 
-  // Track validation results
-  let userResult: { success: boolean; data?: User; errors?: Array<{ field: string; message: string }> } | null = $state(null);
+// Track validation results
+let userResult: {
+    success: boolean;
+    data?: User;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
 
-  // Track metadata toggle
-  let hasMetadata = $state(false);
+// Track metadata toggle
+let hasMetadata = $state(false);
 
-  // Metadata form fields
-  let metadataCreatedAt = $state(new Date().toISOString());
-  let metadataLastLogin = $state<string | null>(null);
-  let metadataIsActive = $state(true);
-  let metadataRoles = $state<string[]>(["user"]);
+// Metadata form fields
+let metadataCreatedAt = $state(new Date().toISOString());
+let metadataLastLogin = $state<string | null>(null);
+let metadataIsActive = $state(true);
+let metadataRoles = $state<Array<string>>(['user']);
 
-  // Expose to Playwright
-  if (typeof window !== "undefined") {
+// Expose to Playwright
+if (typeof window !== 'undefined') {
     (window as any).gigaformResults = {
-      user: userForm,
+        user: userForm
     };
-  }
+}
 
-  function submitUser() {
+function submitUser() {
     const result = userForm.validate();
     if (result.isOk()) {
-      userResult = { success: true, data: result.unwrap() };
+        userResult = { success: true, data: result.unwrap() };
     } else {
-      userResult = { success: false, errors: result.unwrapErr() };
+        userResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.userValidation = userResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.userValidation = userResult;
     }
-  }
+}
 
-  function resetUser() {
+function resetUser() {
     userForm.reset({
-      id: "user-001",
-      firstName: "John",
-      lastName: "Doe",
-      email: null,
-      metadata: null,
-      password: null,
+        id: 'user-001',
+        firstName: 'John',
+        lastName: 'Doe',
+        email: null,
+        metadata: null,
+        password: null
     });
     userResult = null;
     hasMetadata = false;
-  }
+}
 
-  function toggleMetadata() {
+function toggleMetadata() {
     hasMetadata = !hasMetadata;
     if (hasMetadata) {
-      userForm.fields.metadata.set({
-        createdAt: metadataCreatedAt,
-        lastLogin: metadataLastLogin,
-        isActive: metadataIsActive,
-        roles: metadataRoles,
-      });
+        userForm.fields.metadata.set({
+            createdAt: metadataCreatedAt,
+            lastLogin: metadataLastLogin,
+            isActive: metadataIsActive,
+            roles: metadataRoles
+        });
     } else {
-      userForm.fields.metadata.set(null);
+        userForm.fields.metadata.set(null);
     }
-  }
+}
 
-  function updateMetadata() {
+function updateMetadata() {
     if (hasMetadata) {
-      userForm.fields.metadata.set({
-        createdAt: metadataCreatedAt,
-        lastLogin: metadataLastLogin,
-        isActive: metadataIsActive,
-        roles: metadataRoles,
-      });
+        userForm.fields.metadata.set({
+            createdAt: metadataCreatedAt,
+            lastLogin: metadataLastLogin,
+            isActive: metadataIsActive,
+            roles: metadataRoles
+        });
     }
-  }
+}
 
-  // Sync hasMetadata with form state
-  $effect(() => {
+// Sync hasMetadata with form state
+$effect(() => {
     const currentMetadata = userForm.fields.metadata.get();
     hasMetadata = currentMetadata !== null;
     if (currentMetadata) {
-      metadataCreatedAt = currentMetadata.createdAt;
-      metadataLastLogin = currentMetadata.lastLogin;
-      metadataIsActive = currentMetadata.isActive;
-      metadataRoles = currentMetadata.roles;
+        metadataCreatedAt = currentMetadata.createdAt;
+        metadataLastLogin = currentMetadata.lastLogin;
+        metadataIsActive = currentMetadata.isActive;
+        metadataRoles = currentMetadata.roles;
     }
-  });
+});
 </script>
 
 <svelte:head>

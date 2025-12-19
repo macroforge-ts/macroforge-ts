@@ -1,32 +1,35 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { billedItemSerializeWithContext } from './billed-item.svelte';
-import { orderStageSerializeWithContext } from './order-stage.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { orderStageDeserializeWithContext } from './order-stage.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import { billedItemSerializeWithContext } from './billed-item.svelte';
+import {
+    orderStageDeserializeWithContext,
+    orderStageSerializeWithContext
+} from './order-stage.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { DateTime } from 'effect';
 import type { Option } from 'effect/Option';
+import type { Account } from './account.svelte';
+import type { Appointment } from './appointment.svelte';
+import type { BilledItem } from './billed-item.svelte';
+import type { Employee } from './employee.svelte';
+import type { OrderStage } from './order-stage.svelte';
+import type { Package } from './package.svelte';
+import type { Payment } from './payment.svelte';
 import type { Promotion } from './promotion.svelte';
 import type { Site } from './site.svelte';
-import type { Payment } from './payment.svelte';
-import type { Appointment } from './appointment.svelte';
-import type { Package } from './package.svelte';
-import type { Account } from './account.svelte';
-import type { Lead } from './lead.svelte';
-import type { Employee } from './employee.svelte';
-import type { BilledItem } from './billed-item.svelte';
-import type { OrderStage } from './order-stage.svelte';
-import type { Item } from './item.svelte';
 
 export interface Order {
     id: string;
@@ -37,7 +40,7 @@ export interface Order {
 
     number: number;
 
-    payments: (string | Payment)[];
+    payments: Array<string | Payment>;
 
     opportunity: string;
 
@@ -63,11 +66,11 @@ export interface Order {
 
     appointment: string | Appointment;
 
-    lastTechs: (string | Employee)[];
+    lastTechs: Array<string | Employee>;
 
-    package: (string | Package)[] | null;
+    package: Array<string | Package> | null;
 
-    promotion: (string | Promotion)[] | null;
+    promotion: Array<string | Promotion> | null;
 
     balance: number;
 
@@ -77,7 +80,7 @@ export interface Order {
 
     site: string | Site;
 
-    billedItems: BilledItem[];
+    billedItems: Array<BilledItem>;
 
     memo: Option<string>;
 
@@ -85,7 +88,7 @@ export interface Order {
 
     tip: number;
 
-    commissions: number[];
+    commissions: Array<number>;
 }
 
 export function orderDefaultValue(): Order {
@@ -142,45 +145,43 @@ export function orderSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Order', __id };
-    result['id'] = value.id;
-    result['account'] = value.account;
-    result['stage'] = orderStageSerializeWithContext(value.stage, ctx);
-    result['number'] = value.number;
-    result['payments'] = value.payments;
-    result['opportunity'] = value.opportunity;
-    result['reference'] = value.reference;
-    result['leadSource'] = value.leadSource;
-    result['salesRep'] = value.salesRep;
-    result['group'] = value.group;
-    result['subgroup'] = value.subgroup;
-    result['isPosted'] = value.isPosted;
-    result['needsReview'] = value.needsReview;
-    result['actionItem'] = value.actionItem;
-    result['upsale'] = value.upsale;
-    result['dateCreated'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.dateCreated);
-    result['appointment'] = value.appointment;
-    result['lastTechs'] = value.lastTechs;
+    result.id = value.id;
+    result.account = value.account;
+    result.stage = orderStageSerializeWithContext(value.stage, ctx);
+    result.number = value.number;
+    result.payments = value.payments;
+    result.opportunity = value.opportunity;
+    result.reference = value.reference;
+    result.leadSource = value.leadSource;
+    result.salesRep = value.salesRep;
+    result.group = value.group;
+    result.subgroup = value.subgroup;
+    result.isPosted = value.isPosted;
+    result.needsReview = value.needsReview;
+    result.actionItem = value.actionItem;
+    result.upsale = value.upsale;
+    result.dateCreated = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.dateCreated);
+    result.appointment = value.appointment;
+    result.lastTechs = value.lastTechs;
     if (value.package !== null) {
-        result['package'] = value.package;
+        result.package = value.package;
     } else {
-        result['package'] = null;
+        result.package = null;
     }
     if (value.promotion !== null) {
-        result['promotion'] = value.promotion;
+        result.promotion = value.promotion;
     } else {
-        result['promotion'] = null;
+        result.promotion = null;
     }
-    result['balance'] = value.balance;
-    result['due'] = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.due);
-    result['total'] = value.total;
-    result['site'] = value.site;
-    result['billedItems'] = value.billedItems.map((item) =>
-        billedItemSerializeWithContext(item, ctx)
-    );
-    result['memo'] = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.memo);
-    result['discount'] = value.discount;
-    result['tip'] = value.tip;
-    result['commissions'] = value.commissions;
+    result.balance = value.balance;
+    result.due = ((v: DateTime.DateTime) => DateTime.formatIso(v))(value.due);
+    result.total = value.total;
+    result.site = value.site;
+    result.billedItems = value.billedItems.map((item) => billedItemSerializeWithContext(item, ctx));
+    result.memo = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.memo);
+    result.discount = value.discount;
+    result.tip = value.tip;
+    result.commissions = value.commissions;
     return result;
 }
 
@@ -334,103 +335,103 @@ export function orderDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_account = obj['account'] as string | Account;
+        const __raw_account = obj.account as string | Account;
         instance.account = __raw_account;
     }
     {
-        const __raw_stage = obj['stage'] as OrderStage;
+        const __raw_stage = obj.stage as OrderStage;
         {
             const __result = orderStageDeserializeWithContext(__raw_stage, ctx);
             ctx.assignOrDefer(instance, 'stage', __result);
         }
     }
     {
-        const __raw_number = obj['number'] as number;
+        const __raw_number = obj.number as number;
         instance.number = __raw_number;
     }
     {
-        const __raw_payments = obj['payments'] as (string | Payment)[];
+        const __raw_payments = obj.payments as Array<string | Payment>;
         if (Array.isArray(__raw_payments)) {
-            instance.payments = __raw_payments as (string | Payment)[];
+            instance.payments = __raw_payments as Array<string | Payment>;
         }
     }
     {
-        const __raw_opportunity = obj['opportunity'] as string;
+        const __raw_opportunity = obj.opportunity as string;
         if (__raw_opportunity.length === 0) {
             errors.push({ field: 'opportunity', message: 'must not be empty' });
         }
         instance.opportunity = __raw_opportunity;
     }
     {
-        const __raw_reference = obj['reference'] as string;
+        const __raw_reference = obj.reference as string;
         if (__raw_reference.length === 0) {
             errors.push({ field: 'reference', message: 'must not be empty' });
         }
         instance.reference = __raw_reference;
     }
     {
-        const __raw_leadSource = obj['leadSource'] as string;
+        const __raw_leadSource = obj.leadSource as string;
         if (__raw_leadSource.length === 0) {
             errors.push({ field: 'leadSource', message: 'must not be empty' });
         }
         instance.leadSource = __raw_leadSource;
     }
     {
-        const __raw_salesRep = obj['salesRep'] as string | Employee;
+        const __raw_salesRep = obj.salesRep as string | Employee;
         instance.salesRep = __raw_salesRep;
     }
     {
-        const __raw_group = obj['group'] as string;
+        const __raw_group = obj.group as string;
         if (__raw_group.length === 0) {
             errors.push({ field: 'group', message: 'must not be empty' });
         }
         instance.group = __raw_group;
     }
     {
-        const __raw_subgroup = obj['subgroup'] as string;
+        const __raw_subgroup = obj.subgroup as string;
         if (__raw_subgroup.length === 0) {
             errors.push({ field: 'subgroup', message: 'must not be empty' });
         }
         instance.subgroup = __raw_subgroup;
     }
     {
-        const __raw_isPosted = obj['isPosted'] as boolean;
+        const __raw_isPosted = obj.isPosted as boolean;
         instance.isPosted = __raw_isPosted;
     }
     {
-        const __raw_needsReview = obj['needsReview'] as boolean;
+        const __raw_needsReview = obj.needsReview as boolean;
         instance.needsReview = __raw_needsReview;
     }
     {
-        const __raw_actionItem = obj['actionItem'] as string;
+        const __raw_actionItem = obj.actionItem as string;
         if (__raw_actionItem.length === 0) {
             errors.push({ field: 'actionItem', message: 'must not be empty' });
         }
         instance.actionItem = __raw_actionItem;
     }
     {
-        const __raw_upsale = obj['upsale'] as number;
+        const __raw_upsale = obj.upsale as number;
         instance.upsale = __raw_upsale;
     }
     instance.dateCreated = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(
-        obj['dateCreated']
+        obj.dateCreated
     );
     {
-        const __raw_appointment = obj['appointment'] as string | Appointment;
+        const __raw_appointment = obj.appointment as string | Appointment;
         instance.appointment = __raw_appointment;
     }
     {
-        const __raw_lastTechs = obj['lastTechs'] as (string | Employee)[];
+        const __raw_lastTechs = obj.lastTechs as Array<string | Employee>;
         if (Array.isArray(__raw_lastTechs)) {
-            instance.lastTechs = __raw_lastTechs as (string | Employee)[];
+            instance.lastTechs = __raw_lastTechs as Array<string | Employee>;
         }
     }
     {
-        const __raw_package = obj['package'] as (string | Package)[] | null;
+        const __raw_package = obj.package as Array<string | Package> | null;
         if (__raw_package === null) {
             instance.package = null;
         } else {
@@ -438,7 +439,7 @@ export function orderDeserializeWithContext(
         }
     }
     {
-        const __raw_promotion = obj['promotion'] as (string | Promotion)[] | null;
+        const __raw_promotion = obj.promotion as Array<string | Promotion> | null;
         if (__raw_promotion === null) {
             instance.promotion = null;
         } else {
@@ -446,39 +447,37 @@ export function orderDeserializeWithContext(
         }
     }
     {
-        const __raw_balance = obj['balance'] as number;
+        const __raw_balance = obj.balance as number;
         instance.balance = __raw_balance;
     }
-    instance.due = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(obj['due']);
+    instance.due = ((raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)))(obj.due);
     {
-        const __raw_total = obj['total'] as number;
+        const __raw_total = obj.total as number;
         instance.total = __raw_total;
     }
     {
-        const __raw_site = obj['site'] as string | Site;
+        const __raw_site = obj.site as string | Site;
         instance.site = __raw_site;
     }
     {
-        const __raw_billedItems = obj['billedItems'] as BilledItem[];
+        const __raw_billedItems = obj.billedItems as Array<BilledItem>;
         if (Array.isArray(__raw_billedItems)) {
-            instance.billedItems = __raw_billedItems as BilledItem[];
+            instance.billedItems = __raw_billedItems as Array<BilledItem>;
         }
     }
-    instance.memo = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(
-        obj['memo']
-    );
+    instance.memo = ((raw: unknown) => (raw === null ? Option.none() : Option.some(raw)))(obj.memo);
     {
-        const __raw_discount = obj['discount'] as number;
+        const __raw_discount = obj.discount as number;
         instance.discount = __raw_discount;
     }
     {
-        const __raw_tip = obj['tip'] as number;
+        const __raw_tip = obj.tip as number;
         instance.tip = __raw_tip;
     }
     {
-        const __raw_commissions = obj['commissions'] as number[];
+        const __raw_commissions = obj.commissions as Array<number>;
         if (Array.isArray(__raw_commissions)) {
-            instance.commissions = __raw_commissions as number[];
+            instance.commissions = __raw_commissions as Array<number>;
         }
     }
     if (errors.length > 0) {
@@ -706,8 +705,8 @@ export interface OrderFieldControllers {
     readonly dateCreated: FieldController<DateTime.DateTime>;
     readonly appointment: FieldController<string | Appointment>;
     readonly lastTechs: ArrayFieldController<string | Employee>;
-    readonly package: FieldController<(string | Package)[] | null>;
-    readonly promotion: FieldController<(string | Promotion)[] | null>;
+    readonly package: FieldController<Array<string | Package> | null>;
+    readonly promotion: FieldController<Array<string | Promotion> | null>;
     readonly balance: FieldController<number>;
     readonly due: FieldController<DateTime.DateTime>;
     readonly total: FieldController<number>;
@@ -887,10 +886,10 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             name: 'payments',
             constraints: { required: true },
             get: () => data.payments,
-            set: (value: (string | Payment)[]) => {
+            set: (value: Array<string | Payment>) => {
                 data.payments = value;
             },
-            transform: (value: (string | Payment)[]): (string | Payment)[] => value,
+            transform: (value: Array<string | Payment>): Array<string | Payment> => value,
             getError: () => errors.payments,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.payments = value;
@@ -1214,10 +1213,10 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             constraints: { required: true },
             label: 'Technicians',
             get: () => data.lastTechs,
-            set: (value: (string | Employee)[]) => {
+            set: (value: Array<string | Employee>) => {
                 data.lastTechs = value;
             },
-            transform: (value: (string | Employee)[]): (string | Employee)[] => value,
+            transform: (value: Array<string | Employee>): Array<string | Employee> => value,
             getError: () => errors.lastTechs,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.lastTechs = value;
@@ -1266,10 +1265,11 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             name: 'package',
             constraints: { required: true },
             get: () => data.package,
-            set: (value: (string | Package)[] | null) => {
+            set: (value: Array<string | Package> | null) => {
                 data.package = value;
             },
-            transform: (value: (string | Package)[] | null): (string | Package)[] | null => value,
+            transform: (value: Array<string | Package> | null): Array<string | Package> | null =>
+                value,
             getError: () => errors.package,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.package = value;
@@ -1288,11 +1288,12 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             name: 'promotion',
             constraints: { required: true },
             get: () => data.promotion,
-            set: (value: (string | Promotion)[] | null) => {
+            set: (value: Array<string | Promotion> | null) => {
                 data.promotion = value;
             },
-            transform: (value: (string | Promotion)[] | null): (string | Promotion)[] | null =>
-                value,
+            transform: (
+                value: Array<string | Promotion> | null
+            ): Array<string | Promotion> | null => value,
             getError: () => errors.promotion,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.promotion = value;
@@ -1401,10 +1402,10 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             name: 'billedItems',
             constraints: { required: true },
             get: () => data.billedItems,
-            set: (value: BilledItem[]) => {
+            set: (value: Array<BilledItem>) => {
                 data.billedItems = value;
             },
-            transform: (value: BilledItem[]): BilledItem[] => value,
+            transform: (value: Array<BilledItem>): Array<BilledItem> => value,
             getError: () => errors.billedItems,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.billedItems = value;
@@ -1520,10 +1521,10 @@ export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
             name: 'commissions',
             constraints: { required: true },
             get: () => data.commissions,
-            set: (value: number[]) => {
+            set: (value: Array<number>) => {
                 data.commissions = value;
             },
-            transform: (value: number[]): number[] => value,
+            transform: (value: Array<number>): Array<number> => value,
             getError: () => errors.commissions,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.commissions = value;
@@ -1689,20 +1690,20 @@ export function orderFromFormData(
     {
         const numberStr = formData.get('number');
         obj.number = numberStr ? parseFloat(numberStr as string) : 0;
-        if (obj.number !== undefined && isNaN(obj.number as number)) obj.number = 0;
+        if (obj.number !== undefined && Number.isNaN(obj.number as number)) obj.number = 0;
     }
     {
         const paymentsItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('payments.' + idx + '.') || idx === 0) {
+        while (formData.has(`payments.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('payments.' + idx + '.')
+                k.startsWith(`payments.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('payments.' + idx + '.')) {
+                    if (key.startsWith(`payments.${idx}.`)) {
                         const fieldName = key.slice('payments.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }
@@ -1733,7 +1734,7 @@ export function orderFromFormData(
     {
         const upsaleStr = formData.get('upsale');
         obj.upsale = upsaleStr ? parseFloat(upsaleStr as string) : 0;
-        if (obj.upsale !== undefined && isNaN(obj.upsale as number)) obj.upsale = 0;
+        if (obj.upsale !== undefined && Number.isNaN(obj.upsale as number)) obj.upsale = 0;
     }
     {
         const dateCreatedObj: Record<string, unknown> = {};
@@ -1758,15 +1759,15 @@ export function orderFromFormData(
     {
         const lastTechsItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('lastTechs.' + idx + '.') || idx === 0) {
+        while (formData.has(`lastTechs.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('lastTechs.' + idx + '.')
+                k.startsWith(`lastTechs.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('lastTechs.' + idx + '.')) {
+                    if (key.startsWith(`lastTechs.${idx}.`)) {
                         const fieldName = key.slice('lastTechs.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }
@@ -1783,7 +1784,7 @@ export function orderFromFormData(
     {
         const balanceStr = formData.get('balance');
         obj.balance = balanceStr ? parseFloat(balanceStr as string) : 0;
-        if (obj.balance !== undefined && isNaN(obj.balance as number)) obj.balance = 0;
+        if (obj.balance !== undefined && Number.isNaN(obj.balance as number)) obj.balance = 0;
     }
     {
         const dueObj: Record<string, unknown> = {};
@@ -1807,21 +1808,21 @@ export function orderFromFormData(
     {
         const totalStr = formData.get('total');
         obj.total = totalStr ? parseFloat(totalStr as string) : 0;
-        if (obj.total !== undefined && isNaN(obj.total as number)) obj.total = 0;
+        if (obj.total !== undefined && Number.isNaN(obj.total as number)) obj.total = 0;
     }
     obj.site = formData.get('site') ?? '';
     {
         const billedItemsItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('billedItems.' + idx + '.') || idx === 0) {
+        while (formData.has(`billedItems.${idx}.`) || idx === 0) {
             const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('billedItems.' + idx + '.')
+                k.startsWith(`billedItems.${idx}.`)
             );
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('billedItems.' + idx + '.')) {
+                    if (key.startsWith(`billedItems.${idx}.`)) {
                         const fieldName = key.slice('billedItems.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }
@@ -1855,17 +1856,17 @@ export function orderFromFormData(
     {
         const discountStr = formData.get('discount');
         obj.discount = discountStr ? parseFloat(discountStr as string) : 0;
-        if (obj.discount !== undefined && isNaN(obj.discount as number)) obj.discount = 0;
+        if (obj.discount !== undefined && Number.isNaN(obj.discount as number)) obj.discount = 0;
     }
     {
         const tipStr = formData.get('tip');
         obj.tip = tipStr ? parseFloat(tipStr as string) : 0;
-        if (obj.tip !== undefined && isNaN(obj.tip as number)) obj.tip = 0;
+        if (obj.tip !== undefined && Number.isNaN(obj.tip as number)) obj.tip = 0;
     }
     obj.commissions = formData
         .getAll('commissions')
         .map((v) => parseFloat(v as string))
-        .filter((n) => !isNaN(n));
+        .filter((n) => !Number.isNaN(n));
     return toExit(orderDeserialize(obj));
 }
 

@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Coordinates {
@@ -39,8 +38,8 @@ export function coordinatesSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Coordinates', __id };
-    result['lat'] = value.lat;
-    result['lng'] = value.lng;
+    result.lat = value.lat;
+    result.lng = value.lng;
     return result;
 }
 
@@ -113,11 +112,11 @@ export function coordinatesDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_lat = obj['lat'] as number;
+        const __raw_lat = obj.lat as number;
         instance.lat = __raw_lat;
     }
     {
-        const __raw_lng = obj['lng'] as number;
+        const __raw_lng = obj.lng as number;
         instance.lng = __raw_lng;
     }
     if (errors.length > 0) {
@@ -265,12 +264,12 @@ export function coordinatesFromFormData(
     {
         const latStr = formData.get('lat');
         obj.lat = latStr ? parseFloat(latStr as string) : 0;
-        if (obj.lat !== undefined && isNaN(obj.lat as number)) obj.lat = 0;
+        if (obj.lat !== undefined && Number.isNaN(obj.lat as number)) obj.lat = 0;
     }
     {
         const lngStr = formData.get('lng');
         obj.lng = lngStr ? parseFloat(lngStr as string) : 0;
-        if (obj.lng !== undefined && isNaN(obj.lng as number)) obj.lng = 0;
+        if (obj.lng !== undefined && Number.isNaN(obj.lng as number)) obj.lng = 0;
     }
     return toExit(coordinatesDeserialize(obj));
 }

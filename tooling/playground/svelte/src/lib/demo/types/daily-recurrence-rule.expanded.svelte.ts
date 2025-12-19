@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface DailyRecurrenceRule {
@@ -38,7 +37,7 @@ export function dailyRecurrenceRuleSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'DailyRecurrenceRule', __id };
-    result['quantityOfDays'] = value.quantityOfDays;
+    result.quantityOfDays = value.quantityOfDays;
     return result;
 }
 
@@ -112,7 +111,7 @@ export function dailyRecurrenceRuleDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_quantityOfDays = obj['quantityOfDays'] as number;
+        const __raw_quantityOfDays = obj.quantityOfDays as number;
         instance.quantityOfDays = __raw_quantityOfDays;
     }
     if (errors.length > 0) {
@@ -239,7 +238,7 @@ export function dailyRecurrenceRuleFromFormData(
     {
         const quantityOfDaysStr = formData.get('quantityOfDays');
         obj.quantityOfDays = quantityOfDaysStr ? parseFloat(quantityOfDaysStr as string) : 0;
-        if (obj.quantityOfDays !== undefined && isNaN(obj.quantityOfDays as number))
+        if (obj.quantityOfDays !== undefined && Number.isNaN(obj.quantityOfDays as number))
             obj.quantityOfDays = 0;
     }
     return toExit(dailyRecurrenceRuleDeserialize(obj));

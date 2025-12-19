@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {
+import {
     leadCreateForm,
     type Lead,
     type CompanyName,
@@ -7,117 +7,127 @@
     type AccountName,
     type Priority,
     type LeadStage,
-    type Sector,
-  } from "$lib/demo/types";
+    type Sector
+} from '$lib/demo/types';
 
-  // Create Lead form with union type AccountName
-  const leadForm = leadCreateForm({
-    id: "lead-001",
-    leadName: { companyName: "Acme Corp" }, // Default to CompanyName variant
-    sector: "Commercial",
-    status: "Active",
-    accountType: "Prospect",
-    subtype: "Standard",
-    paymentTerms: "Net30",
-    memo: "Initial contact",
-  });
+// Create Lead form with union type AccountName
+const leadForm = leadCreateForm({
+    id: 'lead-001',
+    leadName: { companyName: 'Acme Corp' }, // Default to CompanyName variant
+    sector: 'Commercial',
+    status: 'Active',
+    accountType: 'Prospect',
+    subtype: 'Standard',
+    paymentTerms: 'Net30',
+    memo: 'Initial contact'
+});
 
-  // Track current variant type
-  let currentVariant: "company" | "person" = $state("company");
+// Track current variant type
+let currentVariant: 'company' | 'person' = $state('company');
 
-  // Track validation results
-  let leadResult: { success: boolean; data?: Lead; errors?: Array<{ field: string; message: string }> } | null = $state(null);
+// Track validation results
+let leadResult: {
+    success: boolean;
+    data?: Lead;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
 
-  // Form fields for company name variant
-  let companyNameValue = $state("Acme Corp");
+// Form fields for company name variant
+let companyNameValue = $state('Acme Corp');
 
-  // Form fields for person name variant
-  let firstNameValue = $state("");
-  let lastNameValue = $state("");
+// Form fields for person name variant
+let firstNameValue = $state('');
+let lastNameValue = $state('');
 
-  // Expose to Playwright
-  if (typeof window !== "undefined") {
+// Expose to Playwright
+if (typeof window !== 'undefined') {
     (window as any).gigaformResults = {
-      lead: leadForm,
+        lead: leadForm
     };
-  }
+}
 
-  function submitLead() {
+function submitLead() {
     const result = leadForm.validate();
     if (result.isOk()) {
-      leadResult = { success: true, data: result.unwrap() };
+        leadResult = { success: true, data: result.unwrap() };
     } else {
-      leadResult = { success: false, errors: result.unwrapErr() };
+        leadResult = { success: false, errors: result.unwrapErr() };
     }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.leadValidation = leadResult;
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.leadValidation = leadResult;
     }
-  }
+}
 
-  function resetLead() {
+function resetLead() {
     leadForm.reset({
-      id: "lead-001",
-      leadName: { companyName: "Acme Corp" },
-      sector: "Commercial",
-      status: "Active",
-      accountType: "Prospect",
-      subtype: "Standard",
-      paymentTerms: "Net30",
-      memo: "Initial contact",
+        id: 'lead-001',
+        leadName: { companyName: 'Acme Corp' },
+        sector: 'Commercial',
+        status: 'Active',
+        accountType: 'Prospect',
+        subtype: 'Standard',
+        paymentTerms: 'Net30',
+        memo: 'Initial contact'
     });
     leadResult = null;
-    currentVariant = "company";
-    companyNameValue = "Acme Corp";
-    firstNameValue = "";
-    lastNameValue = "";
-  }
+    currentVariant = 'company';
+    companyNameValue = 'Acme Corp';
+    firstNameValue = '';
+    lastNameValue = '';
+}
 
-  function switchToCompany() {
-    currentVariant = "company";
-    leadForm.fields.leadName.set({ companyName: companyNameValue || "New Company" });
-  }
+function switchToCompany() {
+    currentVariant = 'company';
+    leadForm.fields.leadName.set({ companyName: companyNameValue || 'New Company' });
+}
 
-  function switchToPerson() {
-    currentVariant = "person";
+function switchToPerson() {
+    currentVariant = 'person';
     leadForm.fields.leadName.set({
-      firstName: firstNameValue || "John",
-      lastName: lastNameValue || "Doe"
+        firstName: firstNameValue || 'John',
+        lastName: lastNameValue || 'Doe'
     });
-  }
+}
 
-  function updateCompanyName(value: string) {
+function updateCompanyName(value: string) {
     companyNameValue = value;
-    if (currentVariant === "company") {
-      leadForm.fields.leadName.set({ companyName: value });
+    if (currentVariant === 'company') {
+        leadForm.fields.leadName.set({ companyName: value });
     }
-  }
+}
 
-  function updatePersonName(first: string, last: string) {
+function updatePersonName(first: string, last: string) {
     firstNameValue = first;
     lastNameValue = last;
-    if (currentVariant === "person") {
-      leadForm.fields.leadName.set({ firstName: first, lastName: last });
+    if (currentVariant === 'person') {
+        leadForm.fields.leadName.set({ firstName: first, lastName: last });
     }
-  }
+}
 
-  // Helper to detect current variant
-  function detectVariant(name: AccountName): "company" | "person" {
-    if ("companyName" in name) return "company";
-    return "person";
-  }
+// Helper to detect current variant
+function detectVariant(name: AccountName): 'company' | 'person' {
+    if ('companyName' in name) return 'company';
+    return 'person';
+}
 
-  // Sync local state with form data
-  $effect(() => {
+// Sync local state with form data
+$effect(() => {
     const currentName = leadForm.fields.leadName.get();
     const detectedVariant = detectVariant(currentName);
     if (detectedVariant !== currentVariant) {
-      currentVariant = detectedVariant;
+        currentVariant = detectedVariant;
     }
-  });
+});
 
-  const priorityOptions: Priority[] = ["High", "Medium", "Low"];
-  const stageOptions: LeadStage[] = ["Open", "InitialContact", "Qualified", "Estimate", "Negotiation"];
-  const sectorOptions: Sector[] = ["Residential", "Commercial"];
+const priorityOptions: Array<Priority> = ['High', 'Medium', 'Low'];
+const stageOptions: Array<LeadStage> = [
+    'Open',
+    'InitialContact',
+    'Qualified',
+    'Estimate',
+    'Negotiation'
+];
+const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
 </script>
 
 <svelte:head>

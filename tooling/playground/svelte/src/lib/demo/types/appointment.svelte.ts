@@ -2,10 +2,10 @@
 
 import type { DateTime } from 'effect';
 import type { Option } from 'effect/Option';
-import type { Site } from './site.svelte';
 import type { Colors } from './colors.svelte';
 import type { Employee } from './employee.svelte';
 import type { RecurrenceRule } from './recurrence-rule.svelte';
+import type { Site } from './site.svelte';
 import type { Status } from './status.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
@@ -31,7 +31,7 @@ export interface Appointment {
     /** @switchController({ label: "Multi Day" }) */
     multiDay: boolean;
     /** @comboboxMultipleController({ label: "Employees", fetchUrls: ["/api/employees"] }) */
-    employees: (string | Employee)[];
+    employees: Array<string | Employee>;
     /** @siteFieldsetController({ label: "Location" }) */
     /** @default("") */
     location: string | Site;

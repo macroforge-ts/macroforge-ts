@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Color {
@@ -40,9 +39,9 @@ export function colorSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Color', __id };
-    result['red'] = value.red;
-    result['green'] = value.green;
-    result['blue'] = value.blue;
+    result.red = value.red;
+    result.green = value.green;
+    result.blue = value.blue;
     return result;
 }
 
@@ -118,15 +117,15 @@ export function colorDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_red = obj['red'] as number;
+        const __raw_red = obj.red as number;
         instance.red = __raw_red;
     }
     {
-        const __raw_green = obj['green'] as number;
+        const __raw_green = obj.green as number;
         instance.green = __raw_green;
     }
     {
-        const __raw_blue = obj['blue'] as number;
+        const __raw_blue = obj.blue as number;
         instance.blue = __raw_blue;
     }
     if (errors.length > 0) {
@@ -309,17 +308,17 @@ export function colorFromFormData(
     {
         const redStr = formData.get('red');
         obj.red = redStr ? parseFloat(redStr as string) : 0;
-        if (obj.red !== undefined && isNaN(obj.red as number)) obj.red = 0;
+        if (obj.red !== undefined && Number.isNaN(obj.red as number)) obj.red = 0;
     }
     {
         const greenStr = formData.get('green');
         obj.green = greenStr ? parseFloat(greenStr as string) : 0;
-        if (obj.green !== undefined && isNaN(obj.green as number)) obj.green = 0;
+        if (obj.green !== undefined && Number.isNaN(obj.green as number)) obj.green = 0;
     }
     {
         const blueStr = formData.get('blue');
         obj.blue = blueStr ? parseFloat(blueStr as string) : 0;
-        if (obj.blue !== undefined && isNaN(obj.blue as number)) obj.blue = 0;
+        if (obj.blue !== undefined && Number.isNaN(obj.blue as number)) obj.blue = 0;
     }
     return toExit(colorDeserialize(obj));
 }

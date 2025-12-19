@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface Address {
@@ -44,10 +43,10 @@ export function addressSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Address', __id };
-    result['street'] = value.street;
-    result['city'] = value.city;
-    result['state'] = value.state;
-    result['zipcode'] = value.zipcode;
+    result.street = value.street;
+    result.city = value.city;
+    result.state = value.state;
+    result.zipcode = value.zipcode;
     return result;
 }
 
@@ -126,28 +125,28 @@ export function addressDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_street = obj['street'] as string;
+        const __raw_street = obj.street as string;
         if (__raw_street.length === 0) {
             errors.push({ field: 'street', message: 'must not be empty' });
         }
         instance.street = __raw_street;
     }
     {
-        const __raw_city = obj['city'] as string;
+        const __raw_city = obj.city as string;
         if (__raw_city.length === 0) {
             errors.push({ field: 'city', message: 'must not be empty' });
         }
         instance.city = __raw_city;
     }
     {
-        const __raw_state = obj['state'] as string;
+        const __raw_state = obj.state as string;
         if (__raw_state.length === 0) {
             errors.push({ field: 'state', message: 'must not be empty' });
         }
         instance.state = __raw_state;
     }
     {
-        const __raw_zipcode = obj['zipcode'] as string;
+        const __raw_zipcode = obj.zipcode as string;
         if (__raw_zipcode.length === 0) {
             errors.push({ field: 'zipcode', message: 'must not be empty' });
         }

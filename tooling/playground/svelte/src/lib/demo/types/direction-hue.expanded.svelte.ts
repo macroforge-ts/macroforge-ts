@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface DirectionHue {
@@ -39,8 +38,8 @@ export function directionHueSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'DirectionHue', __id };
-    result['bearing'] = value.bearing;
-    result['hue'] = value.hue;
+    result.bearing = value.bearing;
+    result.hue = value.hue;
     return result;
 }
 
@@ -113,11 +112,11 @@ export function directionHueDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_bearing = obj['bearing'] as number;
+        const __raw_bearing = obj.bearing as number;
         instance.bearing = __raw_bearing;
     }
     {
-        const __raw_hue = obj['hue'] as number;
+        const __raw_hue = obj.hue as number;
         instance.hue = __raw_hue;
     }
     if (errors.length > 0) {
@@ -265,12 +264,12 @@ export function directionHueFromFormData(
     {
         const bearingStr = formData.get('bearing');
         obj.bearing = bearingStr ? parseFloat(bearingStr as string) : 0;
-        if (obj.bearing !== undefined && isNaN(obj.bearing as number)) obj.bearing = 0;
+        if (obj.bearing !== undefined && Number.isNaN(obj.bearing as number)) obj.bearing = 0;
     }
     {
         const hueStr = formData.get('hue');
         obj.hue = hueStr ? parseFloat(hueStr as string) : 0;
-        if (obj.hue !== undefined && isNaN(obj.hue as number)) obj.hue = 0;
+        if (obj.hue !== undefined && Number.isNaN(obj.hue as number)) obj.hue = 0;
     }
     return toExit(directionHueDeserialize(obj));
 }

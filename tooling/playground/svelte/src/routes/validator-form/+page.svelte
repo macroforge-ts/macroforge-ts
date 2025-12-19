@@ -1,103 +1,106 @@
 <script lang="ts">
-  import {
+import {
     validateUserRegistration,
     validateProduct,
     validateEvent,
-    type ValidationResult,
-  } from "$lib/demo/validator-form";
+    type ValidationResult
+} from '$lib/demo/validator-form';
 
-  // Form data
-  let userForm = $state({
-    email: "",
-    password: "",
-    username: "",
+// Form data
+let userForm = $state({
+    email: '',
+    password: '',
+    username: '',
     age: 0,
-    website: "",
-  });
+    website: ''
+});
 
-  let productForm = $state({
-    name: "",
-    sku: "",
+let productForm = $state({
+    name: '',
+    sku: '',
     price: 0,
     quantity: 0,
-    tags: "",
-  });
+    tags: ''
+});
 
-  let eventForm = $state({
-    title: "",
-    startDate: "",
-    endDate: "",
-    maxAttendees: 0,
-  });
+let eventForm = $state({
+    title: '',
+    startDate: '',
+    endDate: '',
+    maxAttendees: 0
+});
 
-  // Results
-  let userResult: ValidationResult<any> | null = $state(null);
-  let productResult: ValidationResult<any> | null = $state(null);
-  let eventResult: ValidationResult<any> | null = $state(null);
+// Results
+let userResult: ValidationResult<any> | null = $state(null);
+let productResult: ValidationResult<any> | null = $state(null);
+let eventResult: ValidationResult<any> | null = $state(null);
 
-  // Global results for Playwright
-  if (typeof window !== "undefined") {
+// Global results for Playwright
+if (typeof window !== 'undefined') {
     (window as any).validatorFormResults = {};
-  }
+}
 
-  function submitUserRegistration() {
-    console.log("submitUserRegistration called");
+function submitUserRegistration() {
+    console.log('submitUserRegistration called');
     try {
-      const data = {
-        email: userForm.email,
-        password: userForm.password,
-        username: userForm.username,
-        age: userForm.age,
-        website: userForm.website,
-      };
-      console.log("Validating:", data);
-      const result = validateUserRegistration(data);
-      console.log("Validation result:", result);
-      userResult = result;
-      if (typeof window !== "undefined") {
-        (window as any).validatorFormResults.userRegistration = result;
-      }
+        const data = {
+            email: userForm.email,
+            password: userForm.password,
+            username: userForm.username,
+            age: userForm.age,
+            website: userForm.website
+        };
+        console.log('Validating:', data);
+        const result = validateUserRegistration(data);
+        console.log('Validation result:', result);
+        userResult = result;
+        if (typeof window !== 'undefined') {
+            (window as any).validatorFormResults.userRegistration = result;
+        }
     } catch (err) {
-      console.error("Validation error:", err);
-      userResult = { success: false, errors: [String(err)] };
+        console.error('Validation error:', err);
+        userResult = { success: false, errors: [String(err)] };
     }
-  }
+}
 
-  function submitProduct() {
+function submitProduct() {
     const tags = productForm.tags
-      ? productForm.tags.split(",").map((t) => t.trim()).filter(Boolean)
-      : [];
+        ? productForm.tags
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+        : [];
     const result = validateProduct({
-      name: productForm.name,
-      sku: productForm.sku,
-      price: productForm.price,
-      quantity: productForm.quantity,
-      tags,
+        name: productForm.name,
+        sku: productForm.sku,
+        price: productForm.price,
+        quantity: productForm.quantity,
+        tags
     });
     productResult = result;
-    if (typeof window !== "undefined") {
-      (window as any).validatorFormResults.product = result;
+    if (typeof window !== 'undefined') {
+        (window as any).validatorFormResults.product = result;
     }
-  }
+}
 
-  function submitEvent() {
+function submitEvent() {
     try {
-      // Convert date strings to Date objects for validation
-      const result = validateEvent({
-        title: eventForm.title,
-        startDate: new Date(eventForm.startDate),
-        endDate: new Date(eventForm.endDate),
-        maxAttendees: eventForm.maxAttendees,
-      });
-      eventResult = result;
-      if (typeof window !== "undefined") {
-        (window as any).validatorFormResults.event = result;
-      }
+        // Convert date strings to Date objects for validation
+        const result = validateEvent({
+            title: eventForm.title,
+            startDate: new Date(eventForm.startDate),
+            endDate: new Date(eventForm.endDate),
+            maxAttendees: eventForm.maxAttendees
+        });
+        eventResult = result;
+        if (typeof window !== 'undefined') {
+            (window as any).validatorFormResults.event = result;
+        }
     } catch (err) {
-      console.error("Event validation error:", err);
-      eventResult = { success: false, errors: [String(err)] };
+        console.error('Event validation error:', err);
+        eventResult = { success: false, errors: [String(err)] };
     }
-  }
+}
 </script>
 
 <svelte:head>

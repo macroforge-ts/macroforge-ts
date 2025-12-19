@@ -1,13 +1,12 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 
 export type Sector = /** @default */ 'Residential' | 'Commercial';
 
@@ -115,8 +114,9 @@ export type SectorTainted =
     | ({
           _value: 'Commercial';
       } & SectorCommercialTainted); /** Per-variant field controller types */
-export interface SectorResidentialFieldControllers {}
-export interface SectorCommercialFieldControllers {} /** Union Gigaform interface with variant switching */
+export type SectorResidentialFieldControllers = {};
+export type SectorCommercialFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface SectorGigaform {
     readonly currentVariant: 'Residential' | 'Commercial';
     readonly data: Sector;

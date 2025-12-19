@@ -33,7 +33,7 @@ export class ProductForm {
     quantity: number;
 
     /** @serde({ validate: ["minItems(1)", "maxItems(5)"] }) */
-    tags: string[];
+    tags: Array<string>;
 
     /** @serde({ validate: ["uuid"] }) */
     sku: string;

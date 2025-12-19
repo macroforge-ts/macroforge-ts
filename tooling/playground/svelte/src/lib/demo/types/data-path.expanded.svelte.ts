@@ -1,18 +1,21 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface DataPath {
-    path: string[];
+    path: Array<string>;
     formatter: string | null;
 }
 
@@ -40,8 +43,8 @@ export function dataPathSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'DataPath', __id };
-    result['path'] = value.path;
-    result['formatter'] = value.formatter;
+    result.path = value.path;
+    result.formatter = value.formatter;
     return result;
 }
 
@@ -114,13 +117,13 @@ export function dataPathDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_path = obj['path'] as string[];
+        const __raw_path = obj.path as Array<string>;
         if (Array.isArray(__raw_path)) {
-            instance.path = __raw_path as string[];
+            instance.path = __raw_path as Array<string>;
         }
     }
     {
-        const __raw_formatter = obj['formatter'] as string | null;
+        const __raw_formatter = obj.formatter as string | null;
         instance.formatter = __raw_formatter;
     }
     if (errors.length > 0) {
@@ -189,10 +192,10 @@ export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaf
             name: 'path',
             constraints: { required: true },
             get: () => data.path,
-            set: (value: string[]) => {
+            set: (value: Array<string>) => {
                 data.path = value;
             },
-            transform: (value: string[]): string[] => value,
+            transform: (value: Array<string>): Array<string> => value,
             getError: () => errors.path,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.path = value;

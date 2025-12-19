@@ -1,105 +1,109 @@
 <script lang="ts">
-  import { taxRateCreateForm, type TaxRate } from "$lib/demo/types";
+import { taxRateCreateForm, type TaxRate } from '$lib/demo/types';
 
-  // Create TaxRate form to test Record/Map types
-  const taxRateForm = taxRateCreateForm({
-    id: "tax-001",
-    name: "California Sales Tax",
-    taxAgency: "CA State",
+// Create TaxRate form to test Record/Map types
+const taxRateForm = taxRateCreateForm({
+    id: 'tax-001',
+    name: 'California Sales Tax',
+    taxAgency: 'CA State',
     zip: 90210,
-    city: "Beverly Hills",
-    county: "Los Angeles",
-    state: "CA",
+    city: 'Beverly Hills',
+    county: 'Los Angeles',
+    state: 'CA',
     isActive: true,
-    description: "Standard California sales tax",
+    description: 'Standard California sales tax',
     taxComponents: {
-      state: 0.0725,
-      county: 0.01,
-      city: 0.0125,
-    },
-  });
-
-  // Track validation results
-  let taxRateResult: { success: boolean; data?: TaxRate; errors?: Array<{ field: string; message: string }> } | null = $state(null);
-
-  // New component form
-  let newComponentKey = $state("");
-  let newComponentValue = $state(0);
-
-  // Expose to Playwright
-  if (typeof window !== "undefined") {
-    (window as any).gigaformResults = {
-      taxRate: taxRateForm,
-    };
-  }
-
-  function submitTaxRate() {
-    const result = taxRateForm.validate();
-    if (result.isOk()) {
-      taxRateResult = { success: true, data: result.unwrap() };
-    } else {
-      taxRateResult = { success: false, errors: result.unwrapErr() };
-    }
-    if (typeof window !== "undefined") {
-      (window as any).gigaformResults.taxRateValidation = taxRateResult;
-    }
-  }
-
-  function resetTaxRate() {
-    taxRateForm.reset({
-      id: "tax-001",
-      name: "California Sales Tax",
-      taxAgency: "CA State",
-      zip: 90210,
-      city: "Beverly Hills",
-      county: "Los Angeles",
-      state: "CA",
-      isActive: true,
-      description: "Standard California sales tax",
-      taxComponents: {
         state: 0.0725,
         county: 0.01,
-        city: 0.0125,
-      },
+        city: 0.0125
+    }
+});
+
+// Track validation results
+let taxRateResult: {
+    success: boolean;
+    data?: TaxRate;
+    errors?: Array<{ field: string; message: string }>;
+} | null = $state(null);
+
+// New component form
+let newComponentKey = $state('');
+let newComponentValue = $state(0);
+
+// Expose to Playwright
+if (typeof window !== 'undefined') {
+    (window as any).gigaformResults = {
+        taxRate: taxRateForm
+    };
+}
+
+function submitTaxRate() {
+    const result = taxRateForm.validate();
+    if (result.isOk()) {
+        taxRateResult = { success: true, data: result.unwrap() };
+    } else {
+        taxRateResult = { success: false, errors: result.unwrapErr() };
+    }
+    if (typeof window !== 'undefined') {
+        (window as any).gigaformResults.taxRateValidation = taxRateResult;
+    }
+}
+
+function resetTaxRate() {
+    taxRateForm.reset({
+        id: 'tax-001',
+        name: 'California Sales Tax',
+        taxAgency: 'CA State',
+        zip: 90210,
+        city: 'Beverly Hills',
+        county: 'Los Angeles',
+        state: 'CA',
+        isActive: true,
+        description: 'Standard California sales tax',
+        taxComponents: {
+            state: 0.0725,
+            county: 0.01,
+            city: 0.0125
+        }
     });
     taxRateResult = null;
-  }
+}
 
-  function addComponent() {
+function addComponent() {
     if (!newComponentKey) return;
     const current = taxRateForm.fields.taxComponents.get();
     taxRateForm.fields.taxComponents.set({
-      ...current,
-      [newComponentKey]: newComponentValue,
+        ...current,
+        [newComponentKey]: newComponentValue
     });
-    newComponentKey = "";
+    newComponentKey = '';
     newComponentValue = 0;
-  }
+}
 
-  function removeComponent(key: string) {
+function removeComponent(key: string) {
     const current = { ...taxRateForm.fields.taxComponents.get() };
     delete current[key];
     taxRateForm.fields.taxComponents.set(current);
-  }
+}
 
-  function updateComponent(key: string, value: number) {
+function updateComponent(key: string, value: number) {
     const current = taxRateForm.fields.taxComponents.get();
     taxRateForm.fields.taxComponents.set({
-      ...current,
-      [key]: value,
+        ...current,
+        [key]: value
     });
-  }
+}
 
-  // Get components as entries for iteration
-  function getComponentEntries(): [string, number][] {
+// Get components as entries for iteration
+function getComponentEntries(): Array<[string, number]> {
     return Object.entries(taxRateForm.fields.taxComponents.get());
-  }
+}
 
-  // Calculate total rate
-  function getTotalRate(): number {
+// Calculate total rate
+function getTotalRate(): number {
     const components = taxRateForm.fields.taxComponents.get();
     return Object.values(components).reduce((sum, val) => sum + val, 0);
-  }
+}
 </script>
 
 <svelte:head>

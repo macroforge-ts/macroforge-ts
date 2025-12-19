@@ -1,33 +1,14 @@
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import type { Exit } from '@playground/macro/gigaform';
+import type { Option as __gf_Option, Exit } from '@playground/macro/gigaform';
 import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-/** import macro {Gigaform} from "@playground/macro"; */
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
 
-import type { User } from './user.svelte';
-import type { Service } from './service.svelte';
-import type { Did } from './did.svelte';
-import type { Promotion } from './promotion.svelte';
-import type { Site } from './site.svelte';
-import type { Product } from './product.svelte';
-import type { Represents } from './represents.svelte';
-import type { Payment } from './payment.svelte';
-import type { Appointment } from './appointment.svelte';
-import type { Package } from './package.svelte';
-import type { Account } from './account.svelte';
-import type { Order } from './order.svelte';
-import type { TaxRate } from './tax-rate.svelte';
-import type { Lead } from './lead.svelte';
-import type { Company } from './company.svelte';
-import type { Employee } from './employee.svelte';
-import type { Route } from './route.svelte';
-import type { Ordered } from './ordered.svelte';
+/** import macro {Gigaform} from "@playground/macro"; */
 
 export type Table =
     | /** @default */ 'Account'
@@ -253,24 +234,25 @@ export type TableTainted =
     | ({ _value: 'Promotion' } & TablePromotionTainted)
     | ({ _value: 'Represents' } & TableRepresentsTainted)
     | ({ _value: 'Ordered' } & TableOrderedTainted); /** Per-variant field controller types */
-export interface TableAccountFieldControllers {}
-export interface TableDidFieldControllers {}
-export interface TableAppointmentFieldControllers {}
-export interface TableLeadFieldControllers {}
-export interface TableTaxRateFieldControllers {}
-export interface TableSiteFieldControllers {}
-export interface TableEmployeeFieldControllers {}
-export interface TableRouteFieldControllers {}
-export interface TableCompanyFieldControllers {}
-export interface TableProductFieldControllers {}
-export interface TableServiceFieldControllers {}
-export interface TableUserFieldControllers {}
-export interface TableOrderFieldControllers {}
-export interface TablePaymentFieldControllers {}
-export interface TablePackageFieldControllers {}
-export interface TablePromotionFieldControllers {}
-export interface TableRepresentsFieldControllers {}
-export interface TableOrderedFieldControllers {} /** Union Gigaform interface with variant switching */
+export type TableAccountFieldControllers = {};
+export type TableDidFieldControllers = {};
+export type TableAppointmentFieldControllers = {};
+export type TableLeadFieldControllers = {};
+export type TableTaxRateFieldControllers = {};
+export type TableSiteFieldControllers = {};
+export type TableEmployeeFieldControllers = {};
+export type TableRouteFieldControllers = {};
+export type TableCompanyFieldControllers = {};
+export type TableProductFieldControllers = {};
+export type TableServiceFieldControllers = {};
+export type TableUserFieldControllers = {};
+export type TableOrderFieldControllers = {};
+export type TablePaymentFieldControllers = {};
+export type TablePackageFieldControllers = {};
+export type TablePromotionFieldControllers = {};
+export type TableRepresentsFieldControllers = {};
+export type TableOrderedFieldControllers =
+    {}; /** Union Gigaform interface with variant switching */
 export interface TableGigaform {
     readonly currentVariant:
         | 'Account'

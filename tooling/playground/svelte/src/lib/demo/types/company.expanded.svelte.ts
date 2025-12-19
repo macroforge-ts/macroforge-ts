@@ -1,24 +1,30 @@
-import { colorsConfigDefaultValue } from './colors-config.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { colorsConfigSerializeWithContext } from './colors-config.svelte';
-import { phoneNumberSerializeWithContext } from './phone-number.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { colorsConfigDeserializeWithContext } from './colors-config.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    colorsConfigDefaultValue,
+    colorsConfigDeserializeWithContext,
+    colorsConfigSerializeWithContext
+} from './colors-config.svelte';
+import { phoneNumberSerializeWithContext } from './phone-number.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { Site } from './site.svelte';
-import type { PhoneNumber } from './phone-number.svelte';
-import type { TaxRate } from './tax-rate.svelte';
 import type { ColorsConfig } from './colors-config.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { Site } from './site.svelte';
+import type { TaxRate } from './tax-rate.svelte';
 
 export interface Company {
     id: string;
@@ -26,7 +32,7 @@ export interface Company {
     legalName: string;
 
     headquarters: string | Site;
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
 
     fax: string;
 
@@ -119,35 +125,35 @@ export function companySerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Company', __id };
-    result['id'] = value.id;
-    result['legalName'] = value.legalName;
-    result['headquarters'] = value.headquarters;
-    result['phones'] = value.phones.map((item) => phoneNumberSerializeWithContext(item, ctx));
-    result['fax'] = value.fax;
-    result['email'] = value.email;
-    result['website'] = value.website;
-    result['taxId'] = value.taxId;
-    result['referenceNumber'] = value.referenceNumber;
-    result['postalCodeLookup'] = value.postalCodeLookup;
-    result['timeZone'] = value.timeZone;
-    result['defaultTax'] = value.defaultTax;
-    result['defaultTaxLocation'] = value.defaultTaxLocation;
-    result['defaultAreaCode'] = value.defaultAreaCode;
-    result['defaultAccountType'] = value.defaultAccountType;
-    result['lookupFormatting'] = value.lookupFormatting;
-    result['accountNameFormat'] = value.accountNameFormat;
-    result['merchantServiceProvider'] = value.merchantServiceProvider;
-    result['dateDisplayStyle'] = value.dateDisplayStyle;
-    result['hasAutoCommission'] = value.hasAutoCommission;
-    result['hasAutoDaylightSavings'] = value.hasAutoDaylightSavings;
-    result['hasAutoFmsTracking'] = value.hasAutoFmsTracking;
-    result['hasNotifications'] = value.hasNotifications;
-    result['hasRequiredLeadSource'] = value.hasRequiredLeadSource;
-    result['hasRequiredEmail'] = value.hasRequiredEmail;
-    result['hasSortServiceItemsAlphabetically'] = value.hasSortServiceItemsAlphabetically;
-    result['hasAttachOrderToAppointmentEmails'] = value.hasAttachOrderToAppointmentEmails;
-    result['scheduleInterval'] = value.scheduleInterval;
-    result['colorsConfig'] = colorsConfigSerializeWithContext(value.colorsConfig, ctx);
+    result.id = value.id;
+    result.legalName = value.legalName;
+    result.headquarters = value.headquarters;
+    result.phones = value.phones.map((item) => phoneNumberSerializeWithContext(item, ctx));
+    result.fax = value.fax;
+    result.email = value.email;
+    result.website = value.website;
+    result.taxId = value.taxId;
+    result.referenceNumber = value.referenceNumber;
+    result.postalCodeLookup = value.postalCodeLookup;
+    result.timeZone = value.timeZone;
+    result.defaultTax = value.defaultTax;
+    result.defaultTaxLocation = value.defaultTaxLocation;
+    result.defaultAreaCode = value.defaultAreaCode;
+    result.defaultAccountType = value.defaultAccountType;
+    result.lookupFormatting = value.lookupFormatting;
+    result.accountNameFormat = value.accountNameFormat;
+    result.merchantServiceProvider = value.merchantServiceProvider;
+    result.dateDisplayStyle = value.dateDisplayStyle;
+    result.hasAutoCommission = value.hasAutoCommission;
+    result.hasAutoDaylightSavings = value.hasAutoDaylightSavings;
+    result.hasAutoFmsTracking = value.hasAutoFmsTracking;
+    result.hasNotifications = value.hasNotifications;
+    result.hasRequiredLeadSource = value.hasRequiredLeadSource;
+    result.hasRequiredEmail = value.hasRequiredEmail;
+    result.hasSortServiceItemsAlphabetically = value.hasSortServiceItemsAlphabetically;
+    result.hasAttachOrderToAppointmentEmails = value.hasAttachOrderToAppointmentEmails;
+    result.scheduleInterval = value.scheduleInterval;
+    result.colorsConfig = colorsConfigSerializeWithContext(value.colorsConfig, ctx);
     return result;
 }
 
@@ -307,158 +313,156 @@ export function companyDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_legalName = obj['legalName'] as string;
+        const __raw_legalName = obj.legalName as string;
         if (__raw_legalName.length === 0) {
             errors.push({ field: 'legalName', message: 'must not be empty' });
         }
         instance.legalName = __raw_legalName;
     }
     {
-        const __raw_headquarters = obj['headquarters'] as string | Site;
+        const __raw_headquarters = obj.headquarters as string | Site;
         instance.headquarters = __raw_headquarters;
     }
     {
-        const __raw_phones = obj['phones'] as PhoneNumber[];
+        const __raw_phones = obj.phones as Array<PhoneNumber>;
         if (Array.isArray(__raw_phones)) {
-            instance.phones = __raw_phones as PhoneNumber[];
+            instance.phones = __raw_phones as Array<PhoneNumber>;
         }
     }
     {
-        const __raw_fax = obj['fax'] as string;
+        const __raw_fax = obj.fax as string;
         if (__raw_fax.length === 0) {
             errors.push({ field: 'fax', message: 'must not be empty' });
         }
         instance.fax = __raw_fax;
     }
     {
-        const __raw_email = obj['email'] as string;
+        const __raw_email = obj.email as string;
         if (__raw_email.length === 0) {
             errors.push({ field: 'email', message: 'must not be empty' });
         }
         instance.email = __raw_email;
     }
     {
-        const __raw_website = obj['website'] as string;
+        const __raw_website = obj.website as string;
         if (__raw_website.length === 0) {
             errors.push({ field: 'website', message: 'must not be empty' });
         }
         instance.website = __raw_website;
     }
     {
-        const __raw_taxId = obj['taxId'] as string;
+        const __raw_taxId = obj.taxId as string;
         if (__raw_taxId.length === 0) {
             errors.push({ field: 'taxId', message: 'must not be empty' });
         }
         instance.taxId = __raw_taxId;
     }
     {
-        const __raw_referenceNumber = obj['referenceNumber'] as number;
+        const __raw_referenceNumber = obj.referenceNumber as number;
         instance.referenceNumber = __raw_referenceNumber;
     }
     {
-        const __raw_postalCodeLookup = obj['postalCodeLookup'] as string;
+        const __raw_postalCodeLookup = obj.postalCodeLookup as string;
         if (__raw_postalCodeLookup.length === 0) {
             errors.push({ field: 'postalCodeLookup', message: 'must not be empty' });
         }
         instance.postalCodeLookup = __raw_postalCodeLookup;
     }
     {
-        const __raw_timeZone = obj['timeZone'] as string;
+        const __raw_timeZone = obj.timeZone as string;
         instance.timeZone = __raw_timeZone;
     }
     {
-        const __raw_defaultTax = obj['defaultTax'] as string | TaxRate;
+        const __raw_defaultTax = obj.defaultTax as string | TaxRate;
         instance.defaultTax = __raw_defaultTax;
     }
     {
-        const __raw_defaultTaxLocation = obj['defaultTaxLocation'] as string;
+        const __raw_defaultTaxLocation = obj.defaultTaxLocation as string;
         if (__raw_defaultTaxLocation.length === 0) {
             errors.push({ field: 'defaultTaxLocation', message: 'must not be empty' });
         }
         instance.defaultTaxLocation = __raw_defaultTaxLocation;
     }
     {
-        const __raw_defaultAreaCode = obj['defaultAreaCode'] as number;
+        const __raw_defaultAreaCode = obj.defaultAreaCode as number;
         instance.defaultAreaCode = __raw_defaultAreaCode;
     }
     {
-        const __raw_defaultAccountType = obj['defaultAccountType'] as string;
+        const __raw_defaultAccountType = obj.defaultAccountType as string;
         if (__raw_defaultAccountType.length === 0) {
             errors.push({ field: 'defaultAccountType', message: 'must not be empty' });
         }
         instance.defaultAccountType = __raw_defaultAccountType;
     }
     {
-        const __raw_lookupFormatting = obj['lookupFormatting'] as string;
+        const __raw_lookupFormatting = obj.lookupFormatting as string;
         if (__raw_lookupFormatting.length === 0) {
             errors.push({ field: 'lookupFormatting', message: 'must not be empty' });
         }
         instance.lookupFormatting = __raw_lookupFormatting;
     }
     {
-        const __raw_accountNameFormat = obj['accountNameFormat'] as string;
+        const __raw_accountNameFormat = obj.accountNameFormat as string;
         if (__raw_accountNameFormat.length === 0) {
             errors.push({ field: 'accountNameFormat', message: 'must not be empty' });
         }
         instance.accountNameFormat = __raw_accountNameFormat;
     }
     {
-        const __raw_merchantServiceProvider = obj['merchantServiceProvider'] as string | null;
+        const __raw_merchantServiceProvider = obj.merchantServiceProvider as string | null;
         instance.merchantServiceProvider = __raw_merchantServiceProvider;
     }
     {
-        const __raw_dateDisplayStyle = obj['dateDisplayStyle'] as string;
+        const __raw_dateDisplayStyle = obj.dateDisplayStyle as string;
         if (__raw_dateDisplayStyle.length === 0) {
             errors.push({ field: 'dateDisplayStyle', message: 'must not be empty' });
         }
         instance.dateDisplayStyle = __raw_dateDisplayStyle;
     }
     {
-        const __raw_hasAutoCommission = obj['hasAutoCommission'] as boolean;
+        const __raw_hasAutoCommission = obj.hasAutoCommission as boolean;
         instance.hasAutoCommission = __raw_hasAutoCommission;
     }
     {
-        const __raw_hasAutoDaylightSavings = obj['hasAutoDaylightSavings'] as boolean;
+        const __raw_hasAutoDaylightSavings = obj.hasAutoDaylightSavings as boolean;
         instance.hasAutoDaylightSavings = __raw_hasAutoDaylightSavings;
     }
     {
-        const __raw_hasAutoFmsTracking = obj['hasAutoFmsTracking'] as boolean;
+        const __raw_hasAutoFmsTracking = obj.hasAutoFmsTracking as boolean;
         instance.hasAutoFmsTracking = __raw_hasAutoFmsTracking;
     }
     {
-        const __raw_hasNotifications = obj['hasNotifications'] as boolean;
+        const __raw_hasNotifications = obj.hasNotifications as boolean;
         instance.hasNotifications = __raw_hasNotifications;
     }
     {
-        const __raw_hasRequiredLeadSource = obj['hasRequiredLeadSource'] as boolean;
+        const __raw_hasRequiredLeadSource = obj.hasRequiredLeadSource as boolean;
         instance.hasRequiredLeadSource = __raw_hasRequiredLeadSource;
     }
     {
-        const __raw_hasRequiredEmail = obj['hasRequiredEmail'] as boolean;
+        const __raw_hasRequiredEmail = obj.hasRequiredEmail as boolean;
         instance.hasRequiredEmail = __raw_hasRequiredEmail;
     }
     {
-        const __raw_hasSortServiceItemsAlphabetically = obj[
-            'hasSortServiceItemsAlphabetically'
-        ] as boolean;
+        const __raw_hasSortServiceItemsAlphabetically =
+            obj.hasSortServiceItemsAlphabetically as boolean;
         instance.hasSortServiceItemsAlphabetically = __raw_hasSortServiceItemsAlphabetically;
     }
     {
-        const __raw_hasAttachOrderToAppointmentEmails = obj[
-            'hasAttachOrderToAppointmentEmails'
-        ] as boolean;
+        const __raw_hasAttachOrderToAppointmentEmails =
+            obj.hasAttachOrderToAppointmentEmails as boolean;
         instance.hasAttachOrderToAppointmentEmails = __raw_hasAttachOrderToAppointmentEmails;
     }
     {
-        const __raw_scheduleInterval = obj['scheduleInterval'] as number;
+        const __raw_scheduleInterval = obj.scheduleInterval as number;
         instance.scheduleInterval = __raw_scheduleInterval;
     }
     {
-        const __raw_colorsConfig = obj['colorsConfig'] as ColorsConfig;
+        const __raw_colorsConfig = obj.colorsConfig as ColorsConfig;
         {
             const __result = colorsConfigDeserializeWithContext(__raw_colorsConfig, ctx);
             ctx.assignOrDefer(instance, 'colorsConfig', __result);
@@ -911,10 +915,10 @@ export function companyCreateForm(overrides?: Partial<Company>): CompanyGigaform
             name: 'phones',
             constraints: { required: true },
             get: () => data.phones,
-            set: (value: PhoneNumber[]) => {
+            set: (value: Array<PhoneNumber>) => {
                 data.phones = value;
             },
-            transform: (value: PhoneNumber[]): PhoneNumber[] => value,
+            transform: (value: Array<PhoneNumber>): Array<PhoneNumber> => value,
             getError: () => errors.phones,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.phones = value;
@@ -1642,15 +1646,13 @@ export function companyFromFormData(
     {
         const phonesItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('phones.' + idx + '.') || idx === 0) {
-            const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('phones.' + idx + '.')
-            );
+        while (formData.has(`phones.${idx}.`) || idx === 0) {
+            const hasAny = Array.from(formData.keys()).some((k) => k.startsWith(`phones.${idx}.`));
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('phones.' + idx + '.')) {
+                    if (key.startsWith(`phones.${idx}.`)) {
                         const fieldName = key.slice('phones.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }
@@ -1669,7 +1671,7 @@ export function companyFromFormData(
     {
         const referenceNumberStr = formData.get('referenceNumber');
         obj.referenceNumber = referenceNumberStr ? parseFloat(referenceNumberStr as string) : 0;
-        if (obj.referenceNumber !== undefined && isNaN(obj.referenceNumber as number))
+        if (obj.referenceNumber !== undefined && Number.isNaN(obj.referenceNumber as number))
             obj.referenceNumber = 0;
     }
     obj.postalCodeLookup = formData.get('postalCodeLookup') ?? '';
@@ -1679,7 +1681,7 @@ export function companyFromFormData(
     {
         const defaultAreaCodeStr = formData.get('defaultAreaCode');
         obj.defaultAreaCode = defaultAreaCodeStr ? parseFloat(defaultAreaCodeStr as string) : 0;
-        if (obj.defaultAreaCode !== undefined && isNaN(obj.defaultAreaCode as number))
+        if (obj.defaultAreaCode !== undefined && Number.isNaN(obj.defaultAreaCode as number))
             obj.defaultAreaCode = 0;
     }
     obj.defaultAccountType = formData.get('defaultAccountType') ?? '';
@@ -1750,7 +1752,7 @@ export function companyFromFormData(
     {
         const scheduleIntervalStr = formData.get('scheduleInterval');
         obj.scheduleInterval = scheduleIntervalStr ? parseFloat(scheduleIntervalStr as string) : 0;
-        if (obj.scheduleInterval !== undefined && isNaN(obj.scheduleInterval as number))
+        if (obj.scheduleInterval !== undefined && Number.isNaN(obj.scheduleInterval as number))
             obj.scheduleInterval = 0;
     }
     {

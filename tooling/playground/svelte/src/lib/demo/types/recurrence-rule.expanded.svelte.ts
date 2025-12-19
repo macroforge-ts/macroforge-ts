@@ -1,18 +1,21 @@
-import { intervalDefaultValue } from './interval.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { intervalSerializeWithContext } from './interval.svelte';
-import { recurrenceEndSerializeWithContext } from './recurrence-end.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type { Option as __gf_Option, Exit, FieldController } from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { intervalDeserializeWithContext } from './interval.svelte';
-import { recurrenceEndDeserializeWithContext } from './recurrence-end.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    intervalDefaultValue,
+    intervalDeserializeWithContext,
+    intervalSerializeWithContext
+} from './interval.svelte';
+import {
+    recurrenceEndDeserializeWithContext,
+    recurrenceEndSerializeWithContext
+} from './recurrence-end.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { Interval } from './interval.svelte';
@@ -22,8 +25,8 @@ export interface RecurrenceRule {
     interval: Interval;
     recurrenceBegins: string;
     recurrenceEnds: RecurrenceEnd | null;
-    cancelledInstances: string[] | null;
-    additionalInstances: string[] | null;
+    cancelledInstances: Array<string> | null;
+    additionalInstances: Array<string> | null;
 }
 
 export function recurrenceRuleDefaultValue(): RecurrenceRule {
@@ -56,22 +59,22 @@ export function recurrenceRuleSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'RecurrenceRule', __id };
-    result['interval'] = intervalSerializeWithContext(value.interval, ctx);
-    result['recurrenceBegins'] = value.recurrenceBegins;
+    result.interval = intervalSerializeWithContext(value.interval, ctx);
+    result.recurrenceBegins = value.recurrenceBegins;
     if (value.recurrenceEnds !== null) {
-        result['recurrenceEnds'] = recurrenceEndSerializeWithContext(value.recurrenceEnds, ctx);
+        result.recurrenceEnds = recurrenceEndSerializeWithContext(value.recurrenceEnds, ctx);
     } else {
-        result['recurrenceEnds'] = null;
+        result.recurrenceEnds = null;
     }
     if (value.cancelledInstances !== null) {
-        result['cancelledInstances'] = value.cancelledInstances;
+        result.cancelledInstances = value.cancelledInstances;
     } else {
-        result['cancelledInstances'] = null;
+        result.cancelledInstances = null;
     }
     if (value.additionalInstances !== null) {
-        result['additionalInstances'] = value.additionalInstances;
+        result.additionalInstances = value.additionalInstances;
     } else {
-        result['additionalInstances'] = null;
+        result.additionalInstances = null;
     }
     return result;
 }
@@ -154,18 +157,18 @@ export function recurrenceRuleDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_interval = obj['interval'] as Interval;
+        const __raw_interval = obj.interval as Interval;
         {
             const __result = intervalDeserializeWithContext(__raw_interval, ctx);
             ctx.assignOrDefer(instance, 'interval', __result);
         }
     }
     {
-        const __raw_recurrenceBegins = obj['recurrenceBegins'] as string;
+        const __raw_recurrenceBegins = obj.recurrenceBegins as string;
         instance.recurrenceBegins = __raw_recurrenceBegins;
     }
     {
-        const __raw_recurrenceEnds = obj['recurrenceEnds'] as RecurrenceEnd | null;
+        const __raw_recurrenceEnds = obj.recurrenceEnds as RecurrenceEnd | null;
         if (__raw_recurrenceEnds === null) {
             instance.recurrenceEnds = null;
         } else {
@@ -174,7 +177,7 @@ export function recurrenceRuleDeserializeWithContext(
         }
     }
     {
-        const __raw_cancelledInstances = obj['cancelledInstances'] as string[] | null;
+        const __raw_cancelledInstances = obj.cancelledInstances as Array<string> | null;
         if (__raw_cancelledInstances === null) {
             instance.cancelledInstances = null;
         } else {
@@ -182,7 +185,7 @@ export function recurrenceRuleDeserializeWithContext(
         }
     }
     {
-        const __raw_additionalInstances = obj['additionalInstances'] as string[] | null;
+        const __raw_additionalInstances = obj.additionalInstances as Array<string> | null;
         if (__raw_additionalInstances === null) {
             instance.additionalInstances = null;
         } else {
@@ -245,8 +248,8 @@ export interface RecurrenceRuleFieldControllers {
     readonly interval: FieldController<Interval>;
     readonly recurrenceBegins: FieldController<string>;
     readonly recurrenceEnds: FieldController<RecurrenceEnd | null>;
-    readonly cancelledInstances: FieldController<string[] | null>;
-    readonly additionalInstances: FieldController<string[] | null>;
+    readonly cancelledInstances: FieldController<Array<string> | null>;
+    readonly additionalInstances: FieldController<Array<string> | null>;
 } /** Gigaform instance containing reactive state and field controllers */
 export interface RecurrenceRuleGigaform {
     readonly data: RecurrenceRule;
@@ -353,10 +356,10 @@ export function recurrenceRuleCreateForm(
             name: 'cancelledInstances',
             constraints: { required: true },
             get: () => data.cancelledInstances,
-            set: (value: string[] | null) => {
+            set: (value: Array<string> | null) => {
                 data.cancelledInstances = value;
             },
-            transform: (value: string[] | null): string[] | null => value,
+            transform: (value: Array<string> | null): Array<string> | null => value,
             getError: () => errors.cancelledInstances,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.cancelledInstances = value;
@@ -378,10 +381,10 @@ export function recurrenceRuleCreateForm(
             name: 'additionalInstances',
             constraints: { required: true },
             get: () => data.additionalInstances,
-            set: (value: string[] | null) => {
+            set: (value: Array<string> | null) => {
                 data.additionalInstances = value;
             },
-            transform: (value: string[] | null): string[] | null => value,
+            transform: (value: Array<string> | null): Array<string> | null => value,
             getError: () => errors.additionalInstances,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.additionalInstances = value;

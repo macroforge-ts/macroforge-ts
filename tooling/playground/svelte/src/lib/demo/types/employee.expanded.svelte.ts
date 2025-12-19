@@ -1,37 +1,44 @@
-import { emailDefaultValue } from './email.svelte';
-import { settingsDefaultValue } from './settings.svelte';
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
-import { emailSerializeWithContext } from './email.svelte';
-import { jobTitleSerializeWithContext } from './job-title.svelte';
-import { phoneNumberSerializeWithContext } from './phone-number.svelte';
-import { settingsSerializeWithContext } from './settings.svelte';
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
+import type {
+    Option as __gf_Option,
+    ArrayFieldController,
+    Exit,
+    FieldController
+} from '@playground/macro/gigaform';
+import { optionNone, toExit } from '@playground/macro/gigaform';
 import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
-import { emailDeserializeWithContext } from './email.svelte';
-import { jobTitleDeserializeWithContext } from './job-title.svelte';
-import { settingsDeserializeWithContext } from './settings.svelte';
-import type { Exit } from '@playground/macro/gigaform';
-import { toExit } from '@playground/macro/gigaform';
-import type { Option as __gf_Option } from '@playground/macro/gigaform';
-import { optionNone } from '@playground/macro/gigaform';
-import type { FieldController } from '@playground/macro/gigaform';
-import type { ArrayFieldController } from '@playground/macro/gigaform';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef,
+    SerializeContext as __mf_SerializeContext
+} from 'macroforge/serde';
+import {
+    emailDefaultValue,
+    emailDeserializeWithContext,
+    emailSerializeWithContext
+} from './email.svelte';
+import { jobTitleDeserializeWithContext, jobTitleSerializeWithContext } from './job-title.svelte';
+import { phoneNumberSerializeWithContext } from './phone-number.svelte';
+import {
+    settingsDefaultValue,
+    settingsDeserializeWithContext,
+    settingsSerializeWithContext
+} from './settings.svelte';
+
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { PhoneNumber } from './phone-number.svelte';
-import type { Settings } from './settings.svelte';
-import type { Route } from './route.svelte';
 import type { Email } from './email.svelte';
 import type { JobTitle } from './job-title.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { Route } from './route.svelte';
+import type { Settings } from './settings.svelte';
 
 export interface Employee {
     id: string;
     imageUrl: string | null;
 
     name: string;
-    phones: PhoneNumber[];
+    phones: Array<PhoneNumber>;
 
     role: string;
 
@@ -49,7 +56,7 @@ export interface Employee {
     isSalesRep: boolean;
     description: string | null;
     linkedinUrl: string | null;
-    attendance: string[];
+    attendance: Array<string>;
     settings: Settings;
 }
 
@@ -96,24 +103,24 @@ export function employeeSerializeWithContext(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Employee', __id };
-    result['id'] = value.id;
-    result['imageUrl'] = value.imageUrl;
-    result['name'] = value.name;
-    result['phones'] = value.phones.map((item) => phoneNumberSerializeWithContext(item, ctx));
-    result['role'] = value.role;
-    result['title'] = jobTitleSerializeWithContext(value.title, ctx);
-    result['email'] = emailSerializeWithContext(value.email, ctx);
-    result['address'] = value.address;
-    result['username'] = value.username;
-    result['route'] = value.route;
-    result['ratePerHour'] = value.ratePerHour;
-    result['active'] = value.active;
-    result['isTechnician'] = value.isTechnician;
-    result['isSalesRep'] = value.isSalesRep;
-    result['description'] = value.description;
-    result['linkedinUrl'] = value.linkedinUrl;
-    result['attendance'] = value.attendance;
-    result['settings'] = settingsSerializeWithContext(value.settings, ctx);
+    result.id = value.id;
+    result.imageUrl = value.imageUrl;
+    result.name = value.name;
+    result.phones = value.phones.map((item) => phoneNumberSerializeWithContext(item, ctx));
+    result.role = value.role;
+    result.title = jobTitleSerializeWithContext(value.title, ctx);
+    result.email = emailSerializeWithContext(value.email, ctx);
+    result.address = value.address;
+    result.username = value.username;
+    result.route = value.route;
+    result.ratePerHour = value.ratePerHour;
+    result.active = value.active;
+    result.isTechnician = value.isTechnician;
+    result.isSalesRep = value.isSalesRep;
+    result.description = value.description;
+    result.linkedinUrl = value.linkedinUrl;
+    result.attendance = value.attendance;
+    result.settings = settingsSerializeWithContext(value.settings, ctx);
     return result;
 }
 
@@ -234,97 +241,97 @@ export function employeeDeserializeWithContext(
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj['id'] as string;
+        const __raw_id = obj.id as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_imageUrl = obj['imageUrl'] as string | null;
+        const __raw_imageUrl = obj.imageUrl as string | null;
         instance.imageUrl = __raw_imageUrl;
     }
     {
-        const __raw_name = obj['name'] as string;
+        const __raw_name = obj.name as string;
         if (__raw_name.length === 0) {
             errors.push({ field: 'name', message: 'must not be empty' });
         }
         instance.name = __raw_name;
     }
     {
-        const __raw_phones = obj['phones'] as PhoneNumber[];
+        const __raw_phones = obj.phones as Array<PhoneNumber>;
         if (Array.isArray(__raw_phones)) {
-            instance.phones = __raw_phones as PhoneNumber[];
+            instance.phones = __raw_phones as Array<PhoneNumber>;
         }
     }
     {
-        const __raw_role = obj['role'] as string;
+        const __raw_role = obj.role as string;
         if (__raw_role.length === 0) {
             errors.push({ field: 'role', message: 'must not be empty' });
         }
         instance.role = __raw_role;
     }
     {
-        const __raw_title = obj['title'] as JobTitle;
+        const __raw_title = obj.title as JobTitle;
         {
             const __result = jobTitleDeserializeWithContext(__raw_title, ctx);
             ctx.assignOrDefer(instance, 'title', __result);
         }
     }
     {
-        const __raw_email = obj['email'] as Email;
+        const __raw_email = obj.email as Email;
         {
             const __result = emailDeserializeWithContext(__raw_email, ctx);
             ctx.assignOrDefer(instance, 'email', __result);
         }
     }
     {
-        const __raw_address = obj['address'] as string;
+        const __raw_address = obj.address as string;
         if (__raw_address.length === 0) {
             errors.push({ field: 'address', message: 'must not be empty' });
         }
         instance.address = __raw_address;
     }
     {
-        const __raw_username = obj['username'] as string;
+        const __raw_username = obj.username as string;
         if (__raw_username.length === 0) {
             errors.push({ field: 'username', message: 'must not be empty' });
         }
         instance.username = __raw_username;
     }
     {
-        const __raw_route = obj['route'] as string | Route;
+        const __raw_route = obj.route as string | Route;
         instance.route = __raw_route;
     }
     {
-        const __raw_ratePerHour = obj['ratePerHour'] as number;
+        const __raw_ratePerHour = obj.ratePerHour as number;
         instance.ratePerHour = __raw_ratePerHour;
     }
     {
-        const __raw_active = obj['active'] as boolean;
+        const __raw_active = obj.active as boolean;
         instance.active = __raw_active;
     }
     {
-        const __raw_isTechnician = obj['isTechnician'] as boolean;
+        const __raw_isTechnician = obj.isTechnician as boolean;
         instance.isTechnician = __raw_isTechnician;
     }
     {
-        const __raw_isSalesRep = obj['isSalesRep'] as boolean;
+        const __raw_isSalesRep = obj.isSalesRep as boolean;
         instance.isSalesRep = __raw_isSalesRep;
     }
     {
-        const __raw_description = obj['description'] as string | null;
+        const __raw_description = obj.description as string | null;
         instance.description = __raw_description;
     }
     {
-        const __raw_linkedinUrl = obj['linkedinUrl'] as string | null;
+        const __raw_linkedinUrl = obj.linkedinUrl as string | null;
         instance.linkedinUrl = __raw_linkedinUrl;
     }
     {
-        const __raw_attendance = obj['attendance'] as string[];
+        const __raw_attendance = obj.attendance as Array<string>;
         if (Array.isArray(__raw_attendance)) {
-            instance.attendance = __raw_attendance as string[];
+            instance.attendance = __raw_attendance as Array<string>;
         }
     }
     {
-        const __raw_settings = obj['settings'] as Settings;
+        const __raw_settings = obj.settings as Settings;
         {
             const __result = settingsDeserializeWithContext(__raw_settings, ctx);
             ctx.assignOrDefer(instance, 'settings', __result);
@@ -620,10 +627,10 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             name: 'phones',
             constraints: { required: true },
             get: () => data.phones,
-            set: (value: PhoneNumber[]) => {
+            set: (value: Array<PhoneNumber>) => {
                 data.phones = value;
             },
-            transform: (value: PhoneNumber[]): PhoneNumber[] => value,
+            transform: (value: Array<PhoneNumber>): Array<PhoneNumber> => value,
             getError: () => errors.phones,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.phones = value;
@@ -936,10 +943,10 @@ export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaf
             name: 'attendance',
             constraints: { required: true },
             get: () => data.attendance,
-            set: (value: string[]) => {
+            set: (value: Array<string>) => {
                 data.attendance = value;
             },
-            transform: (value: string[]): string[] => value,
+            transform: (value: Array<string>): Array<string> => value,
             getError: () => errors.attendance,
             setError: (value: __gf_Option<Array<string>>) => {
                 errors.attendance = value;
@@ -1087,15 +1094,13 @@ export function employeeFromFormData(
     {
         const phonesItems: Array<Record<string, unknown>> = [];
         let idx = 0;
-        while (formData.has('phones.' + idx + '.') || idx === 0) {
-            const hasAny = Array.from(formData.keys()).some((k) =>
-                k.startsWith('phones.' + idx + '.')
-            );
+        while (formData.has(`phones.${idx}.`) || idx === 0) {
+            const hasAny = Array.from(formData.keys()).some((k) => k.startsWith(`phones.${idx}.`));
             if (!hasAny && idx > 0) break;
             if (hasAny) {
                 const item: Record<string, unknown> = {};
                 for (const [key, value] of Array.from(formData.entries())) {
-                    if (key.startsWith('phones.' + idx + '.')) {
+                    if (key.startsWith(`phones.${idx}.`)) {
                         const fieldName = key.slice('phones.'.length + String(idx).length + 1);
                         item[fieldName] = value;
                     }
@@ -1152,7 +1157,8 @@ export function employeeFromFormData(
     {
         const ratePerHourStr = formData.get('ratePerHour');
         obj.ratePerHour = ratePerHourStr ? parseFloat(ratePerHourStr as string) : 0;
-        if (obj.ratePerHour !== undefined && isNaN(obj.ratePerHour as number)) obj.ratePerHour = 0;
+        if (obj.ratePerHour !== undefined && Number.isNaN(obj.ratePerHour as number))
+            obj.ratePerHour = 0;
     }
     {
         const activeVal = formData.get('active');

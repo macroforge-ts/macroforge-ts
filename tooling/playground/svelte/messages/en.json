@@ -1,5 +1,5 @@
 {
-	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"hello": "Hello World",
-	"welcome": "Welcome to the playground"
+    "$schema": "https://inlang.com/schema/inlang-message-format",
+    "hello": "Hello World",
+    "welcome": "Welcome to the playground"
 }
