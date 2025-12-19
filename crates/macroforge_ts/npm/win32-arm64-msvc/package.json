@@ -1,14 +1,19 @@
 {
-  "name": "@macroforge/bin-win32-arm64-msvc",
-  "version": "0.1.48",
+  "author": "macroforge contributors",
+  "bugs": {
+    "url": "https://github.com/macroforge-ts/core/issues"
+  },
   "cpu": [
     "arm64"
   ],
-  "main": "macroforge.win32-arm64-msvc.node",
+  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "engines": {
+    "node": ">= 18"
+  },
   "files": [
     "macroforge.win32-arm64-msvc.node"
   ],
-  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "homepage": "https://github.com/macroforge-ts/core#readme",
   "keywords": [
     "typescript",
     "macros",
@@ -16,20 +21,15 @@
     "codegen",
     "swc"
   ],
-  "author": "macroforge contributors",
-  "homepage": "https://github.com/macroforge-ts/core#readme",
   "license": "MIT",
-  "engines": {
-    "node": ">= 18"
-  },
+  "main": "macroforge.win32-arm64-msvc.node",
+  "name": "@macroforge/bin-win32-arm64-msvc",
+  "os": [
+    "win32"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/macroforge-ts/core.git"
   },
-  "bugs": {
-    "url": "https://github.com/macroforge-ts/core/issues"
-  },
-  "os": [
-    "win32"
-  ]
+  "version": "0.1.49"
 }

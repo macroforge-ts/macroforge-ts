@@ -910,7 +910,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.48"
+version = "0.1.49"
 dependencies = [
  "anyhow",
  "clap",
@@ -934,9 +934,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.46"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f4ec859470f5c3c7e8801f3a62ff2d693a4319fad435bd8925f4b77173b4c50"
+version = "0.1.49"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
@@ -946,9 +944,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.44"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cae537565dedea5017d91a05a3da15e85863a39f763e0a804c568547c798e3a0"
+version = "0.1.49"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
@@ -958,9 +954,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.45"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8dc249c5bdb23fd4b554cf33499fb560431ab8d23d7c3b62b73a439e2c145e1"
+version = "0.1.49"
 dependencies = [
  "serde",
  "swc_core",

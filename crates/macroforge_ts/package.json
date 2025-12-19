@@ -1,40 +1,45 @@
 {
-  "name": "macroforge",
-  "version": "0.1.48",
+  "author": "macroforge contributors",
+  "bugs": {
+    "url": "https://github.com/macroforge-ts/core/issues"
+  },
   "description": "TypeScript macro expansion engine powered by Rust and SWC",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "engines": {
+    "node": ">= 18"
+  },
   "exports": {
     ".": {
-      "types": "./index.d.ts",
+      "default": "./index.js",
       "require": "./index.js",
-      "default": "./index.js"
+      "types": "./index.d.ts"
     },
     "./reexports": {
-      "types": "./js/reexports/index.d.ts",
+      "default": "./js/reexports/index.mjs",
       "import": "./js/reexports/index.mjs",
-      "default": "./js/reexports/index.mjs"
+      "types": "./js/reexports/index.d.ts"
     },
     "./reexports/effect": {
-      "types": "./js/reexports/effect.d.ts",
+      "default": "./js/reexports/effect.mjs",
       "import": "./js/reexports/effect.mjs",
-      "default": "./js/reexports/effect.mjs"
+      "types": "./js/reexports/effect.d.ts"
     },
     "./serde": {
-      "types": "./js/serde/index.d.ts",
+      "default": "./js/serde/index.mjs",
       "import": "./js/serde/index.mjs",
-      "default": "./js/serde/index.mjs"
+      "types": "./js/serde/index.d.ts"
     },
     "./traits": {
-      "types": "./js/traits/index.d.ts",
+      "default": "./js/traits/index.mjs",
       "import": "./js/traits/index.mjs",
-      "default": "./js/traits/index.mjs"
+      "types": "./js/traits/index.d.ts"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/macroforge-ts/core.git"
-  },
+  "files": [
+    "index.d.ts",
+    "index.js",
+    "js"
+  ],
+  "homepage": "https://github.com/macroforge-ts/core#readme",
   "keywords": [
     "typescript",
     "macros",
@@ -42,12 +47,9 @@
     "codegen",
     "swc"
   ],
-  "author": "macroforge contributors",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/macroforge-ts/core/issues"
-  },
-  "homepage": "https://github.com/macroforge-ts/core#readme",
+  "main": "index.js",
+  "name": "macroforge",
   "napi": {
     "binaryName": "macroforge",
     "packageName": "@macroforge/bin",
@@ -60,29 +62,27 @@
       "aarch64-pc-windows-msvc"
     ]
   },
-  "files": [
-    "index.d.ts",
-    "index.js",
-    "js"
-  ],
-  "engines": {
-    "node": ">= 18"
-  },
   "optionalDependencies": {
-    "@macroforge/bin-darwin-x64": "0.1.48",
-    "@macroforge/bin-darwin-arm64": "0.1.48",
-    "@macroforge/bin-linux-x64-gnu": "0.1.48",
-    "@macroforge/bin-linux-arm64-gnu": "0.1.48",
-    "@macroforge/bin-win32-x64-msvc": "0.1.48",
-    "@macroforge/bin-win32-arm64-msvc": "0.1.48"
+    "@macroforge/bin-darwin-arm64": "0.1.49",
+    "@macroforge/bin-darwin-x64": "0.1.49",
+    "@macroforge/bin-linux-arm64-gnu": "0.1.49",
+    "@macroforge/bin-linux-x64-gnu": "0.1.49",
+    "@macroforge/bin-win32-arm64-msvc": "0.1.49",
+    "@macroforge/bin-win32-x64-msvc": "0.1.49"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macroforge-ts/core.git"
   },
   "scripts": {
+    "artifacts": "napi artifacts --npm-dir npm",
+    "build": "npm install && npm run build:js && bun x napi build --platform --release",
+    "build:js": "npm run build:serde && npm run build:traits",
     "build:serde": "bun build js/serde/index.ts --outfile js/serde/index.mjs && bun x tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
     "build:traits": "bun build js/traits/index.ts --outfile js/traits/index.mjs && bun x tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
-    "build:js": "npm run build:serde && npm run build:traits",
-    "build": "npm install && npm run build:js && bun x napi build --platform --release",
     "clean": "rm -f macroforge.*.node pkg/*.node && rm -rf node_modules",
-    "cleanbuild": "npm run clean && npm run build",
-    "artifacts": "napi artifacts --npm-dir npm"
-  }
+    "cleanbuild": "npm run clean && npm run build"
+  },
+  "types": "index.d.ts",
+  "version": "0.1.49"
 }
