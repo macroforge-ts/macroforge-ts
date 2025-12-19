@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "macroforge": "^0.1.48"
+    "macroforge": "^0.1.49"
   },
   "description": "Shared utilities for Macroforge plugins",
   "devDependencies": {
