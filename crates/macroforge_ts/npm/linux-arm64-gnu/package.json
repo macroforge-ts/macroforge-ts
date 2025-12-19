@@ -1,14 +1,19 @@
 {
-  "name": "@macroforge/bin-linux-arm64-gnu",
-  "version": "0.1.48",
+  "author": "macroforge contributors",
+  "bugs": {
+    "url": "https://github.com/macroforge-ts/core/issues"
+  },
   "cpu": [
     "arm64"
   ],
-  "main": "macroforge.linux-arm64-gnu.node",
+  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "engines": {
+    "node": ">= 18"
+  },
   "files": [
     "macroforge.linux-arm64-gnu.node"
   ],
-  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "homepage": "https://github.com/macroforge-ts/core#readme",
   "keywords": [
     "typescript",
     "macros",
@@ -16,23 +21,18 @@
     "codegen",
     "swc"
   ],
-  "author": "macroforge contributors",
-  "homepage": "https://github.com/macroforge-ts/core#readme",
+  "libc": [
+    "glibc"
+  ],
   "license": "MIT",
-  "engines": {
-    "node": ">= 18"
-  },
+  "main": "macroforge.linux-arm64-gnu.node",
+  "name": "@macroforge/bin-linux-arm64-gnu",
+  "os": [
+    "linux"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/macroforge-ts/core.git"
   },
-  "bugs": {
-    "url": "https://github.com/macroforge-ts/core/issues"
-  },
-  "os": [
-    "linux"
-  ],
-  "libc": [
-    "glibc"
-  ]
+  "version": "0.1.49"
 }

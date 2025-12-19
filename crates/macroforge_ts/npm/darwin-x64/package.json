@@ -1,14 +1,19 @@
 {
-  "name": "@macroforge/bin-darwin-x64",
-  "version": "0.1.48",
+  "author": "macroforge contributors",
+  "bugs": {
+    "url": "https://github.com/macroforge-ts/core/issues"
+  },
   "cpu": [
     "x64"
   ],
-  "main": "macroforge.darwin-x64.node",
+  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "engines": {
+    "node": ">= 18"
+  },
   "files": [
     "macroforge.darwin-x64.node"
   ],
-  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "homepage": "https://github.com/macroforge-ts/core#readme",
   "keywords": [
     "typescript",
     "macros",
@@ -16,20 +21,15 @@
     "codegen",
     "swc"
   ],
-  "author": "macroforge contributors",
-  "homepage": "https://github.com/macroforge-ts/core#readme",
   "license": "MIT",
-  "engines": {
-    "node": ">= 18"
-  },
+  "main": "macroforge.darwin-x64.node",
+  "name": "@macroforge/bin-darwin-x64",
+  "os": [
+    "darwin"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/macroforge-ts/core.git"
   },
-  "bugs": {
-    "url": "https://github.com/macroforge-ts/core/issues"
-  },
-  "os": [
-    "darwin"
-  ]
+  "version": "0.1.49"
 }
