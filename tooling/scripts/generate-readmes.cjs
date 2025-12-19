@@ -10,14 +10,14 @@
 const { program } = require('commander');
 const fs = require('fs');
 const path = require('path');
+const { root: rootDir, resolve } = require('./env.cjs');
 
 program
 	.name('generate-readmes')
 	.description('Generate README.md files for crates and packages from extracted documentation');
 
-const rootDir = path.join(__dirname, '..');
-const rustApiData = path.join(rootDir, 'website', 'static', 'api-data', 'rust');
-const tsApiData = path.join(rootDir, 'website', 'static', 'api-data', 'typescript');
+const rustApiData = resolve('website', 'static', 'api-data', 'rust');
+const tsApiData = resolve('website', 'static', 'api-data', 'typescript');
 
 // Crate configurations
 const RUST_CRATES = [

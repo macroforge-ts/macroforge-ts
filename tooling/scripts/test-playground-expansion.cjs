@@ -15,17 +15,16 @@ const { program } = require('commander');
 const fs = require("node:fs");
 const path = require("node:path");
 const { execSync } = require("node:child_process");
+const { root: rootDir, resolve } = require("./env.cjs");
 
 program
 	.name('test-playground-expansion')
 	.description('Test playground macro expansion, formatting, and type checking');
 
-const rootDir = path.join(__dirname, "..");
-
 // Path to the CLI binary (release preferred)
 const cliBinary = (() => {
-	const release = path.join(rootDir, "crates", "target", "release", "macroforge");
-	const debug = path.join(rootDir, "crates", "target", "debug", "macroforge");
+	const release = resolve("crates", "target", "release", "macroforge");
+	const debug = resolve("crates", "target", "debug", "macroforge");
 	if (fs.existsSync(release)) return release;
 	if (fs.existsSync(debug)) return debug;
 	console.error("ERROR: macroforge CLI binary not found. Run `cargo build --release -p macroforge_ts` first.");
@@ -36,17 +35,17 @@ const cliBinary = (() => {
 const playgrounds = [
 	{
 		name: "svelte",
-		dir: path.join(rootDir, "playground", "svelte"),
+		dir: resolve("tooling", "playground", "svelte"),
 		scanDirs: [
-			path.join(rootDir, "playground", "svelte", "src", "lib", "demo"),
-			path.join(rootDir, "playground", "svelte", "src", "lib", "demo", "types"),
+			resolve("tooling", "playground", "svelte", "src", "lib", "demo"),
+			resolve("tooling", "playground", "svelte", "src", "lib", "demo", "types"),
 		],
 	},
 	{
 		name: "vanilla",
-		dir: path.join(rootDir, "playground", "vanilla"),
+		dir: resolve("tooling", "playground", "vanilla"),
 		scanDirs: [
-			path.join(rootDir, "playground", "vanilla", "src"),
+			resolve("tooling", "playground", "vanilla", "src"),
 		],
 	},
 ];

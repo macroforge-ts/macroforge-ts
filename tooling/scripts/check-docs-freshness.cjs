@@ -12,12 +12,11 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const crypto = require('crypto');
+const { root: rootDir, resolve } = require('./env.cjs');
 
 program
 	.name('check-docs-freshness')
 	.description('Check if generated documentation is in sync with source code (CI script)');
-
-const rootDir = path.join(__dirname, '..');
 
 // Files to check
 const GENERATED_FILES = [
@@ -114,8 +113,8 @@ function main() {
 	// Regenerate API docs
 	console.log('Regenerating API documentation...');
 	try {
-		execSync('rust-script scripts/extract-rust-docs.rs', { cwd: rootDir, stdio: 'pipe' });
-		execSync('rust-script scripts/extract-ts-docs.rs', { cwd: rootDir, stdio: 'pipe' });
+		execSync('rust-script tooling/scripts/extract-rust-docs.rs', { cwd: rootDir, stdio: 'pipe' });
+		execSync('rust-script tooling/scripts/extract-ts-docs.rs', { cwd: rootDir, stdio: 'pipe' });
 	} catch (e) {
 		console.error('Failed to regenerate API docs:', e.message);
 		process.exit(1);
@@ -124,7 +123,7 @@ function main() {
 	// Regenerate READMEs
 	console.log('Regenerating READMEs...');
 	try {
-		execSync('node scripts/generate-readmes.cjs', { cwd: rootDir, stdio: 'pipe' });
+		execSync('node tooling/scripts/generate-readmes.cjs', { cwd: rootDir, stdio: 'pipe' });
 	} catch (e) {
 		console.error('Failed to regenerate READMEs:', e.message);
 		process.exit(1);

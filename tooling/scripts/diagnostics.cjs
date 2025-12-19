@@ -4,14 +4,14 @@ const { program } = require('commander');
 const { exec } = require('node:child_process');
 const { promises: fs } = require('node:fs');
 const path = require('node:path');
+const { root: ROOT_DIR, resolve } = require('./env.cjs');
 
 program
     .name('diagnostics')
     .description('Run comprehensive multi-tool diagnostics (Biome, Clippy, TypeScript, Svelte, macroforge)')
     .option('--log', 'Write logs to .tmp/diagnostics/ directory');
 
-const ROOT_DIR = process.cwd();
-const LOGS_DIR = path.join(ROOT_DIR, '.tmp', 'diagnostics');
+const LOGS_DIR = resolve('.tmp', 'diagnostics');
 
 // Lazy-loaded TypeScript for Language Service
 let ts = null;

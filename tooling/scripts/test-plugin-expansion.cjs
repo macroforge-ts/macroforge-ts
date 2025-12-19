@@ -6,7 +6,8 @@
  */
 
 const { program } = require('commander');
-const { expandSync } = require("../crates/macroforge_ts");
+const { root, resolve } = require("./env.cjs");
+const { expandSync } = require(resolve("crates", "macroforge_ts"));
 const fs = require("fs");
 
 program
@@ -15,7 +16,7 @@ program
 
 function main() {
   // Test the User class from vanilla playground
-  const userPath = "../playground/vanilla/src/user.ts";
+  const userPath = resolve("tooling", "playground", "vanilla", "src", "user.ts");
   const userContent = fs.readFileSync(userPath, "utf8");
 
   console.log("=== Testing User.ts expansion ===\n");
@@ -65,7 +66,7 @@ function main() {
 
   // Test MacroUser from svelte playground
   console.log("\n\n=== Testing MacroUser.ts expansion ===\n");
-  const macroUserPath = "../playground/svelte/src/lib/demo/macro-user.ts";
+  const macroUserPath = resolve("tooling", "playground", "svelte", "src", "lib", "demo", "macro-user.ts");
   const macroUserContent = fs.readFileSync(macroUserPath, "utf8");
 
   try {
