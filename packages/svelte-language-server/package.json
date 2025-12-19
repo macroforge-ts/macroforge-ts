@@ -72,6 +72,7 @@
     "build": "npm run clean && tsc",
     "clean": "rm -rf dist",
     "cleanbuild": "npm run clean && npm run build",
+    "pretest": "node test/setup-fixtures.js",
     "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --require ts-node/register \"test/**/*.test.ts\" --no-experimental-strip-types",
     "watch": "tsc -w"
   },
