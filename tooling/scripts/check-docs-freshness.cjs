@@ -12,7 +12,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execSync } = require('node:child_process');
 const crypto = require('node:crypto');
-const { root: rootDir, resolve } = require('./env.cjs');
+const { root: rootDir } = require('./env.cjs');
 
 program
     .name('check-docs-freshness')
