@@ -5,7 +5,7 @@
   "macros": "0.1.46",
   "core": "0.1.48",
   "syn": "0.1.45",
-  "website": "0.1.46",
+  "website": "0.1.47",
   "vite-plugin": "0.1.49",
   "zed-extensions": "0.1.46",
   "typescript-plugin": "0.1.49",
