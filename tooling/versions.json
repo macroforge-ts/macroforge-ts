@@ -1,0 +1,14 @@
+{
+  "svelte-preprocessor": "0.1.49",
+  "mcp-server": "0.1.49",
+  "core": "0.1.48",
+  "syn": "0.1.45",
+  "template": "0.1.44",
+  "shared": "0.1.49",
+  "vite-plugin": "0.1.49",
+  "svelte-language-server": "0.1.49",
+  "zed-extensions": "0.1.46",
+  "website": "0.1.45",
+  "typescript-plugin": "0.1.49",
+  "macros": "0.1.46"
+}
