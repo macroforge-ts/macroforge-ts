@@ -1,7 +1,7 @@
 {
   "name": "@macroforge/shared",
   "kind": "typescript_package",
-  "version": "0.1.43",
+  "version": "0.1.49",
   "description": "Shared utilities for Macroforge plugins",
   "overview": "",
   "items": [

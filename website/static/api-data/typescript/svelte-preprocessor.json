@@ -1,7 +1,7 @@
 {
   "name": "@macroforge/svelte-preprocessor",
   "kind": "typescript_package",
-  "version": "0.1.43",
+  "version": "0.1.49",
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
   "overview": "",
   "items": [
