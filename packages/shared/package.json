@@ -1,19 +1,26 @@
 {
-  "name": "@macroforge/shared",
-  "version": "0.1.42",
+  "dependencies": {
+    "macroforge": "^0.1.48"
+  },
   "description": "Shared utilities for Macroforge plugins",
-  "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.9.3"
+  },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
     "dist"
   ],
+  "main": "./dist/index.js",
+  "name": "@macroforge/shared",
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/macroforge-ts/shared.git"
@@ -23,14 +30,7 @@
     "clean": "rm -rf dist",
     "cleanbuild": "npm run clean && npm run build"
   },
-  "dependencies": {
-    "macroforge": "^0.1.45"
-  },
-  "peerDependencies": {
-    "typescript": ">=5.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.10.2",
-    "typescript": "^5.9.3"
-  }
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "version": "0.1.49"
 }
