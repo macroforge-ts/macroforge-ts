@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { navigation, type NavSection } from '$lib/config/navigation';
+	import { navigation, resolvePath, type NavSection, type NavItem } from '$lib/config/navigation';
 	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 
-	const getHref = (href: string) => resolve(href);
-	const isActive = (href: string) => page.url.pathname === getHref(href);
+	const getHref = (href: NavItem['href']) => resolvePath(href);
+	const isActive = (href: NavItem['href']) => page.url.pathname === getHref(href);
 	const isSectionActive = (section: NavSection) => section.items.some((item) => isActive(item.href));
 </script>
 

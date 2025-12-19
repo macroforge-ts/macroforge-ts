@@ -1,17 +1,16 @@
 <script lang="ts">
-	import { getPrevNext } from '$lib/config/navigation';
+	import { getPrevNext, resolvePath, type NavItem } from '$lib/config/navigation';
 	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 
 	// Get path relative to base for comparison with navigation hrefs
-	const basePath = resolve('/');
+	const basePath = resolvePath('/');
 	const pathWithoutBase = $derived(
 		page.url.pathname.startsWith(basePath)
 			? page.url.pathname.slice(basePath.length) || '/'
 			: page.url.pathname
 	);
 	const { prev, next } = $derived(getPrevNext(pathWithoutBase));
-	const getHref = (href: string) => resolve(href);
+	const getHref = (href: NavItem['href']) => resolvePath(href);
 </script>
 
 <nav class="mt-12 pt-6 border-t border-border">
