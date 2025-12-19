@@ -937,7 +937,7 @@ fn main() -> ExitCode {
         println!("{}", "=".repeat(60));
         println!(
             "\nAll builds and tests passed. To do a real release, run:\n  {}",
-            format!("rust-script tooling/scripts/prep.rs --repos {}", args.repos).cyan()
+            format!("pixi run prep --repos {}", args.repos).cyan()
         );
     } else {
         println!("\n{}", "=".repeat(60));
@@ -945,29 +945,12 @@ fn main() -> ExitCode {
         println!("Updated repos: {}", repo_names.join(", ").cyan());
         println!("{}", "=".repeat(60));
 
-        // Generate git commands
-        println!("\n{}:\n", "Next steps".bold());
-        for repo in &repos {
-            println!("  # {}", repo.name);
-            println!(
-                "  (cd {} && git add -A && git commit -m \"Bump to {}\" && git tag -d v{} 2>/dev/null; git push origin :refs/tags/v{} 2>/dev/null; git tag v{} && git push && git push --tags)\n",
-                repo.path, version, version, version, version
-            );
-        }
-
-        if repos.len() > 1 {
-            println!("Or run all at once:");
-            let cmds: Vec<String> = repos
-                .iter()
-                .map(|r| {
-                    format!(
-                        "(cd {} && git add -A && git commit -m \"Bump to {}\" && git tag -d v{} 2>/dev/null; git push origin :refs/tags/v{} 2>/dev/null; git tag v{} && git push && git push --tags)",
-                        r.path, version, version, version, version
-                    )
-                })
-                .collect();
-            println!("  {}\n", cmds.join(" && "));
-        }
+        println!("\n{}", "Next step:".bold());
+        println!(
+            "  {}",
+            format!("pixi run commit --repos {}", args.repos).cyan()
+        );
+        println!();
     }
 
     ExitCode::SUCCESS
