@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/shared",
-  "version": "0.1.46",
+  "version": "0.1.42",
   "description": "Shared utilities for Macroforge plugins",
   "type": "module",
   "main": "./dist/index.js",
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rymskip/macroforge-ts.git"
+    "url": "git+https://github.com/macroforge-ts/shared.git"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -24,7 +24,7 @@
     "cleanbuild": "npm run clean && npm run build"
   },
   "dependencies": {
-    "macroforge": "^0.1.46"
+    "macroforge": "^0.1.45"
   },
   "peerDependencies": {
     "typescript": ">=5.0.0"

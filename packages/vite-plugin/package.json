@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/vite-plugin",
-  "version": "0.1.46",
+  "version": "0.1.42",
   "type": "module",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -15,14 +15,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rymskip/macroforge-ts.git"
+    "url": "git+https://github.com/macroforge-ts/vite-plugin.git"
   },
   "scripts": {
     "test": "node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "@macroforge/shared": "^0.1.46",
-    "macroforge": "^0.1.46"
+    "@macroforge/shared": "^0.1.42",
+    "macroforge": "^0.1.45"
   },
   "peerDependencies": {
     "vite": "^5.0.0 || ^6.0.0 || ^7.0.0"

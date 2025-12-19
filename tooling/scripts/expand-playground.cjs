@@ -5,6 +5,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { execSync } = require("node:child_process");
 const Module = require("node:module");
+const { root, resolve } = require("./env.cjs");
 
 program
   .name('expand-playground')
@@ -13,8 +14,8 @@ program
 
 // Path to the CLI binary (debug or release)
 const cliBinary = (() => {
-  const release = path.join(__dirname, "..", "crates", "target", "release", "macroforge");
-  const debug = path.join(__dirname, "..", "crates", "target", "debug", "macroforge");
+  const release = resolve("crates", "target", "release", "macroforge");
+  const debug = resolve("crates", "target", "debug", "macroforge");
   if (fs.existsSync(release)) return release;
   if (fs.existsSync(debug)) return debug;
   return "macroforge"; // Fall back to PATH
@@ -22,8 +23,8 @@ const cliBinary = (() => {
 
 // Ensure external macros resolve (e.g. @playground/macro used by demos)
 const extraNodePaths = [
-  path.join(__dirname, "..", "playground", "tests", "node_modules"),
-  path.join(__dirname, "..", "playground", "macro", "node_modules"),
+  resolve("tooling", "playground", "tests", "node_modules"),
+  resolve("tooling", "playground", "macro", "node_modules"),
 ].filter(fs.existsSync);
 
 if (extraNodePaths.length > 0) {
@@ -33,15 +34,15 @@ if (extraNodePaths.length > 0) {
 }
 
 const roots = [
-  path.join(__dirname, "..", "playground", "svelte", "src", "lib", "demo"),
-  path.join(__dirname, "..", "playground", "svelte", "src", "lib", "demo", "types"),
-  path.join(__dirname, "..", "playground", "vanilla", "src"),
+  resolve("tooling", "playground", "svelte", "src", "lib", "demo"),
+  resolve("tooling", "playground", "svelte", "src", "lib", "demo", "types"),
+  resolve("tooling", "playground", "vanilla", "src"),
 ];
 
 // Format expanded files with biome (run from each playground root to respect local biome.json)
 const playgroundRoots = [
-  path.join(__dirname, "..", "playground", "svelte"),
-  path.join(__dirname, "..", "playground", "vanilla"),
+  resolve("tooling", "playground", "svelte"),
+  resolve("tooling", "playground", "vanilla"),
 ];
 
 function isSourceFile(file) {
@@ -79,7 +80,7 @@ function main(options) {
     }
   } else {
     // Use Node.js API
-    const { expandSync, loadConfig, clearConfigCache } = require("../crates/macroforge_ts");
+    const { expandSync, loadConfig, clearConfigCache } = require(resolve("crates", "macroforge_ts"));
 
     // Config file names in order of precedence
     const CONFIG_FILES = [

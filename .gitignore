@@ -31,3 +31,7 @@ src/macros/generated/
 *.zip
 
 .tmp/
+
+# Environment files
+.env
+tooling/.env

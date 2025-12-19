@@ -12,12 +12,11 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const crypto = require('crypto');
+const { root: rootDir, resolve } = require('./env.cjs');
 
 program
 	.name('check-docs-freshness')
 	.description('Check if generated documentation is in sync with source code (CI script)');
-
-const rootDir = path.join(__dirname, '..');
 
 // Files to check
 const GENERATED_FILES = [

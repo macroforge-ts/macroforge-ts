@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# Build artifacts
+dist/
+*.node
+*.wasm
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Temp files
+.tmp/
+
+# Expanded macro files (if not tracked)
+*.expanded.ts
