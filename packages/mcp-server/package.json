@@ -1,11 +1,36 @@
 {
-  "name": "@macroforge/mcp-server",
-  "version": "0.1.42",
-  "description": "MCP server for Macroforge documentation and code analysis",
-  "type": "module",
-  "main": "dist/index.js",
   "bin": {
     "macroforge-mcp": "./dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.1"
+  },
+  "description": "MCP server for Macroforge documentation and code analysis",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "keywords": [
+    "mcp",
+    "macroforge",
+    "typescript",
+    "macros",
+    "documentation"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "name": "@macroforge/mcp-server",
+  "peerDependencies": {
+    "macroforge": "^0.1.48"
+  },
+  "peerDependenciesMeta": {
+    "macroforge": {
+      "optional": true
+    }
   },
   "repository": {
     "type": "git",
@@ -20,31 +45,6 @@
     "start": "node dist/index.js",
     "test": "node --test tests/**/*.test.js"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.11.1"
-  },
-  "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.7.0"
-  },
-  "peerDependencies": {
-    "macroforge": "^0.1.45"
-  },
-  "peerDependenciesMeta": {
-    "macroforge": {
-      "optional": true
-    }
-  },
-  "files": [
-    "dist",
-    "docs"
-  ],
-  "keywords": [
-    "mcp",
-    "macroforge",
-    "typescript",
-    "macros",
-    "documentation"
-  ],
-  "license": "MIT"
+  "type": "module",
+  "version": "0.1.49"
 }
