@@ -1,19 +1,15 @@
 {
-  "name": "@macroforge/svelte-preprocessor",
-  "version": "0.1.46",
+  "dependencies": {
+    "macroforge": "^0.1.49"
+  },
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "svelte": "^5.43.8",
+    "typescript": "^5.9.3"
+  },
   "files": [
     "dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rymskip/macroforge-ts.git",
-    "directory": "packages/svelte-preprocessor"
-  },
-  "license": "MIT",
   "keywords": [
     "svelte",
     "preprocessor",
@@ -22,20 +18,24 @@
     "typescript",
     "sveltekit"
   ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "name": "@macroforge/svelte-preprocessor",
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "repository": {
+    "directory": "packages/svelte-preprocessor",
+    "type": "git",
+    "url": "git+https://github.com/rymskip/macroforge-ts.git"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
     "cleanbuild": "npm run clean && npm run build",
     "test": "npm run build && node --test tests/**/*.test.js"
   },
-  "dependencies": {
-    "macroforge": "^0.1.46"
-  },
-  "peerDependencies": {
-    "svelte": "^5.0.0"
-  },
-  "devDependencies": {
-    "svelte": "^5.43.8",
-    "typescript": "^5.9.3"
-  }
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "version": "0.1.49"
 }
