@@ -11,6 +11,7 @@
 //! serde_json = "1"
 //! petgraph = "0.6"
 //! colored = "2"
+//! ctrlc = "3.4"
 //! ```
 
 use clap::Parser;
@@ -22,6 +23,8 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 // ============================================================================
 // CLI
@@ -54,6 +57,18 @@ struct Args {
     /// Verbose output
     #[arg(short, long)]
     verbose: bool,
+
+    /// Don't cascade version bumps to dependent packages
+    #[arg(long)]
+    no_cascade: bool,
+
+    /// Only bump versions (skip build, test, and docs)
+    #[arg(long)]
+    bump_only: bool,
+
+    /// Sync all packages/crates/extensions to their latest versions from versions.json
+    #[arg(long)]
+    sync_latest: bool,
 }
 
 // ============================================================================
@@ -217,6 +232,29 @@ fn npm_package_names() -> HashMap<&'static str, &'static str> {
     .collect()
 }
 
+/// Map repo names to their published package/crate names
+fn published_names() -> HashMap<&'static str, &'static str> {
+    [
+        // npm packages
+        ("core", "macroforge"),
+        ("shared", "@macroforge/shared"),
+        ("vite-plugin", "@macroforge/vite-plugin"),
+        ("typescript-plugin", "@macroforge/typescript-plugin"),
+        ("svelte-language-server", "@macroforge/svelte-language-server"),
+        ("svelte-preprocessor", "@macroforge/svelte-preprocessor"),
+        ("mcp-server", "@macroforge/mcp-server"),
+        // crates
+        ("syn", "macroforge_ts_syn"),
+        ("template", "macroforge_ts_quote"),
+        ("macros", "macroforge_ts_macros"),
+        // other
+        ("website", "macroforge.dev"),
+        ("zed-extensions", "zed extensions"),
+    ]
+    .into_iter()
+    .collect()
+}
+
 // ============================================================================
 // Dependency Graph
 // ============================================================================
@@ -275,6 +313,36 @@ impl DependencyGraph {
         deps.get(repo_name)
             .map(|d| d.iter().map(|s| s.to_string()).collect())
             .unwrap_or_default()
+    }
+
+    /// Get all repos that depend on the given repo (direct dependents)
+    fn get_dependents(&self, repo_name: &str) -> Vec<String> {
+        let deps = dependency_map();
+        deps.iter()
+            .filter(|(_, dependencies)| dependencies.contains(&repo_name))
+            .map(|(dependent, _)| dependent.to_string())
+            .collect()
+    }
+
+    /// Compute all repos that should be updated when the given repos are bumped.
+    /// This includes the original repos plus all transitive dependents (cascade).
+    fn cascade_to_dependents(&self, repo_names: &[&str]) -> Vec<String> {
+        let mut result: std::collections::HashSet<String> = repo_names.iter().map(|s| s.to_string()).collect();
+        let mut to_process: Vec<String> = repo_names.iter().map(|s| s.to_string()).collect();
+
+        while let Some(repo) = to_process.pop() {
+            for dependent in self.get_dependents(&repo) {
+                if result.insert(dependent.clone()) {
+                    to_process.push(dependent);
+                }
+            }
+        }
+
+        // Return in topological order
+        match self.sorted_order() {
+            Ok(sorted) => sorted.into_iter().filter(|r| result.contains(r)).collect(),
+            Err(_) => result.into_iter().collect(),
+        }
     }
 }
 
@@ -603,6 +671,86 @@ fn update_cargo_toml(root: &Path, cargo_path: &str, version: &str, versions: &Ve
     Ok(())
 }
 
+// ============================================================================
+// Dependency Swapping (registry <-> local path)
+// ============================================================================
+
+/// Internal crate dependencies that need swapping
+const INTERNAL_CRATES: &[(&str, &str, &str)] = &[
+    ("macroforge_ts_syn", "syn", "../macroforge_ts_syn"),
+    ("macroforge_ts_quote", "template", "../macroforge_ts_quote"),
+    ("macroforge_ts_macros", "macros", "../macroforge_ts_macros"),
+];
+
+/// Swap registry dependencies to local path dependencies for building
+fn swap_to_local_deps(root: &Path) -> std::io::Result<()> {
+    let cargo_path = root.join("crates/macroforge_ts/Cargo.toml");
+    if !cargo_path.exists() {
+        return Ok(());
+    }
+
+    let content = fs::read_to_string(&cargo_path)?;
+    let mut new_lines = Vec::new();
+
+    for line in content.lines() {
+        let mut replaced = false;
+        for (crate_name, _, local_path) in INTERNAL_CRATES {
+            // Match: crate_name = "version"
+            if line.trim().starts_with(&format!("{} = \"", crate_name)) {
+                new_lines.push(format!("{} = {{ path = \"{}\" }}", crate_name, local_path));
+                replaced = true;
+                break;
+            }
+        }
+        if !replaced {
+            new_lines.push(line.to_string());
+        }
+    }
+
+    fs::write(&cargo_path, new_lines.join("\n") + "\n")?;
+    Ok(())
+}
+
+/// Swap local path dependencies back to registry dependencies
+fn swap_to_registry_deps(root: &Path, versions: &VersionsCache) -> std::io::Result<()> {
+    let cargo_path = root.join("crates/macroforge_ts/Cargo.toml");
+    if !cargo_path.exists() {
+        return Ok(());
+    }
+
+    let content = fs::read_to_string(&cargo_path)?;
+    let mut new_lines = Vec::new();
+
+    for line in content.lines() {
+        let mut replaced = false;
+        for (crate_name, repo_name, local_path) in INTERNAL_CRATES {
+            // Match: crate_name = { path = "..." }
+            if line.trim().starts_with(&format!("{} = {{ path = \"{}\"", crate_name, local_path)) {
+                let version = versions.get(repo_name).cloned().unwrap_or_else(|| "0.1.0".to_string());
+                new_lines.push(format!("{} = \"{}\"", crate_name, version));
+                replaced = true;
+                break;
+            }
+        }
+        if !replaced {
+            new_lines.push(line.to_string());
+        }
+    }
+
+    fs::write(&cargo_path, new_lines.join("\n") + "\n")?;
+    Ok(())
+}
+
+/// Check if currently using local path dependencies
+fn is_using_local_deps(root: &Path) -> bool {
+    let cargo_path = root.join("crates/macroforge_ts/Cargo.toml");
+    if let Ok(content) = fs::read_to_string(&cargo_path) {
+        content.contains("path = \"../macroforge_ts_")
+    } else {
+        false
+    }
+}
+
 fn update_repo_version(root: &Path, repo: &Repo, version: &str, versions: &VersionsCache) -> std::io::Result<()> {
     println!("\n[{}] -> {}", repo.name.cyan(), version.green());
 
@@ -637,7 +785,104 @@ fn update_repo_version(root: &Path, repo: &Repo, version: &str, versions: &Versi
         }
     }
 
+    // Special handling for zed-extensions - update lib.rs version constants
+    if repo.name == "zed-extensions" {
+        update_zed_extensions(root, versions)?;
+    }
+
     Ok(())
+}
+
+/// Update version constants in zed extension lib.rs files
+fn update_zed_extensions(root: &Path, versions: &VersionsCache) -> std::io::Result<()> {
+    // Update vtsls-macroforge extension
+    let vtsls_lib_path = root.join("crates/extensions/vtsls-macroforge/src/lib.rs");
+    if vtsls_lib_path.exists() {
+        let mut content = fs::read_to_string(&vtsls_lib_path)?;
+
+        // Update TS_PLUGIN_VERSION with typescript-plugin version
+        if let Some(ts_plugin_ver) = versions.get("typescript-plugin") {
+            let re = regex_replace(&content, r#"const TS_PLUGIN_VERSION: &str = "[^"]+";"#,
+                &format!(r#"const TS_PLUGIN_VERSION: &str = "{}";"#, ts_plugin_ver));
+            content = re;
+        }
+
+        // Update MACROFORGE_VERSION with core version
+        if let Some(core_ver) = versions.get("core") {
+            let re = regex_replace(&content, r#"const MACROFORGE_VERSION: &str = "[^"]+";"#,
+                &format!(r#"const MACROFORGE_VERSION: &str = "{}";"#, core_ver));
+            content = re;
+        }
+
+        fs::write(&vtsls_lib_path, content)?;
+        println!("  Updated crates/extensions/vtsls-macroforge/src/lib.rs");
+    }
+
+    // Update svelte-macroforge extension
+    let svelte_lib_path = root.join("crates/extensions/svelte-macroforge/src/lib.rs");
+    if svelte_lib_path.exists() {
+        let mut content = fs::read_to_string(&svelte_lib_path)?;
+
+        // Update SVELTE_LS_VERSION with svelte-language-server version
+        if let Some(svelte_ls_ver) = versions.get("svelte-language-server") {
+            let re = regex_replace(&content, r#"const SVELTE_LS_VERSION: &str = "[^"]+";"#,
+                &format!(r#"const SVELTE_LS_VERSION: &str = "{}";"#, svelte_ls_ver));
+            content = re;
+
+            // Also update the test assertion
+            let re2 = regex_replace(&content, r#"assert_eq!\(SVELTE_LS_VERSION, "[^"]+"\);"#,
+                &format!(r#"assert_eq!(SVELTE_LS_VERSION, "{}");"#, svelte_ls_ver));
+            content = re2;
+        }
+
+        fs::write(&svelte_lib_path, content)?;
+        println!("  Updated crates/extensions/svelte-macroforge/src/lib.rs");
+    }
+
+    Ok(())
+}
+
+/// Simple regex replacement without the regex crate
+fn regex_replace(text: &str, pattern: &str, replacement: &str) -> String {
+    // For our specific patterns, we can use simple string matching
+    // Pattern format: const NAME: &str = "...";
+    let lines: Vec<&str> = text.lines().collect();
+    let mut result = Vec::new();
+
+    for line in lines {
+        // Extract the constant name from the pattern
+        if pattern.starts_with(r#"const "#) && pattern.contains(": &str = ") {
+            // Extract constant name
+            let const_name = pattern
+                .strip_prefix(r#"const "#)
+                .and_then(|s| s.split(':').next())
+                .unwrap_or("");
+
+            if line.trim().starts_with(&format!("const {}", const_name)) && line.contains(": &str = ") {
+                result.push(replacement.to_string());
+                continue;
+            }
+        } else if pattern.starts_with("assert_eq!(") {
+            // Handle assert_eq! pattern
+            let fn_name = pattern
+                .strip_prefix("assert_eq!(")
+                .and_then(|s| s.split(',').next())
+                .unwrap_or("");
+
+            if line.trim().starts_with(&format!("assert_eq!({}", fn_name)) {
+                result.push(format!("        {}", replacement));
+                continue;
+            }
+        }
+        result.push(line.to_string());
+    }
+
+    // Preserve trailing newline if original had one
+    let mut output = result.join("\n");
+    if text.ends_with('\n') && !output.ends_with('\n') {
+        output.push('\n');
+    }
+    output
 }
 
 // ============================================================================
@@ -726,6 +971,63 @@ fn build_repo(root: &Path, repo: &Repo, built_repos: &[&str], graph: &Dependency
 }
 
 // ============================================================================
+// Sync Latest
+// ============================================================================
+
+/// Sync all repos to their versions from versions.json
+fn sync_all_to_latest(root: &Path) -> ExitCode {
+    println!("{}", "═".repeat(60));
+    println!("{}", "Syncing all packages to latest versions".bold());
+    println!("{}", "═".repeat(60));
+
+    let versions = VersionsCache::load(root);
+    let all = all_repos();
+
+    let mut updated = Vec::new();
+    let mut skipped = Vec::new();
+
+    for repo in &all {
+        let version = match versions.get(repo.name) {
+            Some(v) => v.clone(),
+            None => {
+                skipped.push(repo.name);
+                continue;
+            }
+        };
+
+        if let Err(e) = update_repo_version(root, repo, &version, &versions) {
+            eprintln!("{}: {} - {}", "Error".red(), repo.name, e);
+            continue;
+        }
+        updated.push((repo.name, version));
+    }
+
+    // Also update zed-extensions lib.rs files
+    if let Err(e) = update_zed_extensions(root, &versions) {
+        eprintln!("{}: zed-extensions - {}", "Error".red(), e);
+    }
+
+    println!("\n{}", "═".repeat(60));
+    println!("{}", "Summary".bold());
+    println!("{}", "═".repeat(60));
+
+    if !updated.is_empty() {
+        println!("\n{}:", "Updated".green().bold());
+        for (name, version) in &updated {
+            println!("  {} → {}", name.cyan(), version.green());
+        }
+    }
+
+    if !skipped.is_empty() {
+        println!("\n{}: {}", "Skipped (no version in versions.json)".yellow(), skipped.join(", "));
+    }
+
+    println!("\n{} Run {} to apply formatting.", "Tip:".dimmed(), "cargo fmt".cyan());
+
+    ExitCode::SUCCESS
+}
+
+// ============================================================================
 // Main
 // ============================================================================
 
@@ -743,9 +1045,40 @@ fn main() -> ExitCode {
                 .unwrap_or_else(|| cwd.clone())
         });
 
+    // Set up Ctrl+C handler
+    let interrupted = Arc::new(AtomicBool::new(false));
+    let interrupted_clone = interrupted.clone();
+    let root_clone = root.clone();
+    if let Err(e) = ctrlc::set_handler(move || {
+        // Check if already interrupted (prevent double cleanup)
+        if interrupted_clone.swap(true, Ordering::SeqCst) {
+            eprintln!("\n{} Force exiting...", "⚠".red());
+            std::process::exit(130);
+        }
+
+        eprintln!("\n{} Received Ctrl+C, cleaning up...", "⚠".yellow());
+
+        // Restore registry deps if we were using local
+        if is_using_local_deps(&root_clone) {
+            eprintln!("  {} Restoring registry dependencies...", "→".yellow());
+            let versions = VersionsCache::load(&root_clone);
+            let _ = swap_to_registry_deps(&root_clone, &versions);
+        }
+
+        eprintln!("{} Cleanup complete. Exiting.", "✓".green());
+        std::process::exit(130); // 130 = 128 + SIGINT(2)
+    }) {
+        eprintln!("{} Failed to set Ctrl+C handler: {}", "Warning:".yellow(), e);
+    }
+
+    // Handle --sync-latest: update all repos to their versions.json versions
+    if args.sync_latest {
+        return sync_all_to_latest(&root);
+    }
+
     // Parse repos
     let all = all_repos();
-    let repos: Vec<Repo> = match args.repos.as_str() {
+    let initial_repos: Vec<Repo> = match args.repos.as_str() {
         "all" => all.clone(),
         "rust" => all.iter().filter(|r| r.repo_type == RepoType::Rust).cloned().collect(),
         "ts" => all.iter().filter(|r| r.repo_type == RepoType::Ts).cloned().collect(),
@@ -755,13 +1088,34 @@ fn main() -> ExitCode {
             .collect(),
     };
 
-    if repos.is_empty() {
+    if initial_repos.is_empty() {
         eprintln!("{}", "No repos selected".red());
         return ExitCode::FAILURE;
     }
 
-    // Build dependency graph and get topological order
-    let graph = DependencyGraph::new(&repos);
+    // Build dependency graph with ALL repos to get the full picture
+    let graph = DependencyGraph::new(&all);
+
+    // Cascade to dependents unless --no-cascade is specified
+    let initial_names: Vec<&str> = initial_repos.iter().map(|r| r.name).collect();
+    let cascaded_names: Vec<String> = if args.no_cascade || args.repos == "all" {
+        initial_names.iter().map(|s| s.to_string()).collect()
+    } else {
+        let cascaded = graph.cascade_to_dependents(&initial_names);
+        if cascaded.len() > initial_names.len() {
+            let added: Vec<_> = cascaded.iter()
+                .filter(|n| !initial_names.contains(&n.as_str()))
+                .collect();
+            println!(
+                "{}: Adding dependents: {}",
+                "Cascading".yellow(),
+                added.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", ").cyan()
+            );
+        }
+        cascaded
+    };
+
+    // Get repos in topological order
     let sorted_names = match graph.sorted_order() {
         Ok(names) => names,
         Err(e) => {
@@ -770,17 +1124,23 @@ fn main() -> ExitCode {
         }
     };
 
-    // Reorder repos according to dependency order
+    // Filter to only selected repos, in topological order
     let repos: Vec<Repo> = sorted_names
         .iter()
-        .filter_map(|name| repos.iter().find(|r| r.name == name).cloned())
+        .filter(|name| cascaded_names.contains(name))
+        .filter_map(|name| all.iter().find(|r| r.name == name).cloned())
         .collect();
 
     let repo_names: Vec<&str> = repos.iter().map(|r| r.name).collect();
 
-    // Load versions cache
+    // Load versions cache and track original versions for summary
     let mut versions = VersionsCache::load(&root);
-    let _original_versions = versions.clone();
+    let original_versions: HashMap<String, String> = repos
+        .iter()
+        .filter_map(|r| {
+            versions.get(r.name).map(|v| (r.name.to_string(), v.clone()))
+        })
+        .collect();
 
     // Determine version
     let base_version = if repo_names.len() == 1 {
@@ -851,8 +1211,8 @@ fn main() -> ExitCode {
     }
 
     // Step 2: Extract docs
-    if args.skip_docs {
-        println!("\n{}", "[2/9] Skipping documentation extraction (--skip-docs)...".dimmed());
+    if args.skip_docs || args.bump_only {
+        println!("\n{}", "[2/9] Skipping documentation extraction...".dimmed());
     } else {
         println!("\n{}", "[2/9] Extracting API documentation...".bold());
         if let Err(e) = run_cmd("rust-script tooling/scripts/extract-rust-docs.rs", &root) {
@@ -865,24 +1225,40 @@ fn main() -> ExitCode {
     }
 
     // Steps 3-6: Build, fmt, clippy, test
-    if args.skip_build {
-        println!("\n{}", "[3/9] Skipping build (--skip-build)...".dimmed());
-        println!("{}", "[4/9] Skipping fmt (--skip-build)...".dimmed());
-        println!("{}", "[5/9] Skipping clippy (--skip-build)...".dimmed());
-        println!("{}", "[6/9] Skipping tests (--skip-build)...".dimmed());
+    if args.skip_build || args.bump_only {
+        println!("\n{}", "[3/9] Skipping build...".dimmed());
+        println!("{}", "[4/9] Skipping fmt...".dimmed());
+        println!("{}", "[5/9] Skipping clippy...".dimmed());
+        println!("{}", "[6/9] Skipping tests...".dimmed());
     } else {
         println!("\n{}", "[3/9] Clean building packages (in dependency order)...".bold());
 
+        // Swap to local path dependencies for building
+        println!("  {} Swapping to local path dependencies...", "→".blue());
+        if let Err(e) = swap_to_local_deps(&root) {
+            eprintln!("{}: {}", "Failed to swap to local deps".red(), e);
+            return ExitCode::FAILURE;
+        }
+
+        // Helper closure to restore registry deps and handle cleanup
+        let cleanup = |root: &Path, versions: &VersionsCache| {
+            println!("  {} Restoring registry dependencies...", "→".blue());
+            let _ = swap_to_registry_deps(root, versions);
+        };
+
         let mut built: Vec<&str> = Vec::new();
         for repo in &repos {
+            // Check for interrupt before each repo
+            if interrupted.load(Ordering::SeqCst) {
+                eprintln!("\n{}", "Build interrupted by user".yellow());
+                cleanup(&root, &versions);
+                return ExitCode::FAILURE;
+            }
+
             println!("\n  {} {}", "Building:".bold(), repo.name.cyan());
             if let Err(e) = build_repo(&root, repo, &built, &graph) {
                 eprintln!("{}: {}", "Build failed".red(), e);
-                // Rollback
-                if !args.dry_run {
-                    println!("\n{}", "Rolling back versions...".yellow());
-                    // Restore original versions would go here
-                }
+                cleanup(&root, &versions);
                 return ExitCode::FAILURE;
             }
             built.push(repo.name);
@@ -893,33 +1269,54 @@ fn main() -> ExitCode {
 
         println!("\n{}", "[4/9] Checking formatting...".bold());
         for repo in &rust_repos {
+            if interrupted.load(Ordering::SeqCst) {
+                eprintln!("\n{}", "Format check interrupted by user".yellow());
+                cleanup(&root, &versions);
+                return ExitCode::FAILURE;
+            }
             if let Err(e) = run_cmd("cargo fmt -- --check", &root.join(repo.path)) {
                 eprintln!("{}: {}", "Format check failed".red(), e);
+                cleanup(&root, &versions);
                 return ExitCode::FAILURE;
             }
         }
 
         println!("\n{}", "[5/9] Running clippy...".bold());
         for repo in &rust_repos {
+            if interrupted.load(Ordering::SeqCst) {
+                eprintln!("\n{}", "Clippy interrupted by user".yellow());
+                cleanup(&root, &versions);
+                return ExitCode::FAILURE;
+            }
             if let Err(e) = run_cmd("cargo clippy -- -D warnings", &root.join(repo.path)) {
                 eprintln!("{}: {}", "Clippy failed".red(), e);
+                cleanup(&root, &versions);
                 return ExitCode::FAILURE;
             }
         }
 
         println!("\n{}", "[6/9] Running tests...".bold());
         for repo in &rust_repos {
+            if interrupted.load(Ordering::SeqCst) {
+                eprintln!("\n{}", "Tests interrupted by user".yellow());
+                cleanup(&root, &versions);
+                return ExitCode::FAILURE;
+            }
             if let Err(e) = run_cmd("cargo test", &root.join(repo.path)) {
                 eprintln!("{}: {}", "Tests failed".red(), e);
+                cleanup(&root, &versions);
                 return ExitCode::FAILURE;
             }
         }
+
+        // Restore registry deps after successful build
+        cleanup(&root, &versions);
     }
 
     // Steps 7-8: Docs
-    if args.skip_docs {
-        println!("\n{}", "[7/9] Skipping docs book (--skip-docs)...".dimmed());
-        println!("{}", "[8/9] Skipping MCP docs sync (--skip-docs)...".dimmed());
+    if args.skip_docs || args.bump_only {
+        println!("\n{}", "[7/9] Skipping docs book...".dimmed());
+        println!("{}", "[8/9] Skipping MCP docs sync...".dimmed());
     } else {
         println!("\n{}", "[7/9] Rebuilding docs book...".bold());
         let _ = run_cmd("rust-script tooling/scripts/build-docs-book.rs", &root);
@@ -940,10 +1337,72 @@ fn main() -> ExitCode {
             format!("pixi run prep --repos {}", args.repos).cyan()
         );
     } else {
-        println!("\n{}", "=".repeat(60));
-        println!("Done! Ready to commit version {}", version.green());
-        println!("Updated repos: {}", repo_names.join(", ").cyan());
-        println!("{}", "=".repeat(60));
+        println!("\n{}", "═".repeat(80));
+        println!("{}", "Version Summary".bold());
+        println!("{}", "═".repeat(80));
+
+        let pub_names = published_names();
+
+        // Calculate column widths
+        let name_width = repos.iter().map(|r| r.name.len()).max().unwrap_or(8).max(8);
+        let pub_width = repos
+            .iter()
+            .filter_map(|r| pub_names.get(r.name).map(|s| s.len()))
+            .max()
+            .unwrap_or(20)
+            .max(20);
+        let ver_width = 8;
+
+        // Header
+        println!(
+            "  {:<nw$}  {:<pw$}  {:>vw$}  →  {:>vw$}",
+            "Repo".bold(),
+            "Package/Crate".bold(),
+            "Before".dimmed(),
+            "After".bold(),
+            nw = name_width,
+            pw = pub_width,
+            vw = ver_width
+        );
+        println!("  {}", "─".repeat(name_width + pub_width + ver_width * 2 + 11));
+
+        // Rows
+        for repo in &repos {
+            let pub_name = pub_names.get(repo.name).copied().unwrap_or("—");
+            let before = original_versions
+                .get(repo.name)
+                .map(|s| s.as_str())
+                .unwrap_or("(new)");
+            let changed = before != version;
+
+            if changed {
+                println!(
+                    "  {:<nw$}  {:<pw$}  {:>vw$}  →  {:>vw$}",
+                    repo.name.cyan(),
+                    pub_name,
+                    before.dimmed(),
+                    version.green(),
+                    nw = name_width,
+                    pw = pub_width,
+                    vw = ver_width
+                );
+            } else {
+                println!(
+                    "  {:<nw$}  {:<pw$}  {:>vw$}  →  {:>vw$}",
+                    repo.name,
+                    pub_name.dimmed(),
+                    before.dimmed(),
+                    version.dimmed(),
+                    nw = name_width,
+                    pw = pub_width,
+                    vw = ver_width
+                );
+            }
+        }
+
+        println!("\n{}", "═".repeat(80));
+        println!("{} Ready to commit!", "✓".green());
+        println!("{}", "═".repeat(80));
 
         println!("\n{}", "Next step:".bold());
         println!(
