@@ -1,7 +1,7 @@
 [package]
 name = "macroforge_ts_quote"
 description = "Quote macro for generating TypeScript code at compile time"
-version = "0.1.43"
+version = "0.1.44"
 edition = "2024"
 authors = ["macroforge contributors"]
 license = "MIT"
