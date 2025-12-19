@@ -910,7 +910,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.47"
+version = "0.1.48"
 dependencies = [
  "anyhow",
  "clap",
@@ -934,9 +934,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.45"
+version = "0.1.46"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa099487b9a7153638802838b42fffb056afe450424d8d8d28e89f07caed2129"
+checksum = "1f4ec859470f5c3c7e8801f3a62ff2d693a4319fad435bd8925f4b77173b4c50"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",

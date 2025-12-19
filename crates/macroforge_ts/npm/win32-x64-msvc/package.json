@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/bin-win32-x64-msvc",
-  "version": "0.1.47",
+  "version": "0.1.48",
   "cpu": [
     "x64"
   ],
@@ -17,17 +17,17 @@
     "swc"
   ],
   "author": "macroforge contributors",
-  "homepage": "https://github.com/rymskip/macroforge-ts#readme",
+  "homepage": "https://github.com/macroforge-ts/core#readme",
   "license": "MIT",
   "engines": {
     "node": ">= 18"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rymskip/macroforge-ts.git"
+    "url": "git+https://github.com/macroforge-ts/core.git"
   },
   "bugs": {
-    "url": "https://github.com/rymskip/macroforge-ts/issues"
+    "url": "https://github.com/macroforge-ts/core/issues"
   },
   "os": [
     "win32"

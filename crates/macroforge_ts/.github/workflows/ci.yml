@@ -148,12 +148,12 @@ jobs:
           for dir in npm/*/; do
             if [ -d "$dir" ]; then
               echo "Publishing $dir"
-              npm publish "$dir" --access public || true
+              npm publish "$dir" --access public --provenance
             fi
           done
 
       - name: Publish macroforge
-        run: npm publish --access public
+        run: npm publish --access public --provenance
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
