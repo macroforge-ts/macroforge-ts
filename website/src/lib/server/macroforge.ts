@@ -1,5 +1,14 @@
-import { expandSync } from 'macroforge';
 import { highlightCode } from '../shiki-highlighter.js';
+
+let expandSync: typeof import('macroforge').expandSync | null = null;
+
+async function getExpandSync() {
+	if (!expandSync) {
+		const macroforge = await import('macroforge');
+		expandSync = macroforge.expandSync;
+	}
+	return expandSync;
+}
 
 export interface ExpandedExample {
 	before: string;
@@ -13,7 +22,8 @@ export interface ExpandedExample {
  * Strips the import statement from the output for cleaner display
  */
 export async function expandExample(code: string, filename = 'example.ts'): Promise<ExpandedExample> {
-	const result = expandSync(code, filename);
+	const expand = await getExpandSync();
+	const result = expand(code, filename);
 
 	// Clean up the expanded code for display
 	let after = result.code;

@@ -1,6 +1,16 @@
 import { visit } from 'unist-util-visit';
 import { highlightCode } from './shiki-highlighter.js';
-import { expandSync } from 'macroforge';
+
+/** @type {typeof import('macroforge').expandSync | null} */
+let expandSync = null;
+
+async function getExpandSync() {
+	if (!expandSync) {
+		const macroforge = await import('macroforge');
+		expandSync = macroforge.expandSync;
+	}
+	return expandSync;
+}
 
 /**
  * Escape code for use in a Svelte expression.
@@ -157,7 +167,8 @@ export function remarkMacroBlocks() {
 
 		for (const { parent, index, node, lang } of interactiveMacros) {
 			// Expand the macro at build time
-			const result = expandSync(node.value, 'example.ts');
+			const expand = await getExpandSync();
+			const result = expand(node.value, 'example.ts');
 			let expandedCode = result.code;
 			// Remove the macroforge import line if present
 			expandedCode = expandedCode.replace(/^import\s+\{[^}]+\}\s+from\s+['"]macroforge['"];\s*\n?/m, '');
