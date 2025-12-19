@@ -1,14 +1,14 @@
 [package]
 name = "macroforge_ts_quote"
 description = "Quote macro for generating TypeScript code at compile time"
-version.workspace = true
-edition.workspace = true
-authors.workspace = true
-license.workspace = true
-repository.workspace = true
-homepage.workspace = true
-keywords.workspace = true
-categories.workspace = true
+version = "0.1.42"
+edition = "2024"
+authors = ["macroforge contributors"]
+license = "MIT"
+repository = "https://github.com/macroforge-ts/template"
+homepage = "https://github.com/macroforge-ts/template"
+keywords = ["typescript", "macros", "codegen", "derive"]
+categories = ["development-tools::procedural-macro-helpers"]
 readme = "README.md"
 
 [lib]

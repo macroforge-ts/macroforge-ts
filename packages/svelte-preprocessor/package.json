@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/svelte-preprocessor",
-  "version": "0.1.46",
+  "version": "0.1.45",
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
   "type": "module",
   "main": "dist/index.js",
@@ -10,8 +10,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rymskip/macroforge-ts.git",
-    "directory": "packages/svelte-preprocessor"
+    "url": "git+https://github.com/macroforge-ts/svelte-preprocessor.git"
   },
   "license": "MIT",
   "keywords": [
@@ -29,7 +28,7 @@
     "test": "npm run build && node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "macroforge": "^0.1.46"
+    "macroforge": "^0.1.45"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

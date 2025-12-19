@@ -8,11 +8,9 @@ const { program } = require('commander');
 const ts = require('typescript');
 const path = require('path');
 const fs = require('fs');
+const { root: projectRoot, resolve } = require('./env.cjs');
 
-// Get the project root (where this script is located)
-const scriptDir = __dirname;
-const projectRoot = path.dirname(scriptDir);
-const defaultTargetFile = 'playground/svelte/src/lib/demo/macro-user.ts';
+const defaultTargetFile = 'tooling/playground/svelte/src/lib/demo/macro-user.ts';
 
 program
 	.name('get-diagnostics')

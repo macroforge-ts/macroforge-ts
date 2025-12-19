@@ -1,3 +1,8 @@
+# NOTE: Each crate is now standalone and can be published independently.
+# This workspace is kept for convenience when developing in the monorepo.
+# Each crate has its own explicit version/metadata and uses published
+# crates.io versions for dependencies on other macroforge crates.
+
 [workspace]
 members = [
     "macroforge_ts",
@@ -8,13 +13,3 @@ members = [
     "macroforge_ts_macros",
 ]
 resolver = "2"
-
-[workspace.package]
-version = "0.1.46"
-edition = "2024"
-authors = ["macroforge contributors"]
-license = "MIT"
-repository = "https://github.com/rymskip/macroforge-ts"
-homepage = "https://github.com/rymskip/macroforge-ts"
-keywords = ["typescript", "macros", "codegen", "derive"]
-categories = ["development-tools::procedural-macro-helpers"]

@@ -3,14 +3,7 @@
 	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
 	"files": {
 		"ignoreUnknown": false,
-		"includes": [
-			"**",
-			"!!**/dist",
-			"!!**/build",
-			"!!**/.svelte-kit",
-			"!!**/node_modules",
-			"!!**/src/lib/form/legacy"
-		]
+		"includes": ["**", "!!**/dist", "!!**/build", "!!**/node_modules"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -56,9 +49,6 @@
 			"performance": {
 				"noAccumulatingSpread": "warn",
 				"noDelete": "warn"
-			},
-			"nursery": {
-				"useSortedClasses": "off"
 			}
 		}
 	},
@@ -78,25 +68,13 @@
 			"trailingCommas": "none"
 		}
 	},
-	"html": {
-		"experimentalFullSupportEnabled": true,
-		"formatter": {
-			"indentScriptAndStyle": true,
-			"selfCloseVoidElements": "always"
-		}
-	},
 	"assist": {
 		"enabled": true,
 		"actions": { "source": { "organizeImports": "on" } }
 	},
 	"overrides": [
 		{
-			"includes": [
-				"**/*.test.ts",
-				"**/*.spec.ts",
-				"**/*.test.js",
-				"**/*.spec.js"
-			],
+			"includes": ["**/*.test.ts", "**/*.spec.ts", "**/*.test.js", "**/*.spec.js"],
 			"linter": {
 				"rules": {
 					"suspicious": {
@@ -111,28 +89,6 @@
 				"rules": {
 					"suspicious": {
 						"noExplicitAny": "off"
-					}
-				}
-			}
-		},
-		{
-			"includes": ["**/*.svelte", "**/*.astro", "**/*.vue"],
-			"assist": {
-				"enabled": true,
-				"actions": { "source": { "organizeImports": "off" } }
-			},
-			"linter": {
-				"rules": {
-					"style": {
-						"useConst": "off",
-
-						"useImportType": "off"
-					},
-
-					"correctness": {
-						"noUnusedVariables": "off",
-
-						"noUnusedImports": "off"
 					}
 				}
 			}

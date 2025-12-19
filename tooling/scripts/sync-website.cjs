@@ -12,23 +12,22 @@ const { program } = require('commander');
 const { execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const { root, resolve } = require("./env.cjs");
 
 program
 	.name('sync-website')
 	.description('Update website to use published macroforge version (removes workspace symlink)');
 
-const root = path.resolve(__dirname, "..");
-
 // Get current version from an existing package
 function getCurrentVersion() {
-  const pkgPath = path.join(root, "packages/vite-plugin/package.json");
+  const pkgPath = resolve("packages/vite-plugin/package.json");
   const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
   return pkg.version;
 }
 
 function main() {
   const version = getCurrentVersion();
-  const websiteDir = path.join(root, "website");
+  const websiteDir = resolve("website");
 
   console.log(`Syncing website for deployment (macroforge@${version})...\n`);
 
