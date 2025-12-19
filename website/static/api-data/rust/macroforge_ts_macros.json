@@ -1,7 +1,7 @@
 {
   "name": "macroforge_ts_macros",
   "kind": "rust_crate",
-  "version": "0.1.54",
+  "version": "0.1.55",
   "description": "Derive macros for TypeScript compile-time code generation",
   "overview": "# Macroforge TypeScript Macros\n\nThis crate provides procedural macros for generating TypeScript macro infrastructure\nin the Macroforge ecosystem. It simplifies the creation of derive macros that can\ntransform TypeScript classes at compile time.\n\n## Overview\n\nThe primary macro provided is [`ts_macro_derive`], which transforms a Rust function\ninto a fully-fledged TypeScript macro that integrates with the Macroforge runtime.\n\n## Example\n\n```rust,ignore\nuse macroforge_ts_macros::ts_macro_derive;\n\n#[ts_macro_derive(Debug, description = \"Generates debug formatting\")]\nfn debug_macro(input: TsStream) -> Result<TsStream, MacroError> {\n    // Transform the input TypeScript class\n    Ok(input)\n}\n```\n\nThis generates:\n- A struct implementing the [`Macroforge`] trait\n- A NAPI function for JavaScript interop\n- Registration with the macro registry via `inventory`\n\n## Architecture\n\nThe generated code follows this pattern:\n\n1. **Macro Struct**: A unit struct that implements the `Macroforge` trait\n2. **NAPI Bridge**: A function exposed to JavaScript that handles JSON serialization\n3. **Descriptor**: Static metadata about the macro for runtime discovery\n4. **Registration**: Automatic registration with the `inventory` crate",
   "items": [
