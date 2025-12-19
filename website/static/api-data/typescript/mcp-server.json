@@ -1,7 +1,7 @@
 {
   "name": "@macroforge/mcp-server",
   "kind": "typescript_package",
-  "version": "0.1.50",
+  "version": "0.1.53",
   "description": "MCP server for Macroforge documentation and code analysis",
   "overview": "",
   "items": [
