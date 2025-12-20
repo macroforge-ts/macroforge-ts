@@ -3,30 +3,27 @@
 //!
 //! ```cargo
 //! [dependencies]
-//! serde = { version = "1", features = ["derive"] }
-//! serde_json = "1"
 //! colored = "2"
 //! ```
 
 use colored::*;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fs;
-use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
 
-// ============================================================================
-// Package Mappings
-// ============================================================================
+// ============================================================================ //
+// Package Mappings //
+// ============================================================================ //
 
-/// Map repo names to their npm package names
 fn npm_packages() -> HashMap<&'static str, &'static str> {
     [
         ("core", "macroforge"),
         ("shared", "@macroforge/shared"),
         ("vite-plugin", "@macroforge/vite-plugin"),
         ("typescript-plugin", "@macroforge/typescript-plugin"),
-        ("svelte-language-server", "@macroforge/svelte-language-server"),
+        (
+            "svelte-language-server",
+            "@macroforge/svelte-language-server",
+        ),
         ("svelte-preprocessor", "@macroforge/svelte-preprocessor"),
         ("mcp-server", "@macroforge/mcp-server"),
     ]
@@ -34,7 +31,6 @@ fn npm_packages() -> HashMap<&'static str, &'static str> {
     .collect()
 }
 
-/// Map repo names to their crates.io crate names
 fn crate_packages() -> HashMap<&'static str, &'static str> {
     [
         ("syn", "macroforge_ts_syn"),
@@ -45,17 +41,50 @@ fn crate_packages() -> HashMap<&'static str, &'static str> {
     .collect()
 }
 
-// ============================================================================
-// Version Fetching
-// ============================================================================
+// ============================================================================ //
+// Manifests Interop //
+// ============================================================================ //
 
-/// Fetch latest version from npm
+fn get_version(repo: &str, registry: bool) -> String {
+    let mut cmd = Command::new("rust-script");
+    cmd.args(["tooling/scripts/manifests.rs", "get-version", repo]);
+    if registry {
+        cmd.arg("--registry");
+    }
+
+    let output = cmd.output().expect("Failed to get version");
+    String::from_utf8_lossy(&output.stdout).trim().to_string()
+}
+
+fn set_version(repo: &str, version: &str, registry: bool) {
+    let mut cmd = Command::new("rust-script");
+    cmd.args(["tooling/scripts/manifests.rs", "set-version", repo, version]);
+    if registry {
+        cmd.arg("--registry");
+    }
+
+    let status = cmd.status().expect("Failed to set version");
+    if !status.success() {
+        eprintln!("Failed to set version for {}", repo);
+    }
+}
+
+fn update_zed() {
+    Command::new("rust-script")
+        .args(["tooling/scripts/manifests.rs", "update-zed"])
+        .status()
+        .expect("Failed to update zed");
+}
+
+// ============================================================================ //
+// Fetching //
+// ============================================================================ //
+
 fn fetch_npm_version(package: &str) -> Option<String> {
     let output = Command::new("npm")
         .args(["view", package, "version"])
         .output()
         .ok()?;
-
     if output.status.success() {
         Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
     } else {
@@ -63,19 +92,15 @@ fn fetch_npm_version(package: &str) -> Option<String> {
     }
 }
 
-/// Fetch latest version from crates.io
 fn fetch_crate_version(crate_name: &str) -> Option<String> {
     let output = Command::new("cargo")
         .args(["search", crate_name, "--limit", "1"])
         .output()
         .ok()?;
-
     if output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
-        // Output format: "crate_name = \"version\""
         for line in stdout.lines() {
             if line.starts_with(crate_name) {
-                // Extract version from: crate_name = "version"
                 if let Some(start) = line.find('"') {
                     if let Some(end) = line[start + 1..].find('"') {
                         return Some(line[start + 1..start + 1 + end].to_string());
@@ -87,60 +112,14 @@ fn fetch_crate_version(crate_name: &str) -> Option<String> {
     None
 }
 
-// ============================================================================
-// Versions Cache
-// ============================================================================
-
-#[derive(Debug, Serialize, Deserialize, Default, Clone)]
-struct VersionsCache(HashMap<String, String>);
-
-impl VersionsCache {
-    fn load(root: &Path) -> Self {
-        let path = root.join("tooling/versions.json");
-        if path.exists() {
-            let content = fs::read_to_string(&path).unwrap_or_default();
-            serde_json::from_str(&content).unwrap_or_default()
-        } else {
-            Self::default()
-        }
-    }
-
-    fn save(&self, root: &Path) -> std::io::Result<()> {
-        let path = root.join("tooling/versions.json");
-        let content = serde_json::to_string_pretty(&self.0)?;
-        fs::write(path, content + "\n")
-    }
-
-    fn get(&self, name: &str) -> Option<&String> {
-        self.0.get(name)
-    }
-
-    fn set(&mut self, name: &str, version: &str) {
-        self.0.insert(name.to_string(), version.to_string());
-    }
-}
-
-// ============================================================================
-// Main
-// ============================================================================
+// ============================================================================ //
+// Main //
+// ============================================================================ //
 
 fn main() -> ExitCode {
-    // Get root directory
-    let root = std::env::var("MACROFORGE_ROOT")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            let cwd = std::env::current_dir().unwrap();
-            cwd.ancestors()
-                .find(|p| p.join("pixi.toml").exists())
-                .map(|p| p.to_path_buf())
-                .unwrap_or_else(|| cwd.clone())
-        });
-
     println!("{}", "═".repeat(60));
     println!("{}", "Fetching latest versions from registries".bold());
     println!("{}", "═".repeat(60));
-
-    let mut versions = VersionsCache::load(&root);
 
     let mut updated = Vec::new();
     let mut unchanged = Vec::new();
@@ -154,10 +133,21 @@ fn main() -> ExitCode {
 
         match fetch_npm_version(npm_pkg) {
             Some(version) => {
-                let old = versions.get(repo).cloned();
-                if old.as_ref() != Some(&version) {
-                    println!("{} (was {})", version.green(), old.unwrap_or_else(|| "none".to_string()).dimmed());
-                    versions.set(repo, &version);
+                let old_registry = get_version(repo, true);
+                let old_local = get_version(repo, false);
+                let registry_changed = old_registry != version;
+                let local_out_of_sync = old_local != version;
+
+                if registry_changed || local_out_of_sync {
+                    if registry_changed {
+                        println!("{} (was {})", version.green(), old_registry.dimmed());
+                    } else {
+                        println!("{} (local was {})", version.green(), old_local.dimmed());
+                    }
+                    // Update registry record
+                    set_version(repo, &version, true);
+                    // Update local record and files (Sync/Reset behavior)
+                    set_version(repo, &version, false);
                     updated.push((repo, version));
                 } else {
                     println!("{}", version.dimmed());
@@ -179,10 +169,19 @@ fn main() -> ExitCode {
 
         match fetch_crate_version(crate_name) {
             Some(version) => {
-                let old = versions.get(repo).cloned();
-                if old.as_ref() != Some(&version) {
-                    println!("{} (was {})", version.green(), old.unwrap_or_else(|| "none".to_string()).dimmed());
-                    versions.set(repo, &version);
+                let old_registry = get_version(repo, true);
+                let old_local = get_version(repo, false);
+                let registry_changed = old_registry != version;
+                let local_out_of_sync = old_local != version;
+
+                if registry_changed || local_out_of_sync {
+                    if registry_changed {
+                        println!("{} (was {})", version.green(), old_registry.dimmed());
+                    } else {
+                        println!("{} (local was {})", version.green(), old_local.dimmed());
+                    }
+                    set_version(repo, &version, true);
+                    set_version(repo, &version, false);
                     updated.push((repo, version));
                 } else {
                     println!("{}", version.dimmed());
@@ -206,6 +205,10 @@ fn main() -> ExitCode {
         for (repo, version) in &updated {
             println!("  {} → {}", repo.cyan(), version.green());
         }
+
+        // Final sync for zed extensions since they depend on other versions
+        update_zed();
+        println!("\n{} versions.json and files updated", "✓".green());
     }
 
     if !unchanged.is_empty() {
@@ -216,17 +219,108 @@ fn main() -> ExitCode {
         println!("\n{}: {}", "Failed".red(), failed.join(", "));
     }
 
-    // Save if there were updates
-    if !updated.is_empty() {
-        if let Err(e) = versions.save(&root) {
-            eprintln!("\n{}: {}", "Error saving versions.json".red(), e);
-            return ExitCode::FAILURE;
-        }
-        println!("\n{} versions.json updated", "✓".green());
-        println!("\n{} Run {} to apply these versions to all packages.", "Tip:".dimmed(), "pixi run sync".cyan());
-    } else {
-        println!("\n{} All versions are up to date", "✓".green());
+    ExitCode::SUCCESS
+}
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_npm_packages_mapping() {
+        let packages = npm_packages();
+
+        assert_eq!(packages.get("core"), Some(&"macroforge"));
+        assert_eq!(packages.get("shared"), Some(&"@macroforge/shared"));
+        assert_eq!(
+            packages.get("vite-plugin"),
+            Some(&"@macroforge/vite-plugin")
+        );
+        assert_eq!(
+            packages.get("typescript-plugin"),
+            Some(&"@macroforge/typescript-plugin")
+        );
+        assert_eq!(
+            packages.get("svelte-language-server"),
+            Some(&"@macroforge/svelte-language-server")
+        );
+        assert_eq!(
+            packages.get("svelte-preprocessor"),
+            Some(&"@macroforge/svelte-preprocessor")
+        );
+        assert_eq!(packages.get("mcp-server"), Some(&"@macroforge/mcp-server"));
     }
 
-    ExitCode::SUCCESS
+    #[test]
+    fn test_npm_packages_count() {
+        let packages = npm_packages();
+        assert_eq!(packages.len(), 7);
+    }
+
+    #[test]
+    fn test_crate_packages_mapping() {
+        let packages = crate_packages();
+
+        assert_eq!(packages.get("syn"), Some(&"macroforge_ts_syn"));
+        assert_eq!(packages.get("template"), Some(&"macroforge_ts_quote"));
+        assert_eq!(packages.get("macros"), Some(&"macroforge_ts_macros"));
+    }
+
+    #[test]
+    fn test_crate_packages_count() {
+        let packages = crate_packages();
+        assert_eq!(packages.len(), 3);
+    }
+
+    #[test]
+    fn test_npm_packages_no_overlap_with_crates() {
+        let npm = npm_packages();
+        let crates = crate_packages();
+
+        // core is special - it's in npm but not in crates (in this mapping)
+        // Other packages should not overlap
+        for key in crates.keys() {
+            if *key != "core" {
+                assert!(
+                    !npm.contains_key(key),
+                    "Unexpected overlap for key: {}",
+                    key
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_all_npm_packages_have_scope() {
+        let packages = npm_packages();
+
+        for (repo, npm_name) in packages {
+            if repo != "core" {
+                assert!(
+                    npm_name.starts_with("@macroforge/"),
+                    "Expected {} to have @macroforge/ scope, got {}",
+                    repo,
+                    npm_name
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_all_crates_have_prefix() {
+        let packages = crate_packages();
+
+        for (repo, crate_name) in packages {
+            assert!(
+                crate_name.starts_with("macroforge_ts_"),
+                "Expected {} to have macroforge_ts_ prefix, got {}",
+                repo,
+                crate_name
+            );
+        }
+    }
 }

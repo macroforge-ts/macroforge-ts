@@ -1,8 +1,6 @@
 // All dependencies are re-exported from macroforge_ts - no need for separate crate imports!
 use macroforge_ts::macros::{body, ts_macro_derive};
-use macroforge_ts::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
-};
+use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 fn capitalize(s: &str) -> String {
     let mut chars = s.chars();
@@ -87,12 +85,10 @@ pub fn inspect_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
                         .filter(|s| !s.is_empty())
                         .unwrap_or_else(|| capitalize(&field.name));
 
-                    let should_inspect = field
-                        .decorators
-                        .iter()
-                        .any(|d| d.name == "inspect");
+                    let should_inspect = field.decorators.iter().any(|d| d.name == "inspect");
 
-                    let is_optional = field.ts_type.contains("null") || field.ts_type.contains("undefined");
+                    let is_optional =
+                        field.ts_type.contains("null") || field.ts_type.contains("undefined");
                     let is_array = field.ts_type.contains("[]") || field.ts_type.contains("Array<");
 
                     (
@@ -107,7 +103,7 @@ pub fn inspect_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
                 .collect();
 
             let stream = body! {
-                {>> "Returns field metadata for inspection" <<}
+                /** Returns field metadata for inspection */
                 static fieldMetadata(): Array<{ name: string; label: string; optional: boolean; array: boolean; type: string }> {
                     return [
                         {#for (name, label, _inspect, optional, array, ts_type) in &field_info}
@@ -116,7 +112,7 @@ pub fn inspect_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
                     ];
                 }
 
-                {>> "Returns only the inspectable fields" <<}
+                /** Returns only the inspectable fields */
                 getInspectableFields(): Record<string, unknown> {
                     const result: Record<string, unknown> = {};
                     {#for (name, _label, inspect, _optional, _array, _ts_type) in &field_info}
@@ -127,7 +123,7 @@ pub fn inspect_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
                     return result;
                 }
 
-                {>> "Deep clones only array fields" <<}
+                /** Deep clones only array fields */
                 cloneArrayFields(): Partial<@{class_name}> {
                     const result: Partial<@{class_name}> = {};
                     {#for (name, _label, _inspect, _optional, array, _ts_type) in &field_info}
@@ -138,7 +134,7 @@ pub fn inspect_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
                     return result;
                 }
 
-                {>> "Returns non-null field count" <<}
+                /** Returns non-null field count */
                 countPopulatedFields(): number {
                     let count = 0;
                     {#for (name, _label, _inspect, optional, _array, _ts_type) in &field_info}
