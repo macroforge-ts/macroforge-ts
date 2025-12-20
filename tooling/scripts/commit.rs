@@ -922,10 +922,94 @@ impl CommitQueue {
                 let unpushed = get_unpushed_count(&repo_path);
 
                 if !has_local_changes && unpushed == 0 {
+                    // No commits to push, but we might still need to tag
+                    let tag = format!("v{}", item.version);
+                    let should_tag = should_create_tag(item.repo.name, &item.version, &repo_path);
+                    let tag_exists_remote = tag_exists_remotely(&tag, &repo_path);
+
+                    if !should_tag {
+                        log(
+                            &worker_output,
+                            format!("  {} No changes, skipping", "ℹ".blue()),
+                        );
+                        continue;
+                    }
+
+                    // Need to create/update tag even though there are no commits
                     log(
                         &worker_output,
-                        format!("  {} No changes, skipping", "ℹ".blue()),
+                        format!(
+                            "  {} No commits, but tag {} needed{}",
+                            "ℹ".blue(),
+                            tag.cyan(),
+                            if tag_exists_remote {
+                                " (will force-push)"
+                            } else {
+                                ""
+                            }
+                        ),
                     );
+
+                    if dry_run {
+                        log(
+                            &worker_output,
+                            format!(
+                                "  {} Would: tag {}{}",
+                                "[dry-run]".yellow(),
+                                tag,
+                                if tag_exists_remote { " (force)" } else { "" }
+                            ),
+                        );
+                        worker_completed
+                            .lock()
+                            .unwrap()
+                            .push(item.repo.name.to_string());
+                        continue;
+                    }
+
+                    // Create tag
+                    if tag_exists_locally(&tag, &repo_path) {
+                        let _ = run_git(&["tag", "-d", &tag], &repo_path);
+                    }
+                    log(
+                        &worker_output,
+                        format!("  {} Tagging {}... ", "→".blue(), tag.cyan()),
+                    );
+                    if let Err(e) = run_git(&["tag", &tag], &repo_path) {
+                        *worker_error_slot.lock().unwrap() =
+                            Some(format!("Tag failed for {}: {}", item.repo.name, e));
+                        worker_done_flag.store(true, Ordering::SeqCst);
+                        return;
+                    }
+                    log(&worker_output, format!("{}", "✓".green()));
+
+                    // Push tag
+                    log(&worker_output, format!("  {} Pushing tag... ", "→".blue()));
+                    let push_args = if tag_exists_remote {
+                        vec!["push", "origin", &tag, "--force"]
+                    } else {
+                        vec!["push", "origin", &tag]
+                    };
+                    if let Err(e) = run_git(&push_args, &repo_path) {
+                        log(&worker_output, format!("{}", "✗".red()));
+                        log(&worker_output, format!("    {} {}", "Warning:".yellow(), e));
+                    } else {
+                        log(&worker_output, format!("{}", "✓".green()));
+                    }
+
+                    // Track pushed package
+                    let npm_packages = npm_package_names();
+                    let crates = crate_names();
+                    if npm_packages.contains_key(item.repo.name)
+                        || crates.contains_key(item.repo.name)
+                    {
+                        pushed_packages.insert(item.repo.name.to_string(), item.version.clone());
+                    }
+
+                    worker_completed
+                        .lock()
+                        .unwrap()
+                        .push(item.repo.name.to_string());
                     continue;
                 }
 
