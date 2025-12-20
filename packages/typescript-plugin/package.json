@@ -38,9 +38,9 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
     "cleanbuild": "npm run clean && npm run build",
-    "test": "bun run build && node --test tests/**/*.test.cjs"
+    "test": "npm run build && node --test tests/**/*.test.cjs"
   },
   "type": "module",
   "types": "dist/index.d.ts",
-  "version": "0.1.61"
+  "version": "0.1.62"
 }
