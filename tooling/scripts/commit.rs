@@ -9,6 +9,7 @@
 //! clap = { version = "4", features = ["derive"] }
 //! serde = { version = "1", features = ["derive"] }
 //! serde_json = "1"
+//! toml = "0.8"
 //! colored = "2"
 //! dialoguer = "0.11"
 //! petgraph = "0.6"
@@ -19,7 +20,7 @@ use clap::Parser;
 use colored::*;
 use dialoguer::{Confirm, Input};
 use petgraph::algo::toposort;
-use petgraph::graph::{DiGraph, NodeIndex};
+use petgraph::graph::DiGraph;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -27,7 +28,8 @@ use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use std::thread;
 
 // ============================================================================
 // CLI
@@ -60,6 +62,10 @@ struct Args {
     /// Internal flag: indicates script is running in spawned terminal
     #[arg(long, hide = true)]
     spawned: bool,
+
+    /// Enable debug logging
+    #[arg(long)]
+    debug: bool,
 }
 
 // ============================================================================
@@ -84,19 +90,71 @@ struct Repo {
 
 fn all_repos() -> Vec<Repo> {
     vec![
-        Repo { name: "core", path: "crates/macroforge_ts", repo_type: RepoType::Rust },
-        Repo { name: "macros", path: "crates/macroforge_ts_macros", repo_type: RepoType::Rust },
-        Repo { name: "syn", path: "crates/macroforge_ts_syn", repo_type: RepoType::Rust },
-        Repo { name: "template", path: "crates/macroforge_ts_quote", repo_type: RepoType::Rust },
-        Repo { name: "shared", path: "packages/shared", repo_type: RepoType::Ts },
-        Repo { name: "vite-plugin", path: "packages/vite-plugin", repo_type: RepoType::Ts },
-        Repo { name: "typescript-plugin", path: "packages/typescript-plugin", repo_type: RepoType::Ts },
-        Repo { name: "svelte-language-server", path: "packages/svelte-language-server", repo_type: RepoType::Ts },
-        Repo { name: "svelte-preprocessor", path: "packages/svelte-preprocessor", repo_type: RepoType::Ts },
-        Repo { name: "mcp-server", path: "packages/mcp-server", repo_type: RepoType::Ts },
-        Repo { name: "website", path: "website", repo_type: RepoType::Website },
-        Repo { name: "tooling", path: "tooling", repo_type: RepoType::Tooling },
-        Repo { name: "zed-extensions", path: "crates/extensions", repo_type: RepoType::Extension },
+        Repo {
+            name: "core",
+            path: "crates/macroforge_ts",
+            repo_type: RepoType::Rust,
+        },
+        Repo {
+            name: "macros",
+            path: "crates/macroforge_ts_macros",
+            repo_type: RepoType::Rust,
+        },
+        Repo {
+            name: "syn",
+            path: "crates/macroforge_ts_syn",
+            repo_type: RepoType::Rust,
+        },
+        Repo {
+            name: "template",
+            path: "crates/macroforge_ts_quote",
+            repo_type: RepoType::Rust,
+        },
+        Repo {
+            name: "shared",
+            path: "packages/shared",
+            repo_type: RepoType::Ts,
+        },
+        Repo {
+            name: "vite-plugin",
+            path: "packages/vite-plugin",
+            repo_type: RepoType::Ts,
+        },
+        Repo {
+            name: "typescript-plugin",
+            path: "packages/typescript-plugin",
+            repo_type: RepoType::Ts,
+        },
+        Repo {
+            name: "svelte-language-server",
+            path: "packages/svelte-language-server",
+            repo_type: RepoType::Ts,
+        },
+        Repo {
+            name: "svelte-preprocessor",
+            path: "packages/svelte-preprocessor",
+            repo_type: RepoType::Ts,
+        },
+        Repo {
+            name: "mcp-server",
+            path: "packages/mcp-server",
+            repo_type: RepoType::Ts,
+        },
+        Repo {
+            name: "website",
+            path: "website",
+            repo_type: RepoType::Website,
+        },
+        Repo {
+            name: "tooling",
+            path: "tooling",
+            repo_type: RepoType::Tooling,
+        },
+        Repo {
+            name: "zed-extensions",
+            path: "crates/extensions",
+            repo_type: RepoType::Extension,
+        },
     ]
 }
 
@@ -104,20 +162,36 @@ fn all_repos() -> Vec<Repo> {
 // Dependency Graph
 // ============================================================================
 
-/// Dependency map: dependent -> dependencies
-fn dependency_map() -> HashMap<&'static str, Vec<&'static str>> {
-    [
-        ("shared", vec!["core"]),
-        ("vite-plugin", vec!["core", "shared"]),
-        ("typescript-plugin", vec!["core", "shared"]),
-        ("svelte-language-server", vec!["core", "typescript-plugin"]),
-        ("svelte-preprocessor", vec!["core"]),
-        ("mcp-server", vec!["core"]),
-        ("website", vec!["core"]),
-        ("zed-extensions", vec!["typescript-plugin", "svelte-language-server"]),
-    ]
-    .into_iter()
-    .collect()
+/// Load dependency map from tooling/deps.toml
+fn load_dependency_map(root: &Path) -> HashMap<String, Vec<String>> {
+    let deps_path = root.join("tooling/deps.toml");
+
+    #[derive(Deserialize)]
+    struct DepsFile {
+        #[serde(default)]
+        crates: HashMap<String, Vec<String>>,
+        #[serde(default)]
+        packages: HashMap<String, Vec<String>>,
+        #[serde(default)]
+        other: HashMap<String, Vec<String>>,
+    }
+
+    if let Ok(content) = fs::read_to_string(&deps_path) {
+        if let Ok(deps_file) = toml::from_str::<DepsFile>(&content) {
+            let mut result = HashMap::new();
+            result.extend(deps_file.crates);
+            result.extend(deps_file.packages);
+            result.extend(deps_file.other);
+            return result;
+        }
+    }
+
+    // Fallback to empty map if file doesn't exist or parse fails
+    eprintln!(
+        "{} Could not load tooling/deps.toml, using empty dependency map",
+        "Warning:".yellow()
+    );
+    HashMap::new()
 }
 
 /// Map repo names to their npm package names
@@ -127,7 +201,10 @@ fn npm_package_names() -> HashMap<&'static str, &'static str> {
         ("shared", "@macroforge/shared"),
         ("vite-plugin", "@macroforge/vite-plugin"),
         ("typescript-plugin", "@macroforge/typescript-plugin"),
-        ("svelte-language-server", "@macroforge/svelte-language-server"),
+        (
+            "svelte-language-server",
+            "@macroforge/svelte-language-server",
+        ),
         ("svelte-preprocessor", "@macroforge/svelte-preprocessor"),
         ("mcp-server", "@macroforge/mcp-server"),
     ]
@@ -141,19 +218,55 @@ fn crate_names() -> HashMap<&'static str, &'static str> {
         ("syn", "macroforge_ts_syn"),
         ("template", "macroforge_ts_quote"),
         ("macros", "macroforge_ts_macros"),
+        ("core", "macroforge_ts"), // dual-published: also on npm as "macroforge"
     ]
     .into_iter()
     .collect()
 }
 
-#[allow(dead_code)]
+/// Check if a repo has a publishable package (npm or crate)
+fn has_package(repo_name: &str) -> bool {
+    npm_package_names().contains_key(repo_name) || crate_names().contains_key(repo_name)
+}
+
+/// Generate a default commit message for a repo
+fn default_commit_message(repo_name: &str, version: &str, status: &str) -> String {
+    if has_package(repo_name) {
+        format!("Bump to {}", version)
+    } else {
+        // For repos without packages (tooling, website, zed-extensions),
+        // show "Updated" with the list of changed files
+        let files: Vec<&str> = status
+            .lines()
+            .filter_map(|line| {
+                // Git status --short format: "XY filename" where XY is status code + space
+                // Example: " M scripts/commit.rs" or "?? newfile.txt"
+                // The filename starts at position 3 (after XY and space)
+                if line.len() > 3 {
+                    Some(line[3..].trim())
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        if files.is_empty() {
+            "Updated".to_string()
+        } else if files.len() <= 3 {
+            format!("Updated {}", files.join(", "))
+        } else {
+            format!("Updated {} files", files.len())
+        }
+    }
+}
+
 struct DependencyGraph {
     graph: DiGraph<String, ()>,
-    node_indices: HashMap<String, NodeIndex>,
+    deps: HashMap<String, Vec<String>>,
 }
 
 impl DependencyGraph {
-    fn new(repos: &[Repo]) -> Self {
+    fn new(repos: &[Repo], deps: HashMap<String, Vec<String>>) -> Self {
         let mut graph = DiGraph::new();
         let mut node_indices = HashMap::new();
 
@@ -162,19 +275,18 @@ impl DependencyGraph {
             node_indices.insert(repo.name.to_string(), idx);
         }
 
-        let deps = dependency_map();
         for repo in repos {
             if let Some(dependencies) = deps.get(repo.name) {
                 let dependent_idx = node_indices[repo.name];
                 for dep in dependencies {
-                    if let Some(&dep_idx) = node_indices.get(*dep) {
+                    if let Some(&dep_idx) = node_indices.get(dep) {
                         graph.add_edge(dep_idx, dependent_idx, ());
                     }
                 }
             }
         }
 
-        Self { graph, node_indices }
+        Self { graph, deps }
     }
 
     fn sorted_order(&self) -> Result<Vec<String>, String> {
@@ -191,10 +303,10 @@ impl DependencyGraph {
     }
 
     fn get_dependents(&self, repo_name: &str) -> Vec<String> {
-        let deps = dependency_map();
-        deps.iter()
-            .filter(|(_, dependencies)| dependencies.contains(&repo_name))
-            .map(|(dependent, _)| dependent.to_string())
+        self.deps
+            .iter()
+            .filter(|(_, dependencies)| dependencies.iter().any(|d| d == repo_name))
+            .map(|(dependent, _)| dependent.clone())
             .collect()
     }
 
@@ -221,8 +333,14 @@ impl DependencyGraph {
 // Version Cache
 // ============================================================================
 
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+struct VersionInfo {
+    local: String,
+    registry: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Default)]
-struct VersionsCache(HashMap<String, String>);
+struct VersionsCache(HashMap<String, Option<VersionInfo>>);
 
 impl VersionsCache {
     fn load(root: &Path) -> Self {
@@ -235,8 +353,8 @@ impl VersionsCache {
         }
     }
 
-    fn get(&self, name: &str) -> Option<&String> {
-        self.0.get(name)
+    fn get_local(&self, name: &str) -> Option<&String> {
+        self.0.get(name).and_then(|v| v.as_ref()).map(|v| &v.local)
     }
 }
 
@@ -266,7 +384,9 @@ fn get_status(cwd: &Path) -> Result<String, String> {
 }
 
 fn has_changes(cwd: &Path) -> bool {
-    get_status(cwd).map(|s| !s.trim().is_empty()).unwrap_or(false)
+    get_status(cwd)
+        .map(|s| !s.trim().is_empty())
+        .unwrap_or(false)
 }
 
 fn tag_exists_locally(tag: &str, cwd: &Path) -> bool {
@@ -288,8 +408,25 @@ fn get_unpushed_count(cwd: &Path) -> usize {
         .unwrap_or(0)
 }
 
-fn unstage_all(cwd: &Path) {
-    let _ = run_git(&["reset", "HEAD"], cwd);
+fn get_current_branch(cwd: &Path) -> Option<String> {
+    run_git(&["rev-parse", "--abbrev-ref", "HEAD"], cwd)
+        .ok()
+        .map(|s| s.trim().to_string())
+}
+
+fn has_upstream(cwd: &Path) -> bool {
+    run_git(&["rev-parse", "--abbrev-ref", "@{u}"], cwd).is_ok()
+}
+
+/// Push to remote, setting upstream if needed
+fn push_with_upstream(cwd: &Path) -> Result<String, String> {
+    if has_upstream(cwd) {
+        run_git(&["push"], cwd)
+    } else {
+        // No upstream set - push with -u to set it
+        let branch = get_current_branch(cwd).unwrap_or_else(|| "main".to_string());
+        run_git(&["push", "-u", "origin", &branch], cwd)
+    }
 }
 
 // ============================================================================
@@ -324,54 +461,127 @@ fn check_crate_version(crate_name: &str, version: &str) -> bool {
     }
 }
 
-/// Wait for a package to be available on the registry
+/// Wait for a package to be available on the registry (or both for dual-published)
+/// If output_buffer is Some, logs to buffer instead of stdout
 fn wait_for_package(
     repo_name: &str,
     version: &str,
     timeout_secs: u64,
     interrupted: &Arc<AtomicBool>,
+    output_buffer: Option<&Arc<Mutex<Vec<String>>>>,
 ) -> Result<(), String> {
     let npm_packages = npm_package_names();
     let crates = crate_names();
 
-    let (registry, check_fn): (&str, Box<dyn Fn() -> bool>) = if let Some(&npm_name) = npm_packages.get(repo_name) {
-        ("npm", Box::new(move || check_npm_version(npm_name, version)))
-    } else if let Some(&crate_name) = crates.get(repo_name) {
-        ("crates.io", Box::new(move || check_crate_version(crate_name, version)))
-    } else {
-        // No registry to check (e.g., website, tooling, zed-extensions)
-        return Ok(());
-    };
+    let npm_name = npm_packages.get(repo_name).copied();
+    let crate_name = crates.get(repo_name).copied();
 
+    // No registry to check (e.g., website, tooling, zed-extensions)
+    if npm_name.is_none() && crate_name.is_none() {
+        return Ok(());
+    }
+
+    // Wait for crates.io first if applicable (usually faster)
+    if let Some(crate_name) = crate_name {
+        wait_for_registry(
+            crate_name,
+            version,
+            "crates.io",
+            || check_crate_version(crate_name, version),
+            timeout_secs,
+            interrupted,
+            output_buffer,
+        )?;
+    }
+
+    // Wait for npm if applicable
+    if let Some(npm_name) = npm_name {
+        wait_for_registry(
+            npm_name,
+            version,
+            "npm",
+            || check_npm_version(npm_name, version),
+            timeout_secs,
+            interrupted,
+            output_buffer,
+        )?;
+    }
+
+    Ok(())
+}
+
+/// Wait for a specific registry
+/// If output_buffer is Some, logs to buffer instead of stdout (for background processing)
+fn wait_for_registry<F: Fn() -> bool>(
+    package_name: &str,
+    version: &str,
+    registry: &str,
+    check_fn: F,
+    timeout_secs: u64,
+    interrupted: &Arc<AtomicBool>,
+    output_buffer: Option<&Arc<Mutex<Vec<String>>>>,
+) -> Result<(), String> {
     let start = std::time::Instant::now();
     let poll_interval = std::time::Duration::from_secs(10);
     let timeout = std::time::Duration::from_secs(timeout_secs);
 
-    print!("  {} Waiting for {} on {}... ", "⏳".yellow(), version.cyan(), registry);
-    io::stdout().flush().ok();
+    let log_start = format!(
+        "  {} Waiting for {}@{} on {}... ",
+        "⏳".yellow(),
+        package_name.cyan(),
+        version.cyan(),
+        registry
+    );
 
+    // If buffering, just log start; otherwise print with flush for live updates
+    if let Some(buf) = &output_buffer {
+        buf.lock().unwrap().push(log_start);
+    } else {
+        print!("{}", log_start);
+        io::stdout().flush().ok();
+    }
+
+    let mut dots = 0;
     loop {
         // Check for Ctrl+C
         if interrupted.load(Ordering::SeqCst) {
-            println!("{}", "interrupted".yellow());
+            let msg = format!("{}", "interrupted".yellow());
+            if let Some(buf) = &output_buffer {
+                buf.lock().unwrap().push(msg);
+            } else {
+                println!("{}", msg);
+            }
             return Err("Interrupted by user".to_string());
         }
 
         if check_fn() {
-            println!("{}", "available!".green());
+            let msg = format!("{}{}", ".".repeat(dots), "available!".green());
+            if let Some(buf) = &output_buffer {
+                buf.lock().unwrap().push(msg);
+            } else {
+                println!("{}", msg);
+            }
             return Ok(());
         }
 
         if start.elapsed() > timeout {
-            println!("{}", "timeout".red());
+            let msg = format!("{}{}", ".".repeat(dots), "timeout".red());
+            if let Some(buf) = &output_buffer {
+                buf.lock().unwrap().push(msg);
+            } else {
+                println!("{}", msg);
+            }
             return Err(format!(
-                "Timeout waiting for {} v{} on {}",
-                repo_name, version, registry
+                "Timeout waiting for {}@{} on {}",
+                package_name, version, registry
             ));
         }
 
-        print!(".");
-        io::stdout().flush().ok();
+        dots += 1;
+        if output_buffer.is_none() {
+            print!(".");
+            io::stdout().flush().ok();
+        }
         std::thread::sleep(poll_interval);
     }
 }
@@ -384,13 +594,17 @@ struct CommitQueue {
     root: PathBuf,
     queue: Vec<QueueItem>,
     completed: Vec<String>,
-    /// Packages we've pushed that need to be published (repo_name -> version)
-    pushed_packages: HashMap<String, String>,
+    /// Dependency map loaded from deps.toml
+    deps: HashMap<String, Vec<String>>,
+    /// Version map for all repos
+    versions: HashMap<String, Option<VersionInfo>>,
     dry_run: bool,
     /// Timeout for waiting on registry (seconds)
     registry_timeout: u64,
     /// Flag to track if Ctrl+C was pressed
     interrupted: Arc<AtomicBool>,
+    /// Debug logging enabled
+    debug: bool,
 }
 
 #[derive(Clone)]
@@ -401,235 +615,596 @@ struct QueueItem {
 }
 
 impl CommitQueue {
-    fn new(root: PathBuf, dry_run: bool, interrupted: Arc<AtomicBool>) -> Self {
+    fn new(
+        root: PathBuf,
+        deps: HashMap<String, Vec<String>>,
+        versions: HashMap<String, Option<VersionInfo>>,
+        dry_run: bool,
+        interrupted: Arc<AtomicBool>,
+        debug: bool,
+    ) -> Self {
         Self {
             root,
             queue: Vec::new(),
             completed: Vec::new(),
-            pushed_packages: HashMap::new(),
+            deps,
+            versions,
             dry_run,
             registry_timeout: 600, // 10 minutes default
             interrupted,
+            debug,
         }
-    }
-
-    fn is_interrupted(&self) -> bool {
-        self.interrupted.load(Ordering::SeqCst)
     }
 
     fn add(&mut self, repo: Repo, version: String, message: Option<String>) {
-        self.queue.push(QueueItem { repo, version, message });
+        self.queue.push(QueueItem {
+            repo,
+            version,
+            message,
+        });
     }
 
-    /// Get dependencies that we pushed in this session and need to wait for
-    fn get_pending_dependencies(&self, repo_name: &str) -> Vec<(String, String)> {
-        let deps = dependency_map();
-        deps.get(repo_name)
-            .map(|d| {
-                d.iter()
-                    .filter_map(|dep| {
-                        self.pushed_packages
-                            .get(*dep)
-                            .map(|v| (dep.to_string(), v.clone()))
-                    })
-                    .collect()
-            })
-            .unwrap_or_default()
-    }
-
+    /// Process with background worker - collect messages while processing happens
     fn process(&mut self, auto_yes: bool, global_message: Option<&str>) -> Result<(), String> {
-        let total = self.queue.len();
+        // Find repos that have changes
+        let repos_with_changes: Vec<usize> = self
+            .queue
+            .iter()
+            .enumerate()
+            .filter(|(_, item)| {
+                let repo_path = self.root.join(item.repo.path);
+                repo_path.exists()
+                    && (has_changes(&repo_path) || get_unpushed_count(&repo_path) > 0)
+            })
+            .map(|(idx, _)| idx)
+            .collect();
 
-        // Clone queue items for iteration since we need to mutate pushed_packages
-        let items: Vec<_> = self.queue.iter().cloned().collect();
+        if repos_with_changes.is_empty() && !self.dry_run {
+            println!("{}", "No repos with changes".yellow());
+            return Ok(());
+        }
 
-        for (idx, item) in items.iter().enumerate() {
-            // Check for Ctrl+C
-            if self.is_interrupted() {
-                println!("\n{} Interrupted by user", "⚠".yellow());
-                self.abort_remaining(idx)?;
-                return Err("Interrupted by user (Ctrl+C)".to_string());
-            }
+        // Shared state for worker thread
+        let messages: Arc<Mutex<HashMap<usize, String>>> = Arc::new(Mutex::new(HashMap::new()));
+        let output_buffer: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+        let completed_shared: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+        let worker_done = Arc::new(AtomicBool::new(false));
+        let all_messages_collected = Arc::new(AtomicBool::new(false));
+        let worker_error: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
 
-            let repo_path = self.root.join(item.repo.path);
-            let position = format!("[{}/{}]", idx + 1, total);
+        // Clone data for worker thread
+        let worker_queue: Vec<_> = self.queue.iter().cloned().collect();
+        let worker_root = self.root.clone();
+        let worker_deps = self.deps.clone();
+        let worker_versions = self.versions.clone();
+        let worker_messages = Arc::clone(&messages);
+        let worker_output = Arc::clone(&output_buffer);
+        let worker_completed = Arc::clone(&completed_shared);
+        let worker_done_flag = Arc::clone(&worker_done);
+        let worker_all_messages = Arc::clone(&all_messages_collected);
+        let worker_interrupted = Arc::clone(&self.interrupted);
+        let worker_error_slot = Arc::clone(&worker_error);
+        let registry_timeout = self.registry_timeout;
+        let dry_run = self.dry_run;
+        let debug = self.debug;
 
-            println!("\n{} {} {}", position.dimmed(), "Processing".bold(), item.repo.name.cyan());
-            println!("{}", "─".repeat(50).dimmed());
+        // Spawn worker thread
+        let worker_handle = thread::spawn(move || {
+            let mut pushed_packages: HashMap<String, String> = HashMap::new();
+            let total = worker_queue.len();
 
-            if !repo_path.exists() {
-                println!("  {} Path does not exist, skipping", "⚠".yellow());
-                continue;
-            }
+            let log = |output: &Arc<Mutex<Vec<String>>>, msg: String| {
+                output.lock().unwrap().push(msg);
+            };
 
-            // Wait for dependencies that we pushed in this session
-            let pending_deps = self.get_pending_dependencies(item.repo.name);
-            if !pending_deps.is_empty() && !self.dry_run {
-                println!("  {} Waiting for dependencies...", "⏳".yellow());
-                for (dep_name, dep_version) in &pending_deps {
-                    if let Err(e) = wait_for_package(dep_name, dep_version, self.registry_timeout, &self.interrupted) {
-                        self.abort_remaining(idx)?;
-                        return Err(e);
-                    }
-                    // Remove from pending after confirmed available
-                    self.pushed_packages.remove(dep_name);
+            for (idx, item) in worker_queue.iter().enumerate() {
+                if worker_interrupted.load(Ordering::SeqCst) {
+                    log(
+                        &worker_output,
+                        format!("\n{} Interrupted by user", "⚠".yellow()),
+                    );
+                    break;
                 }
-            }
 
-            // Check for changes or unpushed commits
-            let has_local_changes = has_changes(&repo_path);
-            let unpushed = get_unpushed_count(&repo_path);
+                let repo_path = worker_root.join(item.repo.path);
+                let position = format!("[{}/{}]", idx + 1, total);
 
-            if !has_local_changes && unpushed == 0 {
-                println!("  {} No changes, skipping", "ℹ".blue());
-                continue;
-            }
-
-            if !has_local_changes && unpushed > 0 {
-                println!("  {} {} unpushed commit{}",
-                    "ℹ".blue(),
-                    unpushed.to_string().yellow(),
-                    if unpushed == 1 { "" } else { "s" }
+                log(
+                    &worker_output,
+                    format!(
+                        "\n{} {} {}",
+                        position.dimmed(),
+                        "Processing".bold(),
+                        item.repo.name.cyan()
+                    ),
                 );
+                log(&worker_output, format!("{}", "─".repeat(50).dimmed()));
 
-                if self.dry_run {
-                    println!("  {} Would push", "[dry-run]".yellow());
-                    self.completed.push(item.repo.name.to_string());
+                if !repo_path.exists() {
+                    log(
+                        &worker_output,
+                        format!("  {} Path does not exist, skipping", "⚠".yellow()),
+                    );
                     continue;
                 }
 
-                print!("  {} Pushing... ", "→".blue());
-                io::stdout().flush().ok();
-                match run_git(&["push"], &repo_path) {
-                    Ok(_) => {
-                        println!("{}", "✓".green());
-                        self.completed.push(item.repo.name.to_string());
-                    }
-                    Err(e) => {
-                        println!("{}", "✗".red());
-                        self.abort_remaining(idx)?;
-                        return Err(format!("Push failed for {}: {}", item.repo.name, e));
+                // Show and wait for dependencies
+                let all_deps = worker_deps.get(item.repo.name).cloned().unwrap_or_default();
+                let pending_deps: Vec<(String, String)> = all_deps
+                    .iter()
+                    .filter_map(|dep| pushed_packages.get(dep).map(|v| (dep.clone(), v.clone())))
+                    .collect();
+
+                // Always show dependencies
+                if !all_deps.is_empty() {
+                    let deps_display: Vec<String> = all_deps
+                        .iter()
+                        .map(|d| {
+                            if pushed_packages.contains_key(d) {
+                                format!("{} {}", d.cyan(), "(waiting)".yellow())
+                            } else {
+                                format!("{} {}", d, "(ready)".dimmed())
+                            }
+                        })
+                        .collect();
+                    log(
+                        &worker_output,
+                        format!("  {} Deps: {}", "◆".blue(), deps_display.join(", ")),
+                    );
+                }
+
+                if debug {
+                    log(
+                        &worker_output,
+                        format!(
+                            "  {} pushed_packages: {:?}",
+                            "[DEBUG]".magenta(),
+                            pushed_packages
+                        ),
+                    );
+                    log(
+                        &worker_output,
+                        format!("  {} pending_deps: {:?}", "[DEBUG]".magenta(), pending_deps),
+                    );
+                }
+
+                if !pending_deps.is_empty() && !dry_run {
+                    for (dep_name, dep_version) in &pending_deps {
+                        // Pass output buffer so wait messages don't interfere with message collection
+                        if let Err(e) = wait_for_package(
+                            dep_name,
+                            dep_version,
+                            registry_timeout,
+                            &worker_interrupted,
+                            Some(&worker_output),
+                        ) {
+                            *worker_error_slot.lock().unwrap() = Some(e);
+                            worker_done_flag.store(true, Ordering::SeqCst);
+                            return;
+                        }
+                        // Don't remove - other packages may also depend on this
                     }
                 }
-                continue;
-            }
 
-            // Show changes
-            let status = get_status(&repo_path).unwrap_or_default();
-            let change_count = status.lines().count();
-            println!("  {} {} file{} changed", "ℹ".blue(), change_count, if change_count == 1 { "" } else { "s" });
+                // Sync lockfile now that dependencies are available
+                if !dry_run && repo_path.join("package-lock.json").exists() {
+                    log(
+                        &worker_output,
+                        format!("  {} Verifying lockfile... ", "→".blue()),
+                    );
 
-            // Get commit message
-            let default_msg = format!("Bump to {}", item.version);
-            let commit_msg = match global_message.or(item.message.as_deref()) {
-                Some(msg) => msg.to_string(),
-                None if auto_yes => default_msg,
-                None => {
-                    Input::new()
-                        .with_prompt(format!("  Commit message for {}", item.repo.name.cyan()))
-                        .default(default_msg.clone())
-                        .interact_text()
-                        .unwrap_or(default_msg)
+                    let npm_names = npm_package_names();
+                    let mut install_args = vec![
+                        "install".to_string(),
+                        "--ignore-scripts".to_string(),
+                        "--no-audit".to_string(),
+                    ];
+
+                    // Force install registry versions of ALL dependencies to break local links
+                    for dep_repo in &all_deps {
+                        if let Some(pkg_name) = npm_names.get(dep_repo.as_str()) {
+                            // CRITICAL: Determine which version to install
+                            // 1. If it's a pending dep (we just pushed it), use 'local' (new) version
+                            // 2. Otherwise, use 'registry' (stable) version to ensure we don't depend on unreleased code
+                            if let Some(info) =
+                                worker_versions.get(dep_repo).and_then(|v| v.as_ref())
+                            {
+                                let target_ver = if pushed_packages.contains_key(dep_repo) {
+                                    &info.local
+                                } else {
+                                    &info.registry
+                                };
+                                install_args.push(format!("{}@{}", pkg_name, target_ver));
+                            }
+                        }
+                    }
+
+                    // Run npm install (either general or specific packages)
+                    let status = Command::new("npm")
+                        .args(&install_args)
+                        .current_dir(&repo_path)
+                        .output();
+
+                    match status {
+                        Ok(output) => {
+                            if output.status.success() {
+                                log(&worker_output, format!("{}", "✓".green()));
+                            } else {
+                                log(&worker_output, format!("{}", "✗".red()));
+                                let stderr = String::from_utf8_lossy(&output.stderr);
+                                *worker_error_slot.lock().unwrap() = Some(format!(
+                                    "npm install failed for {}: {}",
+                                    item.repo.name, stderr
+                                ));
+                                worker_done_flag.store(true, Ordering::SeqCst);
+                                return;
+                            }
+                        }
+                        Err(e) => {
+                            log(&worker_output, format!("{}", "✗".red()));
+                            *worker_error_slot.lock().unwrap() = Some(format!(
+                                "Failed to execute npm install for {}: {}",
+                                item.repo.name, e
+                            ));
+                            worker_done_flag.store(true, Ordering::SeqCst);
+                            return;
+                        }
+                    }
                 }
-            };
 
-            if self.dry_run {
-                let tag = format!("v{}", item.version);
-                let would_tag = !tag_exists_remotely(&tag, &repo_path);
-                println!("  {} Would: add, commit, {}",
-                    "[dry-run]".yellow(),
-                    if would_tag { format!("tag {}, push", tag) } else { "push".to_string() }
+                // Wait for message to be entered
+                let commit_msg = loop {
+                    if worker_interrupted.load(Ordering::SeqCst) {
+                        worker_done_flag.store(true, Ordering::SeqCst);
+                        return;
+                    }
+                    if let Some(msg) = worker_messages.lock().unwrap().get(&idx).cloned() {
+                        break msg;
+                    }
+                    // If all messages collected and we don't have one, use default
+                    if worker_all_messages.load(Ordering::SeqCst) {
+                        let status = get_status(&repo_path).unwrap_or_default();
+                        break default_commit_message(item.repo.name, &item.version, &status);
+                    }
+                    thread::sleep(std::time::Duration::from_millis(100));
+                };
+
+                // Check for changes
+                let has_local_changes = has_changes(&repo_path);
+                let unpushed = get_unpushed_count(&repo_path);
+
+                if !has_local_changes && unpushed == 0 {
+                    log(
+                        &worker_output,
+                        format!("  {} No changes, skipping", "ℹ".blue()),
+                    );
+                    continue;
+                }
+
+                if !has_local_changes && unpushed > 0 {
+                    log(
+                        &worker_output,
+                        format!(
+                            "  {} {} unpushed commit{}",
+                            "ℹ".blue(),
+                            unpushed.to_string().yellow(),
+                            if unpushed == 1 { "" } else { "s" }
+                        ),
+                    );
+
+                    // Tag if needed (even for unpushed-only case)
+                    let tag = format!("v{}", item.version);
+                    let should_tag = !tag_exists_remotely(&tag, &repo_path);
+
+                    if dry_run {
+                        log(
+                            &worker_output,
+                            format!(
+                                "  {} Would: push{}",
+                                "[dry-run]".yellow(),
+                                if should_tag {
+                                    format!(", tag {}", tag)
+                                } else {
+                                    String::new()
+                                }
+                            ),
+                        );
+                        worker_completed
+                            .lock()
+                            .unwrap()
+                            .push(item.repo.name.to_string());
+                        continue;
+                    }
+
+                    // Create tag if needed
+                    if should_tag {
+                        if tag_exists_locally(&tag, &repo_path) {
+                            let _ = run_git(&["tag", "-d", &tag], &repo_path);
+                        }
+                        log(
+                            &worker_output,
+                            format!("  {} Tagging {}... ", "→".blue(), tag.cyan()),
+                        );
+                        if let Err(e) = run_git(&["tag", &tag], &repo_path) {
+                            *worker_error_slot.lock().unwrap() =
+                                Some(format!("Tag failed for {}: {}", item.repo.name, e));
+                            worker_done_flag.store(true, Ordering::SeqCst);
+                            return;
+                        }
+                        log(&worker_output, format!("{}", "✓".green()));
+                    }
+
+                    // Push commits
+                    log(&worker_output, format!("  {} Pushing... ", "→".blue()));
+                    match push_with_upstream(&repo_path) {
+                        Ok(_) => {
+                            log(&worker_output, format!("{}", "✓".green()));
+                        }
+                        Err(e) => {
+                            log(&worker_output, format!("{}", "✗".red()));
+                            *worker_error_slot.lock().unwrap() =
+                                Some(format!("Push failed for {}: {}", item.repo.name, e));
+                            worker_done_flag.store(true, Ordering::SeqCst);
+                            return;
+                        }
+                    }
+
+                    // Push tags
+                    if should_tag {
+                        log(&worker_output, format!("  {} Pushing tags... ", "→".blue()));
+                        if let Err(e) = run_git(&["push", "--tags"], &repo_path) {
+                            log(&worker_output, format!("{}", "✗".red()));
+                            log(&worker_output, format!("    {} {}", "Warning:".yellow(), e));
+                        } else {
+                            log(&worker_output, format!("{}", "✓".green()));
+                        }
+                    }
+
+                    // Track pushed package
+                    let npm_packages = npm_package_names();
+                    let crates = crate_names();
+                    if npm_packages.contains_key(item.repo.name)
+                        || crates.contains_key(item.repo.name)
+                    {
+                        pushed_packages.insert(item.repo.name.to_string(), item.version.clone());
+                    }
+
+                    worker_completed
+                        .lock()
+                        .unwrap()
+                        .push(item.repo.name.to_string());
+                    continue;
+                }
+
+                log(
+                    &worker_output,
+                    format!("  {} Message: {}", "ℹ".blue(), commit_msg.dimmed()),
                 );
-                self.completed.push(item.repo.name.to_string());
-                continue;
-            }
 
-            // Stage
-            print!("  {} Staging... ", "→".blue());
-            io::stdout().flush().ok();
-            if let Err(e) = run_git(&["add", "-A"], &repo_path) {
-                println!("{}", "✗".red());
-                self.abort_remaining(idx)?;
-                return Err(format!("Stage failed for {}: {}", item.repo.name, e));
-            }
-            println!("{}", "✓".green());
-
-            // Commit
-            print!("  {} Committing... ", "→".blue());
-            io::stdout().flush().ok();
-            if let Err(e) = run_git(&["commit", "-m", &commit_msg], &repo_path) {
-                println!("{}", "✗".red());
-                self.abort_remaining(idx)?;
-                return Err(format!("Commit failed for {}: {}", item.repo.name, e));
-            }
-            println!("{}", "✓".green());
-
-            // Tag if needed
-            let tag = format!("v{}", item.version);
-            let should_tag = !tag_exists_remotely(&tag, &repo_path);
-
-            if should_tag {
-                if tag_exists_locally(&tag, &repo_path) {
-                    let _ = run_git(&["tag", "-d", &tag], &repo_path);
+                if dry_run {
+                    let tag = format!("v{}", item.version);
+                    let would_tag = !tag_exists_remotely(&tag, &repo_path);
+                    log(
+                        &worker_output,
+                        format!(
+                            "  {} Would: add, commit, {}",
+                            "[dry-run]".yellow(),
+                            if would_tag {
+                                format!("tag {}, push", tag)
+                            } else {
+                                "push".to_string()
+                            }
+                        ),
+                    );
+                    worker_completed
+                        .lock()
+                        .unwrap()
+                        .push(item.repo.name.to_string());
+                    continue;
                 }
 
-                print!("  {} Tagging {}... ", "→".blue(), tag.cyan());
-                io::stdout().flush().ok();
-                if let Err(e) = run_git(&["tag", &tag], &repo_path) {
-                    println!("{}", "✗".red());
-                    self.abort_remaining(idx)?;
-                    return Err(format!("Tag failed for {}: {}", item.repo.name, e));
+                // Stage
+                log(&worker_output, format!("  {} Staging... ", "→".blue()));
+                if let Err(e) = run_git(&["add", "-A"], &repo_path) {
+                    *worker_error_slot.lock().unwrap() =
+                        Some(format!("Stage failed for {}: {}", item.repo.name, e));
+                    worker_done_flag.store(true, Ordering::SeqCst);
+                    return;
                 }
-                println!("{}", "✓".green());
+                log(&worker_output, format!("{}", "✓".green()));
+
+                // Commit
+                log(&worker_output, format!("  {} Committing... ", "→".blue()));
+                if let Err(e) = run_git(&["commit", "-m", &commit_msg], &repo_path) {
+                    *worker_error_slot.lock().unwrap() =
+                        Some(format!("Commit failed for {}: {}", item.repo.name, e));
+                    worker_done_flag.store(true, Ordering::SeqCst);
+                    return;
+                }
+                log(&worker_output, format!("{}", "✓".green()));
+
+                // Tag
+                let tag = format!("v{}", item.version);
+                let should_tag = !tag_exists_remotely(&tag, &repo_path);
+                if should_tag {
+                    if tag_exists_locally(&tag, &repo_path) {
+                        let _ = run_git(&["tag", "-d", &tag], &repo_path);
+                    }
+                    log(
+                        &worker_output,
+                        format!("  {} Tagging {}... ", "→".blue(), tag.cyan()),
+                    );
+                    if let Err(e) = run_git(&["tag", &tag], &repo_path) {
+                        *worker_error_slot.lock().unwrap() =
+                            Some(format!("Tag failed for {}: {}", item.repo.name, e));
+                        worker_done_flag.store(true, Ordering::SeqCst);
+                        return;
+                    }
+                    log(&worker_output, format!("{}", "✓".green()));
+                }
+
+                // Push
+                log(&worker_output, format!("  {} Pushing... ", "→".blue()));
+                if let Err(e) = push_with_upstream(&repo_path) {
+                    *worker_error_slot.lock().unwrap() =
+                        Some(format!("Push failed for {}: {}", item.repo.name, e));
+                    worker_done_flag.store(true, Ordering::SeqCst);
+                    return;
+                }
+                log(&worker_output, format!("{}", "✓".green()));
+
+                // Track pushed package
+                let npm_packages = npm_package_names();
+                let crates = crate_names();
+                if npm_packages.contains_key(item.repo.name) || crates.contains_key(item.repo.name)
+                {
+                    pushed_packages.insert(item.repo.name.to_string(), item.version.clone());
+                }
+
+                // Push tags
+                if should_tag {
+                    log(&worker_output, format!("  {} Pushing tags... ", "→".blue()));
+                    if let Err(e) = run_git(&["push", "--tags"], &repo_path) {
+                        log(&worker_output, format!("{}", "✗".red()));
+                        log(&worker_output, format!("    {} {}", "Warning:".yellow(), e));
+                    } else {
+                        log(&worker_output, format!("{}", "✓".green()));
+                    }
+                }
+
+                worker_completed
+                    .lock()
+                    .unwrap()
+                    .push(item.repo.name.to_string());
             }
 
-            // Push
-            print!("  {} Pushing... ", "→".blue());
-            io::stdout().flush().ok();
-            if let Err(e) = run_git(&["push"], &repo_path) {
-                println!("{}", "✗".red());
-                self.abort_remaining(idx)?;
-                return Err(format!("Push failed for {}: {}", item.repo.name, e));
-            }
-            println!("{}", "✓".green());
+            worker_done_flag.store(true, Ordering::SeqCst);
+        });
 
-            // Track this package as pushed (for dependency waiting)
-            let npm_packages = npm_package_names();
-            let crates = crate_names();
-            if npm_packages.contains_key(item.repo.name) || crates.contains_key(item.repo.name) {
-                self.pushed_packages.insert(item.repo.name.to_string(), item.version.clone());
-            }
+        // Main thread: collect messages (skip for dry_run since worker uses defaults)
+        if !self.dry_run && !repos_with_changes.is_empty() {
+            println!("\n{}", "═".repeat(60));
+            println!("{}", "Enter Commit Messages".bold());
+            println!("{}", "═".repeat(60));
+            println!(
+                "{}",
+                "(Processing starts as you enter each message)".dimmed()
+            );
+            println!();
 
-            // Push tags
-            if should_tag {
-                print!("  {} Pushing tags... ", "→".blue());
-                io::stdout().flush().ok();
-                if let Err(e) = run_git(&["push", "--tags"], &repo_path) {
-                    println!("{}", "✗".red());
-                    // Don't abort for tag push failure, just warn
-                    println!("    {} {}", "Warning:".yellow(), e);
-                } else {
-                    println!("{}", "✓".green());
+            let mut first_message = true;
+            for idx in &repos_with_changes {
+                let item = &self.queue[*idx];
+                let repo_path = self.root.join(item.repo.path);
+                let status = get_status(&repo_path).unwrap_or_default();
+                let change_count = status.lines().count();
+
+                let default_msg = default_commit_message(item.repo.name, &item.version, &status);
+                let commit_msg = match global_message.or(item.message.as_deref()) {
+                    Some(msg) => {
+                        println!(
+                            "  {} {} ({} file{}) → {}",
+                            "✓".green(),
+                            item.repo.name.cyan(),
+                            change_count,
+                            if change_count == 1 { "" } else { "s" },
+                            msg.dimmed()
+                        );
+                        msg.to_string()
+                    }
+                    None if auto_yes => {
+                        println!(
+                            "  {} {} ({} file{}) → {}",
+                            "✓".green(),
+                            item.repo.name.cyan(),
+                            change_count,
+                            if change_count == 1 { "" } else { "s" },
+                            default_msg.dimmed()
+                        );
+                        default_msg
+                    }
+                    None => {
+                        print!(
+                            "  {} {} ({} file{}) → ",
+                            "●".cyan(),
+                            item.repo.name.bold(),
+                            change_count,
+                            if change_count == 1 { "" } else { "s" }
+                        );
+                        io::stdout().flush().ok();
+
+                        let msg = Input::new()
+                            .with_prompt("")
+                            .default(default_msg.clone())
+                            .interact_text()
+                            .unwrap_or(default_msg);
+                        msg
+                    }
+                };
+
+                // Send message to worker
+                messages.lock().unwrap().insert(*idx, commit_msg);
+
+                // Show processing started after first message
+                if first_message {
+                    println!(
+                        "  {} {}",
+                        "▶".green(),
+                        "Processing started in background...".dimmed()
+                    );
+                    first_message = false;
                 }
             }
 
-            self.completed.push(item.repo.name.to_string());
+            all_messages_collected.store(true, Ordering::SeqCst);
+
+            println!();
+            println!("{}", "═".repeat(60));
+            println!(
+                "{} All messages entered. Waiting for processing...",
+                "✓".green()
+            );
+            println!("{}", "═".repeat(60));
+        } else {
+            // For dry_run or no changes, signal worker to use defaults
+            all_messages_collected.store(true, Ordering::SeqCst);
         }
 
-        Ok(())
-    }
-
-    fn abort_remaining(&self, failed_idx: usize) -> Result<(), String> {
-        println!("\n{} Unstaging remaining repos...", "⚠".yellow());
-
-        for item in self.queue.iter().skip(failed_idx) {
-            let repo_path = self.root.join(item.repo.path);
-            if repo_path.exists() && has_changes(&repo_path) {
-                print!("  {} Unstaging {}... ", "→".yellow(), item.repo.name);
-                io::stdout().flush().ok();
-                unstage_all(&repo_path);
-                println!("{}", "done".dimmed());
+        // Stream output as it becomes available
+        println!();
+        let mut last_printed = 0;
+        loop {
+            // Print any new output lines
+            {
+                let buffer = output_buffer.lock().unwrap();
+                for line in buffer.iter().skip(last_printed) {
+                    println!("{}", line);
+                }
+                last_printed = buffer.len();
             }
+
+            // Check if worker is done
+            if worker_done.load(Ordering::SeqCst) {
+                // Print any final output
+                let buffer = output_buffer.lock().unwrap();
+                for line in buffer.iter().skip(last_printed) {
+                    println!("{}", line);
+                }
+                break;
+            }
+
+            thread::sleep(std::time::Duration::from_millis(50));
+        }
+
+        // Wait for worker thread to fully complete
+        worker_handle.join().unwrap();
+
+        // Copy completed list from worker
+        self.completed = completed_shared.lock().unwrap().clone();
+
+        // Check for errors
+        if let Some(error) = worker_error.lock().unwrap().take() {
+            return Err(error);
         }
 
         Ok(())
@@ -701,10 +1276,19 @@ fn spawn_in_new_terminal(args: &Args, root: &Path) -> Result<(), String> {
             ("xterm", vec!["-e", "bash", "-c"]),
         ];
 
-        let full_cmd = format!("cd '{}' && {}; read -p 'Press Enter to close...'", root.display(), cmd_string);
+        let full_cmd = format!(
+            "cd '{}' && {}; read -p 'Press Enter to close...'",
+            root.display(),
+            cmd_string
+        );
 
         for (term, term_args) in terminals {
-            if Command::new("which").arg(term).output().map(|o| o.status.success()).unwrap_or(false) {
+            if Command::new("which")
+                .arg(term)
+                .output()
+                .map(|o| o.status.success())
+                .unwrap_or(false)
+            {
                 let mut cmd = Command::new(term);
                 for arg in &term_args {
                     cmd.arg(arg);
@@ -743,7 +1327,11 @@ fn main() -> ExitCode {
         // Print immediately so user knows it was received
         eprintln!("\n{} Received Ctrl+C, cleaning up...", "⚠".yellow());
     }) {
-        eprintln!("{} Failed to set Ctrl+C handler: {}", "Warning:".yellow(), e);
+        eprintln!(
+            "{} Failed to set Ctrl+C handler: {}",
+            "Warning:".yellow(),
+            e
+        );
     }
 
     // Get root directory
@@ -761,11 +1349,22 @@ fn main() -> ExitCode {
     let all = all_repos();
     let initial_repos: Vec<Repo> = match args.repos.as_str() {
         "all" => all.clone(),
-        "rust" => all.iter().filter(|r| r.repo_type == RepoType::Rust).cloned().collect(),
-        "ts" => all.iter().filter(|r| r.repo_type == RepoType::Ts).cloned().collect(),
+        "rust" => all
+            .iter()
+            .filter(|r| r.repo_type == RepoType::Rust)
+            .cloned()
+            .collect(),
+        "ts" => all
+            .iter()
+            .filter(|r| r.repo_type == RepoType::Ts)
+            .cloned()
+            .collect(),
         names => {
             let names: Vec<&str> = names.split(',').map(|s| s.trim()).collect();
-            all.iter().filter(|r| names.contains(&r.name)).cloned().collect()
+            all.iter()
+                .filter(|r| names.contains(&r.name))
+                .cloned()
+                .collect()
         }
     };
 
@@ -774,8 +1373,9 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     }
 
-    // Build dependency graph with all repos
-    let graph = DependencyGraph::new(&all);
+    // Load dependency graph from deps.toml
+    let deps = load_dependency_map(&root);
+    let graph = DependencyGraph::new(&all, deps.clone());
 
     // Cascade to dependents
     let initial_names: Vec<&str> = initial_repos.iter().map(|r| r.name).collect();
@@ -784,13 +1384,19 @@ fn main() -> ExitCode {
     } else {
         let cascaded = graph.cascade_to_dependents(&initial_names);
         if cascaded.len() > initial_names.len() {
-            let added: Vec<_> = cascaded.iter()
+            let added: Vec<_> = cascaded
+                .iter()
                 .filter(|n| !initial_names.contains(&n.as_str()))
                 .collect();
             println!(
                 "{}: Adding dependents: {}",
                 "Cascading".yellow(),
-                added.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", ").cyan()
+                added
+                    .iter()
+                    .map(|s| s.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+                    .cyan()
             );
         }
         cascaded
@@ -815,10 +1421,20 @@ fn main() -> ExitCode {
     let versions = VersionsCache::load(&root);
 
     // Build commit queue
-    let mut queue = CommitQueue::new(root.clone(), args.dry_run, interrupted);
+    let mut queue = CommitQueue::new(
+        root.clone(),
+        deps,
+        versions.0.clone(),
+        args.dry_run,
+        interrupted,
+        args.debug,
+    );
 
     for repo in &repos {
-        let version = versions.get(repo.name).cloned().unwrap_or_else(|| "0.0.0".to_string());
+        let version = versions
+            .get_local(repo.name)
+            .cloned()
+            .unwrap_or_else(|| "0.0.0".to_string());
         queue.add(repo.clone(), version, None);
     }
 
@@ -834,10 +1450,16 @@ fn main() -> ExitCode {
     // If there's a queue and we're not already spawned, offer to open in new terminal
     if repos_with_changes.len() > 1 && !args.spawned && !args.dry_run {
         println!("{}", "═".repeat(50));
-        println!("{} {} repos have changes: {}",
+        println!(
+            "{} {} repos have changes: {}",
             "ℹ".blue(),
             repos_with_changes.len(),
-            repos_with_changes.iter().map(|r| r.name).collect::<Vec<_>>().join(", ").cyan()
+            repos_with_changes
+                .iter()
+                .map(|r| r.name)
+                .collect::<Vec<_>>()
+                .join(", ")
+                .cyan()
         );
         println!("{}", "═".repeat(50));
         println!();
@@ -850,7 +1472,10 @@ fn main() -> ExitCode {
         {
             match spawn_in_new_terminal(&args, &root) {
                 Ok(()) => {
-                    println!("{} Commit queue started in new terminal window", "✓".green());
+                    println!(
+                        "{} Commit queue started in new terminal window",
+                        "✓".green()
+                    );
                     return ExitCode::SUCCESS;
                 }
                 Err(e) => {
@@ -866,7 +1491,16 @@ fn main() -> ExitCode {
     println!("{}", "  Commit Queue".bold());
     println!("{}", "═".repeat(50));
     println!();
-    println!("{} {}", "Repos:".bold(), repos.iter().map(|r| r.name).collect::<Vec<_>>().join(" → ").cyan());
+    println!(
+        "{} {}",
+        "Repos:".bold(),
+        repos
+            .iter()
+            .map(|r| r.name)
+            .collect::<Vec<_>>()
+            .join(" → ")
+            .cyan()
+    );
     if args.dry_run {
         println!("{} {}", "Mode:".bold(), "DRY RUN".yellow());
     }
@@ -890,7 +1524,11 @@ fn main() -> ExitCode {
         Ok(()) => {
             println!("\n{}", "═".repeat(50));
             if !queue.completed.is_empty() {
-                println!("{} {}", "✓ Completed:".green().bold(), queue.completed.join(", "));
+                println!(
+                    "{} {}",
+                    "✓ Completed:".green().bold(),
+                    queue.completed.join(", ")
+                );
             }
             if args.dry_run {
                 println!("\n{}", "This was a dry run. No changes were made.".yellow());
@@ -901,9 +1539,437 @@ fn main() -> ExitCode {
             println!("\n{}", "═".repeat(50));
             eprintln!("{} {}", "✗ Failed:".red().bold(), e);
             if !queue.completed.is_empty() {
-                println!("{} {}", "Completed before failure:".dimmed(), queue.completed.join(", "));
+                println!(
+                    "{} {}",
+                    "Completed before failure:".dimmed(),
+                    queue.completed.join(", ")
+                );
             }
             ExitCode::FAILURE
         }
+    }
+}
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_deps() -> HashMap<String, Vec<String>> {
+        let mut deps = HashMap::new();
+        deps.insert("syn".to_string(), vec![]);
+        deps.insert("template".to_string(), vec!["syn".to_string()]);
+        deps.insert(
+            "macros".to_string(),
+            vec!["syn".to_string(), "template".to_string()],
+        );
+        deps.insert(
+            "core".to_string(),
+            vec![
+                "syn".to_string(),
+                "template".to_string(),
+                "macros".to_string(),
+            ],
+        );
+        deps.insert("shared".to_string(), vec!["core".to_string()]);
+        deps.insert(
+            "vite-plugin".to_string(),
+            vec!["core".to_string(), "shared".to_string()],
+        );
+        deps.insert(
+            "typescript-plugin".to_string(),
+            vec!["core".to_string(), "shared".to_string()],
+        );
+        deps
+    }
+
+    fn test_repos() -> Vec<Repo> {
+        vec![
+            Repo {
+                name: "syn",
+                path: "crates/macroforge_ts_syn",
+                repo_type: RepoType::Rust,
+            },
+            Repo {
+                name: "template",
+                path: "crates/macroforge_ts_quote",
+                repo_type: RepoType::Rust,
+            },
+            Repo {
+                name: "macros",
+                path: "crates/macroforge_ts_macros",
+                repo_type: RepoType::Rust,
+            },
+            Repo {
+                name: "core",
+                path: "crates/macroforge_ts",
+                repo_type: RepoType::Rust,
+            },
+            Repo {
+                name: "shared",
+                path: "packages/shared",
+                repo_type: RepoType::Ts,
+            },
+            Repo {
+                name: "vite-plugin",
+                path: "packages/vite-plugin",
+                repo_type: RepoType::Ts,
+            },
+            Repo {
+                name: "typescript-plugin",
+                path: "packages/typescript-plugin",
+                repo_type: RepoType::Ts,
+            },
+        ]
+    }
+
+    #[test]
+    fn test_dependency_graph_sorted_order() {
+        let repos = test_repos();
+        let deps = test_deps();
+        let graph = DependencyGraph::new(&repos, deps);
+
+        let sorted = graph.sorted_order().unwrap();
+
+        // syn should come first (no deps)
+        assert_eq!(sorted[0], "syn");
+
+        // template depends on syn, so it comes after
+        let syn_pos = sorted.iter().position(|x| x == "syn").unwrap();
+        let template_pos = sorted.iter().position(|x| x == "template").unwrap();
+        assert!(syn_pos < template_pos, "syn should come before template");
+
+        // macros depends on syn and template
+        let macros_pos = sorted.iter().position(|x| x == "macros").unwrap();
+        assert!(syn_pos < macros_pos, "syn should come before macros");
+        assert!(
+            template_pos < macros_pos,
+            "template should come before macros"
+        );
+
+        // core depends on syn, template, macros
+        let core_pos = sorted.iter().position(|x| x == "core").unwrap();
+        assert!(macros_pos < core_pos, "macros should come before core");
+
+        // shared depends on core
+        let shared_pos = sorted.iter().position(|x| x == "shared").unwrap();
+        assert!(core_pos < shared_pos, "core should come before shared");
+
+        // vite-plugin depends on core and shared
+        let vite_pos = sorted.iter().position(|x| x == "vite-plugin").unwrap();
+        assert!(
+            shared_pos < vite_pos,
+            "shared should come before vite-plugin"
+        );
+    }
+
+    #[test]
+    fn test_get_dependents() {
+        let repos = test_repos();
+        let deps = test_deps();
+        let graph = DependencyGraph::new(&repos, deps);
+
+        // What depends on syn?
+        let syn_dependents = graph.get_dependents("syn");
+        assert!(syn_dependents.contains(&"template".to_string()));
+        assert!(syn_dependents.contains(&"macros".to_string()));
+        assert!(syn_dependents.contains(&"core".to_string()));
+
+        // What depends on core?
+        let core_dependents = graph.get_dependents("core");
+        assert!(core_dependents.contains(&"shared".to_string()));
+        assert!(core_dependents.contains(&"vite-plugin".to_string()));
+        assert!(core_dependents.contains(&"typescript-plugin".to_string()));
+
+        // Nothing depends on vite-plugin
+        let vite_dependents = graph.get_dependents("vite-plugin");
+        assert!(vite_dependents.is_empty());
+    }
+
+    #[test]
+    fn test_cascade_to_dependents() {
+        let repos = test_repos();
+        let deps = test_deps();
+        let graph = DependencyGraph::new(&repos, deps);
+
+        // If we bump syn, what needs to be updated?
+        let cascaded = graph.cascade_to_dependents(&["syn"]);
+        assert!(cascaded.contains(&"syn".to_string()));
+        assert!(cascaded.contains(&"template".to_string()));
+        assert!(cascaded.contains(&"macros".to_string()));
+        assert!(cascaded.contains(&"core".to_string()));
+        assert!(cascaded.contains(&"shared".to_string()));
+        assert!(cascaded.contains(&"vite-plugin".to_string()));
+        assert!(cascaded.contains(&"typescript-plugin".to_string()));
+
+        // If we bump shared, what needs to be updated?
+        let cascaded = graph.cascade_to_dependents(&["shared"]);
+        assert!(cascaded.contains(&"shared".to_string()));
+        assert!(cascaded.contains(&"vite-plugin".to_string()));
+        assert!(cascaded.contains(&"typescript-plugin".to_string()));
+        // Should NOT include upstream deps
+        assert!(!cascaded.contains(&"core".to_string()));
+        assert!(!cascaded.contains(&"syn".to_string()));
+    }
+
+    #[test]
+    fn test_cascade_preserves_order() {
+        let repos = test_repos();
+        let deps = test_deps();
+        let graph = DependencyGraph::new(&repos, deps);
+
+        let cascaded = graph.cascade_to_dependents(&["syn"]);
+
+        // Should be in topological order
+        let syn_pos = cascaded.iter().position(|x| x == "syn").unwrap();
+        let core_pos = cascaded.iter().position(|x| x == "core").unwrap();
+        let shared_pos = cascaded.iter().position(|x| x == "shared").unwrap();
+
+        assert!(syn_pos < core_pos);
+        assert!(core_pos < shared_pos);
+    }
+
+    #[test]
+    fn test_deps_toml_parsing() {
+        let toml_content = r#"
+[crates]
+syn = []
+template = ["syn"]
+
+[packages]
+shared = ["core"]
+
+[other]
+website = ["core"]
+"#;
+
+        #[derive(Deserialize)]
+        struct DepsFile {
+            #[serde(default)]
+            crates: HashMap<String, Vec<String>>,
+            #[serde(default)]
+            packages: HashMap<String, Vec<String>>,
+            #[serde(default)]
+            other: HashMap<String, Vec<String>>,
+        }
+
+        let deps_file: DepsFile = toml::from_str(toml_content).unwrap();
+
+        assert_eq!(deps_file.crates.get("syn").unwrap().len(), 0);
+        assert_eq!(
+            deps_file.crates.get("template").unwrap(),
+            &vec!["syn".to_string()]
+        );
+        assert_eq!(
+            deps_file.packages.get("shared").unwrap(),
+            &vec!["core".to_string()]
+        );
+        assert_eq!(
+            deps_file.other.get("website").unwrap(),
+            &vec!["core".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_queue_order_respects_dependencies() {
+        let repos = test_repos();
+        let deps = test_deps();
+        let graph = DependencyGraph::new(&repos, deps.clone());
+
+        // Simulate what happens when we select "all" repos
+        let sorted = graph.sorted_order().unwrap();
+
+        // Verify the queue order ensures dependencies come first
+        let positions: HashMap<&str, usize> = sorted
+            .iter()
+            .enumerate()
+            .map(|(i, name)| (name.as_str(), i))
+            .collect();
+
+        // For each package, verify all its dependencies come before it
+        for (pkg, pkg_deps) in &deps {
+            if let Some(&pkg_pos) = positions.get(pkg.as_str()) {
+                for dep in pkg_deps {
+                    if let Some(&dep_pos) = positions.get(dep.as_str()) {
+                        assert!(
+                            dep_pos < pkg_pos,
+                            "{} (pos {}) should come before {} (pos {})",
+                            dep,
+                            dep_pos,
+                            pkg,
+                            pkg_pos
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_npm_package_names() {
+        let names = npm_package_names();
+
+        assert_eq!(names.get("core"), Some(&"macroforge"));
+        assert_eq!(names.get("shared"), Some(&"@macroforge/shared"));
+        assert_eq!(names.get("vite-plugin"), Some(&"@macroforge/vite-plugin"));
+        assert_eq!(
+            names.get("typescript-plugin"),
+            Some(&"@macroforge/typescript-plugin")
+        );
+        assert_eq!(
+            names.get("svelte-language-server"),
+            Some(&"@macroforge/svelte-language-server")
+        );
+        assert_eq!(
+            names.get("svelte-preprocessor"),
+            Some(&"@macroforge/svelte-preprocessor")
+        );
+        assert_eq!(names.get("mcp-server"), Some(&"@macroforge/mcp-server"));
+        assert_eq!(names.len(), 7);
+    }
+
+    #[test]
+    fn test_crate_names() {
+        let names = crate_names();
+
+        assert_eq!(names.get("syn"), Some(&"macroforge_ts_syn"));
+        assert_eq!(names.get("template"), Some(&"macroforge_ts_quote"));
+        assert_eq!(names.get("macros"), Some(&"macroforge_ts_macros"));
+        assert_eq!(names.get("core"), Some(&"macroforge_ts"));
+        assert_eq!(names.len(), 4);
+    }
+
+    #[test]
+    fn test_versions_cache_get_local() {
+        let mut cache = VersionsCache::default();
+        cache.0.insert(
+            "core".to_string(),
+            Some(VersionInfo {
+                local: "1.2.3".to_string(),
+                registry: "1.2.0".to_string(),
+            }),
+        );
+
+        assert_eq!(cache.get_local("core"), Some(&"1.2.3".to_string()));
+        assert_eq!(cache.get_local("nonexistent"), None);
+    }
+
+    #[test]
+    fn test_versions_cache_handles_null() {
+        let mut cache = VersionsCache::default();
+        cache.0.insert("tooling".to_string(), None);
+
+        // null entries should return None for get_local
+        assert_eq!(cache.get_local("tooling"), None);
+    }
+
+    #[test]
+    fn test_all_repos_contains_expected() {
+        let repos = all_repos();
+
+        let names: Vec<&str> = repos.iter().map(|r| r.name).collect();
+        assert!(names.contains(&"core"));
+        assert!(names.contains(&"syn"));
+        assert!(names.contains(&"template"));
+        assert!(names.contains(&"macros"));
+        assert!(names.contains(&"shared"));
+        assert!(names.contains(&"vite-plugin"));
+        assert!(names.contains(&"typescript-plugin"));
+        assert!(names.contains(&"svelte-language-server"));
+        assert!(names.contains(&"svelte-preprocessor"));
+        assert!(names.contains(&"mcp-server"));
+        assert!(names.contains(&"website"));
+        assert!(names.contains(&"tooling"));
+        assert!(names.contains(&"zed-extensions"));
+    }
+
+    #[test]
+    fn test_repo_types() {
+        let repos = all_repos();
+
+        let rust_repos: Vec<_> = repos
+            .iter()
+            .filter(|r| r.repo_type == RepoType::Rust)
+            .collect();
+        let ts_repos: Vec<_> = repos
+            .iter()
+            .filter(|r| r.repo_type == RepoType::Ts)
+            .collect();
+
+        assert_eq!(rust_repos.len(), 4); // core, syn, template, macros
+        assert_eq!(ts_repos.len(), 6); // shared, vite-plugin, typescript-plugin, svelte-language-server, svelte-preprocessor, mcp-server
+    }
+
+    #[test]
+    fn test_dependency_graph_empty_deps() {
+        let repos = test_repos();
+        let deps = HashMap::new();
+        let graph = DependencyGraph::new(&repos, deps);
+
+        // With no dependencies, all repos should be independent
+        let sorted = graph.sorted_order().unwrap();
+        assert_eq!(sorted.len(), repos.len());
+    }
+
+    #[test]
+    fn test_get_dependents_returns_direct_dependents() {
+        let repos = test_repos();
+        let deps = test_deps();
+        let graph = DependencyGraph::new(&repos, deps);
+
+        // What directly depends on core?
+        let core_dependents = graph.get_dependents("core");
+        assert!(core_dependents.contains(&"shared".to_string()));
+        assert!(core_dependents.contains(&"vite-plugin".to_string()));
+        assert!(core_dependents.contains(&"typescript-plugin".to_string()));
+
+        // syn has many direct dependents
+        let syn_dependents = graph.get_dependents("syn");
+        assert!(syn_dependents.contains(&"template".to_string()));
+        assert!(syn_dependents.contains(&"macros".to_string()));
+        assert!(syn_dependents.contains(&"core".to_string()));
+    }
+
+    #[test]
+    fn test_has_package() {
+        // Repos with packages
+        assert!(has_package("core")); // npm + crate
+        assert!(has_package("syn")); // crate only
+        assert!(has_package("shared")); // npm only
+        assert!(has_package("vite-plugin")); // npm only
+
+        // Repos without packages
+        assert!(!has_package("tooling"));
+        assert!(!has_package("website"));
+        assert!(!has_package("zed-extensions"));
+    }
+
+    #[test]
+    fn test_default_commit_message_with_package() {
+        // Repos with packages get "Bump to X.Y.Z"
+        let msg = default_commit_message("core", "1.2.3", "");
+        assert_eq!(msg, "Bump to 1.2.3");
+
+        let msg = default_commit_message("shared", "0.1.5", " M some/file.ts");
+        assert_eq!(msg, "Bump to 0.1.5");
+    }
+
+    #[test]
+    fn test_default_commit_message_without_package() {
+        // Repos without packages get "Updated" with file list
+        let msg = default_commit_message("tooling", "0.1.0", "");
+        assert_eq!(msg, "Updated");
+
+        let msg = default_commit_message("tooling", "0.1.0", " M scripts/commit.rs");
+        assert_eq!(msg, "Updated scripts/commit.rs");
+
+        let msg = default_commit_message("tooling", "0.1.0", " M a.rs\n M b.rs\n M c.rs");
+        assert_eq!(msg, "Updated a.rs, b.rs, c.rs");
+
+        let msg = default_commit_message("tooling", "0.1.0", " M a.rs\n M b.rs\n M c.rs\n M d.rs");
+        assert_eq!(msg, "Updated 4 files");
     }
 }

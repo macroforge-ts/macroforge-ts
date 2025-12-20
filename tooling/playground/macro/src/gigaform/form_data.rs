@@ -8,16 +8,13 @@ use crate::gigaform::naming::{call_deserialize, fn_name_from_form_data};
 use crate::gigaform::parser::{ParsedField, UnionConfig, UnionMode};
 
 /// Generates the fromFormData function.
-pub fn generate(
-    interface_name: &str,
-    fields: &[ParsedField],
-) -> TsStream {
+pub fn generate(interface_name: &str, fields: &[ParsedField]) -> TsStream {
     let fn_name = fn_name_from_form_data(interface_name, "");
     let field_extractions = generate_field_extractions(fields, "");
     let delegate_call = call_deserialize(interface_name, "", "obj");
 
     ts_template! {
-        {>> "Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize)." <<}
+        /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize). */
         export function @{fn_name}(formData: FormData): Exit<@{interface_name}, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -46,7 +43,7 @@ pub fn generate_with_generics(
     let delegate_call = call_deserialize(interface_name, &generic_args, "obj");
 
     ts_template! {
-        {>> "Parses FormData and validates it, returning a Result with the parsed data or errors." <<}
+        /** Parses FormData and validates it, returning a Result with the parsed data or errors. */
         export function @{fn_name}(formData: FormData): Exit<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -86,7 +83,7 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
     let delegate_call = call_deserialize(type_name, "", "obj");
 
     ts_template! {
-        {>> "Parses FormData for union type, determining variant from discriminant field" <<}
+        /** Parses FormData for union type, determining variant from discriminant field */
         export function @{fn_name}(formData: FormData): Exit<@{type_name}, Array<{ field: string; message: string }>> {
             const discriminant = formData.get("@{discriminant_field}") as @{variant_literals} | null;
 

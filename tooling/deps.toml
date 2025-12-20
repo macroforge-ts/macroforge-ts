@@ -1,0 +1,21 @@
+# Dependency graph for macroforge packages
+# Format: package = ["dependency1", "dependency2", ...]
+
+[crates]
+syn = []
+template = ["syn"]
+macros = ["syn", "template"]
+core = ["syn", "template", "macros"]
+
+[packages]
+shared = ["core"]
+vite-plugin = ["core", "shared"]
+typescript-plugin = ["core", "shared"]
+svelte-language-server = ["core", "typescript-plugin"]
+svelte-preprocessor = ["core"]
+mcp-server = ["core"]
+
+[other]
+website = ["core"]
+zed-extensions = ["typescript-plugin", "svelte-language-server"]
+tooling = ["core", "vite-plugin", "typescript-plugin"]
