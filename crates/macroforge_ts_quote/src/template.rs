@@ -27,6 +27,46 @@ use proc_macro2::{Delimiter, Group, Span, TokenStream as TokenStream2, TokenTree
 use quote::{ToTokens, quote};
 use std::iter::Peekable;
 
+/// Helper struct to buffer string literals and merge them before emitting code.
+///
+/// This optimization reduces the number of `__out.push_str()` calls in the
+/// generated code by concatenating adjacent string literals at compile time.
+struct LiteralBuffer {
+    tokens: TokenStream2,
+    pending: String,
+}
+
+impl LiteralBuffer {
+    fn new() -> Self {
+        Self {
+            tokens: TokenStream2::new(),
+            pending: String::new(),
+        }
+    }
+
+    fn push_str(&mut self, s: &str) {
+        self.pending.push_str(s);
+    }
+
+    fn flush(&mut self) {
+        if !self.pending.is_empty() {
+            let s = &self.pending;
+            self.tokens.extend(quote! { __out.push_str(#s); });
+            self.pending.clear();
+        }
+    }
+
+    fn push_stream(&mut self, stream: TokenStream2) {
+        self.flush();
+        self.tokens.extend(stream);
+    }
+
+    fn into_stream(mut self) -> TokenStream2 {
+        self.flush();
+        self.tokens
+    }
+}
+
 /// Creates a syntax error with contextual information about the template location.
 ///
 /// This function constructs a [`syn::Error`] with an optional context string that
@@ -922,7 +962,7 @@ fn parse_match_arms(
 fn parse_fragment_no_spacing(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
 ) -> syn::Result<TokenStream2> {
-    let mut output = TokenStream2::new();
+    let mut buffer = LiteralBuffer::new();
 
     while let Some(token) = iter.peek().cloned() {
         match &token {
@@ -935,12 +975,12 @@ fn parse_fragment_no_spacing(
                 if is_group {
                     if let Some(TokenTree::Group(g)) = iter.next() {
                         let content = g.stream();
-                        output.extend(quote! {
+                        buffer.push_stream(quote! {
                             __out.push_str(&#content.to_string());
                         });
                     }
                 } else {
-                    output.extend(quote! { __out.push_str("@"); });
+                    buffer.push_str("@");
                 }
             }
 
@@ -953,23 +993,23 @@ fn parse_fragment_no_spacing(
                     Delimiter::Brace => ("{", "}"),
                     Delimiter::None => ("", ""),
                 };
-                output.extend(quote! { __out.push_str(#open); });
+                buffer.push_str(open);
                 let inner = parse_fragment_no_spacing(&mut g.stream().into_iter().peekable())?;
-                output.extend(inner);
-                output.extend(quote! { __out.push_str(#close); });
+                buffer.push_stream(inner);
+                buffer.push_str(close);
             }
 
             // All other tokens - just emit, no spacing
             _ => {
                 let t = iter.next().unwrap();
                 let s = t.to_string();
-                output.extend(quote! { __out.push_str(#s); });
+                buffer.push_str(&s);
                 // NO space added - that's the point of ident blocks
             }
         }
     }
 
-    Ok(output)
+    Ok(buffer.into_stream())
 }
 
 /// Main recursive parser that processes template tokens and generates string-building code.
@@ -1017,7 +1057,7 @@ fn parse_fragment(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     stop_at: Option<&[Terminator]>,
 ) -> syn::Result<(TokenStream2, Option<Terminator>)> {
-    let mut output = TokenStream2::new();
+    let mut buffer = LiteralBuffer::new();
 
     while let Some(token) = iter.peek().cloned() {
         match &token {
@@ -1034,14 +1074,14 @@ fn parse_fragment(
                     // It IS interpolation: @{ expr }
                     if let Some(TokenTree::Group(g)) = iter.next() {
                         let content = g.stream();
-                        output.extend(quote! {
+                        buffer.push_stream(quote! {
                             __out.push_str(&#content.to_string());
                         });
                     }
                 } else {
                     // It is just a literal '@'
                     let s = p_clone.to_string();
-                    output.extend(quote! { __out.push_str(#s); });
+                    buffer.push_str(&s);
                 }
 
                 // Spacing logic after interpolation: always add space unless followed by punctuation
@@ -1086,7 +1126,7 @@ fn parse_fragment(
                 }
 
                 if add_space {
-                    output.extend(quote! { __out.push_str(" "); });
+                    buffer.push_str(" ");
                 }
             }
 
@@ -1098,11 +1138,11 @@ fn parse_fragment(
                 match tag {
                     TagType::If(cond) => {
                         iter.next(); // Consume {#if}
-                        output.extend(parse_if_chain(iter, cond, span)?);
+                        buffer.push_stream(parse_if_chain(iter, cond, span)?);
                     }
                     TagType::IfLet(pattern, expr) => {
                         iter.next(); // Consume {#if let}
-                        output.extend(parse_if_let_chain(iter, pattern, expr, span)?);
+                        buffer.push_stream(parse_if_let_chain(iter, pattern, expr, span)?);
                     }
                     TagType::For(item, list) => {
                         iter.next(); // Consume {#for}
@@ -1116,7 +1156,7 @@ fn parse_fragment(
                             ));
                         }
 
-                        output.extend(quote! {
+                        buffer.push_stream(quote! {
                             for #item in #list {
                                 #body
                             }
@@ -1124,22 +1164,22 @@ fn parse_fragment(
                     }
                     TagType::Match(expr) => {
                         iter.next(); // Consume {#match}
-                        output.extend(parse_match_arms(iter, expr, span)?);
+                        buffer.push_stream(parse_match_arms(iter, expr, span)?);
                     }
                     TagType::While(cond) => {
                         iter.next(); // Consume {#while}
-                        output.extend(parse_while_loop(iter, cond, span)?);
+                        buffer.push_stream(parse_while_loop(iter, cond, span)?);
                     }
                     TagType::WhileLet(pattern, expr) => {
                         iter.next(); // Consume {#while let}
-                        output.extend(parse_while_let_loop(iter, pattern, expr, span)?);
+                        buffer.push_stream(parse_while_let_loop(iter, pattern, expr, span)?);
                     }
                     TagType::Else => {
                         if let Some(stops) = stop_at
                             && stops.iter().any(|s| matches!(s, Terminator::Else))
                         {
                             iter.next(); // Consume
-                            return Ok((output, Some(Terminator::Else)));
+                            return Ok((buffer.into_stream(), Some(Terminator::Else)));
                         }
                         return Err(template_error(
                             span,
@@ -1152,7 +1192,7 @@ fn parse_fragment(
                             && stops.iter().any(|s| matches!(s, Terminator::ElseIf(_)))
                         {
                             iter.next(); // Consume
-                            return Ok((output, Some(Terminator::ElseIf(cond))));
+                            return Ok((buffer.into_stream(), Some(Terminator::ElseIf(cond))));
                         }
                         return Err(template_error(
                             span,
@@ -1165,7 +1205,7 @@ fn parse_fragment(
                             && stops.iter().any(|s| matches!(s, Terminator::EndIf))
                         {
                             iter.next(); // Consume
-                            return Ok((output, Some(Terminator::EndIf)));
+                            return Ok((buffer.into_stream(), Some(Terminator::EndIf)));
                         }
                         return Err(template_error(
                             span,
@@ -1178,7 +1218,7 @@ fn parse_fragment(
                             && stops.iter().any(|s| matches!(s, Terminator::EndFor))
                         {
                             iter.next(); // Consume
-                            return Ok((output, Some(Terminator::EndFor)));
+                            return Ok((buffer.into_stream(), Some(Terminator::EndFor)));
                         }
                         return Err(template_error(
                             span,
@@ -1191,7 +1231,7 @@ fn parse_fragment(
                             && stops.iter().any(|s| matches!(s, Terminator::EndWhile))
                         {
                             iter.next(); // Consume
-                            return Ok((output, Some(Terminator::EndWhile)));
+                            return Ok((buffer.into_stream(), Some(Terminator::EndWhile)));
                         }
                         return Err(template_error(
                             span,
@@ -1204,7 +1244,7 @@ fn parse_fragment(
                             && stops.iter().any(|s| matches!(s, Terminator::Case(_)))
                         {
                             iter.next(); // Consume
-                            return Ok((output, Some(Terminator::Case(pattern))));
+                            return Ok((buffer.into_stream(), Some(Terminator::Case(pattern))));
                         }
                         return Err(template_error(
                             span,
@@ -1217,7 +1257,7 @@ fn parse_fragment(
                             && stops.iter().any(|s| matches!(s, Terminator::EndMatch))
                         {
                             iter.next(); // Consume
-                            return Ok((output, Some(Terminator::EndMatch)));
+                            return Ok((buffer.into_stream(), Some(Terminator::EndMatch)));
                         }
                         return Err(template_error(
                             span,
@@ -1227,25 +1267,25 @@ fn parse_fragment(
                     }
                     TagType::Let(body) => {
                         iter.next(); // Consume {$let ...}
-                        output.extend(quote! {
+                        buffer.push_stream(quote! {
                             let #body;
                         });
                     }
                     TagType::LetMut(body) => {
                         iter.next(); // Consume {$let mut ...}
-                        output.extend(quote! {
+                        buffer.push_stream(quote! {
                             let mut #body;
                         });
                     }
                     TagType::Do(expr) => {
                         iter.next(); // Consume {$do ...}
-                        output.extend(quote! {
+                        buffer.push_stream(quote! {
                             #expr;
                         });
                     }
                     TagType::Typescript(expr) => {
                         iter.next(); // Consume {$typescript ...}
-                        output.extend(quote! {
+                        buffer.push_stream(quote! {
                             {
                                 let __ts_stream = #expr;
                                 __out.push_str(__ts_stream.source());
@@ -1268,7 +1308,7 @@ fn parse_fragment(
                             // Parse with no-spacing mode
                             let inner_output =
                                 parse_fragment_no_spacing(&mut content.into_iter().peekable())?;
-                            output.extend(inner_output);
+                            buffer.push_stream(inner_output);
                         }
 
                         // Spacing logic after ident block - same as @{} interpolation
@@ -1313,20 +1353,20 @@ fn parse_fragment(
                         }
 
                         if add_space {
-                            output.extend(quote! { __out.push_str(" "); });
+                            buffer.push_str(" ");
                         }
                     }
                     TagType::BlockComment(content) => {
                         iter.next(); // Consume {> "..." <}
-                        output.extend(quote! { __out.push_str("/* "); });
-                        output.extend(quote! { __out.push_str(#content); });
-                        output.extend(quote! { __out.push_str(" */"); });
+                        buffer.push_str("/* ");
+                        buffer.push_str(&content);
+                        buffer.push_str(" */");
                     }
                     TagType::DocComment(content) => {
                         iter.next(); // Consume {>> "..." <<}
-                        output.extend(quote! { __out.push_str("/** "); });
-                        output.extend(quote! { __out.push_str(#content); });
-                        output.extend(quote! { __out.push_str(" */"); });
+                        buffer.push_str("/** ");
+                        buffer.push_str(&content);
+                        buffer.push_str(" */");
                     }
                     TagType::Block => {
                         // Regular TS Block { ... }
@@ -1334,11 +1374,11 @@ fn parse_fragment(
                         iter.next(); // Consume
                         let inner_stream = g.stream();
 
-                        output.extend(quote! { __out.push_str("{"); });
+                        buffer.push_str("{");
                         let (inner_parsed, _) =
                             parse_fragment(&mut inner_stream.into_iter().peekable(), None)?;
-                        output.extend(inner_parsed);
-                        output.extend(quote! { __out.push_str("}"); });
+                        buffer.push_stream(inner_parsed);
+                        buffer.push_str("}");
                     }
                 }
             }
@@ -1353,27 +1393,27 @@ fn parse_fragment(
                     Delimiter::None => ("", ""),
                 };
 
-                output.extend(quote! { __out.push_str(#open); });
+                buffer.push_str(open);
                 let (inner_parsed, _) =
                     parse_fragment(&mut g.stream().into_iter().peekable(), None)?;
-                output.extend(inner_parsed);
-                output.extend(quote! { __out.push_str(#close); });
+                buffer.push_stream(inner_parsed);
+                buffer.push_str(close);
             }
 
             // Case 4a: Backtick template literals "'^...^'" -> `...`
             TokenTree::Literal(lit) if is_backtick_template(lit) => {
                 iter.next(); // Consume
                 let processed = process_backtick_template(lit)?;
-                output.extend(processed);
-                output.extend(quote! { __out.push_str(" "); });
+                buffer.push_stream(processed);
+                buffer.push_str(" ");
             }
 
             // Case 4b: String literals with interpolation
             TokenTree::Literal(lit) if is_string_literal(lit) => {
                 iter.next(); // Consume
                 let interpolated = interpolate_string_literal(lit)?;
-                output.extend(interpolated);
-                output.extend(quote! { __out.push_str(" "); });
+                buffer.push_stream(interpolated);
+                buffer.push_str(" ");
             }
 
             // Case 5: Plain Text
@@ -1402,9 +1442,7 @@ fn parse_fragment(
                 };
 
                 // Emit token string
-                output.extend(quote! {
-                    __out.push_str(#s);
-                });
+                buffer.push_str(&s);
 
                 // Decide whether to append a space
                 // Simplified: always add space unless followed by punctuation
@@ -1450,13 +1488,13 @@ fn parse_fragment(
                 }
 
                 if add_space {
-                    output.extend(quote! { __out.push_str(" "); });
+                    buffer.push_str(" ");
                 }
             }
         }
     }
 
-    Ok((output, None))
+    Ok((buffer.into_stream(), None))
 }
 
 /// Converts a slice of tokens to a space-separated string.
@@ -1709,16 +1747,16 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
     if !content.contains('@') {
         // No @ at all, output the backtick string as-is
         // The content may contain ${} for JS interpolation, which passes through
-        let mut output = TokenStream2::new();
-        output.extend(quote! { __out.push_str("`"); });
-        output.extend(quote! { __out.push_str(#content); });
-        output.extend(quote! { __out.push_str("`"); });
-        return Ok(output);
+        let mut buffer = LiteralBuffer::new();
+        buffer.push_str("`");
+        buffer.push_str(content);
+        buffer.push_str("`");
+        return Ok(buffer.into_stream());
     }
 
     // Handle @{} Rust interpolations and @@ escapes within the backtick template
-    let mut output = TokenStream2::new();
-    output.extend(quote! { __out.push_str("`"); });
+    let mut buffer = LiteralBuffer::new();
+    buffer.push_str("`");
 
     let mut chars = content.chars().peekable();
     let mut current_literal = String::new();
@@ -1738,7 +1776,7 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
                     // @{ -> interpolation
                     // Flush current literal
                     if !current_literal.is_empty() {
-                        output.extend(quote! { __out.push_str(#current_literal); });
+                        buffer.push_str(&current_literal);
                         current_literal.clear();
                     }
 
@@ -1781,7 +1819,7 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
                     // Parse the expression and generate interpolation code
                     match syn::parse_str::<syn::Expr>(&expr_str) {
                         Ok(expr) => {
-                            output.extend(quote! {
+                            buffer.push_stream(quote! {
                                 __out.push_str(&#expr.to_string());
                             });
                         }
@@ -1809,11 +1847,11 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
 
     // Flush remaining literal
     if !current_literal.is_empty() {
-        output.extend(quote! { __out.push_str(#current_literal); });
+        buffer.push_str(&current_literal);
     }
 
-    output.extend(quote! { __out.push_str("`"); });
-    Ok(output)
+    buffer.push_str("`");
+    Ok(buffer.into_stream())
 }
 
 /// Processes a string literal and handles `@{expr}` interpolations inside it.
@@ -1895,9 +1933,9 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenSt
     }
 
     // Parse and interpolate
-    let mut output = TokenStream2::new();
+    let mut buffer = LiteralBuffer::new();
     let quote_str = quote_char.to_string();
-    output.extend(quote! { __out.push_str(#quote_str); });
+    buffer.push_str(&quote_str);
 
     let mut chars = content.chars().peekable();
     let mut current_literal = String::new();
@@ -1917,7 +1955,7 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenSt
                     // @{ -> interpolation
                     // Flush current literal
                     if !current_literal.is_empty() {
-                        output.extend(quote! { __out.push_str(#current_literal); });
+                        buffer.push_str(&current_literal);
                         current_literal.clear();
                     }
 
@@ -1960,7 +1998,7 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenSt
                     // Parse the expression and generate interpolation code
                     match syn::parse_str::<syn::Expr>(&expr_str) {
                         Ok(expr) => {
-                            output.extend(quote! {
+                            buffer.push_stream(quote! {
                                 __out.push_str(&#expr.to_string());
                             });
                         }
@@ -1995,10 +2033,10 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenSt
 
     // Flush remaining literal
     if !current_literal.is_empty() {
-        output.extend(quote! { __out.push_str(#current_literal); });
+        buffer.push_str(&current_literal);
     }
 
-    output.extend(quote! { __out.push_str(#quote_str); });
+    buffer.push_str(&quote_str);
 
-    Ok(output)
+    Ok(buffer.into_stream())
 }

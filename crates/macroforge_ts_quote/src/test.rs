@@ -17,7 +17,9 @@ fn test_at_interpolation_glue() {
     let s = output.unwrap().to_string();
 
     // Should generate code that pushes "make"
-    assert!(s.contains("\"make\""));
+    // Note: The parser logic adds a space after identifiers unless followed by certain chars.
+    // So "make" becomes "make ".
+    assert!(s.contains("\"make \""));
     // Should generate code that pushes the interpolated value
     assert!(
         s.contains("name_ident . to_string ()"),
@@ -46,8 +48,8 @@ fn test_at_interpolation_glue() {
 
     // Let's modify the assertion to reflect what is actually generated.
     assert!(
-        s.contains("__out . push_str (\"make\") ;"),
-        "Generated code should push \"make\""
+        s.contains("__out . push_str (\"make \") ;"),
+        "Generated code should push \"make \""
     );
     assert!(
         s.contains("__out . push_str (& name_ident . to_string ()) ;"),
@@ -144,17 +146,16 @@ fn test_string_interpolation_simple() {
     let s = output.unwrap().to_string();
 
     // Should push the opening quote
-    // The generated code will look something like: __out . push_str ("\"") ;
     assert!(
-        s.contains("push_str (\"\\\"\")"),
-        "Should push opening quote"
+        s.contains("push_str (\"\\\"Hello \")"),
+        "Should push opening quote and Hello"
     );
-    // Should push "Hello "
-    assert!(s.contains("\"Hello \""), "Should push 'Hello '");
     // Should interpolate name
     assert!(s.contains("name . to_string"), "Should interpolate name");
-    // Should push "!"
-    assert!(s.contains("\"!\""), "Should push '!'");
+    // Should push "!" and closing quote
+    // Note: The closing quote is pushed by interpolate_string_literal,
+    // and the following space is pushed by parse_fragment. They are NOT merged.
+    assert!(s.contains("\"!\\\"\""), "Should push '!' and closing quote");
 }
 
 #[test]
@@ -213,12 +214,15 @@ fn test_backtick_template_simple() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    // Should push backtick at start
-    assert!(s.contains("\"`\""), "Should push opening backtick");
-    // Should contain the template content with ${name} passed through
+    // Should push merged backtick string
     assert!(
         s.contains("hello ${name}"),
         "Should contain template content"
+    );
+    // Should NOT have separate push for backtick
+    assert!(
+        !s.contains("push_str (\"`\")"),
+        "Should not push isolated backtick"
     );
 }
 
@@ -286,11 +290,12 @@ fn test_at_symbol_in_backtick_passes_through() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    // Should contain backticks and the literal @
-    assert!(s.contains("\"`\""), "Should push backtick");
+    // Should contain merged backtick string
+    assert!(s.contains("email@domain.com"), "Should contain content");
+    // Should NOT have separate push for backtick
     assert!(
-        s.contains("email@domain.com"),
-        "Should pass through @ unchanged"
+        !s.contains("push_str (\"`\")"),
+        "Should not push isolated backtick"
     );
 }
 
@@ -462,7 +467,7 @@ fn test_ident_block_with_surrounding_text() {
     let s = output.unwrap().to_string();
 
     // Should have the function keyword and interpolation
-    assert!(s.contains(r#""function""#), "Should have function keyword");
+    assert!(s.contains(r#""function ""#), "Should have function keyword");
     assert!(s.contains("name . to_string"), "Should interpolate name");
     assert!(
         s.contains(r#"__out . push_str ("get")"#),
@@ -478,8 +483,9 @@ fn test_ident_block_empty() {
     let s = output.unwrap().to_string();
 
     // Should have prefix and suffix
-    assert!(s.contains(r#""prefix""#), "Should have prefix");
-    assert!(s.contains(r#""suffix""#), "Should have suffix");
+    assert!(s.contains(r#""prefix ""#), "Should have prefix");
+    // Suffix might be merged or separate, checking for content
+    assert!(s.contains("suffix"), "Should have suffix");
 }
 
 #[test]
@@ -739,13 +745,10 @@ fn test_block_comment_simple() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    // Should have /* and */
-    assert!(s.contains(r#""/* ""#), "Should have opening comment: {}", s);
-    assert!(s.contains(r#"" */""#), "Should have closing comment: {}", s);
-    // Should contain the comment text (string literal preserved)
+    // Should contain the full merged comment
     assert!(
-        s.contains(r#""This is a comment""#),
-        "Should contain 'This is a comment': {}",
+        s.contains("\"/* This is a comment */\""),
+        "Should contain merged comment: {}",
         s
     );
 }
@@ -757,17 +760,10 @@ fn test_doc_comment_simple() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    // Should have /** and */
+    // Should contain the full merged doc comment
     assert!(
-        s.contains(r#""/** ""#),
-        "Should have opening doc comment: {}",
-        s
-    );
-    assert!(s.contains(r#"" */""#), "Should have closing comment: {}", s);
-    // Should contain the doc text (string literal preserved)
-    assert!(
-        s.contains(r#""This is JSDoc""#),
-        "Should contain 'This is JSDoc': {}",
+        s.contains("\"/** This is JSDoc */\""),
+        "Should contain merged doc comment: {}",
         s
     );
 }
@@ -779,16 +775,12 @@ fn test_comment_with_string() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    // Should have the opening comment
-    assert!(s.contains(r#""/* ""#), "Should have opening comment: {}", s);
-    // Should contain the full string with spaces preserved
+    // Should contain the full merged comment
     assert!(
-        s.contains(r#""Generated by someone""#),
-        "Should contain full string: {}",
+        s.contains("\"/* Generated by someone */\""),
+        "Should contain merged comment: {}",
         s
     );
-    // Should have the closing comment
-    assert!(s.contains(r#"" */""#), "Should have closing comment: {}", s);
 }
 
 #[test]
@@ -798,16 +790,10 @@ fn test_doc_comment_with_jsdoc_tags() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    // Should have opening doc comment
+    // Should contain the full merged JSDoc string
     assert!(
-        s.contains(r#""/** ""#),
-        "Should have opening doc comment: {}",
-        s
-    );
-    // Should contain the full JSDoc string
-    assert!(
-        s.contains(r#""@param name The name""#),
-        "Should contain full JSDoc string: {}",
+        s.contains("\"/** @param name The name */\""),
+        "Should contain merged JSDoc string: {}",
         s
     );
 }
@@ -819,9 +805,12 @@ fn test_empty_block_comment() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    // Should have both comment markers
-    assert!(s.contains(r#""/* ""#), "Should have opening comment: {}", s);
-    assert!(s.contains(r#"" */""#), "Should have closing comment: {}", s);
+    // Should contain merged empty comment
+    assert!(
+        s.contains("\"/*  */\""),
+        "Should contain merged empty comment: {}",
+        s
+    );
 }
 
 #[test]
@@ -831,13 +820,12 @@ fn test_empty_doc_comment() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    // Should have both doc comment markers
+    // Should contain merged empty doc comment
     assert!(
-        s.contains(r#""/** ""#),
-        "Should have opening doc comment: {}",
+        s.contains("\"/**  */\""),
+        "Should contain merged empty doc comment: {}",
         s
     );
-    assert!(s.contains(r#"" */""#), "Should have closing comment: {}", s);
 }
 
 #[test]
@@ -853,16 +841,11 @@ fn test_comment_in_context() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    // Should have doc comment
+    // Should contain merged string parts (split by groups)
     assert!(
-        s.contains(r#""/** ""#),
-        "Should have opening doc comment: {}",
-        s
+        s.contains("push_str (\"/** @param {string} name */function greet(\")"),
+        "Should push first part"
     );
-    // Should have function keyword
-    assert!(
-        s.contains(r#""function""#),
-        "Should have function keyword: {}",
-        s
-    );
+    assert!(s.contains("push_str (\"name\")"), "Should push name");
+    assert!(s.contains("push_str (\"){\")"), "Should push ){{}}");
 }
