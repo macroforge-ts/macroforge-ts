@@ -353,8 +353,19 @@ impl VersionsCache {
         }
     }
 
+    fn get(&self, name: &str) -> Option<&VersionInfo> {
+        self.0.get(name).and_then(|v| v.as_ref())
+    }
+
     fn get_local(&self, name: &str) -> Option<&String> {
-        self.0.get(name).and_then(|v| v.as_ref()).map(|v| &v.local)
+        self.get(name).map(|v| &v.local)
+    }
+
+    /// Check if a repo has been prepped (local version differs from registry)
+    fn is_prepped(&self, name: &str) -> bool {
+        self.get(name)
+            .map(|v| v.local != v.registry)
+            .unwrap_or(false)
     }
 }
 
@@ -459,6 +470,43 @@ fn check_crate_version(crate_name: &str, version: &str) -> bool {
         }
         _ => false,
     }
+}
+
+/// Determine if we should create a tag for this repo/version.
+/// For packages with registries: tag if version is NOT on the registry (registry is source of truth)
+/// For packages without registries: tag if tag doesn't exist remotely
+fn should_create_tag(repo_name: &str, version: &str, repo_path: &Path) -> bool {
+    let npm_packages = npm_package_names();
+    let crates = crate_names();
+
+    let npm_name = npm_packages.get(repo_name).copied();
+    let crate_name = crates.get(repo_name).copied();
+
+    // If package has a registry, check if version exists there
+    // Registry is the source of truth - stale git tags should be overwritten
+    if let Some(npm_pkg) = npm_name {
+        // If version is NOT on npm, we should tag
+        if !check_npm_version(npm_pkg, version) {
+            return true;
+        }
+    }
+
+    if let Some(crate_pkg) = crate_name {
+        // If version is NOT on crates.io, we should tag
+        if !check_crate_version(crate_pkg, version) {
+            return true;
+        }
+    }
+
+    // For packages without registries (tooling, website, zed-extensions),
+    // or if version already exists on all registries, check git tag
+    if npm_name.is_none() && crate_name.is_none() {
+        // No registry - use git tag as source of truth
+        return !tag_exists_remotely(&format!("v{}", version), repo_path);
+    }
+
+    // Version exists on all applicable registries - don't retag
+    false
 }
 
 /// Wait for a package to be available on the registry (or both for dual-published)
@@ -893,8 +941,10 @@ impl CommitQueue {
                     );
 
                     // Tag if needed (even for unpushed-only case)
+                    // Use registry as source of truth - if version not on registry, we should tag
                     let tag = format!("v{}", item.version);
-                    let should_tag = !tag_exists_remotely(&tag, &repo_path);
+                    let should_tag = should_create_tag(item.repo.name, &item.version, &repo_path);
+                    let tag_exists_remote = tag_exists_remotely(&tag, &repo_path);
 
                     if dry_run {
                         log(
@@ -903,7 +953,11 @@ impl CommitQueue {
                                 "  {} Would: push{}",
                                 "[dry-run]".yellow(),
                                 if should_tag {
-                                    format!(", tag {}", tag)
+                                    format!(
+                                        ", tag {}{}",
+                                        tag,
+                                        if tag_exists_remote { " (force)" } else { "" }
+                                    )
                                 } else {
                                     String::new()
                                 }
@@ -949,10 +1003,15 @@ impl CommitQueue {
                         }
                     }
 
-                    // Push tags
+                    // Push tags (force if tag already exists remotely but we need to update it)
                     if should_tag {
                         log(&worker_output, format!("  {} Pushing tags... ", "→".blue()));
-                        if let Err(e) = run_git(&["push", "--tags"], &repo_path) {
+                        let push_args = if tag_exists_remote {
+                            vec!["push", "origin", &tag, "--force"]
+                        } else {
+                            vec!["push", "origin", &tag]
+                        };
+                        if let Err(e) = run_git(&push_args, &repo_path) {
                             log(&worker_output, format!("{}", "✗".red()));
                             log(&worker_output, format!("    {} {}", "Warning:".yellow(), e));
                         } else {
@@ -983,14 +1042,19 @@ impl CommitQueue {
 
                 if dry_run {
                     let tag = format!("v{}", item.version);
-                    let would_tag = !tag_exists_remotely(&tag, &repo_path);
+                    let would_tag = should_create_tag(item.repo.name, &item.version, &repo_path);
+                    let tag_exists_remote = tag_exists_remotely(&tag, &repo_path);
                     log(
                         &worker_output,
                         format!(
                             "  {} Would: add, commit, {}",
                             "[dry-run]".yellow(),
                             if would_tag {
-                                format!("tag {}, push", tag)
+                                format!(
+                                    "tag {}{}, push",
+                                    tag,
+                                    if tag_exists_remote { " (force)" } else { "" }
+                                )
                             } else {
                                 "push".to_string()
                             }
@@ -1023,9 +1087,10 @@ impl CommitQueue {
                 }
                 log(&worker_output, format!("{}", "✓".green()));
 
-                // Tag
+                // Tag (use registry as source of truth)
                 let tag = format!("v{}", item.version);
-                let should_tag = !tag_exists_remotely(&tag, &repo_path);
+                let should_tag = should_create_tag(item.repo.name, &item.version, &repo_path);
+                let tag_exists_remote = tag_exists_remotely(&tag, &repo_path);
                 if should_tag {
                     if tag_exists_locally(&tag, &repo_path) {
                         let _ = run_git(&["tag", "-d", &tag], &repo_path);
@@ -1061,10 +1126,15 @@ impl CommitQueue {
                     pushed_packages.insert(item.repo.name.to_string(), item.version.clone());
                 }
 
-                // Push tags
+                // Push tags (force if tag already exists remotely but we need to update it)
                 if should_tag {
                     log(&worker_output, format!("  {} Pushing tags... ", "→".blue()));
-                    if let Err(e) = run_git(&["push", "--tags"], &repo_path) {
+                    let push_args = if tag_exists_remote {
+                        vec!["push", "origin", &tag, "--force"]
+                    } else {
+                        vec!["push", "origin", &tag]
+                    };
+                    if let Err(e) = run_git(&push_args, &repo_path) {
                         log(&worker_output, format!("{}", "✗".red()));
                         log(&worker_output, format!("    {} {}", "Warning:".yellow(), e));
                     } else {
@@ -1312,6 +1382,34 @@ fn spawn_in_new_terminal(args: &Args, root: &Path) -> Result<(), String> {
     Ok(())
 }
 
+/// Run prep script for the given repos and wait for completion
+fn run_prep(root: &Path, repo_names: &[&str]) -> Result<(), String> {
+    let repos_arg = repo_names.join(",");
+
+    println!("\n{} Running prep for: {}", "→".blue(), repos_arg.cyan());
+    println!("{}", "─".repeat(50).dimmed());
+
+    let status = Command::new("rust-script")
+        .args([
+            "tooling/scripts/prep.rs",
+            "--repos",
+            &repos_arg,
+            "--sync-versions",
+        ])
+        .current_dir(root)
+        .status()
+        .map_err(|e| format!("Failed to run prep: {}", e))?;
+
+    println!("{}", "─".repeat(50).dimmed());
+
+    if status.success() {
+        println!("{} Prep completed successfully\n", "✓".green());
+        Ok(())
+    } else {
+        Err("Prep failed".to_string())
+    }
+}
+
 // ============================================================================
 // Main
 // ============================================================================
@@ -1418,7 +1516,64 @@ fn main() -> ExitCode {
         .collect();
 
     // Load versions
-    let versions = VersionsCache::load(&root);
+    let mut versions = VersionsCache::load(&root);
+
+    // Check for unprepped repos (local == registry, meaning no version bump)
+    // Include all repos - even versionless ones need prep for CI checks
+    let unprepped_repos: Vec<&str> = cascaded_names
+        .iter()
+        .filter(|name| !versions.is_prepped(name))
+        .map(|s| s.as_str())
+        .collect();
+
+    if !unprepped_repos.is_empty() && !args.dry_run {
+        println!(
+            "\n{} The following repos have not been prepped:",
+            "⚠ Warning:".yellow().bold()
+        );
+        for repo in &unprepped_repos {
+            if let Some(info) = versions.get(repo) {
+                println!(
+                    "  {} {} ({} = {})",
+                    "•".yellow(),
+                    repo.cyan(),
+                    "local".dimmed(),
+                    info.local.dimmed()
+                );
+            } else {
+                println!(
+                    "  {} {} ({})",
+                    "•".yellow(),
+                    repo.cyan(),
+                    "no version - needs CI check".dimmed()
+                );
+            }
+        }
+        println!();
+
+        if Confirm::new()
+            .with_prompt("Would you like to run prep for these repos first?")
+            .default(true)
+            .interact()
+            .unwrap_or(false)
+        {
+            match run_prep(&root, &unprepped_repos) {
+                Ok(()) => {
+                    // Reload versions after prep
+                    versions = VersionsCache::load(&root);
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "Error".red(), e);
+                    return ExitCode::FAILURE;
+                }
+            }
+        } else {
+            println!(
+                "{} Continuing without prep. Tags may not be created for unprepped repos.",
+                "ℹ".blue()
+            );
+        }
+    }
 
     // Build commit queue
     let mut queue = CommitQueue::new(
