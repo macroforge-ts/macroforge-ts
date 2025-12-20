@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "macroforge": "^0.1.60"
+    "macroforge": "^0.1.61"
   },
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
   "devDependencies": {
@@ -27,7 +27,7 @@
   "repository": {
     "directory": "packages/svelte-preprocessor",
     "type": "git",
-    "url": "git+https://github.com/rymskip/macroforge-ts.git"
+    "url": "git+https://github.com/macroforge-ts/svelte-preprocessor.git"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -37,5 +37,5 @@
   },
   "type": "module",
   "types": "dist/index.d.ts",
-  "version": "0.1.60"
+  "version": "0.1.61"
 }
