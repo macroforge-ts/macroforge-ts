@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::ExitCode;
+use std::process::{Command, ExitCode};
 
 // ============================================================================
 // CLI
@@ -240,7 +240,18 @@ impl VersionsCache {
     fn save(&self, root: &Path) -> std::io::Result<()> {
         let path = root.join("tooling/versions.json");
         let content = serde_json::to_string_pretty(&self.0)?;
-        fs::write(&path, content + "\n")
+        fs::write(&path, content + "\n")?;
+        // Run biome format to ensure consistent formatting
+        let _ = Command::new("npx")
+            .args([
+                "@biomejs/biome",
+                "format",
+                "--write",
+                "tooling/versions.json",
+            ])
+            .current_dir(root)
+            .output();
+        Ok(())
     }
 
     fn get_local(&self, name: &str) -> Option<&String> {

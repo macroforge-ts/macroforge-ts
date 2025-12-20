@@ -616,6 +616,12 @@ fn main() -> ExitCode {
             }
         }
 
+        // Biome checks for tooling
+        println!("\n{}", "[6.5/9] Running biome checks...".bold());
+        if run_cmd("npx @biomejs/biome check .", &root.join("tooling")).is_err() {
+            return ExitCode::FAILURE;
+        }
+
         println!("  {} Restoring registry dependencies...", "→".blue());
         let _ = manifests_cmd(&["swap-registry"]);
     }
