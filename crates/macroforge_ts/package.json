@@ -63,12 +63,12 @@
     ]
   },
   "optionalDependencies": {
-    "@macroforge/bin-darwin-arm64": "0.1.56",
-    "@macroforge/bin-darwin-x64": "0.1.56",
-    "@macroforge/bin-linux-arm64-gnu": "0.1.56",
-    "@macroforge/bin-linux-x64-gnu": "0.1.56",
-    "@macroforge/bin-win32-arm64-msvc": "0.1.56",
-    "@macroforge/bin-win32-x64-msvc": "0.1.56"
+    "@macroforge/bin-darwin-arm64": "0.1.57",
+    "@macroforge/bin-darwin-x64": "0.1.57",
+    "@macroforge/bin-linux-arm64-gnu": "0.1.57",
+    "@macroforge/bin-linux-x64-gnu": "0.1.57",
+    "@macroforge/bin-win32-arm64-msvc": "0.1.57",
+    "@macroforge/bin-win32-x64-msvc": "0.1.57"
   },
   "repository": {
     "type": "git",
@@ -84,5 +84,5 @@
     "cleanbuild": "npm run clean && npm run build"
   },
   "types": "index.d.ts",
-  "version": "0.1.56"
+  "version": "0.1.57"
 }
