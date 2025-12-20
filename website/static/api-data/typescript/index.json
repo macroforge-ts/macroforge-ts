@@ -1,27 +1,27 @@
 {
-  "generated": "1766217225Z",
+  "generated": "1766219142Z",
   "packages": [
     {
       "name": "@macroforge/shared",
-      "version": "0.1.57",
+      "version": "0.1.60",
       "itemCount": 1,
       "hasOverview": false
     },
     {
       "name": "@macroforge/typescript-plugin",
-      "version": "0.1.57",
+      "version": "0.1.60",
       "itemCount": 9,
       "hasOverview": false
     },
     {
       "name": "@macroforge/svelte-preprocessor",
-      "version": "0.1.57",
+      "version": "0.1.60",
       "itemCount": 2,
       "hasOverview": false
     },
     {
       "name": "@macroforge/mcp-server",
-      "version": "0.1.57",
+      "version": "0.1.60",
       "itemCount": 1,
       "hasOverview": false
     }
