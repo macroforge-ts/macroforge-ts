@@ -5,3 +5,5 @@ debug/
 
 # Rust backup files
 **/*.rs.bk
+
+extermal_tester/logs

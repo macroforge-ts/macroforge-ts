@@ -101,6 +101,6 @@ mod tests {
         let output = format!(
             "doc block output\n{doc_block:#?}\n\n block output\n{block:#?}\n\n doc line output\n{doc_line:#?}\n\ndoc-tag output:\n{doc_tag:#?}"
         );
-        fs::write("comment_output.log", output).expect("Failed to write comment_output.log");
+        fs::write("logs/comment_output.log", output).expect("Failed to write comment_output.log");
     }
 }

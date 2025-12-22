@@ -101,6 +101,14 @@ enum Segment {
         expr: TokenStream2,
         span: Span,
     },
+    /// A nested brace block containing inner segments.
+    /// Used to preserve the atomic structure of function bodies and object literals
+    /// while still detecting interpolations and control flow inside.
+    BraceBlock {
+        id: usize,
+        inner: Vec<Segment>,
+        span: Span,
+    },
 }
 
 #[derive(Clone, Debug)]
@@ -223,7 +231,7 @@ fn template_error(span: Span, message: &str, context: Option<&str>) -> syn::Erro
 /// Parses a template token stream into Rust that builds TypeScript AST output.
 pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     let mut ids = IdGen::new();
-    let (segments, _) = parse_segments(&mut input.into_iter().peekable(), None, &mut ids)?;
+    let (segments, _) = parse_segments(&mut input.into_iter().peekable(), None, &mut ids, false)?;
     let stmts_ident = proc_macro2::Ident::new("__stmts", Span::call_site());
     let comments_ident = proc_macro2::Ident::new("__comments", Span::call_site());
     let pending_ident = proc_macro2::Ident::new("__pending_comments", Span::call_site());
@@ -255,6 +263,7 @@ fn parse_segments(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     stop_at: Option<&[Terminator]>,
     ids: &mut IdGen,
+    interpolations_only: bool,
 ) -> syn::Result<(Vec<Segment>, Option<Terminator>)> {
     let mut segments = Vec::new();
     let mut static_tokens = TokenStream2::new();
@@ -284,7 +293,9 @@ fn parse_segments(
             }
             TokenTree::Punct(p) if p.as_char() == '@' => {
                 iter.next();
-                let is_group = matches!(iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace);
+                let is_group = iter.peek().is_some_and(|t| {
+                    matches!(t, TokenTree::Group(g) if g.delimiter() == Delimiter::Brace)
+                });
                 if is_group {
                     flush_static(&mut segments, &mut static_tokens);
                     if let Some(TokenTree::Group(g)) = iter.next() {
@@ -324,8 +335,31 @@ fn parse_segments(
                 }
             }
             TokenTree::Group(g) if g.delimiter() == Delimiter::Brace => {
-                let tag = analyze_tag(g);
                 let span = g.span();
+
+                // In interpolation-only mode, treat ALL brace groups uniformly
+                // (recursively parse for interpolations, skip control flow detection)
+                if interpolations_only {
+                    iter.next();
+                    flush_static(&mut segments, &mut static_tokens);
+
+                    let (inner_segments, _) =
+                        parse_segments(&mut g.stream().into_iter().peekable(), None, ids, true)?;
+
+                    let has_dynamic =
+                        inner_segments.iter().any(|s| !matches!(s, Segment::Static(_)));
+
+                    if has_dynamic {
+                        segments.push(Segment::Static("{".to_string()));
+                        segments.extend(inner_segments);
+                        segments.push(Segment::Static("}".to_string()));
+                    } else {
+                        static_tokens.extend(TokenStream2::from(token.clone()));
+                    }
+                    continue;
+                }
+
+                let tag = analyze_tag(g);
                 match tag {
                     TagType::If(cond) => {
                         iter.next();
@@ -345,7 +379,7 @@ fn parse_segments(
                         iter.next();
                         flush_static(&mut segments, &mut static_tokens);
                         let (body, terminator) =
-                            parse_segments(iter, Some(&[Terminator::EndFor]), ids)?;
+                            parse_segments(iter, Some(&[Terminator::EndFor]), ids, false)?;
                         if !matches!(terminator, Some(Terminator::EndFor)) {
                             return Err(template_error(
                                 span,
@@ -505,9 +539,67 @@ fn parse_segments(
                         });
                     }
                     TagType::Block => {
-                        static_tokens.extend(TokenStream2::from(token.clone()));
+                        // Regular brace group (function body, object literal, etc.)
+                        // Recursively parse with full control flow support.
+                        // Use BraceBlock segment to keep the structure atomic.
                         iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+
+                        let (inner_segments, _) = parse_segments(
+                            &mut g.stream().into_iter().peekable(),
+                            None,
+                            ids,
+                            false, // Full parsing with control flow support
+                        )?;
+
+                        // Check if there are any dynamic segments (interpolations, control flow, etc.)
+                        let has_dynamic =
+                            inner_segments.iter().any(|s| !matches!(s, Segment::Static(_)));
+
+                        if has_dynamic {
+                            // Use BraceBlock to keep inner segments nested (not flattened)
+                            let id = ids.next();
+                            segments.push(Segment::BraceBlock {
+                                id,
+                                inner: inner_segments,
+                                span,
+                            });
+                        } else {
+                            // No dynamic content, just add the whole group as static
+                            static_tokens.extend(TokenStream2::from(token.clone()));
+                        }
                     }
+                }
+            }
+            // Handle parenthesis and bracket groups - recursively process their contents
+            TokenTree::Group(g)
+                if g.delimiter() == Delimiter::Parenthesis
+                    || g.delimiter() == Delimiter::Bracket =>
+            {
+                iter.next();
+                flush_static(&mut segments, &mut static_tokens);
+
+                // Recursively parse the group's contents
+                let (inner_segments, _) =
+                    parse_segments(&mut g.stream().into_iter().peekable(), None, ids, false)?;
+
+                // Check if there are any interpolations in the inner segments
+                let has_dynamic = inner_segments.iter().any(|s| !matches!(s, Segment::Static(_)));
+
+                if has_dynamic {
+                    // There are interpolations, we need to handle this specially
+                    // Emit opening delimiter
+                    let (open, close) = match g.delimiter() {
+                        Delimiter::Parenthesis => ("(", ")"),
+                        Delimiter::Bracket => ("[", "]"),
+                        _ => unreachable!(),
+                    };
+                    segments.push(Segment::Static(open.to_string()));
+                    segments.extend(inner_segments);
+                    segments.push(Segment::Static(close.to_string()));
+                } else {
+                    // No interpolations, just add the group as static
+                    static_tokens.extend(TokenStream2::from(token.clone()));
                 }
             }
             _ => {
@@ -548,11 +640,13 @@ fn parse_if_chain(
             Terminator::EndIf,
         ]),
         ids,
+        false,
     )?;
 
     match terminator {
         Some(Terminator::Else) => {
-            let (else_branch, terminator) = parse_segments(iter, Some(&[Terminator::EndIf]), ids)?;
+            let (else_branch, terminator) =
+                parse_segments(iter, Some(&[Terminator::EndIf]), ids, false)?;
             if !matches!(terminator, Some(Terminator::EndIf)) {
                 return Err(template_error(
                     span,
@@ -607,11 +701,13 @@ fn parse_if_let_chain(
             Terminator::EndIf,
         ]),
         ids,
+        false,
     )?;
 
     match terminator {
         Some(Terminator::Else) => {
-            let (else_branch, terminator) = parse_segments(iter, Some(&[Terminator::EndIf]), ids)?;
+            let (else_branch, terminator) =
+                parse_segments(iter, Some(&[Terminator::EndIf]), ids, false)?;
             if !matches!(terminator, Some(Terminator::EndIf)) {
                 return Err(template_error(
                     span,
@@ -668,6 +764,7 @@ fn parse_match_arms(
             iter,
             Some(&[Terminator::Case(TokenStream2::new()), Terminator::EndMatch]),
             ids,
+            false,
         )?;
 
         match terminator {
@@ -728,7 +825,7 @@ fn parse_while_loop(
     span: Span,
     ids: &mut IdGen,
 ) -> syn::Result<ControlNode> {
-    let (body, terminator) = parse_segments(iter, Some(&[Terminator::EndWhile]), ids)?;
+    let (body, terminator) = parse_segments(iter, Some(&[Terminator::EndWhile]), ids, false)?;
     if !matches!(terminator, Some(Terminator::EndWhile)) {
         return Err(template_error(
             span,
@@ -747,7 +844,7 @@ fn parse_while_let_loop(
     span: Span,
     ids: &mut IdGen,
 ) -> syn::Result<ControlNode> {
-    let (body, terminator) = parse_segments(iter, Some(&[Terminator::EndWhile]), ids)?;
+    let (body, terminator) = parse_segments(iter, Some(&[Terminator::EndWhile]), ids, false)?;
     if !matches!(terminator, Some(Terminator::EndWhile)) {
         return Err(template_error(
             span,
@@ -873,6 +970,8 @@ fn compile_stmt_segments(
                 }
                 output.extend(quote! { #expr; });
             }
+            // BraceBlock is handled like other segments - added to the run and processed
+            // by build_template_and_bindings, which inlines the content with { }
             _ => run.push(segment),
         }
     }
@@ -1122,6 +1221,15 @@ fn flush_stmt_run(
     let ident_name_fix =
         ident_name_fix_block(&proc_macro2::Ident::new("__mf_stmt", Span::call_site()), &ident_name_ids);
 
+    // Collect BraceBlocks that need block substitution
+    let block_compilations = collect_block_compilations(
+        run,
+        context_map,
+        comments_ident,
+        pending_ident,
+        pos_ident,
+    )?;
+
     let (module, cm) = parse_ts_module_with_source(&template)?;
     let mut output = TokenStream2::new();
 
@@ -1137,10 +1245,71 @@ fn flush_stmt_run(
                 }
                 let quote_ts = quote_ts(snippet, quote!(Stmt), &bindings);
                 let QuoteTsResult { bindings, expr } = quote_ts;
+
+                // Generate block replacement code if we have blocks to replace
+                let block_replacement = if block_compilations.is_empty() {
+                    TokenStream2::new()
+                } else {
+                    let mut block_replacements = TokenStream2::new();
+                    for (block_id, block_code) in &block_compilations {
+                        let marker = format!("__mf_block_{}", block_id);
+                        block_replacements.extend(quote! {
+                            (#marker, {
+                                let mut __mf_block_stmts: Vec<macroforge_ts_syn::swc_ecma_ast::Stmt> = Vec::new();
+                                #block_code
+                                __mf_block_stmts
+                            }),
+                        });
+                    }
+                    quote! {
+                        {
+                            use macroforge_ts_syn::swc_core::ecma::visit::{VisitMut, VisitMutWith};
+                            use macroforge_ts_syn::swc_ecma_ast::{Stmt, Expr, ExprStmt, Ident};
+
+                            struct __MfBlockReplacer {
+                                blocks: std::collections::HashMap<String, Vec<Stmt>>,
+                            }
+
+                            impl VisitMut for __MfBlockReplacer {
+                                fn visit_mut_block_stmt(&mut self, block: &mut macroforge_ts_syn::swc_ecma_ast::BlockStmt) {
+                                    // First, check if this block contains a marker statement
+                                    let marker_id = block.stmts.iter().find_map(|stmt| {
+                                        if let Stmt::Expr(ExprStmt { expr, .. }) = stmt {
+                                            if let Expr::Ident(ident) = &**expr {
+                                                let name = ident.sym.as_ref();
+                                                if name.starts_with("__mf_block_") {
+                                                    return Some(name.to_string());
+                                                }
+                                            }
+                                        }
+                                        None
+                                    });
+
+                                    if let Some(marker) = marker_id {
+                                        if let Some(compiled_stmts) = self.blocks.remove(&marker) {
+                                            block.stmts = compiled_stmts;
+                                            return; // Don't recurse into replaced block
+                                        }
+                                    }
+
+                                    // Recurse into children
+                                    block.visit_mut_children_with(self);
+                                }
+                            }
+
+                            let mut __mf_block_replacer = __MfBlockReplacer {
+                                blocks: [#block_replacements].into_iter().collect(),
+                            };
+                            __mf_stmt.visit_mut_with(&mut __mf_block_replacer);
+                        }
+                    }
+                };
+
                 output.extend(quote! {{
                     #bindings
                     let mut __mf_stmt = #expr;
                     #ident_name_fix
+                    #block_replacement
                     let __mf_pos = swc_core::common::BytePos(#pos_ident);
                     #pos_ident += 1;
                     {
@@ -1167,17 +1336,223 @@ fn flush_stmt_run(
                     #out_ident.push(__mf_stmt);
                 }});
             }
-            ModuleItem::ModuleDecl(_) => {
-                return Err(template_error(
-                    Span::call_site(),
-                    "Module declarations (import/export) are not supported yet",
-                    None,
-                ));
+            ModuleItem::ModuleDecl(decl) => {
+                // Handle export declarations (export function, export const, etc.)
+                // Since ts_template outputs Vec<Stmt>, we convert exports to their inner declarations
+                match &decl {
+                    ModuleDecl::ExportDecl(export_decl) => {
+                        // Get snippet for just the inner declaration (skip "export ")
+                        let inner_decl = &export_decl.decl;
+                        let snippet = cm.span_to_snippet(inner_decl.span()).map_err(|e| {
+                            syn::Error::new(Span::call_site(), format!("TypeScript span error: {e:?}"))
+                        })?;
+                        let snippet = snippet.trim();
+                        if snippet.is_empty() {
+                            continue;
+                        }
+
+                        // Function/class/const declarations without export are valid statements
+                        // Quote as Stmt directly (SWC quote doesn't support Decl type)
+                        let quote_ts = quote_ts(snippet, quote!(Stmt), &bindings);
+                        let QuoteTsResult {
+                            bindings: quote_bindings,
+                            expr,
+                        } = quote_ts;
+
+                        // Generate block replacement code if we have blocks to replace
+                        let block_replacement = if block_compilations.is_empty() {
+                            TokenStream2::new()
+                        } else {
+                            let mut block_replacements = TokenStream2::new();
+                            for (block_id, block_code) in &block_compilations {
+                                let marker = format!("__mf_block_{}", block_id);
+                                block_replacements.extend(quote! {
+                                    (#marker, {
+                                        let mut __mf_block_stmts: Vec<macroforge_ts_syn::swc_ecma_ast::Stmt> = Vec::new();
+                                        #block_code
+                                        __mf_block_stmts
+                                    }),
+                                });
+                            }
+                            quote! {
+                                {
+                                    use macroforge_ts_syn::swc_core::ecma::visit::{VisitMut, VisitMutWith};
+                                    use macroforge_ts_syn::swc_ecma_ast::{Stmt, Expr, ExprStmt, Ident};
+
+                                    struct __MfBlockReplacer {
+                                        blocks: std::collections::HashMap<String, Vec<Stmt>>,
+                                    }
+
+                                    impl VisitMut for __MfBlockReplacer {
+                                        fn visit_mut_block_stmt(&mut self, block: &mut macroforge_ts_syn::swc_ecma_ast::BlockStmt) {
+                                            let marker_id = block.stmts.iter().find_map(|stmt| {
+                                                if let Stmt::Expr(ExprStmt { expr, .. }) = stmt {
+                                                    if let Expr::Ident(ident) = &**expr {
+                                                        let name = ident.sym.as_ref();
+                                                        if name.starts_with("__mf_block_") {
+                                                            return Some(name.to_string());
+                                                        }
+                                                    }
+                                                }
+                                                None
+                                            });
+
+                                            if let Some(marker) = marker_id {
+                                                if let Some(compiled_stmts) = self.blocks.remove(&marker) {
+                                                    block.stmts = compiled_stmts;
+                                                    return;
+                                                }
+                                            }
+                                            block.visit_mut_children_with(self);
+                                        }
+                                    }
+
+                                    let mut __mf_block_replacer = __MfBlockReplacer {
+                                        blocks: [#block_replacements].into_iter().collect(),
+                                    };
+                                    __mf_stmt.visit_mut_with(&mut __mf_block_replacer);
+                                }
+                            }
+                        };
+
+                        output.extend(quote! {{
+                            #quote_bindings
+                            let mut __mf_stmt = #expr;
+                            #block_replacement
+                            #ident_name_fix
+                            let __mf_pos = swc_core::common::BytePos(#pos_ident);
+                            #pos_ident += 1;
+                            {
+                                use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+                                struct __MfSpanFix {
+                                    span: swc_core::common::Span,
+                                }
+                                impl VisitMut for __MfSpanFix {
+                                    fn visit_mut_span(&mut self, span: &mut swc_core::common::Span) {
+                                        *span = self.span;
+                                    }
+                                }
+                                let mut __mf_span_fix = __MfSpanFix {
+                                    span: swc_core::common::Span::new(__mf_pos, __mf_pos),
+                                };
+                                __mf_stmt.visit_mut_with(&mut __mf_span_fix);
+                            }
+                            if !#pending_ident.is_empty() {
+                                use swc_core::common::comments::Comments;
+                                for __mf_comment in #pending_ident.drain(..) {
+                                    #comments_ident.add_leading(__mf_pos, __mf_comment);
+                                }
+                            }
+                            #out_ident.push(__mf_stmt);
+                        }});
+                    }
+                    ModuleDecl::ExportDefaultDecl(_) | ModuleDecl::ExportDefaultExpr(_) => {
+                        return Err(template_error(
+                            Span::call_site(),
+                            "Export default declarations are not supported in ts_template. Use export without default.",
+                            None,
+                        ));
+                    }
+                    _ => {
+                        return Err(template_error(
+                            Span::call_site(),
+                            "Import declarations are not supported in ts_template",
+                            None,
+                        ));
+                    }
+                }
             }
         }
     }
 
     Ok(output)
+}
+
+/// Collects BraceBlocks that need block substitution and compiles their inner segments.
+fn collect_block_compilations(
+    run: &[&Segment],
+    context_map: &HashMap<usize, PlaceholderUse>,
+    comments_ident: &proc_macro2::Ident,
+    pending_ident: &proc_macro2::Ident,
+    pos_ident: &proc_macro2::Ident,
+) -> syn::Result<Vec<(usize, TokenStream2)>> {
+    let mut compilations = Vec::new();
+    let out_ident = proc_macro2::Ident::new("__mf_block_stmts", Span::call_site());
+
+    fn collect_from_segment(
+        seg: &Segment,
+        context_map: &HashMap<usize, PlaceholderUse>,
+        out_ident: &proc_macro2::Ident,
+        comments_ident: &proc_macro2::Ident,
+        pending_ident: &proc_macro2::Ident,
+        pos_ident: &proc_macro2::Ident,
+        compilations: &mut Vec<(usize, TokenStream2)>,
+    ) -> syn::Result<()> {
+        if let Segment::BraceBlock { id, inner, .. } = seg {
+            // Check if this block has statement-level control flow
+            fn has_stmt_level_control(
+                segments: &[Segment],
+                context_map: &HashMap<usize, PlaceholderUse>,
+            ) -> bool {
+                for s in segments {
+                    match s {
+                        Segment::Control { id, .. } => {
+                            if matches!(context_map.get(id), Some(PlaceholderUse::Stmt)) {
+                                return true;
+                            }
+                        }
+                        Segment::BraceBlock { inner, .. } => {
+                            if has_stmt_level_control(inner, context_map) {
+                                return true;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                false
+            }
+
+            if has_stmt_level_control(inner, context_map) {
+                // Compile the inner segments
+                let compiled = compile_stmt_segments(
+                    inner,
+                    out_ident,
+                    comments_ident,
+                    pending_ident,
+                    pos_ident,
+                )?;
+                compilations.push((*id, compiled));
+            }
+
+            // Recurse into inner segments to find nested BraceBlocks
+            for inner_seg in inner {
+                collect_from_segment(
+                    inner_seg,
+                    context_map,
+                    out_ident,
+                    comments_ident,
+                    pending_ident,
+                    pos_ident,
+                    compilations,
+                )?;
+            }
+        }
+        Ok(())
+    }
+
+    for seg in run {
+        collect_from_segment(
+            seg,
+            context_map,
+            &out_ident,
+            comments_ident,
+            pending_ident,
+            pos_ident,
+            &mut compilations,
+        )?;
+    }
+
+    Ok(compilations)
 }
 
 struct BindingSpec {
@@ -1317,6 +1692,49 @@ fn build_template_and_bindings(
                     None,
                 ));
             }
+            Segment::BraceBlock { id, inner, span: _ } => {
+                // Check if any inner segment contains statement-level control flow
+                fn has_stmt_level_control(
+                    segments: &[Segment],
+                    context_map: &HashMap<usize, PlaceholderUse>,
+                ) -> bool {
+                    for s in segments {
+                        match s {
+                            Segment::Control { id, .. } => {
+                                if matches!(context_map.get(id), Some(PlaceholderUse::Stmt)) {
+                                    return true;
+                                }
+                            }
+                            Segment::BraceBlock { inner, .. } => {
+                                if has_stmt_level_control(inner, context_map) {
+                                    return true;
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    false
+                }
+
+                let has_stmt_control = has_stmt_level_control(inner, context_map);
+
+                if has_stmt_control {
+                    // For blocks with statement-level control, emit a placeholder
+                    // that will be replaced with the compiled block body after parsing
+                    let block_marker = format!("__mf_block_{}", id);
+                    append_part(&mut template, &format!("{{ {}; }}", block_marker));
+                    // Note: The BraceBlock is NOT added to bindings here.
+                    // It will be compiled and substituted in flush_stmt_run.
+                } else {
+                    // For blocks without statement-level control, inline the content
+                    append_part(&mut template, "{");
+                    let (inner_template, inner_bindings) =
+                        build_template_and_bindings(inner.iter(), context_map)?;
+                    append_part(&mut template, &inner_template);
+                    bindings.extend(inner_bindings);
+                    append_part(&mut template, "}");
+                }
+            }
         }
     }
 
@@ -1329,7 +1747,12 @@ fn collect_ident_name_ids<'a>(
     context_map: &HashMap<usize, PlaceholderUse>,
 ) -> Vec<usize> {
     let mut ids = HashSet::new();
-    for seg in segments {
+
+    fn collect_from_segment(
+        seg: &Segment,
+        context_map: &HashMap<usize, PlaceholderUse>,
+        ids: &mut HashSet<usize>,
+    ) {
         let id = match seg {
             Segment::Interpolation { id, .. }
             | Segment::StringInterp { id, .. }
@@ -1337,6 +1760,12 @@ fn collect_ident_name_ids<'a>(
             | Segment::IdentBlock { id, .. }
             | Segment::Control { id, .. }
             | Segment::Typescript { id, .. } => Some(*id),
+            Segment::BraceBlock { inner, .. } => {
+                for inner_seg in inner {
+                    collect_from_segment(inner_seg, context_map, ids);
+                }
+                None
+            }
             _ => None,
         };
         if let Some(id) = id
@@ -1344,6 +1773,10 @@ fn collect_ident_name_ids<'a>(
         {
             ids.insert(id);
         }
+    }
+
+    for seg in segments {
+        collect_from_segment(seg, context_map, &mut ids);
     }
 
     let mut ids: Vec<_> = ids.into_iter().collect();
@@ -1545,7 +1978,8 @@ fn comment_expr(style: &CommentStyle, text: &str) -> TokenStream2 {
     }
 }
 
-/// Builds a placeholder-only source string and placeholder ID map.
+/// Placeholder source kind for parsing.
+#[derive(Clone, Copy)]
 enum PlaceholderSourceKind {
     Module,
     Expr,
@@ -1580,6 +2014,14 @@ fn build_placeholder_source(
             }
             Segment::Let { .. } | Segment::Do { .. } => {
                 // Rust-only constructs are ignored for TS parsing.
+            }
+            Segment::BraceBlock { inner, .. } => {
+                // Recursively process inner segments with braces
+                append_part(&mut src, "{");
+                let (inner_src, inner_map) = build_placeholder_source(inner, kind);
+                append_part(&mut src, &inner_src);
+                map.extend(inner_map);
+                append_part(&mut src, "}");
             }
         }
     }
@@ -1805,11 +2247,21 @@ fn append_part(out: &mut String, part: &str) {
         out.push_str(part);
         return;
     }
-    let needs_space = !out
-        .chars()
-        .last()
-        .map(|c| c.is_whitespace())
-        .unwrap_or(true);
+
+    let last_char = out.chars().last().unwrap_or(' ');
+    let first_char = part.chars().next().unwrap_or(' ');
+
+    // Don't add space if:
+    // - Last char is whitespace
+    // - First char is opening bracket (no space before)
+    // - Last char is opening bracket (no space after)
+    // - First char is closing bracket, colon, semicolon, comma, or dot (no space before)
+    // - Last char is a dot (no space after dots for member access)
+    let no_space_before = matches!(first_char, '(' | '[' | ')' | ']' | '}' | ':' | ';' | ',' | '.');
+    let no_space_after = matches!(last_char, '(' | '[' | '.');
+
+    let needs_space = !last_char.is_whitespace() && !no_space_before && !no_space_after;
+
     if needs_space {
         out.push(' ');
     }
@@ -1837,12 +2289,31 @@ fn tokens_to_ts_string(tokens: TokenStream2) -> String {
             }
             TokenTree::Ident(ident) => {
                 output.push_str(&ident.to_string());
-                output.push(' ');
+                // Only add space after ident if the next token needs it
+                // Don't add space before: (, [, ., :, ;, ,
+                let next_needs_space = match iter.peek() {
+                    Some(TokenTree::Punct(p)) => {
+                        !matches!(p.as_char(), '(' | '[' | '.' | ':' | ';' | ',' | ')' | ']')
+                    }
+                    Some(TokenTree::Group(g)) => {
+                        // No space before groups
+                        g.delimiter() == Delimiter::Brace
+                    }
+                    None => false,
+                    _ => true,
+                };
+                if next_needs_space {
+                    output.push(' ');
+                }
             }
             TokenTree::Punct(p) => {
                 output.push(p.as_char());
+                // Add space after standalone punct, but not after certain punctuation
                 if p.spacing() == proc_macro2::Spacing::Alone {
-                    output.push(' ');
+                    let no_space_after = matches!(p.as_char(), '.' | '(' | '[' | ':' | ';' | ',');
+                    if !no_space_after {
+                        output.push(' ');
+                    }
                 }
             }
             TokenTree::Literal(lit) => output.push_str(&lit.to_string()),
@@ -2520,4 +2991,512 @@ fn unescape_string(s: &str) -> String {
         }
     }
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quote::quote;
+
+    /// Test the actual token stream structure from @{...}
+    #[test]
+    fn test_token_stream_structure() {
+        let tokens: TokenStream2 = quote! { @{name} };
+        let tokens_vec: Vec<TokenTree> = tokens.into_iter().collect();
+
+        eprintln!("Token count: {}", tokens_vec.len());
+        for (i, tt) in tokens_vec.iter().enumerate() {
+            match tt {
+                TokenTree::Punct(p) => {
+                    eprintln!("  Token {}: Punct('{}', spacing={:?})", i, p.as_char(), p.spacing());
+                }
+                TokenTree::Group(g) => {
+                    eprintln!("  Token {}: Group(delimiter={:?}, content={:?})", i, g.delimiter(), g.stream().to_string());
+                }
+                TokenTree::Ident(id) => {
+                    eprintln!("  Token {}: Ident({})", i, id);
+                }
+                TokenTree::Literal(lit) => {
+                    eprintln!("  Token {}: Literal({})", i, lit);
+                }
+            }
+        }
+
+        // Should have 2 tokens: @ (Punct) and {name} (Group with Brace delimiter)
+        assert_eq!(tokens_vec.len(), 2, "Should have exactly 2 tokens");
+        assert!(matches!(&tokens_vec[0], TokenTree::Punct(p) if p.as_char() == '@'), "First token should be @");
+        assert!(matches!(&tokens_vec[1], TokenTree::Group(g) if g.delimiter() == Delimiter::Brace), "Second token should be brace group");
+    }
+
+    /// Test the is_group check in isolation
+    #[test]
+    fn test_is_group_check() {
+        let tokens: TokenStream2 = quote! { @{name} };
+        let mut iter = tokens.into_iter().peekable();
+
+        // First token should be @
+        let first = iter.next();
+        eprintln!("First token: {:?}", first);
+        assert!(matches!(first, Some(TokenTree::Punct(p)) if p.as_char() == '@'));
+
+        // After consuming @, peek should show the brace group
+        let peeked = iter.peek();
+        eprintln!("Peeked after @: {:?}", peeked);
+
+        // Test the is_group check - same code as in parse_segments
+        let is_group = iter.peek().is_some_and(|t| {
+            matches!(t, TokenTree::Group(g) if g.delimiter() == Delimiter::Brace)
+        });
+        eprintln!("is_group result: {}", is_group);
+        assert!(is_group, "is_group should be true");
+    }
+
+    /// Test that parse_segments correctly identifies @{...} as interpolation
+    #[test]
+    fn test_parse_at_brace_interpolation() {
+        // Create tokens: foo @{bar} baz
+        let tokens: TokenStream2 = quote! { foo @{bar} baz };
+        let mut ids = IdGen::new();
+        let (segments, _) =
+            parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+                .expect("parse_segments should succeed");
+
+        // Debug output
+        eprintln!("Number of segments: {}", segments.len());
+        for (i, seg) in segments.iter().enumerate() {
+            match seg {
+                Segment::Static(s) => eprintln!("  Segment {}: Static({:?})", i, s),
+                Segment::Interpolation { id, .. } => eprintln!("  Segment {}: Interpolation(id={})", i, id),
+                Segment::Control { id, .. } => eprintln!("  Segment {}: Control(id={})", i, id),
+                _ => eprintln!("  Segment {}: Other", i),
+            }
+        }
+
+        // We expect: Static("foo "), Interpolation, Static(" baz")
+        let has_interpolation = segments.iter().any(|s| matches!(s, Segment::Interpolation { .. }));
+        assert!(has_interpolation, "Should have at least one Interpolation segment");
+
+        // Check that no Static segment contains '@'
+        for seg in &segments {
+            if let Segment::Static(s) = seg {
+                assert!(!s.contains('@'), "Static segment should not contain '@': {:?}", s);
+            }
+        }
+    }
+
+    /// Test multiple @{...} interpolations
+    #[test]
+    fn test_multiple_interpolations() {
+        let tokens: TokenStream2 = quote! { foo @{a} bar @{b} baz };
+        let mut ids = IdGen::new();
+        let (segments, _) =
+            parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+                .expect("parse_segments should succeed");
+
+        eprintln!("Number of segments: {}", segments.len());
+        for (i, seg) in segments.iter().enumerate() {
+            match seg {
+                Segment::Static(s) => eprintln!("  Segment {}: Static({:?})", i, s),
+                Segment::Interpolation { id, .. } => eprintln!("  Segment {}: Interpolation(id={})", i, id),
+                _ => eprintln!("  Segment {}: Other", i),
+            }
+        }
+
+        let interp_count = segments.iter().filter(|s| matches!(s, Segment::Interpolation { .. })).count();
+        assert_eq!(interp_count, 2, "Should have exactly 2 interpolations");
+
+        // Check no @ in static segments
+        for seg in &segments {
+            if let Segment::Static(s) = seg {
+                assert!(!s.contains('@'), "Static segment should not contain '@': {:?}", s);
+            }
+        }
+    }
+
+    /// Test tokens_to_ts_string doesn't inject @
+    #[test]
+    fn test_tokens_to_ts_string_no_at() {
+        let tokens: TokenStream2 = quote! { foo bar };
+        let result = tokens_to_ts_string(tokens);
+        eprintln!("tokens_to_ts_string result: {:?}", result);
+        assert!(!result.contains('@'), "Should not contain @");
+    }
+
+    /// Test using from_str (like the actual macro does)
+    #[test]
+    fn test_from_str_tokenization() {
+        use std::str::FromStr;
+
+        let tokens = TokenStream2::from_str("@{name}").unwrap();
+        let tokens_vec: Vec<TokenTree> = tokens.into_iter().collect();
+
+        eprintln!("from_str Token count: {}", tokens_vec.len());
+        for (i, tt) in tokens_vec.iter().enumerate() {
+            match tt {
+                TokenTree::Punct(p) => {
+                    eprintln!("  Token {}: Punct('{}', spacing={:?})", i, p.as_char(), p.spacing());
+                }
+                TokenTree::Group(g) => {
+                    eprintln!("  Token {}: Group(delimiter={:?}, content={:?})", i, g.delimiter(), g.stream().to_string());
+                }
+                TokenTree::Ident(id) => {
+                    eprintln!("  Token {}: Ident({})", i, id);
+                }
+                TokenTree::Literal(lit) => {
+                    eprintln!("  Token {}: Literal({})", i, lit);
+                }
+            }
+        }
+
+        // Should have 2 tokens like quote! does
+        assert_eq!(tokens_vec.len(), 2, "Should have exactly 2 tokens");
+    }
+
+    /// Test parse_segments with from_str input
+    #[test]
+    fn test_parse_segments_from_str() {
+        use std::str::FromStr;
+
+        let tokens = TokenStream2::from_str("foo @{bar} baz").unwrap();
+        let mut ids = IdGen::new();
+        let (segments, _) =
+            parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+                .expect("parse_segments should succeed");
+
+        eprintln!("from_str segments count: {}", segments.len());
+        for (i, seg) in segments.iter().enumerate() {
+            match seg {
+                Segment::Static(s) => eprintln!("  Segment {}: Static({:?})", i, s),
+                Segment::Interpolation { id, .. } => eprintln!("  Segment {}: Interpolation(id={})", i, id),
+                _ => eprintln!("  Segment {}: Other", i),
+            }
+        }
+
+        // Check that no Static segment contains '@'
+        for seg in &segments {
+            if let Segment::Static(s) = seg {
+                assert!(!s.contains('@'), "Static segment should not contain '@': {:?}", s);
+            }
+        }
+    }
+
+    /// Test build_template_and_bindings produces correct template string
+    #[test]
+    fn test_build_template_and_bindings() {
+        use std::str::FromStr;
+
+        let tokens = TokenStream2::from_str("foo @{bar} baz").unwrap();
+        let mut ids = IdGen::new();
+        let (segments, _) =
+            parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+                .expect("parse_segments should succeed");
+
+        // Create an empty context map (no special placeholder classification)
+        let context_map = HashMap::new();
+
+        let (template, bindings) = build_template_and_bindings(segments.iter(), &context_map)
+            .expect("build_template_and_bindings should succeed");
+
+        eprintln!("Template string: {:?}", template);
+        eprintln!("Bindings count: {}", bindings.len());
+
+        // Template should NOT contain '@'
+        assert!(!template.contains('@'), "Template should not contain '@': {:?}", template);
+
+        // Template should contain placeholder
+        assert!(template.contains("__mf_hole_"), "Template should contain placeholder: {:?}", template);
+    }
+
+    /// Test the full template string for the derive_clone pattern
+    #[test]
+    fn test_derive_clone_full_template() {
+        use std::str::FromStr;
+
+        let code = r#"export function @{fn_name}(value: @{class_name}): @{class_name} {
+            const cloned = Object.create(Object.getPrototypeOf(value));
+            return cloned;
+        }"#;
+
+        let tokens = TokenStream2::from_str(code).unwrap();
+        let mut ids = IdGen::new();
+        let (segments, _) =
+            parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+                .expect("parse_segments should succeed");
+
+        let context_map = classify_placeholders_module(&segments)
+            .expect("classify_placeholders_module should succeed");
+
+        let (template, bindings) = build_template_and_bindings(segments.iter(), &context_map)
+            .expect("build_template_and_bindings should succeed");
+
+        eprintln!("Full template string:\n{}", template);
+        eprintln!("\nBindings count: {}", bindings.len());
+
+        // Template should NOT contain '@'
+        assert!(!template.contains('@'), "Template should not contain '@'");
+    }
+
+    /// Test classify_placeholders_module
+    #[test]
+    fn test_classify_placeholders() {
+        use std::str::FromStr;
+
+        let tokens = TokenStream2::from_str("const x = @{bar};").unwrap();
+        let mut ids = IdGen::new();
+        let (segments, _) =
+            parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+                .expect("parse_segments should succeed");
+
+        eprintln!("Segments for classification:");
+        for (i, seg) in segments.iter().enumerate() {
+            match seg {
+                Segment::Static(s) => eprintln!("  {}: Static({:?})", i, s),
+                Segment::Interpolation { id, .. } => eprintln!("  {}: Interpolation(id={})", i, id),
+                _ => eprintln!("  {}: Other", i),
+            }
+        }
+
+        let context_map = classify_placeholders_module(&segments)
+            .expect("classify_placeholders_module should succeed");
+
+        eprintln!("Context map: {:?}", context_map);
+    }
+
+    /// Test full parse_template flow
+    #[test]
+    fn test_full_parse_template() {
+        use std::str::FromStr;
+
+        let tokens = TokenStream2::from_str("const x = @{bar};").unwrap();
+        let result = parse_template(tokens);
+
+        match result {
+            Ok(output) => {
+                let s = output.to_string();
+                eprintln!("parse_template output (first 500 chars): {}", &s[..s.len().min(500)]);
+                // If it succeeds, the template was parsed correctly
+            }
+            Err(e) => {
+                eprintln!("parse_template error: {}", e);
+                // This is the error we're trying to fix
+                panic!("parse_template failed: {}", e);
+            }
+        }
+    }
+
+    /// Test case matching the actual failing code from derive_clone.rs
+    #[test]
+    fn test_derive_clone_like_template() {
+        // Match the exact pattern from derive_clone.rs
+        let tokens: TokenStream2 = quote! {
+            export function @{fn_name}(value: @{class_name}): @{class_name} {
+                const cloned = Object.create(Object.getPrototypeOf(value));
+                return cloned;
+            }
+        };
+
+        let mut ids = IdGen::new();
+        let (segments, _) =
+            parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+                .expect("parse_segments should succeed");
+
+        eprintln!("derive_clone-like segments:");
+        for (i, seg) in segments.iter().enumerate() {
+            match seg {
+                Segment::Static(s) => {
+                    eprintln!("  {}: Static({:?})", i, s);
+                    if s.contains('@') {
+                        eprintln!("    ^^^ CONTAINS @ ^^^");
+                    }
+                }
+                Segment::Interpolation { id, .. } => eprintln!("  {}: Interpolation(id={})", i, id),
+                Segment::Control { id, .. } => eprintln!("  {}: Control(id={})", i, id),
+                _ => eprintln!("  {}: Other", i),
+            }
+        }
+
+        // Should have 3 interpolations
+        let interp_count = segments.iter().filter(|s| matches!(s, Segment::Interpolation { .. })).count();
+        assert_eq!(interp_count, 3, "Should have exactly 3 interpolations for @{{fn_name}}, @{{class_name}}, @{{class_name}}");
+
+        // No Static segment should contain '@'
+        for seg in &segments {
+            if let Segment::Static(s) = seg {
+                assert!(!s.contains('@'), "Static segment contains '@': {:?}", s);
+            }
+        }
+    }
+
+    /// Test with from_str matching derive_clone
+    #[test]
+    fn test_derive_clone_like_from_str() {
+        use std::str::FromStr;
+
+        let code = r#"export function @{fn_name}(value: @{class_name}): @{class_name} {
+            const cloned = Object.create(Object.getPrototypeOf(value));
+            return cloned;
+        }"#;
+
+        let tokens = TokenStream2::from_str(code).unwrap();
+
+        let mut ids = IdGen::new();
+        let (segments, _) =
+            parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+                .expect("parse_segments should succeed");
+
+        eprintln!("from_str derive_clone-like segments:");
+        for (i, seg) in segments.iter().enumerate() {
+            match seg {
+                Segment::Static(s) => {
+                    eprintln!("  {}: Static({:?})", i, s);
+                    if s.contains('@') {
+                        eprintln!("    ^^^ CONTAINS @ ^^^");
+                    }
+                }
+                Segment::Interpolation { id, .. } => eprintln!("  {}: Interpolation(id={})", i, id),
+                Segment::Control { id, .. } => eprintln!("  {}: Control(id={})", i, id),
+                _ => eprintln!("  {}: Other", i),
+            }
+        }
+
+        // Should have 3 interpolations
+        let interp_count = segments.iter().filter(|s| matches!(s, Segment::Interpolation { .. })).count();
+        assert_eq!(interp_count, 3, "Should have exactly 3 interpolations");
+    }
+
+    /// Test derive_clone with control flow - matches actual macro usage
+    #[test]
+    fn test_derive_clone_with_control_flow() {
+        use std::str::FromStr;
+
+        // This is the EXACT template from derive_clone.rs line 110-122
+        let code = r#"export function @{fn_name}(value: @{class_name}): @{class_name} {
+            const cloned = Object.create(Object.getPrototypeOf(value));
+
+            {#if has_fields}
+                {#for field in field_names}
+                    cloned.@{field} = value.@{field};
+                {/for}
+            {/if}
+
+            return cloned;
+        }"#;
+
+        eprintln!("\n=== Testing derive_clone with control flow ===");
+        eprintln!("Input code:\n{}", code);
+
+        let tokens = TokenStream2::from_str(code).unwrap();
+
+        let mut ids = IdGen::new();
+        let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+        match result {
+            Ok((segments, _)) => {
+                eprintln!("\nParsed segments:");
+                for (i, seg) in segments.iter().enumerate() {
+                    match seg {
+                        Segment::Static(s) => {
+                            eprintln!("  {}: Static({:?})", i, s);
+                            if s.contains('@') {
+                                eprintln!("    ^^^ CONTAINS @ - BUG! ^^^");
+                            }
+                            if s.contains('#') {
+                                eprintln!("    ^^^ CONTAINS # - control flow not parsed! ^^^");
+                            }
+                        }
+                        Segment::Interpolation { id, expr, .. } => {
+                            eprintln!("  {}: Interpolation(id={}, expr={})", i, id, expr);
+                        }
+                        Segment::Control { id, node, .. } => {
+                            eprintln!("  {}: Control(id={}, node={:?})", i, id, std::mem::discriminant(node));
+                        }
+                        _ => eprintln!("  {}: {:?}", i, seg),
+                    }
+                }
+
+                // Build the template string
+                let context_map = HashMap::new();
+                let template_result = build_template_and_bindings(segments.iter(), &context_map);
+
+                match template_result {
+                    Ok((template, bindings)) => {
+                        eprintln!("\nFull template string:\n{}", template);
+                        eprintln!("\nBindings: {}", bindings.len());
+                        for b in &bindings {
+                            eprintln!("  {} : {:?}", b.name, b.ty);
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("\nFailed to build template: {}", e);
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("\nFailed to parse segments: {}", e);
+            }
+        }
+    }
+
+    /// Debug: trace through "value: @{class_name}" token by token
+    #[test]
+    fn test_debug_colon_at_sequence() {
+        use std::str::FromStr;
+
+        // The parentheses case - this might be the issue!
+        let code = "(value: @{class_name})";
+        let tokens = TokenStream2::from_str(code).unwrap();
+        let tokens_vec: Vec<TokenTree> = tokens.into_iter().collect();
+
+        eprintln!("Tokens for 'value: @{{class_name}}':");
+        for (i, tt) in tokens_vec.iter().enumerate() {
+            match tt {
+                TokenTree::Punct(p) => {
+                    eprintln!("  {}: Punct('{}', spacing={:?})", i, p.as_char(), p.spacing());
+                }
+                TokenTree::Group(g) => {
+                    eprintln!("  {}: Group(delimiter={:?}, content={:?})", i, g.delimiter(), g.stream().to_string());
+                }
+                TokenTree::Ident(id) => {
+                    eprintln!("  {}: Ident({})", i, id);
+                }
+                TokenTree::Literal(lit) => {
+                    eprintln!("  {}: Literal({})", i, lit);
+                }
+            }
+        }
+
+        // Now simulate what parse_segments does
+        let tokens = TokenStream2::from_str(code).unwrap();
+        let mut iter = tokens.into_iter().peekable();
+
+        eprintln!("\nSimulating parse_segments:");
+        while let Some(token) = iter.peek().cloned() {
+            match &token {
+                TokenTree::Punct(p) if p.as_char() == '@' => {
+                    eprintln!("  Found @, consuming it...");
+                    iter.next();
+                    eprintln!("  After consuming @, peeking next token...");
+                    let peeked = iter.peek();
+                    eprintln!("  Peeked: {:?}", peeked);
+
+                    let is_group = iter.peek().is_some_and(|t| {
+                        let result = matches!(t, TokenTree::Group(g) if g.delimiter() == Delimiter::Brace);
+                        eprintln!("  is_group check result: {}", result);
+                        result
+                    });
+
+                    if is_group {
+                        eprintln!("  -> IS a brace group, consuming it");
+                        iter.next();
+                    } else {
+                        eprintln!("  -> NOT a brace group!");
+                    }
+                }
+                _ => {
+                    eprintln!("  Token: {:?}, consuming...", token);
+                    iter.next();
+                }
+            }
+        }
+    }
 }

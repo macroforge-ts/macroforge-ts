@@ -27,8 +27,9 @@ fn test_interpolation_expr_binding() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
+    // The binding should use Expr type (short form inside `use swc_core::ecma::ast::*` block)
     assert!(
-        s.contains("swc_core :: ecma :: ast :: Expr"),
+        s.contains("__mf_hole_0 : Expr"),
         "Expected Expr-typed interpolation binding"
     );
 }
