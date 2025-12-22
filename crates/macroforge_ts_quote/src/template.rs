@@ -1,10 +1,11 @@
-//! Rust-style templating for TypeScript code generation
+//! Rust-style templating for TypeScript code generation (AST-based)
 //!
 //! Provides a template syntax with interpolation and control flow:
 //! - `@{expr}` - Interpolate expressions (calls `.to_string()`)
 //! - `{| content |}` - Ident block: concatenates content without spaces (e.g., `{|get@{name}|}` → `getUser`)
-//! - `{> "comment" <}` - Block comment: outputs `/* comment */` (string preserves whitespace)
-//! - `{>> "doc" <<}` - Doc comment: outputs `/** doc */` (string preserves whitespace)
+//! - `{> "comment" <}` - Line comment: outputs `// comment` (string preserves whitespace)
+//! - `{>> "comment" <<}` - Block comment: outputs `/* comment */` (string preserves whitespace)
+//! - `///` or `/** */` - Rust doc comments in the template emit JSDoc blocks (`/** ... */`)
 //! - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
 //! - `"string @{expr}"` - String interpolation (auto-detected)
 //! - `"'^template ${expr}^'"` - JS backtick template literal (outputs `` `template ${expr}` ``)
@@ -25,69 +26,191 @@
 
 use proc_macro2::{Delimiter, Group, Span, TokenStream as TokenStream2, TokenTree};
 use quote::{ToTokens, quote};
+use std::collections::{HashMap, HashSet};
 use std::iter::Peekable;
 
-/// Helper struct to buffer string literals and merge them before emitting code.
-///
-/// This optimization reduces the number of `__out.push_str()` calls in the
-/// generated code by concatenating adjacent string literals at compile time.
-struct LiteralBuffer {
-    tokens: TokenStream2,
-    pending: String,
+use swc_core::common::comments::CommentKind;
+use swc_core::common::sync::Lrc;
+use swc_core::common::{FileName, SourceMap, SourceMapper, Spanned};
+use swc_core::ecma::ast::*;
+use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+use swc_core::ecma::visit::{Visit, VisitWith};
+
+/// Generates unique placeholder IDs for dynamic segments.
+struct IdGen {
+    next: usize,
 }
 
-impl LiteralBuffer {
+impl IdGen {
+    /// Creates a new placeholder ID generator.
     fn new() -> Self {
-        Self {
-            tokens: TokenStream2::new(),
-            pending: String::new(),
-        }
+        Self { next: 0 }
     }
 
-    fn push_str(&mut self, s: &str) {
-        self.pending.push_str(s);
-    }
-
-    fn flush(&mut self) {
-        if !self.pending.is_empty() {
-            let s = &self.pending;
-            self.tokens.extend(quote! { __out.push_str(#s); });
-            self.pending.clear();
-        }
-    }
-
-    fn push_stream(&mut self, stream: TokenStream2) {
-        self.flush();
-        self.tokens.extend(stream);
-    }
-
-    fn into_stream(mut self) -> TokenStream2 {
-        self.flush();
-        self.tokens
+    /// Returns the next unique placeholder ID.
+    fn next(&mut self) -> usize {
+        let id = self.next;
+        self.next += 1;
+        id
     }
 }
 
-/// Creates a syntax error with contextual information about the template location.
-///
-/// This function constructs a [`syn::Error`] with an optional context string that
-/// helps users identify where in their template the error occurred.
-///
-/// # Arguments
-///
-/// * `span` - The source span for error reporting
-/// * `message` - The primary error message
-/// * `context` - Optional context showing the problematic template code
-///
-/// # Returns
-///
-/// A [`syn::Error`] that can be converted to a compile error via `.to_compile_error()`.
-///
-/// # Example Output
-///
-/// ```text
-/// error: Unclosed {#if} block: Missing {/if}
-///   --> in: {#if condition}...
-/// ```
+#[derive(Clone, Debug)]
+enum Segment {
+    Static(String),
+    Comment {
+        style: CommentStyle,
+        text: String,
+        span: Span,
+    },
+    Interpolation {
+        id: usize,
+        expr: TokenStream2,
+        span: Span,
+    },
+    StringInterp {
+        id: usize,
+        parts: Vec<StringPart>,
+        span: Span,
+    },
+    TemplateInterp {
+        id: usize,
+        parts: Vec<StringPart>,
+        span: Span,
+    },
+    IdentBlock {
+        id: usize,
+        parts: Vec<IdentPart>,
+        span: Span,
+    },
+    Control {
+        id: usize,
+        node: ControlNode,
+        span: Span,
+    },
+    Let {
+        tokens: TokenStream2,
+        span: Span,
+    },
+    Do {
+        expr: TokenStream2,
+        span: Span,
+    },
+    Typescript {
+        id: usize,
+        expr: TokenStream2,
+        span: Span,
+    },
+}
+
+#[derive(Clone, Debug)]
+enum IdentPart {
+    Static(String),
+    Interpolation { expr: TokenStream2, span: Span },
+}
+
+#[derive(Clone, Debug)]
+enum StringPart {
+    Text(String),
+    Expr(TokenStream2),
+}
+
+#[derive(Clone, Debug)]
+enum ControlNode {
+    If {
+        cond: TokenStream2,
+        then_branch: Vec<Segment>,
+        else_branch: Option<Vec<Segment>>,
+    },
+    IfLet {
+        pattern: TokenStream2,
+        expr: TokenStream2,
+        then_branch: Vec<Segment>,
+        else_branch: Option<Vec<Segment>>,
+    },
+    For {
+        pat: TokenStream2,
+        iter: TokenStream2,
+        body: Vec<Segment>,
+    },
+    While {
+        cond: TokenStream2,
+        body: Vec<Segment>,
+    },
+    WhileLet {
+        pattern: TokenStream2,
+        expr: TokenStream2,
+        body: Vec<Segment>,
+    },
+    Match {
+        expr: TokenStream2,
+        cases: Vec<MatchCase>,
+    },
+}
+
+#[derive(Clone, Debug)]
+enum CommentStyle {
+    DocBlock,
+    Block,
+    Line,
+}
+
+#[derive(Clone, Debug)]
+struct MatchCase {
+    pattern: TokenStream2,
+    body: Vec<Segment>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum PlaceholderUse {
+    Expr,
+    Ident,
+    IdentName,
+    Stmt,
+    Type,
+}
+
+#[derive(Debug, Clone)]
+enum Terminator {
+    Else,
+    ElseIf(TokenStream2),
+    EndIf,
+    EndFor,
+    EndWhile,
+    Case(TokenStream2),
+    EndMatch,
+}
+
+#[derive(Debug)]
+enum TagType {
+    If(TokenStream2),
+    IfLet(TokenStream2, TokenStream2),
+    For(TokenStream2, TokenStream2),
+    Match(TokenStream2),
+    While(TokenStream2),
+    WhileLet(TokenStream2, TokenStream2),
+    Else,
+    ElseIf(TokenStream2),
+    EndIf,
+    EndFor,
+    EndWhile,
+    Case(TokenStream2),
+    EndMatch,
+    Let(TokenStream2),
+    Do(TokenStream2),
+    Typescript(TokenStream2),
+    IdentBlock,
+    DocComment(String),
+    BlockComment(String),
+    Block,
+}
+
+/// Formats the placeholder identifier for a given segment ID.
+fn placeholder_name(id: usize) -> String {
+    format!("__mf_hole_{id}")
+}
+
+/// Builds a template error with optional context.
 fn template_error(span: Span, message: &str, context: Option<&str>) -> syn::Error {
     let full_message = if let Some(ctx) = context {
         format!("{}\n  --> in: {}", message, ctx)
@@ -97,210 +220,1642 @@ fn template_error(span: Span, message: &str, context: Option<&str>) -> syn::Erro
     syn::Error::new(span, full_message)
 }
 
-/// Entry point for parsing a template token stream.
-///
-/// This function transforms template tokens into Rust code that builds a TypeScript
-/// string at runtime. The generated code handles all interpolation, control flow,
-/// and patch collection.
-///
-/// # Arguments
-///
-/// * `input` - The raw token stream from the template macro invocation
-///
-/// # Returns
-///
-/// On success, returns a [`TokenStream2`] containing Rust code that evaluates to
-/// `(String, Vec<Patch>)` - the generated TypeScript source and any runtime patches
-/// (imports, etc.) collected from `{$typescript}` injections.
-///
-/// # Errors
-///
-/// Returns a [`syn::Error`] if:
-/// - A control flow block is unclosed (`{#if}` without `{/if}`)
-/// - A terminator appears in an unexpected context
-/// - String interpolation syntax is malformed
-/// - An expression inside `@{}` cannot be parsed
-///
-/// # Generated Code Structure
-///
-/// ```ignore
-/// {
-///     let mut __out = String::new();
-///     let mut __patches: Vec<Patch> = Vec::new();
-///     // ... generated string-building code ...
-///     (__out, __patches)
-/// }
-/// ```
+/// Parses a template token stream into Rust that builds TypeScript AST output.
 pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
-    // Parse the tokens into a Rust block that returns a String or a templating error
-    let (body, _) = parse_fragment(&mut input.into_iter().peekable(), None)?;
+    let mut ids = IdGen::new();
+    let (segments, _) = parse_segments(&mut input.into_iter().peekable(), None, &mut ids)?;
+    let stmts_ident = proc_macro2::Ident::new("__stmts", Span::call_site());
+    let comments_ident = proc_macro2::Ident::new("__comments", Span::call_site());
+    let pending_ident = proc_macro2::Ident::new("__pending_comments", Span::call_site());
+    let pos_ident = proc_macro2::Ident::new("__mf_pos_counter", Span::call_site());
+
+    let stmts_builder = compile_stmt_segments(
+        &segments,
+        &stmts_ident,
+        &comments_ident,
+        &pending_ident,
+        &pos_ident,
+    )?;
 
     Ok(quote! {
         {
-            let mut __out = String::new();
+            let mut __stmts: Vec<swc_core::ecma::ast::Stmt> = Vec::new();
             let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
-            #body
-            (__out, __patches)
+            let __comments = swc_core::common::comments::SingleThreadedComments::default();
+            let mut __pending_comments: Vec<swc_core::common::comments::Comment> = Vec::new();
+            let mut __mf_pos_counter: u32 = 1;
+            #stmts_builder
+            (__stmts, __patches, __comments)
         }
     })
 }
 
-/// Signals that cause the recursive parser to stop and return control.
-///
-/// When [`parse_fragment`] encounters one of these terminators while parsing,
-/// it returns the accumulated output along with the terminator, allowing the
-/// caller to handle the control flow appropriately.
-///
-/// # Variants
-///
-/// - `Else` - Encountered `{:else}`, signals end of if-true block
-/// - `ElseIf(cond)` - Encountered `{:else if cond}`, signals chained conditional
-/// - `EndIf` - Encountered `{/if}`, signals end of if block
-/// - `EndFor` - Encountered `{/for}`, signals end of for loop
-/// - `EndWhile` - Encountered `{/while}`, signals end of while loop
-/// - `Case(pattern)` - Encountered `{:case pattern}`, signals new match arm
-/// - `EndMatch` - Encountered `{/match}`, signals end of match block
-#[derive(Debug, Clone)]
-enum Terminator {
-    /// `{:else}` - End of if-true block, start of else block
-    Else,
-    /// `{:else if condition}` - Chained conditional with new condition
-    ElseIf(TokenStream2),
-    /// `{/if}` - End of entire if/else-if/else chain
-    EndIf,
-    /// `{/for}` - End of for loop body
-    EndFor,
-    /// `{/while}` - End of while loop body
-    EndWhile,
-    /// `{:case pattern}` - Start of new match arm with pattern
-    Case(TokenStream2),
-    /// `{/match}` - End of entire match block
-    EndMatch,
+/// Parses a token stream into template segments until an optional terminator.
+fn parse_segments(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    stop_at: Option<&[Terminator]>,
+    ids: &mut IdGen,
+) -> syn::Result<(Vec<Segment>, Option<Terminator>)> {
+    let mut segments = Vec::new();
+    let mut static_tokens = TokenStream2::new();
+
+    while let Some(token) = iter.peek().cloned() {
+        match &token {
+            TokenTree::Punct(p) if p.as_char() == '#' => {
+                let mut lookahead = iter.clone();
+                lookahead.next();
+                if let Some(TokenTree::Group(g)) = lookahead.peek()
+                    && g.delimiter() == Delimiter::Bracket
+                {
+                    if let Some(content) = parse_doc_attribute(g) {
+                        iter.next();
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        segments.push(Segment::Comment {
+                            style: CommentStyle::DocBlock,
+                            text: content,
+                            span: g.span(),
+                        });
+                        continue;
+                    }
+                }
+                static_tokens.extend(TokenStream2::from(token.clone()));
+                iter.next();
+            }
+            TokenTree::Punct(p) if p.as_char() == '@' => {
+                iter.next();
+                let is_group = matches!(iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace);
+                if is_group {
+                    flush_static(&mut segments, &mut static_tokens);
+                    if let Some(TokenTree::Group(g)) = iter.next() {
+                        let id = ids.next();
+                        segments.push(Segment::Interpolation {
+                            id,
+                            expr: g.stream(),
+                            span: g.span(),
+                        });
+                    }
+                } else {
+                    static_tokens.extend(TokenStream2::from(token.clone()));
+                }
+            }
+            TokenTree::Literal(lit) => {
+                if let Some(parts) = parse_backtick_template(&lit)? {
+                    iter.next();
+                    flush_static(&mut segments, &mut static_tokens);
+                    let id = ids.next();
+                    segments.push(Segment::TemplateInterp {
+                        id,
+                        parts,
+                        span: lit.span(),
+                    });
+                } else if let Some(parts) = parse_string_interpolation(&lit)? {
+                    iter.next();
+                    flush_static(&mut segments, &mut static_tokens);
+                    let id = ids.next();
+                    segments.push(Segment::StringInterp {
+                        id,
+                        parts,
+                        span: lit.span(),
+                    });
+                } else {
+                    static_tokens.extend(TokenStream2::from(token.clone()));
+                    iter.next();
+                }
+            }
+            TokenTree::Group(g) if g.delimiter() == Delimiter::Brace => {
+                let tag = analyze_tag(g);
+                let span = g.span();
+                match tag {
+                    TagType::If(cond) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        let node = parse_if_chain(iter, cond, span, ids)?;
+                        let id = ids.next();
+                        segments.push(Segment::Control { id, node, span });
+                    }
+                    TagType::IfLet(pattern, expr) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        let node = parse_if_let_chain(iter, pattern, expr, span, ids)?;
+                        let id = ids.next();
+                        segments.push(Segment::Control { id, node, span });
+                    }
+                    TagType::For(pat, iter_expr) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        let (body, terminator) =
+                            parse_segments(iter, Some(&[Terminator::EndFor]), ids)?;
+                        if !matches!(terminator, Some(Terminator::EndFor)) {
+                            return Err(template_error(
+                                span,
+                                "Unclosed {#for} block: Missing {/for}",
+                                Some("{#for item in collection}..."),
+                            ));
+                        }
+                        let id = ids.next();
+                        segments.push(Segment::Control {
+                            id,
+                            node: ControlNode::For {
+                                pat,
+                                iter: iter_expr,
+                                body,
+                            },
+                            span,
+                        });
+                    }
+                    TagType::Match(expr) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        let node = parse_match_arms(iter, expr, span, ids)?;
+                        let id = ids.next();
+                        segments.push(Segment::Control { id, node, span });
+                    }
+                    TagType::While(cond) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        let node = parse_while_loop(iter, cond, span, ids)?;
+                        let id = ids.next();
+                        segments.push(Segment::Control { id, node, span });
+                    }
+                    TagType::WhileLet(pattern, expr) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        let node = parse_while_let_loop(iter, pattern, expr, span, ids)?;
+                        let id = ids.next();
+                        segments.push(Segment::Control { id, node, span });
+                    }
+                    TagType::Else => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::Else))
+                        {
+                            iter.next();
+                            flush_static(&mut segments, &mut static_tokens);
+                            return Ok((segments, Some(Terminator::Else)));
+                        }
+                        return Err(template_error(
+                            span,
+                            "Unexpected {:else} - not inside an {#if} block",
+                            None,
+                        ));
+                    }
+                    TagType::ElseIf(cond) => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::ElseIf(_)))
+                        {
+                            iter.next();
+                            flush_static(&mut segments, &mut static_tokens);
+                            return Ok((segments, Some(Terminator::ElseIf(cond))));
+                        }
+                        return Err(template_error(
+                            span,
+                            "Unexpected {:else if} - not inside an {#if} block",
+                            None,
+                        ));
+                    }
+                    TagType::EndIf => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::EndIf))
+                        {
+                            iter.next();
+                            flush_static(&mut segments, &mut static_tokens);
+                            return Ok((segments, Some(Terminator::EndIf)));
+                        }
+                        return Err(template_error(span, "Unexpected {/if}", None));
+                    }
+                    TagType::EndFor => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::EndFor))
+                        {
+                            iter.next();
+                            flush_static(&mut segments, &mut static_tokens);
+                            return Ok((segments, Some(Terminator::EndFor)));
+                        }
+                        return Err(template_error(span, "Unexpected {/for}", None));
+                    }
+                    TagType::EndWhile => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::EndWhile))
+                        {
+                            iter.next();
+                            flush_static(&mut segments, &mut static_tokens);
+                            return Ok((segments, Some(Terminator::EndWhile)));
+                        }
+                        return Err(template_error(span, "Unexpected {/while}", None));
+                    }
+                    TagType::Case(pattern) => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::Case(_)))
+                        {
+                            iter.next();
+                            flush_static(&mut segments, &mut static_tokens);
+                            return Ok((segments, Some(Terminator::Case(pattern))));
+                        }
+                        return Err(template_error(span, "Unexpected {:case}", None));
+                    }
+                    TagType::EndMatch => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::EndMatch))
+                        {
+                            iter.next();
+                            flush_static(&mut segments, &mut static_tokens);
+                            return Ok((segments, Some(Terminator::EndMatch)));
+                        }
+                        return Err(template_error(span, "Unexpected {/match}", None));
+                    }
+                    TagType::Let(tokens) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        segments.push(Segment::Let { tokens, span });
+                    }
+                    TagType::Do(expr) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        segments.push(Segment::Do { expr, span });
+                    }
+                    TagType::Typescript(expr) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        let id = ids.next();
+                        segments.push(Segment::Typescript { id, expr, span });
+                    }
+                    TagType::IdentBlock => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        let parts = parse_ident_block_parts(g)?;
+                        let id = ids.next();
+                        segments.push(Segment::IdentBlock { id, parts, span });
+                    }
+                    TagType::DocComment(content) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        segments.push(Segment::Comment {
+                            style: CommentStyle::Block,
+                            text: content,
+                            span,
+                        });
+                    }
+                    TagType::BlockComment(content) => {
+                        iter.next();
+                        flush_static(&mut segments, &mut static_tokens);
+                        segments.push(Segment::Comment {
+                            style: CommentStyle::Line,
+                            text: content,
+                            span,
+                        });
+                    }
+                    TagType::Block => {
+                        static_tokens.extend(TokenStream2::from(token.clone()));
+                        iter.next();
+                    }
+                }
+            }
+            _ => {
+                static_tokens.extend(TokenStream2::from(token.clone()));
+                iter.next();
+            }
+        }
+    }
+
+    flush_static(&mut segments, &mut static_tokens);
+    Ok((segments, None))
 }
 
-/// Classification of brace-delimited groups in the template.
-///
-/// When the parser encounters a `{ ... }` group, [`analyze_tag`] examines its
-/// contents to determine whether it's a template control tag or regular
-/// TypeScript code. This enum represents all possible classifications.
-///
-/// # Control Flow Tags
-///
-/// Tags starting with `#` introduce control structures:
-/// - `{#if}`, `{#if let}` - Conditionals
-/// - `{#for}` - Iteration
-/// - `{#while}`, `{#while let}` - While loops
-/// - `{#match}` - Pattern matching
-///
-/// Tags starting with `:` are continuations:
-/// - `{:else}`, `{:else if}` - Conditional branches
-/// - `{:case}` - Match arms
-///
-/// Tags starting with `/` close blocks:
-/// - `{/if}`, `{/for}`, `{/while}`, `{/match}`
-///
-/// # Action Tags
-///
-/// Tags starting with `$` perform actions:
-/// - `{$let}`, `{$let mut}` - Local bindings
-/// - `{$do}` - Side effects
-/// - `{$typescript}` - TsStream injection
-///
-/// # Special Syntax
-///
-/// - `{| ... |}` - Ident blocks (no-space concatenation)
-/// - `{> "..." <}` - Block comments
-/// - `{>> "..." <<}` - Doc comments
-/// - `{ ... }` (no prefix) - Regular TypeScript blocks
-enum TagType {
-    /// `{#if condition}` - Start of conditional block
-    If(TokenStream2),
-    /// `{#if let pattern = expr}` - Pattern-matching conditional (pattern, expression)
-    IfLet(TokenStream2, TokenStream2),
-    /// `{#while condition}` - Start of while loop
-    While(TokenStream2),
-    /// `{#while let pattern = expr}` - Pattern-matching while loop (pattern, expression)
-    WhileLet(TokenStream2, TokenStream2),
-    /// `{#for item in collection}` - Start of for loop (item binding, collection expression)
-    For(TokenStream2, TokenStream2),
-    /// `{#match expr}` - Start of match block with expression to match
-    Match(TokenStream2),
-    /// `{:else}` - Else branch of conditional
-    Else,
-    /// `{:else if condition}` - Else-if branch with condition
-    ElseIf(TokenStream2),
-    /// `{:case pattern}` - Match arm with pattern
-    Case(TokenStream2),
-    /// `{/if}` - End of if/else-if/else block
-    EndIf,
-    /// `{/for}` - End of for loop
-    EndFor,
-    /// `{/while}` - End of while loop
-    EndWhile,
-    /// `{/match}` - End of match block
-    EndMatch,
-    /// `{$let name = expr}` - Immutable local binding
-    Let(TokenStream2),
-    /// `{$let mut name = expr}` - Mutable local binding
-    LetMut(TokenStream2),
-    /// `{$do expr}` - Execute expression for side effects (discard result)
-    Do(TokenStream2),
-    /// `{$typescript stream}` - Inject TsStream, preserving source and patches
-    Typescript(TokenStream2),
-    /// `{| content |}` - Identifier block with no internal spacing
-    IdentBlock,
-    /// `{> "comment" <}` - Block comment: outputs `/* comment */`
-    BlockComment(String),
-    /// `{>> "doc" <<}` - Doc comment: outputs `/** doc */`
-    DocComment(String),
-    /// Standard TypeScript/JavaScript block (no template syntax detected)
-    Block,
+/// Flushes buffered static tokens into a static segment.
+fn flush_static(segments: &mut Vec<Segment>, static_tokens: &mut TokenStream2) {
+    if static_tokens.is_empty() {
+        return;
+    }
+    let tokens = std::mem::take(static_tokens);
+    let s = tokens_to_ts_string(tokens);
+    if !s.trim().is_empty() {
+        segments.push(Segment::Static(s));
+    }
 }
 
-/// Analyzes a brace-delimited group to determine its tag type.
-///
-/// This function examines the tokens inside a `{ ... }` group to classify
-/// whether it's a template control tag (like `{#if}`, `{#for}`) or just
-/// regular TypeScript code that should be passed through.
-///
-/// # Arguments
-///
-/// * `g` - The [`Group`] token to analyze (must have brace delimiter)
-///
-/// # Returns
-///
-/// A [`TagType`] classification indicating what kind of template construct
-/// (if any) the group represents.
-///
-/// # Recognition Patterns
-///
-/// The function checks tokens in order of specificity:
-///
-/// 1. **Ident blocks**: `{| ... |}` - First and last tokens are `|`
-/// 2. **Doc comments**: `{>> "..." <<}` - Starts with `>>`, ends with `<<`
-/// 3. **Block comments**: `{> "..." <}` - Starts with `>`, ends with `<`
-/// 4. **Control tags**: First token is `#`, `:`, `/`, or `$`
-///    - `#if`, `#for`, `#while`, `#match` - Block openers
-///    - `:else`, `:else if`, `:case` - Continuations
-///    - `/if`, `/for`, `/while`, `/match` - Block closers
-///    - `$let`, `$do`, `$typescript` - Actions
-/// 5. **Plain blocks**: Anything else is treated as TypeScript code
-///
-/// # Example Classifications
-///
-/// ```text
-/// {#if x > 0}     -> TagType::If(tokens for "x > 0")
-/// {#for i in 0..5} -> TagType::For(tokens for "i", tokens for "0..5")
-/// {:else}          -> TagType::Else
-/// {/if}            -> TagType::EndIf
-/// {$let x = 1}     -> TagType::Let(tokens for "x = 1")
-/// {| foo @{bar} |} -> TagType::IdentBlock
-/// { x: 1 }         -> TagType::Block
-/// ```
+/// Parses an `{#if ...}` chain into a control node.
+fn parse_if_chain(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    cond: TokenStream2,
+    span: Span,
+    ids: &mut IdGen,
+) -> syn::Result<ControlNode> {
+    let (then_branch, terminator) = parse_segments(
+        iter,
+        Some(&[
+            Terminator::Else,
+            Terminator::ElseIf(TokenStream2::new()),
+            Terminator::EndIf,
+        ]),
+        ids,
+    )?;
+
+    match terminator {
+        Some(Terminator::Else) => {
+            let (else_branch, terminator) = parse_segments(iter, Some(&[Terminator::EndIf]), ids)?;
+            if !matches!(terminator, Some(Terminator::EndIf)) {
+                return Err(template_error(
+                    span,
+                    "Unclosed {#if} block: Missing {/if}",
+                    Some("{#if condition}...{:else}...{/if}"),
+                ));
+            }
+            Ok(ControlNode::If {
+                cond,
+                then_branch,
+                else_branch: Some(else_branch),
+            })
+        }
+        Some(Terminator::ElseIf(next_cond)) => {
+            let else_branch = vec![Segment::Control {
+                id: ids.next(),
+                node: parse_if_chain(iter, next_cond, span, ids)?,
+                span,
+            }];
+            Ok(ControlNode::If {
+                cond,
+                then_branch,
+                else_branch: Some(else_branch),
+            })
+        }
+        Some(Terminator::EndIf) => Ok(ControlNode::If {
+            cond,
+            then_branch,
+            else_branch: None,
+        }),
+        _ => Err(template_error(
+            span,
+            "Unclosed {#if} block: Missing {/if}",
+            Some("{#if condition}...{/if}"),
+        )),
+    }
+}
+
+/// Parses an `{#if let ...}` chain into a control node.
+fn parse_if_let_chain(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    pattern: TokenStream2,
+    expr: TokenStream2,
+    span: Span,
+    ids: &mut IdGen,
+) -> syn::Result<ControlNode> {
+    let (then_branch, terminator) = parse_segments(
+        iter,
+        Some(&[
+            Terminator::Else,
+            Terminator::ElseIf(TokenStream2::new()),
+            Terminator::EndIf,
+        ]),
+        ids,
+    )?;
+
+    match terminator {
+        Some(Terminator::Else) => {
+            let (else_branch, terminator) = parse_segments(iter, Some(&[Terminator::EndIf]), ids)?;
+            if !matches!(terminator, Some(Terminator::EndIf)) {
+                return Err(template_error(
+                    span,
+                    "Unclosed {#if let} block: Missing {/if}",
+                    Some("{#if let pattern = expr}...{:else}...{/if}"),
+                ));
+            }
+            Ok(ControlNode::IfLet {
+                pattern,
+                expr,
+                then_branch,
+                else_branch: Some(else_branch),
+            })
+        }
+        Some(Terminator::ElseIf(next_cond)) => {
+            let else_branch = vec![Segment::Control {
+                id: ids.next(),
+                node: parse_if_chain(iter, next_cond, span, ids)?,
+                span,
+            }];
+            Ok(ControlNode::IfLet {
+                pattern,
+                expr,
+                then_branch,
+                else_branch: Some(else_branch),
+            })
+        }
+        Some(Terminator::EndIf) => Ok(ControlNode::IfLet {
+            pattern,
+            expr,
+            then_branch,
+            else_branch: None,
+        }),
+        _ => Err(template_error(
+            span,
+            "Unclosed {#if let} block: Missing {/if}",
+            Some("{#if let pattern = expr}...{/if}"),
+        )),
+    }
+}
+
+/// Parses the arms for a `{#match ...}` block.
+fn parse_match_arms(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    expr: TokenStream2,
+    span: Span,
+    ids: &mut IdGen,
+) -> syn::Result<ControlNode> {
+    let mut cases = Vec::new();
+    let mut pending_pattern: Option<TokenStream2> = None;
+
+    loop {
+        let (body, terminator) = parse_segments(
+            iter,
+            Some(&[Terminator::Case(TokenStream2::new()), Terminator::EndMatch]),
+            ids,
+        )?;
+
+        match terminator {
+            Some(Terminator::Case(pattern)) => {
+                if let Some(prev) = pending_pattern.take() {
+                    cases.push(MatchCase {
+                        pattern: prev,
+                        body,
+                    });
+                } else if !body.is_empty() {
+                    return Err(template_error(
+                        span,
+                        "Unexpected content before {:case}",
+                        None,
+                    ));
+                }
+                pending_pattern = Some(pattern);
+            }
+            Some(Terminator::EndMatch) => {
+                if let Some(prev) = pending_pattern.take() {
+                    cases.push(MatchCase {
+                        pattern: prev,
+                        body,
+                    });
+                } else if !body.is_empty() {
+                    return Err(template_error(
+                        span,
+                        "Unexpected content before {/match}",
+                        None,
+                    ));
+                }
+                break;
+            }
+            None => {
+                return Err(template_error(
+                    span,
+                    "Unclosed {#match} block: Missing {/match}",
+                    Some("{#match expr}{:case pattern}...{/match}"),
+                ));
+            }
+            Some(other) => {
+                return Err(template_error(
+                    span,
+                    &format!("Unexpected terminator in {{#match}}: {other:?}"),
+                    None,
+                ));
+            }
+        }
+    }
+
+    Ok(ControlNode::Match { expr, cases })
+}
+
+/// Parses a `{#while ...}` block.
+fn parse_while_loop(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    cond: TokenStream2,
+    span: Span,
+    ids: &mut IdGen,
+) -> syn::Result<ControlNode> {
+    let (body, terminator) = parse_segments(iter, Some(&[Terminator::EndWhile]), ids)?;
+    if !matches!(terminator, Some(Terminator::EndWhile)) {
+        return Err(template_error(
+            span,
+            "Unclosed {#while} block: Missing {/while}",
+            Some("{#while condition}...{/while}"),
+        ));
+    }
+    Ok(ControlNode::While { cond, body })
+}
+
+/// Parses a `{#while let ...}` block.
+fn parse_while_let_loop(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    pattern: TokenStream2,
+    expr: TokenStream2,
+    span: Span,
+    ids: &mut IdGen,
+) -> syn::Result<ControlNode> {
+    let (body, terminator) = parse_segments(iter, Some(&[Terminator::EndWhile]), ids)?;
+    if !matches!(terminator, Some(Terminator::EndWhile)) {
+        return Err(template_error(
+            span,
+            "Unclosed {#while let} block: Missing {/while}",
+            Some("{#while let pattern = expr}...{/while}"),
+        ));
+    }
+    Ok(ControlNode::WhileLet {
+        pattern,
+        expr,
+        body,
+    })
+}
+
+/// Compiles statement-level segments into Rust code that builds SWC statements.
+fn compile_stmt_segments(
+    segments: &[Segment],
+    out_ident: &proc_macro2::Ident,
+    comments_ident: &proc_macro2::Ident,
+    pending_ident: &proc_macro2::Ident,
+    pos_ident: &proc_macro2::Ident,
+) -> syn::Result<TokenStream2> {
+    let context_map = classify_placeholders_module(segments)?;
+    let mut output = TokenStream2::new();
+    let mut run: Vec<&Segment> = Vec::new();
+
+    for segment in segments {
+        match segment {
+            Segment::Control { id, node, span: _ } => {
+                let is_stmt = matches!(context_map.get(id), Some(PlaceholderUse::Stmt));
+                if is_stmt {
+                    if !run.is_empty() {
+                        output.extend(flush_stmt_run(
+                            &run,
+                            &context_map,
+                            out_ident,
+                            comments_ident,
+                            pending_ident,
+                            pos_ident,
+                        )?);
+                        run.clear();
+                    }
+                    output.extend(compile_stmt_control(
+                        node,
+                        out_ident,
+                        comments_ident,
+                        pending_ident,
+                        pos_ident,
+                    )?);
+                } else {
+                    run.push(segment);
+                }
+            }
+            Segment::Typescript { id, expr, span } => {
+                if !run.is_empty() {
+                    output.extend(flush_stmt_run(
+                        &run,
+                        &context_map,
+                        out_ident,
+                        comments_ident,
+                        pending_ident,
+                        pos_ident,
+                    )?);
+                    run.clear();
+                }
+                if matches!(context_map.get(id), Some(PlaceholderUse::Stmt) | None) {
+                    output.extend(compile_ts_injection(
+                        expr,
+                        out_ident,
+                        comments_ident,
+                        pending_ident,
+                    ));
+                } else {
+                    return Err(template_error(
+                        *span,
+                        "{$typescript} is only valid at statement boundaries",
+                        None,
+                    ));
+                }
+            }
+            Segment::Comment { style, text, .. } => {
+                if !run.is_empty() {
+                    output.extend(flush_stmt_run(
+                        &run,
+                        &context_map,
+                        out_ident,
+                        comments_ident,
+                        pending_ident,
+                        pos_ident,
+                    )?);
+                    run.clear();
+                }
+                let comment = comment_expr(style, text);
+                output.extend(quote! {
+                    #pending_ident.push(#comment);
+                });
+            }
+            Segment::Let { tokens, .. } => {
+                if !run.is_empty() {
+                    output.extend(flush_stmt_run(
+                        &run,
+                        &context_map,
+                        out_ident,
+                        comments_ident,
+                        pending_ident,
+                        pos_ident,
+                    )?);
+                    run.clear();
+                }
+                output.extend(quote! { let #tokens; });
+            }
+            Segment::Do { expr, .. } => {
+                if !run.is_empty() {
+                    output.extend(flush_stmt_run(
+                        &run,
+                        &context_map,
+                        out_ident,
+                        comments_ident,
+                        pending_ident,
+                        pos_ident,
+                    )?);
+                    run.clear();
+                }
+                output.extend(quote! { #expr; });
+            }
+            _ => run.push(segment),
+        }
+    }
+
+    if !run.is_empty() {
+        output.extend(flush_stmt_run(
+            &run,
+            &context_map,
+            out_ident,
+            comments_ident,
+            pending_ident,
+            pos_ident,
+        )?);
+    }
+
+    Ok(output)
+}
+
+/// Compiles statement-level control nodes into Rust control flow.
+fn compile_stmt_control(
+    node: &ControlNode,
+    out_ident: &proc_macro2::Ident,
+    comments_ident: &proc_macro2::Ident,
+    pending_ident: &proc_macro2::Ident,
+    pos_ident: &proc_macro2::Ident,
+) -> syn::Result<TokenStream2> {
+    match node {
+        ControlNode::If {
+            cond,
+            then_branch,
+            else_branch,
+        } => {
+            let then_code = compile_stmt_segments(
+                then_branch,
+                out_ident,
+                comments_ident,
+                pending_ident,
+                pos_ident,
+            )?;
+            let else_code = if let Some(branch) = else_branch {
+                compile_stmt_segments(branch, out_ident, comments_ident, pending_ident, pos_ident)?
+            } else {
+                TokenStream2::new()
+            };
+            Ok(quote! {
+                if #cond {
+                    #then_code
+                } else {
+                    #else_code
+                }
+            })
+        }
+        ControlNode::IfLet {
+            pattern,
+            expr,
+            then_branch,
+            else_branch,
+        } => {
+            let then_code = compile_stmt_segments(
+                then_branch,
+                out_ident,
+                comments_ident,
+                pending_ident,
+                pos_ident,
+            )?;
+            let else_code = if let Some(branch) = else_branch {
+                compile_stmt_segments(branch, out_ident, comments_ident, pending_ident, pos_ident)?
+            } else {
+                TokenStream2::new()
+            };
+            Ok(quote! {
+                if let #pattern = #expr {
+                    #then_code
+                } else {
+                    #else_code
+                }
+            })
+        }
+        ControlNode::For { pat, iter, body } => {
+            let body_code =
+                compile_stmt_segments(body, out_ident, comments_ident, pending_ident, pos_ident)?;
+            Ok(quote! {
+                for #pat in #iter {
+                    #body_code
+                }
+            })
+        }
+        ControlNode::While { cond, body } => {
+            let body_code =
+                compile_stmt_segments(body, out_ident, comments_ident, pending_ident, pos_ident)?;
+            Ok(quote! {
+                while #cond {
+                    #body_code
+                }
+            })
+        }
+        ControlNode::WhileLet {
+            pattern,
+            expr,
+            body,
+        } => {
+            let body_code =
+                compile_stmt_segments(body, out_ident, comments_ident, pending_ident, pos_ident)?;
+            Ok(quote! {
+                while let #pattern = #expr {
+                    #body_code
+                }
+            })
+        }
+        ControlNode::Match { expr, cases } => {
+            let mut arms = TokenStream2::new();
+            for case in cases {
+                let body_code = compile_stmt_segments(
+                    &case.body,
+                    out_ident,
+                    comments_ident,
+                    pending_ident,
+                    pos_ident,
+                )?;
+                let pattern = &case.pattern;
+                arms.extend(quote! {
+                    #pattern => { #body_code }
+                });
+            }
+            Ok(quote! {
+                match #expr {
+                    #arms
+                }
+            })
+        }
+    }
+}
+
+/// Compiles expression-level segments into a single SWC expression.
+fn compile_expr_segments(segments: &[Segment]) -> syn::Result<TokenStream2> {
+    let context_map = classify_placeholders_expr(segments)?;
+    let (template, bindings) = build_template_and_bindings(segments, &context_map)?;
+    let ident_name_ids = collect_ident_name_ids(segments.iter(), &context_map);
+    let quote_ts = quote_ts(&template, quote!(Expr), &bindings);
+    let QuoteTsResult { bindings, expr } = quote_ts;
+    if ident_name_ids.is_empty() {
+        Ok(quote! {{
+            #bindings
+            #expr
+        }})
+    } else {
+        let expr_ident = proc_macro2::Ident::new("__mf_expr", Span::call_site());
+        let fix_block = ident_name_fix_block(&expr_ident, &ident_name_ids);
+        Ok(quote! {{
+            #bindings
+            let mut #expr_ident = #expr;
+            #fix_block
+            #expr_ident
+        }})
+    }
+}
+
+/// Compiles control nodes in expression context into Rust expressions.
+fn compile_control_expr(node: &ControlNode, span: Span) -> syn::Result<TokenStream2> {
+    match node {
+        ControlNode::If {
+            cond,
+            then_branch,
+            else_branch,
+        } => {
+            let then_expr = compile_expr_segments(then_branch)?;
+            let else_expr = if let Some(branch) = else_branch {
+                compile_expr_segments(branch)?
+            } else {
+                return Err(template_error(
+                    span,
+                    "Expression-level {#if} requires an {:else} branch",
+                    None,
+                ));
+            };
+            Ok(quote! {
+                if #cond {
+                    #then_expr
+                } else {
+                    #else_expr
+                }
+            })
+        }
+        ControlNode::IfLet {
+            pattern,
+            expr,
+            then_branch,
+            else_branch,
+        } => {
+            let then_expr = compile_expr_segments(then_branch)?;
+            let else_expr = if let Some(branch) = else_branch {
+                compile_expr_segments(branch)?
+            } else {
+                return Err(template_error(
+                    span,
+                    "Expression-level {#if let} requires an {:else} branch",
+                    None,
+                ));
+            };
+            Ok(quote! {
+                if let #pattern = #expr {
+                    #then_expr
+                } else {
+                    #else_expr
+                }
+            })
+        }
+        ControlNode::Match { expr, cases } => {
+            let mut arms = TokenStream2::new();
+            for case in cases {
+                let pattern = &case.pattern;
+                let body_expr = compile_expr_segments(&case.body)?;
+                arms.extend(quote! {
+                    #pattern => #body_expr,
+                });
+            }
+            Ok(quote! {
+                match #expr {
+                    #arms
+                }
+            })
+        }
+        ControlNode::For { .. } | ControlNode::While { .. } | ControlNode::WhileLet { .. } => {
+            Err(template_error(
+                span,
+                "Loop constructs are not allowed in expression context",
+                None,
+            ))
+        }
+    }
+}
+
+/// Emits a run of statement segments as parsed SWC statements, attaching comments.
+fn flush_stmt_run(
+    run: &[&Segment],
+    context_map: &HashMap<usize, PlaceholderUse>,
+    out_ident: &proc_macro2::Ident,
+    comments_ident: &proc_macro2::Ident,
+    pending_ident: &proc_macro2::Ident,
+    pos_ident: &proc_macro2::Ident,
+) -> syn::Result<TokenStream2> {
+    let (template, bindings) = build_template_and_bindings(run.iter().copied(), context_map)?;
+    if template.trim().is_empty() {
+        return Ok(TokenStream2::new());
+    }
+    let ident_name_ids = collect_ident_name_ids(run.iter().copied(), context_map);
+    let ident_name_fix =
+        ident_name_fix_block(&proc_macro2::Ident::new("__mf_stmt", Span::call_site()), &ident_name_ids);
+
+    let (module, cm) = parse_ts_module_with_source(&template)?;
+    let mut output = TokenStream2::new();
+
+    for item in module.body {
+        match item {
+            ModuleItem::Stmt(stmt) => {
+                let snippet = cm.span_to_snippet(stmt.span()).map_err(|e| {
+                    syn::Error::new(Span::call_site(), format!("TypeScript span error: {e:?}"))
+                })?;
+                let snippet = snippet.trim();
+                if snippet.is_empty() {
+                    continue;
+                }
+                let quote_ts = quote_ts(snippet, quote!(Stmt), &bindings);
+                let QuoteTsResult { bindings, expr } = quote_ts;
+                output.extend(quote! {{
+                    #bindings
+                    let mut __mf_stmt = #expr;
+                    #ident_name_fix
+                    let __mf_pos = swc_core::common::BytePos(#pos_ident);
+                    #pos_ident += 1;
+                    {
+                        use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+                        struct __MfSpanFix {
+                            span: swc_core::common::Span,
+                        }
+                        impl VisitMut for __MfSpanFix {
+                            fn visit_mut_span(&mut self, span: &mut swc_core::common::Span) {
+                                *span = self.span;
+                            }
+                        }
+                        let mut __mf_span_fix = __MfSpanFix {
+                            span: swc_core::common::Span::new(__mf_pos, __mf_pos),
+                        };
+                        __mf_stmt.visit_mut_with(&mut __mf_span_fix);
+                    }
+                    if !#pending_ident.is_empty() {
+                        use swc_core::common::comments::Comments;
+                        for __mf_comment in #pending_ident.drain(..) {
+                            #comments_ident.add_leading(__mf_pos, __mf_comment);
+                        }
+                    }
+                    #out_ident.push(__mf_stmt);
+                }});
+            }
+            ModuleItem::ModuleDecl(_) => {
+                return Err(template_error(
+                    Span::call_site(),
+                    "Module declarations (import/export) are not supported yet",
+                    None,
+                ));
+            }
+        }
+    }
+
+    Ok(output)
+}
+
+struct BindingSpec {
+    name: proc_macro2::Ident,
+    ty: TokenStream2,
+    expr: TokenStream2,
+}
+
+struct QuoteTsResult {
+    bindings: TokenStream2,
+    expr: TokenStream2,
+}
+
+/// Builds the placeholder template string and binding list for a segment run.
+fn build_template_and_bindings(
+    segments: impl IntoIterator<Item = impl std::borrow::Borrow<Segment>>,
+    context_map: &HashMap<usize, PlaceholderUse>,
+) -> syn::Result<(String, Vec<BindingSpec>)> {
+    let mut template = String::new();
+    let mut bindings = Vec::new();
+    let mut seen = HashSet::new();
+
+    for seg in segments {
+        match seg.borrow() {
+            Segment::Static(s) => append_part(&mut template, s),
+            Segment::Comment { span, .. } => {
+                return Err(template_error(
+                    *span,
+                    "Comments must appear between TypeScript statements",
+                    None,
+                ));
+            }
+            Segment::Interpolation { id, expr, span: _ } => {
+                let name = placeholder_name(*id);
+                append_part(&mut template, &format!("${name}"));
+                if seen.insert(*id) {
+                    let use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Expr);
+                    let ty = placeholder_type_tokens(&use_kind);
+                    let bind_ident = proc_macro2::Ident::new(&name, Span::call_site());
+                    bindings.push(BindingSpec {
+                        name: bind_ident,
+                        ty,
+                        expr: expr.clone(),
+                    });
+                }
+            }
+            Segment::StringInterp { id, parts, span: _ } => {
+                let name = placeholder_name(*id);
+                append_part(&mut template, &format!("${name}"));
+                if seen.insert(*id) {
+                    let expr = build_string_interp_expr(parts, *id);
+                    let ty = placeholder_type_tokens(&PlaceholderUse::Expr);
+                    let bind_ident = proc_macro2::Ident::new(&name, Span::call_site());
+                    bindings.push(BindingSpec {
+                        name: bind_ident,
+                        ty,
+                        expr,
+                    });
+                }
+            }
+            Segment::TemplateInterp { id, parts, span: _ } => {
+                let name = placeholder_name(*id);
+                append_part(&mut template, &format!("${name}"));
+                if seen.insert(*id) {
+                    let expr = build_template_interp_expr(parts, *id);
+                    let ty = placeholder_type_tokens(&PlaceholderUse::Expr);
+                    let bind_ident = proc_macro2::Ident::new(&name, Span::call_site());
+                    bindings.push(BindingSpec {
+                        name: bind_ident,
+                        ty,
+                        expr,
+                    });
+                }
+            }
+            Segment::IdentBlock { id, parts, span: _ } => {
+                let name = placeholder_name(*id);
+                append_part(&mut template, &format!("${name}"));
+                if seen.insert(*id) {
+                    let ident_expr = compile_ident_block(parts);
+                    let ty = placeholder_type_tokens(&PlaceholderUse::Ident);
+                    let bind_ident = proc_macro2::Ident::new(&name, Span::call_site());
+                    bindings.push(BindingSpec {
+                        name: bind_ident,
+                        ty,
+                        expr: ident_expr,
+                    });
+                }
+            }
+            Segment::Control { id, node, span } => {
+                let name = placeholder_name(*id);
+                let use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Expr);
+                if matches!(use_kind, PlaceholderUse::Stmt) {
+                    return Err(template_error(
+                        *span,
+                        "Statement-level control blocks must stand alone",
+                        None,
+                    ));
+                }
+                if matches!(use_kind, PlaceholderUse::Ident | PlaceholderUse::Type) {
+                    return Err(template_error(
+                        *span,
+                        "Control blocks cannot appear in identifier/type positions",
+                        None,
+                    ));
+                }
+                append_part(&mut template, &format!("${name}"));
+                if seen.insert(*id) {
+                    let expr = compile_control_expr(node, *span)?;
+                    let ty = placeholder_type_tokens(&PlaceholderUse::Expr);
+                    let bind_ident = proc_macro2::Ident::new(&name, Span::call_site());
+                    bindings.push(BindingSpec {
+                        name: bind_ident,
+                        ty,
+                        expr,
+                    });
+                }
+            }
+            Segment::Typescript { id, span, .. } => {
+                let use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Stmt);
+                if !matches!(use_kind, PlaceholderUse::Stmt) {
+                    return Err(template_error(
+                        *span,
+                        "{$typescript} is only valid at statement boundaries",
+                        None,
+                    ));
+                }
+                return Err(template_error(
+                    *span,
+                    "{$typescript} must be placed as its own statement",
+                    None,
+                ));
+            }
+            Segment::Let { span, .. } | Segment::Do { span, .. } => {
+                return Err(template_error(
+                    *span,
+                    "{$let} and {$do} cannot appear inside TypeScript expressions",
+                    None,
+                ));
+            }
+        }
+    }
+
+    Ok((template, bindings))
+}
+
+/// Collects placeholder IDs used in `IdentName` positions.
+fn collect_ident_name_ids<'a>(
+    segments: impl IntoIterator<Item = &'a Segment>,
+    context_map: &HashMap<usize, PlaceholderUse>,
+) -> Vec<usize> {
+    let mut ids = HashSet::new();
+    for seg in segments {
+        let id = match seg {
+            Segment::Interpolation { id, .. }
+            | Segment::StringInterp { id, .. }
+            | Segment::TemplateInterp { id, .. }
+            | Segment::IdentBlock { id, .. }
+            | Segment::Control { id, .. }
+            | Segment::Typescript { id, .. } => Some(*id),
+            _ => None,
+        };
+        if let Some(id) = id
+            && matches!(context_map.get(&id), Some(PlaceholderUse::IdentName))
+        {
+            ids.insert(id);
+        }
+    }
+
+    let mut ids: Vec<_> = ids.into_iter().collect();
+    ids.sort_unstable();
+    ids
+}
+
+/// Rewrites placeholder `IdentName`s (e.g. `$__mf_hole_0`) into real identifiers.
+fn ident_name_fix_block(
+    target_ident: &proc_macro2::Ident,
+    placeholder_ids: &[usize],
+) -> TokenStream2 {
+    if placeholder_ids.is_empty() {
+        return TokenStream2::new();
+    }
+
+    let fields: Vec<TokenStream2> = placeholder_ids
+        .iter()
+        .map(|id| {
+            let field_ident = proc_macro2::Ident::new(&placeholder_name(*id), Span::call_site());
+            quote! { #field_ident: swc_core::ecma::ast::IdentName }
+        })
+        .collect();
+    let inits: Vec<TokenStream2> = placeholder_ids
+        .iter()
+        .map(|id| {
+            let field_ident = proc_macro2::Ident::new(&placeholder_name(*id), Span::call_site());
+            quote! { #field_ident: swc_core::ecma::ast::IdentName::from(#field_ident.clone()) }
+        })
+        .collect();
+    let arms: Vec<TokenStream2> = placeholder_ids
+        .iter()
+        .map(|id| {
+            let marker = format!("${}", placeholder_name(*id));
+            let field_ident = proc_macro2::Ident::new(&placeholder_name(*id), Span::call_site());
+            quote! {
+                #marker => {
+                    *ident = self.#field_ident.clone();
+                }
+            }
+        })
+        .collect();
+    let member_arms = arms.clone();
+    let prop_arms = arms;
+
+    quote! {
+        {
+            use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+            struct __MfIdentNameFix {
+                #(#fields,)*
+            }
+            impl VisitMut for __MfIdentNameFix {
+                fn visit_mut_member_prop(&mut self, prop: &mut swc_core::ecma::ast::MemberProp) {
+                    if let swc_core::ecma::ast::MemberProp::Ident(ident) = prop {
+                        match ident.sym.as_ref() {
+                            #(#member_arms)*
+                            _ => {}
+                        }
+                    }
+                    prop.visit_mut_children_with(self);
+                }
+
+                fn visit_mut_prop_name(&mut self, prop: &mut swc_core::ecma::ast::PropName) {
+                    if let swc_core::ecma::ast::PropName::Ident(ident) = prop {
+                        match ident.sym.as_ref() {
+                            #(#prop_arms)*
+                            _ => {}
+                        }
+                    }
+                    prop.visit_mut_children_with(self);
+                }
+            }
+            let mut __mf_ident_fix = __MfIdentNameFix {
+                #(#inits,)*
+            };
+            #target_ident.visit_mut_with(&mut __mf_ident_fix);
+        }
+    }
+}
+
+/// Maps placeholder usage to the SWC AST type used for binding.
+fn placeholder_type_tokens(use_kind: &PlaceholderUse) -> TokenStream2 {
+    match use_kind {
+        PlaceholderUse::Expr | PlaceholderUse::Stmt => quote!(Expr),
+        PlaceholderUse::Ident => quote!(Ident),
+        PlaceholderUse::IdentName => quote!(Ident),
+        PlaceholderUse::Type => quote!(TsType),
+    }
+}
+
+/// Builds an SWC identifier from an ident block's parts.
+fn compile_ident_block(parts: &[IdentPart]) -> TokenStream2 {
+    let mut stmts = TokenStream2::new();
+    let mut part_index = 0usize;
+
+    for part in parts {
+        match part {
+            IdentPart::Static(s) => {
+                stmts.extend(quote! {
+                    __mf_name.push_str(#s);
+                });
+            }
+            IdentPart::Interpolation { expr, .. } => {
+                let var =
+                    proc_macro2::Ident::new(&format!("__mf_part_{part_index}"), Span::call_site());
+                part_index += 1;
+                stmts.extend(quote! {
+                    let #var: swc_core::ecma::ast::Ident = #expr;
+                    __mf_name.push_str(&#var.sym.to_string());
+                });
+            }
+        }
+    }
+
+    quote! {
+        {
+            let mut __mf_name = String::new();
+            #stmts
+            swc_core::ecma::ast::Ident::new(__mf_name.into(), swc_core::common::DUMMY_SP)
+        }
+    }
+}
+
+/// Emits Rust code that injects a TsStream into the statement list.
+fn compile_ts_injection(
+    expr: &TokenStream2,
+    out_ident: &proc_macro2::Ident,
+    comments_ident: &proc_macro2::Ident,
+    pending_ident: &proc_macro2::Ident,
+) -> TokenStream2 {
+    quote! {
+        {
+            let mut __mf_stream = #expr;
+            __patches.extend(__mf_stream.runtime_patches.drain(..));
+            let __mf_source = __mf_stream.source().to_string();
+            let mut __mf_parser = macroforge_ts::ts_syn::TsStream::from_string(__mf_source);
+            let __mf_module: swc_core::ecma::ast::Module = __mf_parser.parse().expect("Failed to parse injected TsStream");
+            let mut __mf_first = true;
+            for __mf_item in __mf_module.body {
+                if let swc_core::ecma::ast::ModuleItem::Stmt(stmt) = __mf_item {
+                    if __mf_first {
+                        __mf_first = false;
+                        if !#pending_ident.is_empty() {
+                            use swc_core::common::comments::Comments;
+                            use swc_core::common::Spanned;
+                            let __mf_pos = stmt.span().lo();
+                            for __mf_comment in #pending_ident.drain(..) {
+                                #comments_ident.add_leading(__mf_pos, __mf_comment);
+                            }
+                        }
+                    }
+                    #out_ident.push(stmt);
+                }
+            }
+        }
+    }
+}
+
+/// Builds a SWC comment literal for the pending comment buffer.
+fn comment_expr(style: &CommentStyle, text: &str) -> TokenStream2 {
+    let mut content = text.trim().to_string();
+    let kind = match style {
+        CommentStyle::DocBlock => {
+            if !content.starts_with('*') {
+                content = format!("* {}", content.trim_start());
+            }
+            CommentKind::Block
+        }
+        CommentStyle::Block => {
+            if !content.starts_with(' ') {
+                content = format!(" {}", content.trim_start());
+            }
+            CommentKind::Block
+        }
+        CommentStyle::Line => {
+            if !content.starts_with(' ') {
+                content = format!(" {}", content.trim_start());
+            }
+            CommentKind::Line
+        }
+    };
+
+    content = content.trim_end().to_string();
+    if !matches!(kind, CommentKind::Line) && !content.ends_with(' ') {
+        content.push(' ');
+    }
+
+    let kind_tokens = match kind {
+        CommentKind::Line => quote!(swc_core::common::comments::CommentKind::Line),
+        CommentKind::Block => quote!(swc_core::common::comments::CommentKind::Block),
+    };
+    let text_lit = syn::LitStr::new(&content, Span::call_site());
+    quote! {
+        swc_core::common::comments::Comment {
+            kind: #kind_tokens,
+            span: swc_core::common::DUMMY_SP,
+            text: #text_lit.into(),
+        }
+    }
+}
+
+/// Builds a placeholder-only source string and placeholder ID map.
+enum PlaceholderSourceKind {
+    Module,
+    Expr,
+}
+
+/// Builds a placeholder-only source string and placeholder ID map.
+fn build_placeholder_source(
+    segments: &[Segment],
+    kind: PlaceholderSourceKind,
+) -> (String, HashMap<String, usize>) {
+    let mut src = String::new();
+    let mut map = HashMap::new();
+
+    for seg in segments {
+        match seg {
+            Segment::Static(s) => append_part(&mut src, s),
+            Segment::Comment { .. } => {}
+            Segment::Interpolation { id, .. }
+            | Segment::StringInterp { id, .. }
+            | Segment::TemplateInterp { id, .. }
+            | Segment::IdentBlock { id, .. }
+            | Segment::Control { id, .. }
+            | Segment::Typescript { id, .. } => {
+                let name = placeholder_name(*id);
+                append_part(&mut src, &name);
+                if matches!(kind, PlaceholderSourceKind::Module)
+                    && matches!(seg, Segment::Control { .. } | Segment::Typescript { .. })
+                {
+                    src.push(';');
+                }
+                map.insert(name, *id);
+            }
+            Segment::Let { .. } | Segment::Do { .. } => {
+                // Rust-only constructs are ignored for TS parsing.
+            }
+        }
+    }
+
+    (src, map)
+}
+
+/// Classifies placeholder usage by parsing the segments as a module.
+fn classify_placeholders_module(
+    segments: &[Segment],
+) -> syn::Result<HashMap<usize, PlaceholderUse>> {
+    let (source, map) = build_placeholder_source(segments, PlaceholderSourceKind::Module);
+    if source.trim().is_empty() {
+        return Ok(HashMap::new());
+    }
+    let module = parse_ts_module(&source)?;
+    let mut finder = PlaceholderFinder::new(map);
+    module.visit_with(&mut finder);
+    Ok(finder.into_map())
+}
+
+/// Classifies placeholder usage by parsing the segments as an expression.
+fn classify_placeholders_expr(segments: &[Segment]) -> syn::Result<HashMap<usize, PlaceholderUse>> {
+    let (source, map) = build_placeholder_source(segments, PlaceholderSourceKind::Expr);
+    if source.trim().is_empty() {
+        return Ok(HashMap::new());
+    }
+    let expr = parse_ts_expr(&source)?;
+    let mut finder = PlaceholderFinder::new(map);
+    expr.visit_with(&mut finder);
+    Ok(finder.into_map())
+}
+
+struct PlaceholderFinder {
+    ids: HashMap<String, usize>,
+    uses: HashMap<usize, PlaceholderUse>,
+}
+
+impl PlaceholderFinder {
+    /// Creates a placeholder finder from a placeholder name map.
+    fn new(ids: HashMap<String, usize>) -> Self {
+        Self {
+            ids,
+            uses: HashMap::new(),
+        }
+    }
+
+    /// Records a placeholder usage, keeping the most specific kind.
+    fn record(&mut self, name: &str, use_kind: PlaceholderUse) {
+        if let Some(id) = self.ids.get(name).copied() {
+            let entry = self.uses.entry(id).or_insert(use_kind.clone());
+            if use_rank(&use_kind) > use_rank(entry) {
+                *entry = use_kind;
+            }
+        }
+    }
+
+    /// Returns the collected placeholder usage map.
+    fn into_map(self) -> HashMap<usize, PlaceholderUse> {
+        self.uses
+    }
+}
+
+impl Visit for PlaceholderFinder {
+    fn visit_stmt(&mut self, stmt: &Stmt) {
+        if let Stmt::Expr(expr_stmt) = stmt {
+            if let Expr::Ident(ident) = &*expr_stmt.expr {
+                self.record(ident.sym.as_ref(), PlaceholderUse::Stmt);
+                return;
+            }
+        }
+        stmt.visit_children_with(self);
+    }
+
+    fn visit_expr(&mut self, expr: &Expr) {
+        if let Expr::Ident(ident) = expr {
+            self.record(ident.sym.as_ref(), PlaceholderUse::Expr);
+        }
+        expr.visit_children_with(self);
+    }
+
+    fn visit_member_prop(&mut self, prop: &MemberProp) {
+        if let MemberProp::Ident(ident) = prop {
+            self.record(ident.sym.as_ref(), PlaceholderUse::IdentName);
+        }
+        prop.visit_children_with(self);
+    }
+
+    fn visit_prop_name(&mut self, prop: &PropName) {
+        if let PropName::Ident(ident) = prop {
+            self.record(ident.sym.as_ref(), PlaceholderUse::IdentName);
+        }
+        prop.visit_children_with(self);
+    }
+
+    fn visit_labeled_stmt(&mut self, stmt: &LabeledStmt) {
+        self.record(stmt.label.sym.as_ref(), PlaceholderUse::Ident);
+        stmt.visit_children_with(self);
+    }
+
+    fn visit_pat(&mut self, pat: &Pat) {
+        if let Pat::Ident(binding) = pat {
+            self.record(binding.id.sym.as_ref(), PlaceholderUse::Ident);
+        }
+        pat.visit_children_with(self);
+    }
+
+    fn visit_ts_type_ref(&mut self, ty: &TsTypeRef) {
+        if let TsEntityName::Ident(ident) = &ty.type_name {
+            self.record(ident.sym.as_ref(), PlaceholderUse::Type);
+        }
+        ty.visit_children_with(self);
+    }
+}
+
+/// Assigns a precedence rank for placeholder usage kinds.
+fn use_rank(use_kind: &PlaceholderUse) -> usize {
+    match use_kind {
+        PlaceholderUse::Stmt => 5,
+        PlaceholderUse::Type => 4,
+        PlaceholderUse::Ident => 3,
+        PlaceholderUse::IdentName => 2,
+        PlaceholderUse::Expr => 1,
+    }
+}
+
+/// Parses a TypeScript module from a source string.
+fn parse_ts_module(source: &str) -> syn::Result<Module> {
+    let cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
+    let fm = cm.new_source_file(
+        FileName::Custom("template.ts".into()).into(),
+        source.to_string(),
+    );
+    let syntax = Syntax::Typescript(TsSyntax {
+        tsx: true,
+        decorators: true,
+        ..Default::default()
+    });
+    let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
+    let mut parser = Parser::new_from(lexer);
+    parser
+        .parse_module()
+        .map_err(|e| syn::Error::new(Span::call_site(), format!("TypeScript parse error: {e:?}")))
+}
+
+/// Parses a TypeScript module and returns its SourceMap for span lookups.
+fn parse_ts_module_with_source(source: &str) -> syn::Result<(Module, Lrc<SourceMap>)> {
+    let cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
+    let fm = cm.new_source_file(
+        FileName::Custom("template.ts".into()).into(),
+        source.to_string(),
+    );
+    let syntax = Syntax::Typescript(TsSyntax {
+        tsx: true,
+        decorators: true,
+        ..Default::default()
+    });
+    let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
+    let mut parser = Parser::new_from(lexer);
+    let module = parser.parse_module().map_err(|e| {
+        syn::Error::new(Span::call_site(), format!("TypeScript parse error: {e:?}"))
+    })?;
+    Ok((module, cm))
+}
+
+/// Parses a TypeScript expression from a source string.
+fn parse_ts_expr(source: &str) -> syn::Result<Box<Expr>> {
+    let cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
+    let fm = cm.new_source_file(
+        FileName::Custom("template.ts".into()).into(),
+        source.to_string(),
+    );
+    let syntax = Syntax::Typescript(TsSyntax {
+        tsx: true,
+        decorators: true,
+        ..Default::default()
+    });
+    let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
+    let mut parser = Parser::new_from(lexer);
+    parser
+        .parse_expr()
+        .map_err(|e| syn::Error::new(Span::call_site(), format!("TypeScript parse error: {e:?}")))
+}
+
+/// Builds a `swc_core::quote!` invocation with placeholder bindings.
+fn quote_ts(template: &str, output_type: TokenStream2, bindings: &[BindingSpec]) -> QuoteTsResult {
+    let mut final_template = template.to_string();
+    if output_type.to_string().contains("Expr") {
+        let trimmed = final_template.trim();
+        if trimmed.starts_with('{') && trimmed.ends_with('}') {
+            final_template = format!("({})", trimmed);
+        }
+    }
+
+    let lit = syn::LitStr::new(&final_template, Span::call_site());
+    let mut binding_inits = TokenStream2::new();
+    binding_inits.extend(quote! { use swc_core::ecma::ast::*; });
+
+    let mut quote_bindings = Vec::new();
+    for binding in bindings {
+        let name = &binding.name;
+        let ty = &binding.ty;
+        let expr = &binding.expr;
+        binding_inits.extend(quote! { let #name: #ty = #expr; });
+        quote_bindings.push(quote! { #name: #ty = #name.clone() });
+    }
+
+    let quote_call = if quote_bindings.is_empty() {
+        quote! { swc_core::quote!(#lit as #output_type) }
+    } else {
+        quote! { swc_core::quote!(#lit as #output_type, #(#quote_bindings),*) }
+    };
+
+    QuoteTsResult {
+        bindings: binding_inits,
+        expr: quote_call,
+    }
+}
+
+/// Appends a template part, inserting spaces between tokens when needed.
+fn append_part(out: &mut String, part: &str) {
+    if out.is_empty() {
+        out.push_str(part);
+        return;
+    }
+    let needs_space = !out
+        .chars()
+        .last()
+        .map(|c| c.is_whitespace())
+        .unwrap_or(true);
+    if needs_space {
+        out.push(' ');
+    }
+    out.push_str(part);
+}
+
+/// Converts a token stream into a TypeScript-like string.
+fn tokens_to_ts_string(tokens: TokenStream2) -> String {
+    let mut output = String::new();
+    let mut iter = tokens.into_iter().peekable();
+
+    while let Some(tt) = iter.next() {
+        match tt {
+            TokenTree::Group(g) => {
+                let inner = tokens_to_ts_string(g.stream());
+                let (open, close) = match g.delimiter() {
+                    Delimiter::Parenthesis => ("(", ")"),
+                    Delimiter::Brace => ("{", "}"),
+                    Delimiter::Bracket => ("[", "]"),
+                    Delimiter::None => ("", ""),
+                };
+                output.push_str(open);
+                output.push_str(&inner);
+                output.push_str(close);
+            }
+            TokenTree::Ident(ident) => {
+                output.push_str(&ident.to_string());
+                output.push(' ');
+            }
+            TokenTree::Punct(p) => {
+                output.push(p.as_char());
+                if p.spacing() == proc_macro2::Spacing::Alone {
+                    output.push(' ');
+                }
+            }
+            TokenTree::Literal(lit) => output.push_str(&lit.to_string()),
+        }
+    }
+
+    output
+}
+
+/// Classifies a brace-delimited group as a template tag or plain block.
 fn analyze_tag(g: &Group) -> TagType {
     let tokens: Vec<TokenTree> = g.stream().into_iter().collect();
 
-    // Check for {| ... |} ident block - must have at least | and |
     if tokens.len() >= 2
         && let (Some(TokenTree::Punct(first)), Some(TokenTree::Punct(last))) =
             (tokens.first(), tokens.last())
@@ -310,7 +1865,6 @@ fn analyze_tag(g: &Group) -> TagType {
         return TagType::IdentBlock;
     }
 
-    // Check for {>> "string" <<} doc comment - must have >> string <<
     if tokens.len() >= 5
         && let (Some(TokenTree::Punct(p1)), Some(TokenTree::Punct(p2))) =
             (tokens.first(), tokens.get(1))
@@ -321,29 +1875,24 @@ fn analyze_tag(g: &Group) -> TagType {
         && p3.as_char() == '<'
         && p4.as_char() == '<'
     {
-        // Extract the string literal in the middle
         if let Some(TokenTree::Literal(lit)) = tokens.get(2) {
             let content = extract_string_literal(lit);
             return TagType::DocComment(content);
         }
-        // Fallback: join remaining tokens as string (for backwards compat)
         let content = tokens_to_spaced_string(&tokens[2..tokens.len() - 2]);
         return TagType::DocComment(content);
     }
 
-    // Check for {> "string" <} block comment - must have > string <
     if tokens.len() >= 3
         && let (Some(TokenTree::Punct(first)), Some(TokenTree::Punct(last))) =
             (tokens.first(), tokens.last())
         && first.as_char() == '>'
         && last.as_char() == '<'
     {
-        // Extract the string literal in the middle
         if let Some(TokenTree::Literal(lit)) = tokens.get(1) {
             let content = extract_string_literal(lit);
             return TagType::BlockComment(content);
         }
-        // Fallback: join remaining tokens as string (for backwards compat)
         let content = tokens_to_spaced_string(&tokens[1..tokens.len() - 1]);
         return TagType::BlockComment(content);
     }
@@ -352,17 +1901,13 @@ fn analyze_tag(g: &Group) -> TagType {
         return TagType::Block;
     }
 
-    // Check for {# ...} tags
     if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
         && p.as_char() == '#'
     {
         if i == "if" {
-            // Check for {#if let pattern = expr}
             if let Some(TokenTree::Ident(let_kw)) = tokens.get(2)
                 && let_kw == "let"
             {
-                // Format: {#if let pattern = expr}
-                // Split on "=" to separate pattern from expression
                 let mut pattern = TokenStream2::new();
                 let mut expr = TokenStream2::new();
                 let mut seen_eq = false;
@@ -384,19 +1929,16 @@ fn analyze_tag(g: &Group) -> TagType {
                 return TagType::IfLet(pattern, expr);
             }
 
-            // Format: {#if condition}
             let cond: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::If(cond);
         }
 
         if i == "match" {
-            // Format: {#match expr}
             let expr: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::Match(expr);
         }
 
         if i == "while" {
-            // Check for {#while let pattern = expr}
             if let Some(TokenTree::Ident(let_kw)) = tokens.get(2)
                 && let_kw == "let"
             {
@@ -421,21 +1963,18 @@ fn analyze_tag(g: &Group) -> TagType {
                 return TagType::WhileLet(pattern, expr);
             }
 
-            // Simple {#while condition}
             let cond: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::While(cond);
         }
 
         if i == "for" {
-            // Format: {#for item in collection}
             let mut item = TokenStream2::new();
             let mut list = TokenStream2::new();
             let mut seen_in = false;
 
-            // Split on "in" keyword
             for t in tokens.iter().skip(2) {
-                if let TokenTree::Ident(id) = t
-                    && id == "in"
+                if let TokenTree::Ident(ident) = t
+                    && ident == "in"
                     && !seen_in
                 {
                     seen_in = true;
@@ -447,47 +1986,18 @@ fn analyze_tag(g: &Group) -> TagType {
                     t.to_tokens(&mut list);
                 }
             }
+
             return TagType::For(item, list);
         }
     }
 
-    // Check for {$ ...} tags (let, let mut, do, typescript)
-    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
-        && p.as_char() == '$'
-    {
-        if i == "let" {
-            // Check for {$let mut name = expr}
-            if let Some(TokenTree::Ident(mut_kw)) = tokens.get(2)
-                && mut_kw == "mut"
-            {
-                let body: TokenStream2 =
-                    tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
-                return TagType::LetMut(body);
-            }
-            // Format: {$let name = expr}
-            let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::Let(body);
-        }
-        if i == "do" {
-            // Format: {$do expr} - execute side-effectful expression
-            let expr: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::Do(expr);
-        }
-        if i == "typescript" {
-            // Format: {$typescript stream_expr}
-            let expr: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::Typescript(expr);
-        }
-    }
-
-    // Check for {: ...} tags (else, else if, case)
     if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
         && p.as_char() == ':'
     {
         if i == "else" {
-            // Check for {:else if condition}
-            if let Some(TokenTree::Ident(next)) = tokens.get(2)
-                && next == "if"
+            if tokens.len() >= 4
+                && let Some(TokenTree::Ident(if_kw)) = tokens.get(2)
+                && if_kw == "if"
             {
                 let cond: TokenStream2 =
                     tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
@@ -497,14 +2007,12 @@ fn analyze_tag(g: &Group) -> TagType {
         }
 
         if i == "case" {
-            // Format: {:case pattern}
             let pattern: TokenStream2 =
                 tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::Case(pattern);
         }
     }
 
-    // Check for {/ ...} (End tags)
     if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
         && p.as_char() == '/'
     {
@@ -522,1001 +2030,213 @@ fn analyze_tag(g: &Group) -> TagType {
         }
     }
 
+    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
+        && p.as_char() == '$'
+    {
+        if i == "let" {
+            let rest: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Let(rest);
+        }
+        if i == "do" {
+            let rest: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Do(rest);
+        }
+        if i == "typescript" {
+            let rest: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Typescript(rest);
+        }
+    }
+
     TagType::Block
 }
 
-/// Parses an if/else-if/else chain and generates the corresponding Rust code.
-///
-/// This function handles the complete parsing of a conditional block, including
-/// any `{:else}` or `{:else if}` continuations. It recursively processes
-/// else-if chains to support arbitrarily deep conditional nesting.
-///
-/// # Arguments
-///
-/// * `iter` - Mutable iterator over remaining template tokens
-/// * `initial_cond` - The condition expression from `{#if condition}`
-/// * `open_span` - Span of the opening `{#if}` tag for error reporting
-///
-/// # Returns
-///
-/// On success, returns Rust code that implements the conditional:
-///
-/// ```ignore
-/// if condition {
-///     // true block
-/// } else if other_condition {
-///     // else-if block
-/// } else {
-///     // else block
-/// }
-/// ```
-///
-/// # Errors
-///
-/// Returns an error if:
-/// - The `{#if}` block is never closed with `{/if}`
-/// - A `{:else}` block is opened but never closed
-///
-/// # State Machine
-///
-/// ```text
-/// {#if cond} -> parse true block -> {:else if} -> recurse
-///                                -> {:else}    -> parse else block -> {/if}
-///                                -> {/if}      -> done (no else)
-/// ```
-fn parse_if_chain(
-    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
-    initial_cond: TokenStream2,
-    open_span: Span,
-) -> syn::Result<TokenStream2> {
-    // Parse the true block, stopping at {:else}, {:else if}, or {/if}
-    let (true_block, terminator) = parse_fragment(
-        iter,
-        Some(&[
-            Terminator::Else,
-            Terminator::ElseIf(TokenStream2::new()),
-            Terminator::EndIf,
-        ]),
-    )?;
-
-    match terminator {
-        Some(Terminator::EndIf) => {
-            // Simple if without else
-            Ok(quote! {
-                if #initial_cond {
-                    #true_block
-                }
-            })
-        }
-        Some(Terminator::Else) => {
-            // if with else - parse else block until {/if}
-            let (else_block, terminator) = parse_fragment(iter, Some(&[Terminator::EndIf]))?;
-            if !matches!(terminator, Some(Terminator::EndIf)) {
-                return Err(template_error(
-                    open_span,
-                    "Unclosed {:else} block: Missing {/if}",
-                    Some("{:else}..."),
-                ));
-            }
-            Ok(quote! {
-                if #initial_cond {
-                    #true_block
-                } else {
-                    #else_block
-                }
-            })
-        }
-        Some(Terminator::ElseIf(else_if_cond)) => {
-            // if with else if - recursively parse the else-if chain
-            // For the recursive call, we should ideally find the span of the else-if tag.
-            // But keeping open_span is acceptable for now as it points to the start of the whole chain.
-            let else_if_chain = parse_if_chain(iter, else_if_cond, open_span)?;
-            Ok(quote! {
-                if #initial_cond {
-                    #true_block
-                } else {
-                    #else_if_chain
-                }
-            })
-        }
-        None => Err(template_error(
-            open_span,
-            "Unclosed {#if} block: Missing {/if}",
-            Some("{#if condition}..."),
-        )),
-        _ => unreachable!(),
-    }
-}
-
-/// Parses an if-let/else chain and generates the corresponding Rust code.
-///
-/// This function handles pattern-matching conditionals that use the
-/// `{#if let pattern = expr}` syntax. Unlike regular if chains, if-let
-/// does not support `{:else if}` continuations (only `{:else}`).
-///
-/// # Arguments
-///
-/// * `iter` - Mutable iterator over remaining template tokens
-/// * `pattern` - The destructuring pattern (e.g., `Some(value)`)
-/// * `expr` - The expression to match against
-/// * `open_span` - Span of the opening tag for error reporting
-///
-/// # Returns
-///
-/// On success, returns Rust code that implements the pattern match:
-///
-/// ```ignore
-/// if let pattern = expr {
-///     // body when pattern matches
-/// } else {
-///     // optional else body
-/// }
-/// ```
-///
-/// # Errors
-///
-/// Returns an error if:
-/// - The block is never closed with `{/if}`
-/// - A `{:else}` block is opened but never closed
-///
-/// # Example
-///
-/// ```text
-/// {#if let Some(name) = user.name}
-///     Hello, @{name}!
-/// {:else}
-///     Hello, anonymous!
-/// {/if}
-/// ```
-fn parse_if_let_chain(
-    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
-    pattern: TokenStream2,
-    expr: TokenStream2,
-    open_span: Span,
-) -> syn::Result<TokenStream2> {
-    // Parse the true block, stopping at {:else} or {/if}
-    let (true_block, terminator) =
-        parse_fragment(iter, Some(&[Terminator::Else, Terminator::EndIf]))?;
-
-    match terminator {
-        Some(Terminator::EndIf) => {
-            // Simple if let without else
-            Ok(quote! {
-                if let #pattern = #expr {
-                    #true_block
-                }
-            })
-        }
-        Some(Terminator::Else) => {
-            // if let with else - parse else block until {/if}
-            let (else_block, terminator) = parse_fragment(iter, Some(&[Terminator::EndIf]))?;
-            if !matches!(terminator, Some(Terminator::EndIf)) {
-                return Err(template_error(
-                    open_span,
-                    "Unclosed {:else} block in {#if let}: Missing {/if}",
-                    Some("{#if let pattern = expr}{:else}..."),
-                ));
-            }
-            Ok(quote! {
-                if let #pattern = #expr {
-                    #true_block
-                } else {
-                    #else_block
-                }
-            })
-        }
-        None => Err(template_error(
-            open_span,
-            "Unclosed {#if let} block: Missing {/if}",
-            Some("{#if let pattern = expr}..."),
-        )),
-        _ => unreachable!(),
-    }
-}
-
-/// Parses a while loop and generates the corresponding Rust code.
-///
-/// This function handles `{#while condition}...{/while}` blocks, generating
-/// a Rust while loop that conditionally produces template output.
-///
-/// # Arguments
-///
-/// * `iter` - Mutable iterator over remaining template tokens
-/// * `cond` - The loop condition expression
-/// * `open_span` - Span of the opening tag for error reporting
-///
-/// # Returns
-///
-/// On success, returns Rust code:
-///
-/// ```ignore
-/// while condition {
-///     // loop body (string building code)
-/// }
-/// ```
-///
-/// # Errors
-///
-/// Returns an error if the block is never closed with `{/while}`.
-///
-/// # Example
-///
-/// ```text
-/// {$let mut i = 0}
-/// {#while i < 3}
-///     Item @{i}
-///     {$do i += 1}
-/// {/while}
-/// ```
-fn parse_while_loop(
-    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
-    cond: TokenStream2,
-    open_span: Span,
-) -> syn::Result<TokenStream2> {
-    let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndWhile]))?;
-
-    if !matches!(terminator, Some(Terminator::EndWhile)) {
-        return Err(template_error(
-            open_span,
-            "Unclosed {#while} block: Missing {/while}",
-            Some("{#while condition}..."),
-        ));
+/// Parses the contents of an ident block into static and interpolated parts.
+fn parse_ident_block_parts(g: &Group) -> syn::Result<Vec<IdentPart>> {
+    let mut tokens: Vec<TokenTree> = g.stream().into_iter().collect();
+    if tokens.len() >= 2 {
+        tokens.remove(0);
+        tokens.pop();
     }
 
-    Ok(quote! {
-        while #cond {
-            #body
-        }
-    })
-}
+    let mut parts = Vec::new();
+    let mut current = String::new();
+    let mut iter = tokens.into_iter().peekable();
 
-/// Parses a while-let loop and generates the corresponding Rust code.
-///
-/// This function handles `{#while let pattern = expr}...{/while}` blocks,
-/// generating a Rust while-let loop that iterates while a pattern matches.
-///
-/// # Arguments
-///
-/// * `iter` - Mutable iterator over remaining template tokens
-/// * `pattern` - The destructuring pattern to match
-/// * `expr` - The expression to match against each iteration
-/// * `open_span` - Span of the opening tag for error reporting
-///
-/// # Returns
-///
-/// On success, returns Rust code:
-///
-/// ```ignore
-/// while let pattern = expr {
-///     // loop body (string building code)
-/// }
-/// ```
-///
-/// # Errors
-///
-/// Returns an error if the block is never closed with `{/while}`.
-///
-/// # Example
-///
-/// ```text
-/// {#while let Some(item) = iter.next()}
-///     Processing @{item}
-/// {/while}
-/// ```
-fn parse_while_let_loop(
-    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
-    pattern: TokenStream2,
-    expr: TokenStream2,
-    open_span: Span,
-) -> syn::Result<TokenStream2> {
-    let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndWhile]))?;
-
-    if !matches!(terminator, Some(Terminator::EndWhile)) {
-        return Err(template_error(
-            open_span,
-            "Unclosed {#while let} block: Missing {/while}",
-            Some("{#while let pattern = expr}..."),
-        ));
-    }
-
-    Ok(quote! {
-        while let #pattern = #expr {
-            #body
-        }
-    })
-}
-
-/// Parses a match expression with case arms and generates the corresponding Rust code.
-///
-/// This function handles `{#match expr}{:case pattern}...{/match}` blocks,
-/// generating a Rust match expression with multiple arms. Each `{:case pattern}`
-/// starts a new arm.
-///
-/// # Arguments
-///
-/// * `iter` - Mutable iterator over remaining template tokens
-/// * `match_expr` - The expression being matched against
-/// * `open_span` - Span of the opening tag for error reporting
-///
-/// # Returns
-///
-/// On success, returns Rust code:
-///
-/// ```ignore
-/// match expr {
-///     pattern1 => {
-///         // body1 (string building code)
-///     }
-///     pattern2 => {
-///         // body2 (string building code)
-///     }
-///     // ...
-/// }
-/// ```
-///
-/// # Errors
-///
-/// Returns an error if the block is never closed with `{/match}`.
-///
-/// # Example
-///
-/// ```text
-/// {#match status}
-///     {:case "active"}
-///         Status: Active
-///     {:case "pending"}
-///         Status: Pending
-///     {:case _}
-///         Status: Unknown
-/// {/match}
-/// ```
-///
-/// # Note
-///
-/// Content before the first `{:case}` is ignored. Each arm's body consists
-/// of all content between its `{:case}` tag and the next `{:case}` or `{/match}`.
-fn parse_match_arms(
-    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
-    match_expr: TokenStream2,
-    open_span: Span,
-) -> syn::Result<TokenStream2> {
-    let mut arms = TokenStream2::new();
-    let mut current_pattern: Option<TokenStream2> = None;
-
-    loop {
-        // Parse until we hit {:case} or {/match}
-        let (body, terminator) = parse_fragment(
-            iter,
-            Some(&[Terminator::Case(TokenStream2::new()), Terminator::EndMatch]),
-        )?;
-
-        match terminator {
-            Some(Terminator::Case(pattern)) => {
-                // If we have a previous pattern, emit its arm with the body we just parsed
-                if let Some(prev_pattern) = current_pattern.take() {
-                    arms.extend(quote! {
-                        #prev_pattern => {
-                            #body
-                        }
-                    });
-                }
-                // Store this pattern for the next iteration
-                current_pattern = Some(pattern);
-            }
-            Some(Terminator::EndMatch) => {
-                // Emit the final arm if we have one
-                if let Some(prev_pattern) = current_pattern.take() {
-                    arms.extend(quote! {
-                        #prev_pattern => {
-                            #body
-                        }
-                    });
-                }
-                break;
-            }
-            None => {
-                return Err(template_error(
-                    open_span,
-                    "Unclosed {#match} block: Missing {/match}",
-                    Some("{#match expr}{:case pattern}...{/match}"),
-                ));
-            }
-            _ => unreachable!(),
-        }
-    }
-
-    Ok(quote! {
-        match #match_expr {
-            #arms
-        }
-    })
-}
-
-/// Parses tokens without adding spaces between them.
-///
-/// This is a specialized parser for `{| ... |}` ident blocks where tokens
-/// should be concatenated without any whitespace. This is essential for
-/// building compound identifiers or strings from multiple parts.
-///
-/// # Arguments
-///
-/// * `iter` - Mutable iterator over the tokens inside the ident block
-///
-/// # Returns
-///
-/// Rust code that builds a string by concatenating all tokens without spaces.
-///
-/// # Differences from `parse_fragment`
-///
-/// - No automatic spacing between tokens
-/// - No handling of control flow tags (they would break ident generation)
-/// - Simplified interpolation handling (just `@{expr}`)
-///
-/// # Example
-///
-/// ```text
-/// {| get @{field_name} |}
-/// // Produces: "getfieldName" (if field_name = "fieldName")
-/// // NOT: "get fieldName " (with spaces)
-/// ```
-fn parse_fragment_no_spacing(
-    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
-) -> syn::Result<TokenStream2> {
-    let mut buffer = LiteralBuffer::new();
-
-    while let Some(token) = iter.peek().cloned() {
-        match &token {
-            // Handle @{ expr } interpolation
+    while let Some(tt) = iter.next() {
+        match tt {
             TokenTree::Punct(p) if p.as_char() == '@' => {
-                iter.next(); // Consume '@'
-
-                let is_group = matches!(iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace);
-
-                if is_group {
-                    if let Some(TokenTree::Group(g)) = iter.next() {
-                        let content = g.stream();
-                        buffer.push_stream(quote! {
-                            __out.push_str(&#content.to_string());
-                        });
-                    }
-                } else {
-                    buffer.push_str("@");
-                }
-            }
-
-            // Handle nested groups (but not ident blocks - those are already consumed)
-            TokenTree::Group(g) => {
-                iter.next();
-                let (open, close) = match g.delimiter() {
-                    Delimiter::Parenthesis => ("(", ")"),
-                    Delimiter::Bracket => ("[", "]"),
-                    Delimiter::Brace => ("{", "}"),
-                    Delimiter::None => ("", ""),
-                };
-                buffer.push_str(open);
-                let inner = parse_fragment_no_spacing(&mut g.stream().into_iter().peekable())?;
-                buffer.push_stream(inner);
-                buffer.push_str(close);
-            }
-
-            // All other tokens - just emit, no spacing
-            _ => {
-                let t = iter.next().unwrap();
-                let s = t.to_string();
-                buffer.push_str(&s);
-                // NO space added - that's the point of ident blocks
-            }
-        }
-    }
-
-    Ok(buffer.into_stream())
-}
-
-/// Main recursive parser that processes template tokens and generates string-building code.
-///
-/// This is the core parsing function that walks through template tokens, generating
-/// Rust code that builds the output string at runtime. It handles all template
-/// syntax including interpolation, control flow, and special blocks.
-///
-/// # Arguments
-///
-/// * `iter` - Mutable iterator over template tokens to process
-/// * `stop_at` - Optional list of terminators that should cause this function to return.
-///   Used by control flow parsers to stop at `{:else}`, `{/if}`, etc.
-///
-/// # Returns
-///
-/// A tuple of:
-/// 1. Rust code that builds the string (appends to `__out`)
-/// 2. The terminator that caused parsing to stop, or `None` if EOF was reached
-///
-/// # Processing Cases
-///
-/// The function handles tokens in this order of priority:
-///
-/// 1. **Interpolation** (`@{expr}`) - Calls `expr.to_string()` and appends
-/// 2. **Brace groups** (`{...}`) - Analyzed via [`analyze_tag`]:
-///    - Control flow tags spawn sub-parsers
-///    - Terminators cause early return
-///    - Plain blocks are recursively processed
-/// 3. **Other groups** (`(...)`, `[...]`) - Recursively processed
-/// 4. **Backtick templates** (`"'^...^'"`) - Processed for `@{}` interpolation
-/// 5. **String literals** - Checked for `@{}` interpolation
-/// 6. **Plain tokens** - Appended with intelligent spacing
-///
-/// # Spacing Logic
-///
-/// The parser adds spaces between tokens following these rules:
-/// - Space after identifiers (unless followed by punctuation or groups)
-/// - No space after `.`, `!`, `(`, `[`, `{`, `<`, `>`, `@`, `$`
-/// - No space before `)`, `]`, `}`, `>`, `.`, `,`, `;`
-/// - Joint punctuation (like `::`) stays together
-///
-/// For explicit no-space concatenation, use `{| ... |}` ident blocks.
-fn parse_fragment(
-    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
-    stop_at: Option<&[Terminator]>,
-) -> syn::Result<(TokenStream2, Option<Terminator>)> {
-    let mut buffer = LiteralBuffer::new();
-
-    while let Some(token) = iter.peek().cloned() {
-        match &token {
-            // Case 1: Interpolation @{ expr }
-            TokenTree::Punct(p) if p.as_char() == '@' => {
-                // Check if the NEXT token is a Group { ... }
-                let p_clone = p.clone();
-                iter.next(); // Consume '@'
-
-                // Look ahead
-                let is_group = matches!(iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace);
-
-                if is_group {
-                    // It IS interpolation: @{ expr }
-                    if let Some(TokenTree::Group(g)) = iter.next() {
-                        let content = g.stream();
-                        buffer.push_stream(quote! {
-                            __out.push_str(&#content.to_string());
-                        });
-                    }
-                } else {
-                    // It is just a literal '@'
-                    let s = p_clone.to_string();
-                    buffer.push_str(&s);
-                }
-
-                // Spacing logic after interpolation: always add space unless followed by punctuation
-                // Use {| |} for explicit no-space concatenation
-                let next = iter.peek();
-                let next_char = match next {
-                    Some(TokenTree::Punct(p)) => Some(p.as_char()),
-                    _ => None,
-                };
-
-                let mut add_space = true;
-
-                // No space at end of stream (group delimiter like ) will follow)
-                if next.is_none() {
-                    add_space = false;
-                }
-
-                // No space before punctuation
-                if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
-                    add_space = false;
-                }
-
-                // No space before ( or [ groups (function calls, indexing)
-                if let Some(TokenTree::Group(g)) = next {
-                    match g.delimiter() {
-                        Delimiter::Parenthesis | Delimiter::Bracket => add_space = false,
-                        _ => {}
-                    }
-                }
-
-                // No space if followed by @{ interpolation (for @{a}@{b} patterns)
-                if let Some(TokenTree::Punct(p)) = next
-                    && p.as_char() == '@'
+                if let Some(TokenTree::Group(g)) = iter.peek()
+                    && g.delimiter() == Delimiter::Brace
                 {
-                    // Peek ahead to check if it's @{ (interpolation)
-                    let mut peek_iter = iter.clone();
-                    peek_iter.next(); // skip the @
-                    if matches!(peek_iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace)
-                    {
-                        add_space = false;
+                    if !current.is_empty() {
+                        parts.push(IdentPart::Static(std::mem::take(&mut current)));
                     }
-                }
-
-                if add_space {
-                    buffer.push_str(" ");
-                }
-            }
-
-            // Case 2: Groups { ... } - Could be Tag or Block
-            TokenTree::Group(g) if g.delimiter() == Delimiter::Brace => {
-                let tag = analyze_tag(g);
-                let span = g.span();
-
-                match tag {
-                    TagType::If(cond) => {
-                        iter.next(); // Consume {#if}
-                        buffer.push_stream(parse_if_chain(iter, cond, span)?);
-                    }
-                    TagType::IfLet(pattern, expr) => {
-                        iter.next(); // Consume {#if let}
-                        buffer.push_stream(parse_if_let_chain(iter, pattern, expr, span)?);
-                    }
-                    TagType::For(item, list) => {
-                        iter.next(); // Consume {#for}
-
-                        let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndFor]))?;
-                        if !matches!(terminator, Some(Terminator::EndFor)) {
-                            return Err(template_error(
-                                span,
-                                "Unclosed {#for} block: Missing {/for}",
-                                Some("{#for item in collection}..."),
-                            ));
-                        }
-
-                        buffer.push_stream(quote! {
-                            for #item in #list {
-                                #body
-                            }
-                        });
-                    }
-                    TagType::Match(expr) => {
-                        iter.next(); // Consume {#match}
-                        buffer.push_stream(parse_match_arms(iter, expr, span)?);
-                    }
-                    TagType::While(cond) => {
-                        iter.next(); // Consume {#while}
-                        buffer.push_stream(parse_while_loop(iter, cond, span)?);
-                    }
-                    TagType::WhileLet(pattern, expr) => {
-                        iter.next(); // Consume {#while let}
-                        buffer.push_stream(parse_while_let_loop(iter, pattern, expr, span)?);
-                    }
-                    TagType::Else => {
-                        if let Some(stops) = stop_at
-                            && stops.iter().any(|s| matches!(s, Terminator::Else))
-                        {
-                            iter.next(); // Consume
-                            return Ok((buffer.into_stream(), Some(Terminator::Else)));
-                        }
-                        return Err(template_error(
-                            span,
-                            "Unexpected {:else} - not inside an {#if} block",
-                            None,
-                        ));
-                    }
-                    TagType::ElseIf(cond) => {
-                        if let Some(stops) = stop_at
-                            && stops.iter().any(|s| matches!(s, Terminator::ElseIf(_)))
-                        {
-                            iter.next(); // Consume
-                            return Ok((buffer.into_stream(), Some(Terminator::ElseIf(cond))));
-                        }
-                        return Err(template_error(
-                            span,
-                            "Unexpected {:else if} - not inside an {#if} block",
-                            None,
-                        ));
-                    }
-                    TagType::EndIf => {
-                        if let Some(stops) = stop_at
-                            && stops.iter().any(|s| matches!(s, Terminator::EndIf))
-                        {
-                            iter.next(); // Consume
-                            return Ok((buffer.into_stream(), Some(Terminator::EndIf)));
-                        }
-                        return Err(template_error(
-                            span,
-                            "Unexpected {/if} - no matching {#if} block",
-                            None,
-                        ));
-                    }
-                    TagType::EndFor => {
-                        if let Some(stops) = stop_at
-                            && stops.iter().any(|s| matches!(s, Terminator::EndFor))
-                        {
-                            iter.next(); // Consume
-                            return Ok((buffer.into_stream(), Some(Terminator::EndFor)));
-                        }
-                        return Err(template_error(
-                            span,
-                            "Unexpected {/for} - no matching {#for} block",
-                            None,
-                        ));
-                    }
-                    TagType::EndWhile => {
-                        if let Some(stops) = stop_at
-                            && stops.iter().any(|s| matches!(s, Terminator::EndWhile))
-                        {
-                            iter.next(); // Consume
-                            return Ok((buffer.into_stream(), Some(Terminator::EndWhile)));
-                        }
-                        return Err(template_error(
-                            span,
-                            "Unexpected {/while} - no matching {#while} block",
-                            None,
-                        ));
-                    }
-                    TagType::Case(pattern) => {
-                        if let Some(stops) = stop_at
-                            && stops.iter().any(|s| matches!(s, Terminator::Case(_)))
-                        {
-                            iter.next(); // Consume
-                            return Ok((buffer.into_stream(), Some(Terminator::Case(pattern))));
-                        }
-                        return Err(template_error(
-                            span,
-                            "Unexpected {:case} - not inside a {#match} block",
-                            None,
-                        ));
-                    }
-                    TagType::EndMatch => {
-                        if let Some(stops) = stop_at
-                            && stops.iter().any(|s| matches!(s, Terminator::EndMatch))
-                        {
-                            iter.next(); // Consume
-                            return Ok((buffer.into_stream(), Some(Terminator::EndMatch)));
-                        }
-                        return Err(template_error(
-                            span,
-                            "Unexpected {/match} - no matching {#match} block",
-                            None,
-                        ));
-                    }
-                    TagType::Let(body) => {
-                        iter.next(); // Consume {$let ...}
-                        buffer.push_stream(quote! {
-                            let #body;
-                        });
-                    }
-                    TagType::LetMut(body) => {
-                        iter.next(); // Consume {$let mut ...}
-                        buffer.push_stream(quote! {
-                            let mut #body;
-                        });
-                    }
-                    TagType::Do(expr) => {
-                        iter.next(); // Consume {$do ...}
-                        buffer.push_stream(quote! {
-                            #expr;
-                        });
-                    }
-                    TagType::Typescript(expr) => {
-                        iter.next(); // Consume {$typescript ...}
-                        buffer.push_stream(quote! {
-                            {
-                                let __ts_stream = #expr;
-                                __out.push_str(__ts_stream.source());
-                                __patches.extend(__ts_stream.runtime_patches);
-                            }
-                        });
-                    }
-                    TagType::IdentBlock => {
-                        iter.next(); // Consume {| ... |}
-
-                        // Get the content between the | markers
-                        let inner_tokens: Vec<TokenTree> = g.stream().into_iter().collect();
-                        // Skip first | and last |, extract content in between
-                        if inner_tokens.len() >= 2 {
-                            let content: TokenStream2 = inner_tokens[1..inner_tokens.len() - 1]
-                                .iter()
-                                .map(|t| t.to_token_stream())
-                                .collect();
-
-                            // Parse with no-spacing mode
-                            let inner_output =
-                                parse_fragment_no_spacing(&mut content.into_iter().peekable())?;
-                            buffer.push_stream(inner_output);
-                        }
-
-                        // Spacing logic after ident block - same as @{} interpolation
-                        // Add space unless followed by punctuation or function call
-                        let next = iter.peek();
-                        let next_char = match next {
-                            Some(TokenTree::Punct(p)) => Some(p.as_char()),
-                            _ => None,
-                        };
-
-                        let mut add_space = true;
-
-                        // No space at end of stream
-                        if next.is_none() {
-                            add_space = false;
-                        }
-
-                        // No space before punctuation
-                        if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
-                            add_space = false;
-                        }
-
-                        // No space before ( or [ groups (function calls, indexing)
-                        if let Some(TokenTree::Group(g)) = next {
-                            match g.delimiter() {
-                                Delimiter::Parenthesis | Delimiter::Bracket => add_space = false,
-                                _ => {}
-                            }
-                        }
-
-                        // No space if followed by @{ interpolation (for {|a|}@{b} concatenation)
-                        if let Some(TokenTree::Punct(p)) = next
-                            && p.as_char() == '@'
-                        {
-                            // Peek ahead to check if it's @{ (interpolation)
-                            let mut peek_iter = iter.clone();
-                            peek_iter.next(); // skip the @
-                            if matches!(peek_iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace)
-                            {
-                                add_space = false;
-                            }
-                        }
-
-                        if add_space {
-                            buffer.push_str(" ");
-                        }
-                    }
-                    TagType::BlockComment(content) => {
-                        iter.next(); // Consume {> "..." <}
-                        buffer.push_str("/* ");
-                        buffer.push_str(&content);
-                        buffer.push_str(" */");
-                    }
-                    TagType::DocComment(content) => {
-                        iter.next(); // Consume {>> "..." <<}
-                        buffer.push_str("/** ");
-                        buffer.push_str(&content);
-                        buffer.push_str(" */");
-                    }
-                    TagType::Block => {
-                        // Regular TS Block { ... }
-                        // Recurse to allow macros inside standard TS objects
-                        iter.next(); // Consume
-                        let inner_stream = g.stream();
-
-                        buffer.push_str("{");
-                        let (inner_parsed, _) =
-                            parse_fragment(&mut inner_stream.into_iter().peekable(), None)?;
-                        buffer.push_stream(inner_parsed);
-                        buffer.push_str("}");
-                    }
+                    let g = match iter.next() {
+                        Some(TokenTree::Group(group)) => group,
+                        _ => continue,
+                    };
+                    parts.push(IdentPart::Interpolation {
+                        expr: g.stream(),
+                        span: g.span(),
+                    });
+                } else {
+                    current.push('@');
                 }
             }
-
-            // Case 3: Other groups (parentheses, brackets)
             TokenTree::Group(g) => {
-                iter.next();
-                let (open, close) = match g.delimiter() {
-                    Delimiter::Parenthesis => ("(", ")"),
-                    Delimiter::Bracket => ("[", "]"),
-                    Delimiter::Brace => ("{", "}"), // Shouldn't reach here
-                    Delimiter::None => ("", ""),
-                };
-
-                buffer.push_str(open);
-                let (inner_parsed, _) =
-                    parse_fragment(&mut g.stream().into_iter().peekable(), None)?;
-                buffer.push_stream(inner_parsed);
-                buffer.push_str(close);
+                current.push_str(&group_to_string(&g));
             }
-
-            // Case 4a: Backtick template literals "'^...^'" -> `...`
-            TokenTree::Literal(lit) if is_backtick_template(lit) => {
-                iter.next(); // Consume
-                let processed = process_backtick_template(lit)?;
-                buffer.push_stream(processed);
-                buffer.push_str(" ");
-            }
-
-            // Case 4b: String literals with interpolation
-            TokenTree::Literal(lit) if is_string_literal(lit) => {
-                iter.next(); // Consume
-                let interpolated = interpolate_string_literal(lit)?;
-                buffer.push_stream(interpolated);
-                buffer.push_str(" ");
-            }
-
-            // Case 5: Plain Text
-            _ => {
-                let t = iter.next().unwrap();
-                let s = t.to_string();
-
-                // Analyze current token
-                let is_ident = matches!(&t, TokenTree::Ident(_));
-                let punct_char = if let TokenTree::Punct(p) = &t {
-                    Some(p.as_char())
-                } else {
-                    None
-                };
-                let is_joint = if let TokenTree::Punct(p) = &t {
-                    p.spacing() == proc_macro2::Spacing::Joint
-                } else {
-                    false
-                };
-
-                // Analyze next token
-                let next = iter.peek();
-                let next_char = match next {
-                    Some(TokenTree::Punct(p)) => Some(p.as_char()),
-                    _ => None,
-                };
-
-                // Emit token string
-                buffer.push_str(&s);
-
-                // Decide whether to append a space
-                // Simplified: always add space unless followed by punctuation
-                // Use {| |} for explicit no-space concatenation
-                let mut add_space = true;
-
-                // No space at end of stream (group delimiter like ) will follow)
-                if next.is_none() || is_joint {
-                    add_space = false;
-                } else if is_ident {
-                    // Identifiers need space, EXCEPT when followed by punctuation or groups
-                    if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
-                        add_space = false;
-                    } else if let Some(TokenTree::Group(g)) = next {
-                        match g.delimiter() {
-                            Delimiter::Parenthesis | Delimiter::Bracket => add_space = false,
-                            _ => {}
-                        }
-                    }
-                    // Always add space before @ interpolation (use {| |} for concatenation)
-                } else if let Some(c) = punct_char {
-                    // Punctuation specific rules
-                    match c {
-                        '.' => add_space = false,             // obj.prop
-                        '!' => add_space = false,             // !unary or non-null!
-                        '(' | '[' | '{' => add_space = false, // Openers: (expr)
-                        '<' | '>' => add_space = false, // Generics: Type<T> or T>(...) (compact)
-                        '@' => add_space = false,       // Decorator: @Dec
-                        '$' => add_space = false,       // Svelte runes: $state, $derived
-                        _ => {}
-                    }
-
-                    // Never add space if next is a closing delimiter or separator
-                    if matches!(next_char, Some(nc) if ".,;)]}>".contains(nc)) {
-                        add_space = false;
-                    }
-                } else {
-                    // Groups/Literals
-                    // Prevent space if next is punctuation like . , ; ) ] >
-                    if matches!(next_char, Some(nc) if ".,;)]}>".contains(nc)) {
-                        add_space = false;
-                    }
-                }
-
-                if add_space {
-                    buffer.push_str(" ");
-                }
-            }
+            TokenTree::Ident(ident) => current.push_str(&ident.to_string()),
+            TokenTree::Punct(p) => current.push(p.as_char()),
+            TokenTree::Literal(lit) => current.push_str(&lit.to_string()),
         }
     }
 
-    Ok((buffer.into_stream(), None))
+    if !current.is_empty() {
+        parts.push(IdentPart::Static(current));
+    }
+
+    Ok(parts)
 }
 
-/// Converts a slice of tokens to a space-separated string.
-///
-/// This is a simple utility for converting token sequences to strings
-/// when the exact formatting doesn't matter (e.g., for fallback content
-/// in comment blocks).
-///
-/// # Arguments
-///
-/// * `tokens` - Slice of tokens to convert
-///
-/// # Returns
-///
-/// A string with each token separated by a single space.
-///
-/// # Example
-///
-/// ```ignore
-/// let tokens = vec![ident("hello"), punct(','), ident("world")];
-/// assert_eq!(tokens_to_spaced_string(&tokens), "hello , world");
-/// ```
+/// Extracts the string literal from a `#[doc = "..."]` attribute group.
+fn parse_doc_attribute(g: &Group) -> Option<String> {
+    let tokens: Vec<TokenTree> = g.stream().into_iter().collect();
+    if tokens.len() < 3 {
+        return None;
+    }
+    if let (TokenTree::Ident(ident), TokenTree::Punct(eq), TokenTree::Literal(lit)) =
+        (&tokens[0], &tokens[1], &tokens[2])
+    {
+        if ident == "doc" && eq.as_char() == '=' {
+            return Some(extract_string_literal(lit));
+        }
+    }
+    None
+}
+
+/// Renders a group token into a string, preserving delimiters.
+fn group_to_string(g: &Group) -> String {
+    let inner = tokens_to_ts_string(g.stream());
+    let (open, close) = match g.delimiter() {
+        Delimiter::Parenthesis => ("(", ")"),
+        Delimiter::Brace => ("{", "}"),
+        Delimiter::Bracket => ("[", "]"),
+        Delimiter::None => ("", ""),
+    };
+    format!("{}{}{}", open, inner, close)
+}
+
+/// Builds an SWC expression from an interpolated string literal.
+fn build_string_interp_expr(parts: &[StringPart], id: usize) -> TokenStream2 {
+    let mut template = String::new();
+    let mut bindings = Vec::new();
+    let mut expr_index = 0usize;
+
+    template.push('`');
+    for part in parts {
+        match part {
+            StringPart::Text(text) => {
+                template.push_str(&escape_tpl_segment(text));
+            }
+            StringPart::Expr(expr) => {
+                let name = format!("__mf_str_{id}_{expr_index}");
+                expr_index += 1;
+                template.push_str("${$");
+                template.push_str(&name);
+                template.push('}');
+                let ident = proc_macro2::Ident::new(&name, Span::call_site());
+                bindings.push(BindingSpec {
+                    name: ident,
+                    ty: quote!(Expr),
+                    expr: quote! { macroforge_ts::ts_syn::to_ts_expr(#expr) },
+                });
+            }
+        }
+    }
+    template.push('`');
+
+    let quote_ts = quote_ts(&template, quote!(Expr), &bindings);
+    let QuoteTsResult { bindings, expr } = quote_ts;
+    quote! {{
+        #bindings
+        #expr
+    }}
+}
+
+/// Builds an SWC expression from a backtick template literal.
+fn build_template_interp_expr(parts: &[StringPart], id: usize) -> TokenStream2 {
+    let mut template = String::new();
+    let mut bindings = Vec::new();
+    let mut expr_index = 0usize;
+
+    template.push('`');
+    for part in parts {
+        match part {
+            StringPart::Text(text) => {
+                template.push_str(&escape_tpl_segment_allow_dollar(text));
+            }
+            StringPart::Expr(expr) => {
+                let name = format!("__mf_tpl_{id}_{expr_index}");
+                expr_index += 1;
+                template.push_str("${$");
+                template.push_str(&name);
+                template.push('}');
+                let ident = proc_macro2::Ident::new(&name, Span::call_site());
+                bindings.push(BindingSpec {
+                    name: ident,
+                    ty: quote!(Expr),
+                    expr: quote! { macroforge_ts::ts_syn::to_ts_expr(#expr) },
+                });
+            }
+        }
+    }
+    template.push('`');
+
+    let quote_ts = quote_ts(&template, quote!(Expr), &bindings);
+    let QuoteTsResult { bindings, expr } = quote_ts;
+    quote! {{
+        #bindings
+        #expr
+    }}
+}
+
+/// Escapes a template segment while preserving `${...}` interpolation markers.
+fn escape_tpl_segment(input: &str) -> String {
+    let mut out = String::new();
+    let mut chars = input.chars().peekable();
+    while let Some(c) = chars.next() {
+        match c {
+            '`' => out.push_str("\\`"),
+            '\\' => out.push_str("\\\\"),
+            '$' => {
+                if matches!(chars.peek(), Some('{')) {
+                    chars.next();
+                    out.push_str("\\${");
+                } else {
+                    out.push('$');
+                }
+            }
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// Escapes a template segment without touching dollar signs.
+fn escape_tpl_segment_allow_dollar(input: &str) -> String {
+    let mut out = String::new();
+    for c in input.chars() {
+        match c {
+            '`' => out.push_str("\\`"),
+            '\\' => out.push_str("\\\\"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// Joins tokens into a space-separated string.
 fn tokens_to_spaced_string(tokens: &[TokenTree]) -> String {
     let mut result = String::new();
     for (i, token) in tokens.iter().enumerate() {
@@ -1528,210 +2248,25 @@ fn tokens_to_spaced_string(tokens: &[TokenTree]) -> String {
     result
 }
 
-/// Extracts the inner content from a string literal, removing quotes and unescaping.
-///
-/// This function handles multiple string literal formats:
-/// - Regular strings: `"hello"` → `hello`
-/// - Raw strings: `r"hello"` → `hello`
-/// - Raw strings with hashes: `r#"hello"#` → `hello`
-///
-/// # Arguments
-///
-/// * `lit` - The string literal token to extract from
-///
-/// # Returns
-///
-/// The unquoted and unescaped string content.
-///
-/// # Processing
-///
-/// For regular strings, escape sequences are processed via [`unescape_string`]:
-/// - `\n` → newline
-/// - `\t` → tab
-/// - `\"` → quote
-/// - etc.
-///
-/// Raw strings are returned verbatim (no escape processing needed).
-fn extract_string_literal(lit: &proc_macro2::Literal) -> String {
-    let s = lit.to_string();
-    // Handle regular strings "..."
-    if s.starts_with('"') && s.ends_with('"') && s.len() >= 2 {
-        // Unescape the string content
-        let inner = &s[1..s.len() - 1];
-        return unescape_string(inner);
-    }
-    // Handle raw strings r"..." or r#"..."#
-    if s.starts_with("r\"") && s.ends_with('"') {
-        return s[2..s.len() - 1].to_string();
-    }
-    if s.starts_with("r#\"") && s.ends_with("\"#") {
-        return s[3..s.len() - 2].to_string();
-    }
-    // Fallback: return as-is
-    s
-}
-
-/// Unescapes common escape sequences in a string.
-///
-/// This function processes backslash escape sequences commonly found in
-/// string literals, converting them to their actual character representations.
-///
-/// # Arguments
-///
-/// * `s` - The string with potential escape sequences
-///
-/// # Returns
-///
-/// The string with escape sequences replaced by their actual characters.
-///
-/// # Supported Escapes
-///
-/// | Escape | Result |
-/// |--------|--------|
-/// | `\n` | Newline |
-/// | `\r` | Carriage return |
-/// | `\t` | Tab |
-/// | `\\` | Backslash |
-/// | `\"` | Double quote |
-/// | `\'` | Single quote |
-///
-/// Unknown escape sequences are preserved as-is (e.g., `\x` becomes `\x`).
-fn unescape_string(s: &str) -> String {
-    let mut result = String::new();
-    let mut chars = s.chars().peekable();
-    while let Some(c) = chars.next() {
-        if c == '\\' {
-            match chars.next() {
-                Some('n') => result.push('\n'),
-                Some('r') => result.push('\r'),
-                Some('t') => result.push('\t'),
-                Some('\\') => result.push('\\'),
-                Some('"') => result.push('"'),
-                Some('\'') => result.push('\''),
-                Some(other) => {
-                    result.push('\\');
-                    result.push(other);
-                }
-                None => result.push('\\'),
-            }
-        } else {
-            result.push(c);
-        }
-    }
-    result
-}
-
-/// Checks if a literal token represents a string literal.
-///
-/// This function identifies various string literal formats in Rust:
-/// - Double-quoted strings: `"hello"`
-/// - Single-quoted strings: `'c'` (char literals, treated as strings here)
-/// - Raw strings: `r"hello"` or `r#"hello"#`
-///
-/// # Arguments
-///
-/// * `lit` - The literal token to check
-///
-/// # Returns
-///
-/// `true` if the literal is a string-like literal that may contain
-/// interpolation patterns (`@{expr}`), `false` otherwise.
-fn is_string_literal(lit: &proc_macro2::Literal) -> bool {
-    let s = lit.to_string();
-    s.starts_with('"') || s.starts_with('\'') || s.starts_with("r\"") || s.starts_with("r#")
-}
-
-/// Checks if a literal is a backtick template literal marker.
-///
-/// The syntax `"'^...^'"` is used to generate JavaScript template literals
-/// with backticks. This allows embedding JS `${...}` interpolation while
-/// also supporting Rust `@{...}` interpolation.
-///
-/// # Arguments
-///
-/// * `lit` - The literal token to check
-///
-/// # Returns
-///
-/// `true` if the literal matches the backtick template pattern:
-/// - `"'^content^'"` - Regular string with markers
-/// - `r"'^content^'"` - Raw string with markers
-/// - `r#"'^content^'"#` - Raw string with hashes
-///
-/// # Example
-///
-/// ```text
-/// "'^Hello ${name}^'"   -> `Hello ${name}`
-/// "'^<@{tag}>^'"        -> `<div>` (if tag = "div")
-/// ```
-fn is_backtick_template(lit: &proc_macro2::Literal) -> bool {
-    let s = lit.to_string();
-    // Check for "'^...^'" pattern (the outer quotes are part of the Rust string)
-    if s.starts_with("\"'^") && s.ends_with("^'\"") && s.len() >= 6 {
-        return true;
-    }
-    // Also support raw strings: r"'^...^'" or r#"'^...^'"#
-    if s.starts_with("r\"'^") && s.ends_with("^'\"") {
-        return true;
-    }
-    if s.starts_with("r#\"'^") && s.ends_with("^'\"#") {
-        return true;
-    }
-    false
-}
-
-/// Processes a backtick template literal and generates string-building code.
-///
-/// This function transforms the `"'^...^'"` syntax into JavaScript template
-/// literals (backticks). It handles both JavaScript `${...}` interpolation
-/// (passed through) and Rust `@{expr}` interpolation (evaluated at runtime).
-///
-/// # Arguments
-///
-/// * `lit` - The literal token containing the backtick template
-///
-/// # Returns
-///
-/// Rust code that builds the template literal string, wrapped in backticks.
-///
-/// # Processing
-///
-/// 1. Extracts content between `'^` and `^'` markers
-/// 2. Outputs opening backtick
-/// 3. Scans for `@{...}` patterns and generates interpolation code
-/// 4. Handles `@@` escape for literal `@`
-/// 5. Passes through `${...}` as-is for JS runtime interpolation
-/// 6. Outputs closing backtick
-///
-/// # Errors
-///
-/// Returns an error if:
-/// - Control flow tags (`{#...}`, `{/...}`, `{:...}`) are found inside
-/// - `@{...}` interpolation is unclosed
-/// - Expression inside `@{...}` cannot be parsed
-///
-/// # Example
-///
-/// ```text
-/// Input:  "'^<@{tag}>${content}</@{tag}>^'"
-/// Output: `<div>${content}</div>` (if tag = "div")
-/// ```
-fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStream2> {
+/// Parses a backtick template literal encoded as a Rust string literal.
+fn parse_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<Option<Vec<StringPart>>> {
     let raw = lit.to_string();
     let span = lit.span();
 
-    // Extract content between '^...^' markers
-    let content = if raw.starts_with("\"'^") && raw.ends_with("^'\"") {
-        &raw[3..raw.len() - 3]
+    let content = if raw.starts_with("\"'^") && raw.ends_with("^'\"") && raw.len() >= 6 {
+        Some(raw[3..raw.len() - 3].to_string())
     } else if raw.starts_with("r\"'^") && raw.ends_with("^'\"") {
-        &raw[4..raw.len() - 3]
+        Some(raw[4..raw.len() - 3].to_string())
     } else if raw.starts_with("r#\"'^") && raw.ends_with("^'\"#") {
-        &raw[5..raw.len() - 4]
+        Some(raw[5..raw.len() - 4].to_string())
     } else {
-        return Ok(quote! { __out.push_str(#raw); });
+        None
     };
 
-    // Check for common mistakes: control flow tags inside template strings
+    let Some(content) = content else {
+        return Ok(None);
+    };
+
     if content.contains("{#") || content.contains("{/") || content.contains("{:") {
         return Err(template_error(
             span,
@@ -1743,50 +2278,30 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
         ));
     }
 
-    // Check if there are any @{} interpolations or @@ escapes
-    if !content.contains('@') {
-        // No @ at all, output the backtick string as-is
-        // The content may contain ${} for JS interpolation, which passes through
-        let mut buffer = LiteralBuffer::new();
-        buffer.push_str("`");
-        buffer.push_str(content);
-        buffer.push_str("`");
-        return Ok(buffer.into_stream());
-    }
-
-    // Handle @{} Rust interpolations and @@ escapes within the backtick template
-    let mut buffer = LiteralBuffer::new();
-    buffer.push_str("`");
-
+    let mut parts = Vec::new();
     let mut chars = content.chars().peekable();
-    let mut current_literal = String::new();
+    let mut current = String::new();
     let mut char_pos = 0usize;
 
     while let Some(c) = chars.next() {
         char_pos += 1;
         if c == '@' {
             match chars.peek() {
-                Some(&'@') => {
-                    // @@ -> literal @
-                    chars.next(); // Consume second @
+                Some('@') => {
+                    chars.next();
                     char_pos += 1;
-                    current_literal.push('@');
+                    current.push('@');
                 }
-                Some(&'{') => {
-                    // @{ -> interpolation
-                    // Flush current literal
-                    if !current_literal.is_empty() {
-                        buffer.push_str(&current_literal);
-                        current_literal.clear();
+                Some('{') => {
+                    chars.next();
+                    char_pos += 1;
+                    if !current.is_empty() {
+                        parts.push(StringPart::Text(std::mem::take(&mut current)));
                     }
 
-                    chars.next(); // Consume '{'
-                    char_pos += 1;
-                    let expr_start_pos = char_pos;
-
-                    // Collect expression until matching '}'
                     let mut expr_str = String::new();
                     let mut brace_depth = 1;
+                    let expr_start_pos = char_pos;
 
                     for ec in chars.by_ref() {
                         char_pos += 1;
@@ -1804,7 +2319,6 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
                         }
                     }
 
-                    // Check for unclosed brace
                     if brace_depth != 0 {
                         return Err(template_error(
                             span,
@@ -1816,18 +2330,13 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
                         ));
                     }
 
-                    // Parse the expression and generate interpolation code
                     match syn::parse_str::<syn::Expr>(&expr_str) {
-                        Ok(expr) => {
-                            buffer.push_stream(quote! {
-                                __out.push_str(&#expr.to_string());
-                            });
-                        }
+                        Ok(expr) => parts.push(StringPart::Expr(expr.to_token_stream())),
                         Err(parse_err) => {
                             return Err(template_error(
                                 span,
                                 &format!(
-                                    "Invalid Rust expression in backtick template interpolation: {}",
+                                    "Invalid Rust expression in template literal interpolation: {}",
                                     parse_err
                                 ),
                                 Some(&format!("@{{{}}}", expr_str)),
@@ -1835,92 +2344,37 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
                         }
                     }
                 }
-                _ => {
-                    // Just a literal @
-                    current_literal.push('@');
-                }
+                _ => current.push('@'),
             }
         } else {
-            current_literal.push(c);
+            current.push(c);
         }
     }
 
-    // Flush remaining literal
-    if !current_literal.is_empty() {
-        buffer.push_str(&current_literal);
+    if !current.is_empty() {
+        parts.push(StringPart::Text(current));
     }
 
-    buffer.push_str("`");
-    Ok(buffer.into_stream())
+    Ok(Some(parts))
 }
 
-/// Processes a string literal and handles `@{expr}` interpolations inside it.
-///
-/// This function allows Rust expressions to be interpolated within string
-/// literals in the template. It generates code that builds the string at
-/// runtime, inserting evaluated expressions where `@{...}` patterns appear.
-///
-/// # Arguments
-///
-/// * `lit` - The string literal token to process
-///
-/// # Returns
-///
-/// Rust code that builds the string with interpolated values.
-///
-/// # Processing
-///
-/// 1. Determines quote character (`"` or `'`) and extracts content
-/// 2. If no `@` is present, outputs the literal unchanged
-/// 3. Otherwise, scans for `@{...}` patterns:
-///    - `@{expr}` → evaluates `expr.to_string()` and inserts result
-///    - `@@` → outputs literal `@` (escape sequence)
-///    - Lone `@` → outputs literal `@`
-/// 4. Preserves escape sequences (`\n`, `\t`, etc.) by passing through
-///
-/// # Errors
-///
-/// Returns an error if:
-/// - Control flow tags are found inside the string (not supported)
-/// - `@{...}` interpolation is unclosed
-/// - Expression inside `@{...}` cannot be parsed
-///
-/// # Example
-///
-/// ```text
-/// Input:  "Hello @{name}, you have @{count} messages"
-/// Output: "Hello Alice, you have 5 messages" (at runtime)
-/// ```
-fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenStream2> {
+/// Parses a normal string literal that may contain `@{}` interpolations.
+fn parse_string_interpolation(lit: &proc_macro2::Literal) -> syn::Result<Option<Vec<StringPart>>> {
     let raw = lit.to_string();
     let span = lit.span();
 
-    // Determine quote character and extract content
-    let (quote_char, content) = if raw.starts_with('"') {
-        ('"', &raw[1..raw.len() - 1])
-    } else if raw.starts_with('\'') {
-        ('\'', &raw[1..raw.len() - 1])
-    } else if raw.starts_with("r\"") {
-        // Raw string r"..."
-        ('"', &raw[2..raw.len() - 1])
-    } else if raw.starts_with("r#") {
-        // Raw string r#"..."# - find the actual content
-        let hash_count = raw[1..].chars().take_while(|&c| c == '#').count();
-        let start = 2 + hash_count; // r + # + "
-        let end = raw.len() - 1 - hash_count; // " + #
-        ('"', &raw[start..end])
+    let content = if raw.starts_with('"') && raw.ends_with('"') && raw.len() >= 2 {
+        extract_string_literal(lit)
+    } else if raw.starts_with("r\"") || raw.starts_with("r#") {
+        extract_string_literal(lit)
     } else {
-        // Not a string we recognize, just output as-is
-        return Ok(quote! { __out.push_str(#raw); });
+        return Ok(None);
     };
 
-    // Check if there are any interpolations or escapes
     if !content.contains('@') {
-        // No @ at all, output the string as-is
-        return Ok(quote! { __out.push_str(#raw); });
+        return Ok(None);
     }
 
-    // Check for common mistakes: control flow tags inside strings
     if content.contains("{#") || content.contains("{/") || content.contains("{:") {
         return Err(template_error(
             span,
@@ -1932,40 +2386,31 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenSt
         ));
     }
 
-    // Parse and interpolate
-    let mut buffer = LiteralBuffer::new();
-    let quote_str = quote_char.to_string();
-    buffer.push_str(&quote_str);
-
+    let mut parts = Vec::new();
     let mut chars = content.chars().peekable();
-    let mut current_literal = String::new();
+    let mut current = String::new();
     let mut char_pos = 0usize;
+    let mut has_expr = false;
 
     while let Some(c) = chars.next() {
         char_pos += 1;
         if c == '@' {
             match chars.peek() {
-                Some(&'@') => {
-                    // @@ -> literal @
-                    chars.next(); // Consume second @
+                Some('@') => {
+                    chars.next();
                     char_pos += 1;
-                    current_literal.push('@');
+                    current.push('@');
                 }
-                Some(&'{') => {
-                    // @{ -> interpolation
-                    // Flush current literal
-                    if !current_literal.is_empty() {
-                        buffer.push_str(&current_literal);
-                        current_literal.clear();
+                Some('{') => {
+                    chars.next();
+                    char_pos += 1;
+                    if !current.is_empty() {
+                        parts.push(StringPart::Text(std::mem::take(&mut current)));
                     }
 
-                    chars.next(); // Consume '{'
-                    char_pos += 1;
-                    let expr_start_pos = char_pos;
-
-                    // Collect expression until matching '}'
                     let mut expr_str = String::new();
                     let mut brace_depth = 1;
+                    let expr_start_pos = char_pos;
 
                     for ec in chars.by_ref() {
                         char_pos += 1;
@@ -1983,7 +2428,6 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenSt
                         }
                     }
 
-                    // Check for unclosed brace
                     if brace_depth != 0 {
                         return Err(template_error(
                             span,
@@ -1995,12 +2439,10 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenSt
                         ));
                     }
 
-                    // Parse the expression and generate interpolation code
                     match syn::parse_str::<syn::Expr>(&expr_str) {
                         Ok(expr) => {
-                            buffer.push_stream(quote! {
-                                __out.push_str(&#expr.to_string());
-                            });
+                            has_expr = true;
+                            parts.push(StringPart::Expr(expr.to_token_stream()));
                         }
                         Err(parse_err) => {
                             return Err(template_error(
@@ -2014,29 +2456,68 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenSt
                         }
                     }
                 }
-                _ => {
-                    // Just a literal @
-                    current_literal.push('@');
-                }
-            }
-        } else if c == '\\' {
-            // Handle escape sequences - pass through as-is
-            current_literal.push(c);
-            if chars.peek().is_some() {
-                current_literal.push(chars.next().unwrap());
-                char_pos += 1;
+                _ => current.push('@'),
             }
         } else {
-            current_literal.push(c);
+            current.push(c);
         }
     }
 
-    // Flush remaining literal
-    if !current_literal.is_empty() {
-        buffer.push_str(&current_literal);
+    if !current.is_empty() {
+        parts.push(StringPart::Text(current));
     }
 
-    buffer.push_str(&quote_str);
+    if !has_expr {
+        if let Some(StringPart::Text(text)) = parts.get(0) {
+            if parts.len() == 1 && text == &content {
+                return Ok(None);
+            }
+        }
+    }
 
-    Ok(buffer.into_stream())
+    Ok(Some(parts))
+}
+
+/// Extracts and unescapes the contents of a Rust string literal token.
+fn extract_string_literal(lit: &proc_macro2::Literal) -> String {
+    let s = lit.to_string();
+    if s.starts_with('"') && s.ends_with('"') && s.len() >= 2 {
+        let inner = &s[1..s.len() - 1];
+        return unescape_string(inner);
+    }
+    if s.starts_with("r\"") && s.ends_with("\"") {
+        return s[2..s.len() - 1].to_string();
+    }
+    if s.starts_with("r#\"") {
+        if let Some(idx) = s.rfind("\"") {
+            return s[3..idx].to_string();
+        }
+    }
+    s
+}
+
+/// Performs a minimal unescape pass for Rust string literal escapes.
+fn unescape_string(s: &str) -> String {
+    let mut result = String::new();
+    let mut chars = s.chars();
+    while let Some(c) = chars.next() {
+        if c != '\\' {
+            result.push(c);
+            continue;
+        }
+        match chars.next() {
+            Some('n') => result.push('\n'),
+            Some('t') => result.push('\t'),
+            Some('r') => result.push('\r'),
+            Some('0') => result.push('\0'),
+            Some('"') => result.push('"'),
+            Some('\\') => result.push('\\'),
+            Some(other) => {
+                result.push('\\');
+                result.push(other);
+            }
+            None => result.push('\\'),
+        }
+    }
+    result
 }

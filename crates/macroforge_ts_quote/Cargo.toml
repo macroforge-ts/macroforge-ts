@@ -19,3 +19,9 @@ proc-macro2 = "1.0.95"
 quote = "1.0.40"
 syn = { version = "2.0.104", features = ["full"] }
 convert_case = "0.6"
+swc_core = { version = "51.0.0", default-features = false, features = [
+  "common",
+  "ecma_ast",
+  "ecma_parser",
+  "ecma_visit",
+] }

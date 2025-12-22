@@ -646,8 +646,9 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
 /// # Syntax
 ///
 /// - `@{expr}` - Interpolate expressions (converts to string)
-/// - `{> "comment" <}` - Block comment: outputs `/* comment */` (string preserves whitespace)
-/// - `{>> "doc" <<}` - Doc comment: outputs `/** doc */` (string preserves whitespace)
+/// - `{> "comment" <}` - Line comment: outputs `// comment` (string preserves whitespace)
+/// - `{>> "comment" <<}` - Block comment: outputs `/* comment */` (string preserves whitespace)
+/// - `///` or `/** */` - Rust doc comments in the template emit JSDoc blocks (`/** ... */`)
 /// - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
 /// - `"'^template ${js}^'"` - JS backtick template literal (outputs `` `template ${js}` ``)
 /// - `{#if cond}...{/if}` - Conditional blocks
@@ -691,17 +692,38 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
 pub fn ts_template(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
 
-    // Parse the template to generate string-building code
-    // parse_template returns a tuple: (String, Vec<Patch>)
+    // Parse the template to generate AST-building code
+    // parse_template returns a tuple: (Vec<Stmt>, Vec<Patch>)
     let template_builder = match template::parse_template(input) {
         Ok(s) => s,
         Err(e) => return e.to_compile_error().into(),
     };
 
-    // Wrap in code that builds string and collects patches
+    // Wrap in code that builds AST, emits TypeScript, and collects patches
     let output = quote::quote! {
         {
-            let (__ts_code, __collected_patches) = #template_builder;
+            let (__stmts, __collected_patches, __comments) = #template_builder;
+            let __ts_code = {
+                let __module = swc_core::ecma::ast::Module {
+                    span: swc_core::common::DUMMY_SP,
+                    body: __stmts.into_iter().map(swc_core::ecma::ast::ModuleItem::Stmt).collect(),
+                    shebang: None,
+                };
+                let __cm = swc_core::common::sync::Lrc::new(swc_core::common::SourceMap::default());
+                let mut __buf = Vec::new();
+                {
+                    use swc_core::ecma::codegen::{text_writer::JsWriter, Emitter};
+                    let mut __writer = JsWriter::new(__cm.clone(), "\n", &mut __buf, None);
+                    let mut __emitter = Emitter {
+                        cfg: swc_core::ecma::codegen::Config::default(),
+                        cm: __cm.clone(),
+                        comments: Some(&__comments),
+                        wr: __writer,
+                    };
+                    __emitter.emit_module(&__module).expect("Failed to emit TypeScript");
+                }
+                String::from_utf8(__buf).expect("Failed to convert TypeScript output to UTF-8")
+            };
             let mut __stream = macroforge_ts::ts_syn::TsStream::from_string(__ts_code);
             __stream.runtime_patches = __collected_patches;
             __stream
@@ -877,13 +899,34 @@ fn generate_scoped_template(input: TokenStream2, marker: &str) -> TokenStream {
         Err(e) => return e.to_compile_error().into(),
     };
 
-    // parse_template now returns a tuple: (String, Vec<Patch>)
+    // parse_template now returns a tuple: (Vec<Stmt>, Vec<Patch>)
     // We destructure it and set runtime_patches on the resulting TsStream
 
     let output = quote::quote! {
         {
+            let (__stmts, __collected_patches, __comments) = #template_builder;
+            let __content = {
+                let __module = swc_core::ecma::ast::Module {
+                    span: swc_core::common::DUMMY_SP,
+                    body: __stmts.into_iter().map(swc_core::ecma::ast::ModuleItem::Stmt).collect(),
+                    shebang: None,
+                };
+                let __cm = swc_core::common::sync::Lrc::new(swc_core::common::SourceMap::default());
+                let mut __buf = Vec::new();
+                {
+                    use swc_core::ecma::codegen::{text_writer::JsWriter, Emitter};
+                    let mut __writer = JsWriter::new(__cm.clone(), "\n", &mut __buf, None);
+                    let mut __emitter = Emitter {
+                        cfg: swc_core::ecma::codegen::Config::default(),
+                        cm: __cm.clone(),
+                        comments: Some(&__comments),
+                        wr: __writer,
+                    };
+                    __emitter.emit_module(&__module).expect("Failed to emit TypeScript");
+                }
+                String::from_utf8(__buf).expect("Failed to convert TypeScript output to UTF-8")
+            };
             let mut __ts_code = String::from(#marker);
-            let (__content, __collected_patches) = #template_builder;
             __ts_code.push_str(&__content);
             let mut __stream = macroforge_ts::ts_syn::TsStream::from_string(__ts_code);
             __stream.runtime_patches = __collected_patches;
