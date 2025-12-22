@@ -25,7 +25,7 @@
 //! Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 
 use proc_macro2::{Delimiter, Group, Span, TokenStream as TokenStream2, TokenTree};
-use quote::{ToTokens, quote};
+use quote::{ToTokens, format_ident, quote};
 use std::collections::{HashMap, HashSet};
 use std::iter::Peekable;
 
@@ -540,8 +540,8 @@ fn parse_segments(
                     }
                     TagType::Block => {
                         // Regular brace group (function body, object literal, etc.)
-                        // Recursively parse with full control flow support.
-                        // Use BraceBlock segment to keep the structure atomic.
+                        // Recursively parse to detect interpolations inside.
+                        // Control flow is still allowed at the parent level.
                         iter.next();
                         flush_static(&mut segments, &mut static_tokens);
 
@@ -549,21 +549,18 @@ fn parse_segments(
                             &mut g.stream().into_iter().peekable(),
                             None,
                             ids,
-                            false, // Full parsing with control flow support
+                            false, // Full parsing - control flow is handled at correct level
                         )?;
 
-                        // Check if there are any dynamic segments (interpolations, control flow, etc.)
+                        // Check if there are any dynamic segments
                         let has_dynamic =
                             inner_segments.iter().any(|s| !matches!(s, Segment::Static(_)));
 
                         if has_dynamic {
-                            // Use BraceBlock to keep inner segments nested (not flattened)
-                            let id = ids.next();
-                            segments.push(Segment::BraceBlock {
-                                id,
-                                inner: inner_segments,
-                                span,
-                            });
+                            // Wrap in braces and add segments
+                            segments.push(Segment::Static("{".to_string()));
+                            segments.extend(inner_segments);
+                            segments.push(Segment::Static("}".to_string()));
                         } else {
                             // No dynamic content, just add the whole group as static
                             static_tokens.extend(TokenStream2::from(token.clone()));
@@ -1108,11 +1105,15 @@ fn compile_stmt_control(
 /// Compiles expression-level segments into a single SWC expression.
 fn compile_expr_segments(segments: &[Segment]) -> syn::Result<TokenStream2> {
     let context_map = classify_placeholders_expr(segments)?;
-    let (template, bindings) = build_template_and_bindings(segments, &context_map)?;
+    let template_result = build_template_and_bindings(segments, &context_map)?;
     let ident_name_ids = collect_ident_name_ids(segments.iter(), &context_map);
-    let quote_ts = quote_ts(&template, quote!(Expr), &bindings);
+    let quote_ts = quote_ts(&template_result.template, quote!(Expr), &template_result.bindings);
     let QuoteTsResult { bindings, expr } = quote_ts;
-    if ident_name_ids.is_empty() {
+
+    // Generate type placeholder fix if there are any
+    let type_fix = generate_type_placeholder_fix(&template_result.type_placeholders);
+
+    if ident_name_ids.is_empty() && type_fix.is_empty() {
         Ok(quote! {{
             #bindings
             #expr
@@ -1124,6 +1125,7 @@ fn compile_expr_segments(segments: &[Segment]) -> syn::Result<TokenStream2> {
             #bindings
             let mut #expr_ident = #expr;
             #fix_block
+            #type_fix
             #expr_ident
         }})
     }
@@ -1213,13 +1215,16 @@ fn flush_stmt_run(
     pending_ident: &proc_macro2::Ident,
     pos_ident: &proc_macro2::Ident,
 ) -> syn::Result<TokenStream2> {
-    let (template, bindings) = build_template_and_bindings(run.iter().copied(), context_map)?;
-    if template.trim().is_empty() {
+    let template_result = build_template_and_bindings(run.iter().copied(), context_map)?;
+    if template_result.template.trim().is_empty() {
         return Ok(TokenStream2::new());
     }
     let ident_name_ids = collect_ident_name_ids(run.iter().copied(), context_map);
     let ident_name_fix =
         ident_name_fix_block(&proc_macro2::Ident::new("__mf_stmt", Span::call_site()), &ident_name_ids);
+
+    // Generate type placeholder fix for replacing __MfTypeN with actual types
+    let type_fix = generate_type_placeholder_fix(&template_result.type_placeholders);
 
     // Collect BraceBlocks that need block substitution
     let block_compilations = collect_block_compilations(
@@ -1230,8 +1235,212 @@ fn flush_stmt_run(
         pos_ident,
     )?;
 
-    let (module, cm) = parse_ts_module_with_source(&template)?;
     let mut output = TokenStream2::new();
+
+    // If we have type placeholders, use runtime parsing with full TypeScript support.
+    // This is needed because SWC's quote! macro doesn't support $placeholder in type positions.
+    if !template_result.type_placeholders.is_empty() {
+        let template_str = syn::LitStr::new(&template_result.template, Span::call_site());
+
+        // Generate binding initializations
+        let mut binding_inits = TokenStream2::new();
+        for binding in &template_result.bindings {
+            let name = &binding.name;
+            let ty = &binding.ty;
+            let expr = &binding.expr;
+            binding_inits.extend(quote! { let #name: #ty = #expr; });
+        }
+
+        // Generate type placeholder initializations
+        for tp in &template_result.type_placeholders {
+            let field_name = format_ident!("__mf_type_{}", tp.id);
+            let expr = &tp.expr;
+            binding_inits.extend(quote! { let #field_name: String = (#expr).to_string(); });
+        }
+
+        // Generate visitor struct fields
+        let mut visitor_fields = Vec::new();
+        let mut visitor_inits = Vec::new();
+
+        // Ident substitution fields
+        for binding in &template_result.bindings {
+            let name = &binding.name;
+            let placeholder = name.to_string();
+            let field_name = format_ident!("binding_{}", name);
+            let ty = &binding.ty;
+            visitor_fields.push(quote! { #field_name: #ty });
+            visitor_inits.push(quote! { #field_name: #name.clone() });
+        }
+
+        // Type substitution fields
+        for tp in &template_result.type_placeholders {
+            let field_name = format_ident!("__mf_type_{}", tp.id);
+            visitor_fields.push(quote! { #field_name: String });
+            visitor_inits.push(quote! { #field_name: #field_name.clone() });
+        }
+
+        // Generate ident match arms - only for Ident-typed bindings (not Expr)
+        // Template uses $__mf_hole_N format, which in TypeScript parses as ident with sym="$__mf_hole_N"
+        let ident_arms: Vec<_> = template_result.bindings.iter()
+            .filter(|binding| binding.ty.to_string() == "Ident")
+            .map(|binding| {
+                let name = &binding.name;
+                // Include $ prefix since template uses $__mf_hole_N format
+                let placeholder = format!("${}", name.to_string());
+                let field_name = format_ident!("binding_{}", name);
+                quote! {
+                    #placeholder => {
+                        ident.sym = self.#field_name.sym.clone();
+                    }
+                }
+            }).collect();
+
+        // Generate expr match arms - for Expr-typed bindings
+        // When the placeholder appears as an expression (e.g., function name), replace the entire expr
+        let expr_arms: Vec<_> = template_result.bindings.iter()
+            .filter(|binding| binding.ty.to_string() == "Expr")
+            .map(|binding| {
+                let name = &binding.name;
+                // Include $ prefix since template uses $__mf_hole_N format
+                let placeholder = format!("${}", name.to_string());
+                let field_name = format_ident!("binding_{}", name);
+                quote! {
+                    #placeholder => Some(self.#field_name.clone()),
+                }
+            }).collect();
+
+        // Use swc_core directly - macroforge_ts has it as a direct dependency
+        // just like macroforge_ts_syn's macros (ident!, fn_expr!, etc.) do
+        let swc_core_path = quote!(swc_core);
+
+        // Generate type match arms
+        // Uses types from `use #swc_core_path::ecma::ast::*;` and common imports
+        let type_arms: Vec<_> = template_result.type_placeholders.iter().map(|tp| {
+            let marker = format!("__MfTypeMarker{}", tp.id);
+            let field_name = format_ident!("__mf_type_{}", tp.id);
+            let swc_path = &swc_core_path;
+            quote! {
+                #marker => {
+                    *ty = TsType::TsTypeRef(TsTypeRef {
+                        span: #swc_path::common::DUMMY_SP,
+                        type_name: TsEntityName::Ident(Ident::new(
+                            self.#field_name.clone().into(),
+                            #swc_path::common::DUMMY_SP,
+                            Default::default(),
+                        )),
+                        type_params: None,
+                    });
+                }
+            }
+        }).collect();
+        output.extend(quote! {{
+            #binding_inits
+            use #swc_core_path::common::{FileName, SourceMap, sync::Lrc};
+            use #swc_core_path::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+            use #swc_core_path::ecma::visit::{VisitMut, VisitMutWith};
+            use #swc_core_path::ecma::ast::*;
+
+            let __mf_cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
+            let __mf_fm = __mf_cm.new_source_file(
+                FileName::Custom("template.ts".into()).into(),
+                #template_str.to_string(),
+            );
+            let __mf_syntax = Syntax::Typescript(TsSyntax {
+                tsx: true,
+                decorators: true,
+                ..Default::default()
+            });
+            let __mf_lexer = Lexer::new(__mf_syntax, EsVersion::latest(), StringInput::from(&*__mf_fm), None);
+            let mut __mf_parser = Parser::new_from(__mf_lexer);
+            let __mf_module = __mf_parser.parse_module().expect("Failed to parse TypeScript template");
+
+            struct __MfSubstitutor {
+                #(#visitor_fields,)*
+            }
+
+            impl VisitMut for __MfSubstitutor {
+                fn visit_mut_ident(&mut self, ident: &mut Ident) {
+                    let name = ident.sym.as_ref();
+                    match name {
+                        #(#ident_arms)*
+                        _ => {}
+                    }
+                }
+
+                fn visit_mut_expr(&mut self, expr: &mut Expr) {
+                    // First check if this is an ident placeholder that should be replaced
+                    let replacement = if let Expr::Ident(ident) = &*expr {
+                        match ident.sym.as_ref() {
+                            #(#expr_arms)*
+                            _ => None
+                        }
+                    } else {
+                        None
+                    };
+                    // Apply replacement if found, otherwise continue visiting children
+                    if let Some(new_expr) = replacement {
+                        *expr = new_expr;
+                    } else {
+                        expr.visit_mut_children_with(self);
+                    }
+                }
+
+                fn visit_mut_ts_type(&mut self, ty: &mut TsType) {
+                    if let TsType::TsTypeRef(type_ref) = ty {
+                        if let TsEntityName::Ident(ident) = &type_ref.type_name {
+                            match ident.sym.as_ref() {
+                                #(#type_arms)*
+                                _ => {}
+                            }
+                        }
+                    }
+                    ty.visit_mut_children_with(self);
+                }
+            }
+
+            let mut __mf_substitutor = __MfSubstitutor {
+                #(#visitor_inits,)*
+            };
+
+            for __mf_item in __mf_module.body {
+                let mut __mf_stmt = match __mf_item {
+                    ModuleItem::Stmt(s) => s,
+                    ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export)) => Stmt::Decl(export.decl),
+                    _ => continue,
+                };
+
+                __mf_stmt.visit_mut_with(&mut __mf_substitutor);
+
+                let __mf_pos = #swc_core_path::common::BytePos(#pos_ident);
+                #pos_ident += 1;
+                {
+                    struct __MfSpanFix {
+                        span: #swc_core_path::common::Span,
+                    }
+                    impl VisitMut for __MfSpanFix {
+                        fn visit_mut_span(&mut self, span: &mut #swc_core_path::common::Span) {
+                            *span = self.span;
+                        }
+                    }
+                    let mut __mf_span_fix = __MfSpanFix {
+                        span: #swc_core_path::common::Span::new(__mf_pos, __mf_pos),
+                    };
+                    __mf_stmt.visit_mut_with(&mut __mf_span_fix);
+                }
+                if !#pending_ident.is_empty() {
+                    use #swc_core_path::common::comments::Comments;
+                    for __mf_comment in #pending_ident.drain(..) {
+                        #comments_ident.add_leading(__mf_pos, __mf_comment);
+                    }
+                }
+                #out_ident.push(__mf_stmt);
+            }
+        }});
+        return Ok(output);
+    }
+
+    // Standard path: no type placeholders, use quote! for better performance
+    let (module, cm) = parse_ts_module_with_source(&template_result.template)?;
 
     for item in module.body {
         match item {
@@ -1243,7 +1452,7 @@ fn flush_stmt_run(
                 if snippet.is_empty() {
                     continue;
                 }
-                let quote_ts = quote_ts(snippet, quote!(Stmt), &bindings);
+                let quote_ts = quote_ts(snippet, quote!(Stmt), &template_result.bindings);
                 let QuoteTsResult { bindings, expr } = quote_ts;
 
                 // Generate block replacement code if we have blocks to replace
@@ -1255,7 +1464,7 @@ fn flush_stmt_run(
                         let marker = format!("__mf_block_{}", block_id);
                         block_replacements.extend(quote! {
                             (#marker, {
-                                let mut __mf_block_stmts: Vec<macroforge_ts_syn::swc_ecma_ast::Stmt> = Vec::new();
+                                let mut __mf_block_stmts: Vec<swc_core::ecma::ast::Stmt> = Vec::new();
                                 #block_code
                                 __mf_block_stmts
                             }),
@@ -1263,15 +1472,15 @@ fn flush_stmt_run(
                     }
                     quote! {
                         {
-                            use macroforge_ts_syn::swc_core::ecma::visit::{VisitMut, VisitMutWith};
-                            use macroforge_ts_syn::swc_ecma_ast::{Stmt, Expr, ExprStmt, Ident};
+                            use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+                            use swc_core::ecma::ast::{Stmt, Expr, ExprStmt, Ident};
 
                             struct __MfBlockReplacer {
                                 blocks: std::collections::HashMap<String, Vec<Stmt>>,
                             }
 
                             impl VisitMut for __MfBlockReplacer {
-                                fn visit_mut_block_stmt(&mut self, block: &mut macroforge_ts_syn::swc_ecma_ast::BlockStmt) {
+                                fn visit_mut_block_stmt(&mut self, block: &mut swc_core::ecma::ast::BlockStmt) {
                                     // First, check if this block contains a marker statement
                                     let marker_id = block.stmts.iter().find_map(|stmt| {
                                         if let Stmt::Expr(ExprStmt { expr, .. }) = stmt {
@@ -1309,6 +1518,7 @@ fn flush_stmt_run(
                     #bindings
                     let mut __mf_stmt = #expr;
                     #ident_name_fix
+                    #type_fix
                     #block_replacement
                     let __mf_pos = swc_core::common::BytePos(#pos_ident);
                     #pos_ident += 1;
@@ -1340,10 +1550,10 @@ fn flush_stmt_run(
                 // Handle export declarations (export function, export const, etc.)
                 // Since ts_template outputs Vec<Stmt>, we convert exports to their inner declarations
                 match &decl {
-                    ModuleDecl::ExportDecl(export_decl) => {
-                        // Get snippet for just the inner declaration (skip "export ")
-                        let inner_decl = &export_decl.decl;
-                        let snippet = cm.span_to_snippet(inner_decl.span()).map_err(|e| {
+                    ModuleDecl::ExportDecl(_) => {
+                        // Get the FULL snippet including "export" keyword
+                        // We quote as ModuleItem (which supports TypeScript) then extract the Decl
+                        let snippet = cm.span_to_snippet(decl.span()).map_err(|e| {
                             syn::Error::new(Span::call_site(), format!("TypeScript span error: {e:?}"))
                         })?;
                         let snippet = snippet.trim();
@@ -1351,9 +1561,9 @@ fn flush_stmt_run(
                             continue;
                         }
 
-                        // Function/class/const declarations without export are valid statements
-                        // Quote as Stmt directly (SWC quote doesn't support Decl type)
-                        let quote_ts = quote_ts(snippet, quote!(Stmt), &bindings);
+                        // Quote as ModuleItem - this supports full TypeScript syntax including
+                        // type annotations in function parameters (unlike quote!(... as Stmt))
+                        let quote_ts = quote_ts(snippet, quote!(ModuleItem), &template_result.bindings);
                         let QuoteTsResult {
                             bindings: quote_bindings,
                             expr,
@@ -1368,7 +1578,7 @@ fn flush_stmt_run(
                                 let marker = format!("__mf_block_{}", block_id);
                                 block_replacements.extend(quote! {
                                     (#marker, {
-                                        let mut __mf_block_stmts: Vec<macroforge_ts_syn::swc_ecma_ast::Stmt> = Vec::new();
+                                        let mut __mf_block_stmts: Vec<swc_core::ecma::ast::Stmt> = Vec::new();
                                         #block_code
                                         __mf_block_stmts
                                     }),
@@ -1376,15 +1586,15 @@ fn flush_stmt_run(
                             }
                             quote! {
                                 {
-                                    use macroforge_ts_syn::swc_core::ecma::visit::{VisitMut, VisitMutWith};
-                                    use macroforge_ts_syn::swc_ecma_ast::{Stmt, Expr, ExprStmt, Ident};
+                                    use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+                                    use swc_core::ecma::ast::{Stmt, Expr, ExprStmt, Ident};
 
                                     struct __MfBlockReplacer {
                                         blocks: std::collections::HashMap<String, Vec<Stmt>>,
                                     }
 
                                     impl VisitMut for __MfBlockReplacer {
-                                        fn visit_mut_block_stmt(&mut self, block: &mut macroforge_ts_syn::swc_ecma_ast::BlockStmt) {
+                                        fn visit_mut_block_stmt(&mut self, block: &mut swc_core::ecma::ast::BlockStmt) {
                                             let marker_id = block.stmts.iter().find_map(|stmt| {
                                                 if let Stmt::Expr(ExprStmt { expr, .. }) = stmt {
                                                     if let Expr::Ident(ident) = &**expr {
@@ -1417,9 +1627,18 @@ fn flush_stmt_run(
 
                         output.extend(quote! {{
                             #quote_bindings
-                            let mut __mf_stmt = #expr;
+                            // Quote as ModuleItem, then extract the inner Decl and convert to Stmt
+                            let __mf_module_item = #expr;
+                            let mut __mf_stmt = match __mf_module_item {
+                                swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                                    swc_core::ecma::ast::ModuleDecl::ExportDecl(export)
+                                ) => swc_core::ecma::ast::Stmt::Decl(export.decl),
+                                swc_core::ecma::ast::ModuleItem::Stmt(s) => s,
+                                _ => panic!("unexpected module item type in ts_template"),
+                            };
                             #block_replacement
                             #ident_name_fix
+                            #type_fix
                             let __mf_pos = swc_core::common::BytePos(#pos_ident);
                             #pos_ident += 1;
                             {
@@ -1561,18 +1780,32 @@ struct BindingSpec {
     expr: TokenStream2,
 }
 
+/// Type placeholder that needs post-processing via visitor (since SWC quote! doesn't support $ in types)
+struct TypePlaceholder {
+    id: usize,
+    expr: TokenStream2,
+}
+
 struct QuoteTsResult {
     bindings: TokenStream2,
     expr: TokenStream2,
+}
+
+/// Result of building template and bindings
+struct TemplateAndBindings {
+    template: String,
+    bindings: Vec<BindingSpec>,
+    type_placeholders: Vec<TypePlaceholder>,
 }
 
 /// Builds the placeholder template string and binding list for a segment run.
 fn build_template_and_bindings(
     segments: impl IntoIterator<Item = impl std::borrow::Borrow<Segment>>,
     context_map: &HashMap<usize, PlaceholderUse>,
-) -> syn::Result<(String, Vec<BindingSpec>)> {
+) -> syn::Result<TemplateAndBindings> {
     let mut template = String::new();
     let mut bindings = Vec::new();
+    let mut type_placeholders = Vec::new();
     let mut seen = HashSet::new();
 
     for seg in segments {
@@ -1586,17 +1819,32 @@ fn build_template_and_bindings(
                 ));
             }
             Segment::Interpolation { id, expr, span: _ } => {
-                let name = placeholder_name(*id);
-                append_part(&mut template, &format!("${name}"));
-                if seen.insert(*id) {
-                    let use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Expr);
-                    let ty = placeholder_type_tokens(&use_kind);
-                    let bind_ident = proc_macro2::Ident::new(&name, Span::call_site());
-                    bindings.push(BindingSpec {
-                        name: bind_ident,
-                        ty,
-                        expr: expr.clone(),
-                    });
+                let use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Expr);
+
+                if matches!(use_kind, PlaceholderUse::Type) {
+                    // For type placeholders, use a unique marker identifier that quote! can parse
+                    // We'll replace it with the actual type using a visitor after quote! parsing
+                    let marker = format!("__MfTypeMarker{}", id);
+                    append_part(&mut template, &marker);
+                    if seen.insert(*id) {
+                        type_placeholders.push(TypePlaceholder {
+                            id: *id,
+                            expr: expr.clone(),
+                        });
+                    }
+                } else {
+                    // Non-type placeholders use $ prefix for quote! substitution
+                    let name = placeholder_name(*id);
+                    append_part(&mut template, &format!("${name}"));
+                    if seen.insert(*id) {
+                        let ty = placeholder_type_tokens(&use_kind);
+                        let bind_ident = proc_macro2::Ident::new(&name, Span::call_site());
+                        bindings.push(BindingSpec {
+                            name: bind_ident,
+                            ty,
+                            expr: expr.clone(),
+                        });
+                    }
                 }
             }
             Segment::StringInterp { id, parts, span: _ } => {
@@ -1728,17 +1976,21 @@ fn build_template_and_bindings(
                 } else {
                     // For blocks without statement-level control, inline the content
                     append_part(&mut template, "{");
-                    let (inner_template, inner_bindings) =
-                        build_template_and_bindings(inner.iter(), context_map)?;
-                    append_part(&mut template, &inner_template);
-                    bindings.extend(inner_bindings);
+                    let inner_result = build_template_and_bindings(inner.iter(), context_map)?;
+                    append_part(&mut template, &inner_result.template);
+                    bindings.extend(inner_result.bindings);
+                    type_placeholders.extend(inner_result.type_placeholders);
                     append_part(&mut template, "}");
                 }
             }
         }
     }
 
-    Ok((template, bindings))
+    Ok(TemplateAndBindings {
+        template,
+        bindings,
+        type_placeholders,
+    })
 }
 
 /// Collects placeholder IDs used in `IdentName` positions.
@@ -1857,13 +2109,97 @@ fn ident_name_fix_block(
     }
 }
 
-/// Maps placeholder usage to the SWC AST type used for binding.
+/// Generates code to replace type placeholders like __MfType0 with actual type references.
+///
+/// SWC's quote! macro doesn't support $ placeholders in type positions, so we use
+/// regular identifiers and replace them via a visitor after quoting.
+fn generate_type_placeholder_fix(type_placeholders: &[TypePlaceholder]) -> TokenStream2 {
+    if type_placeholders.is_empty() {
+        return TokenStream2::new();
+    }
+
+    let fields: Vec<_> = type_placeholders
+        .iter()
+        .map(|tp| {
+            let field_name = format_ident!("__mf_type_{}", tp.id);
+            quote! { #field_name: String }
+        })
+        .collect();
+
+    let inits: Vec<_> = type_placeholders
+        .iter()
+        .map(|tp| {
+            let field_name = format_ident!("__mf_type_{}", tp.id);
+            let expr = &tp.expr;
+            // Convert the expression to a String for the type name
+            quote! { #field_name: (#expr).to_string() }
+        })
+        .collect();
+
+    let arms: Vec<_> = type_placeholders
+        .iter()
+        .map(|tp| {
+            let marker = format!("__MfTypeMarker{}", tp.id);
+            let field_name = format_ident!("__mf_type_{}", tp.id);
+            quote! {
+                #marker => {
+                    *ty = swc_core::ecma::ast::TsType::TsTypeRef(swc_core::ecma::ast::TsTypeRef {
+                        span: swc_core::common::DUMMY_SP,
+                        type_name: swc_core::ecma::ast::TsEntityName::Ident(
+                            swc_core::ecma::ast::Ident::new(
+                                self.#field_name.clone().into(),
+                                swc_core::common::DUMMY_SP,
+                                Default::default(),
+                            )
+                        ),
+                        type_params: None,
+                    });
+                }
+            }
+        })
+        .collect();
+
+    quote! {
+        {
+            use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+            struct __MfTypeFix {
+                #(#fields,)*
+            }
+            impl VisitMut for __MfTypeFix {
+                fn visit_mut_ts_type(&mut self, ty: &mut swc_core::ecma::ast::TsType) {
+                    if let swc_core::ecma::ast::TsType::TsTypeRef(type_ref) = ty {
+                        if let swc_core::ecma::ast::TsEntityName::Ident(ident) = &type_ref.type_name {
+                            match ident.sym.as_ref() {
+                                #(#arms)*
+                                _ => {}
+                            }
+                        }
+                    }
+                    ty.visit_mut_children_with(self);
+                }
+            }
+            let mut __mf_type_fix = __MfTypeFix {
+                #(#inits,)*
+            };
+            __mf_stmt.visit_mut_with(&mut __mf_type_fix);
+        }
+    }
+}
+
+/// Maps placeholder usage to the SWC AST type used for binding in quote!.
+///
+/// NOTE: SWC's quote! macro only supports Ident, Expr, and Pat for variable
+/// substitution. For Type placeholders, we use Ident and later convert them
+/// to TsType via a post-processing visitor.
 fn placeholder_type_tokens(use_kind: &PlaceholderUse) -> TokenStream2 {
     match use_kind {
         PlaceholderUse::Expr | PlaceholderUse::Stmt => quote!(Expr),
         PlaceholderUse::Ident => quote!(Ident),
         PlaceholderUse::IdentName => quote!(Ident),
-        PlaceholderUse::Type => quote!(TsType),
+        // Use Ident for types too - SWC quote! doesn't support TsType
+        // The Ident will be placed in type position and needs no conversion
+        // because TypeScript type references are just identifiers
+        PlaceholderUse::Type => quote!(Ident),
     }
 }
 
@@ -2030,6 +2366,7 @@ fn build_placeholder_source(
 }
 
 /// Classifies placeholder usage by parsing the segments as a module.
+/// Falls back to wrapping in a class if the template contains class body members.
 fn classify_placeholders_module(
     segments: &[Segment],
 ) -> syn::Result<HashMap<usize, PlaceholderUse>> {
@@ -2037,10 +2374,31 @@ fn classify_placeholders_module(
     if source.trim().is_empty() {
         return Ok(HashMap::new());
     }
-    let module = parse_ts_module(&source)?;
-    let mut finder = PlaceholderFinder::new(map);
-    module.visit_with(&mut finder);
-    Ok(finder.into_map())
+
+    // Try parsing as a module first
+    if let Ok(module) = parse_ts_module(&source) {
+        let mut finder = PlaceholderFinder::new(map);
+        module.visit_with(&mut finder);
+        return Ok(finder.into_map());
+    }
+
+    // If module parsing fails, try wrapping in a class (for class body members like static methods)
+    let wrapped_source = format!("class __MfWrapper {{ {} }}", source);
+    if let Ok(module) = parse_ts_module(&wrapped_source) {
+        let mut finder = PlaceholderFinder::new(map);
+        module.visit_with(&mut finder);
+        return Ok(finder.into_map());
+    }
+
+    // If both fail, try parsing as an expression
+    if let Ok(expr) = parse_ts_expr(&source) {
+        let mut finder = PlaceholderFinder::new(map);
+        expr.visit_with(&mut finder);
+        return Ok(finder.into_map());
+    }
+
+    // Fall back to returning an empty map (all placeholders will use default classification)
+    Ok(HashMap::new())
 }
 
 /// Classifies placeholder usage by parsing the segments as an expression.
@@ -2207,6 +2565,7 @@ fn parse_ts_expr(source: &str) -> syn::Result<Box<Expr>> {
 }
 
 /// Builds a `swc_core::quote!` invocation with placeholder bindings.
+/// NOTE: This does NOT support TypeScript type annotations. Use `quote_ts_with_types` for that.
 fn quote_ts(template: &str, output_type: TokenStream2, bindings: &[BindingSpec]) -> QuoteTsResult {
     let mut final_template = template.to_string();
     if output_type.to_string().contains("Expr") {
@@ -2238,6 +2597,282 @@ fn quote_ts(template: &str, output_type: TokenStream2, bindings: &[BindingSpec])
     QuoteTsResult {
         bindings: binding_inits,
         expr: quote_call,
+    }
+}
+
+/// Builds code that parses TypeScript at runtime and substitutes placeholders.
+/// This supports full TypeScript syntax including type annotations.
+fn quote_ts_with_types(
+    template: &str,
+    output_type: TokenStream2,
+    bindings: &[BindingSpec],
+    type_placeholders: &[TypePlaceholder],
+) -> QuoteTsResult {
+    let lit = syn::LitStr::new(template, Span::call_site());
+    let mut binding_inits = TokenStream2::new();
+    binding_inits.extend(quote! { use swc_core::ecma::ast::*; });
+
+    // Initialize regular bindings (non-type placeholders)
+    for binding in bindings {
+        let name = &binding.name;
+        let ty = &binding.ty;
+        let expr = &binding.expr;
+        binding_inits.extend(quote! { let #name: #ty = #expr; });
+    }
+
+    // Initialize type placeholder values
+    for tp in type_placeholders {
+        let field_name = format_ident!("__mf_type_{}", tp.id);
+        let expr = &tp.expr;
+        binding_inits.extend(quote! { let #field_name: String = (#expr).to_string(); });
+    }
+
+    // Generate the substitution visitor struct fields and match arms
+    let mut visitor_fields = Vec::new();
+    let mut visitor_inits = Vec::new();
+    let mut ident_arms = Vec::new();
+    let mut type_arms = Vec::new();
+
+    // Handle regular bindings (replace $__mf_hole_N with actual values)
+    for binding in bindings {
+        let name = &binding.name;
+        let placeholder = name.to_string();
+        let field_name = format_ident!("binding_{}", name);
+        let ty = &binding.ty;
+
+        visitor_fields.push(quote! { #field_name: #ty });
+        visitor_inits.push(quote! { #field_name: #name.clone() });
+
+        // For Ident bindings, replace in both Ident and BindingIdent positions
+        ident_arms.push(quote! {
+            #placeholder => {
+                ident.sym = self.#field_name.sym.clone();
+            }
+        });
+    }
+
+    // Handle type placeholders (replace __MfTypeMarkerN with actual type names)
+    for tp in type_placeholders {
+        let marker = format!("__MfTypeMarker{}", tp.id);
+        let field_name = format_ident!("__mf_type_{}", tp.id);
+
+        visitor_fields.push(quote! { #field_name: String });
+        visitor_inits.push(quote! { #field_name: #field_name.clone() });
+
+        type_arms.push(quote! {
+            #marker => {
+                *ty = TsType::TsTypeRef(TsTypeRef {
+                    span: swc_core::common::DUMMY_SP,
+                    type_name: TsEntityName::Ident(Ident::new(
+                        self.#field_name.clone().into(),
+                        swc_core::common::DUMMY_SP,
+                        Default::default(),
+                    )),
+                    type_params: None,
+                });
+            }
+        });
+    }
+
+    let output_type_str = output_type.to_string();
+    let is_stmt = output_type_str.contains("Stmt");
+    let is_module_item = output_type_str.contains("ModuleItem");
+
+    // Generate the parsing and substitution code
+    let parse_code = if is_module_item {
+        quote! {
+            use swc_core::common::{FileName, SourceMap, sync::Lrc};
+            use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+            use swc_core::ecma::ast::EsVersion;
+            use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+
+            let __mf_cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
+            let __mf_fm = __mf_cm.new_source_file(
+                FileName::Custom("template.ts".into()).into(),
+                #lit.to_string(),
+            );
+            let __mf_syntax = Syntax::Typescript(TsSyntax {
+                tsx: true,
+                decorators: true,
+                ..Default::default()
+            });
+            let __mf_lexer = Lexer::new(__mf_syntax, EsVersion::latest(), StringInput::from(&*__mf_fm), None);
+            let mut __mf_parser = Parser::new_from(__mf_lexer);
+            let __mf_module = __mf_parser.parse_module().expect("Failed to parse TypeScript template");
+
+            // Create visitor for substitution
+            struct __MfSubstitutor {
+                #(#visitor_fields,)*
+            }
+
+            impl VisitMut for __MfSubstitutor {
+                fn visit_mut_ident(&mut self, ident: &mut Ident) {
+                    let name = ident.sym.as_ref();
+                    if name.starts_with("$__mf_hole_") || name.starts_with("__mf_hole_") {
+                        let lookup = if name.starts_with("$") { name } else { &format!("${}", name) };
+                        match lookup {
+                            #(#ident_arms)*
+                            _ => {}
+                        }
+                    }
+                }
+
+                fn visit_mut_ts_type(&mut self, ty: &mut TsType) {
+                    if let TsType::TsTypeRef(type_ref) = ty {
+                        if let TsEntityName::Ident(ident) = &type_ref.type_name {
+                            match ident.sym.as_ref() {
+                                #(#type_arms)*
+                                _ => {}
+                            }
+                        }
+                    }
+                    ty.visit_mut_children_with(self);
+                }
+            }
+
+            let mut __mf_substitutor = __MfSubstitutor {
+                #(#visitor_inits,)*
+            };
+
+            let mut __mf_items: Vec<ModuleItem> = __mf_module.body;
+            for __mf_item in &mut __mf_items {
+                __mf_item.visit_mut_with(&mut __mf_substitutor);
+            }
+            __mf_items.into_iter().next().expect("Expected at least one module item")
+        }
+    } else if is_stmt {
+        quote! {
+            use swc_core::common::{FileName, SourceMap, sync::Lrc};
+            use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+            use swc_core::ecma::ast::EsVersion;
+            use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+
+            let __mf_cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
+            let __mf_fm = __mf_cm.new_source_file(
+                FileName::Custom("template.ts".into()).into(),
+                #lit.to_string(),
+            );
+            let __mf_syntax = Syntax::Typescript(TsSyntax {
+                tsx: true,
+                decorators: true,
+                ..Default::default()
+            });
+            let __mf_lexer = Lexer::new(__mf_syntax, EsVersion::latest(), StringInput::from(&*__mf_fm), None);
+            let mut __mf_parser = Parser::new_from(__mf_lexer);
+            let __mf_module = __mf_parser.parse_module().expect("Failed to parse TypeScript template");
+
+            struct __MfSubstitutor {
+                #(#visitor_fields,)*
+            }
+
+            impl VisitMut for __MfSubstitutor {
+                fn visit_mut_ident(&mut self, ident: &mut Ident) {
+                    let name = ident.sym.as_ref();
+                    if name.starts_with("$__mf_hole_") || name.starts_with("__mf_hole_") {
+                        let lookup = if name.starts_with("$") { name } else { &format!("${}", name) };
+                        match lookup {
+                            #(#ident_arms)*
+                            _ => {}
+                        }
+                    }
+                }
+
+                fn visit_mut_ts_type(&mut self, ty: &mut TsType) {
+                    if let TsType::TsTypeRef(type_ref) = ty {
+                        if let TsEntityName::Ident(ident) = &type_ref.type_name {
+                            match ident.sym.as_ref() {
+                                #(#type_arms)*
+                                _ => {}
+                            }
+                        }
+                    }
+                    ty.visit_mut_children_with(self);
+                }
+            }
+
+            let mut __mf_substitutor = __MfSubstitutor {
+                #(#visitor_inits,)*
+            };
+
+            // Convert ModuleItems to Stmts
+            let mut __mf_stmts: Vec<Stmt> = Vec::new();
+            for __mf_item in __mf_module.body {
+                match __mf_item {
+                    ModuleItem::Stmt(mut s) => {
+                        s.visit_mut_with(&mut __mf_substitutor);
+                        __mf_stmts.push(s);
+                    }
+                    ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(mut export)) => {
+                        export.visit_mut_with(&mut __mf_substitutor);
+                        __mf_stmts.push(Stmt::Decl(export.decl));
+                    }
+                    _ => {}
+                }
+            }
+            __mf_stmts.into_iter().next().expect("Expected at least one statement")
+        }
+    } else {
+        // For Expr or other types, fall back to parsing as module and extracting
+        quote! {
+            use swc_core::common::{FileName, SourceMap, sync::Lrc};
+            use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+            use swc_core::ecma::ast::EsVersion;
+            use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+
+            let __mf_cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
+            let __mf_fm = __mf_cm.new_source_file(
+                FileName::Custom("template.ts".into()).into(),
+                #lit.to_string(),
+            );
+            let __mf_syntax = Syntax::Typescript(TsSyntax {
+                tsx: true,
+                decorators: true,
+                ..Default::default()
+            });
+            let __mf_lexer = Lexer::new(__mf_syntax, EsVersion::latest(), StringInput::from(&*__mf_fm), None);
+            let mut __mf_parser = Parser::new_from(__mf_lexer);
+            let mut __mf_expr = __mf_parser.parse_expr().expect("Failed to parse TypeScript expression");
+
+            struct __MfSubstitutor {
+                #(#visitor_fields,)*
+            }
+
+            impl VisitMut for __MfSubstitutor {
+                fn visit_mut_ident(&mut self, ident: &mut Ident) {
+                    let name = ident.sym.as_ref();
+                    if name.starts_with("$__mf_hole_") || name.starts_with("__mf_hole_") {
+                        let lookup = if name.starts_with("$") { name } else { &format!("${}", name) };
+                        match lookup {
+                            #(#ident_arms)*
+                            _ => {}
+                        }
+                    }
+                }
+
+                fn visit_mut_ts_type(&mut self, ty: &mut TsType) {
+                    if let TsType::TsTypeRef(type_ref) = ty {
+                        if let TsEntityName::Ident(ident) = &type_ref.type_name {
+                            match ident.sym.as_ref() {
+                                #(#type_arms)*
+                                _ => {}
+                            }
+                        }
+                    }
+                    ty.visit_mut_children_with(self);
+                }
+            }
+
+            let mut __mf_substitutor = __MfSubstitutor {
+                #(#visitor_inits,)*
+            };
+            __mf_expr.visit_mut_with(&mut __mf_substitutor);
+            *__mf_expr
+        }
+    };
+
+    QuoteTsResult {
+        bindings: binding_inits,
+        expr: parse_code,
     }
 }
 
@@ -2310,7 +2945,8 @@ fn tokens_to_ts_string(tokens: TokenStream2) -> String {
                 output.push(p.as_char());
                 // Add space after standalone punct, but not after certain punctuation
                 if p.spacing() == proc_macro2::Spacing::Alone {
-                    let no_space_after = matches!(p.as_char(), '.' | '(' | '[' | ':' | ';' | ',');
+                    // @ is for interpolations - never add space after it
+                    let no_space_after = matches!(p.as_char(), '.' | '(' | '[' | ':' | ';' | ',' | '@');
                     if !no_space_after {
                         output.push(' ');
                     }
@@ -3194,17 +3830,17 @@ mod tests {
         // Create an empty context map (no special placeholder classification)
         let context_map = HashMap::new();
 
-        let (template, bindings) = build_template_and_bindings(segments.iter(), &context_map)
+        let template_result = build_template_and_bindings(segments.iter(), &context_map)
             .expect("build_template_and_bindings should succeed");
 
-        eprintln!("Template string: {:?}", template);
-        eprintln!("Bindings count: {}", bindings.len());
+        eprintln!("Template string: {:?}", template_result.template);
+        eprintln!("Bindings count: {}", template_result.bindings.len());
 
         // Template should NOT contain '@'
-        assert!(!template.contains('@'), "Template should not contain '@': {:?}", template);
+        assert!(!template_result.template.contains('@'), "Template should not contain '@': {:?}", template_result.template);
 
         // Template should contain placeholder
-        assert!(template.contains("__mf_hole_"), "Template should contain placeholder: {:?}", template);
+        assert!(template_result.template.contains("__mf_hole_"), "Template should contain placeholder: {:?}", template_result.template);
     }
 
     /// Test the full template string for the derive_clone pattern
@@ -3226,14 +3862,14 @@ mod tests {
         let context_map = classify_placeholders_module(&segments)
             .expect("classify_placeholders_module should succeed");
 
-        let (template, bindings) = build_template_and_bindings(segments.iter(), &context_map)
+        let template_result = build_template_and_bindings(segments.iter(), &context_map)
             .expect("build_template_and_bindings should succeed");
 
-        eprintln!("Full template string:\n{}", template);
-        eprintln!("\nBindings count: {}", bindings.len());
+        eprintln!("Full template string:\n{}", template_result.template);
+        eprintln!("\nBindings count: {}", template_result.bindings.len());
 
         // Template should NOT contain '@'
-        assert!(!template.contains('@'), "Template should not contain '@'");
+        assert!(!template_result.template.contains('@'), "Template should not contain '@'");
     }
 
     /// Test classify_placeholders_module
@@ -3419,10 +4055,10 @@ mod tests {
                 let template_result = build_template_and_bindings(segments.iter(), &context_map);
 
                 match template_result {
-                    Ok((template, bindings)) => {
-                        eprintln!("\nFull template string:\n{}", template);
-                        eprintln!("\nBindings: {}", bindings.len());
-                        for b in &bindings {
+                    Ok(result) => {
+                        eprintln!("\nFull template string:\n{}", result.template);
+                        eprintln!("\nBindings: {}", result.bindings.len());
+                        for b in &result.bindings {
                             eprintln!("  {} : {:?}", b.name, b.ty);
                         }
                     }
