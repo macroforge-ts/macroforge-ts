@@ -1,0 +1,17 @@
+[package]
+name = "compile_time_parser_external_tester"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+macroforge_ts_quote = { path = ".." }
+macroforge_ts = { path = "macroforge_ts" }
+proc-macro2 = "1"
+swc_core = { version = "51.0.0", default-features = false, features = [
+  "common",
+  "ecma_ast",
+  "ecma_codegen",
+  "ecma_parser",
+  "ecma_quote",
+  "ecma_visit",
+] }

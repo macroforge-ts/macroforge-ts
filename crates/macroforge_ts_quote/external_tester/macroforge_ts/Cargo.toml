@@ -1,0 +1,12 @@
+[package]
+name = "macroforge_ts"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+swc_core = { version = "51.0.0", default-features = false, features = [
+  "common",
+  "ecma_ast",
+  "ecma_codegen",
+  "ecma_quote",
+] }
