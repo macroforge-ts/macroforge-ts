@@ -3,6 +3,7 @@
 mod control_expr;
 mod expr_segments;
 mod ident_block;
+mod segment_dispatch;
 mod stmt_control;
 mod stmt_segments;
 mod ts_injection;

@@ -4,6 +4,73 @@ use std::collections::{HashMap, HashSet};
 
 use super::compile::compile_stmt_segments;
 
+/// Checks if a segment list contains statement-level control flow or typescript injection.
+fn has_stmt_level_control(
+    segments: &[Segment],
+    context_map: &HashMap<usize, PlaceholderUse>,
+) -> bool {
+    for s in segments {
+        match s {
+            Segment::Control { id, .. } => {
+                if matches!(context_map.get(id), Some(PlaceholderUse::Stmt)) {
+                    return true;
+                }
+            }
+            // {$typescript} requires statement-level compilation
+            Segment::Typescript { .. } => {
+                return true;
+            }
+            Segment::BraceBlock { inner, .. } => {
+                if has_stmt_level_control(inner, context_map) {
+                    return true;
+                }
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
+/// Recursively traverses segments to find and compile BraceBlocks that need block substitution.
+fn traverse_segments_recursively(
+    seg: &Segment,
+    context_map: &HashMap<usize, PlaceholderUse>,
+    out_ident: &proc_macro2::Ident,
+    comments_ident: &proc_macro2::Ident,
+    pending_ident: &proc_macro2::Ident,
+    pos_ident: &proc_macro2::Ident,
+    compilations: &mut Vec<(usize, TokenStream2)>,
+) -> syn::Result<()> {
+    if let Segment::BraceBlock { id, inner, .. } = seg {
+        // Check if this block has statement-level control flow or typescript injection
+        if has_stmt_level_control(inner, context_map) {
+            // Compile the inner segments
+            let compiled = compile_stmt_segments(
+                inner,
+                out_ident,
+                comments_ident,
+                pending_ident,
+                pos_ident,
+            )?;
+            compilations.push((*id, compiled));
+        }
+
+        // Recurse into inner segments to find nested BraceBlocks
+        for inner_seg in inner {
+            traverse_segments_recursively(
+                inner_seg,
+                context_map,
+                out_ident,
+                comments_ident,
+                pending_ident,
+                pos_ident,
+                compilations,
+            )?;
+        }
+    }
+    Ok(())
+}
+
 /// Collects BraceBlocks that need block substitution and compiles their inner segments.
 pub(crate) fn collect_block_compilations(
     run: &[&Segment],
@@ -15,73 +82,8 @@ pub(crate) fn collect_block_compilations(
     let mut compilations = Vec::new();
     let out_ident = proc_macro2::Ident::new("__mf_block_stmts", Span::call_site());
 
-    fn collect_from_segment(
-        seg: &Segment,
-        context_map: &HashMap<usize, PlaceholderUse>,
-        out_ident: &proc_macro2::Ident,
-        comments_ident: &proc_macro2::Ident,
-        pending_ident: &proc_macro2::Ident,
-        pos_ident: &proc_macro2::Ident,
-        compilations: &mut Vec<(usize, TokenStream2)>,
-    ) -> syn::Result<()> {
-        if let Segment::BraceBlock { id, inner, .. } = seg {
-            // Check if this block has statement-level control flow or typescript injection
-            fn has_stmt_level_control(
-                segments: &[Segment],
-                context_map: &HashMap<usize, PlaceholderUse>,
-            ) -> bool {
-                for s in segments {
-                    match s {
-                        Segment::Control { id, .. } => {
-                            if matches!(context_map.get(id), Some(PlaceholderUse::Stmt)) {
-                                return true;
-                            }
-                        }
-                        // {$typescript} requires statement-level compilation
-                        Segment::Typescript { .. } => {
-                            return true;
-                        }
-                        Segment::BraceBlock { inner, .. } => {
-                            if has_stmt_level_control(inner, context_map) {
-                                return true;
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-                false
-            }
-
-            if has_stmt_level_control(inner, context_map) {
-                // Compile the inner segments
-                let compiled = compile_stmt_segments(
-                    inner,
-                    out_ident,
-                    comments_ident,
-                    pending_ident,
-                    pos_ident,
-                )?;
-                compilations.push((*id, compiled));
-            }
-
-            // Recurse into inner segments to find nested BraceBlocks
-            for inner_seg in inner {
-                collect_from_segment(
-                    inner_seg,
-                    context_map,
-                    out_ident,
-                    comments_ident,
-                    pending_ident,
-                    pos_ident,
-                    compilations,
-                )?;
-            }
-        }
-        Ok(())
-    }
-
     for seg in run {
-        collect_from_segment(
+        traverse_segments_recursively(
             seg,
             context_map,
             &out_ident,

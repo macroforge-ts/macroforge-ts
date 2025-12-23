@@ -1,6 +1,14 @@
-use crate::template::{ControlNode, IdGen, PlaceholderUse, Segment, TagType};
+mod object_prop_loop;
+mod tag_parsers;
+
+use crate::template::{IdGen, PlaceholderUse, Segment, TagType};
 use proc_macro2::{Delimiter, Group, TokenStream as TokenStream2, TokenTree};
-use quote::ToTokens;
+
+use object_prop_loop::{find_for_loop_in_segments, validate_key_value_body};
+use tag_parsers::{
+    try_parse_block_comment, try_parse_control_branch, try_parse_control_end,
+    try_parse_control_start, try_parse_doc_comment, try_parse_ident_block, try_parse_runtime,
+};
 
 /// Assigns a precedence rank for placeholder usage kinds.
 pub(crate) fn use_rank(use_kind: &PlaceholderUse) -> usize {
@@ -104,198 +112,14 @@ pub(crate) fn tokens_to_ts_string(tokens: TokenStream2) -> String {
 pub(crate) fn analyze_tag(g: &Group) -> TagType {
     let tokens: Vec<TokenTree> = g.stream().into_iter().collect();
 
-    if tokens.len() >= 2
-        && let (Some(TokenTree::Punct(first)), Some(TokenTree::Punct(last))) =
-            (tokens.first(), tokens.last())
-        && first.as_char() == '|'
-        && last.as_char() == '|'
-    {
-        return TagType::IdentBlock;
-    }
-
-    if tokens.len() >= 5
-        && let (Some(TokenTree::Punct(p1)), Some(TokenTree::Punct(p2))) =
-            (tokens.first(), tokens.get(1))
-        && p1.as_char() == '>'
-        && p2.as_char() == '>'
-        && let (Some(TokenTree::Punct(p3)), Some(TokenTree::Punct(p4))) =
-            (tokens.get(tokens.len() - 2), tokens.last())
-        && p3.as_char() == '<'
-        && p4.as_char() == '<'
-    {
-        if let Some(TokenTree::Literal(lit)) = tokens.get(2) {
-            let content = extract_string_literal(lit);
-            return TagType::DocComment(content);
-        }
-        let content = tokens_to_spaced_string(&tokens[2..tokens.len() - 2]);
-        return TagType::DocComment(content);
-    }
-
-    if tokens.len() >= 3
-        && let (Some(TokenTree::Punct(first)), Some(TokenTree::Punct(last))) =
-            (tokens.first(), tokens.last())
-        && first.as_char() == '>'
-        && last.as_char() == '<'
-    {
-        if let Some(TokenTree::Literal(lit)) = tokens.get(1) {
-            let content = extract_string_literal(lit);
-            return TagType::BlockComment(content);
-        }
-        let content = tokens_to_spaced_string(&tokens[1..tokens.len() - 1]);
-        return TagType::BlockComment(content);
-    }
-
-    if tokens.len() < 2 {
-        return TagType::Block;
-    }
-
-    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
-        && p.as_char() == '#'
-    {
-        if i == "if" {
-            if let Some(TokenTree::Ident(let_kw)) = tokens.get(2)
-                && let_kw == "let"
-            {
-                let mut pattern = TokenStream2::new();
-                let mut expr = TokenStream2::new();
-                let mut seen_eq = false;
-
-                for t in tokens.iter().skip(3) {
-                    if let TokenTree::Punct(eq) = t
-                        && eq.as_char() == '='
-                        && !seen_eq
-                    {
-                        seen_eq = true;
-                        continue;
-                    }
-                    if !seen_eq {
-                        t.to_tokens(&mut pattern);
-                    } else {
-                        t.to_tokens(&mut expr);
-                    }
-                }
-                return TagType::IfLet(pattern, expr);
-            }
-
-            let cond: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::If(cond);
-        }
-
-        if i == "match" {
-            let expr: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::Match(expr);
-        }
-
-        if i == "while" {
-            if let Some(TokenTree::Ident(let_kw)) = tokens.get(2)
-                && let_kw == "let"
-            {
-                let mut pattern = TokenStream2::new();
-                let mut expr = TokenStream2::new();
-                let mut seen_eq = false;
-
-                for t in tokens.iter().skip(3) {
-                    if let TokenTree::Punct(eq) = t
-                        && eq.as_char() == '='
-                        && !seen_eq
-                    {
-                        seen_eq = true;
-                        continue;
-                    }
-                    if !seen_eq {
-                        t.to_tokens(&mut pattern);
-                    } else {
-                        t.to_tokens(&mut expr);
-                    }
-                }
-                return TagType::WhileLet(pattern, expr);
-            }
-
-            let cond: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::While(cond);
-        }
-
-        if i == "for" {
-            let mut item = TokenStream2::new();
-            let mut list = TokenStream2::new();
-            let mut seen_in = false;
-
-            for t in tokens.iter().skip(2) {
-                if let TokenTree::Ident(ident) = t
-                    && ident == "in"
-                    && !seen_in
-                {
-                    seen_in = true;
-                    continue;
-                }
-                if !seen_in {
-                    t.to_tokens(&mut item);
-                } else {
-                    t.to_tokens(&mut list);
-                }
-            }
-
-            return TagType::For(item, list);
-        }
-    }
-
-    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
-        && p.as_char() == ':'
-    {
-        if i == "else" {
-            if tokens.len() >= 4
-                && let Some(TokenTree::Ident(if_kw)) = tokens.get(2)
-                && if_kw == "if"
-            {
-                let cond: TokenStream2 =
-                    tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
-                return TagType::ElseIf(cond);
-            }
-            return TagType::Else;
-        }
-
-        if i == "case" {
-            let pattern: TokenStream2 =
-                tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::Case(pattern);
-        }
-    }
-
-    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
-        && p.as_char() == '/'
-    {
-        if i == "if" {
-            return TagType::EndIf;
-        }
-        if i == "for" {
-            return TagType::EndFor;
-        }
-        if i == "while" {
-            return TagType::EndWhile;
-        }
-        if i == "match" {
-            return TagType::EndMatch;
-        }
-    }
-
-    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
-        && p.as_char() == '$'
-    {
-        if i == "let" {
-            let rest: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::Let(rest);
-        }
-        if i == "do" {
-            let rest: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::Do(rest);
-        }
-        if i == "typescript" {
-            let rest: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-            return TagType::Typescript(rest);
-        }
-    }
-
-    TagType::Block
+    try_parse_ident_block(&tokens)
+        .or_else(|| try_parse_doc_comment(&tokens))
+        .or_else(|| try_parse_block_comment(&tokens))
+        .or_else(|| try_parse_control_start(&tokens))
+        .or_else(|| try_parse_control_branch(&tokens))
+        .or_else(|| try_parse_control_end(&tokens))
+        .or_else(|| try_parse_runtime(&tokens))
+        .unwrap_or(TagType::Block)
 }
 
 /// Renders a group token into a string, preserving delimiters.
@@ -311,7 +135,7 @@ pub(crate) fn group_to_string(g: &Group) -> String {
 }
 
 /// Joins tokens into a space-separated string.
-pub(crate) fn tokens_to_spaced_string(tokens: &[TokenTree]) -> String {
+pub(super) fn tokens_to_spaced_string(tokens: &[TokenTree]) -> String {
     let mut result = String::new();
     for (i, token) in tokens.iter().enumerate() {
         if i > 0 {
@@ -323,7 +147,7 @@ pub(crate) fn tokens_to_spaced_string(tokens: &[TokenTree]) -> String {
 }
 
 /// Extracts and unescapes the contents of a Rust string literal token.
-pub(crate) fn extract_string_literal(lit: &proc_macro2::Literal) -> String {
+pub(super) fn extract_string_literal(lit: &proc_macro2::Literal) -> String {
     let s = lit.to_string();
     if s.starts_with('"') && s.ends_with('"') && s.len() >= 2 {
         let inner = &s[1..s.len() - 1];
@@ -375,85 +199,10 @@ pub(crate) fn try_extract_object_prop_loop(
     ids: &mut IdGen,
 ) -> Option<Segment> {
     // Find the for loop control node
-    let mut for_node = None;
-    let mut other_dynamic = false;
+    let (pat, iter, body) = find_for_loop_in_segments(inner_segments)?;
 
-    for seg in inner_segments {
-        match seg {
-            Segment::Control {
-                node: ControlNode::For { pat, iter, body },
-                ..
-            } => {
-                if for_node.is_some() {
-                    // Multiple for loops - not a simple object prop loop
-                    return None;
-                }
-                for_node = Some((pat.clone(), iter.clone(), body.clone()));
-            }
-            Segment::Static(_) => {
-                // Static content (whitespace, commas) is OK
-            }
-            _ => {
-                // Other dynamic segments (interpolations outside the loop, etc.)
-                other_dynamic = true;
-            }
-        }
-    }
-
-    // If there's other dynamic content, fall back to normal handling
-    if other_dynamic {
-        return None;
-    }
-
-    let (pat, iter, body) = for_node?;
-
-    // Check if the body matches the key-value property pattern: @{key}: @{val},
-    // We expect: Static(""), Interpolation(key), Static(": "), Interpolation(val), Static(",")
-    // Or variations with whitespace
-    let mut key_expr = None;
-    let mut value_expr = None;
-    let mut found_colon = false;
-
-    for seg in &body {
-        match seg {
-            Segment::Static(s) => {
-                let trimmed = s.trim();
-                if trimmed.contains(':') {
-                    found_colon = true;
-                }
-                // Allow whitespace, colons, commas
-            }
-            Segment::Interpolation { expr, .. } => {
-                if !found_colon {
-                    // This is before the colon, so it's the key
-                    if key_expr.is_some() {
-                        // Multiple keys - not a simple pattern
-                        return None;
-                    }
-                    key_expr = Some(expr.clone());
-                } else {
-                    // This is after the colon, so it's the value
-                    if value_expr.is_some() {
-                        // Multiple values - not a simple pattern
-                        return None;
-                    }
-                    value_expr = Some(expr.clone());
-                }
-            }
-            _ => {
-                // Other segment types in the body - not a simple pattern
-                return None;
-            }
-        }
-    }
-
-    // Must have both key and value
-    let key_expr = key_expr?;
-    let value_expr = value_expr?;
-
-    if !found_colon {
-        return None;
-    }
+    // Validate the body matches the key-value property pattern
+    let (key_expr, value_expr) = validate_key_value_body(&body)?;
 
     let id = ids.next();
     Some(Segment::ObjectPropLoop {
