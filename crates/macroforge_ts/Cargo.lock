@@ -935,6 +935,8 @@ dependencies = [
 [[package]]
 name = "macroforge_ts_macros"
 version = "0.1.61"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a0576088217d354ee8ae842183c91c85b541663113c42977721f7ea6a4b8681"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
@@ -949,6 +951,7 @@ dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
  "quote",
+ "swc_core",
  "syn",
 ]
 

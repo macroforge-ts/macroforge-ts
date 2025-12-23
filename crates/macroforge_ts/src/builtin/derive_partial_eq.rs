@@ -159,7 +159,10 @@ use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::{
+    ident, parse_ts_expr, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
+};
+use crate::swc_ecma_ast::Expr;
 
 /// Contains field information needed for equality comparison generation.
 ///
@@ -274,6 +277,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let class_ident = ident!(class_name);
 
             // Collect fields that should be included in equality comparison
             let eq_fields: Vec<EqField> = class
@@ -292,10 +296,10 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 .collect();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}Equals", class_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}Equals", class_name.to_case(Case::Camel));
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
-            // Build comparison expression using a and b parameters
-            let comparison = if eq_fields.is_empty() {
+            let comparison_src = if eq_fields.is_empty() {
                 "true".to_string()
             } else {
                 eq_fields
@@ -304,44 +308,49 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     .collect::<Vec<_>>()
                     .join(" && ")
             };
+            let comparison_expr = parse_ts_expr(&comparison_src).map_err(|err| {
+                MacroforgeError::new(
+                    input.decorator_span(),
+                    format!("@derive(PartialEq): invalid comparison expression: {err:?}"),
+                )
+            })?;
 
             // Generate standalone function with two parameters
             let standalone = ts_template! {
-                export function @{fn_name}(a: @{class_name}, b: @{class_name}): boolean {
+                export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): boolean {
                     if (a === b) return true;
-                    return @{comparison};
+                    return @{comparison_expr};
                 }
             };
 
             // Generate static wrapper method that delegates to standalone function
             let class_body = body! {
-                static equals(a: @{class_name}, b: @{class_name}): boolean {
-                    return @{fn_name}(a, b);
+                static equals(a: @{class_ident}, b: @{class_ident}): boolean {
+                    return @{fn_name_expr}(a, b);
                 }
             };
 
-            // Combine standalone function with class body by concatenating sources
+            // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
-            let mut combined = TsStream::from_string(combined_source);
-            combined.runtime_patches = standalone.runtime_patches;
-            combined.runtime_patches.extend(class_body.runtime_patches);
-
-            Ok(combined)
+            Ok(ts_template! {
+                {$typescript standalone}
+                {$typescript class_body}
+            })
         }
         Data::Enum(_) => {
             // Enums: direct comparison with ===
             let enum_name = input.name();
-            let fn_name = format!("{}Equals", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}Equals", enum_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): boolean {
+                export function @{fn_name_ident}(a: @{ident!(enum_name)}, b: @{ident!(enum_name)}): boolean {
                     return a === b;
                 }
             })
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
+            let interface_ident = ident!(interface_name);
 
             // Collect fields for comparison
             let eq_fields: Vec<EqField> = interface
@@ -359,8 +368,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 })
                 .collect();
 
-            // Build comparison expression
-            let comparison = if eq_fields.is_empty() {
+            let comparison_src = if eq_fields.is_empty() {
                 "true".to_string()
             } else {
                 eq_fields
@@ -369,18 +377,25 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     .collect::<Vec<_>>()
                     .join(" && ")
             };
+            let comparison_expr = parse_ts_expr(&comparison_src).map_err(|err| {
+                MacroforgeError::new(
+                    input.decorator_span(),
+                    format!("@derive(PartialEq): invalid comparison expression: {err:?}"),
+                )
+            })?;
 
-            let fn_name = format!("{}Equals", interface_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}Equals", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): boolean {
+                export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): boolean {
                     if (a === b) return true;
-                    return @{comparison};
+                    return @{comparison_expr};
                 }
             })
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
+            let type_ident = ident!(type_name);
 
             if type_alias.is_object() {
                 // Object type: field-by-field comparison
@@ -401,7 +416,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     })
                     .collect();
 
-                let comparison = if eq_fields.is_empty() {
+                let comparison_src = if eq_fields.is_empty() {
                     "true".to_string()
                 } else {
                     eq_fields
@@ -410,21 +425,27 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                         .collect::<Vec<_>>()
                         .join(" && ")
                 };
+                let comparison_expr = parse_ts_expr(&comparison_src).map_err(|err| {
+                    MacroforgeError::new(
+                        input.decorator_span(),
+                        format!("@derive(PartialEq): invalid comparison expression: {err:?}"),
+                    )
+                })?;
 
-                let fn_name = format!("{}Equals", type_name.to_case(Case::Camel));
+                let fn_name_ident = ident!("{}Equals", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
+                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): boolean {
                         if (a === b) return true;
-                        return @{comparison};
+                        return @{comparison_expr};
                     }
                 })
             } else {
                 // Union, tuple, or simple alias: use strict equality and JSON fallback
-                let fn_name = format!("{}Equals", type_name.to_case(Case::Camel));
+                let fn_name_ident = ident!("{}Equals", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
+                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): boolean {
                         if (a === b) return true;
                         if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
                             return JSON.stringify(a) === JSON.stringify(b);
@@ -461,11 +482,12 @@ mod tests {
             .map(|f| generate_field_equality_for_interface(f, "a", "b"))
             .collect::<Vec<_>>()
             .join(" && ");
+        let comparison_expr = parse_ts_expr(&comparison).expect("comparison expr should parse");
 
         let output = body! {
             equals(other: unknown): boolean {
                 if (a === b) return true;
-                return @{comparison};
+                return @{comparison_expr};
             }
         };
 

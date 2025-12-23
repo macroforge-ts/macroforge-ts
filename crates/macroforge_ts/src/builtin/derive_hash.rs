@@ -111,7 +111,10 @@ use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::{
+    ident, parse_ts_expr, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
+};
+use crate::swc_ecma_ast::Expr;
 
 /// Contains field information needed for hash code generation.
 ///
@@ -247,6 +250,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let class_ident = ident!(class_name);
 
             // Collect fields that should be included in hash
             let hash_fields: Vec<HashField> = class
@@ -267,30 +271,46 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             let has_fields = !hash_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}HashCode", class_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}HashCode", class_name.to_case(Case::Camel));
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
-            // Build hash computation using value parameter instead of this
-            let hash_body = if has_fields {
+            let hash_exprs: Vec<Expr> = if has_fields {
                 hash_fields
                     .iter()
                     .map(|f| {
-                        format!(
-                            "hash = (hash * 31 + {}) | 0;",
-                            generate_field_hash_for_interface(f, "value")
-                        )
+                        let expr_src = generate_field_hash_for_interface(f, "value");
+                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                            MacroforgeError::new(
+                                input.decorator_span(),
+                                format!(
+                                    "@derive(Hash): invalid hash expression for '{}': {err:?}",
+                                    f.name
+                                ),
+                            )
+                        })?;
+                        Ok(*expr)
                     })
-                    .collect::<Vec<_>>()
-                    .join("\n                    ")
+                    .collect::<Result<_, MacroforgeError>>()?
             } else {
-                String::new()
+                Vec::new()
+            };
+
+            let hash_body = if has_fields {
+                ts_template! {
+                    {#for hash_expr in hash_exprs}
+                        hash = (hash * 31 + @{hash_expr}) | 0;
+                    {/for}
+                }
+            } else {
+                TsStream::from_string(String::new())
             };
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
-                export function @{fn_name}(value: @{class_name}): number {
+                export function @{fn_name_ident}(value: @{class_ident}): number {
                     let hash = 17;
                     {#if has_fields}
-                        @{hash_body}
+                        {$typescript hash_body}
                     {/if}
                     return hash;
                 }
@@ -298,23 +318,21 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
             // Generate static wrapper method that delegates to standalone function
             let class_body = body! {
-                static hashCode(value: @{class_name}): number {
-                    return @{fn_name}(value);
+                static hashCode(value: @{class_ident}): number {
+                    return @{fn_name_expr}(value);
                 }
             };
 
-            // Combine standalone function with class body by concatenating sources
+            // Combine standalone function with class body using {$typescript} for proper composition
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
-            let mut combined = TsStream::from_string(combined_source);
-            combined.runtime_patches = standalone.runtime_patches;
-            combined.runtime_patches.extend(class_body.runtime_patches);
-
-            Ok(combined)
+            Ok(ts_template! {
+                {$typescript standalone}
+                {$typescript class_body}
+            })
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
-            let fn_name = format!("{}HashCode", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}HashCode", enum_name.to_case(Case::Camel));
 
             // Check if all variants are string values
             let is_string_enum = enum_data.variants().iter().all(|v| v.value.is_string());
@@ -322,7 +340,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             if is_string_enum {
                 // String enum: hash the string value
                 Ok(ts_template! {
-                    export function @{fn_name}(value: @{enum_name}): number {
+                    export function @{fn_name_ident}(value: @{ident!(enum_name)}): number {
                         let hash = 0;
                         for (let i = 0; i < value.length; i++) {
                             hash = (hash * 31 + value.charCodeAt(i)) | 0;
@@ -333,7 +351,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             } else {
                 // Numeric enum: use the number value directly
                 Ok(ts_template! {
-                    export function @{fn_name}(value: @{enum_name}): number {
+                    export function @{fn_name_ident}(value: @{ident!(enum_name)}): number {
                         return value as number;
                     }
                 })
@@ -374,10 +392,10 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 String::new()
             };
 
-            let fn_name = format!("{}HashCode", interface_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}HashCode", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name}(value: @{interface_name}): number {
+                export function @{fn_name_ident}(value: @{ident!(interface_name)}): number {
                     let hash = 17;
                     {#if has_fields}
                         @{hash_body}
@@ -423,10 +441,10 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                     String::new()
                 };
 
-                let fn_name = format!("{}HashCode", type_name.to_case(Case::Camel));
+                let fn_name_ident = ident!("{}HashCode", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name}(value: @{type_name}): number {
+                    export function @{fn_name_ident}(value: @{ident!(type_name)}): number {
                         let hash = 17;
                         {#if has_fields}
                             @{hash_body}
@@ -436,10 +454,10 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 })
             } else {
                 // Union, tuple, or simple alias: use JSON hash
-                let fn_name = format!("{}HashCode", type_name.to_case(Case::Camel));
+                let fn_name_ident = ident!("{}HashCode", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name}(value: @{type_name}): number {
+                    export function @{fn_name_ident}(value: @{ident!(type_name)}): number {
                         const str = JSON.stringify(value);
                         let hash = 0;
                         for (let i = 0; i < str.length; i++) {

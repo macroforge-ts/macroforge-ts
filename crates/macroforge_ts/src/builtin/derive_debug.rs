@@ -65,7 +65,8 @@
 use convert_case::{Case, Casing};
 
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_macro_input};
 
 /// Options parsed from @Debug decorator on fields
 #[derive(Default)]
@@ -177,6 +178,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let class_ident = ident!(class_name);
 
             // Collect fields that should be included in debug output
             let debug_fields: Vec<DebugField> = class
@@ -195,11 +197,12 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let has_fields = !debug_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}ToString", class_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}ToString", class_name.to_case(Case::Camel));
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
-                export function @{fn_name}(value: @{class_name}): string {
+                export function @{fn_name_ident}(value: @{class_ident}): string {
                     {#if has_fields}
                         const parts: string[] = [];
                         {#for (label, name) in debug_fields}
@@ -214,23 +217,23 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             // Generate static wrapper method that delegates to standalone function
             let class_body = body! {
-                static toString(value: @{class_name}): string {
-                    return @{fn_name}(value);
+                static toString(value: @{class_ident}): string {
+                    return @{fn_name_expr}(value);
                 }
             };
 
-            // Combine standalone function with class body by concatenating sources
+            // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
             // The body! output has /* @macroforge:body */ marker for class body insertion
-            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
-            let mut combined = TsStream::from_string(combined_source);
-            combined.runtime_patches = standalone.runtime_patches;
-            combined.runtime_patches.extend(class_body.runtime_patches);
-
-            Ok(combined)
+            Ok(ts_template! {
+                {$typescript standalone}
+                {$typescript class_body}
+            })
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
+            let enum_ident = ident!(enum_name);
+            let enum_expr: Expr = enum_ident.clone().into();
             let variants: Vec<String> = enum_data
                 .variants()
                 .iter()
@@ -238,11 +241,11 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 .collect();
             let has_variants = !variants.is_empty();
 
-            let fn_name = format!("{}ToString", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}ToString", enum_name.to_case(Case::Camel));
             Ok(ts_template! {
-                export function @{fn_name}(value: @{enum_name}): string {
+                export function @{fn_name_ident}(value: @{enum_ident}): string {
                     {#if has_variants}
-                        const key = @{enum_name}[value as unknown as keyof typeof @{enum_name}];
+                        const key = @{enum_expr}[value as unknown as keyof typeof @{enum_ident}];
                         if (key !== undefined) {
                             return "@{enum_name}." + key;
                         }
@@ -255,6 +258,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
+            let interface_ident = ident!(interface_name);
 
             // Collect fields that should be included in debug output
             let debug_fields: Vec<DebugField> = interface
@@ -271,10 +275,10 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 .collect();
 
             let has_fields = !debug_fields.is_empty();
-            let fn_name = format!("{}ToString", interface_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}ToString", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name}(value: @{interface_name}): string {
+                export function @{fn_name_ident}(value: @{interface_ident}): string {
                     {#if has_fields}
                         const parts: string[] = [];
                         {#for (label, name) in debug_fields}
@@ -289,6 +293,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
+            let type_ident = ident!(type_name);
 
             // Generate different output based on type body
             if type_alias.is_object() {
@@ -308,10 +313,10 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     .collect();
 
                 let has_fields = !debug_fields.is_empty();
-                let fn_name = format!("{}ToString", type_name.to_case(Case::Camel));
+                let fn_name_ident = ident!("{}ToString", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name}(value: @{type_name}): string {
+                    export function @{fn_name_ident}(value: @{type_ident}): string {
                         {#if has_fields}
                             const parts: string[] = [];
                             {#for (label, name) in debug_fields}
@@ -325,10 +330,10 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
             } else {
                 // Union, intersection, tuple, or simple alias: use JSON.stringify
-                let fn_name = format!("{}ToString", type_name.to_case(Case::Camel));
+                let fn_name_ident = ident!("{}ToString", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name}(value: @{type_name}): string {
+                    export function @{fn_name_ident}(value: @{type_ident}): string {
                         return "@{type_name}(" + JSON.stringify(value) + ")";
                     }
                 })

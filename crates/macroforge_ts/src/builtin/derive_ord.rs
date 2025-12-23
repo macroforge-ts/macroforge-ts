@@ -96,7 +96,10 @@ use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::{
+    ident, parse_ts_expr, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
+};
+use crate::swc_ecma_ast::{Expr, Ident};
 
 /// Contains field information needed for ordering comparison generation.
 ///
@@ -210,6 +213,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let class_ident = ident!(class_name);
 
             // Collect fields for comparison
             let ord_fields: Vec<OrdField> = class
@@ -230,32 +234,49 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
             let has_fields = !ord_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}Compare", class_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}Compare", class_name.to_case(Case::Camel));
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
-            // Build comparison logic using a and b parameters
-            let compare_body = if has_fields {
+            let compare_steps: Vec<(Ident, Expr)> = if has_fields {
                 ord_fields
                     .iter()
                     .enumerate()
                     .map(|(i, f)| {
-                        let var_name = format!("cmp{}", i);
-                        format!(
-                            "const {var_name} = {};\n                    if ({var_name} !== 0) return {var_name};",
-                            generate_field_compare_for_interface(f, "a", "b")
-                        )
+                        let cmp_ident = ident!(format!("cmp{}", i));
+                        let expr_src = generate_field_compare_for_interface(f, "a", "b");
+                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                            MacroforgeError::new(
+                                input.decorator_span(),
+                                format!(
+                                    "@derive(Ord): invalid comparison expression for '{}': {err:?}",
+                                    f.name
+                                ),
+                            )
+                        })?;
+                        Ok((cmp_ident, *expr))
                     })
-                    .collect::<Vec<_>>()
-                    .join("\n                    ")
+                    .collect::<Result<_, MacroforgeError>>()?
             } else {
-                String::new()
+                Vec::new()
+            };
+
+            let compare_body = if has_fields {
+                ts_template! {
+                    {#for (cmp_ident, cmp_expr) in &compare_steps}
+                        const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                        if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                    {/for}
+                }
+            } else {
+                TsStream::from_string(String::new())
             };
 
             // Generate standalone function with two parameters
             let standalone = ts_template! {
-                export function @{fn_name}(a: @{class_name}, b: @{class_name}): number {
+                export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): number {
                     if (a === b) return 0;
                     {#if has_fields}
-                        @{compare_body}
+                        {$typescript compare_body}
                     {/if}
                     return 0;
                 }
@@ -263,26 +284,24 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 
             // Generate static wrapper method that delegates to standalone function
             let class_body = body! {
-                static compareTo(a: @{class_name}, b: @{class_name}): number {
-                    return @{fn_name}(a, b);
+                static compareTo(a: @{class_ident}, b: @{class_ident}): number {
+                    return @{fn_name_expr}(a, b);
                 }
             };
 
-            // Combine standalone function with class body by concatenating sources
+            // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
-            let mut combined = TsStream::from_string(combined_source);
-            combined.runtime_patches = standalone.runtime_patches;
-            combined.runtime_patches.extend(class_body.runtime_patches);
-
-            Ok(combined)
+            Ok(ts_template! {
+                {$typescript standalone}
+                {$typescript class_body}
+            })
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let fn_name = format!("{}Compare", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}Compare", enum_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): number {
+                export function @{fn_name_ident}(a: @{ident!(enum_name)}, b: @{ident!(enum_name)}): number {
                     // For enums, compare by value (numeric enums) or string
                     if (typeof a === "number" && typeof b === "number") {
                         return a < b ? -1 : a > b ? 1 : 0;
@@ -297,6 +316,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
+            let interface_ident = ident!(interface_name);
 
             let ord_fields: Vec<OrdField> = interface
                 .fields()
@@ -315,30 +335,47 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 
             let has_fields = !ord_fields.is_empty();
 
-            let compare_body = if has_fields {
+            let compare_steps: Vec<(Ident, Expr)> = if has_fields {
                 ord_fields
                     .iter()
                     .enumerate()
                     .map(|(i, f)| {
-                        let var_name = format!("cmp{}", i);
-                        format!(
-                            "const {var_name} = {};\n                        if ({var_name} !== 0) return {var_name};",
-                            generate_field_compare_for_interface(f, "a", "b")
-                        )
+                        let cmp_ident = ident!(format!("cmp{}", i));
+                        let expr_src = generate_field_compare_for_interface(f, "a", "b");
+                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                            MacroforgeError::new(
+                                input.decorator_span(),
+                                format!(
+                                    "@derive(Ord): invalid comparison expression for '{}': {err:?}",
+                                    f.name
+                                ),
+                            )
+                        })?;
+                        Ok((cmp_ident, *expr))
                     })
-                    .collect::<Vec<_>>()
-                    .join("\n                        ")
+                    .collect::<Result<_, MacroforgeError>>()?
             } else {
-                String::new()
+                Vec::new()
             };
 
-            let fn_name = format!("{}Compare", interface_name.to_case(Case::Camel));
+            let compare_body = if has_fields {
+                ts_template! {
+                    {#for (cmp_ident, cmp_expr) in &compare_steps}
+                        const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                        if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                    {/for}
+                }
+            } else {
+                TsStream::from_string(String::new())
+            };
+
+            let fn_name_ident = ident!("{}Compare", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): number {
+                export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): number {
                     if (a === b) return 0;
                     {#if has_fields}
-                        @{compare_body}
+                        {$typescript compare_body}
                     {/if}
                     return 0;
                 }
@@ -346,6 +383,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
+            let type_ident = ident!(type_name);
 
             if type_alias.is_object() {
                 let ord_fields: Vec<OrdField> = type_alias
@@ -366,40 +404,57 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 
                 let has_fields = !ord_fields.is_empty();
 
-                let compare_body = if has_fields {
+                let compare_steps: Vec<(Ident, Expr)> = if has_fields {
                     ord_fields
                         .iter()
                         .enumerate()
                         .map(|(i, f)| {
-                            let var_name = format!("cmp{}", i);
-                            format!(
-                                "const {var_name} = {};\n                        if ({var_name} !== 0) return {var_name};",
-                                generate_field_compare_for_interface(f, "a", "b")
-                            )
+                            let cmp_ident = ident!(format!("cmp{}", i));
+                            let expr_src = generate_field_compare_for_interface(f, "a", "b");
+                            let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                                MacroforgeError::new(
+                                    input.decorator_span(),
+                                    format!(
+                                        "@derive(Ord): invalid comparison expression for '{}': {err:?}",
+                                        f.name
+                                    ),
+                                )
+                            })?;
+                            Ok((cmp_ident, *expr))
                         })
-                        .collect::<Vec<_>>()
-                        .join("\n                        ")
+                        .collect::<Result<_, MacroforgeError>>()?
                 } else {
-                    String::new()
+                    Vec::new()
                 };
 
-                let fn_name = format!("{}Compare", type_name.to_case(Case::Camel));
+                let compare_body = if has_fields {
+                    ts_template! {
+                        {#for (cmp_ident, cmp_expr) in &compare_steps}
+                            const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                            if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                        {/for}
+                    }
+                } else {
+                    TsStream::from_string(String::new())
+                };
+
+                let fn_name_ident = ident!("{}Compare", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): number {
+                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): number {
                         if (a === b) return 0;
                         {#if has_fields}
-                            @{compare_body}
+                            {$typescript compare_body}
                         {/if}
                         return 0;
                     }
                 })
             } else {
                 // Union, tuple, or simple alias: basic comparison
-                let fn_name = format!("{}Compare", type_name.to_case(Case::Camel));
+                let fn_name_ident = ident!("{}Compare", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): number {
+                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): number {
                         if (a === b) return 0;
                         // For unions/tuples, try primitive comparison
                         if (typeof a === "number" && typeof b === "number") {
@@ -425,30 +480,36 @@ mod tests {
     #[test]
     fn test_ord_macro_output() {
         let class_name = "User";
+        let class_ident = ident!(class_name);
         let ord_fields: Vec<OrdField> = vec![OrdField {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         }];
         let has_fields = !ord_fields.is_empty();
 
-        let compare_body = ord_fields
+        let compare_steps: Vec<(Ident, Expr)> = ord_fields
             .iter()
             .enumerate()
             .map(|(i, f)| {
-                let var_name = format!("cmp{}", i);
-                format!(
-                    "const {var_name} = {};\n                    if ({var_name} !== 0) return {var_name};",
-                    generate_field_compare_for_interface(f, "a", "b")
-                )
+                let cmp_ident = ident!(format!("cmp{}", i));
+                let expr_src = generate_field_compare_for_interface(f, "a", "b");
+                let expr = parse_ts_expr(&expr_src).expect("compare expr should parse");
+                (cmp_ident, *expr)
             })
-            .collect::<Vec<_>>()
-            .join("\n                    ");
+            .collect();
+
+        let compare_body = ts_template! {
+            {#for (cmp_ident, cmp_expr) in &compare_steps}
+                const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+            {/for}
+        };
 
         let output = body! {
-            compareTo(other: @{class_name}): number {
+            compareTo(other: @{class_ident}): number {
                 if (a === b) return 0;
                 {#if has_fields}
-                    @{compare_body}
+                    {$typescript compare_body}
                 {/if}
                 return 0;
             }
