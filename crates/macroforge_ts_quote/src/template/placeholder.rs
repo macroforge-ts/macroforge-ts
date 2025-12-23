@@ -55,9 +55,22 @@ impl Visit for PlaceholderFinder {
         pat.visit_children_with(self);
     }
 
-    fn visit_ts_type_ref(&mut self, ty: &TsTypeRef) {
-        if let TsEntityName::Ident(ident) = &ty.type_name {
-            self.record(ident.sym.as_ref(), PlaceholderUse::Type);
+    fn visit_ts_type(&mut self, ty: &TsType) {
+        // Handle all type positions uniformly - this catches types in:
+        // - Type references (const x: Type)
+        // - Type assertions (x as Type)
+        // - Array types (Type[])
+        // - Union types (Type | null)
+        // - Etc.
+        if let TsType::TsTypeRef(type_ref) = ty {
+            if let TsEntityName::Ident(ident) = &type_ref.type_name {
+                self.record(ident.sym.as_ref(), PlaceholderUse::Type);
+            }
+        } else if let TsType::TsTypeQuery(query) = ty {
+            // Handle `typeof Foo`
+            if let TsTypeQueryExpr::TsEntityName(TsEntityName::Ident(ident)) = &query.expr_name {
+                self.record(ident.sym.as_ref(), PlaceholderUse::Type);
+            }
         }
         ty.visit_children_with(self);
     }

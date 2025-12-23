@@ -2,12 +2,15 @@ use std::collections::{HashMap, HashSet};
 
 use proc_macro2::Span;
 use quote::quote;
+use swc_core::ecma::visit::VisitWith;
 
 use crate::template::{
     append_part, build_string_interp_expr, build_template_interp_expr, compile_control_expr,
-    compile_ident_block, placeholder_name, placeholder_type_tokens, template_error, BindingSpec,
-    PlaceholderUse, Segment, TemplateAndBindings, TypePlaceholder,
+    compile_ident_block, is_type_position_suffix, placeholder_name, placeholder_type_tokens,
+    template_error, BindingSpec, PlaceholderUse, Segment, TemplateAndBindings, TypePlaceholder,
 };
+use crate::template::parse::{parse_ts_expr, parse_ts_module};
+use crate::template::placeholder::PlaceholderFinder;
 
 /// Builds the placeholder template string and binding list for a segment run.
 pub fn build_template_and_bindings(
@@ -23,8 +26,8 @@ pub fn build_template_and_bindings(
     for seg in segments {
         match seg.borrow() {
             Segment::Static(s) => {
-                pending_type_suffix = s.trim_end().ends_with("as");
                 append_part(&mut template, s);
+                pending_type_suffix = is_type_position_suffix(&template);
             }
             Segment::Comment { .. } => {
                 return Err(template_error(
@@ -34,10 +37,22 @@ pub fn build_template_and_bindings(
                 ));
             }
             Segment::Interpolation { id, expr } => {
-                let mut use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Expr);
-                if pending_type_suffix && matches!(use_kind, PlaceholderUse::Expr) {
-                    use_kind = PlaceholderUse::Type;
-                }
+                // Get classification from context_map, or default to Expr
+                let classified = context_map.get(id).cloned();
+                let type_suffix = pending_type_suffix || is_type_position_suffix(&template);
+
+                // If context_map says Type, use Type.
+                // If heuristic says Type position AND context_map says Expr (or has no entry),
+                // upgrade to Type. This is important because:
+                // 1. The heuristic catches type positions that classification might miss
+                // 2. For placeholders inside control blocks that aren't in the context_map
+                let use_kind = if matches!(classified, Some(PlaceholderUse::Type)) {
+                    PlaceholderUse::Type
+                } else if type_suffix && matches!(classified, Some(PlaceholderUse::Expr) | None) {
+                    PlaceholderUse::Type
+                } else {
+                    classified.unwrap_or(PlaceholderUse::Expr)
+                };
                 pending_type_suffix = false;
 
                 if matches!(use_kind, PlaceholderUse::Type) {
@@ -271,11 +286,134 @@ pub fn build_template_and_bindings(
         }
     }
 
-    Ok(TemplateAndBindings {
+    let mut template_result = TemplateAndBindings {
         template,
         bindings,
         type_placeholders,
-    })
+    };
+
+    upgrade_type_placeholders_from_template(&mut template_result);
+
+    Ok(template_result)
+}
+
+fn upgrade_type_placeholders_from_template(template_result: &mut TemplateAndBindings) {
+    if template_result.bindings.is_empty() {
+        return;
+    }
+
+    if !template_result.template.contains("$__mf_hole_") {
+        return;
+    }
+
+    let mut name_map = HashMap::new();
+    for binding in &template_result.bindings {
+        let name = binding.name.to_string();
+        if let Some(id_str) = name.strip_prefix("__mf_hole_") {
+            if let Ok(id) = id_str.parse::<usize>() {
+                name_map.insert(name, id);
+            }
+        }
+    }
+
+    if name_map.is_empty() {
+        return;
+    }
+
+    let source = template_result
+        .template
+        .replace("$__mf_hole_", "__mf_hole_");
+
+    let Some(classified) = classify_placeholders_from_source(&source, name_map) else {
+        if template_result.template.contains("export function") {
+            eprintln!("DEBUG: failed to classify template source");
+            eprintln!("DEBUG: template={}", template_result.template);
+            eprintln!("DEBUG: source={}", source);
+        }
+        return;
+    };
+
+    let mut type_ids = HashSet::new();
+    for (id, use_kind) in classified {
+        if matches!(use_kind, PlaceholderUse::Type) {
+            type_ids.insert(id);
+        }
+    }
+
+    if type_ids.is_empty() {
+        if template_result.template.contains("export function") {
+            eprintln!("DEBUG: no type placeholders found in classification");
+            eprintln!("DEBUG: template={}", template_result.template);
+            eprintln!("DEBUG: source={}", source);
+        }
+        return;
+    }
+
+    for id in &type_ids {
+        let placeholder = format!("$__mf_hole_{id}");
+        if template_result.template.contains(&placeholder) {
+            template_result.template =
+                template_result.template.replace(&placeholder, &format!("__MfTypeMarker{id}"));
+        }
+    }
+
+    let mut existing_type_ids = HashSet::new();
+    for placeholder in &template_result.type_placeholders {
+        existing_type_ids.insert(placeholder.id);
+    }
+
+    let mut remaining_bindings = Vec::new();
+    for binding in template_result.bindings.drain(..) {
+        let name = binding.name.to_string();
+        let id_opt = name
+            .strip_prefix("__mf_hole_")
+            .and_then(|id| id.parse::<usize>().ok());
+        if let Some(id) = id_opt {
+            if type_ids.contains(&id) {
+                if !existing_type_ids.contains(&id) {
+                    template_result
+                        .type_placeholders
+                        .push(TypePlaceholder { id, expr: binding.expr });
+                }
+                continue;
+            }
+        }
+        remaining_bindings.push(binding);
+    }
+    template_result.bindings = remaining_bindings;
+}
+
+fn classify_placeholders_from_source(
+    source: &str,
+    map: HashMap<String, usize>,
+) -> Option<HashMap<usize, PlaceholderUse>> {
+    if let Ok(module) = parse_ts_module(source) {
+        let mut finder = PlaceholderFinder::new(map);
+        module.visit_with(&mut finder);
+        return Some(finder.into_map());
+    }
+
+    let wrapped_source = format!("class __MfWrapper {{ {} }}", source);
+    if let Ok(module) = parse_ts_module(&wrapped_source) {
+        let mut finder = PlaceholderFinder::new(map);
+        module.visit_with(&mut finder);
+        return Some(finder.into_map());
+    }
+
+    let wrapped_source = format!("function __MfWrapper() {{ {} }}", source);
+    if let Ok(module) = parse_ts_module(&wrapped_source) {
+        let mut finder = PlaceholderFinder::new(map);
+        module.visit_with(&mut finder);
+        return Some(finder.into_map());
+    }
+
+    if let Ok(expr) = parse_ts_expr(source) {
+        let mut finder = PlaceholderFinder::new(map);
+        expr.visit_with(&mut finder);
+        return Some(finder.into_map());
+    }
+
+    None
 }
 
 #[cfg(test)]
@@ -676,6 +814,8 @@ mod tests {
 
     #[test]
     fn test_mixed_type_and_expr_placeholders() {
+        // When context_map says Expr but the heuristic says Type position,
+        // we upgrade to Type to be safe. This prevents SWC quote! parse errors.
         let mut context = HashMap::new();
         context.insert(20, PlaceholderUse::Type);
         context.insert(21, PlaceholderUse::Expr);
@@ -693,9 +833,70 @@ mod tests {
         ];
         let result = build_template_and_bindings(segments, &context).unwrap();
 
-        assert_eq!(result.template, r"__MfTypeMarker20 | $__mf_hole_21");
-        assert_eq!(result.type_placeholders.len(), 1);
-        assert_eq!(result.bindings.len(), 1);
+        // Both placeholders are treated as Type because:
+        // - 20 is explicitly Type in context_map
+        // - 21 is after `|` which is a type position suffix, so we upgrade from Expr to Type
+        assert_eq!(result.template, r"__MfTypeMarker20 | __MfTypeMarker21");
+        assert_eq!(result.type_placeholders.len(), 2);
+        assert!(result.bindings.is_empty());
+    }
+
+    #[test]
+    fn test_export_function_with_type_placeholders_and_brace_block() {
+        // This mimics the exact failing pattern from derive_deserialize.rs
+        // export function @{fn}(input: unknown, opts?: @{type}): @{return_type} { {#for item in items} ... {/for} }
+        let mut context = HashMap::new();
+        context.insert(0, PlaceholderUse::Ident);  // function name
+        context.insert(1, PlaceholderUse::Type);   // optional param type
+        context.insert(2, PlaceholderUse::Type);   // return type
+
+        let segments = vec![
+            Segment::Static("export function ".to_string()),
+            Segment::Interpolation {
+                id: 0,
+                expr: quote!(fn_ident),
+            },
+            Segment::Static("(input: unknown, opts?: ".to_string()),
+            Segment::Interpolation {
+                id: 1,
+                expr: quote!(OptsType),
+            },
+            Segment::Static("): ".to_string()),
+            Segment::Interpolation {
+                id: 2,
+                expr: quote!(ReturnType),
+            },
+            Segment::Static(" ".to_string()),
+            Segment::BraceBlock {
+                id: 3,
+                inner: vec![
+                    Segment::Control {
+                        id: 4,
+                        node: ControlNode::For {
+                            pat: quote!(item),
+                            iter: quote!(items),
+                            body: vec![Segment::Static("console.log(item);".to_string())],
+                        },
+                    },
+                ],
+            },
+        ];
+        let result = build_template_and_bindings(segments, &context).unwrap();
+
+        eprintln!("Template: {}", result.template);
+        eprintln!("Type placeholders: {:?}", result.type_placeholders.iter().map(|tp| tp.id).collect::<Vec<_>>());
+        eprintln!("Bindings: {:?}", result.bindings.iter().map(|b| b.name.to_string()).collect::<Vec<_>>());
+
+        // Should have type placeholders for opts and return type
+        assert_eq!(result.type_placeholders.len(), 2, "Should have 2 type placeholders");
+        let type_ids: Vec<_> = result.type_placeholders.iter().map(|tp| tp.id).collect();
+        assert!(type_ids.contains(&1), "Should have type placeholder for id 1 (OptsType)");
+        assert!(type_ids.contains(&2), "Should have type placeholder for id 2 (ReturnType)");
+
+        // Template should have __MfTypeMarker for types and __mf_hole_block_ for the brace block
+        assert!(result.template.contains("__MfTypeMarker1"), "Template should have __MfTypeMarker1");
+        assert!(result.template.contains("__MfTypeMarker2"), "Template should have __MfTypeMarker2");
+        assert!(result.template.contains("__mf_hole_block_3"), "Template should have __mf_hole_block_3 for brace block");
     }
 
     #[test]

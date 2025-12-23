@@ -304,6 +304,58 @@ mod tests {
     }
 
     #[test]
+    fn test_classify_export_function_with_optional_param_and_return_type() {
+        // Matches: export function @{fn_ident}(input: unknown, opts?: @{opts_type}): @{return_type} {}
+        let segments = vec![
+            static_segment("export function "),
+            interpolation_segment(0, quote!(fn_ident)),  // Ident
+            static_segment("(input: unknown, opts?: "),
+            interpolation_segment(1, quote!(OptsType)),  // Type - optional param
+            static_segment("): "),
+            interpolation_segment(2, quote!(ReturnType)), // Type - return type
+            static_segment(" {}"),
+        ];
+
+        let result = classify_placeholders_module(&segments).unwrap();
+        assert_eq!(result.get(&0), Some(&PlaceholderUse::Ident), "Function name should be Ident");
+        assert_eq!(result.get(&1), Some(&PlaceholderUse::Type), "Optional param type should be Type");
+        assert_eq!(result.get(&2), Some(&PlaceholderUse::Type), "Return type should be Type");
+    }
+
+    #[test]
+    fn test_classify_export_function_with_control_block_in_body() {
+        // Matches: export function @{fn_ident}(input: unknown, opts?: @{opts_type}): @{return_type} { {#for ...} }
+        // Control blocks become __mf_hole_X; placeholders
+        use crate::template::ControlNode;
+        let segments = vec![
+            static_segment("export function "),
+            interpolation_segment(0, quote!(fn_ident)),  // Ident
+            static_segment("(input: unknown, opts?: "),
+            interpolation_segment(1, quote!(OptsType)),  // Type - optional param
+            static_segment("): "),
+            interpolation_segment(2, quote!(ReturnType)), // Type - return type
+            static_segment(" { "),
+            Segment::Control {
+                id: 3,
+                node: ControlNode::For {
+                    pat: quote!(item),
+                    iter: quote!(items),
+                    body: vec![static_segment("console.log(item);")],
+                },
+            },
+            static_segment(" }"),
+        ];
+
+        let result = classify_placeholders_module(&segments).unwrap();
+        eprintln!("Result: {:?}", result);
+        assert_eq!(result.get(&0), Some(&PlaceholderUse::Ident), "Function name should be Ident");
+        assert_eq!(result.get(&1), Some(&PlaceholderUse::Type), "Optional param type should be Type");
+        assert_eq!(result.get(&2), Some(&PlaceholderUse::Type), "Return type should be Type");
+        // Control block in function body should be Stmt
+        assert_eq!(result.get(&3), Some(&PlaceholderUse::Stmt), "Control block should be Stmt");
+    }
+
+    #[test]
     fn test_classify_placeholders_expr_binary_expression() {
         // Test: a + b
         let segments = vec![

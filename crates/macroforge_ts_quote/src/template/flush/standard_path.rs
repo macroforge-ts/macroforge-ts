@@ -243,7 +243,7 @@ fn generate_block_replacement_code(block_compilations: &[(usize, TokenStream2)])
             }
 
             let mut __mf_block_replacer = __MfBlockReplacer {
-                blocks: [#block_replacements].into_iter().collect(),
+                blocks: [#block_replacements].into_iter().map(|(k, v): (&str, Vec<_>)| (k.to_string(), v)).collect(),
             };
             __mf_stmt.visit_mut_with(&mut __mf_block_replacer);
         }

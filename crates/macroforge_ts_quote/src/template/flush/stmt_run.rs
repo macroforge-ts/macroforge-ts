@@ -13,8 +13,8 @@ use super::type_placeholder_path::generate_type_placeholder_code;
 use crate::template::build::{PlaceholderSourceKind, build_placeholder_source};
 use crate::template::{
     PlaceholderUse, Segment, build_template_and_bindings, collect_block_compilations,
-    collect_ident_name_ids, generate_type_placeholder_fix, ident_name_fix_block,
-    parse_ts_module_with_source,
+    collect_ident_name_ids, generate_type_placeholder_fix, has_type_placeholder_recursive,
+    ident_name_fix_block, parse_ts_module_with_source,
 };
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use std::collections::HashMap;
@@ -92,37 +92,56 @@ pub fn flush_stmt_run(
     let (placeholder_source, _) =
         build_placeholder_source(&segments_vec, PlaceholderSourceKind::Module);
 
-    if !template_result.type_placeholders.is_empty() {
+    // Check for type placeholders - both in the top-level template AND inside control blocks
+    // Type placeholders inside control blocks (like {#match}) aren't added to template_result.type_placeholders
+    // because those segments get compiled to Rust code. We need to check recursively.
+    let has_type_placeholders = !template_result.type_placeholders.is_empty()
+        || has_type_placeholder_recursive(&segments_vec, context_map);
+
+    if template_result.template.contains("export function")
+        && template_result.template.contains("opts?:")
+    {
+        eprintln!(
+            "DEBUG: has_type_placeholders={}, type_placeholders={:?}, template={}",
+            has_type_placeholders,
+            template_result
+                .type_placeholders
+                .iter()
+                .map(|t| t.id)
+                .collect::<Vec<_>>(),
+            template_result.template
+        );
+    }
+
+    if has_type_placeholders {
         // Type placeholder path: Use runtime parsing with full TypeScript support
         // Use the same fallback logic as other paths: module -> class -> function
 
         // Try parsing as module first
         if parse_ts_module_with_source(&placeholder_source).is_ok() {
-            validate_template_source(&template_result.template, "type-placeholder module")?;
+            // Skip validate_template_source here - the template has $ placeholders for quote!
+            // but we're doing runtime parsing which uses valid TS identifiers after conversion
             return Ok(generate_type_placeholder_code(
                 &template_result,
                 out_ident,
                 comments_ident,
                 pending_ident,
                 pos_ident,
+                &block_compilations,
             ));
         }
 
         // Try class-wrapped - use class_wrapped_path which already supports type placeholders
         let class_wrapped_source = format!("class __MfWrapper {{ {} }}", &placeholder_source);
         if let Ok((module, cm)) = parse_ts_module_with_source(&class_wrapped_source) {
-            let class_wrapped_template =
-                format!("class __MfWrapper {{ {} }}", &template_result.template);
-            validate_template_source(&class_wrapped_template, "type-placeholder class")?;
+            // Skip validate_template_source - runtime parsing handles $ placeholder conversion
             return generate_class_wrapped_code(&template_result, &cm, &module, out_ident);
         }
 
         // Try function-wrapped
         let function_wrapped_source = format!("function __MfWrapper() {{ {} }}", &placeholder_source);
         if let Ok((module, cm)) = parse_ts_module_with_source(&function_wrapped_source) {
-            let function_wrapped_template =
-                format!("function __MfWrapper() {{ {} }}", &template_result.template);
-            validate_template_source(&function_wrapped_template, "type-placeholder function")?;
+            // Skip validate_template_source - function_wrapped uses quote_ts which handles $ placeholders
             return generate_function_wrapped_code(&template_result, &cm, &module, out_ident);
         }
 
@@ -557,5 +576,218 @@ mod tests {
         );
 
         assert!(result.is_ok(), "Should handle class declarations");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_export_function_with_type_placeholders() {
+        // Test export function with type placeholders in parameter and return type positions
+        // This matches the failing derive_deserialize.rs case
+        let seg1 = Segment::Static("export function ".to_string());
+        let seg2 = Segment::Interpolation {
+            id: 0,
+            expr: quote! { fn_ident },
+        };
+        let seg3 = Segment::Static("(input: unknown, opts?: ".to_string());
+        let seg4 = Segment::Interpolation {
+            id: 1,
+            expr: quote! { OptsType },
+        };
+        let seg5 = Segment::Static("): ".to_string());
+        let seg6 = Segment::Interpolation {
+            id: 2,
+            expr: quote! { ReturnType },
+        };
+        let seg7 = Segment::Static(" {}".to_string());
+
+        let run = vec![&seg1, &seg2, &seg3, &seg4, &seg5, &seg6, &seg7];
+
+        // Context map should have type placeholders classified correctly
+        let mut context_map = HashMap::new();
+        context_map.insert(0, PlaceholderUse::Ident);  // function name
+        context_map.insert(1, PlaceholderUse::Type);   // optional param type
+        context_map.insert(2, PlaceholderUse::Type);   // return type
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(
+            result.is_ok(),
+            "Should handle export function with type placeholders. Error: {:?}",
+            result.err()
+        );
+    }
+
+    #[test]
+    fn test_flush_stmt_run_export_function_without_context_map() {
+        // Test what happens when context_map is EMPTY (simulating the bug)
+        // This should still detect type placeholders via classification
+        let seg1 = Segment::Static("export function ".to_string());
+        let seg2 = Segment::Interpolation {
+            id: 0,
+            expr: quote! { fn_ident },
+        };
+        let seg3 = Segment::Static("(input: unknown, opts?: ".to_string());
+        let seg4 = Segment::Interpolation {
+            id: 1,
+            expr: quote! { OptsType },
+        };
+        let seg5 = Segment::Static("): ".to_string());
+        let seg6 = Segment::Interpolation {
+            id: 2,
+            expr: quote! { ReturnType },
+        };
+        let seg7 = Segment::Static(" {}".to_string());
+
+        let run = vec![&seg1, &seg2, &seg3, &seg4, &seg5, &seg6, &seg7];
+
+        // EMPTY context map - this is what might be happening in the actual bug
+        let context_map = HashMap::new();
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        // This should STILL work because build_template_and_bindings
+        // does its own classification when context_map is empty
+        assert!(
+            result.is_ok(),
+            "Should handle export function even with empty context_map. Error: {:?}",
+            result.err()
+        );
+    }
+
+    #[test]
+    fn test_flush_stmt_run_export_function_with_control_block() {
+        use crate::template::ControlNode;
+        // Test export function with type placeholders AND a control block in a BraceBlock body
+        let seg1 = Segment::Static("export function ".to_string());
+        let seg2 = Segment::Interpolation {
+            id: 0,
+            expr: quote! { fn_ident },
+        };
+        let seg3 = Segment::Static("(input: unknown, opts?: ".to_string());
+        let seg4 = Segment::Interpolation {
+            id: 1,
+            expr: quote! { OptsType },
+        };
+        let seg5 = Segment::Static("): ".to_string());
+        let seg6 = Segment::Interpolation {
+            id: 2,
+            expr: quote! { ReturnType },
+        };
+        let seg7 = Segment::Static(" ".to_string());
+        // The control block should be inside a BraceBlock
+        let seg8 = Segment::BraceBlock {
+            id: 4,  // Block id
+            inner: vec![
+                Segment::Control {
+                    id: 3,
+                    node: ControlNode::For {
+                        pat: quote! { item },
+                        iter: quote! { items },
+                        body: vec![
+                            Segment::Static("console.log(item);".to_string()),
+                        ],
+                    },
+                },
+            ],
+        };
+
+        let run = vec![&seg1, &seg2, &seg3, &seg4, &seg5, &seg6, &seg7, &seg8];
+
+        // Context map with types AND the control block as Stmt
+        let mut context_map = HashMap::new();
+        context_map.insert(0, PlaceholderUse::Ident);  // function name
+        context_map.insert(1, PlaceholderUse::Type);   // optional param type
+        context_map.insert(2, PlaceholderUse::Type);   // return type
+        context_map.insert(3, PlaceholderUse::Stmt);   // control block
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(
+            result.is_ok(),
+            "Should handle export function with type placeholders and control block. Error: {:?}",
+            result.err()
+        );
+    }
+
+    #[test]
+    fn test_build_template_and_bindings_with_type_placeholders() {
+        // Test that build_template_and_bindings correctly handles type placeholders
+        use crate::template::build_template_and_bindings;
+
+        let seg1 = Segment::Static("export function ".to_string());
+        let seg2 = Segment::Interpolation {
+            id: 0,
+            expr: quote! { fn_ident },
+        };
+        let seg3 = Segment::Static("(input: unknown, opts?: ".to_string());
+        let seg4 = Segment::Interpolation {
+            id: 1,
+            expr: quote! { OptsType },
+        };
+        let seg5 = Segment::Static("): ".to_string());
+        let seg6 = Segment::Interpolation {
+            id: 2,
+            expr: quote! { ReturnType },
+        };
+        let seg7 = Segment::Static(" {}".to_string());
+
+        let segments = [&seg1, &seg2, &seg3, &seg4, &seg5, &seg6, &seg7];
+
+        // Context map with types
+        let mut context_map = HashMap::new();
+        context_map.insert(0, PlaceholderUse::Ident);
+        context_map.insert(1, PlaceholderUse::Type);
+        context_map.insert(2, PlaceholderUse::Type);
+
+        let result = build_template_and_bindings(segments.iter().copied(), &context_map).unwrap();
+
+        eprintln!("Template: {}", result.template);
+        eprintln!("Type placeholders: {:?}", result.type_placeholders.iter().map(|t| t.id).collect::<Vec<_>>());
+        eprintln!("Bindings: {:?}", result.bindings.iter().map(|b| b.name.to_string()).collect::<Vec<_>>());
+
+        // Type placeholders should use __MfTypeMarkerX
+        assert!(result.template.contains("__MfTypeMarker1"), "Template should contain type marker for id 1");
+        assert!(result.template.contains("__MfTypeMarker2"), "Template should contain type marker for id 2");
+
+        // Type placeholders should be in the type_placeholders list
+        assert_eq!(result.type_placeholders.len(), 2, "Should have 2 type placeholders");
+
+        // Non-type placeholders should use $__mf_hole_X
+        assert!(result.template.contains("$__mf_hole_0"), "Template should contain $ placeholder for id 0");
     }
 }

@@ -6,7 +6,7 @@ use quote::{format_ident, quote};
 
 /// Generates ident match arms for Ident-typed bindings.
 ///
-/// Template uses `$__mf_hole_N` format, which parses as an ident with `sym="$__mf_hole_N"`.
+/// Template uses `__mf_hole_N` format (after stripping $ prefix for runtime parsing).
 /// Only generates arms for bindings with `Ident` type.
 pub fn generate_ident_arms(bindings: &[BindingSpec]) -> Vec<TokenStream2> {
     bindings
@@ -14,7 +14,8 @@ pub fn generate_ident_arms(bindings: &[BindingSpec]) -> Vec<TokenStream2> {
         .filter(|binding| binding.ty.to_string() == "Ident")
         .map(|binding| {
             let name = &binding.name;
-            let placeholder = format!("${}", name);
+            // Use name without $ prefix - runtime parsing uses valid TS identifiers
+            let placeholder = name.to_string();
             let field_name = format_ident!("binding_{}", name);
             quote! {
                 #placeholder => {
@@ -34,7 +35,8 @@ pub fn generate_expr_arms(bindings: &[BindingSpec]) -> Vec<TokenStream2> {
         .filter(|binding| binding.ty.to_string() == "Expr")
         .map(|binding| {
             let name = &binding.name;
-            let placeholder = format!("${}", name);
+            // Use name without $ prefix - runtime parsing uses valid TS identifiers
+            let placeholder = name.to_string();
             let field_name = format_ident!("binding_{}", name);
             quote! {
                 #placeholder => Some(self.#field_name.clone()),

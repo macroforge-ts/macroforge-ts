@@ -21,8 +21,12 @@ pub fn generate_type_placeholder_code(
     comments_ident: &proc_macro2::Ident,
     pending_ident: &proc_macro2::Ident,
     pos_ident: &proc_macro2::Ident,
+    block_compilations: &[(usize, TokenStream2)],
 ) -> TokenStream2 {
-    let template_str = syn::LitStr::new(&template_result.template, Span::call_site());
+    // Convert template from quote! format ($__mf_hole_X) to valid TypeScript (__mf_hole_X)
+    // The $ prefix is for swc_core::quote! substitution, but we're doing runtime parsing here
+    let template = template_result.template.replace("$__mf_hole_", "__mf_hole_");
+    let template_str = syn::LitStr::new(&template, Span::call_site());
 
     // Generate binding initializations
     let binding_inits = generate_binding_initializations(
@@ -41,6 +45,9 @@ pub fn generate_type_placeholder_code(
     let ident_arms = generate_ident_arms(&template_result.bindings);
     let expr_arms = generate_expr_arms(&template_result.bindings);
     let type_arms = generate_type_arms(&template_result.type_placeholders, &swc_core_path);
+
+    // Generate block replacement code
+    let block_replacement = generate_block_replacement_code(block_compilations);
 
     quote! {{
         #binding_inits
@@ -122,6 +129,9 @@ pub fn generate_type_placeholder_code(
         for mut __mf_item in __mf_module.body {
             __mf_item.visit_mut_with(&mut __mf_substitutor);
 
+            // Apply block replacements (for {#for ...} and {#if ...} blocks)
+            #block_replacement
+
             let __mf_pos = #swc_core_path::common::BytePos(#pos_ident);
             #pos_ident += 1;
             {
@@ -150,6 +160,68 @@ pub fn generate_type_placeholder_code(
             #out_ident.push(__mf_item);
         }
     }}
+}
+
+/// Generates block replacement code if there are blocks to replace.
+fn generate_block_replacement_code(block_compilations: &[(usize, TokenStream2)]) -> TokenStream2 {
+    if block_compilations.is_empty() {
+        return TokenStream2::new();
+    }
+
+    let mut block_replacements = TokenStream2::new();
+    for (block_id, block_code) in block_compilations {
+        let marker = format!("__mf_block_{}", block_id);
+        block_replacements.extend(quote! {
+            (#marker, {
+                let mut __mf_block_stmts: Vec<swc_core::ecma::ast::Stmt> = Vec::new();
+                #block_code
+                __mf_block_stmts
+            }),
+        });
+    }
+
+    quote! {
+        {
+            use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+            use swc_core::ecma::ast::{Stmt, Expr, ExprStmt, Ident};
+
+            struct __MfBlockReplacer {
+                blocks: std::collections::HashMap<String, Vec<Stmt>>,
+            }
+
+            impl VisitMut for __MfBlockReplacer {
+                fn visit_mut_block_stmt(&mut self, block: &mut swc_core::ecma::ast::BlockStmt) {
+                    // First, check if this block contains a marker statement
+                    let marker_id = block.stmts.iter().find_map(|stmt| {
+                        if let Stmt::Expr(ExprStmt { expr, .. }) = stmt {
+                            if let Expr::Ident(ident) = &**expr {
+                                let name = ident.sym.as_ref();
+                                if name.starts_with("__mf_block_") {
+                                    return Some(name.to_string());
+                                }
+                            }
+                        }
+                        None
+                    });
+
+                    if let Some(marker) = marker_id {
+                        if let Some(compiled_stmts) = self.blocks.remove(&marker) {
+                            block.stmts = compiled_stmts;
+                            return; // Don't recurse into replaced block
+                        }
+                    }
+
+                    // Recurse into children
+                    block.visit_mut_children_with(self);
+                }
+            }
+
+            let mut __mf_block_replacer = __MfBlockReplacer {
+                blocks: [#block_replacements].into_iter().map(|(k, v): (&str, Vec<_>)| (k.to_string(), v)).collect(),
+            };
+            __mf_item.visit_mut_with(&mut __mf_block_replacer);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -181,6 +253,7 @@ mod tests {
             &comments_ident,
             &pending_ident,
             &pos_ident,
+            &[],
         );
 
         assert!(!code.is_empty(), "Should generate code even for empty template");
@@ -211,6 +284,7 @@ mod tests {
             &comments_ident,
             &pending_ident,
             &pos_ident,
+            &[],
         );
 
         let code_str = code.to_string();
@@ -242,6 +316,7 @@ mod tests {
             &comments_ident,
             &pending_ident,
             &pos_ident,
+            &[],
         );
 
         let code_str = code.to_string();
@@ -268,6 +343,7 @@ mod tests {
             &comments_ident,
             &pending_ident,
             &pos_ident,
+            &[],
         );
 
         let code_str = code.to_string();
@@ -295,6 +371,7 @@ mod tests {
             &comments_ident,
             &pending_ident,
             &pos_ident,
+            &[],
         );
 
         let code_str = code.to_string();
@@ -322,6 +399,7 @@ mod tests {
             &comments_ident,
             &pending_ident,
             &pos_ident,
+            &[],
         );
 
         let code_str = code.to_string();
@@ -358,6 +436,7 @@ mod tests {
             &comments_ident,
             &pending_ident,
             &pos_ident,
+            &[],
         );
 
         let code_str = code.to_string();
@@ -384,6 +463,7 @@ mod tests {
             &comments_ident,
             &pending_ident,
             &pos_ident,
+            &[],
         );
 
         let code_str = code.to_string();

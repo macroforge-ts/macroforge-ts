@@ -40,9 +40,9 @@ pub(crate) fn append_part(out: &mut String, part: &str) {
     // - For angle brackets < >, treat like parentheses to support type parameters (e.g., Record<string>)
     let no_space_before = matches!(
         first_char,
-        '(' | '[' | ')' | ']' | '}' | ':' | ';' | ',' | '.' | '<' | '>'
+        '(' | '[' | ')' | ']' | '}' | ':' | ';' | ',' | '.' | '<' | '>' | '?'
     );
-    let no_space_after = matches!(last_char, '(' | '[' | '.' | '<');
+    let no_space_after = matches!(last_char, '(' | '[' | '.' | '<' | '?');
 
     let needs_space = !last_char.is_whitespace()
         && !first_char.is_whitespace()
@@ -80,7 +80,10 @@ pub(crate) fn tokens_to_ts_string(tokens: TokenStream2) -> String {
                 // Don't add space before: (, [, ., :, ;, ,, <, > (for type params and comparisons)
                 let next_needs_space = match iter.peek() {
                     Some(TokenTree::Punct(p)) => {
-                        !matches!(p.as_char(), '(' | '[' | '.' | ':' | ';' | ',' | ')' | ']' | '<' | '>')
+                        !matches!(
+                            p.as_char(),
+                            '(' | '[' | '.' | ':' | ';' | ',' | ')' | ']' | '<' | '>' | '?'
+                        )
                     }
                     Some(TokenTree::Group(g)) => {
                         // No space before groups
@@ -99,8 +102,10 @@ pub(crate) fn tokens_to_ts_string(tokens: TokenStream2) -> String {
                 if p.spacing() == proc_macro2::Spacing::Alone {
                     // @ is for interpolations - never add space after it
                     // < is for type parameters - don't add space after it
-                    let no_space_after =
-                        matches!(p.as_char(), '.' | '(' | '[' | ':' | ';' | ',' | '@' | '<');
+                    let no_space_after = matches!(
+                        p.as_char(),
+                        '.' | '(' | '[' | ':' | ';' | ',' | '@' | '<' | '?'
+                    );
                     if !no_space_after {
                         output.push(' ');
                     }

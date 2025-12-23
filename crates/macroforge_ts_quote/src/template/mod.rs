@@ -51,7 +51,10 @@ pub(crate) use build::{
     build_template_interp_expr,
 };
 pub(crate) use classify::{classify_placeholders_expr, classify_placeholders_module};
-pub(crate) use collect::{collect_block_compilations, collect_ident_name_ids};
+pub(crate) use collect::{
+    collect_block_compilations, collect_ident_name_ids, has_type_placeholder_recursive,
+    is_type_position_suffix,
+};
 pub(crate) use compile::{compile_control_expr, compile_ident_block};
 pub(crate) use escape::{escape_tpl_segment, escape_tpl_segment_allow_dollar};
 pub(crate) use flush::flush_stmt_run;

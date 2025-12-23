@@ -35,7 +35,9 @@ fn generate_class_wrapped_runtime_code(
     template_result: &TemplateAndBindings,
     out_ident: &proc_macro2::Ident,
 ) -> TokenStream2 {
-    let template_str = syn::LitStr::new(template, Span::call_site());
+    // Convert template from quote! format ($__mf_hole_X) to valid TypeScript (__mf_hole_X)
+    let template = template.replace("$__mf_hole_", "__mf_hole_");
+    let template_str = syn::LitStr::new(&template, Span::call_site());
     let binding_inits = generate_binding_initializations(
         &template_result.bindings,
         &template_result.type_placeholders,

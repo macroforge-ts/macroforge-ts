@@ -94,6 +94,128 @@ mod tests {
     }
 
     #[test]
+    fn test_compile_stmt_segments_export_function_with_type_placeholders() {
+        // This is an end-to-end test that mimics the failing derive_deserialize.rs pattern
+        // export function @{fn}(input: unknown, opts?: @{type}): @{return_type} { ... }
+        let segments = vec![
+            Segment::Static("export function ".to_string()),
+            Segment::Interpolation {
+                id: 0,
+                expr: quote!(fn_ident),
+            },
+            Segment::Static("(input: unknown, opts?: ".to_string()),
+            Segment::Interpolation {
+                id: 1,
+                expr: quote!(OptsType),
+            },
+            Segment::Static("): ".to_string()),
+            Segment::Interpolation {
+                id: 2,
+                expr: quote!(ReturnType),
+            },
+            Segment::Static(" ".to_string()),
+            Segment::BraceBlock {
+                id: 3,
+                inner: vec![
+                    Segment::Control {
+                        id: 4,
+                        node: ControlNode::For {
+                            pat: quote!(item),
+                            iter: quote!(items),
+                            body: vec![Segment::Static("console.log(item);".to_string())],
+                        },
+                    },
+                ],
+            },
+        ];
+        let (out, comments, pending, pos) = make_idents();
+
+        let result = compile_stmt_segments(&segments, &out, &comments, &pending, &pos);
+
+        // This should NOT panic because type placeholders should be detected
+        // and routed through the type_placeholder_path
+        assert!(
+            result.is_ok(),
+            "compile_stmt_segments should handle export function with type placeholders. Error: {:?}",
+            result.err()
+        );
+    }
+
+    #[test]
+    fn test_compile_stmt_segments_export_function_with_jsdoc_comment() {
+        // This mimics the exact pattern with a JSDoc comment before the function
+        let segments = vec![
+            Segment::Comment {
+                style: CommentStyle::Block,
+                text: " Deserializes input to this interface type. ".to_string(),
+            },
+            Segment::Static("export function ".to_string()),
+            Segment::Interpolation {
+                id: 0,
+                expr: quote!(fn_ident),
+            },
+            Segment::Static("(input: unknown, opts?: ".to_string()),
+            Segment::Interpolation {
+                id: 1,
+                expr: quote!(OptsType),
+            },
+            Segment::Static("): ".to_string()),
+            Segment::Interpolation {
+                id: 2,
+                expr: quote!(ReturnType),
+            },
+            Segment::Static(" {}".to_string()),
+        ];
+        let (out, comments, pending, pos) = make_idents();
+
+        let result = compile_stmt_segments(&segments, &out, &comments, &pending, &pos);
+
+        assert!(
+            result.is_ok(),
+            "Should handle export function with JSDoc comment and type placeholders. Error: {:?}",
+            result.err()
+        );
+    }
+
+    #[test]
+    fn test_compile_stmt_segments_export_function_with_union_return_type() {
+        // This mimics the pattern with union type in return position:
+        // export function @{fn}(...): @{type1} | @{type2} { ... }
+        let segments = vec![
+            Segment::Static("export function ".to_string()),
+            Segment::Interpolation {
+                id: 0,
+                expr: quote!(fn_ident),
+            },
+            Segment::Static("(value: any, ctx: ".to_string()),
+            Segment::Interpolation {
+                id: 1,
+                expr: quote!(CtxType),
+            },
+            Segment::Static("): ".to_string()),
+            Segment::Interpolation {
+                id: 2,
+                expr: quote!(InterfaceType),
+            },
+            Segment::Static(" | ".to_string()),
+            Segment::Interpolation {
+                id: 3,
+                expr: quote!(PendingRefType),
+            },
+            Segment::Static(" {}".to_string()),
+        ];
+        let (out, comments, pending, pos) = make_idents();
+
+        let result = compile_stmt_segments(&segments, &out, &comments, &pending, &pos);
+
+        assert!(
+            result.is_ok(),
+            "Should handle export function with union return type. Error: {:?}",
+            result.err()
+        );
+    }
+
+    #[test]
     fn test_compile_stmt_segments_simple_static() {
         let segments = vec![Segment::Static("const x = 1;".to_string())];
         let (out, comments, pending, pos) = make_idents();
