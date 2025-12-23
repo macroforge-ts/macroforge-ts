@@ -231,14 +231,13 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 })
                 .collect();
 
-            let has_fields = !ord_fields.is_empty();
-
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}Compare", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
-            let compare_steps: Vec<(Ident, Expr)> = if has_fields {
-                ord_fields
+            // Generate standalone function with two parameters
+            let standalone = if !ord_fields.is_empty() {
+                let compare_steps: Vec<(Ident, Expr)> = ord_fields
                     .iter()
                     .enumerate()
                     .map(|(i, f)| {
@@ -255,30 +254,27 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         })?;
                         Ok((cmp_ident, *expr))
                     })
-                    .collect::<Result<_, MacroforgeError>>()?
-            } else {
-                Vec::new()
-            };
+                    .collect::<Result<_, MacroforgeError>>()?;
 
-            let compare_body = if has_fields {
+                // Explicitly use compare_steps to satisfy clippy (it's consumed by ts_template! macro)
+                let _ = &compare_steps;
+
                 ts_template! {
-                    {#for (cmp_ident, cmp_expr) in &compare_steps}
-                        const @{cmp_ident.clone()} = @{cmp_expr.clone()};
-                        if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
-                    {/for}
+                    export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): number {
+                        if (a === b) return 0;
+                        {#for (cmp_ident, cmp_expr) in &compare_steps}
+                            const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                            if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                        {/for}
+                        return 0;
+                    }
                 }
             } else {
-                TsStream::from_string(String::new())
-            };
-
-            // Generate standalone function with two parameters
-            let standalone = ts_template! {
-                export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): number {
-                    if (a === b) return 0;
-                    {#if has_fields}
-                        {$typescript compare_body}
-                    {/if}
-                    return 0;
+                ts_template! {
+                    export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): number {
+                        if (a === b) return 0;
+                        return 0;
+                    }
                 }
             };
 
@@ -333,10 +329,10 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 })
                 .collect();
 
-            let has_fields = !ord_fields.is_empty();
+            let fn_name_ident = ident!("{}Compare", interface_name.to_case(Case::Camel));
 
-            let compare_steps: Vec<(Ident, Expr)> = if has_fields {
-                ord_fields
+            if !ord_fields.is_empty() {
+                let compare_steps: Vec<(Ident, Expr)> = ord_fields
                     .iter()
                     .enumerate()
                     .map(|(i, f)| {
@@ -353,33 +349,29 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         })?;
                         Ok((cmp_ident, *expr))
                     })
-                    .collect::<Result<_, MacroforgeError>>()?
+                    .collect::<Result<_, MacroforgeError>>()?;
+
+                // Explicitly use compare_steps to satisfy clippy (it's consumed by ts_template! macro)
+                let _ = &compare_steps;
+
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): number {
+                        if (a === b) return 0;
+                        {#for (cmp_ident, cmp_expr) in &compare_steps}
+                            const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                            if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                        {/for}
+                        return 0;
+                    }
+                })
             } else {
-                Vec::new()
-            };
-
-            let compare_body = if has_fields {
-                ts_template! {
-                    {#for (cmp_ident, cmp_expr) in &compare_steps}
-                        const @{cmp_ident.clone()} = @{cmp_expr.clone()};
-                        if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
-                    {/for}
-                }
-            } else {
-                TsStream::from_string(String::new())
-            };
-
-            let fn_name_ident = ident!("{}Compare", interface_name.to_case(Case::Camel));
-
-            Ok(ts_template! {
-                export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): number {
-                    if (a === b) return 0;
-                    {#if has_fields}
-                        {$typescript compare_body}
-                    {/if}
-                    return 0;
-                }
-            })
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): number {
+                        if (a === b) return 0;
+                        return 0;
+                    }
+                })
+            }
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
@@ -402,10 +394,10 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     })
                     .collect();
 
-                let has_fields = !ord_fields.is_empty();
+                let fn_name_ident = ident!("{}Compare", type_name.to_case(Case::Camel));
 
-                let compare_steps: Vec<(Ident, Expr)> = if has_fields {
-                    ord_fields
+                if !ord_fields.is_empty() {
+                    let compare_steps: Vec<(Ident, Expr)> = ord_fields
                         .iter()
                         .enumerate()
                         .map(|(i, f)| {
@@ -422,33 +414,29 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                             })?;
                             Ok((cmp_ident, *expr))
                         })
-                        .collect::<Result<_, MacroforgeError>>()?
+                        .collect::<Result<_, MacroforgeError>>()?;
+
+                    // Explicitly use compare_steps to satisfy clippy (it's consumed by ts_template! macro)
+                    let _ = &compare_steps;
+
+                    Ok(ts_template! {
+                        export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): number {
+                            if (a === b) return 0;
+                            {#for (cmp_ident, cmp_expr) in &compare_steps}
+                                const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                                if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                            {/for}
+                            return 0;
+                        }
+                    })
                 } else {
-                    Vec::new()
-                };
-
-                let compare_body = if has_fields {
-                    ts_template! {
-                        {#for (cmp_ident, cmp_expr) in &compare_steps}
-                            const @{cmp_ident.clone()} = @{cmp_expr.clone()};
-                            if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
-                        {/for}
-                    }
-                } else {
-                    TsStream::from_string(String::new())
-                };
-
-                let fn_name_ident = ident!("{}Compare", type_name.to_case(Case::Camel));
-
-                Ok(ts_template! {
-                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): number {
-                        if (a === b) return 0;
-                        {#if has_fields}
-                            {$typescript compare_body}
-                        {/if}
-                        return 0;
-                    }
-                })
+                    Ok(ts_template! {
+                        export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): number {
+                            if (a === b) return 0;
+                            return 0;
+                        }
+                    })
+                }
             } else {
                 // Union, tuple, or simple alias: basic comparison
                 let fn_name_ident = ident!("{}Compare", type_name.to_case(Case::Camel));
@@ -485,7 +473,6 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         }];
-        let has_fields = !ord_fields.is_empty();
 
         let compare_steps: Vec<(Ident, Expr)> = ord_fields
             .iter()
@@ -498,19 +485,16 @@ mod tests {
             })
             .collect();
 
-        let compare_body = ts_template! {
-            {#for (cmp_ident, cmp_expr) in &compare_steps}
-                const @{cmp_ident.clone()} = @{cmp_expr.clone()};
-                if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
-            {/for}
-        };
+        // Explicitly use compare_steps to satisfy clippy (it's consumed by body! macro)
+        let _ = &compare_steps;
 
         let output = body! {
             compareTo(other: @{class_ident}): number {
                 if (a === b) return 0;
-                {#if has_fields}
-                    {$typescript compare_body}
-                {/if}
+                {#for (cmp_ident, cmp_expr) in &compare_steps}
+                    const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                    if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                {/for}
                 return 0;
             }
         };

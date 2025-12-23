@@ -66,8 +66,8 @@
 use convert_case::{Case, Casing};
 
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{ident, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_macro_input};
 
 /// Generates a `clone()` method for creating copies of objects.
 ///
@@ -100,29 +100,20 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
     match &input.data {
         Data::Class(class) => {
-            let class_name = input.name();
-            let class_ident = ident!(class_name);
-            let field_names: Vec<&str> = class.field_names().collect();
+            let class_name = class.inner.name.clone();
+            let class_ident = ident!(class_name.clone());
 
             // Generate identifier for function name (Ident for declaration, Expr for call)
             let fn_name_ident = ident!("{}Clone", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
-            // Generate field copy statements outside the template to avoid nested control flow
-            let field_copies: TsStream = {
-                let field_idents: Vec<_> = field_names.iter().map(|f| ident!(*f)).collect();
-                ts_template! {
-                    {#for field in field_idents}
-                        cloned.@{field.clone()} = value.@{field};
-                    {/for}
-                }
-            };
-
             // Generate standalone function with value parameter
             let standalone = ts_template! {
                 export function @{fn_name_ident}(value: @{class_ident}): @{class_ident} {
                     const cloned = Object.create(Object.getPrototypeOf(value));
-                    {$typescript field_copies}
+                    {#for field in class.field_names().map(|f| ident!(f))}
+                        cloned.@{field.clone()} = value.@{field};
+                    {/for}
                     return cloned;
                 }
             };
@@ -152,25 +143,17 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             })
         }
         Data::Interface(interface) => {
-            let interface_name = input.name();
-            let field_names: Vec<&str> = interface.field_names().collect();
-            let fn_name_ident = ident!("{}Clone", interface_name.to_case(Case::Camel));
-
-            // Generate field copy statements outside the template
-            let field_copies: TsStream = {
-                let field_idents: Vec<_> = field_names.iter().map(|f| ident!(*f)).collect();
-                ts_template! {
-                    {#for field in field_idents}
-                        result.@{field.clone()} = value.@{field};
-                    {/for}
-                }
-            };
+            let interface_ident = ident!(interface.inner.name.clone());
+            let fn_name_ident =
+                ident!("{}Clone", interface.inner.name.clone().to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name_ident}(value: @{ident!(interface_name)}): @{ident!(interface_name)} {
+                export function @{fn_name_ident}(value: @{interface_ident}): @{interface_ident} {
                     const result = {} as any;
-                    {$typescript field_copies}
-                    return result as @{ident!(interface_name)};
+                    {#for field in interface.field_names().map(|f| ident!(f))}
+                        result.@{field.clone()} = value.@{field};
+                    {/for}
+                    return result as @{interface_ident};
                 }
             })
         }
@@ -180,27 +163,12 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             if type_alias.is_object() {
                 // Object type: spread copy
-                let field_names: Vec<&str> = type_alias
-                    .as_object()
-                    .unwrap()
-                    .iter()
-                    .map(|f| f.name.as_str())
-                    .collect();
-
-                // Generate field copy statements outside the template
-                let field_copies: TsStream = {
-                    let field_idents: Vec<_> = field_names.iter().map(|f| ident!(*f)).collect();
-                    ts_template! {
-                        {#for field in field_idents}
-                            result.@{field.clone()} = value.@{field};
-                        {/for}
-                    }
-                };
-
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{ident!(type_name)}): @{ident!(type_name)} {
                         const result = {} as any;
-                        {$typescript field_copies}
+                        {#for field in type_alias.as_object().unwrap().iter().map(|f| ident!(f.name.as_str()))}
+                            result.@{field.clone()} = value.@{field};
+                        {/for}
                         return result as @{ident!(type_name)};
                     }
                 })

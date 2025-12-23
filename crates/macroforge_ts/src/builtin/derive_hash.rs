@@ -268,49 +268,40 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 })
                 .collect();
 
-            let has_fields = !hash_fields.is_empty();
+            // Note: Rust's linter doesn't understand template macro variable capture
+            let _has_fields = !hash_fields.is_empty();
 
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}HashCode", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
-            let hash_exprs: Vec<Expr> = if has_fields {
-                hash_fields
-                    .iter()
-                    .map(|f| {
-                        let expr_src = generate_field_hash_for_interface(f, "value");
-                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
-                            MacroforgeError::new(
-                                input.decorator_span(),
-                                format!(
-                                    "@derive(Hash): invalid hash expression for '{}': {err:?}",
-                                    f.name
-                                ),
-                            )
-                        })?;
-                        Ok(*expr)
-                    })
-                    .collect::<Result<_, MacroforgeError>>()?
-            } else {
-                Vec::new()
-            };
-
-            let hash_body = if has_fields {
-                ts_template! {
-                    {#for hash_expr in hash_exprs}
-                        hash = (hash * 31 + @{hash_expr}) | 0;
-                    {/for}
-                }
-            } else {
-                TsStream::from_string(String::new())
-            };
+            // Generate hash expressions for each field
+            // Note: Rust's linter doesn't understand template macro variable capture
+            let _hash_exprs: Vec<Expr> = hash_fields
+                .iter()
+                .map(|f| {
+                    let expr_src = generate_field_hash_for_interface(f, "value");
+                    let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                        MacroforgeError::new(
+                            input.decorator_span(),
+                            format!(
+                                "@derive(Hash): invalid hash expression for '{}': {err:?}",
+                                f.name
+                            ),
+                        )
+                    })?;
+                    Ok(*expr)
+                })
+                .collect::<Result<_, MacroforgeError>>()?;
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
                 export function @{fn_name_ident}(value: @{class_ident}): number {
                     let hash = 17;
-                    {#if has_fields}
-                        {$typescript hash_body}
+                    {#if _has_fields}
+                        {#for hash_expr in _hash_exprs}
+                            hash = (hash * 31 + @{hash_expr}) | 0;
+                        {/for}
                     {/if}
                     return hash;
                 }
@@ -375,30 +366,37 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 })
                 .collect();
 
-            let has_fields = !hash_fields.is_empty();
+            // Note: Rust's linter doesn't understand template macro variable capture
+            let _has_fields = !hash_fields.is_empty();
 
-            let hash_body = if has_fields {
-                hash_fields
-                    .iter()
-                    .map(|f| {
-                        format!(
-                            "hash = (hash * 31 + {}) | 0;",
-                            generate_field_hash_for_interface(f, "value")
+            // Generate hash expressions for each field
+            // Note: Rust's linter doesn't understand template macro variable capture
+            let _hash_exprs: Vec<Expr> = hash_fields
+                .iter()
+                .map(|f| {
+                    let expr_src = generate_field_hash_for_interface(f, "value");
+                    let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                        MacroforgeError::new(
+                            input.decorator_span(),
+                            format!(
+                                "@derive(Hash): invalid hash expression for '{}': {err:?}",
+                                f.name
+                            ),
                         )
-                    })
-                    .collect::<Vec<_>>()
-                    .join("\n                        ")
-            } else {
-                String::new()
-            };
+                    })?;
+                    Ok(*expr)
+                })
+                .collect::<Result<_, MacroforgeError>>()?;
 
             let fn_name_ident = ident!("{}HashCode", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{ident!(interface_name)}): number {
                     let hash = 17;
-                    {#if has_fields}
-                        @{hash_body}
+                    {#if _has_fields}
+                        {#for hash_expr in _hash_exprs}
+                            hash = (hash * 31 + @{hash_expr}) | 0;
+                        {/for}
                     {/if}
                     return hash;
                 }
@@ -424,30 +422,37 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                     })
                     .collect();
 
-                let has_fields = !hash_fields.is_empty();
+                // Note: Rust's linter doesn't understand template macro variable capture
+                let _has_fields = !hash_fields.is_empty();
 
-                let hash_body = if has_fields {
-                    hash_fields
-                        .iter()
-                        .map(|f| {
-                            format!(
-                                "hash = (hash * 31 + {}) | 0;",
-                                generate_field_hash_for_interface(f, "value")
+                // Generate hash expressions for each field
+                // Note: Rust's linter doesn't understand template macro variable capture
+                let _hash_exprs: Vec<Expr> = hash_fields
+                    .iter()
+                    .map(|f| {
+                        let expr_src = generate_field_hash_for_interface(f, "value");
+                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                            MacroforgeError::new(
+                                input.decorator_span(),
+                                format!(
+                                    "@derive(Hash): invalid hash expression for '{}': {err:?}",
+                                    f.name
+                                ),
                             )
-                        })
-                        .collect::<Vec<_>>()
-                        .join("\n                        ")
-                } else {
-                    String::new()
-                };
+                        })?;
+                        Ok(*expr)
+                    })
+                    .collect::<Result<_, MacroforgeError>>()?;
 
                 let fn_name_ident = ident!("{}HashCode", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{ident!(type_name)}): number {
                         let hash = 17;
-                        {#if has_fields}
-                            @{hash_body}
+                        {#if _has_fields}
+                            {#for hash_expr in _hash_exprs}
+                                hash = (hash * 31 + @{hash_expr}) | 0;
+                            {/for}
                         {/if}
                         return hash;
                     }
@@ -482,24 +487,23 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         }];
-        let has_fields = !hash_fields.is_empty();
+        let _has_fields = !hash_fields.is_empty();
 
-        let hash_body = hash_fields
+        let _hash_exprs: Vec<Expr> = hash_fields
             .iter()
             .map(|f| {
-                format!(
-                    "hash = (hash * 31 + {}) | 0;",
-                    generate_field_hash_for_interface(f, "value")
-                )
+                let expr_src = generate_field_hash_for_interface(f, "value");
+                *parse_ts_expr(&expr_src).expect("hash expr should parse")
             })
-            .collect::<Vec<_>>()
-            .join("\n                    ");
+            .collect();
 
         let output = body! {
             hashCode(): number {
                 let hash = 17;
-                {#if has_fields}
-                    @{hash_body}
+                {#if _has_fields}
+                    {#for hash_expr in _hash_exprs}
+                        hash = (hash * 31 + @{hash_expr}) | 0;
+                    {/for}
                 {/if}
                 return hash;
             }
