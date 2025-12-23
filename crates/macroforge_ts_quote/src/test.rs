@@ -27,7 +27,6 @@ fn test_interpolation_expr_binding() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // The binding should use Expr type (short form inside `use swc_core::ecma::ast::*` block)
     assert!(
         s.contains("__mf_hole_0 : Expr"),
         "Expected Expr-typed interpolation binding"
@@ -49,7 +48,7 @@ fn test_ident_block_binding() {
 #[test]
 fn test_if_expression_in_statement() {
     let input = TokenStream2::from_str(
-        "const status = {#if cond} \"a\" {:else} \"b\" {/if};",
+        "const status = {#if cond} \"a\" {:else} \"b\" {/if}",
     )
     .unwrap();
     let output = parse_template(input).unwrap();
@@ -127,4 +126,25 @@ fn test_block_comment_is_stripped() {
         !raw.contains("block comment"),
         "Expected block comments to be stripped from TokenStream"
     );
+}
+
+#[test]
+fn test_function_name_interpolation_is_ident() {
+    let input = TokenStream2::from_str("export function @{fn_name}() {}").unwrap();
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+
+    assert!(
+        s.contains(": Ident ="),
+        "Expected Ident-typed interpolation binding for function name"
+    );
+}
+
+#[test]
+fn test_dynamic_function_body() {
+    let input = TokenStream2::from_str("function test() { {#if true} console.log(\"hi\"); {/if} }").unwrap();
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+    
+    assert!(s.contains("swc_core :: quote"), "Expected valid parsing");
 }
