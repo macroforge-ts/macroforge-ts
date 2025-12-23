@@ -1,7 +1,7 @@
 {
   "name": "@macroforge/typescript-plugin",
   "kind": "typescript_package",
-  "version": "0.1.61",
+  "version": "0.1.62",
   "description": "TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.",
   "overview": "",
   "items": [
