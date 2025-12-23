@@ -255,3 +255,423 @@ fn generate_block_replacement_code(block_compilations: &[(usize, TokenStream2)])
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::template::{parse_ts_module_with_source, BindingSpec, TemplateAndBindings};
+    use quote::quote;
+
+    /// Groups test identifiers to reduce function argument count
+    struct TestIdents {
+        out: proc_macro2::Ident,
+        comments: proc_macro2::Ident,
+        pending: proc_macro2::Ident,
+        pos: proc_macro2::Ident,
+    }
+
+    impl TestIdents {
+        fn new() -> Self {
+            Self {
+                out: proc_macro2::Ident::new("__mf_out", Span::call_site()),
+                comments: proc_macro2::Ident::new("__mf_comments", Span::call_site()),
+                pending: proc_macro2::Ident::new("__mf_pending", Span::call_site()),
+                pos: proc_macro2::Ident::new("__mf_pos", Span::call_site()),
+            }
+        }
+    }
+
+    fn create_test_ident(name: &str) -> proc_macro2::Ident {
+        proc_macro2::Ident::new(name, Span::call_site())
+    }
+
+    fn create_test_context<'a>(
+        cm: &'a Lrc<SourceMap>,
+        template_result: &'a TemplateAndBindings,
+        ident_name_fix: &'a TokenStream2,
+        type_fix: &'a TokenStream2,
+        block_compilations: &'a [(usize, TokenStream2)],
+        idents: &'a TestIdents,
+    ) -> StandardCodeContext<'a> {
+        StandardCodeContext {
+            cm,
+            template_result,
+            ident_name_fix,
+            type_fix,
+            block_compilations,
+            out_ident: &idents.out,
+            comments_ident: &idents.comments,
+            pending_ident: &idents.pending,
+            pos_ident: &idents.pos,
+        }
+    }
+
+    #[test]
+    fn test_generate_standard_code_single_statement() {
+        let source = "const x = 1;";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = TokenStream2::new();
+        let type_fix = TokenStream2::new();
+        let block_compilations = Vec::new();
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok(), "Should successfully generate code for single statement");
+
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        assert!(code_str.contains("__mf_stmt"), "Should create statement variable");
+        assert!(code_str.contains("__mf_out"), "Should reference output");
+    }
+
+    #[test]
+    fn test_generate_standard_code_multiple_statements() {
+        let source = "const x = 1; const y = 2; const z = 3;";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = TokenStream2::new();
+        let type_fix = TokenStream2::new();
+        let block_compilations = Vec::new();
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok(), "Should handle multiple statements");
+
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        // Should have code for each statement
+        assert!(code_str.matches("__mf_stmt").count() >= 3, "Should process all statements");
+    }
+
+    #[test]
+    fn test_generate_standard_code_export_declaration() {
+        let source = "export const x = 1;";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = TokenStream2::new();
+        let type_fix = TokenStream2::new();
+        let block_compilations = Vec::new();
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok(), "Should handle export declarations");
+
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        assert!(code_str.contains("ModuleItem"), "Should handle module items");
+        assert!(code_str.contains("ExportDecl"), "Should handle exports");
+    }
+
+    #[test]
+    fn test_generate_standard_code_with_bindings() {
+        let source = "const x = 1;";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: vec![BindingSpec {
+                name: create_test_ident("__mf_b_0"),
+                ty: quote! { Expr },
+                expr: quote! { my_expr },
+            }],
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = TokenStream2::new();
+        let type_fix = TokenStream2::new();
+        let block_compilations = Vec::new();
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok(), "Should handle bindings");
+    }
+
+    #[test]
+    fn test_generate_standard_code_with_ident_name_fix() {
+        let source = "const x = 1;";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = quote! { println!("fixing ident names"); };
+        let type_fix = TokenStream2::new();
+        let block_compilations = Vec::new();
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok());
+
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        assert!(code_str.contains("fixing ident names"), "Should include ident_name_fix");
+    }
+
+    #[test]
+    fn test_generate_standard_code_with_block_compilations() {
+        let source = "const x = 1;";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = TokenStream2::new();
+        let type_fix = TokenStream2::new();
+        let block_compilations = vec![
+            (0, quote! { println!("block 0"); }),
+            (1, quote! { println!("block 1"); }),
+        ];
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok());
+
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        assert!(code_str.contains("__MfBlockReplacer"), "Should include block replacer");
+        assert!(code_str.contains("__mf_block_0"), "Should reference first block");
+        assert!(code_str.contains("__mf_block_1"), "Should reference second block");
+    }
+
+    #[test]
+    fn test_generate_standard_code_span_fixing() {
+        let source = "const x = 1;";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = TokenStream2::new();
+        let type_fix = TokenStream2::new();
+        let block_compilations = Vec::new();
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok());
+
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        assert!(code_str.contains("__MfSpanFix"), "Should include span fix struct");
+        assert!(code_str.contains("visit_mut_span"), "Should fix spans");
+        assert!(code_str.contains("BytePos"), "Should use BytePos");
+    }
+
+    #[test]
+    fn test_generate_standard_code_comment_handling() {
+        let source = "const x = 1;";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = TokenStream2::new();
+        let type_fix = TokenStream2::new();
+        let block_compilations = Vec::new();
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok());
+
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        assert!(code_str.contains(&idents.pending.to_string()), "Should check pending comments");
+        assert!(code_str.contains(&idents.comments.to_string()), "Should add comments");
+        assert!(code_str.contains("add_leading"), "Should add leading comments");
+    }
+
+    #[test]
+    fn test_generate_block_replacement_code_empty() {
+        let block_compilations: Vec<(usize, TokenStream2)> = Vec::new();
+        let code = generate_block_replacement_code(&block_compilations);
+
+        assert!(code.is_empty(), "Should return empty for no block compilations");
+    }
+
+    #[test]
+    fn test_generate_block_replacement_code_single_block() {
+        let block_compilations = vec![
+            (0, quote! { println!("block"); }),
+        ];
+        let code = generate_block_replacement_code(&block_compilations);
+
+        let code_str = code.to_string();
+        assert!(code_str.contains("__MfBlockReplacer"), "Should create replacer");
+        assert!(code_str.contains("__mf_block_0"), "Should reference block 0");
+    }
+
+    #[test]
+    fn test_generate_block_replacement_code_multiple_blocks() {
+        let block_compilations = vec![
+            (0, quote! { println!("block 0"); }),
+            (5, quote! { println!("block 5"); }),
+            (10, quote! { println!("block 10"); }),
+        ];
+        let code = generate_block_replacement_code(&block_compilations);
+
+        let code_str = code.to_string();
+        assert!(code_str.contains("__mf_block_0"), "Should reference block 0");
+        assert!(code_str.contains("__mf_block_5"), "Should reference block 5");
+        assert!(code_str.contains("__mf_block_10"), "Should reference block 10");
+    }
+
+    #[test]
+    fn test_generate_export_decl_code_function() {
+        let source = "export function foo() { return 1; }";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = TokenStream2::new();
+        let type_fix = TokenStream2::new();
+        let block_compilations = Vec::new();
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok(), "Should handle export function");
+    }
+
+    #[test]
+    fn test_generate_standard_code_mixed_statements_and_exports() {
+        let source = "const x = 1; export const y = 2; const z = 3;";
+        let (module, cm) = parse_ts_module_with_source(source).expect("Failed to parse");
+
+        let template_result = TemplateAndBindings {
+            template: source.to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let ident_name_fix = TokenStream2::new();
+        let type_fix = TokenStream2::new();
+        let block_compilations = Vec::new();
+        let idents = TestIdents::new();
+
+        let ctx = create_test_context(
+            &cm,
+            &template_result,
+            &ident_name_fix,
+            &type_fix,
+            &block_compilations,
+            &idents,
+        );
+
+        let result = generate_standard_code(&module, &ctx);
+        assert!(result.is_ok(), "Should handle mix of statements and exports");
+    }
+}

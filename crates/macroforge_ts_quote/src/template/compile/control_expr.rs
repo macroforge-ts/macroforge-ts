@@ -78,3 +78,187 @@ pub fn compile_control_expr(node: &ControlNode, span: Span) -> syn::Result<Token
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::template::{MatchCase, Segment};
+    use quote::quote;
+
+    #[test]
+    fn test_if_with_else_branch() {
+        // Use valid TypeScript expressions (not just identifiers)
+        let node = ControlNode::If {
+            cond: quote! { x > 5 },
+            then_branch: vec![Segment::Static("1".to_string())],
+            else_branch: Some(vec![Segment::Static("0".to_string())]),
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        if let Err(e) = &result {
+            eprintln!("Error in test_if_with_else_branch: {}", e);
+        }
+        assert!(result.is_ok(), "Expected Ok result");
+
+        let tokens = result.unwrap();
+        let tokens_str = tokens.to_string();
+        assert!(tokens_str.contains("if x > 5"));
+        assert!(tokens_str.contains("else"));
+    }
+
+    #[test]
+    fn test_if_without_else_branch_fails() {
+        let node = ControlNode::If {
+            cond: quote! { x > 5 },
+            then_branch: vec![Segment::Static("then".to_string())],
+            else_branch: None,
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        assert!(result.is_err());
+
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("requires an {:else} branch"));
+    }
+
+    #[test]
+    fn test_if_let_with_else_branch() {
+        let node = ControlNode::IfLet {
+            pattern: quote! { Some(x) },
+            expr: quote! { opt },
+            then_branch: vec![Segment::Static("some".to_string())],
+            else_branch: Some(vec![Segment::Static("none".to_string())]),
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        assert!(result.is_ok());
+
+        let tokens = result.unwrap();
+        let tokens_str = tokens.to_string();
+        assert!(tokens_str.contains("if let Some (x) = opt"));
+    }
+
+    #[test]
+    fn test_if_let_without_else_branch_fails() {
+        let node = ControlNode::IfLet {
+            pattern: quote! { Some(x) },
+            expr: quote! { opt },
+            then_branch: vec![Segment::Static("some".to_string())],
+            else_branch: None,
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        assert!(result.is_err());
+
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("requires an {:else} branch"));
+    }
+
+    #[test]
+    fn test_match_single_case() {
+        let node = ControlNode::Match {
+            expr: quote! { value },
+            cases: vec![MatchCase {
+                pattern: quote! { x },
+                body: vec![Segment::Static("matched".to_string())],
+            }],
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        assert!(result.is_ok());
+
+        let tokens = result.unwrap();
+        let tokens_str = tokens.to_string();
+        assert!(tokens_str.contains("match value"));
+    }
+
+    #[test]
+    fn test_match_multiple_cases() {
+        let node = ControlNode::Match {
+            expr: quote! { value },
+            cases: vec![
+                MatchCase {
+                    pattern: quote! { 1 },
+                    body: vec![Segment::Static("one".to_string())],
+                },
+                MatchCase {
+                    pattern: quote! { 2 },
+                    body: vec![Segment::Static("two".to_string())],
+                },
+                MatchCase {
+                    pattern: quote! { _ },
+                    body: vec![Segment::Static("other".to_string())],
+                },
+            ],
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        assert!(result.is_ok());
+
+        let tokens = result.unwrap();
+        let tokens_str = tokens.to_string();
+        assert!(tokens_str.contains("match value"));
+        assert!(tokens_str.contains("1 =>"));
+        assert!(tokens_str.contains("2 =>"));
+        assert!(tokens_str.contains("_ =>"));
+    }
+
+    #[test]
+    fn test_match_empty_cases() {
+        let node = ControlNode::Match {
+            expr: quote! { value },
+            cases: vec![],
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        assert!(result.is_ok());
+
+        let tokens = result.unwrap();
+        let tokens_str = tokens.to_string();
+        assert!(tokens_str.contains("match value"));
+    }
+
+    #[test]
+    fn test_for_loop_fails() {
+        let node = ControlNode::For {
+            pat: quote! { item },
+            iter: quote! { items },
+            body: vec![Segment::Static("body".to_string())],
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        assert!(result.is_err());
+
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("Loop constructs are not allowed"));
+    }
+
+    #[test]
+    fn test_while_loop_fails() {
+        let node = ControlNode::While {
+            cond: quote! { true },
+            body: vec![Segment::Static("body".to_string())],
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        assert!(result.is_err());
+
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("Loop constructs are not allowed"));
+    }
+
+    #[test]
+    fn test_while_let_loop_fails() {
+        let node = ControlNode::WhileLet {
+            pattern: quote! { Some(x) },
+            expr: quote! { iter.next() },
+            body: vec![Segment::Static("body".to_string())],
+        };
+
+        let result = compile_control_expr(&node, Span::call_site());
+        assert!(result.is_err());
+
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("Loop constructs are not allowed"));
+    }
+}

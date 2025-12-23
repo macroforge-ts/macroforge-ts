@@ -156,3 +156,243 @@ pub fn generate_type_placeholder_code(
         }
     }}
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::template::{BindingSpec, TemplateAndBindings, TypePlaceholder};
+    use quote::quote;
+
+    fn create_test_ident(name: &str) -> proc_macro2::Ident {
+        proc_macro2::Ident::new(name, Span::call_site())
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_code_empty_template() {
+        let template_result = TemplateAndBindings {
+            template: String::new(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let code = generate_type_placeholder_code(
+            &template_result,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(!code.is_empty(), "Should generate code even for empty template");
+        let code_str = code.to_string();
+        assert!(code_str.contains("SourceMap"), "Should use SourceMap");
+        assert!(code_str.contains("Parser"), "Should use Parser");
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_code_with_type_placeholder() {
+        let template_result = TemplateAndBindings {
+            template: "const x: __MF_TYPE_0 = value;".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: vec![TypePlaceholder {
+                id: 0,
+                expr: quote! { string },
+            }],
+        };
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let code = generate_type_placeholder_code(
+            &template_result,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        let code_str = code.to_string();
+        assert!(code_str.contains("__MfSubstitutor"), "Should create substitutor struct");
+        assert!(code_str.contains("visit_mut_ts_type"), "Should have type visitor");
+        assert!(code_str.contains("__MF_TYPE_0"), "Should reference type placeholder");
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_code_with_bindings() {
+        let template_result = TemplateAndBindings {
+            template: "const x = __MF_EXPR_0;".to_string(),
+            bindings: vec![BindingSpec {
+                name: create_test_ident("__mf_b_0"),
+                ty: quote! { Expr },
+                expr: quote! { my_expr },
+            }],
+            type_placeholders: Vec::new(),
+        };
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let code = generate_type_placeholder_code(
+            &template_result,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        let code_str = code.to_string();
+        assert!(code_str.contains("__mf_b_0"), "Should include binding name");
+        assert!(code_str.contains("visit_mut_expr"), "Should have expr visitor");
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_code_uses_swc_core() {
+        let template_result = TemplateAndBindings {
+            template: "const x = 1;".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let code = generate_type_placeholder_code(
+            &template_result,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        let code_str = code.to_string();
+        assert!(code_str.contains("swc_core"), "Should use swc_core path");
+        assert!(code_str.contains("VisitMut"), "Should use VisitMut trait");
+        assert!(code_str.contains("TsSyntax"), "Should use TypeScript syntax");
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_code_handles_comments() {
+        let template_result = TemplateAndBindings {
+            template: "const x = 1;".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let code = generate_type_placeholder_code(
+            &template_result,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        let code_str = code.to_string();
+        assert!(code_str.contains(&pending_ident.to_string()), "Should reference pending_ident");
+        assert!(code_str.contains(&comments_ident.to_string()), "Should reference comments_ident");
+        assert!(code_str.contains("add_leading"), "Should add leading comments");
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_code_span_fixing() {
+        let template_result = TemplateAndBindings {
+            template: "const x = 1;".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let code = generate_type_placeholder_code(
+            &template_result,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        let code_str = code.to_string();
+        assert!(code_str.contains("__MfSpanFix"), "Should have span fix struct");
+        assert!(code_str.contains("visit_mut_span"), "Should fix spans");
+        assert!(code_str.contains("BytePos"), "Should use BytePos");
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_code_multiple_type_placeholders() {
+        let template_result = TemplateAndBindings {
+            template: "const x: __MF_TYPE_0 = value; const y: __MF_TYPE_1 = other;".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: vec![
+                TypePlaceholder {
+                    id: 0,
+                    expr: quote! { string },
+                },
+                TypePlaceholder {
+                    id: 1,
+                    expr: quote! { number },
+                },
+            ],
+        };
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let code = generate_type_placeholder_code(
+            &template_result,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        let code_str = code.to_string();
+        assert!(code_str.contains("__MF_TYPE_0"), "Should handle first type placeholder");
+        assert!(code_str.contains("__MF_TYPE_1"), "Should handle second type placeholder");
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_code_export_handling() {
+        let template_result = TemplateAndBindings {
+            template: "export const x = 1;".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let code = generate_type_placeholder_code(
+            &template_result,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        let code_str = code.to_string();
+        assert!(code_str.contains("ModuleDecl"), "Should handle module declarations");
+        assert!(code_str.contains("ExportDecl"), "Should handle export declarations");
+    }
+}

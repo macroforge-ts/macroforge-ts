@@ -149,3 +149,189 @@ fn generate_member_extraction_code(
         }
     }}
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::template::{parse_ts_module_with_source, TemplateAndBindings};
+
+    fn create_test_ident(name: &str) -> proc_macro2::Ident {
+        proc_macro2::Ident::new(name, Span::call_site())
+    }
+
+    #[test]
+    fn test_generate_class_wrapped_code_basic() {
+        let template_result = TemplateAndBindings {
+            template: "constructor() {}".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let wrapped_source = format!("class __MfWrapper {{ {} }}", &template_result.template);
+        let (module, cm) = parse_ts_module_with_source(&wrapped_source).expect("Failed to parse");
+        let out_ident = create_test_ident("__mf_out");
+
+        let result = generate_class_wrapped_code(&template_result, &cm, &module, &out_ident);
+
+        assert!(result.is_ok(), "Should successfully generate code for constructor");
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        assert!(code_str.contains("__mf_class_stmt"), "Should create class statement");
+    }
+
+    #[test]
+    fn test_generate_class_wrapped_code_method() {
+        let template_result = TemplateAndBindings {
+            template: "myMethod() { return 42; }".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let wrapped_source = format!("class __MfWrapper {{ {} }}", &template_result.template);
+        let (module, cm) = parse_ts_module_with_source(&wrapped_source).expect("Failed to parse");
+        let out_ident = create_test_ident("__mf_out");
+
+        let result = generate_class_wrapped_code(&template_result, &cm, &module, &out_ident);
+
+        assert!(result.is_ok(), "Should successfully generate code for method");
+        let code = result.unwrap();
+        assert!(!code.is_empty(), "Should generate non-empty code");
+    }
+
+    #[test]
+    fn test_generate_class_wrapped_code_multiple_members() {
+        let template_result = TemplateAndBindings {
+            template: "constructor() {} method1() {} method2() {}".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let wrapped_source = format!("class __MfWrapper {{ {} }}", &template_result.template);
+        let (module, cm) = parse_ts_module_with_source(&wrapped_source).expect("Failed to parse");
+        let out_ident = create_test_ident("__mf_out");
+
+        let result = generate_class_wrapped_code(&template_result, &cm, &module, &out_ident);
+
+        assert!(result.is_ok(), "Should handle multiple class members");
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        // Should generate code for each member
+        assert!(code_str.len() > 100, "Should generate substantial code for multiple members");
+    }
+
+    #[test]
+    fn test_generate_class_wrapped_code_with_bindings() {
+        use crate::template::BindingSpec;
+        use quote::quote;
+
+        let template_result = TemplateAndBindings {
+            template: "myMethod() {}".to_string(),
+            bindings: vec![BindingSpec {
+                name: create_test_ident("__mf_b_0"),
+                ty: quote! { Expr },
+                expr: quote! { my_expr },
+            }],
+            type_placeholders: Vec::new(),
+        };
+
+        let wrapped_source = format!("class __MfWrapper {{ {} }}", &template_result.template);
+        let (module, cm) = parse_ts_module_with_source(&wrapped_source).expect("Failed to parse");
+        let out_ident = create_test_ident("__mf_out");
+
+        let result = generate_class_wrapped_code(&template_result, &cm, &module, &out_ident);
+
+        assert!(result.is_ok(), "Should handle bindings");
+    }
+
+    #[test]
+    fn test_generate_class_wrapped_code_uses_out_ident() {
+        let template_result = TemplateAndBindings {
+            template: "method() {}".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let wrapped_source = format!("class __MfWrapper {{ {} }}", &template_result.template);
+        let (module, cm) = parse_ts_module_with_source(&wrapped_source).expect("Failed to parse");
+        let out_ident = create_test_ident("__custom_out");
+
+        let result = generate_class_wrapped_code(&template_result, &cm, &module, &out_ident);
+
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        assert!(code_str.contains("__custom_out"), "Should use provided out_ident");
+    }
+
+    #[test]
+    fn test_process_class_members_empty() {
+        let members: Vec<swc_core::ecma::ast::ClassMember> = Vec::new();
+        let template_result = TemplateAndBindings {
+            template: String::new(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+        let wrapped_source = "class __Test {}";
+        let (_, cm) = parse_ts_module_with_source(wrapped_source).expect("Failed to parse");
+        let out_ident = create_test_ident("__mf_out");
+        let mut output = TokenStream2::new();
+
+        let result = process_class_members(&members, &cm, &template_result, &out_ident, &mut output);
+
+        assert!(result.is_ok(), "Should handle empty members");
+        assert!(output.is_empty(), "Should produce no output for empty members");
+    }
+
+    #[test]
+    fn test_generate_member_extraction_code() {
+        use quote::quote;
+
+        let bindings = quote! { let x = 1; };
+        let expr = quote! { my_stmt };
+        let out_ident = create_test_ident("__mf_out");
+
+        let code = generate_member_extraction_code(bindings, expr, &out_ident);
+
+        let code_str = code.to_string();
+        assert!(code_str.contains("__mf_class_stmt"), "Should create class statement variable");
+        // The code uses swc_core paths, not bare "ClassMember" string
+        assert!(code_str.contains("class_decl"), "Should handle class declaration");
+        assert!(code_str.contains("__mf_out"), "Should push to output");
+        // Check for raw marker format (may be @ macroforge or similar)
+        assert!(code_str.contains("macroforge") || code_str.contains("raw"), "Should use raw marker for output");
+    }
+
+    #[test]
+    fn test_generate_class_wrapped_code_property() {
+        let template_result = TemplateAndBindings {
+            template: "public name: string;".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let wrapped_source = format!("class __MfWrapper {{ {} }}", &template_result.template);
+        let (module, cm) = parse_ts_module_with_source(&wrapped_source).expect("Failed to parse");
+        let out_ident = create_test_ident("__mf_out");
+
+        let result = generate_class_wrapped_code(&template_result, &cm, &module, &out_ident);
+
+        assert!(result.is_ok(), "Should handle class properties");
+    }
+
+    #[test]
+    fn test_generate_class_wrapped_code_getter_setter() {
+        let template_result = TemplateAndBindings {
+            template: "get value() { return this._value; } set value(v) { this._value = v; }".to_string(),
+            bindings: Vec::new(),
+            type_placeholders: Vec::new(),
+        };
+
+        let wrapped_source = format!("class __MfWrapper {{ {} }}", &template_result.template);
+        let (module, cm) = parse_ts_module_with_source(&wrapped_source).expect("Failed to parse");
+        let out_ident = create_test_ident("__mf_out");
+
+        let result = generate_class_wrapped_code(&template_result, &cm, &module, &out_ident);
+
+        assert!(result.is_ok(), "Should handle getters and setters");
+    }
+}

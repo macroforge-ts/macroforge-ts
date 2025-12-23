@@ -274,3 +274,273 @@ pub(crate) fn placeholder_type_tokens(use_kind: &PlaceholderUse) -> TokenStream2
 pub(crate) fn placeholder_name(id: usize) -> String {
     format!("__mf_hole_{id}")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::template::PlaceholderUse;
+    use quote::quote;
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_placeholder_finder_record_first_recording() {
+        let mut ids = HashMap::new();
+        ids.insert("foo".to_string(), 0);
+
+        let mut finder = PlaceholderFinder::new(ids);
+        finder.record("foo", PlaceholderUse::Expr);
+
+        let uses = finder.into_map();
+        assert_eq!(uses.len(), 1);
+        assert_eq!(uses.get(&0), Some(&PlaceholderUse::Expr));
+    }
+
+    #[test]
+    fn test_placeholder_finder_record_upgrade_expr_to_ident() {
+        let mut ids = HashMap::new();
+        ids.insert("foo".to_string(), 0);
+
+        let mut finder = PlaceholderFinder::new(ids);
+        finder.record("foo", PlaceholderUse::Expr);
+        finder.record("foo", PlaceholderUse::Ident);
+
+        let uses = finder.into_map();
+        assert_eq!(uses.len(), 1);
+        assert_eq!(uses.get(&0), Some(&PlaceholderUse::Ident));
+    }
+
+    #[test]
+    fn test_placeholder_finder_record_upgrade_expr_to_ident_to_stmt() {
+        let mut ids = HashMap::new();
+        ids.insert("foo".to_string(), 0);
+
+        let mut finder = PlaceholderFinder::new(ids);
+        finder.record("foo", PlaceholderUse::Expr);
+        finder.record("foo", PlaceholderUse::Ident);
+        finder.record("foo", PlaceholderUse::Stmt);
+
+        let uses = finder.into_map();
+        assert_eq!(uses.len(), 1);
+        assert_eq!(uses.get(&0), Some(&PlaceholderUse::Stmt));
+    }
+
+    #[test]
+    fn test_placeholder_finder_record_no_downgrade_from_stmt() {
+        let mut ids = HashMap::new();
+        ids.insert("foo".to_string(), 0);
+
+        let mut finder = PlaceholderFinder::new(ids);
+        finder.record("foo", PlaceholderUse::Stmt);
+        finder.record("foo", PlaceholderUse::Ident);
+        finder.record("foo", PlaceholderUse::Expr);
+
+        let uses = finder.into_map();
+        assert_eq!(uses.len(), 1);
+        assert_eq!(uses.get(&0), Some(&PlaceholderUse::Stmt));
+    }
+
+    #[test]
+    fn test_placeholder_finder_record_no_downgrade_from_type() {
+        let mut ids = HashMap::new();
+        ids.insert("foo".to_string(), 0);
+
+        let mut finder = PlaceholderFinder::new(ids);
+        finder.record("foo", PlaceholderUse::Type);
+        finder.record("foo", PlaceholderUse::Ident);
+        finder.record("foo", PlaceholderUse::Expr);
+
+        let uses = finder.into_map();
+        assert_eq!(uses.len(), 1);
+        assert_eq!(uses.get(&0), Some(&PlaceholderUse::Type));
+    }
+
+    #[test]
+    fn test_placeholder_finder_record_upgrade_ident_name_to_ident() {
+        let mut ids = HashMap::new();
+        ids.insert("foo".to_string(), 0);
+
+        let mut finder = PlaceholderFinder::new(ids);
+        finder.record("foo", PlaceholderUse::IdentName);
+        finder.record("foo", PlaceholderUse::Ident);
+
+        let uses = finder.into_map();
+        assert_eq!(uses.len(), 1);
+        assert_eq!(uses.get(&0), Some(&PlaceholderUse::Ident));
+    }
+
+    #[test]
+    fn test_placeholder_finder_record_unknown_placeholder() {
+        let ids = HashMap::new();
+
+        let mut finder = PlaceholderFinder::new(ids);
+        finder.record("unknown", PlaceholderUse::Expr);
+
+        let uses = finder.into_map();
+        assert_eq!(uses.len(), 0);
+    }
+
+    #[test]
+    fn test_placeholder_finder_record_multiple_placeholders() {
+        let mut ids = HashMap::new();
+        ids.insert("foo".to_string(), 0);
+        ids.insert("bar".to_string(), 1);
+        ids.insert("baz".to_string(), 2);
+
+        let mut finder = PlaceholderFinder::new(ids);
+        finder.record("foo", PlaceholderUse::Expr);
+        finder.record("bar", PlaceholderUse::Ident);
+        finder.record("baz", PlaceholderUse::Stmt);
+
+        let uses = finder.into_map();
+        assert_eq!(uses.len(), 3);
+        assert_eq!(uses.get(&0), Some(&PlaceholderUse::Expr));
+        assert_eq!(uses.get(&1), Some(&PlaceholderUse::Ident));
+        assert_eq!(uses.get(&2), Some(&PlaceholderUse::Stmt));
+    }
+
+    #[test]
+    fn test_ident_name_fix_block_empty_list() {
+        let target_ident = quote::format_ident!("target");
+        let placeholder_ids: Vec<usize> = vec![];
+
+        let result = ident_name_fix_block(&target_ident, &placeholder_ids);
+        assert_eq!(result.to_string(), "");
+    }
+
+    #[test]
+    fn test_ident_name_fix_block_single_placeholder() {
+        let target_ident = quote::format_ident!("target");
+        let placeholder_ids = vec![0];
+
+        let result = ident_name_fix_block(&target_ident, &placeholder_ids);
+        let result_str = result.to_string();
+
+        // Check that the output contains expected components
+        assert!(result_str.contains("__MfIdentNameFix"));
+        assert!(result_str.contains("__mf_hole_0"));
+        assert!(result_str.contains("IdentName"));
+        assert!(result_str.contains("$__mf_hole_0"));
+    }
+
+    #[test]
+    fn test_ident_name_fix_block_multiple_placeholders() {
+        let target_ident = quote::format_ident!("target");
+        let placeholder_ids = vec![0, 1, 2];
+
+        let result = ident_name_fix_block(&target_ident, &placeholder_ids);
+        let result_str = result.to_string();
+
+        // Check that all placeholders are present
+        assert!(result_str.contains("__mf_hole_0"));
+        assert!(result_str.contains("__mf_hole_1"));
+        assert!(result_str.contains("__mf_hole_2"));
+        assert!(result_str.contains("$__mf_hole_0"));
+        assert!(result_str.contains("$__mf_hole_1"));
+        assert!(result_str.contains("$__mf_hole_2"));
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_fix_empty_list() {
+        let type_placeholders: Vec<TypePlaceholder> = vec![];
+
+        let result = generate_type_placeholder_fix(&type_placeholders);
+        assert_eq!(result.to_string(), "");
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_fix_single_type() {
+        let type_placeholders = vec![TypePlaceholder {
+            id: 0,
+            expr: quote! { "string" },
+        }];
+
+        let result = generate_type_placeholder_fix(&type_placeholders);
+        let result_str = result.to_string();
+
+        // Check that the output contains expected components
+        assert!(result_str.contains("__MfTypeFix"));
+        assert!(result_str.contains("__mf_type_0"));
+        assert!(result_str.contains("__MfTypeMarker0"));
+        assert!(result_str.contains("TsType"));
+        assert!(result_str.contains("TsTypeRef"));
+    }
+
+    #[test]
+    fn test_generate_type_placeholder_fix_multiple_types() {
+        let type_placeholders = vec![
+            TypePlaceholder {
+                id: 0,
+                expr: quote! { "string" },
+            },
+            TypePlaceholder {
+                id: 1,
+                expr: quote! { "number" },
+            },
+            TypePlaceholder {
+                id: 2,
+                expr: quote! { "boolean" },
+            },
+        ];
+
+        let result = generate_type_placeholder_fix(&type_placeholders);
+        let result_str = result.to_string();
+
+        // Check that all type placeholders are present
+        assert!(result_str.contains("__mf_type_0"));
+        assert!(result_str.contains("__mf_type_1"));
+        assert!(result_str.contains("__mf_type_2"));
+        assert!(result_str.contains("__MfTypeMarker0"));
+        assert!(result_str.contains("__MfTypeMarker1"));
+        assert!(result_str.contains("__MfTypeMarker2"));
+    }
+
+    #[test]
+    fn test_placeholder_type_tokens_expr() {
+        let result = placeholder_type_tokens(&PlaceholderUse::Expr);
+        assert_eq!(result.to_string(), "Expr");
+    }
+
+    #[test]
+    fn test_placeholder_type_tokens_stmt() {
+        let result = placeholder_type_tokens(&PlaceholderUse::Stmt);
+        assert_eq!(result.to_string(), "Expr");
+    }
+
+    #[test]
+    fn test_placeholder_type_tokens_ident() {
+        let result = placeholder_type_tokens(&PlaceholderUse::Ident);
+        assert_eq!(result.to_string(), "Ident");
+    }
+
+    #[test]
+    fn test_placeholder_type_tokens_ident_name() {
+        let result = placeholder_type_tokens(&PlaceholderUse::IdentName);
+        assert_eq!(result.to_string(), "Ident");
+    }
+
+    #[test]
+    fn test_placeholder_type_tokens_type() {
+        let result = placeholder_type_tokens(&PlaceholderUse::Type);
+        assert_eq!(result.to_string(), "Ident");
+    }
+
+    #[test]
+    fn test_placeholder_name_zero() {
+        assert_eq!(placeholder_name(0), "__mf_hole_0");
+    }
+
+    #[test]
+    fn test_placeholder_name_small() {
+        assert_eq!(placeholder_name(5), "__mf_hole_5");
+    }
+
+    #[test]
+    fn test_placeholder_name_large() {
+        assert_eq!(placeholder_name(123), "__mf_hole_123");
+    }
+
+    #[test]
+    fn test_placeholder_name_very_large() {
+        assert_eq!(placeholder_name(999999), "__mf_hole_999999");
+    }
+}

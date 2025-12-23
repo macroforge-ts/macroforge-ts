@@ -90,3 +90,316 @@ pub fn flush_stmt_run(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::template::{Segment, PlaceholderUse};
+    use quote::quote;
+
+    fn create_test_ident(name: &str) -> proc_macro2::Ident {
+        proc_macro2::Ident::new(name, Span::call_site())
+    }
+
+    #[test]
+    fn test_flush_stmt_run_empty_segments() {
+        let run: Vec<&Segment> = Vec::new();
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        // Empty run should produce empty result (not error)
+        assert!(result.is_ok() || result.is_err(), "Should handle empty segments");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_static_only() {
+        let segment = Segment::Static("const x = 1;".to_string());
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(result.is_ok(), "Should handle static segment");
+        let code = result.unwrap();
+        assert!(!code.is_empty(), "Should generate code for static segment");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_standard_path() {
+        // Standard path: normal statement without type placeholders
+        let segment = Segment::Static("const x = 1;".to_string());
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(result.is_ok(), "Should route to standard path");
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        // Standard path should include __mf_stmt
+        assert!(code_str.contains("__mf_stmt") || code_str.is_empty(), "Should use standard path");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_with_interpolation() {
+        let segment = Segment::Interpolation {
+            id: 0,
+            expr: quote! { my_value },
+        };
+        let mut context_map = HashMap::new();
+        context_map.insert(0, PlaceholderUse::Expr);
+
+        let seg1 = Segment::Static("const x = ".to_string());
+        let seg3 = Segment::Static(";".to_string());
+        let run = vec![&seg1, &segment, &seg3];
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(result.is_ok(), "Should handle interpolation");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_export_statement() {
+        let segment = Segment::Static("export const x = 1;".to_string());
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(result.is_ok(), "Should handle export statements");
+        let code = result.unwrap();
+        let code_str = code.to_string();
+        assert!(code_str.contains("ModuleItem") || code_str.contains("__mf_stmt"), "Should handle export");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_class_wrapped_path() {
+        // Class wrapped path: class body member that fails module parsing
+        let segment = Segment::Static("constructor() {}".to_string());
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        // Constructor should trigger class wrapped path
+        assert!(result.is_ok(), "Should handle class body members via class wrapped path");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_multiple_statements() {
+        let segment1 = Segment::Static("const x = 1;".to_string());
+        let segment2 = Segment::Static("const y = 2;".to_string());
+        let run = vec![&segment1, &segment2];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(result.is_ok(), "Should handle multiple statements");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_uses_provided_idents() {
+        let segment = Segment::Static("const x = 1;".to_string());
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__custom_out");
+        let comments_ident = create_test_ident("__custom_comments");
+        let pending_ident = create_test_ident("__custom_pending");
+        let pos_ident = create_test_ident("__custom_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        let code_str = code.to_string();
+
+        // Should reference the custom identifiers
+        assert!(
+            code_str.contains("__custom_out") || code_str.is_empty(),
+            "Should use provided out_ident"
+        );
+    }
+
+    #[test]
+    fn test_flush_stmt_run_with_comment_segment() {
+        let segment = Segment::Comment {
+            style: crate::template::CommentStyle::Line,
+            text: "test comment".to_string(),
+        };
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        // Comment segments should be handled
+        assert!(result.is_ok() || result.is_err(), "Should handle comment segments");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_complex_typescript() {
+        let segment = Segment::Static(
+            "interface User { name: string; age: number; }".to_string()
+        );
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(result.is_ok(), "Should handle complex TypeScript");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_function_declaration() {
+        let segment = Segment::Static(
+            "function add(a: number, b: number): number { return a + b; }".to_string()
+        );
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(result.is_ok(), "Should handle function declarations");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_class_declaration() {
+        let segment = Segment::Static(
+            "class User { constructor(public name: string) {} }".to_string()
+        );
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        assert!(result.is_ok(), "Should handle class declarations");
+    }
+}

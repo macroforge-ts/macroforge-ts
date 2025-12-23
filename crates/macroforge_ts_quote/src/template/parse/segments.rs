@@ -367,3 +367,328 @@ pub fn parse_segments(
     flush_static(&mut segments, &mut static_tokens);
     Ok((segments, None))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quote::quote;
+
+    fn parse_test(tokens: proc_macro2::TokenStream) -> syn::Result<Vec<Segment>> {
+        let mut iter = tokens.into_iter().peekable();
+        let mut ids = IdGen { next: 0 };
+        let (segments, _) = parse_segments(&mut iter, None, &mut ids, false)?;
+        Ok(segments)
+    }
+
+    #[test]
+    fn test_empty_input() {
+        let result = parse_test(quote! {});
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
+    }
+
+    #[test]
+    fn test_static_only() {
+        let result = parse_test(quote! { const x = 42; });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert_eq!(segments.len(), 1);
+        assert!(matches!(&segments[0], Segment::Static(_)));
+    }
+
+    #[test]
+    fn test_basic_interpolation() {
+        let result = parse_test(quote! { value: @{x} });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.len() >= 2);
+        assert!(segments.iter().any(|s| matches!(s, Segment::Interpolation { .. })));
+    }
+
+    #[test]
+    fn test_string_interpolation() {
+        let result = parse_test(quote! { "hello @{name}" });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::StringInterp { .. })));
+    }
+
+    #[test]
+    fn test_backtick_template() {
+        let result = parse_test(quote! { "'^template @{expr}^'" });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::TemplateInterp { .. })));
+    }
+
+    #[test]
+    fn test_if_control() {
+        let tokens: proc_macro2::TokenStream = "{#if condition} then {/if}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::Control { .. })));
+    }
+
+    #[test]
+    fn test_if_else() {
+        let tokens: proc_macro2::TokenStream = "{#if x} yes {:else} no {/if}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_if_let() {
+        let tokens: proc_macro2::TokenStream = "{#if let Some(x) = opt} @{x} {/if}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_for_loop() {
+        let tokens: proc_macro2::TokenStream = "{#for item in items} @{item} {/for}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_while_loop() {
+        let tokens: proc_macro2::TokenStream = "{#while condition} body {/while}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_while_let() {
+        let tokens: proc_macro2::TokenStream = "{#while let Some(x) = iter.next()} @{x} {/while}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_match_block() {
+        let tokens: proc_macro2::TokenStream = "{#match value} {:case Some(x)} @{x} {:case None} none {/match}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_let_binding() {
+        let result = parse_test(quote! {
+            {$let x = 42}
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::Let { .. })));
+    }
+
+    #[test]
+    fn test_do_expression() {
+        let result = parse_test(quote! {
+            {$do println!("test")}
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::Do { .. })));
+    }
+
+    #[test]
+    fn test_typescript_block() {
+        let result = parse_test(quote! {
+            {$typescript stream}
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::Typescript { .. })));
+    }
+
+    #[test]
+    fn test_ident_block() {
+        let result = parse_test(quote! {
+            {|get@{name}|}
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::IdentBlock { .. })));
+    }
+
+    #[test]
+    fn test_line_comment() {
+        let result = parse_test(quote! {
+            {> "comment text" <}
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::Comment { style: CommentStyle::Line, .. })));
+    }
+
+    #[test]
+    fn test_block_comment() {
+        let result = parse_test(quote! {
+            {>> "comment text" <<}
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::Comment { style: CommentStyle::Block, .. })));
+    }
+
+    #[test]
+    fn test_nested_braces() {
+        let result = parse_test(quote! {
+            function() { @{body} }
+        });
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_mixed_content() {
+        let tokens: proc_macro2::TokenStream = r#"
+            const x = @{value};
+            {#if condition}
+                "string @{interp}"
+            {/if}
+        "#.parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(!segments.is_empty());
+    }
+
+    #[test]
+    fn test_unclosed_if() {
+        let tokens: proc_macro2::TokenStream = "{#if x} content".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_unexpected_else() {
+        let tokens: proc_macro2::TokenStream = "{:else}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_unexpected_endif() {
+        let tokens: proc_macro2::TokenStream = "{/if}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_interpolations_only_mode() {
+        let tokens = quote! { { @{x} } };
+        let mut iter = tokens.into_iter().peekable();
+        let mut ids = IdGen { next: 0 };
+        let result = parse_segments(&mut iter, None, &mut ids, true);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_nested_control_flow() {
+        let tokens: proc_macro2::TokenStream = "{#if outer} {#if inner} nested {/if} {/if}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_multiple_interpolations() {
+        let result = parse_test(quote! {
+            @{a} @{b} @{c}
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        let interp_count = segments.iter().filter(|s| matches!(s, Segment::Interpolation { .. })).count();
+        assert_eq!(interp_count, 3);
+    }
+
+    #[test]
+    fn test_parenthesis_with_interpolation() {
+        let result = parse_test(quote! {
+            (@{x}, @{y})
+        });
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_bracket_with_interpolation() {
+        let result = parse_test(quote! {
+            [@{x}, @{y}]
+        });
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_at_escape() {
+        let result = parse_test(quote! {
+            @
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(matches!(&segments[0], Segment::Static(_)));
+    }
+
+    #[test]
+    fn test_complex_nested_structure() {
+        let tokens: proc_macro2::TokenStream = r#"
+            function test() {
+                {#for item in items}
+                    {#if item.active}
+                        const x = @{item.name};
+                        {#match item.status}
+                            {:case Status::Ready} "ready"
+                            {:case _} "other"
+                        {/match}
+                    {/if}
+                {/for}
+            }
+        "#.parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_brace_block_detection() {
+        let result = parse_test(quote! {
+            { static content }
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        // Should be treated as static since no interpolations
+        assert!(segments.iter().all(|s| matches!(s, Segment::Static(_))));
+    }
+
+    #[test]
+    fn test_brace_block_with_interpolation() {
+        let result = parse_test(quote! {
+            { content @{x} }
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::BraceBlock { .. })));
+    }
+
+    #[test]
+    fn test_doc_comment_detection() {
+        let result = parse_test(quote! {
+            #[doc = "test"]
+        });
+        assert!(result.is_ok());
+        let segments = result.unwrap();
+        assert!(segments.iter().any(|s| matches!(s, Segment::Comment { style: CommentStyle::DocBlock, .. })));
+    }
+
+    #[test]
+    fn test_consecutive_control_structures() {
+        let tokens: proc_macro2::TokenStream = "{#if a} a {/if} {#if b} b {/if} {#if c} c {/if}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_empty_control_blocks() {
+        let tokens: proc_macro2::TokenStream = "{#if x}{/if} {#for i in x}{/for} {#while x}{/while}".parse().unwrap();
+        let result = parse_test(tokens);
+        assert!(result.is_ok());
+    }
+}

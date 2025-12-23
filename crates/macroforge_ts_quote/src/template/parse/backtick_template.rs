@@ -110,3 +110,157 @@ pub fn parse_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<Option
 
     Ok(Some(parts))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use proc_macro2::Literal;
+
+    #[test]
+    fn test_not_backtick_template() {
+        let lit = Literal::string("hello world");
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_basic_backtick_template() {
+        let lit: Literal = syn::parse_str(r#""'^hello world^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 1);
+        assert!(matches!(&parts[0], StringPart::Text(s) if s == "hello world"));
+    }
+
+    #[test]
+    fn test_backtick_with_interpolation() {
+        let lit: Literal = syn::parse_str(r#""'^hello @{name}^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 2);
+        assert!(matches!(&parts[0], StringPart::Text(s) if s == "hello "));
+        assert!(matches!(&parts[1], StringPart::Expr(_)));
+    }
+
+    #[test]
+    fn test_backtick_with_multiple_interpolations() {
+        let lit: Literal = syn::parse_str(r#""'^@{greeting} @{name}!^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 4);
+        assert!(matches!(&parts[0], StringPart::Expr(_)));
+        assert!(matches!(&parts[1], StringPart::Text(s) if s == " "));
+        assert!(matches!(&parts[2], StringPart::Expr(_)));
+        assert!(matches!(&parts[3], StringPart::Text(s) if s == "!"));
+    }
+
+    #[test]
+    fn test_backtick_escape_at_sign() {
+        let lit: Literal = syn::parse_str(r#""'^email@@example.com^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 1);
+        assert!(matches!(&parts[0], StringPart::Text(s) if s == "email@example.com"));
+    }
+
+    #[test]
+    fn test_backtick_at_without_brace() {
+        let lit: Literal = syn::parse_str(r#""'^email@domain.com^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 1);
+        assert!(matches!(&parts[0], StringPart::Text(s) if s == "email@domain.com"));
+    }
+
+    #[test]
+    fn test_backtick_nested_braces() {
+        let lit: Literal = syn::parse_str(r#""'^@{obj.get(key)}^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 1);
+        assert!(matches!(&parts[0], StringPart::Expr(_)));
+    }
+
+    #[test]
+    fn test_backtick_unclosed_interpolation() {
+        let lit: Literal = syn::parse_str(r#""'^@{name^'""#).unwrap();
+        let result = parse_backtick_template(&lit);
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("Unclosed"));
+    }
+
+    #[test]
+    fn test_backtick_invalid_expression() {
+        let lit: Literal = syn::parse_str(r#""'^@{+++}^'""#).unwrap();
+        let result = parse_backtick_template(&lit);
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("Invalid Rust expression"));
+    }
+
+    #[test]
+    fn test_backtick_control_flow_rejected() {
+        let lit: Literal = syn::parse_str(r#""'^{#if x}yes{/if}^'""#).unwrap();
+        let result = parse_backtick_template(&lit);
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("control flow tags cannot be used"));
+    }
+
+    #[test]
+    fn test_backtick_raw_string() {
+        let lit: Literal = syn::parse_str(r#"r"'^hello @{name}^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 2);
+    }
+
+    #[test]
+    fn test_backtick_raw_hash_string() {
+        let lit: Literal = syn::parse_str(r##"r#"'^hello @{name}^'"#"##).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 2);
+    }
+
+    #[test]
+    fn test_backtick_preserves_dollar_signs() {
+        // Dollar signs should be preserved (they're not special in backtick templates)
+        let lit: Literal = syn::parse_str(r#""'^price: $@{amount}^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 2);
+        assert!(matches!(&parts[0], StringPart::Text(s) if s == "price: $"));
+        assert!(matches!(&parts[1], StringPart::Expr(_)));
+    }
+
+    #[test]
+    fn test_backtick_empty_template() {
+        let lit: Literal = syn::parse_str(r#""'^'^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        // Empty template results in empty text part
+        assert!(parts.len() <= 1);
+    }
+
+    #[test]
+    fn test_backtick_only_interpolation() {
+        let lit: Literal = syn::parse_str(r#""'^@{value}^'""#).unwrap();
+        let result = parse_backtick_template(&lit).unwrap();
+        assert!(result.is_some());
+        let parts = result.unwrap();
+        assert_eq!(parts.len(), 1);
+        assert!(matches!(&parts[0], StringPart::Expr(_)));
+    }
+}

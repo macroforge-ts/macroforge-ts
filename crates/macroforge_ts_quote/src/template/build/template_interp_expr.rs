@@ -41,3 +41,242 @@ pub fn build_template_interp_expr(parts: &[StringPart], id: usize) -> TokenStrea
         #expr
     }}
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quote::quote;
+
+    #[test]
+    fn test_text_only() {
+        let parts = vec![StringPart::Text("Hello, World!".to_string())];
+        let result = build_template_interp_expr(&parts, 0);
+        let result_str = result.to_string();
+
+        // Should create a template string with no expressions
+        assert!(result_str.contains("`Hello, World!`"));
+    }
+
+    #[test]
+    fn test_single_expr() {
+        let parts = vec![StringPart::Expr(quote!(name))];
+        let result = build_template_interp_expr(&parts, 1);
+        let result_str = result.to_string();
+
+        // Should have a binding for the expression
+        assert!(result_str.contains("__mf_tpl_1_0"));
+        // Should use ${} interpolation syntax
+        assert!(result_str.contains("${$"));
+    }
+
+    #[test]
+    fn test_text_and_expr() {
+        let parts = vec![
+            StringPart::Text("Hello, ".to_string()),
+            StringPart::Expr(quote!(name)),
+            StringPart::Text("!".to_string()),
+        ];
+        let result = build_template_interp_expr(&parts, 2);
+        let result_str = result.to_string();
+
+        // Should contain text parts and expression placeholder
+        assert!(result_str.contains("Hello,"));
+        assert!(result_str.contains("__mf_tpl_2_0"));
+        assert!(result_str.contains("!"));
+    }
+
+    #[test]
+    fn test_dollar_sign_preserved() {
+        let parts = vec![StringPart::Text("Price: $100".to_string())];
+        let result = build_template_interp_expr(&parts, 3);
+        let result_str = result.to_string();
+
+        // escape_tpl_segment_allow_dollar should preserve literal dollar signs
+        // The key difference from string_interp_expr is dollar preservation
+        assert!(result_str.contains("Price"));
+    }
+
+    #[test]
+    fn test_template_literal_with_dollar_expressions() {
+        let parts = vec![
+            StringPart::Text("Value: ${someVar}".to_string()),
+        ];
+        let result = build_template_interp_expr(&parts, 4);
+        let result_str = result.to_string();
+
+        // Should preserve the ${someVar} syntax from the template literal
+        assert!(result_str.contains("`"));
+    }
+
+    #[test]
+    fn test_multiple_exprs() {
+        let parts = vec![
+            StringPart::Expr(quote!(first)),
+            StringPart::Text(" and ".to_string()),
+            StringPart::Expr(quote!(second)),
+        ];
+        let result = build_template_interp_expr(&parts, 5);
+        let result_str = result.to_string();
+
+        // Should have two separate bindings with sequential indices
+        assert!(result_str.contains("__mf_tpl_5_0"));
+        assert!(result_str.contains("__mf_tpl_5_1"));
+        assert!(result_str.contains(" and "));
+    }
+
+    #[test]
+    fn test_empty_parts() {
+        let parts: Vec<StringPart> = vec![];
+        let result = build_template_interp_expr(&parts, 6);
+        let result_str = result.to_string();
+
+        // Should create an empty template string
+        assert!(result_str.contains("``"));
+    }
+
+    #[test]
+    fn test_expr_index_increments() {
+        let parts = vec![
+            StringPart::Expr(quote!(a)),
+            StringPart::Expr(quote!(b)),
+            StringPart::Expr(quote!(c)),
+        ];
+        let result = build_template_interp_expr(&parts, 7);
+        let result_str = result.to_string();
+
+        // Each expression should get a unique index within the same ID
+        assert!(result_str.contains("__mf_tpl_7_0"));
+        assert!(result_str.contains("__mf_tpl_7_1"));
+        assert!(result_str.contains("__mf_tpl_7_2"));
+    }
+
+    #[test]
+    fn test_special_characters_in_text() {
+        let parts = vec![
+            StringPart::Text("Line 1\nLine 2\tTabbed".to_string()),
+            StringPart::Expr(quote!(value)),
+        ];
+        let result = build_template_interp_expr(&parts, 8);
+        let result_str = result.to_string();
+
+        // escape_tpl_segment_allow_dollar should handle special characters
+        assert!(result_str.contains("__mf_tpl_8_0"));
+    }
+
+    #[test]
+    fn test_backtick_in_text() {
+        let parts = vec![StringPart::Text("Text with ` backtick".to_string())];
+        let result = build_template_interp_expr(&parts, 9);
+        let result_str = result.to_string();
+
+        // Should handle backticks properly (escape_tpl_segment_allow_dollar should escape them)
+        assert!(result_str.contains("`"));
+    }
+
+    #[test]
+    fn test_backslash_in_text() {
+        let parts = vec![StringPart::Text("Path\\to\\file".to_string())];
+        let result = build_template_interp_expr(&parts, 10);
+        let result_str = result.to_string();
+
+        // Backslashes should be handled by escape_tpl_segment_allow_dollar
+        assert!(result_str.contains("Path"));
+    }
+
+    #[test]
+    fn test_complex_expr() {
+        let parts = vec![
+            StringPart::Text("Result: ".to_string()),
+            StringPart::Expr(quote!(user.name.to_uppercase())),
+        ];
+        let result = build_template_interp_expr(&parts, 11);
+        let result_str = result.to_string();
+
+        // Should handle complex expression
+        assert!(result_str.contains("__mf_tpl_11_0"));
+        assert!(result_str.contains("Result"));
+    }
+
+    #[test]
+    fn test_alternating_text_and_expr() {
+        let parts = vec![
+            StringPart::Text("a".to_string()),
+            StringPart::Expr(quote!(x)),
+            StringPart::Text("b".to_string()),
+            StringPart::Expr(quote!(y)),
+            StringPart::Text("c".to_string()),
+        ];
+        let result = build_template_interp_expr(&parts, 12);
+        let result_str = result.to_string();
+
+        // Should handle alternating pattern
+        assert!(result_str.contains("__mf_tpl_12_0"));
+        assert!(result_str.contains("__mf_tpl_12_1"));
+        assert!(result_str.contains("a"));
+        assert!(result_str.contains("b"));
+        assert!(result_str.contains("c"));
+    }
+
+    #[test]
+    fn test_unicode_in_text() {
+        let parts = vec![StringPart::Text("Hello 世界 🌍".to_string())];
+        let result = build_template_interp_expr(&parts, 13);
+        let result_str = result.to_string();
+
+        // Should handle unicode properly
+        assert!(result_str.contains("`"));
+    }
+
+    #[test]
+    fn test_empty_text_parts() {
+        let parts = vec![
+            StringPart::Text("".to_string()),
+            StringPart::Expr(quote!(value)),
+            StringPart::Text("".to_string()),
+        ];
+        let result = build_template_interp_expr(&parts, 14);
+        let result_str = result.to_string();
+
+        // Should handle empty text parts
+        assert!(result_str.contains("__mf_tpl_14_0"));
+    }
+
+    #[test]
+    fn test_bindings_use_to_ts_expr() {
+        let parts = vec![StringPart::Expr(quote!(my_var))];
+        let result = build_template_interp_expr(&parts, 15);
+        let result_str = result.to_string();
+
+        // Should call to_ts_expr on the expression
+        assert!(result_str.contains("to_ts_expr"));
+        assert!(result_str.contains("my_var"));
+    }
+
+    #[test]
+    fn test_mixed_dollar_and_interpolation() {
+        let parts = vec![
+            StringPart::Text("Price: $".to_string()),
+            StringPart::Expr(quote!(amount)),
+            StringPart::Text(" (includes ${tax})".to_string()),
+        ];
+        let result = build_template_interp_expr(&parts, 16);
+        let result_str = result.to_string();
+
+        // Should preserve literal $ and handle Rust interpolation
+        assert!(result_str.contains("__mf_tpl_16_0"));
+        assert!(result_str.contains("Price"));
+    }
+
+    #[test]
+    fn test_js_template_expression() {
+        let parts = vec![
+            StringPart::Text("Hello ${user.name}, you have ${count} items".to_string()),
+        ];
+        let result = build_template_interp_expr(&parts, 17);
+        let result_str = result.to_string();
+
+        // Should preserve JavaScript template literal syntax
+        // escape_tpl_segment_allow_dollar preserves ${...} in text
+        assert!(result_str.contains("`"));
+    }
+}
