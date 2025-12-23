@@ -1356,6 +1356,7 @@ interface Status {
         assert_eq!(error_count, 0, "Should succeed without errors");
 
         // Verify the output contains expected patterns (suffix-style uses value parameter)
+        eprintln!("[DEBUG] result.code = {:?}", result.code);
         assert!(
             result.code.contains("value.active"),
             "Should reference value.active"
