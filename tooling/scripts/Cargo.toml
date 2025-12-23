@@ -1,0 +1,73 @@
+[package]
+name = "mf"
+version = "0.1.0"
+edition = "2024"
+description = "Macroforge Tooling - unified CLI/TUI for build, release, and diagnostics"
+
+[[bin]]
+name = "mf"
+path = "src/main.rs"
+
+[dependencies]
+# CLI
+clap = { version = "4", features = ["derive", "env", "wrap_help"] }
+dialoguer = "0.11"
+
+# TUI
+ratatui = "0.30.0-beta.0"
+crossterm = "0.28"
+
+# Async
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+# Graphs
+petgraph = "0.6"
+
+# Rust parsing
+syn = { version = "2", features = ["full", "extra-traits", "visit"] }
+quote = "1"
+proc-macro2 = "1"
+
+
+# SWC Core for TypeScript parsing and transformation
+swc_core = { version = "51.0.0", features = [
+    "ecma_ast",
+    "ecma_parser",
+    "common"
+] }
+
+
+# Markdown
+pulldown-cmark = "0.12"
+htmd = "0.5"
+scraper = "0.22"
+
+# Terminal
+colored = "2"
+
+# Utils
+regex = "1"
+walkdir = "2"
+ignore = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
+anyhow = "1"
+ctrlc = "3.4"
+ureq = { version = "2", features = ["json"] }
+rayon = "1"
+
+[dev-dependencies]
+tempfile = "3"
+assert_cmd = "2"
+predicates = "3"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+strip = true
