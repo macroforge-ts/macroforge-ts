@@ -181,7 +181,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let class_ident = ident!(class_name);
 
             // Collect fields that should be included in debug output
-            let debug_fields: Vec<DebugField> = class
+            let _debug_fields: Vec<DebugField> = class
                 .fields()
                 .iter()
                 .filter_map(|field| {
@@ -194,8 +194,6 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
                 .collect();
 
-            let has_fields = !debug_fields.is_empty();
-
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}ToString", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
@@ -203,9 +201,9 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             // Generate standalone function with value parameter
             let standalone = ts_template! {
                 export function @{fn_name_ident}(value: @{class_ident}): string {
-                    {#if has_fields}
+                    {#if !_debug_fields.is_empty()}
                         const parts: string[] = [];
-                        {#for (label, name) in debug_fields}
+                        {#for (label, name) in _debug_fields}
                             parts.push("@{label}: " + value.@{name});
                         {/for}
                         return "@{class_name} { " + parts.join(", ") + " }";
@@ -233,19 +231,17 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         Data::Enum(enum_data) => {
             let enum_name = input.name();
             let enum_ident = ident!(enum_name);
-            let enum_expr: Expr = enum_ident.clone().into();
-            let variants: Vec<String> = enum_data
+            let _variants: Vec<String> = enum_data
                 .variants()
                 .iter()
                 .map(|v| v.name.clone())
                 .collect();
-            let has_variants = !variants.is_empty();
 
             let fn_name_ident = ident!("{}ToString", enum_name.to_case(Case::Camel));
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{enum_ident}): string {
-                    {#if has_variants}
-                        const key = @{enum_expr}[value as unknown as keyof typeof @{enum_ident}];
+                    {#if !_variants.is_empty()}
+                        const key = @{enum_ident.clone().into()}[value as unknown as keyof typeof @{enum_ident}];
                         if (key !== undefined) {
                             return "@{enum_name}." + key;
                         }
@@ -261,7 +257,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let interface_ident = ident!(interface_name);
 
             // Collect fields that should be included in debug output
-            let debug_fields: Vec<DebugField> = interface
+            let _debug_fields: Vec<DebugField> = interface
                 .fields()
                 .iter()
                 .filter_map(|field| {
@@ -274,14 +270,13 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
                 .collect();
 
-            let has_fields = !debug_fields.is_empty();
             let fn_name_ident = ident!("{}ToString", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{interface_ident}): string {
-                    {#if has_fields}
+                    {#if !_debug_fields.is_empty()}
                         const parts: string[] = [];
-                        {#for (label, name) in debug_fields}
+                        {#for (label, name) in _debug_fields}
                             parts.push("@{label}: " + value.@{name});
                         {/for}
                         return "@{interface_name} { " + parts.join(", ") + " }";
@@ -298,7 +293,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             // Generate different output based on type body
             if type_alias.is_object() {
                 // Object type: show fields
-                let debug_fields: Vec<DebugField> = type_alias
+                let _debug_fields: Vec<DebugField> = type_alias
                     .as_object()
                     .unwrap()
                     .iter()
@@ -312,14 +307,13 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     })
                     .collect();
 
-                let has_fields = !debug_fields.is_empty();
                 let fn_name_ident = ident!("{}ToString", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{type_ident}): string {
-                        {#if has_fields}
+                        {#if !_debug_fields.is_empty()}
                             const parts: string[] = [];
-                            {#for (label, name) in debug_fields}
+                            {#for (label, name) in _debug_fields}
                                 parts.push("@{label}: " + value.@{name});
                             {/for}
                             return "@{type_name} { " + parts.join(", ") + " }";

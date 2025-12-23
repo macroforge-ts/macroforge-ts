@@ -121,10 +121,10 @@ use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{DefaultFieldOptions, get_type_default, has_known_default};
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{
-    ident, parse_ts_expr, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
-};
 use crate::swc_ecma_ast::{Expr, Ident};
+use crate::ts_syn::{
+    Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_expr, parse_ts_macro_input,
+};
 
 /// Contains field information needed for default value generation.
 ///
@@ -188,60 +188,40 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 ));
             }
 
-            // Build defaults for ALL non-optional fields
-            let default_fields: Vec<DefaultField> = class
+            // Build defaults for ALL non-optional fields by parsing expressions and generating class body
+            // Parse all field default expressions upfront for validation (before template generation)
+            let field_data: Vec<(Ident, Expr)> = class
                 .fields()
                 .iter()
                 .filter(|field| !field.optional)
                 .map(|field| {
                     let opts = DefaultFieldOptions::from_decorators(&field.decorators);
-                    DefaultField {
-                        name: field.name.clone(),
-                        value: opts
-                            .value
-                            .unwrap_or_else(|| get_type_default(&field.ts_type)),
-                    }
+                    let default_value = opts
+                        .value
+                        .unwrap_or_else(|| get_type_default(&field.ts_type));
+
+                    let value_expr = parse_ts_expr(&default_value).map_err(|err| {
+                        MacroforgeError::new(
+                            input.decorator_span(),
+                            format!(
+                                "@derive(Default): invalid default expression for '{}': {err:?}",
+                                field.name
+                            ),
+                        )
+                    })?;
+                    Ok((ident!(field.name.as_str()), *value_expr))
                 })
-                .collect();
+                .collect::<Result<_, MacroforgeError>>()?;
 
-            let has_defaults = !default_fields.is_empty();
-
-            let assignment_fields: Vec<(Ident, Expr)> = if has_defaults {
-                default_fields
-                    .iter()
-                    .map(|f| {
-                        let value_expr = parse_ts_expr(&f.value).map_err(|err| {
-                            MacroforgeError::new(
-                                input.decorator_span(),
-                                format!(
-                                    "@derive(Default): invalid default expression for '{}': {err:?}",
-                                    f.name
-                                ),
-                            )
-                        })?;
-                        Ok((ident!(f.name.as_str()), *value_expr))
-                    })
-                    .collect::<Result<_, MacroforgeError>>()?
-            } else {
-                Vec::new()
-            };
-
-            let assignments = if has_defaults {
-                ts_template! {
-                    {#for (name_ident, value_expr) in assignment_fields}
-                        instance.@{name_ident} = @{value_expr};
-                    {/for}
-                }
-            } else {
-                TsStream::from_string(String::new())
-            };
-
+            // Generate the method body using parsed field data
+            // Note: field_data is consumed by the body! macro below
+            let _ = &field_data; // Explicitly mark as used to satisfy clippy
             let class_body = body! {
                 static defaultValue(): @{class_ident} {
                     const instance = new @{class_expr}();
-                    {#if has_defaults}
-                        {$typescript assignments}
-                    {/if}
+                    {#for (name_ident, value_expr) in field_data}
+                        instance.@{name_ident} = @{value_expr};
+                    {/for}
                     return instance;
                 }
             };
@@ -577,12 +557,9 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                             ),
                         )
                     })?;
-                    let has_return = true;
                     Ok(ts_template! {
                         export function {|@{fn_name_ident}@{generic_params_ident}|}(): @{return_type_ident} {
-                            {#if has_return}
-                                return @{return_expr};
-                            {/if}
+                            return @{return_expr};
                         }
                     })
                 } else {
@@ -616,12 +593,9 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                             ),
                         )
                     })?;
-                    let has_return = true;
                     Ok(ts_template! {
                         export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
-                            {#if has_return}
-                                return @{return_expr};
-                            {/if}
+                            return @{return_expr};
                         }
                     })
                 } else {
@@ -647,8 +621,8 @@ mod tests {
     fn test_default_macro_output() {
         let class_name = "User";
         let class_ident = ident!(class_name);
-        let class_expr: Expr = class_ident.clone().into();
-        let default_fields: Vec<DefaultField> = vec![
+
+        let _default_fields: Vec<DefaultField> = vec![
             DefaultField {
                 name: "id".to_string(),
                 value: "0".to_string(),
@@ -658,27 +632,14 @@ mod tests {
                 value: r#""""#.to_string(),
             },
         ];
-        let has_defaults = !default_fields.is_empty();
-
-        let assignment_fields: Vec<(Ident, Expr)> = default_fields
-            .iter()
-            .map(|f| {
-                let expr = parse_ts_expr(&f.value).expect("default expr should parse");
-                (ident!(f.name.as_str()), *expr)
-            })
-            .collect();
-
-        let assignments = ts_template! {
-            {#for (name_ident, value_expr) in assignment_fields}
-                instance.@{name_ident} = @{value_expr};
-            {/for}
-        };
 
         let output = body! {
-            static defaultValue(): @{class_ident} {
-                const instance = new @{class_expr}();
-                {#if has_defaults}
-                    {$typescript assignments}
+            static defaultValue(): @{class_ident.clone()} {
+                const instance = new @{class_ident.clone()}();
+                {#if !default_fields.is_empty()}
+                    {#for f in _default_fields.iter()}
+                        instance.@{ident!(f.name.as_str())} = @{*parse_ts_expr(&f.value).expect("should parse")};
+                    {/for}
                 {/if}
                 return instance;
             }
