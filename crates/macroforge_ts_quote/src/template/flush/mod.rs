@@ -1,6 +1,7 @@
 //! Template flushing - converting buffered content to output.
 
 mod class_wrapped_path;
+mod function_wrapped_path;
 mod helpers;
 mod r#static;
 mod standard_path;

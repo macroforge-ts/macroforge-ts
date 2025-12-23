@@ -1,12 +1,69 @@
 use std::collections::HashMap;
 
-use crate::template::{append_part, placeholder_name, Segment};
+use crate::template::{append_part, placeholder_name, ControlNode, Segment};
 
 /// Placeholder source kind for parsing.
 #[derive(Clone, Copy)]
 pub enum PlaceholderSourceKind {
     Module,
     Expr,
+}
+
+/// Checks if a branch contains statement-level content.
+///
+/// Returns true if the branch ends with a semicolon or contains statement-level constructs.
+/// Returns false if the branch contains inline expression parts.
+fn is_statement_level_branch(branch: &[Segment]) -> bool {
+    // Check if the last static segment ends with ";"
+    for seg in branch.iter().rev() {
+        match seg {
+            Segment::Static(s) => {
+                let trimmed = s.trim();
+                if !trimmed.is_empty() {
+                    return trimmed.ends_with(';');
+                }
+            }
+            // If we hit a non-static segment before finding static content,
+            // check if it's a control segment (which would make this statement-level)
+            Segment::Control { node, .. } => {
+                // Nested control in branch = statement-level
+                return matches!(
+                    node,
+                    ControlNode::For { .. }
+                        | ControlNode::While { .. }
+                        | ControlNode::WhileLet { .. }
+                ) || match node {
+                    ControlNode::If { then_branch, .. }
+                    | ControlNode::IfLet { then_branch, .. } => is_statement_level_branch(then_branch),
+                    ControlNode::Match { cases, .. } => {
+                        cases.iter().any(|c| is_statement_level_branch(&c.body))
+                    }
+                    _ => false,
+                };
+            }
+            // Typescript injections, Let, and Do are always statement-level
+            Segment::Typescript { .. } | Segment::Let { .. } | Segment::Do { .. } => {
+                return true;
+            }
+            // Interpolation at the end without semicolon = inline expression
+            Segment::Interpolation { .. }
+            | Segment::StringInterp { .. }
+            | Segment::TemplateInterp { .. }
+            | Segment::IdentBlock { .. } => {
+                return false;
+            }
+            // BraceBlock at the end = statement-level if its inner content is statement-level
+            Segment::BraceBlock { inner, .. } => {
+                // A branch ending with `{ ... }` is statement-level if the block contains
+                // statement-level content (like `if (...) { statements; }`)
+                return is_statement_level_branch(inner);
+            }
+            // Comment, ObjectPropLoop - continue looking for other content
+            _ => continue,
+        }
+    }
+    // Empty or whitespace-only = inline (treat as expression part)
+    false
 }
 
 /// Builds a placeholder-only source string and placeholder ID map.
@@ -25,17 +82,88 @@ pub fn build_placeholder_source(
             | Segment::StringInterp { id, .. }
             | Segment::TemplateInterp { id, .. }
             | Segment::IdentBlock { id, .. }
-            | Segment::Control { id, .. }
             | Segment::Typescript { id, .. }
             | Segment::ObjectPropLoop { id, .. } => {
                 let name = placeholder_name(*id);
                 append_part(&mut src, &name);
                 if matches!(kind, PlaceholderSourceKind::Module)
-                    && matches!(seg, Segment::Control { .. } | Segment::Typescript { .. })
+                    && matches!(seg, Segment::Typescript { .. })
                 {
                     src.push(';');
                 }
                 map.insert(name, *id);
+            }
+            Segment::Control { id, node, .. } => {
+                // Determine if control is statement-level based on its content.
+                //
+                // A control is statement-level if:
+                // - It's a loop (For/While/WhileLet), OR
+                // - Its branch contains statement-level content (ends with `;`, has Typescript, etc.)
+                //
+                // Otherwise, it's inline and we recurse into branches for classification.
+                match node {
+                    ControlNode::For { .. }
+                    | ControlNode::While { .. }
+                    | ControlNode::WhileLet { .. } => {
+                        // Statement-level loops: emit placeholder for classification
+                        let name = placeholder_name(*id);
+                        append_part(&mut src, &name);
+                        if matches!(kind, PlaceholderSourceKind::Module) {
+                            src.push(';');
+                        }
+                        map.insert(name, *id);
+                    }
+                    ControlNode::If {
+                        then_branch,
+                        else_branch,
+                        ..
+                    }
+                    | ControlNode::IfLet {
+                        then_branch,
+                        else_branch,
+                        ..
+                    } => {
+                        // Statement-level if:
+                        // - No else branch (expressions need both branches for a value)
+                        // - Branch contains statement-level content (ends with `;`, has Typescript, etc.)
+                        let is_statement_level =
+                            else_branch.is_none() || is_statement_level_branch(then_branch);
+
+                        if is_statement_level {
+                            // Statement-level: emit placeholder for classification
+                            let name = placeholder_name(*id);
+                            append_part(&mut src, &name);
+                            if matches!(kind, PlaceholderSourceKind::Module) {
+                                src.push(';');
+                            }
+                            map.insert(name, *id);
+                        } else {
+                            // Inline conditional: recursively process branches
+                            let (ctrl_src, ctrl_map) = build_control_placeholder_source(node, kind);
+                            if !ctrl_src.is_empty() {
+                                append_part(&mut src, &ctrl_src);
+                                map.extend(ctrl_map);
+                            }
+                        }
+                    }
+                    ControlNode::Match { cases, .. } => {
+                        // Statement-level if any case has statement content
+                        if cases.iter().any(|c| is_statement_level_branch(&c.body)) {
+                            let name = placeholder_name(*id);
+                            append_part(&mut src, &name);
+                            if matches!(kind, PlaceholderSourceKind::Module) {
+                                src.push(';');
+                            }
+                            map.insert(name, *id);
+                        } else {
+                            let (ctrl_src, ctrl_map) = build_control_placeholder_source(node, kind);
+                            if !ctrl_src.is_empty() {
+                                append_part(&mut src, &ctrl_src);
+                                map.extend(ctrl_map);
+                            }
+                        }
+                    }
+                }
             }
             Segment::Let { .. } | Segment::Do { .. } => {
                 // Rust-only constructs are ignored for TS parsing.
@@ -52,6 +180,51 @@ pub fn build_placeholder_source(
     }
 
     (src, map)
+}
+
+/// Build placeholder source for a control node by recursively processing its branches.
+fn build_control_placeholder_source(
+    node: &ControlNode,
+    kind: PlaceholderSourceKind,
+) -> (String, HashMap<String, usize>) {
+    match node {
+        ControlNode::If {
+            then_branch,
+            else_branch,
+            ..
+        }
+        | ControlNode::IfLet {
+            then_branch,
+            else_branch,
+            ..
+        } => {
+            // Try then_branch first, fall back to else_branch if then is empty
+            let (then_src, then_map) = build_placeholder_source(then_branch, kind);
+            if !then_src.trim().is_empty() {
+                return (then_src, then_map);
+            }
+            if let Some(else_segments) = else_branch {
+                return build_placeholder_source(else_segments, kind);
+            }
+            (String::new(), HashMap::new())
+        }
+        ControlNode::For { body, .. }
+        | ControlNode::While { body, .. }
+        | ControlNode::WhileLet { body, .. } => {
+            // For loops, process the body
+            build_placeholder_source(body, kind)
+        }
+        ControlNode::Match { cases, .. } => {
+            // For match, try to find the first case with non-empty content
+            for case in cases {
+                let (case_src, case_map) = build_placeholder_source(&case.body, kind);
+                if !case_src.trim().is_empty() {
+                    return (case_src, case_map);
+                }
+            }
+            (String::new(), HashMap::new())
+        }
+    }
 }
 
 #[cfg(test)]
@@ -154,7 +327,8 @@ mod tests {
     // ========================================
 
     #[test]
-    fn test_control_in_module_mode_adds_semicolon() {
+    fn test_control_without_else_is_statement_level() {
+        // Control without else branch is always statement-level (emits placeholder)
         let segments = vec![Segment::Control {
             id: 0,
             node: ControlNode::If {
@@ -163,25 +337,105 @@ mod tests {
                 else_branch: None,
             },
         }];
-        let (src, _map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
-        // Module mode adds semicolon after Control
-        assert!(src.contains("__mf_hole_0;"));
+        let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+        // No else = statement-level, emits placeholder for classification
+        assert!(src.contains("__mf_hole_0"));
+        assert_eq!(map.get("__mf_hole_0"), Some(&0));
     }
 
     #[test]
-    fn test_control_in_expr_mode_no_semicolon() {
+    fn test_control_without_else_emits_placeholder() {
+        // Control without else branch emits placeholder (statement-level)
+        // even if then_branch has inline-looking content
+        let segments = vec![Segment::Control {
+            id: 0,
+            node: ControlNode::If {
+                cond: TokenStream2::new(),
+                then_branch: vec![
+                    Segment::Static(" as ".to_string()),
+                    Segment::Interpolation {
+                        id: 1,
+                        expr: TokenStream2::new(),
+                    },
+                ],
+                else_branch: None,
+            },
+        }];
+        let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+        // No else = statement-level, emits placeholder for the control itself
+        assert!(src.contains("__mf_hole_0"));
+        assert_eq!(map.get("__mf_hole_0"), Some(&0));
+        // Branch content is NOT directly in the source (processed separately during compilation)
+        assert!(!src.contains("__mf_hole_1"));
+    }
+
+    #[test]
+    fn test_control_with_else_recursively_processes() {
+        // Control WITH else branch and inline content recurses into branches
+        let segments = vec![Segment::Control {
+            id: 0,
+            node: ControlNode::If {
+                cond: TokenStream2::new(),
+                then_branch: vec![
+                    Segment::Static(" as ".to_string()),
+                    Segment::Interpolation {
+                        id: 1,
+                        expr: TokenStream2::new(),
+                    },
+                ],
+                else_branch: Some(vec![Segment::Interpolation {
+                    id: 2,
+                    expr: TokenStream2::new(),
+                }]),
+            },
+        }];
+        let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+        // With else and inline content = expression-level, recurses into then_branch
+        assert!(src.contains("as"));
+        assert!(src.contains("__mf_hole_1"));
+        assert_eq!(map.len(), 1);
+        assert_eq!(map.get("__mf_hole_1"), Some(&1));
+    }
+
+    #[test]
+    fn test_control_falls_back_to_else_branch() {
+        // If then_branch is empty, should use else_branch
         let segments = vec![Segment::Control {
             id: 0,
             node: ControlNode::If {
                 cond: TokenStream2::new(),
                 then_branch: vec![],
-                else_branch: None,
+                else_branch: Some(vec![Segment::Interpolation {
+                    id: 2,
+                    expr: TokenStream2::new(),
+                }]),
             },
         }];
-        let (src, _map) = build_placeholder_source(&segments, PlaceholderSourceKind::Expr);
-        // Expr mode does NOT add semicolon
-        assert!(src.contains("__mf_hole_0"));
-        assert!(!src.contains("__mf_hole_0;"));
+        let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+        assert!(src.contains("__mf_hole_2"));
+        assert_eq!(map.get("__mf_hole_2"), Some(&2));
+    }
+
+    #[test]
+    fn test_control_for_loop_emits_placeholder() {
+        // For loops are statement-level and emit a placeholder for classification
+        let segments = vec![Segment::Control {
+            id: 0,
+            node: ControlNode::For {
+                pat: TokenStream2::new(),
+                iter: TokenStream2::new(),
+                body: vec![Segment::Interpolation {
+                    id: 3,
+                    expr: TokenStream2::new(),
+                }],
+            },
+        }];
+        let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+        // For loop emits its own placeholder, not the body content
+        assert!(src.contains("__mf_hole_0;"));
+        assert_eq!(map.get("__mf_hole_0"), Some(&0));
+        // Body content is not directly in the source
+        assert!(!map.contains_key("__mf_hole_3"));
     }
 
     #[test]
@@ -465,12 +719,19 @@ mod tests {
                 id: 3,
                 parts: vec![],
             },
+            // Control WITH else branch - recursively includes the then_branch content
             Segment::Control {
-                id: 4,
+                id: 100, // Control id not used in output when inline (has else)
                 node: ControlNode::If {
                     cond: TokenStream2::new(),
-                    then_branch: vec![],
-                    else_branch: None,
+                    then_branch: vec![Segment::Interpolation {
+                        id: 4,
+                        expr: TokenStream2::new(),
+                    }],
+                    else_branch: Some(vec![Segment::Interpolation {
+                        id: 44,
+                        expr: TokenStream2::new(),
+                    }]),
                 },
             },
             Segment::Typescript {
@@ -510,14 +771,16 @@ mod tests {
         assert!(src.contains("__mf_hole_1"));
         assert!(src.contains("__mf_hole_2"));
         assert!(src.contains("__mf_hole_3"));
-        assert!(src.contains("__mf_hole_4;"));  // Control has semicolon in module mode
-        assert!(src.contains("__mf_hole_5;"));  // Typescript has semicolon in module mode
+        assert!(src.contains("__mf_hole_4")); // From Control's then_branch
+        assert!(src.contains("__mf_hole_5;")); // Typescript has semicolon in module mode
         assert!(src.contains("__mf_hole_6"));
-        assert!(src.contains("__mf_hole_9"));   // Inside BraceBlock
+        assert!(src.contains("__mf_hole_9")); // Inside BraceBlock
 
         // Comment has no id, Let, and Do should NOT produce placeholders
         // BraceBlock id (8) should not be in map - only its contents
+        // Control id (100) should not be in map - only its branch content
         assert!(!map.contains_key("__mf_hole_8"));
+        assert!(!map.contains_key("__mf_hole_100"));
 
         // Total: 0, 1, 2, 3, 4, 5, 6, 9 = 8 entries
         assert_eq!(map.len(), 8);

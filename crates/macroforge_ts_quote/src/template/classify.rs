@@ -42,9 +42,29 @@ fn try_classify_as_class(
     }
 }
 
+/// Tries to classify placeholders by wrapping segments in a function body and parsing.
+///
+/// This handles method body statements like `this.x = y;` that aren't valid at
+/// module or class body level.
+///
+/// Returns `Ok(Some(map))` if successful, `Ok(None)` if parsing fails.
+fn try_classify_as_function(
+    source: &str,
+    map: HashMap<String, usize>,
+) -> syn::Result<Option<HashMap<usize, PlaceholderUse>>> {
+    let wrapped_source = format!("function __MfWrapper() {{ {} }}", source);
+    if let Ok(module) = parse_ts_module(&wrapped_source) {
+        let mut finder = PlaceholderFinder::new(map);
+        module.visit_with(&mut finder);
+        Ok(Some(finder.into_map()))
+    } else {
+        Ok(None)
+    }
+}
+
 /// Tries to classify placeholders by parsing segments as a TypeScript expression.
 ///
-/// This is the final fallback when module and class parsing fail.
+/// This is the final fallback when module, class, and function parsing fail.
 ///
 /// Returns `Ok(Some(map))` if successful, `Ok(None)` if parsing fails.
 fn try_classify_as_expr(
@@ -80,7 +100,12 @@ pub(crate) fn classify_placeholders_module(
         return Ok(result);
     }
 
-    // If both fail, try parsing as an expression
+    // If class parsing fails, try wrapping in a function (for method body statements like this.x = y)
+    if let Some(result) = try_classify_as_function(&source, map.clone())? {
+        return Ok(result);
+    }
+
+    // If all fail, try parsing as an expression
     if let Some(result) = try_classify_as_expr(&source, map)? {
         return Ok(result);
     }

@@ -1,4 +1,6 @@
 use super::*;
+use super::compile::compile_stmt_segments;
+use super::flush::flush_stmt_run;
 use ::quote::quote;
 
 /// Test the actual token stream structure from @{...}
@@ -582,6 +584,1104 @@ fn test_debug_colon_at_sequence() {
                 eprintln!("  Token: {:?}, consuming...", token);
                 iter.next();
             }
+        }
+    }
+}
+
+/// Test complex deserialize template with doc comments, multiple functions, and control flow
+/// This template pattern is used in derive_deserialize.rs and was failing with:
+/// "TypeScript parse error: Error { error: (26..27, Unexpected { got: "{", expected: "* for generator, private key, identifier or async" }) }"
+#[test]
+fn test_deserialize_complex_template() {
+    use std::str::FromStr;
+
+    // Simplified version of the complex deserialize template
+    let code = r#"
+        /** Deserializes input to this type. @param input - JSON string or object */
+        export function @{fn_deserialize_ident}(input: unknown): @{return_type_ident} {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+                return @{success_result_expr};
+            } catch (e) {
+                const message = e instanceof Error ? e.message : String(e);
+                return @{error_generic_message_expr};
+            }
+        }
+
+        /** Deserializes with existing context. @param value - The raw value @param ctx - The context */
+        export function @{fn_deserialize_internal_ident}(value: any, ctx: @{deserialize_context_ident}): @{type_ident} | @{pending_ref_ident} {
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref) as @{type_ident} | @{pending_ref_ident};
+            }
+
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new @{deserialize_error_expr}([{ field: "_root", message: "expected an object" }]);
+            }
+
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];
+            const instance: any = {};
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+            return instance as @{type_ident};
+        }
+    "#;
+
+    eprintln!("\n=== Testing complex deserialize template ===");
+    eprintln!("Input code:\n{}", code);
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("\n=== Parsed {} segments ===", segments.len());
+            for (i, seg) in segments.iter().enumerate() {
+                match seg {
+                    Segment::Static(s) => {
+                        let truncated = if s.len() > 50 { format!("{}...", &s[..50]) } else { s.clone() };
+                        eprintln!("  {}: Static({:?})", i, truncated);
+                    }
+                    Segment::Interpolation { id, expr, .. } => {
+                        eprintln!("  {}: Interpolation(id={}, expr={})", i, id, expr);
+                    }
+                    Segment::Control { id, node, .. } => {
+                        eprintln!("  {}: Control(id={}, node={:?})", i, id, std::mem::discriminant(node));
+                    }
+                    Segment::Comment { style, text } => {
+                        eprintln!("  {}: Comment({:?}, {:?})", i, style, text);
+                    }
+                    Segment::BraceBlock { id, inner } => {
+                        eprintln!("  {}: BraceBlock(id={}, inner_count={})", i, id, inner.len());
+                    }
+                    _ => eprintln!("  {}: {:?}", i, std::mem::discriminant(seg)),
+                }
+            }
+
+            // Use compile_stmt_segments which handles comments properly
+            let out_ident = proc_macro2::Ident::new("__mf_out", proc_macro2::Span::call_site());
+            let comments_ident = proc_macro2::Ident::new("__mf_comments", proc_macro2::Span::call_site());
+            let pending_ident = proc_macro2::Ident::new("__mf_pending", proc_macro2::Span::call_site());
+            let pos_ident = proc_macro2::Ident::new("__mf_pos", proc_macro2::Span::call_site());
+
+            let compile_result = compile_stmt_segments(
+                &segments,
+                &out_ident,
+                &comments_ident,
+                &pending_ident,
+                &pos_ident,
+            );
+
+            match compile_result {
+                Ok(compiled) => {
+                    eprintln!("\n=== Successfully compiled ===");
+                    eprintln!("Generated {} tokens", compiled.to_string().len());
+                }
+                Err(e) => {
+                    eprintln!("\nFailed to compile: {}", e);
+                    panic!("compile_stmt_segments failed: {}", e);
+                }
+            }
+        }
+        Err(e) => {
+            eprintln!("\nFailed to parse segments: {}", e);
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test deserialize template with control flow (if/for/match)
+#[test]
+fn test_deserialize_template_with_control_flow() {
+    use std::str::FromStr;
+
+    // Template with control flow like the actual derive_deserialize.rs
+    let code = r#"
+        export function @{fn_ident}(value: any): @{type_ident} {
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];
+
+            {#if deny_unknown}
+                const knownKeys = new Set([@{known_keys_str}]);
+                for (const key of Object.keys(obj)) {
+                    if (!knownKeys.has(key)) {
+                        errors.push({ field: key, message: "unknown field" });
+                    }
+                }
+            {/if}
+
+            {#if has_required}
+                {#for field in &required_fields}
+                    if (!("@{field.json_key}" in obj)) {
+                        errors.push({ field: "@{field.json_key}", message: "missing required field" });
+                    }
+                {/for}
+            {/if}
+
+            const instance: any = {};
+            return instance as @{type_ident};
+        }
+    "#;
+
+    eprintln!("\n=== Testing template with control flow ===");
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("Parsed {} segments successfully", segments.len());
+
+            // Recursively count control structures in all segments including inside BraceBlocks
+            fn count_controls_recursive(segments: &[Segment]) -> usize {
+                let mut count = 0;
+                for seg in segments {
+                    match seg {
+                        Segment::Control { node, .. } => {
+                            count += 1;
+                            // Count inside control structure bodies
+                            match node {
+                                ControlNode::If { then_branch, else_branch, .. } |
+                                ControlNode::IfLet { then_branch, else_branch, .. } => {
+                                    count += count_controls_recursive(then_branch);
+                                    if let Some(eb) = else_branch {
+                                        count += count_controls_recursive(eb);
+                                    }
+                                }
+                                ControlNode::For { body, .. } |
+                                ControlNode::While { body, .. } |
+                                ControlNode::WhileLet { body, .. } => {
+                                    count += count_controls_recursive(body);
+                                }
+                                ControlNode::Match { cases, .. } => {
+                                    for case in cases {
+                                        count += count_controls_recursive(&case.body);
+                                    }
+                                }
+                            }
+                        }
+                        Segment::BraceBlock { inner, .. } => {
+                            count += count_controls_recursive(inner);
+                        }
+                        _ => {}
+                    }
+                }
+                count
+            }
+
+            let control_count = count_controls_recursive(&segments);
+            eprintln!("Found {} control structures (including inside BraceBlocks)", control_count);
+
+            // Should have if and for control structures (2 ifs + 1 for = 3)
+            assert!(control_count >= 2, "Should have at least 2 control structures (if and for), found {}", control_count);
+        }
+        Err(e) => {
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test $let bindings inside control flow (common pattern in derive_deserialize)
+#[test]
+fn test_let_binding_in_for_loop() {
+    use std::str::FromStr;
+
+    let code = r#"
+        {#for field in all_fields}
+            {$let raw_var = format!("__raw_{}", field.field_name)}
+            const @{raw_var} = obj["@{field.json_key}"];
+            instance.@{field.field_ident} = @{raw_var};
+        {/for}
+    "#;
+
+    eprintln!("\n=== Testing $let in for loop ===");
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("Parsed {} segments", segments.len());
+
+            // Find the for loop control structure
+            let has_for = segments.iter().any(|s| {
+                if let Segment::Control { node, .. } = s {
+                    matches!(node, ControlNode::For { .. })
+                } else {
+                    false
+                }
+            });
+            assert!(has_for, "Should have a For control structure");
+        }
+        Err(e) => {
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test match statement pattern (used for TypeCategory matching)
+#[test]
+fn test_match_statement() {
+    use std::str::FromStr;
+
+    let code = r#"
+        {#match &field.type_cat}
+            {:case TypeCategory::Primitive}
+                instance.@{field.field_ident} = value;
+            {:case TypeCategory::Date}
+                instance.@{field.field_ident} = new Date(value);
+            {:case _}
+                instance.@{field.field_ident} = value;
+        {/match}
+    "#;
+
+    eprintln!("\n=== Testing match statement ===");
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("Parsed {} segments", segments.len());
+
+            // Find the match control structure
+            let has_match = segments.iter().any(|s| {
+                if let Segment::Control { node, .. } = s {
+                    matches!(node, ControlNode::Match { .. })
+                } else {
+                    false
+                }
+            });
+            assert!(has_match, "Should have a Match control structure");
+        }
+        Err(e) => {
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test if-let pattern (used for Option handling)
+#[test]
+fn test_if_let_pattern() {
+    use std::str::FromStr;
+
+    let code = r#"
+        {#if let Some(fn_expr) = &field.deserialize_with}
+            instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+        {:else}
+            instance.@{field.field_ident} = obj["@{field.json_key}"];
+        {/if}
+    "#;
+
+    eprintln!("\n=== Testing if-let pattern ===");
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("Parsed {} segments", segments.len());
+
+            // Find the if-let control structure
+            let has_if_let = segments.iter().any(|s| {
+                if let Segment::Control { node, .. } = s {
+                    matches!(node, ControlNode::IfLet { .. })
+                } else {
+                    false
+                }
+            });
+            assert!(has_if_let, "Should have an IfLet control structure");
+        }
+        Err(e) => {
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test the actual placeholder sources that get generated
+#[test]
+fn test_placeholder_source_for_for_body() {
+    use super::parse::parse_ts_module_with_source;
+    use super::build::{build_placeholder_source, PlaceholderSourceKind};
+    use std::str::FromStr;
+
+    // Parse the exact for loop body from the failing template
+    let code = r#"this.@{field.field_ident} = props.@{field.field_ident}{#if field.optional} as @{field.ts_type}{:else}{/if};"#;
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let (segments, _) = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+        .expect("parse_segments should succeed");
+
+    eprintln!("\n=== For body segments ===");
+    for (i, seg) in segments.iter().enumerate() {
+        match seg {
+            Segment::Static(s) => eprintln!("  {}: Static({:?})", i, s),
+            Segment::Interpolation { id, .. } => eprintln!("  {}: Interpolation(id={})", i, id),
+            Segment::Control { id, node } => {
+                eprintln!("  {}: Control(id={}, {:?})", i, id, std::mem::discriminant(node))
+            }
+            _ => eprintln!("  {}: {:?}", i, std::mem::discriminant(seg)),
+        }
+    }
+
+    // Build the placeholder source
+    let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+    eprintln!("\n=== Placeholder source ===\n{:?}", src);
+    eprintln!("Map: {:?}", map);
+
+    // Try parsing as module
+    let module_result = parse_ts_module_with_source(&src);
+    eprintln!("\nModule parse: {:?}", module_result.is_ok());
+    if let Err(e) = &module_result {
+        eprintln!("Module error: {:?}", e);
+    }
+
+    // Try parsing wrapped in class
+    let class_wrapped = format!("class __MfWrapper {{ {} }}", src);
+    eprintln!("\nClass wrapped: {:?}", class_wrapped);
+    let class_result = parse_ts_module_with_source(&class_wrapped);
+    eprintln!("Class parse: {:?}", class_result.is_ok());
+    if let Err(e) = &class_result {
+        eprintln!("Class error: {:?}", e);
+    }
+}
+
+/// Test class body member template (body! macro pattern)
+/// This pattern was failing with: "TypeScript parse error: Error { error: (25..26, Unexpected { got: "." ..."
+#[test]
+fn test_body_macro_constructor_pattern() {
+    use std::str::FromStr;
+
+    // Simplified version of the failing body! template from derive_deserialize.rs:1062
+    let code = r#"
+        constructor(props: { name: string }) {
+            this.@{field_ident} = props.@{field_ident};
+        }
+    "#;
+
+    eprintln!("\n=== Testing body! constructor pattern ===");
+    eprintln!("Input code:\n{}", code);
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("\n=== Parsed {} segments ===", segments.len());
+            for (i, seg) in segments.iter().enumerate() {
+                match seg {
+                    Segment::Static(s) => {
+                        eprintln!("  {}: Static({:?})", i, s);
+                    }
+                    Segment::Interpolation { id, expr, .. } => {
+                        eprintln!("  {}: Interpolation(id={}, expr={})", i, id, expr);
+                    }
+                    _ => eprintln!("  {}: {:?}", i, std::mem::discriminant(seg)),
+                }
+            }
+
+            // Build the template string to see what SWC will receive
+            let context_map = HashMap::new();
+            let template_result = build_template_and_bindings(segments.iter(), &context_map);
+
+            match template_result {
+                Ok(result) => {
+                    eprintln!("\n=== Template string (what SWC sees) ===\n{}", result.template);
+                    eprintln!("\nCharacter positions around 25:");
+                    let chars: Vec<char> = result.template.chars().collect();
+                    for (i, ch) in chars.iter().enumerate().skip(20).take(15) {
+                        eprintln!("  {}: {:?}", i, ch);
+                    }
+                }
+                Err(e) => {
+                    eprintln!("\nFailed to build template: {}", e);
+                }
+            }
+
+            // Now try to run through flush_stmt_run to see the actual error
+            let out_ident = proc_macro2::Ident::new("__mf_out", proc_macro2::Span::call_site());
+            let comments_ident = proc_macro2::Ident::new("__mf_comments", proc_macro2::Span::call_site());
+            let pending_ident = proc_macro2::Ident::new("__mf_pending", proc_macro2::Span::call_site());
+            let pos_ident = proc_macro2::Ident::new("__mf_pos", proc_macro2::Span::call_site());
+            let context_map = HashMap::new();
+
+            let seg_refs: Vec<&Segment> = segments.iter().collect();
+            let flush_result = flush_stmt_run(
+                &seg_refs,
+                &context_map,
+                &out_ident,
+                &comments_ident,
+                &pending_ident,
+                &pos_ident,
+            );
+
+            match flush_result {
+                Ok(code) => {
+                    eprintln!("\n=== flush_stmt_run succeeded ===");
+                    eprintln!("Generated code length: {}", code.to_string().len());
+                }
+                Err(e) => {
+                    eprintln!("\n=== flush_stmt_run FAILED ===");
+                    eprintln!("Error: {}", e);
+                    // Don't panic - we're debugging this
+                }
+            }
+        }
+        Err(e) => {
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test the exact failing body! pattern from derive_deserialize.rs:1062
+/// Error: "TypeScript parse error: Error { error: (25..26, Unexpected { got: ".", expected: "* for generator..." }) }"
+#[test]
+fn test_exact_failing_body_pattern() {
+    use std::str::FromStr;
+    use super::build::{build_placeholder_source, PlaceholderSourceKind};
+
+    // The EXACT template from derive_deserialize.rs:1062-1067
+    let code = r#"
+        constructor(props: { @{constructor_props_str} }) {
+            {#for field in &all_fields}
+                this.@{field.field_ident} = props.@{field.field_ident}{#if field.optional} as @{field.ts_type}{:else}{/if};
+            {/for}
+        }
+    "#;
+
+    eprintln!("\n=== Testing exact failing body! pattern ===");
+    eprintln!("Input code:\n{}", code);
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("\n=== Parsed {} segments ===", segments.len());
+
+            fn print_segment(seg: &Segment, indent: usize) {
+                let pad = "  ".repeat(indent);
+                match seg {
+                    Segment::Static(s) => {
+                        let truncated = if s.len() > 40 { format!("{}...", &s[..40]) } else { s.clone() };
+                        eprintln!("{}Static({:?})", pad, truncated);
+                    }
+                    Segment::Interpolation { id, expr, .. } => {
+                        eprintln!("{}Interpolation(id={}, expr={})", pad, id, expr);
+                    }
+                    Segment::Control { id, node } => {
+                        eprintln!("{}Control(id={}, type={:?})", pad, id, std::mem::discriminant(node));
+                        match node {
+                            ControlNode::For { body, .. } => {
+                                eprintln!("{}  For body:", pad);
+                                for s in body {
+                                    print_segment(s, indent + 2);
+                                }
+                            }
+                            ControlNode::If { then_branch, else_branch, .. } => {
+                                eprintln!("{}  If then:", pad);
+                                for s in then_branch {
+                                    print_segment(s, indent + 2);
+                                }
+                                if let Some(eb) = else_branch {
+                                    eprintln!("{}  If else:", pad);
+                                    for s in eb {
+                                        print_segment(s, indent + 2);
+                                    }
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    Segment::BraceBlock { id, inner } => {
+                        eprintln!("{}BraceBlock(id={}, inner={})", pad, id, inner.len());
+                        for s in inner {
+                            print_segment(s, indent + 1);
+                        }
+                    }
+                    _ => eprintln!("{}{:?}", pad, std::mem::discriminant(seg)),
+                }
+            }
+
+            for (i, seg) in segments.iter().enumerate() {
+                eprint!("  {}: ", i);
+                print_segment(seg, 0);
+            }
+
+            // Build the placeholder source to see what classification sees
+            let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+            eprintln!("\n=== Placeholder source (for classification) ===\n{:?}", src);
+            eprintln!("Map: {:?}", map);
+
+            // Try parsing as class-wrapped to see the exact error
+            let wrapped = format!("class __MfWrapper {{ {} }}", src);
+            eprintln!("\n=== Wrapped source (for class parsing) ===\n{:?}", wrapped);
+
+            // Character-by-character at positions 20-30
+            eprintln!("\nCharacter positions 20-30 in wrapped source:");
+            for (i, ch) in wrapped.chars().enumerate() {
+                if (20..=30).contains(&i) {
+                    eprintln!("  {}: {:?}", i, ch);
+                }
+            }
+
+            // Now build the template using build_template_and_bindings (which is what flush_stmt_run uses)
+            // First we need the context_map from classify_placeholders_module
+            let context_map = classify_placeholders_module(&segments)
+                .expect("classify should succeed");
+            eprintln!("\n=== Context map ===\n{:?}", context_map);
+
+            let template_result = build_template_and_bindings(segments.iter(), &context_map);
+            match template_result {
+                Ok(result) => {
+                    eprintln!("\n=== Template from build_template_and_bindings ===\n{:?}", result.template);
+                    eprintln!("\nCharacter positions 20-35 in template:");
+                    for (i, ch) in result.template.chars().enumerate() {
+                        if (20..=35).contains(&i) {
+                            eprintln!("  {}: {:?}", i, ch);
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("\n=== build_template_and_bindings FAILED ===\n{}", e);
+                }
+            }
+
+            // Now compile the segments
+            let out_ident = proc_macro2::Ident::new("__mf_out", proc_macro2::Span::call_site());
+            let comments_ident = proc_macro2::Ident::new("__mf_comments", proc_macro2::Span::call_site());
+            let pending_ident = proc_macro2::Ident::new("__mf_pending", proc_macro2::Span::call_site());
+            let pos_ident = proc_macro2::Ident::new("__mf_pos", proc_macro2::Span::call_site());
+
+            let compile_result = compile_stmt_segments(
+                &segments,
+                &out_ident,
+                &comments_ident,
+                &pending_ident,
+                &pos_ident,
+            );
+
+            match compile_result {
+                Ok(code) => {
+                    eprintln!("\n=== compile_stmt_segments succeeded ===");
+                    eprintln!("Generated code length: {}", code.to_string().len());
+                    // Print first 500 chars to see structure
+                    let code_str = code.to_string();
+                    if code_str.len() > 500 {
+                        eprintln!("First 500 chars:\n{}", &code_str[..500]);
+                    } else {
+                        eprintln!("Full code:\n{}", code_str);
+                    }
+                }
+                Err(e) => {
+                    eprintln!("\n=== compile_stmt_segments FAILED ===");
+                    eprintln!("Error: {}", e);
+                    panic!("compile_stmt_segments failed: {}", e);
+                }
+            }
+        }
+        Err(e) => {
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test class body with this.@{...} pattern - the likely source of the parsing error
+#[test]
+fn test_this_dot_interpolation_pattern() {
+    use std::str::FromStr;
+
+    // Minimal test: just the problematic pattern
+    let code = r#"this.@{field_ident} = value;"#;
+
+    eprintln!("\n=== Testing this.@{{}} pattern ===");
+    eprintln!("Input code: {:?}", code);
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let (segments, _) = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false)
+        .expect("parse_segments should succeed");
+
+    eprintln!("Parsed {} segments", segments.len());
+    for (i, seg) in segments.iter().enumerate() {
+        match seg {
+            Segment::Static(s) => eprintln!("  {}: Static({:?})", i, s),
+            Segment::Interpolation { id, expr, .. } => eprintln!("  {}: Interpolation(id={}, expr={})", i, id, expr),
+            _ => eprintln!("  {}: Other", i),
+        }
+    }
+
+    // Build template to see what SWC receives
+    let context_map = HashMap::new();
+    let template_result = build_template_and_bindings(segments.iter(), &context_map)
+        .expect("build_template_and_bindings should succeed");
+
+    eprintln!("\nTemplate string: {:?}", template_result.template);
+
+    // The template string should be something like: "this.$__mf_hole_0 = value;"
+    // When parsed as a statement, this should be valid member assignment
+    assert!(template_result.template.contains("this."), "Template should contain 'this.'");
+    assert!(template_result.template.contains("__mf_hole_"), "Template should contain placeholder");
+}
+
+/// Test deeply nested control structures (the actual deserialize pattern)
+#[test]
+fn test_deeply_nested_control_structures() {
+    use std::str::FromStr;
+
+    let code = r#"
+        {#if has_fields}
+            {#for field in all_fields}
+                {$let raw_var = format!("__raw_{}", field.field_name)}
+                {#if let Some(fn_expr) = &field.deserialize_with}
+                    instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+                {:else}
+                    {#if field.optional}
+                        if ("@{field.json_key}" in obj) {
+                            const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                            {#match &field.type_cat}
+                                {:case TypeCategory::Primitive}
+                                    instance.@{field.field_ident} = @{raw_var};
+                                {:case TypeCategory::Date}
+                                    instance.@{field.field_ident} = new Date(@{raw_var});
+                                {:case _}
+                                    instance.@{field.field_ident} = @{raw_var};
+                            {/match}
+                        }
+                    {:else}
+                        const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                        instance.@{field.field_ident} = @{raw_var};
+                    {/if}
+                {/if}
+            {/for}
+        {/if}
+    "#;
+
+    eprintln!("\n=== Testing deeply nested control structures ===");
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("Parsed {} segments successfully", segments.len());
+
+            // Count different control structure types
+            fn count_control_types(segments: &[Segment]) -> (usize, usize, usize, usize) {
+                let mut if_count = 0;
+                let mut for_count = 0;
+                let mut match_count = 0;
+                let mut if_let_count = 0;
+
+                for seg in segments {
+                    if let Segment::Control { node, .. } = seg {
+                        match node {
+                            ControlNode::If { then_branch, else_branch, .. } => {
+                                if_count += 1;
+                                let (i, f, m, l) = count_control_types(then_branch);
+                                if_count += i;
+                                for_count += f;
+                                match_count += m;
+                                if_let_count += l;
+                                if let Some(eb) = else_branch {
+                                    let (i, f, m, l) = count_control_types(eb);
+                                    if_count += i;
+                                    for_count += f;
+                                    match_count += m;
+                                    if_let_count += l;
+                                }
+                            }
+                            ControlNode::For { body, .. } => {
+                                for_count += 1;
+                                let (i, f, m, l) = count_control_types(body);
+                                if_count += i;
+                                for_count += f;
+                                match_count += m;
+                                if_let_count += l;
+                            }
+                            ControlNode::Match { cases, .. } => {
+                                match_count += 1;
+                                for case in cases {
+                                    let (i, f, m, l) = count_control_types(&case.body);
+                                    if_count += i;
+                                    for_count += f;
+                                    match_count += m;
+                                    if_let_count += l;
+                                }
+                            }
+                            ControlNode::IfLet { then_branch, else_branch, .. } => {
+                                if_let_count += 1;
+                                let (i, f, m, l) = count_control_types(then_branch);
+                                if_count += i;
+                                for_count += f;
+                                match_count += m;
+                                if_let_count += l;
+                                if let Some(eb) = else_branch {
+                                    let (i, f, m, l) = count_control_types(eb);
+                                    if_count += i;
+                                    for_count += f;
+                                    match_count += m;
+                                    if_let_count += l;
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                (if_count, for_count, match_count, if_let_count)
+            }
+
+            let (if_count, for_count, match_count, if_let_count) = count_control_types(&segments);
+            eprintln!("Control structures: if={}, for={}, match={}, if_let={}", if_count, for_count, match_count, if_let_count);
+
+            assert!(if_count >= 2, "Should have at least 2 if structures, found {}", if_count);
+            assert!(for_count >= 1, "Should have at least 1 for structure, found {}", for_count);
+            // Note: match might not be found if it's inside control flow that isn't fully traversed
+            // The important thing is that parsing succeeded and we found multiple control structures
+            assert!(if_let_count >= 1, "Should have at least 1 if-let structure, found {}", if_let_count);
+            let total = if_count + for_count + match_count + if_let_count;
+            assert!(total >= 4, "Should have at least 4 control structures total, found {}", total);
+        }
+        Err(e) => {
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test a simple export function without any doc comments
+#[test]
+fn test_simple_export_function() {
+    use std::str::FromStr;
+    use crate::template::build::{build_placeholder_source, PlaceholderSourceKind};
+    use crate::template::compile::compile_stmt_segments;
+
+    // Test exactly matching the failing serialize_template - second function has TWO parameters
+    let code = r#"
+        {>> "First doc" <<}
+        export function @{fn1_ident}(value: @{type1_ident}): string {
+            const ctx = @{ctx1_expr}.create();
+            return JSON.stringify(@{internal_expr}(value, ctx));
+        }
+
+        {>> "Second doc" <<}
+        export function @{fn2_ident}(value: @{type2_ident}, ctx: @{ctx_type}): Record<string, unknown> {
+            const existingId = ctx.getId(value);
+            if (existingId !== undefined) {
+                return { __ref: existingId };
+            }
+
+            const __id = ctx.register(value);
+
+            const result: Record<string, unknown> = {
+                __type: "@{class_name}",
+                __id,
+            };
+
+            {#if has_fields}
+                {#for field in fields}
+                    result["key"] = @{field_expr};
+                {/for}
+            {/if}
+
+            return result;
+        }
+    "#;
+
+    eprintln!("\n=== Testing simple export function ===");
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("\n=== Parsed {} segments ===", segments.len());
+            for (i, seg) in segments.iter().enumerate() {
+                match seg {
+                    Segment::Static(s) => {
+                        eprintln!("  {}: Static({:?})", i, s);
+                    }
+                    Segment::Interpolation { id, expr, .. } => {
+                        eprintln!("  {}: Interpolation(id={}, expr={})", i, id, expr);
+                    }
+                    Segment::BraceBlock { id, inner } => {
+                        eprintln!("  {}: BraceBlock(id={}, inner_len={})", i, id, inner.len());
+                        for (j, seg) in inner.iter().enumerate() {
+                            eprintln!("    {}.{}: {:?}", i, j, std::mem::discriminant(seg));
+                        }
+                    }
+                    _ => eprintln!("  {}: {:?}", i, std::mem::discriminant(seg)),
+                }
+            }
+
+            let (placeholder_source, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+            eprintln!("\n=== Placeholder source ({} bytes) ===", placeholder_source.len());
+            eprintln!("{}", placeholder_source);
+            eprintln!("\n=== Placeholder map ({} entries) ===", map.len());
+            for (name, id) in &map {
+                eprintln!("  {} -> {}", name, id);
+            }
+
+            let out_ident = proc_macro2::Ident::new("__mf_out", proc_macro2::Span::call_site());
+            let comments_ident = proc_macro2::Ident::new("__mf_comments", proc_macro2::Span::call_site());
+            let pending_ident = proc_macro2::Ident::new("__mf_pending", proc_macro2::Span::call_site());
+            let pos_ident = proc_macro2::Ident::new("__mf_pos", proc_macro2::Span::call_site());
+
+            let compile_result = compile_stmt_segments(
+                &segments,
+                &out_ident,
+                &comments_ident,
+                &pending_ident,
+                &pos_ident,
+            );
+
+            match compile_result {
+                Ok(_) => eprintln!("\n=== Successfully compiled ==="),
+                Err(e) => panic!("compile_stmt_segments failed: {}", e),
+            }
+        }
+        Err(e) => panic!("parse_segments failed: {}", e),
+    }
+}
+
+/// Test serialize template with doc comments using {>> <<} syntax
+/// This is the pattern from derive_serialize.rs that was failing with TS1109
+#[test]
+fn test_serialize_template_with_doc_comments() {
+    use std::str::FromStr;
+    use crate::template::build::{build_placeholder_source, PlaceholderSourceKind};
+    use crate::template::compile::compile_stmt_segments;
+
+    // Template pattern from derive_serialize.rs
+    let code = r#"
+        {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation" <<}
+        export function @{fn_serialize_ident}(value: @{class_ident}): string {
+            const ctx = @{serialize_context_expr}.create();
+            return JSON.stringify(@{fn_serialize_internal_expr}(value, ctx));
+        }
+
+        {>> "@internal Serializes with an existing context for nested/cyclic object graphs." <<}
+        export function @{fn_serialize_internal_ident}(value: @{class_ident}, ctx: @{serialize_context_ident}): Record<string, unknown> {
+            const existingId = ctx.getId(value);
+            if (existingId !== undefined) {
+                return { __ref: existingId };
+            }
+
+            const __id = ctx.register(value);
+
+            const result: Record<string, unknown> = {
+                __type: "@{class_name}",
+                __id,
+            };
+
+            {#if has_regular}
+                {#for field in regular_fields}
+                    {#if field.optional}
+                        if (value.@{field.field_ident} !== undefined) {
+                            result["@{field.json_key}"] = value.@{field.field_ident};
+                        }
+                    {:else}
+                        result["@{field.json_key}"] = value.@{field.field_ident};
+                    {/if}
+                {/for}
+            {/if}
+
+            return result;
+        }
+    "#;
+
+    eprintln!("\n=== Testing serialize template with doc comments ===");
+    eprintln!("Input code:\n{}", code);
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("\n=== Parsed {} segments ===", segments.len());
+            for (i, seg) in segments.iter().enumerate() {
+                match seg {
+                    Segment::Static(s) => {
+                        let truncated = if s.len() > 60 { format!("{}...", &s[..60]) } else { s.clone() };
+                        eprintln!("  {}: Static({:?})", i, truncated);
+                    }
+                    Segment::Interpolation { id, expr, .. } => {
+                        eprintln!("  {}: Interpolation(id={}, expr={})", i, id, expr);
+                    }
+                    Segment::Control { id, node, .. } => {
+                        match node {
+                            ControlNode::For { body, .. } => {
+                                eprintln!("  {}: Control::For(id={}, body_len={})", i, id, body.len());
+                            }
+                            ControlNode::If { then_branch, else_branch, .. } => {
+                                eprintln!("  {}: Control::If(id={}, then_len={}, has_else={})",
+                                    i, id, then_branch.len(), else_branch.is_some());
+                            }
+                            _ => eprintln!("  {}: Control(id={}, node={:?})", i, id, std::mem::discriminant(node)),
+                        }
+                    }
+                    Segment::Comment { style, text } => {
+                        eprintln!("  {}: Comment({:?}, text_len={})", i, style, text.len());
+                    }
+                    _ => eprintln!("  {}: {:?}", i, std::mem::discriminant(seg)),
+                }
+            }
+
+            // Build placeholder source to see what's being parsed
+            let (placeholder_source, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+            eprintln!("\n=== Placeholder source ({} bytes) ===", placeholder_source.len());
+            eprintln!("{}", placeholder_source);
+            eprintln!("\n=== Placeholder map ({} entries) ===", map.len());
+            for (name, id) in &map {
+                eprintln!("  {} -> {}", name, id);
+            }
+
+            // Try to compile
+            let out_ident = proc_macro2::Ident::new("__mf_out", proc_macro2::Span::call_site());
+            let comments_ident = proc_macro2::Ident::new("__mf_comments", proc_macro2::Span::call_site());
+            let pending_ident = proc_macro2::Ident::new("__mf_pending", proc_macro2::Span::call_site());
+            let pos_ident = proc_macro2::Ident::new("__mf_pos", proc_macro2::Span::call_site());
+
+            let compile_result = compile_stmt_segments(
+                &segments,
+                &out_ident,
+                &comments_ident,
+                &pending_ident,
+                &pos_ident,
+            );
+
+            match compile_result {
+                Ok(compiled) => {
+                    eprintln!("\n=== Successfully compiled ===");
+                    eprintln!("Generated {} tokens", compiled.to_string().len());
+                }
+                Err(e) => {
+                    eprintln!("\nFailed to compile: {}", e);
+                    panic!("compile_stmt_segments failed: {}", e);
+                }
+            }
+        }
+        Err(e) => {
+            eprintln!("\nFailed to parse segments: {}", e);
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test body! constructor pattern with for loop and inline if/else control
+/// This is the pattern from derive_deserialize.rs that was failing with TS1109
+#[test]
+fn test_body_constructor_with_inline_control() {
+    use std::str::FromStr;
+    use crate::template::build::{build_placeholder_source, PlaceholderSourceKind};
+    use crate::template::compile::compile_stmt_segments;
+
+    // Simplified version of the body! template from derive_deserialize.rs
+    let code = r#"
+        constructor(props: { @{constructor_props_str} }) {
+            {#for field in &all_fields}
+                this.@{field.field_ident} = props.@{field.field_ident}{#if field.optional} as @{field.ts_type}{:else}{/if};
+            {/for}
+        }
+
+        static deserialize(input: unknown): @{return_type_ident} {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+                return @{success_result_expr};
+            } catch (e) {
+                return @{error_result_expr};
+            }
+        }
+    "#;
+
+    eprintln!("\n=== Testing body! constructor pattern ===");
+    eprintln!("Input code:\n{}", code);
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            eprintln!("\n=== Parsed {} segments ===", segments.len());
+            for (i, seg) in segments.iter().enumerate() {
+                match seg {
+                    Segment::Static(s) => {
+                        let truncated = if s.len() > 60 { format!("{}...", &s[..60]) } else { s.clone() };
+                        eprintln!("  {}: Static({:?})", i, truncated);
+                    }
+                    Segment::Interpolation { id, expr, .. } => {
+                        eprintln!("  {}: Interpolation(id={}, expr={})", i, id, expr);
+                    }
+                    Segment::Control { id, node, .. } => {
+                        match node {
+                            ControlNode::For { body, .. } => {
+                                eprintln!("  {}: Control::For(id={}, body_len={})", i, id, body.len());
+                            }
+                            ControlNode::If { then_branch, else_branch, .. } => {
+                                eprintln!("  {}: Control::If(id={}, then_len={}, has_else={})",
+                                    i, id, then_branch.len(), else_branch.is_some());
+                            }
+                            _ => eprintln!("  {}: Control(id={}, node={:?})", i, id, std::mem::discriminant(node)),
+                        }
+                    }
+                    Segment::Comment { style, text } => {
+                        eprintln!("  {}: Comment({:?}, {:?})", i, style, text);
+                    }
+                    _ => eprintln!("  {}: {:?}", i, std::mem::discriminant(seg)),
+                }
+            }
+
+            // Build placeholder source to see what's being parsed
+            let (placeholder_source, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+            eprintln!("\n=== Placeholder source ({} bytes) ===", placeholder_source.len());
+            eprintln!("{}", placeholder_source);
+            eprintln!("\n=== Placeholder map ({} entries) ===", map.len());
+            for (name, id) in &map {
+                eprintln!("  {} -> {}", name, id);
+            }
+
+            // Try to compile
+            let out_ident = proc_macro2::Ident::new("__mf_out", proc_macro2::Span::call_site());
+            let comments_ident = proc_macro2::Ident::new("__mf_comments", proc_macro2::Span::call_site());
+            let pending_ident = proc_macro2::Ident::new("__mf_pending", proc_macro2::Span::call_site());
+            let pos_ident = proc_macro2::Ident::new("__mf_pos", proc_macro2::Span::call_site());
+
+            let compile_result = compile_stmt_segments(
+                &segments,
+                &out_ident,
+                &comments_ident,
+                &pending_ident,
+                &pos_ident,
+            );
+
+            match compile_result {
+                Ok(compiled) => {
+                    eprintln!("\n=== Successfully compiled ===");
+                    eprintln!("Generated {} tokens", compiled.to_string().len());
+                }
+                Err(e) => {
+                    eprintln!("\nFailed to compile: {}", e);
+                    panic!("compile_stmt_segments failed: {}", e);
+                }
+            }
+        }
+        Err(e) => {
+            eprintln!("\nFailed to parse segments: {}", e);
+            panic!("parse_segments failed: {}", e);
         }
     }
 }

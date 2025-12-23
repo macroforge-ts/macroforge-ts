@@ -5,8 +5,8 @@ use quote::quote;
 
 use crate::template::{
     append_part, build_string_interp_expr, build_template_interp_expr, compile_control_expr,
-    compile_ident_block, placeholder_name, placeholder_type_tokens, template_error,
-    BindingSpec, PlaceholderUse, Segment, TemplateAndBindings, TypePlaceholder,
+    compile_ident_block, placeholder_name, placeholder_type_tokens, template_error, BindingSpec,
+    PlaceholderUse, Segment, TemplateAndBindings, TypePlaceholder,
 };
 
 /// Builds the placeholder template string and binding list for a segment run.
@@ -101,7 +101,6 @@ pub fn build_template_and_bindings(
                 }
             }
             Segment::Control { id, node } => {
-                let name = placeholder_name(*id);
                 let use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Expr);
                 if matches!(use_kind, PlaceholderUse::Stmt) {
                     return Err(template_error(
@@ -117,6 +116,9 @@ pub fn build_template_and_bindings(
                         None,
                     ));
                 }
+
+                // Expression-level control: emit placeholder and compile as expression
+                let name = placeholder_name(*id);
                 append_part(&mut template, &format!("${name}"));
                 if seen.insert(*id) {
                     let expr = compile_control_expr(node, Span::call_site())?;

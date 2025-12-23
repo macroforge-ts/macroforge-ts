@@ -3,9 +3,11 @@
 //! This module coordinates the different code paths for template processing:
 //! - Type placeholder path: When type placeholders are present
 //! - Class wrapped path: When module parsing fails (class body members)
+//! - Function wrapped path: When class-wrapped fails (method body statements like `this.x = y;`)
 //! - Standard path: Normal module statements and exports
 
 use super::class_wrapped_path::generate_class_wrapped_code;
+use super::function_wrapped_path::generate_function_wrapped_code;
 use super::standard_path::{generate_standard_code, StandardCodeContext};
 use super::type_placeholder_path::generate_type_placeholder_code;
 use crate::template::{
@@ -13,6 +15,7 @@ use crate::template::{
     generate_type_placeholder_fix, ident_name_fix_block, parse_ts_module_with_source,
     PlaceholderUse, Segment,
 };
+use crate::template::build::{build_placeholder_source, PlaceholderSourceKind};
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use std::collections::HashMap;
 
@@ -62,8 +65,13 @@ pub fn flush_stmt_run(
         ));
     }
 
+    // Build placeholder source for parsing (without $ substitution markers)
+    // This is separate from the template which uses $name for quote! substitution
+    let segments_vec: Vec<_> = run.iter().copied().cloned().collect();
+    let (placeholder_source, _) = build_placeholder_source(&segments_vec, PlaceholderSourceKind::Module);
+
     // Try parsing as a module first
-    let parse_result = parse_ts_module_with_source(&template_result.template);
+    let parse_result = parse_ts_module_with_source(&placeholder_source);
 
     // Route based on parsing result
     match parse_result {
@@ -84,9 +92,21 @@ pub fn flush_stmt_run(
         }
         Err(_) => {
             // Class wrapped path: Try wrapping in a class for class body members
-            let wrapped_source = format!("class __MfWrapper {{ {} }}", &template_result.template);
-            let (module, cm) = parse_ts_module_with_source(&wrapped_source)?;
-            generate_class_wrapped_code(&template_result, &cm, &module, out_ident)
+            let class_wrapped_source =
+                format!("class __MfWrapper {{ {} }}", &placeholder_source);
+            match parse_ts_module_with_source(&class_wrapped_source) {
+                Ok((module, cm)) => {
+                    generate_class_wrapped_code(&template_result, &cm, &module, out_ident)
+                }
+                Err(_) => {
+                    // Function wrapped path: Try wrapping in a function for method body statements
+                    // This handles code like `this.x = y;` which is valid inside a method body
+                    let function_wrapped_source =
+                        format!("function __MfWrapper() {{ {} }}", &placeholder_source);
+                    let (module, cm) = parse_ts_module_with_source(&function_wrapped_source)?;
+                    generate_function_wrapped_code(&template_result, &cm, &module, out_ident)
+                }
+            }
         }
     }
 }
@@ -250,6 +270,30 @@ mod tests {
 
         // Constructor should trigger class wrapped path
         assert!(result.is_ok(), "Should handle class body members via class wrapped path");
+    }
+
+    #[test]
+    fn test_flush_stmt_run_function_wrapped_path() {
+        // Function wrapped path: method body code that uses `this.`
+        let segment = Segment::Static("this.x = 1;".to_string());
+        let run = vec![&segment];
+        let context_map = HashMap::new();
+        let out_ident = create_test_ident("__mf_out");
+        let comments_ident = create_test_ident("__mf_comments");
+        let pending_ident = create_test_ident("__mf_pending");
+        let pos_ident = create_test_ident("__mf_pos");
+
+        let result = flush_stmt_run(
+            &run,
+            &context_map,
+            &out_ident,
+            &comments_ident,
+            &pending_ident,
+            &pos_ident,
+        );
+
+        // this.x = 1; should trigger function wrapped path
+        assert!(result.is_ok(), "Should handle method body statements via function wrapped path");
     }
 
     #[test]

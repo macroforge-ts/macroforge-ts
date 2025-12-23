@@ -37,11 +37,12 @@ pub(crate) fn append_part(out: &mut String, part: &str) {
     // - Last char is opening bracket (no space after)
     // - First char is closing bracket, colon, semicolon, comma, or dot (no space before)
     // - Last char is a dot (no space after dots for member access)
+    // - For angle brackets < >, treat like parentheses to support type parameters (e.g., Record<string>)
     let no_space_before = matches!(
         first_char,
-        '(' | '[' | ')' | ']' | '}' | ':' | ';' | ',' | '.'
+        '(' | '[' | ')' | ']' | '}' | ':' | ';' | ',' | '.' | '<' | '>'
     );
-    let no_space_after = matches!(last_char, '(' | '[' | '.');
+    let no_space_after = matches!(last_char, '(' | '[' | '.' | '<');
 
     let needs_space = !last_char.is_whitespace()
         && !first_char.is_whitespace()
@@ -76,10 +77,10 @@ pub(crate) fn tokens_to_ts_string(tokens: TokenStream2) -> String {
             TokenTree::Ident(ident) => {
                 output.push_str(&ident.to_string());
                 // Only add space after ident if the next token needs it
-                // Don't add space before: (, [, ., :, ;, ,
+                // Don't add space before: (, [, ., :, ;, ,, <, > (for type params and comparisons)
                 let next_needs_space = match iter.peek() {
                     Some(TokenTree::Punct(p)) => {
-                        !matches!(p.as_char(), '(' | '[' | '.' | ':' | ';' | ',' | ')' | ']')
+                        !matches!(p.as_char(), '(' | '[' | '.' | ':' | ';' | ',' | ')' | ']' | '<' | '>')
                     }
                     Some(TokenTree::Group(g)) => {
                         // No space before groups
@@ -97,8 +98,9 @@ pub(crate) fn tokens_to_ts_string(tokens: TokenStream2) -> String {
                 // Add space after standalone punct, but not after certain punctuation
                 if p.spacing() == proc_macro2::Spacing::Alone {
                     // @ is for interpolations - never add space after it
+                    // < is for type parameters - don't add space after it
                     let no_space_after =
-                        matches!(p.as_char(), '.' | '(' | '[' | ':' | ';' | ',' | '@');
+                        matches!(p.as_char(), '.' | '(' | '[' | ':' | ';' | ',' | '@' | '<');
                     if !no_space_after {
                         output.push(' ');
                     }

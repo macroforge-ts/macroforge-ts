@@ -1254,3 +1254,275 @@ mod ts_template_complex {
         assert!(source.contains("setValue()"));
     }
 }
+
+// =============================================================================
+// ts_template! - Complex Deserialize Template Tests (derive_deserialize pattern)
+// =============================================================================
+
+mod ts_template_deserialize {
+    use super::*;
+
+    /// Simulates the structure used in derive_deserialize.rs for serialization/deserialization
+    #[test]
+    fn deserialize_function_with_doc_comments() {
+        let fn_deserialize_ident = ident("deserialize");
+        let return_type_ident = ident("Result");
+        let success_result_expr = expr_ident("value");
+        let error_generic_message_expr = expr_ident("err");
+
+        let stream = ts_template! {
+            /** Deserializes input to this type. @param input - JSON string or object */
+            export function @{fn_deserialize_ident}(input: unknown): @{return_type_ident} {
+                try {
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+                    return @{success_result_expr};
+                } catch (e) {
+                    const message = e instanceof Error ? e.message : String(e);
+                    return @{error_generic_message_expr};
+                }
+            }
+        };
+        let source = stream.source();
+        assert!(source.contains("export function deserialize(input: unknown): Result"));
+        assert!(source.contains("JSON.parse(input)"));
+        assert!(source.contains("return value"));
+        assert!(source.contains("return err"));
+    }
+
+    /// Tests control flow inside function bodies
+    #[test]
+    fn deserialize_with_control_flow() {
+        let fn_ident = ident("deserializeWithContext");
+        let type_ident = ident("User");
+        let deny_unknown = true;
+        let known_keys_str = r#""name", "age""#;
+
+        let stream = ts_template! {
+            export function @{fn_ident}(value: any): @{type_ident} {
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];
+
+                {#if deny_unknown}
+                    const knownKeys = new Set([@{known_keys_str}]);
+                    for (const key of Object.keys(obj)) {
+                        if (!knownKeys.has(key)) {
+                            errors.push({ field: key, message: "unknown field" });
+                        }
+                    }
+                {/if}
+
+                const instance: any = {};
+                return instance as @{type_ident};
+            }
+        };
+        let source = stream.source();
+        assert!(source.contains("export function deserializeWithContext(value: any): User"));
+        assert!(source.contains("knownKeys"));
+        assert!(source.contains(r#""name", "age""#));
+    }
+
+    /// Tests for loop inside function body
+    #[test]
+    fn deserialize_with_for_loop() {
+        let fn_ident = ident("validateFields");
+
+        // Simulate field info
+        struct FieldInfo {
+            json_key: &'static str,
+        }
+        let required_fields = vec![
+            FieldInfo { json_key: "name" },
+            FieldInfo { json_key: "email" },
+        ];
+        let has_required = true;
+
+        let stream = ts_template! {
+            export function @{fn_ident}(obj: Record<string, unknown>): string[] {
+                const errors: string[] = [];
+
+                {#if has_required}
+                    {#for field in &required_fields}
+                        if (!("@{field.json_key}" in obj)) {
+                            errors.push("missing: @{field.json_key}");
+                        }
+                    {/for}
+                {/if}
+
+                return errors;
+            }
+        };
+        let source = stream.source();
+        assert!(source.contains("export function validateFields"));
+        assert!(source.contains(r#""name" in obj"#));
+        assert!(source.contains(r#""email" in obj"#));
+        assert!(source.contains(r#""missing: name""#));
+        assert!(source.contains(r#""missing: email""#));
+    }
+
+    /// Tests $let bindings inside loops
+    #[test]
+    fn deserialize_with_let_in_loop() {
+        struct FieldInfo {
+            field_name: &'static str,
+            json_key: &'static str,
+            field_ident: TsIdent,
+        }
+        let all_fields = vec![
+            FieldInfo {
+                field_name: "userName",
+                json_key: "user_name",
+                field_ident: ident("userName"),
+            },
+            FieldInfo {
+                field_name: "userAge",
+                json_key: "user_age",
+                field_ident: ident("userAge"),
+            },
+        ];
+        let has_fields = true;
+
+        let stream = ts_template! {
+            {#if has_fields}
+                {#for field in &all_fields}
+                    {$let raw_var = format!("__raw_{}", field.field_name)}
+                    const @{ident(&raw_var)} = obj["@{field.json_key}"];
+                    instance.@{field.field_ident} = @{ident(&raw_var)};
+                {/for}
+            {/if}
+        };
+        let source = stream.source();
+        assert!(source.contains(r#"const __raw_userName = obj["user_name"]"#));
+        assert!(source.contains(r#"const __raw_userAge = obj["user_age"]"#));
+        assert!(source.contains("instance.userName = __raw_userName"));
+        assert!(source.contains("instance.userAge = __raw_userAge"));
+    }
+
+    /// Tests match statement for type categorization
+    #[test]
+    fn deserialize_with_match() {
+        #[derive(Clone)]
+        enum TypeCategory {
+            Primitive,
+            Date,
+            Other,
+        }
+        let type_cat = TypeCategory::Primitive;
+        let field_ident = ident("createdAt");
+        let raw_var = "__raw_createdAt";
+
+        let stream = ts_template! {
+            {#match type_cat}
+                {:case TypeCategory::Primitive}
+                    instance.@{field_ident} = @{ident(raw_var)};
+                {:case TypeCategory::Date}
+                    instance.@{field_ident} = new Date(@{ident(raw_var)});
+                {:case _}
+                    instance.@{field_ident} = @{ident(raw_var)};
+            {/match}
+        };
+        let source = stream.source();
+        assert!(source.contains("instance.createdAt = __raw_createdAt"));
+    }
+
+    /// Tests if-let for Option handling
+    #[test]
+    fn deserialize_with_if_let() {
+        let field_ident = ident("customField");
+        let deserialize_with: Option<&str> = Some("customDeserializer");
+        let json_key = "custom_field";
+
+        let stream = ts_template! {
+            {#if let Some(fn_name) = deserialize_with}
+                instance.@{field_ident} = @{ident(fn_name)}(obj["@{json_key}"]);
+            {:else}
+                instance.@{field_ident} = obj["@{json_key}"];
+            {/if}
+        };
+        let source = stream.source();
+        assert!(source.contains(r#"instance.customField = customDeserializer(obj["custom_field"])"#));
+    }
+
+    /// Tests multiple exported functions (like the actual derive_deserialize)
+    #[test]
+    fn multiple_exported_functions() {
+        let type_name = "User";
+        let fn_deserialize = ident("deserialize");
+        let fn_internal = ident("deserializeWithContext");
+        let type_ident = ident(type_name);
+
+        let stream = ts_template! {
+            /** Public deserialization entry point */
+            export function @{fn_deserialize}(input: unknown): @{type_ident} {
+                return @{fn_internal}(input);
+            }
+
+            /** Internal deserialization with context */
+            export function @{fn_internal}(value: any): @{type_ident} {
+                const instance: any = {};
+                return instance as @{type_ident};
+            }
+        };
+        let source = stream.source();
+        assert!(source.contains("export function deserialize(input: unknown): User"));
+        assert!(source.contains("export function deserializeWithContext(value: any): User"));
+        assert!(source.contains("return deserializeWithContext(input)"));
+    }
+
+    /// Tests nested control structures like the actual derive_deserialize
+    #[test]
+    fn deeply_nested_field_processing() {
+        struct FieldInfo {
+            field_name: &'static str,
+            json_key: &'static str,
+            field_ident: TsIdent,
+            ts_type: &'static str,
+            optional: bool,
+        }
+
+        let all_fields = vec![
+            FieldInfo {
+                field_name: "name",
+                json_key: "name",
+                field_ident: ident("name"),
+                ts_type: "string",
+                optional: false,
+            },
+            FieldInfo {
+                field_name: "age",
+                json_key: "age",
+                field_ident: ident("age"),
+                ts_type: "number",
+                optional: true,
+            },
+        ];
+        let has_fields = true;
+
+        let stream = ts_template! {
+            const instance: any = {};
+            {#if has_fields}
+                {#for field in &all_fields}
+                    {$let raw_var = format!("__raw_{}", field.field_name)}
+                    {#if field.optional}
+                        if ("@{field.json_key}" in obj) {
+                            const @{ident(&raw_var)} = obj["@{field.json_key}"] as @{field.ts_type};
+                            instance.@{field.field_ident} = @{ident(&raw_var)};
+                        }
+                    {:else}
+                        const @{ident(&raw_var)} = obj["@{field.json_key}"] as @{field.ts_type};
+                        instance.@{field.field_ident} = @{ident(&raw_var)};
+                    {/if}
+                {/for}
+            {/if}
+        };
+        let source = stream.source();
+
+        // Required field (name) - should have no if check
+        assert!(source.contains(r#"const __raw_name = obj["name"] as string"#));
+        assert!(source.contains("instance.name = __raw_name"));
+
+        // Optional field (age) - should have if check
+        assert!(source.contains(r#"if ("age" in obj)"#));
+        assert!(source.contains(r#"const __raw_age = obj["age"] as number"#));
+        assert!(source.contains("instance.age = __raw_age"));
+    }
+}
