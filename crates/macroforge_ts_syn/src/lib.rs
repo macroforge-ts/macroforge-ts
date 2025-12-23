@@ -131,6 +131,142 @@ pub use swc_core::ecma::ast as swc_ecma_ast;
 
 // Helper macros for creating AST nodes
 
+// =============================================================================
+// Expression conversion helpers
+// =============================================================================
+
+/// Converts common Rust values into SWC [`Expr`](swc_core::ecma::ast::Expr) nodes.
+///
+/// This enables ergonomic interpolation in template literals and other AST
+/// construction contexts where a string or identifier should be treated as a
+/// TypeScript expression.
+#[cfg(feature = "swc")]
+pub trait ToTsExpr {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr;
+}
+
+#[cfg(feature = "swc")]
+impl ToTsExpr for swc_core::ecma::ast::Expr {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        self
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsExpr for Box<swc_core::ecma::ast::Expr> {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        *self
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsExpr for &swc_core::ecma::ast::Expr {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        self.clone()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsExpr for swc_core::ecma::ast::Ident {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        swc_core::ecma::ast::Expr::Ident(self)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsExpr for &swc_core::ecma::ast::Ident {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        swc_core::ecma::ast::Expr::Ident(self.clone())
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsExpr for String {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        swc_core::ecma::ast::Expr::Lit(swc_core::ecma::ast::Lit::Str(
+            swc_core::ecma::ast::Str {
+                span: swc_core::common::DUMMY_SP,
+                value: self.into(),
+                raw: None,
+            },
+        ))
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsExpr for &String {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        self.clone().to_ts_expr()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsExpr for &str {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        swc_core::ecma::ast::Expr::Lit(swc_core::ecma::ast::Lit::Str(
+            swc_core::ecma::ast::Str {
+                span: swc_core::common::DUMMY_SP,
+                value: self.into(),
+                raw: None,
+            },
+        ))
+    }
+}
+
+/// Convert a value into a TypeScript [`Expr`](swc_core::ecma::ast::Expr).
+///
+/// This is a convenience wrapper for [`ToTsExpr`].
+#[cfg(feature = "swc")]
+pub fn to_ts_expr<T: ToTsExpr>(value: T) -> swc_core::ecma::ast::Expr {
+    value.to_ts_expr()
+}
+
+/// Trait for converting values to type name strings.
+///
+/// This is used for type placeholder substitution in templates.
+/// The key difference from `ToString` is that for `Ident`, this uses
+/// the symbol directly (`.sym`) rather than the Display impl, which
+/// avoids including SyntaxContext markers like `#0`.
+#[cfg(feature = "swc")]
+pub trait ToTsTypeName {
+    fn to_ts_type_name(&self) -> String;
+}
+
+#[cfg(feature = "swc")]
+impl ToTsTypeName for swc_core::ecma::ast::Ident {
+    fn to_ts_type_name(&self) -> String {
+        self.sym.to_string()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsTypeName for &swc_core::ecma::ast::Ident {
+    fn to_ts_type_name(&self) -> String {
+        self.sym.to_string()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsTypeName for String {
+    fn to_ts_type_name(&self) -> String {
+        self.clone()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsTypeName for &String {
+    fn to_ts_type_name(&self) -> String {
+        (*self).clone()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsTypeName for &str {
+    fn to_ts_type_name(&self) -> String {
+        (*self).to_string()
+    }
+}
+
 /// Creates an SWC [`Ident`](swc_core::ecma::ast::Ident) with a dummy span.
 ///
 /// This macro provides a convenient way to create identifier AST nodes for
