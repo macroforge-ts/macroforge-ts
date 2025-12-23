@@ -222,14 +222,14 @@ fn generate_class_wrapped_runtime_code(
                         result
                     };
                     let __member_only = __member_cleaned;
-                    #out_ident.push(Stmt::Expr(ExprStmt {
+                    #out_ident.push(ModuleItem::Stmt(Stmt::Expr(ExprStmt {
                         span: swc_core::common::DUMMY_SP,
                         expr: Box::new(Expr::Ident(Ident::new(
                             format!("/* @macroforge:raw */{}", __member_only).into(),
                             swc_core::common::DUMMY_SP,
                             Default::default(),
                         ))),
-                    }));
+                    })));
                 }
                 break;
             }

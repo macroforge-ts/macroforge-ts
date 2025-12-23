@@ -28,37 +28,35 @@ pub fn compile_ts_injection(
                     if !__mf_trimmed.is_empty() {
                         // Create a raw statement using the ident trick
                         use swc_core::ecma::ast::*;
-                        #out_ident.push(Stmt::Expr(ExprStmt {
+                        #out_ident.push(ModuleItem::Stmt(Stmt::Expr(ExprStmt {
                             span: swc_core::common::DUMMY_SP,
                             expr: Box::new(Expr::Ident(Ident::new(
                                 format!("/* @macroforge:raw */{}", __mf_trimmed).into(),
                                 swc_core::common::DUMMY_SP,
                                 Default::default(),
                             ))),
-                        }));
+                        })));
                     }
                 }
             } else {
-                // No raw markers - parse as normal AST
+                // No raw markers - parse as normal AST and keep full ModuleItems
                 let __mf_source_clone = __mf_source.clone();
                 let mut __mf_parser = macroforge_ts::ts_syn::TsStream::from_string(__mf_source);
                 let __mf_module: swc_core::ecma::ast::Module = __mf_parser.parse().unwrap_or_else(|e| panic!("Failed to parse injected TsStream: {:?}\n\nSource:\n{}", e, __mf_source_clone));
                 let mut __mf_first = true;
                 for __mf_item in __mf_module.body {
-                    if let swc_core::ecma::ast::ModuleItem::Stmt(stmt) = __mf_item {
-                        if __mf_first {
-                            __mf_first = false;
-                            if !#pending_ident.is_empty() {
-                                use swc_core::common::comments::Comments;
-                                use swc_core::common::Spanned;
-                                let __mf_pos = stmt.span().lo();
-                                for __mf_comment in #pending_ident.drain(..) {
-                                    #comments_ident.add_leading(__mf_pos, __mf_comment);
-                                }
+                    if __mf_first {
+                        __mf_first = false;
+                        if !#pending_ident.is_empty() {
+                            use swc_core::common::comments::Comments;
+                            use swc_core::common::Spanned;
+                            let __mf_pos = __mf_item.span().lo();
+                            for __mf_comment in #pending_ident.drain(..) {
+                                #comments_ident.add_leading(__mf_pos, __mf_comment);
                             }
                         }
-                        #out_ident.push(stmt);
                     }
+                    #out_ident.push(__mf_item);
                 }
             }
         }

@@ -98,7 +98,7 @@ fn generate_stmt_code(stmt: &Stmt, ctx: &StandardCodeContext) -> syn::Result<Tok
                 #comments_ident.add_leading(__mf_pos, __mf_comment);
             }
         }
-        #out_ident.push(__mf_stmt);
+        #out_ident.push(swc_core::ecma::ast::ModuleItem::Stmt(__mf_stmt));
     }})
 }
 
@@ -155,15 +155,8 @@ fn generate_export_decl_code(
 
     Ok(quote! {{
         #quote_bindings
-        // Quote as ModuleItem, then extract the inner Decl and convert to Stmt
-        let __mf_module_item = #expr;
-        let mut __mf_stmt = match __mf_module_item {
-            swc_core::ecma::ast::ModuleItem::ModuleDecl(
-                swc_core::ecma::ast::ModuleDecl::ExportDecl(export)
-            ) => swc_core::ecma::ast::Stmt::Decl(export.decl),
-            swc_core::ecma::ast::ModuleItem::Stmt(s) => s,
-            _ => panic!("unexpected module item type in ts_template"),
-        };
+        // Keep full ModuleItem to preserve export
+        let mut __mf_module_item = #expr;
         #block_replacement
         #ident_name_fix
         #type_fix
@@ -182,15 +175,16 @@ fn generate_export_decl_code(
             let mut __mf_span_fix = __MfSpanFix {
                 span: swc_core::common::Span::new(__mf_pos, __mf_pos),
             };
-            __mf_stmt.visit_mut_with(&mut __mf_span_fix);
+            __mf_module_item.visit_mut_with(&mut __mf_span_fix);
         }
         if !#pending_ident.is_empty() {
             use swc_core::common::comments::Comments;
+            use swc_core::common::Spanned;
             for __mf_comment in #pending_ident.drain(..) {
-                #comments_ident.add_leading(__mf_pos, __mf_comment);
+                #comments_ident.add_leading(__mf_module_item.span().lo(), __mf_comment);
             }
         }
-        #out_ident.push(__mf_stmt);
+        #out_ident.push(__mf_module_item);
     }})
 }
 

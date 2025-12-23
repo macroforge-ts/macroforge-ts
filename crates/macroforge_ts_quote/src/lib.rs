@@ -706,7 +706,7 @@ pub fn ts_template(input: TokenStream) -> TokenStream {
             let __ts_code = {
                 let __module = swc_core::ecma::ast::Module {
                     span: swc_core::common::DUMMY_SP,
-                    body: __stmts.into_iter().map(swc_core::ecma::ast::ModuleItem::Stmt).collect(),
+                    body: __stmts,
                     shebang: None,
                 };
                 let __cm = swc_core::common::sync::Lrc::new(swc_core::common::SourceMap::default());
@@ -908,7 +908,7 @@ fn generate_scoped_template(input: TokenStream2, marker: &str) -> TokenStream {
             let __content = {
                 let __module = swc_core::ecma::ast::Module {
                     span: swc_core::common::DUMMY_SP,
-                    body: __stmts.into_iter().map(swc_core::ecma::ast::ModuleItem::Stmt).collect(),
+                    body: __stmts,
                     shebang: None,
                 };
                 let __cm = swc_core::common::sync::Lrc::new(swc_core::common::SourceMap::default());

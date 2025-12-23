@@ -24,7 +24,7 @@ pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
 
     Ok(quote! {
         {
-            let mut __stmts: Vec<swc_core::ecma::ast::Stmt> = Vec::new();
+            let mut __stmts: Vec<swc_core::ecma::ast::ModuleItem> = Vec::new();
             let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
             let __comments = swc_core::common::comments::SingleThreadedComments::default();
             let mut __pending_comments: Vec<swc_core::common::comments::Comment> = Vec::new();

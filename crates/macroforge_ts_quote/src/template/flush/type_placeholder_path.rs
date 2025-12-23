@@ -119,14 +119,8 @@ pub fn generate_type_placeholder_code(
             #(#visitor_inits,)*
         };
 
-        for __mf_item in __mf_module.body {
-            let mut __mf_stmt = match __mf_item {
-                ModuleItem::Stmt(s) => s,
-                ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export)) => Stmt::Decl(export.decl),
-                _ => continue,
-            };
-
-            __mf_stmt.visit_mut_with(&mut __mf_substitutor);
+        for mut __mf_item in __mf_module.body {
+            __mf_item.visit_mut_with(&mut __mf_substitutor);
 
             let __mf_pos = #swc_core_path::common::BytePos(#pos_ident);
             #pos_ident += 1;
@@ -142,17 +136,18 @@ pub fn generate_type_placeholder_code(
                 let mut __mf_span_fix = __MfSpanFix {
                     span: #swc_core_path::common::Span::new(__mf_pos, __mf_pos),
                 };
-                __mf_stmt.visit_mut_with(&mut __mf_span_fix);
+                __mf_item.visit_mut_with(&mut __mf_span_fix);
             }
 
             if !#pending_ident.is_empty() {
                 use #swc_core_path::common::comments::Comments;
+                use #swc_core_path::common::Spanned;
                 for __mf_comment in #pending_ident.drain(..) {
-                    #comments_ident.add_leading(__mf_pos, __mf_comment);
+                    #comments_ident.add_leading(__mf_item.span().lo(), __mf_comment);
                 }
             }
 
-            #out_ident.push(__mf_stmt);
+            #out_ident.push(__mf_item);
         }
     }}
 }

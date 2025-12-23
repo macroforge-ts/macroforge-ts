@@ -63,7 +63,7 @@ fn process_function_body(
             output.extend(quote! {{
                 #bindings
                 let __mf_stmt = #expr;
-                #out_ident.push(__mf_stmt);
+                #out_ident.push(swc_core::ecma::ast::ModuleItem::Stmt(__mf_stmt));
             }});
         }
     }
