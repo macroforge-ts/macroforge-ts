@@ -6,6 +6,7 @@ scripts/node_modules/
 
 # Build artifacts
 dist/
+target/
 *.node
 *.wasm
 
