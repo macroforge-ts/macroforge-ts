@@ -121,7 +121,10 @@ use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{DefaultFieldOptions, get_type_default, has_known_default};
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::{
+    ident, parse_ts_expr, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
+};
+use crate::swc_ecma_ast::{Expr, Ident};
 
 /// Contains field information needed for default value generation.
 ///
@@ -149,6 +152,8 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let class_ident = ident!(class_name);
+            let class_expr: Expr = class_ident.clone().into();
 
             // Check for required non-primitive fields missing @default (like Rust's derive(Default))
             let missing_defaults: Vec<&str> = class
@@ -201,40 +206,60 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
             let has_defaults = !default_fields.is_empty();
 
-            // Build field assignments
-            let assignments = if has_defaults {
+            let assignment_fields: Vec<(Ident, Expr)> = if has_defaults {
                 default_fields
                     .iter()
-                    .map(|f| format!("instance.{} = {};", f.name, f.value))
-                    .collect::<Vec<_>>()
-                    .join("\n                    ")
+                    .map(|f| {
+                        let value_expr = parse_ts_expr(&f.value).map_err(|err| {
+                            MacroforgeError::new(
+                                input.decorator_span(),
+                                format!(
+                                    "@derive(Default): invalid default expression for '{}': {err:?}",
+                                    f.name
+                                ),
+                            )
+                        })?;
+                        Ok((ident!(f.name.as_str()), *value_expr))
+                    })
+                    .collect::<Result<_, MacroforgeError>>()?
             } else {
-                String::new()
+                Vec::new()
             };
 
-            let mut class_body = body! {
-                static defaultValue(): @{class_name} {
-                    const instance = new @{class_name}();
+            let assignments = if has_defaults {
+                ts_template! {
+                    {#for (name_ident, value_expr) in assignment_fields}
+                        instance.@{name_ident} = @{value_expr};
+                    {/for}
+                }
+            } else {
+                TsStream::from_string(String::new())
+            };
+
+            let class_body = body! {
+                static defaultValue(): @{class_ident} {
+                    const instance = new @{class_expr}();
                     {#if has_defaults}
-                        @{assignments}
+                        {$typescript assignments}
                     {/if}
                     return instance;
                 }
             };
 
             // Also generate standalone function for consistency
-            let fn_name = format!("{}DefaultValue", class_name.to_case(Case::Camel));
-            let sibling = ts_template! {
-                export function @{fn_name}(): @{class_name} {
-                    return @{class_name}.defaultValue();
-                }
-            };
-            class_body.runtime_patches.extend(sibling.runtime_patches);
+            // Using {$typescript} to compose TsStream objects
+            let fn_name_ident = ident!("{}DefaultValue", class_name.to_case(Case::Camel));
+            Ok(ts_template! {
+                {$typescript class_body}
 
-            Ok(class_body)
+                export function @{fn_name_ident}(): @{class_ident} {
+                    return @{class_expr}.defaultValue();
+                }
+            })
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
+            let enum_ident = ident!(enum_name);
 
             // Find variant with @default attribute (like Rust's #[default] on enums)
             let default_variant = enum_data.variants().iter().find(|v| {
@@ -246,10 +271,12 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             match default_variant {
                 Some(variant) => {
                     let variant_name = &variant.name;
-                    let fn_name = format!("{}DefaultValue", enum_name.to_case(Case::Camel));
+                    let fn_name_ident = ident!("{}DefaultValue", enum_name.to_case(Case::Camel));
+                    let enum_expr: Expr = ident!(enum_name).into();
+                    let variant_ident = ident!(variant_name.as_str());
                     Ok(ts_template! {
-                        export function @{fn_name}(): @{enum_name} {
-                            return @{enum_name}.@{variant_name};
+                        export function @{fn_name_ident}(): @{enum_ident} {
+                            return @{enum_expr}.@{variant_ident};
                         }
                     })
                 }
@@ -265,6 +292,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
+            let interface_ident = ident!(interface_name);
 
             // Check for required non-primitive fields missing @default (like Rust's derive(Default))
             let missing_defaults: Vec<&str> = interface
@@ -317,27 +345,41 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
             let has_defaults = !default_fields.is_empty();
 
-            // Build object literal
-            let object_body = if has_defaults {
-                default_fields
-                    .iter()
-                    .map(|f| format!("{}: {},", f.name, f.value))
-                    .collect::<Vec<_>>()
-                    .join("\n                            ")
-            } else {
-                String::new()
-            };
+            let fn_name_ident = ident!("{}DefaultValue", interface_name.to_case(Case::Camel));
 
-            let fn_name = format!("{}DefaultValue", interface_name.to_case(Case::Camel));
-            Ok(ts_template! {
-                export function @{fn_name}(): @{interface_name} {
-                    return {
-                        {#if has_defaults}
-                            @{object_body}
-                        {/if}
-                    } as @{interface_name};
-                }
-            })
+            if has_defaults {
+                let object_fields: Vec<(Ident, Expr)> = default_fields
+                    .iter()
+                    .map(|f| {
+                        let value_expr = parse_ts_expr(&f.value).map_err(|err| {
+                            MacroforgeError::new(
+                                input.decorator_span(),
+                                format!(
+                                    "@derive(Default): invalid default expression for '{}': {err:?}",
+                                    f.name
+                                ),
+                            )
+                        })?;
+                        Ok((ident!(f.name.as_str()), *value_expr))
+                    })
+                    .collect::<Result<_, MacroforgeError>>()?;
+
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(): @{interface_ident} {
+                        return {
+                            {#for (name_ident, value_expr) in object_fields}
+                                @{name_ident}: @{value_expr},
+                            {/for}
+                        } as @{interface_ident};
+                    }
+                })
+            } else {
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(): @{interface_ident} {
+                        return {} as @{interface_ident};
+                    }
+                })
+            }
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
@@ -351,6 +393,8 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 (format!("<{}>", params), format!("<{}>", params))
             };
             let full_type_name = format!("{}{}", type_name, generic_args);
+            let full_type_ident = ident!(full_type_name.as_str());
+            let generic_decl_ident = ident!(generic_decl.as_str());
 
             if type_alias.is_object() {
                 let fields = type_alias.as_object().unwrap();
@@ -404,26 +448,41 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
                 let has_defaults = !default_fields.is_empty();
 
-                let object_body = if has_defaults {
-                    default_fields
-                        .iter()
-                        .map(|f| format!("{}: {},", f.name, f.value))
-                        .collect::<Vec<_>>()
-                        .join("\n                            ")
-                } else {
-                    String::new()
-                };
+                let fn_name_ident = ident!("{}DefaultValue", type_name.to_case(Case::Camel));
 
-                let fn_name = format!("{}DefaultValue", type_name.to_case(Case::Camel));
-                Ok(ts_template! {
-                    export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
-                        return {
-                            {#if has_defaults}
-                                @{object_body}
-                            {/if}
-                        } as @{full_type_name};
-                    }
-                })
+                if has_defaults {
+                    let object_fields: Vec<(Ident, Expr)> = default_fields
+                        .iter()
+                        .map(|f| {
+                            let value_expr = parse_ts_expr(&f.value).map_err(|err| {
+                                MacroforgeError::new(
+                                    input.decorator_span(),
+                                    format!(
+                                        "@derive(Default): invalid default expression for '{}': {err:?}",
+                                        f.name
+                                    ),
+                                )
+                            })?;
+                            Ok((ident!(f.name.as_str()), *value_expr))
+                        })
+                        .collect::<Result<_, MacroforgeError>>()?;
+
+                    Ok(ts_template! {
+                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
+                            return {
+                                {#for (name_ident, value_expr) in object_fields}
+                                    @{name_ident}: @{value_expr},
+                                {/for}
+                            } as @{full_type_ident};
+                        }
+                    })
+                } else {
+                    Ok(ts_template! {
+                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
+                            return {} as @{full_type_ident};
+                        }
+                    })
+                }
             } else if type_alias.is_union() {
                 // Union type: check for @default on a variant OR @default(...) on the type
                 let members = type_alias.as_union().unwrap();
@@ -505,11 +564,25 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     } else {
                         type_name.to_string()
                     };
+                    let return_type_ident = ident!(return_type.as_str());
+                    let generic_params_ident = ident!(generic_params.as_str());
 
-                    let fn_name = format!("{}DefaultValue", type_name.to_case(Case::Camel));
+                    let fn_name_ident = ident!("{}DefaultValue", type_name.to_case(Case::Camel));
+                    let return_expr = parse_ts_expr(&default_expr).map_err(|err| {
+                        MacroforgeError::new(
+                            input.decorator_span(),
+                            format!(
+                                "@derive(Default): invalid default expression for '{}': {err:?}",
+                                type_name
+                            ),
+                        )
+                    })?;
+                    let has_return = true;
                     Ok(ts_template! {
-                        export function @{fn_name}@{generic_params}(): @{return_type} {
-                            return @{default_expr};
+                        export function {|@{fn_name_ident}@{generic_params_ident}|}(): @{return_type_ident} {
+                            {#if has_return}
+                                return @{return_expr};
+                            {/if}
                         }
                     })
                 } else {
@@ -533,10 +606,22 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 );
 
                 if let Some(default_variant) = default_opts.value {
-                    let fn_name = format!("{}DefaultValue", type_name.to_case(Case::Camel));
+                    let fn_name_ident = ident!("{}DefaultValue", type_name.to_case(Case::Camel));
+                    let return_expr = parse_ts_expr(&default_variant).map_err(|err| {
+                        MacroforgeError::new(
+                            input.decorator_span(),
+                            format!(
+                                "@derive(Default): invalid default expression for '{}': {err:?}",
+                                type_name
+                            ),
+                        )
+                    })?;
+                    let has_return = true;
                     Ok(ts_template! {
-                        export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
-                            return @{default_variant};
+                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
+                            {#if has_return}
+                                return @{return_expr};
+                            {/if}
                         }
                     })
                 } else {
@@ -561,6 +646,8 @@ mod tests {
     #[test]
     fn test_default_macro_output() {
         let class_name = "User";
+        let class_ident = ident!(class_name);
+        let class_expr: Expr = class_ident.clone().into();
         let default_fields: Vec<DefaultField> = vec![
             DefaultField {
                 name: "id".to_string(),
@@ -573,17 +660,25 @@ mod tests {
         ];
         let has_defaults = !default_fields.is_empty();
 
-        let assignments = default_fields
+        let assignment_fields: Vec<(Ident, Expr)> = default_fields
             .iter()
-            .map(|f| format!("instance.{} = {};", f.name, f.value))
-            .collect::<Vec<_>>()
-            .join("\n                    ");
+            .map(|f| {
+                let expr = parse_ts_expr(&f.value).expect("default expr should parse");
+                (ident!(f.name.as_str()), *expr)
+            })
+            .collect();
+
+        let assignments = ts_template! {
+            {#for (name_ident, value_expr) in assignment_fields}
+                instance.@{name_ident} = @{value_expr};
+            {/for}
+        };
 
         let output = body! {
-            static defaultValue(): @{class_name} {
-                const instance = new @{class_name}();
+            static defaultValue(): @{class_ident} {
+                const instance = new @{class_expr}();
                 {#if has_defaults}
-                    @{assignments}
+                    {$typescript assignments}
                 {/if}
                 return instance;
             }

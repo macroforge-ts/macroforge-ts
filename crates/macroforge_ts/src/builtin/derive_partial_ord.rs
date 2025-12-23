@@ -107,10 +107,13 @@ use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
 use crate::builtin::return_types::{
-    is_none_check, partial_ord_return_type, unwrap_option_or_null, wrap_none, wrap_some,
+    is_none_check, partial_ord_return_type, unwrap_option_or_null,
 };
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::{
+    ident, parse_ts_expr, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
+};
+use crate::swc_ecma_ast::{Expr, Ident};
 
 /// Contains field information needed for partial ordering comparison generation.
 ///
@@ -240,6 +243,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let class_ident = ident!(class_name);
 
             // Collect fields for comparison
             let ord_fields: Vec<OrdField> = class
@@ -260,80 +264,91 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let has_fields = !ord_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name = format!("{}PartialCompare", class_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}PartialCompare", class_name.to_case(Case::Camel));
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
-            // Get return type and wrappers
+            // Get return type
             let return_type = partial_ord_return_type();
-            let some_zero = wrap_some("0");
-            let none_val = wrap_none();
+            let return_type_ident = ident!(return_type);
 
-            // Build comparison logic using a and b parameters
-            let compare_body = if has_fields {
+            let compare_steps: Vec<(Ident, Expr)> = if has_fields {
                 ord_fields
                     .iter()
                     .enumerate()
                     .map(|(i, f)| {
-                        let var_name = format!("cmp{}", i);
-                        let some_var = wrap_some(&var_name);
-                        format!(
-                            "const {var_name} = {};\n                    if ({var_name} === null) return {none_val};\n                    if ({var_name} !== 0) return {some_var};",
-                            generate_field_compare_for_interface(f, "a", "b", true)
-                        )
+                        let cmp_ident = ident!(format!("cmp{}", i));
+                        let expr_src = generate_field_compare_for_interface(f, "a", "b", true);
+                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                            MacroforgeError::new(
+                                input.decorator_span(),
+                                format!(
+                                    "@derive(PartialOrd): invalid comparison expression for '{}': {err:?}",
+                                    f.name
+                                ),
+                            )
+                        })?;
+                        Ok((cmp_ident, *expr))
                     })
-                    .collect::<Vec<_>>()
-                    .join("\n                    ")
+                    .collect::<Result<_, MacroforgeError>>()?
             } else {
-                String::new()
+                Vec::new()
+            };
+
+            let compare_body = if has_fields {
+                ts_template! {
+                    {#for (cmp_ident, cmp_expr) in &compare_steps}
+                        const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                        if (@{cmp_ident.clone()} === null) return null;
+                        if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                    {/for}
+                }
+            } else {
+                TsStream::from_string(String::new())
             };
 
             // Generate standalone function with two parameters
             let standalone = ts_template! {
-                export function @{fn_name}(a: @{class_name}, b: @{class_name}): @{return_type} {
-                    if (a === b) return @{some_zero};
+                export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): @{return_type_ident} {
+                    if (a === b) return 0;
                     {#if has_fields}
-                        @{compare_body}
+                        {$typescript compare_body}
                     {/if}
-                    return @{some_zero};
+                    return 0;
                 }
             };
 
             // Generate static wrapper method that delegates to standalone function
             let class_body = body! {
-                static compareTo(a: @{class_name}, b: @{class_name}): @{return_type} {
-                    return @{fn_name}(a, b);
+                static compareTo(a: @{class_ident}, b: @{class_ident}): @{return_type_ident} {
+                    return @{fn_name_expr}(a, b);
                 }
             };
 
-            // Combine standalone function with class body by concatenating sources
+            // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
-            let mut combined = TsStream::from_string(combined_source);
-            combined.runtime_patches = standalone.runtime_patches;
-            combined.runtime_patches.extend(class_body.runtime_patches);
-
-            Ok(combined)
+            Ok(ts_template! {
+                {$typescript standalone}
+                {$typescript class_body}
+            })
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let fn_name = format!("{}PartialCompare", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ident!("{}PartialCompare", enum_name.to_case(Case::Camel));
 
-            // Get return type and wrappers
+            // Get return type
             let return_type = partial_ord_return_type();
-            let some_zero = wrap_some("0");
-            let some_cmp_num = wrap_some("a < b ? -1 : a > b ? 1 : 0");
-            let some_locale = wrap_some("a.localeCompare(b)");
-            let none_val = wrap_none();
+            let return_type_ident = ident!(return_type);
 
             let result = ts_template! {
-                export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): @{return_type} {
+                export function @{fn_name_ident}(a: @{ident!(enum_name)}, b: @{ident!(enum_name)}): @{return_type_ident} {
                     // For enums, compare by value (numeric enums) or string
                     if (typeof a === "number" && typeof b === "number") {
-                        return @{some_cmp_num};
+                        return a < b ? -1 : a > b ? 1 : 0;
                     }
                     if (typeof a === "string" && typeof b === "string") {
-                        return @{some_locale};
+                        return a.localeCompare(b);
                     }
-                    return a === b ? @{some_zero} : @{none_val};
+                    return a === b ? 0 : null;
                 }
             };
 
@@ -341,6 +356,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
+            let interface_ident = ident!(interface_name);
 
             let ord_fields: Vec<OrdField> = interface
                 .fields()
@@ -359,38 +375,54 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             let has_fields = !ord_fields.is_empty();
 
-            // Get return type and wrappers
+            // Get return type
             let return_type = partial_ord_return_type();
-            let some_zero = wrap_some("0");
-            let none_val = wrap_none();
+            let return_type_ident = ident!(return_type);
 
-            let compare_body = if has_fields {
+            let compare_steps: Vec<(Ident, Expr)> = if has_fields {
                 ord_fields
                     .iter()
                     .enumerate()
                     .map(|(i, f)| {
-                        let var_name = format!("cmp{}", i);
-                        let some_var = wrap_some(&var_name);
-                        format!(
-                            "const {var_name} = {};\n                        if ({var_name} === null) return {none_val};\n                        if ({var_name} !== 0) return {some_var};",
-                            generate_field_compare_for_interface(f, "a", "b", true)
-                        )
+                        let cmp_ident = ident!(format!("cmp{}", i));
+                        let expr_src = generate_field_compare_for_interface(f, "a", "b", true);
+                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                            MacroforgeError::new(
+                                input.decorator_span(),
+                                format!(
+                                    "@derive(PartialOrd): invalid comparison expression for '{}': {err:?}",
+                                    f.name
+                                ),
+                            )
+                        })?;
+                        Ok((cmp_ident, *expr))
                     })
-                    .collect::<Vec<_>>()
-                    .join("\n                        ")
+                    .collect::<Result<_, MacroforgeError>>()?
             } else {
-                String::new()
+                Vec::new()
             };
 
-            let fn_name = format!("{}PartialCompare", interface_name.to_case(Case::Camel));
+            let compare_body = if has_fields {
+                ts_template! {
+                    {#for (cmp_ident, cmp_expr) in &compare_steps}
+                        const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                        if (@{cmp_ident.clone()} === null) return null;
+                        if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                    {/for}
+                }
+            } else {
+                TsStream::from_string(String::new())
+            };
+
+            let fn_name_ident = ident!("{}PartialCompare", interface_name.to_case(Case::Camel));
 
             let result = ts_template! {
-                export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): @{return_type} {
-                    if (a === b) return @{some_zero};
+                export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): @{return_type_ident} {
+                    if (a === b) return 0;
                     {#if has_fields}
-                        @{compare_body}
+                        {$typescript compare_body}
                     {/if}
-                    return @{some_zero};
+                    return 0;
                 }
             };
 
@@ -398,11 +430,11 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
+            let type_ident = ident!(type_name);
 
-            // Get return type and wrappers
+            // Get return type
             let return_type = partial_ord_return_type();
-            let some_zero = wrap_some("0");
-            let none_val = wrap_none();
+            let return_type_ident = ident!(return_type);
 
             if type_alias.is_object() {
                 let ord_fields: Vec<OrdField> = type_alias
@@ -423,54 +455,69 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                 let has_fields = !ord_fields.is_empty();
 
-                let compare_body = if has_fields {
+                let compare_steps: Vec<(Ident, Expr)> = if has_fields {
                     ord_fields
                         .iter()
                         .enumerate()
                         .map(|(i, f)| {
-                            let var_name = format!("cmp{}", i);
-                            let some_var = wrap_some(&var_name);
-                            format!(
-                                "const {var_name} = {};\n                        if ({var_name} === null) return {none_val};\n                        if ({var_name} !== 0) return {some_var};",
-                                generate_field_compare_for_interface(f, "a", "b", true)
-                            )
+                            let cmp_ident = ident!(format!("cmp{}", i));
+                            let expr_src = generate_field_compare_for_interface(f, "a", "b", true);
+                            let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                                MacroforgeError::new(
+                                    input.decorator_span(),
+                                    format!(
+                                        "@derive(PartialOrd): invalid comparison expression for '{}': {err:?}",
+                                        f.name
+                                    ),
+                                )
+                            })?;
+                            Ok((cmp_ident, *expr))
                         })
-                        .collect::<Vec<_>>()
-                        .join("\n                        ")
+                        .collect::<Result<_, MacroforgeError>>()?
                 } else {
-                    String::new()
+                    Vec::new()
                 };
 
-                let fn_name = format!("{}PartialCompare", type_name.to_case(Case::Camel));
+                let compare_body = if has_fields {
+                    ts_template! {
+                        {#for (cmp_ident, cmp_expr) in &compare_steps}
+                            const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                            if (@{cmp_ident.clone()} === null) return null;
+                            if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                        {/for}
+                    }
+                } else {
+                    TsStream::from_string(String::new())
+                };
+
+                let fn_name_ident = ident!("{}PartialCompare", type_name.to_case(Case::Camel));
 
                 let result = ts_template! {
-                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): @{return_type} {
-                        if (a === b) return @{some_zero};
+                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
+                        if (a === b) return 0;
                         {#if has_fields}
-                            @{compare_body}
+                            {$typescript compare_body}
                         {/if}
-                        return @{some_zero};
+                        return 0;
                     }
                 };
 
                 Ok(result)
             } else {
                 // Union, tuple, or simple alias: limited comparison
-                let fn_name = format!("{}PartialCompare", type_name.to_case(Case::Camel));
-                let some_cmp_num = wrap_some("a < b ? -1 : a > b ? 1 : 0");
-                let some_locale = wrap_some("a.localeCompare(b)");
+                let fn_name_ident = ident!("{}PartialCompare", type_name.to_case(Case::Camel));
 
                 let result = ts_template! {
-                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): @{return_type} {
-                        if (a === b) return @{some_zero};
+                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
+                        if (a === b) return 0;
                         // For unions/tuples, try primitive comparison
                         if (typeof a === "number" && typeof b === "number") {
-                            return @{some_cmp_num};
+                            return a < b ? -1 : a > b ? 1 : 0;
                         }
                         if (typeof a === "string" && typeof b === "string") {
-                            return @{some_locale};
+                            return a.localeCompare(b);
                         }
-                        return @{none_val};
+                        return null;
                     }
                 };
 
@@ -493,30 +540,34 @@ mod tests {
         }];
         let has_fields = !ord_fields.is_empty();
 
-        let none_val = wrap_none();
-        let compare_body = ord_fields
+        let compare_steps: Vec<(Ident, Expr)> = ord_fields
             .iter()
             .enumerate()
             .map(|(i, f)| {
-                let var_name = format!("cmp{}", i);
-                let some_var = wrap_some(&var_name);
-                format!(
-                    "const {var_name} = {};\n                    if ({var_name} === null) return {none_val};\n                    if ({var_name} !== 0) return {some_var};",
-                    generate_field_compare_for_interface(f, "a", "b", true)
-                )
+                let cmp_ident = ident!(format!("cmp{}", i));
+                let expr_src = generate_field_compare_for_interface(f, "a", "b", true);
+                let expr = parse_ts_expr(&expr_src).expect("compare expr should parse");
+                (cmp_ident, *expr)
             })
-            .collect::<Vec<_>>()
-            .join("\n                    ");
+            .collect();
+
+        let compare_body = ts_template! {
+            {#for (cmp_ident, cmp_expr) in &compare_steps}
+                const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                if (@{cmp_ident.clone()} === null) return null;
+                if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+            {/for}
+        };
 
         let return_type = partial_ord_return_type();
-        let some_zero = wrap_some("0");
+        let return_type_ident = ident!(return_type);
         let output = body! {
-            compareTo(other: unknown): @{return_type} {
-                if (a === b) return @{some_zero};
+            compareTo(other: unknown): @{return_type_ident} {
+                if (a === b) return 0;
                 {#if has_fields}
-                    @{compare_body}
+                    {$typescript compare_body}
                 {/if}
-                return @{some_zero};
+                return 0;
             }
         };
 
