@@ -18,10 +18,14 @@ pub fn build_template_and_bindings(
     let mut bindings = Vec::new();
     let mut type_placeholders = Vec::new();
     let mut seen = HashSet::new();
+    let mut pending_type_suffix = false;
 
     for seg in segments {
         match seg.borrow() {
-            Segment::Static(s) => append_part(&mut template, s),
+            Segment::Static(s) => {
+                pending_type_suffix = s.trim_end().ends_with("as");
+                append_part(&mut template, s);
+            }
             Segment::Comment { .. } => {
                 return Err(template_error(
                     Span::call_site(),
@@ -30,7 +34,11 @@ pub fn build_template_and_bindings(
                 ));
             }
             Segment::Interpolation { id, expr } => {
-                let use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Expr);
+                let mut use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Expr);
+                if pending_type_suffix && matches!(use_kind, PlaceholderUse::Expr) {
+                    use_kind = PlaceholderUse::Type;
+                }
+                pending_type_suffix = false;
 
                 if matches!(use_kind, PlaceholderUse::Type) {
                     // For type placeholders, use a unique marker identifier that quote! can parse
@@ -59,6 +67,7 @@ pub fn build_template_and_bindings(
                 }
             }
             Segment::StringInterp { id, parts } => {
+                pending_type_suffix = false;
                 let name = placeholder_name(*id);
                 append_part(&mut template, &format!("${name}"));
                 if seen.insert(*id) {
@@ -73,6 +82,7 @@ pub fn build_template_and_bindings(
                 }
             }
             Segment::TemplateInterp { id, parts } => {
+                pending_type_suffix = false;
                 let name = placeholder_name(*id);
                 append_part(&mut template, &format!("${name}"));
                 if seen.insert(*id) {
@@ -87,6 +97,7 @@ pub fn build_template_and_bindings(
                 }
             }
             Segment::IdentBlock { id, parts } => {
+                pending_type_suffix = false;
                 let name = placeholder_name(*id);
                 append_part(&mut template, &format!("${name}"));
                 if seen.insert(*id) {
@@ -101,6 +112,7 @@ pub fn build_template_and_bindings(
                 }
             }
             Segment::Control { id, node } => {
+                pending_type_suffix = false;
                 let use_kind = context_map.get(id).cloned().unwrap_or(PlaceholderUse::Expr);
                 if matches!(use_kind, PlaceholderUse::Stmt) {
                     return Err(template_error(
@@ -154,6 +166,7 @@ pub fn build_template_and_bindings(
                 ));
             }
             Segment::BraceBlock { id, inner } => {
+                pending_type_suffix = false;
                 // Check if any inner segment contains statement-level control flow or typescript injection
                 fn has_stmt_level_control(
                     segments: &[Segment],
@@ -161,13 +174,24 @@ pub fn build_template_and_bindings(
                 ) -> bool {
                     for s in segments {
                         match s {
-                            Segment::Control { id, .. } => {
+                            Segment::Control { id, node } => {
+                                if matches!(
+                                    node,
+                                    crate::template::ControlNode::For { .. }
+                                        | crate::template::ControlNode::While { .. }
+                                        | crate::template::ControlNode::WhileLet { .. }
+                                ) {
+                                    return true;
+                                }
                                 if matches!(context_map.get(id), Some(PlaceholderUse::Stmt)) {
                                     return true;
                                 }
                             }
                             // {$typescript} requires statement-level compilation
                             Segment::Typescript { .. } => {
+                                return true;
+                            }
+                            Segment::Let { .. } | Segment::Do { .. } => {
                                 return true;
                             }
                             Segment::BraceBlock { inner, .. } => {

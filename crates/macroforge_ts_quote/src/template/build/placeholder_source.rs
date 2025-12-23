@@ -11,58 +11,61 @@ pub enum PlaceholderSourceKind {
 
 /// Checks if a branch contains statement-level content.
 ///
-/// Returns true if the branch ends with a semicolon or contains statement-level constructs.
-/// Returns false if the branch contains inline expression parts.
+/// Returns true if the branch contains statement-level constructs (loops, TS injections, etc.)
+/// or any static segment with a semicolon. Returns false for inline expression-only content.
 fn is_statement_level_branch(branch: &[Segment]) -> bool {
-    // Check if the last static segment ends with ";"
-    for seg in branch.iter().rev() {
+    fn control_has_statement_level(node: &ControlNode) -> bool {
+        match node {
+            ControlNode::For { .. }
+            | ControlNode::While { .. }
+            | ControlNode::WhileLet { .. } => true,
+            ControlNode::If {
+                then_branch,
+                else_branch,
+                ..
+            }
+            | ControlNode::IfLet {
+                then_branch,
+                else_branch,
+                ..
+            } => {
+                is_statement_level_branch(then_branch)
+                    || else_branch
+                        .as_ref()
+                        .is_some_and(|b| is_statement_level_branch(b))
+            }
+            ControlNode::Match { cases, .. } => {
+                cases.iter().any(|c| is_statement_level_branch(&c.body))
+            }
+        }
+    }
+
+    for seg in branch {
         match seg {
             Segment::Static(s) => {
                 let trimmed = s.trim();
-                if !trimmed.is_empty() {
-                    return trimmed.ends_with(';');
+                if !trimmed.is_empty() && trimmed.contains(';') {
+                    return true;
                 }
             }
-            // If we hit a non-static segment before finding static content,
-            // check if it's a control segment (which would make this statement-level)
             Segment::Control { node, .. } => {
-                // Nested control in branch = statement-level
-                return matches!(
-                    node,
-                    ControlNode::For { .. }
-                        | ControlNode::While { .. }
-                        | ControlNode::WhileLet { .. }
-                ) || match node {
-                    ControlNode::If { then_branch, .. }
-                    | ControlNode::IfLet { then_branch, .. } => is_statement_level_branch(then_branch),
-                    ControlNode::Match { cases, .. } => {
-                        cases.iter().any(|c| is_statement_level_branch(&c.body))
-                    }
-                    _ => false,
-                };
+                if control_has_statement_level(node) {
+                    return true;
+                }
             }
-            // Typescript injections, Let, and Do are always statement-level
             Segment::Typescript { .. } | Segment::Let { .. } | Segment::Do { .. } => {
                 return true;
             }
-            // Interpolation at the end without semicolon = inline expression
-            Segment::Interpolation { .. }
-            | Segment::StringInterp { .. }
-            | Segment::TemplateInterp { .. }
-            | Segment::IdentBlock { .. } => {
-                return false;
-            }
-            // BraceBlock at the end = statement-level if its inner content is statement-level
             Segment::BraceBlock { inner, .. } => {
-                // A branch ending with `{ ... }` is statement-level if the block contains
-                // statement-level content (like `if (...) { statements; }`)
-                return is_statement_level_branch(inner);
+                if is_statement_level_branch(inner) {
+                    return true;
+                }
             }
-            // Comment, ObjectPropLoop - continue looking for other content
-            _ => continue,
+            _ => {}
         }
     }
-    // Empty or whitespace-only = inline (treat as expression part)
+
+    // Empty or inline-only = expression-level
     false
 }
 
@@ -126,8 +129,11 @@ pub fn build_placeholder_source(
                         // Statement-level if:
                         // - No else branch (expressions need both branches for a value)
                         // - Branch contains statement-level content (ends with `;`, has Typescript, etc.)
-                        let is_statement_level =
-                            else_branch.is_none() || is_statement_level_branch(then_branch);
+                        let is_statement_level = else_branch.is_none()
+                            || is_statement_level_branch(then_branch)
+                            || else_branch
+                                .as_ref()
+                                .is_some_and(|b| is_statement_level_branch(b));
 
                         if is_statement_level {
                             // Statement-level: emit placeholder for classification
@@ -395,6 +401,61 @@ mod tests {
         assert!(src.contains("__mf_hole_1"));
         assert_eq!(map.len(), 1);
         assert_eq!(map.get("__mf_hole_1"), Some(&1));
+    }
+
+    #[test]
+    fn test_control_with_else_statement_content_emits_placeholder() {
+        // If any branch contains statement-level content, emit a placeholder for the control.
+        let segments = vec![Segment::Control {
+            id: 0,
+            node: ControlNode::If {
+                cond: TokenStream2::new(),
+                then_branch: vec![Segment::Interpolation {
+                    id: 1,
+                    expr: TokenStream2::new(),
+                }],
+                else_branch: Some(vec![Segment::Control {
+                    id: 2,
+                    node: ControlNode::For {
+                        pat: TokenStream2::new(),
+                        iter: TokenStream2::new(),
+                        body: vec![],
+                    },
+                }]),
+            },
+        }];
+
+        let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+        assert!(src.contains("__mf_hole_0"));
+        assert_eq!(map.get("__mf_hole_0"), Some(&0));
+        assert_eq!(map.len(), 1);
+    }
+
+    #[test]
+    fn test_control_with_else_and_semicolon_in_branch_is_statement_level() {
+        // Semicolons anywhere in a branch should mark it statement-level.
+        let segments = vec![Segment::Control {
+            id: 0,
+            node: ControlNode::If {
+                cond: TokenStream2::new(),
+                then_branch: vec![
+                    Segment::Static("const x = 1;".to_string()),
+                    Segment::Interpolation {
+                        id: 1,
+                        expr: TokenStream2::new(),
+                    },
+                ],
+                else_branch: Some(vec![Segment::Interpolation {
+                    id: 2,
+                    expr: TokenStream2::new(),
+                }]),
+            },
+        }];
+
+        let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+        assert!(src.contains("__mf_hole_0"));
+        assert_eq!(map.get("__mf_hole_0"), Some(&0));
+        assert_eq!(map.len(), 1);
     }
 
     #[test]

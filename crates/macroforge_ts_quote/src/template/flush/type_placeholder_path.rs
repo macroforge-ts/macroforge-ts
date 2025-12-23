@@ -68,7 +68,7 @@ pub fn generate_type_placeholder_code(
         let mut __mf_parser = Parser::new_from(__mf_lexer);
         let __mf_module = __mf_parser
             .parse_module()
-            .expect("Failed to parse TypeScript template");
+            .unwrap_or_else(|e| panic!("Failed to parse TypeScript template: {:?}\n\nGenerated source:\n{}", e, #template_str));
 
         struct __MfSubstitutor {
             #(#visitor_fields,)*

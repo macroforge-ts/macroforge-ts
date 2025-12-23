@@ -1043,160 +1043,6 @@ fn test_body_macro_constructor_pattern() {
     }
 }
 
-/// Test the exact failing body! pattern from derive_deserialize.rs:1062
-/// Error: "TypeScript parse error: Error { error: (25..26, Unexpected { got: ".", expected: "* for generator..." }) }"
-#[test]
-fn test_exact_failing_body_pattern() {
-    use std::str::FromStr;
-    use super::build::{build_placeholder_source, PlaceholderSourceKind};
-
-    // The EXACT template from derive_deserialize.rs:1062-1067
-    let code = r#"
-        constructor(props: { @{constructor_props_str} }) {
-            {#for field in &all_fields}
-                this.@{field.field_ident} = props.@{field.field_ident}{#if field.optional} as @{field.ts_type}{:else}{/if};
-            {/for}
-        }
-    "#;
-
-    eprintln!("\n=== Testing exact failing body! pattern ===");
-    eprintln!("Input code:\n{}", code);
-
-    let tokens = TokenStream2::from_str(code).unwrap();
-    let mut ids = IdGen::new();
-    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
-
-    match result {
-        Ok((segments, _)) => {
-            eprintln!("\n=== Parsed {} segments ===", segments.len());
-
-            fn print_segment(seg: &Segment, indent: usize) {
-                let pad = "  ".repeat(indent);
-                match seg {
-                    Segment::Static(s) => {
-                        let truncated = if s.len() > 40 { format!("{}...", &s[..40]) } else { s.clone() };
-                        eprintln!("{}Static({:?})", pad, truncated);
-                    }
-                    Segment::Interpolation { id, expr, .. } => {
-                        eprintln!("{}Interpolation(id={}, expr={})", pad, id, expr);
-                    }
-                    Segment::Control { id, node } => {
-                        eprintln!("{}Control(id={}, type={:?})", pad, id, std::mem::discriminant(node));
-                        match node {
-                            ControlNode::For { body, .. } => {
-                                eprintln!("{}  For body:", pad);
-                                for s in body {
-                                    print_segment(s, indent + 2);
-                                }
-                            }
-                            ControlNode::If { then_branch, else_branch, .. } => {
-                                eprintln!("{}  If then:", pad);
-                                for s in then_branch {
-                                    print_segment(s, indent + 2);
-                                }
-                                if let Some(eb) = else_branch {
-                                    eprintln!("{}  If else:", pad);
-                                    for s in eb {
-                                        print_segment(s, indent + 2);
-                                    }
-                                }
-                            }
-                            _ => {}
-                        }
-                    }
-                    Segment::BraceBlock { id, inner } => {
-                        eprintln!("{}BraceBlock(id={}, inner={})", pad, id, inner.len());
-                        for s in inner {
-                            print_segment(s, indent + 1);
-                        }
-                    }
-                    _ => eprintln!("{}{:?}", pad, std::mem::discriminant(seg)),
-                }
-            }
-
-            for (i, seg) in segments.iter().enumerate() {
-                eprint!("  {}: ", i);
-                print_segment(seg, 0);
-            }
-
-            // Build the placeholder source to see what classification sees
-            let (src, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
-            eprintln!("\n=== Placeholder source (for classification) ===\n{:?}", src);
-            eprintln!("Map: {:?}", map);
-
-            // Try parsing as class-wrapped to see the exact error
-            let wrapped = format!("class __MfWrapper {{ {} }}", src);
-            eprintln!("\n=== Wrapped source (for class parsing) ===\n{:?}", wrapped);
-
-            // Character-by-character at positions 20-30
-            eprintln!("\nCharacter positions 20-30 in wrapped source:");
-            for (i, ch) in wrapped.chars().enumerate() {
-                if (20..=30).contains(&i) {
-                    eprintln!("  {}: {:?}", i, ch);
-                }
-            }
-
-            // Now build the template using build_template_and_bindings (which is what flush_stmt_run uses)
-            // First we need the context_map from classify_placeholders_module
-            let context_map = classify_placeholders_module(&segments)
-                .expect("classify should succeed");
-            eprintln!("\n=== Context map ===\n{:?}", context_map);
-
-            let template_result = build_template_and_bindings(segments.iter(), &context_map);
-            match template_result {
-                Ok(result) => {
-                    eprintln!("\n=== Template from build_template_and_bindings ===\n{:?}", result.template);
-                    eprintln!("\nCharacter positions 20-35 in template:");
-                    for (i, ch) in result.template.chars().enumerate() {
-                        if (20..=35).contains(&i) {
-                            eprintln!("  {}: {:?}", i, ch);
-                        }
-                    }
-                }
-                Err(e) => {
-                    eprintln!("\n=== build_template_and_bindings FAILED ===\n{}", e);
-                }
-            }
-
-            // Now compile the segments
-            let out_ident = proc_macro2::Ident::new("__mf_out", proc_macro2::Span::call_site());
-            let comments_ident = proc_macro2::Ident::new("__mf_comments", proc_macro2::Span::call_site());
-            let pending_ident = proc_macro2::Ident::new("__mf_pending", proc_macro2::Span::call_site());
-            let pos_ident = proc_macro2::Ident::new("__mf_pos", proc_macro2::Span::call_site());
-
-            let compile_result = compile_stmt_segments(
-                &segments,
-                &out_ident,
-                &comments_ident,
-                &pending_ident,
-                &pos_ident,
-            );
-
-            match compile_result {
-                Ok(code) => {
-                    eprintln!("\n=== compile_stmt_segments succeeded ===");
-                    eprintln!("Generated code length: {}", code.to_string().len());
-                    // Print first 500 chars to see structure
-                    let code_str = code.to_string();
-                    if code_str.len() > 500 {
-                        eprintln!("First 500 chars:\n{}", &code_str[..500]);
-                    } else {
-                        eprintln!("Full code:\n{}", code_str);
-                    }
-                }
-                Err(e) => {
-                    eprintln!("\n=== compile_stmt_segments FAILED ===");
-                    eprintln!("Error: {}", e);
-                    panic!("compile_stmt_segments failed: {}", e);
-                }
-            }
-        }
-        Err(e) => {
-            panic!("parse_segments failed: {}", e);
-        }
-    }
-}
-
 /// Test class body with this.@{...} pattern - the likely source of the parsing error
 #[test]
 fn test_this_dot_interpolation_pattern() {
@@ -1353,6 +1199,74 @@ fn test_deeply_nested_control_structures() {
             assert!(if_let_count >= 1, "Should have at least 1 if-let structure, found {}", if_let_count);
             let total = if_count + for_count + match_count + if_let_count;
             assert!(total >= 4, "Should have at least 4 control structures total, found {}", total);
+        }
+        Err(e) => {
+            panic!("parse_segments failed: {}", e);
+        }
+    }
+}
+
+/// Test union-style nested controls compile as statements (for loops must not be in expr context)
+#[test]
+fn test_union_deserialize_nested_controls_compile() {
+    use std::str::FromStr;
+    use crate::template::build::{build_placeholder_source, PlaceholderSourceKind};
+    use crate::template::compile::compile_stmt_segments;
+
+    let code = r#"
+        export function deserialize(value: any): Foo {
+            {#if is_literal_only}
+                const allowedValues = [@{literal_elements_str}] as const;
+                return value as @{full_type_ident};
+            {:else if is_primitive_only}
+                {#for prim in &primitive_types}
+                    if (typeof value === "@{prim}") {
+                        return value as @{full_type_ident};
+                    }
+                {/for}
+            {:else}
+                {#if has_primitives}
+                    {#for prim in &primitive_types}
+                        if (typeof value === "@{prim}") {
+                            return value as @{full_type_ident};
+                        }
+                    {/for}
+                {/if}
+            {/if}
+        }
+    "#;
+
+    let tokens = TokenStream2::from_str(code).unwrap();
+    let mut ids = IdGen::new();
+    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
+
+    match result {
+        Ok((segments, _)) => {
+            let (placeholder_source, _) =
+                build_placeholder_source(&segments, PlaceholderSourceKind::Module);
+            let out_ident = proc_macro2::Ident::new("__mf_out", proc_macro2::Span::call_site());
+            let comments_ident = proc_macro2::Ident::new("__mf_comments", proc_macro2::Span::call_site());
+            let pending_ident = proc_macro2::Ident::new("__mf_pending", proc_macro2::Span::call_site());
+            let pos_ident = proc_macro2::Ident::new("__mf_pos", proc_macro2::Span::call_site());
+
+            let compile_result = compile_stmt_segments(
+                &segments,
+                &out_ident,
+                &comments_ident,
+                &pending_ident,
+                &pos_ident,
+            );
+
+            if let Err(e) = &compile_result {
+                eprintln!("\n=== union nested control compile failed ===");
+                eprintln!("Placeholder source:\n{}", placeholder_source);
+                eprintln!("Error: {}", e);
+            }
+
+            assert!(
+                compile_result.is_ok(),
+                "Expected nested control template to compile as statements"
+            );
         }
         Err(e) => {
             panic!("parse_segments failed: {}", e);
@@ -1535,111 +1449,6 @@ fn test_serialize_template_with_doc_comments() {
                     }
                     Segment::Comment { style, text } => {
                         eprintln!("  {}: Comment({:?}, text_len={})", i, style, text.len());
-                    }
-                    _ => eprintln!("  {}: {:?}", i, std::mem::discriminant(seg)),
-                }
-            }
-
-            // Build placeholder source to see what's being parsed
-            let (placeholder_source, map) = build_placeholder_source(&segments, PlaceholderSourceKind::Module);
-            eprintln!("\n=== Placeholder source ({} bytes) ===", placeholder_source.len());
-            eprintln!("{}", placeholder_source);
-            eprintln!("\n=== Placeholder map ({} entries) ===", map.len());
-            for (name, id) in &map {
-                eprintln!("  {} -> {}", name, id);
-            }
-
-            // Try to compile
-            let out_ident = proc_macro2::Ident::new("__mf_out", proc_macro2::Span::call_site());
-            let comments_ident = proc_macro2::Ident::new("__mf_comments", proc_macro2::Span::call_site());
-            let pending_ident = proc_macro2::Ident::new("__mf_pending", proc_macro2::Span::call_site());
-            let pos_ident = proc_macro2::Ident::new("__mf_pos", proc_macro2::Span::call_site());
-
-            let compile_result = compile_stmt_segments(
-                &segments,
-                &out_ident,
-                &comments_ident,
-                &pending_ident,
-                &pos_ident,
-            );
-
-            match compile_result {
-                Ok(compiled) => {
-                    eprintln!("\n=== Successfully compiled ===");
-                    eprintln!("Generated {} tokens", compiled.to_string().len());
-                }
-                Err(e) => {
-                    eprintln!("\nFailed to compile: {}", e);
-                    panic!("compile_stmt_segments failed: {}", e);
-                }
-            }
-        }
-        Err(e) => {
-            eprintln!("\nFailed to parse segments: {}", e);
-            panic!("parse_segments failed: {}", e);
-        }
-    }
-}
-
-/// Test body! constructor pattern with for loop and inline if/else control
-/// This is the pattern from derive_deserialize.rs that was failing with TS1109
-#[test]
-fn test_body_constructor_with_inline_control() {
-    use std::str::FromStr;
-    use crate::template::build::{build_placeholder_source, PlaceholderSourceKind};
-    use crate::template::compile::compile_stmt_segments;
-
-    // Simplified version of the body! template from derive_deserialize.rs
-    let code = r#"
-        constructor(props: { @{constructor_props_str} }) {
-            {#for field in &all_fields}
-                this.@{field.field_ident} = props.@{field.field_ident}{#if field.optional} as @{field.ts_type}{:else}{/if};
-            {/for}
-        }
-
-        static deserialize(input: unknown): @{return_type_ident} {
-            try {
-                const data = typeof input === "string" ? JSON.parse(input) : input;
-                return @{success_result_expr};
-            } catch (e) {
-                return @{error_result_expr};
-            }
-        }
-    "#;
-
-    eprintln!("\n=== Testing body! constructor pattern ===");
-    eprintln!("Input code:\n{}", code);
-
-    let tokens = TokenStream2::from_str(code).unwrap();
-    let mut ids = IdGen::new();
-    let result = parse_segments(&mut tokens.into_iter().peekable(), None, &mut ids, false);
-
-    match result {
-        Ok((segments, _)) => {
-            eprintln!("\n=== Parsed {} segments ===", segments.len());
-            for (i, seg) in segments.iter().enumerate() {
-                match seg {
-                    Segment::Static(s) => {
-                        let truncated = if s.len() > 60 { format!("{}...", &s[..60]) } else { s.clone() };
-                        eprintln!("  {}: Static({:?})", i, truncated);
-                    }
-                    Segment::Interpolation { id, expr, .. } => {
-                        eprintln!("  {}: Interpolation(id={}, expr={})", i, id, expr);
-                    }
-                    Segment::Control { id, node, .. } => {
-                        match node {
-                            ControlNode::For { body, .. } => {
-                                eprintln!("  {}: Control::For(id={}, body_len={})", i, id, body.len());
-                            }
-                            ControlNode::If { then_branch, else_branch, .. } => {
-                                eprintln!("  {}: Control::If(id={}, then_len={}, has_else={})",
-                                    i, id, then_branch.len(), else_branch.is_some());
-                            }
-                            _ => eprintln!("  {}: Control(id={}, node={:?})", i, id, std::mem::discriminant(node)),
-                        }
-                    }
-                    Segment::Comment { style, text } => {
-                        eprintln!("  {}: Comment({:?}, {:?})", i, style, text);
                     }
                     _ => eprintln!("  {}: {:?}", i, std::mem::discriminant(seg)),
                 }

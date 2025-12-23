@@ -35,11 +35,13 @@ pub fn generate_binding_initializations(
     }
 
     // Generate type placeholder initializations
+    // Use ToTsTypeName trait to convert to string, which handles Ident.sym correctly
+    // and avoids including SyntaxContext markers like #0
     for tp in type_placeholders {
         let field_name = format_ident!("__mf_type_{}", tp.id);
         let expr = &tp.expr;
         output.extend(quote! {
-            let #field_name: String = (#expr).to_string();
+            let #field_name: String = macroforge_ts_syn::ToTsTypeName::to_ts_type_name(&#expr);
         });
     }
 

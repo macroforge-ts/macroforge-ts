@@ -2,12 +2,15 @@
 //!
 //! When module parsing fails, we try wrapping in a class to parse class body members.
 
-use crate::template::{quote_ts, QuoteTsResult, TemplateAndBindings};
+use super::helpers::{
+    generate_binding_initializations, generate_expr_arms, generate_ident_arms, generate_type_arms,
+    generate_visitor_components,
+};
+use crate::template::TemplateAndBindings;
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::quote;
 use swc_core::common::sync::Lrc;
-use swc_core::common::{SourceMap, SourceMapper, Spanned};
-use swc_core::ecma::ast::{ClassMember, Decl, ModuleDecl, ModuleItem, Stmt};
+use swc_core::common::SourceMap;
 
 /// Generates code for class body members by wrapping content in a class.
 ///
@@ -15,102 +18,160 @@ use swc_core::ecma::ast::{ClassMember, Decl, ModuleDecl, ModuleItem, Stmt};
 /// contains class body members like constructors or methods.
 pub fn generate_class_wrapped_code(
     template_result: &TemplateAndBindings,
-    cm: &Lrc<SourceMap>,
-    module: &swc_core::ecma::ast::Module,
+    _cm: &Lrc<SourceMap>,
+    _module: &swc_core::ecma::ast::Module,
     out_ident: &proc_macro2::Ident,
 ) -> syn::Result<TokenStream2> {
-    let mut output = TokenStream2::new();
-
-    // Find the class declaration and process its members
-    for item in &module.body {
-        if let ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export)) = item {
-            if let Decl::Class(class_decl) = &export.decl {
-                process_class_members(
-                    &class_decl.class.body,
-                    cm,
-                    template_result,
-                    out_ident,
-                    &mut output,
-                )?;
-                break;
-            }
-        } else if let ModuleItem::Stmt(Stmt::Decl(Decl::Class(class_decl))) = item {
-            process_class_members(
-                &class_decl.class.body,
-                cm,
-                template_result,
-                out_ident,
-                &mut output,
-            )?;
-            break;
-        }
-    }
-
-    Ok(output)
+    let template = format!("class __MfWrapper {{ {} }}", template_result.template);
+    Ok(generate_class_wrapped_runtime_code(
+        &template,
+        template_result,
+        out_ident,
+    ))
 }
 
-/// Processes class members, wrapping each in a temporary class for parsing.
-fn process_class_members(
-    members: &[ClassMember],
-    cm: &Lrc<SourceMap>,
+fn generate_class_wrapped_runtime_code(
+    template: &str,
     template_result: &TemplateAndBindings,
     out_ident: &proc_macro2::Ident,
-    output: &mut TokenStream2,
-) -> syn::Result<()> {
-    for member in members {
-        let snippet = cm.span_to_snippet(member.span()).map_err(|e| {
-            syn::Error::new(Span::call_site(), format!("TypeScript span error: {e:?}"))
-        })?;
-        let snippet = snippet.trim();
-        if snippet.is_empty() {
-            continue;
+) -> TokenStream2 {
+    let template_str = syn::LitStr::new(template, Span::call_site());
+    let binding_inits = generate_binding_initializations(
+        &template_result.bindings,
+        &template_result.type_placeholders,
+    );
+    let (visitor_fields, visitor_inits) =
+        generate_visitor_components(&template_result.bindings, &template_result.type_placeholders);
+    let ident_arms = generate_ident_arms(&template_result.bindings);
+    let expr_arms = generate_expr_arms(&template_result.bindings);
+    let type_arms = generate_type_arms(&template_result.type_placeholders, &quote!(swc_core));
+
+    quote! {{
+        #binding_inits
+        use swc_core::common::{FileName, SourceMap, sync::Lrc};
+        use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+        use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+        use swc_core::ecma::ast::*;
+
+        let __mf_cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
+        let __mf_fm = __mf_cm.new_source_file(
+            FileName::Custom("template.ts".into()).into(),
+            #template_str.to_string(),
+        );
+        let __mf_syntax = Syntax::Typescript(TsSyntax {
+            tsx: true,
+            decorators: true,
+            ..Default::default()
+        });
+        let __mf_lexer = Lexer::new(
+            __mf_syntax,
+            EsVersion::latest(),
+            StringInput::from(&*__mf_fm),
+            None,
+        );
+        let mut __mf_parser = Parser::new_from(__mf_lexer);
+        let mut __mf_module = __mf_parser
+            .parse_module()
+            .unwrap_or_else(|e| panic!("Failed to parse TypeScript template: {:?}\n\nGenerated source:\n{}", e, #template_str));
+
+        struct __MfSubstitutor {
+            #(#visitor_fields,)*
         }
 
-        // Wrap in a minimal class to parse as a statement
-        let wrapped_snippet = format!("class __Temp {{ {} }}", snippet);
-        let quote_ts_result = quote_ts(&wrapped_snippet, quote!(Stmt), &template_result.bindings);
-        let QuoteTsResult { bindings, expr } = quote_ts_result;
+        impl VisitMut for __MfSubstitutor {
+            fn visit_mut_ident(&mut self, ident: &mut Ident) {
+                let name = ident.sym.as_ref();
+                match name {
+                    #(#ident_arms)*
+                    _ => {}
+                }
+            }
 
-        output.extend(generate_member_extraction_code(bindings, expr, out_ident));
-    }
+            fn visit_mut_expr(&mut self, expr: &mut Expr) {
+                let replacement = if let Expr::Ident(ident) = &*expr {
+                    match ident.sym.as_ref() {
+                        #(#expr_arms)*
+                        _ => None
+                    }
+                } else {
+                    None
+                };
 
-    Ok(())
-}
+                if let Some(new_expr) = replacement {
+                    *expr = new_expr;
+                } else {
+                    expr.visit_mut_children_with(self);
+                }
+            }
 
-/// Generates code to extract a class member from a wrapper class.
-fn generate_member_extraction_code(
-    bindings: TokenStream2,
-    expr: TokenStream2,
-    out_ident: &proc_macro2::Ident,
-) -> TokenStream2 {
-    quote! {{
-        #bindings
-        let __mf_class_stmt = #expr;
-        // Extract the class member from the wrapper class
-        if let swc_core::ecma::ast::Stmt::Decl(swc_core::ecma::ast::Decl::Class(class_decl)) = __mf_class_stmt {
-            for __mf_member in class_decl.class.body {
-                // Convert ClassMember to a pseudo-statement for body injection
-                // The body! macro outputs raw source which includes class members
-                // We need to emit the member as source text
-                let __cm = swc_core::common::sync::Lrc::new(swc_core::common::SourceMap::default());
-                let mut __buf = Vec::new();
-                {
-                    use swc_core::ecma::codegen::{text_writer::JsWriter, Emitter};
-                    let mut __emitter = Emitter {
-                        cfg: swc_core::ecma::codegen::Config::default(),
-                        cm: __cm.clone(),
-                        comments: None,
-                        wr: JsWriter::new(__cm.clone(), "\n", &mut __buf, None),
-                    };
-                    // Wrap in a temp class to emit
-                    let __temp_class = swc_core::ecma::ast::ClassDecl {
-                        ident: swc_core::ecma::ast::Ident::new(
+            fn visit_mut_ts_type(&mut self, ty: &mut TsType) {
+                if let TsType::TsTypeRef(type_ref) = ty {
+                    if let TsEntityName::Ident(ident) = &type_ref.type_name {
+                        match ident.sym.as_ref() {
+                            #(#type_arms)*
+                            _ => {}
+                        }
+                    }
+                }
+                ty.visit_mut_children_with(self);
+            }
+
+            fn visit_mut_member_prop(&mut self, prop: &mut MemberProp) {
+                if let MemberProp::Ident(ident) = prop {
+                    match ident.sym.as_ref() {
+                        #(#ident_arms)*
+                        _ => {}
+                    }
+                }
+                prop.visit_mut_children_with(self);
+            }
+
+            fn visit_mut_prop_name(&mut self, prop: &mut PropName) {
+                if let PropName::Ident(ident) = prop {
+                    match ident.sym.as_ref() {
+                        #(#ident_arms)*
+                        _ => {}
+                    }
+                }
+                prop.visit_mut_children_with(self);
+            }
+        }
+
+        let mut __mf_substitutor = __MfSubstitutor {
+            #(#visitor_inits,)*
+        };
+
+        __mf_module.visit_mut_with(&mut __mf_substitutor);
+
+        for __mf_item in __mf_module.body {
+            let __mf_class_decl = match __mf_item {
+                ModuleItem::Stmt(Stmt::Decl(Decl::Class(class_decl))) => Some(class_decl),
+                ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export)) => match export.decl {
+                    Decl::Class(class_decl) => Some(class_decl),
+                    _ => None,
+                },
+                _ => None,
+            };
+
+            if let Some(__mf_class_decl) = __mf_class_decl {
+                for mut __mf_member in __mf_class_decl.class.body {
+                    // Reset syntax contexts to avoid #N suffixes in output
+                    struct __MfCtxtReset;
+                    impl VisitMut for __MfCtxtReset {
+                        fn visit_mut_ident(&mut self, ident: &mut Ident) {
+                            ident.ctxt = Default::default();
+                        }
+                    }
+                    __mf_member.visit_mut_with(&mut __MfCtxtReset);
+
+                    let __temp_class = ClassDecl {
+                        ident: Ident::new(
                             "__Temp".into(),
                             swc_core::common::DUMMY_SP,
                             Default::default(),
                         ),
                         declare: false,
-                        class: Box::new(swc_core::ecma::ast::Class {
+                        class: Box::new(Class {
                             span: swc_core::common::DUMMY_SP,
                             ctxt: Default::default(),
                             decorators: vec![],
@@ -122,29 +183,55 @@ fn generate_member_extraction_code(
                             implements: vec![],
                         }),
                     };
-
-                    __emitter
-                        .emit_class_decl(&__temp_class)
-                        .expect("Failed to emit class");
-                }
-                let __member_source = String::from_utf8(__buf).expect("UTF-8");
-                // Extract just the member part (remove "class __Temp {" and "}")
-                let __member_only = __member_source
-                    .strip_prefix("class __Temp {")
-                    .and_then(|s| s.strip_suffix("}"))
-                    .map(|s| s.trim())
-                    .unwrap_or(&__member_source);
-                // Add as raw source - the body! macro handles this
-                #out_ident.push(swc_core::ecma::ast::Stmt::Expr(swc_core::ecma::ast::ExprStmt {
-                    span: swc_core::common::DUMMY_SP,
-                    expr: Box::new(swc_core::ecma::ast::Expr::Ident(
-                        swc_core::ecma::ast::Ident::new(
+                    let __temp_item = ModuleItem::Stmt(Stmt::Decl(Decl::Class(__temp_class)));
+                    let __member_source = swc_core::ecma::codegen::to_code(&__temp_item);
+                    let __member_trimmed = __member_source.trim();
+                    let __member_only = __member_trimmed
+                        .strip_prefix("class __Temp {")
+                        .or_else(|| __member_trimmed.strip_prefix("class __Temp{"))
+                        .and_then(|s| s.strip_suffix("}"))
+                        .map(|s| s.trim())
+                        .unwrap_or(__member_trimmed);
+                    // Strip SyntaxContext markers (e.g., #0, #1) from identifiers
+                    // These are added by to_code but shouldn't appear in final output
+                    let __member_cleaned = {
+                        let mut result = String::new();
+                        let mut chars = __member_only.chars().peekable();
+                        while let Some(c) = chars.next() {
+                            if c == '#' {
+                                // Check if followed by digits
+                                let mut is_context_marker = false;
+                                let mut digits = String::new();
+                                while let Some(&next) = chars.peek() {
+                                    if next.is_ascii_digit() {
+                                        is_context_marker = true;
+                                        digits.push(chars.next().unwrap());
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                if !is_context_marker {
+                                    result.push('#');
+                                    result.push_str(&digits);
+                                }
+                                // If it was a context marker, we skip it entirely
+                            } else {
+                                result.push(c);
+                            }
+                        }
+                        result
+                    };
+                    let __member_only = __member_cleaned;
+                    #out_ident.push(Stmt::Expr(ExprStmt {
+                        span: swc_core::common::DUMMY_SP,
+                        expr: Box::new(Expr::Ident(Ident::new(
                             format!("/* @macroforge:raw */{}", __member_only).into(),
                             swc_core::common::DUMMY_SP,
                             Default::default(),
-                        )
-                    )),
-                }));
+                        ))),
+                    }));
+                }
+                break;
             }
         }
     }}
@@ -176,7 +263,10 @@ mod tests {
         assert!(result.is_ok(), "Should successfully generate code for constructor");
         let code = result.unwrap();
         let code_str = code.to_string();
-        assert!(code_str.contains("__mf_class_stmt"), "Should create class statement");
+        assert!(
+            code_str.contains("parse_module"),
+            "Should parse class wrapper at runtime"
+        );
     }
 
     #[test]
@@ -261,44 +351,6 @@ mod tests {
         let code = result.unwrap();
         let code_str = code.to_string();
         assert!(code_str.contains("__custom_out"), "Should use provided out_ident");
-    }
-
-    #[test]
-    fn test_process_class_members_empty() {
-        let members: Vec<swc_core::ecma::ast::ClassMember> = Vec::new();
-        let template_result = TemplateAndBindings {
-            template: String::new(),
-            bindings: Vec::new(),
-            type_placeholders: Vec::new(),
-        };
-        let wrapped_source = "class __Test {}";
-        let (_, cm) = parse_ts_module_with_source(wrapped_source).expect("Failed to parse");
-        let out_ident = create_test_ident("__mf_out");
-        let mut output = TokenStream2::new();
-
-        let result = process_class_members(&members, &cm, &template_result, &out_ident, &mut output);
-
-        assert!(result.is_ok(), "Should handle empty members");
-        assert!(output.is_empty(), "Should produce no output for empty members");
-    }
-
-    #[test]
-    fn test_generate_member_extraction_code() {
-        use quote::quote;
-
-        let bindings = quote! { let x = 1; };
-        let expr = quote! { my_stmt };
-        let out_ident = create_test_ident("__mf_out");
-
-        let code = generate_member_extraction_code(bindings, expr, &out_ident);
-
-        let code_str = code.to_string();
-        assert!(code_str.contains("__mf_class_stmt"), "Should create class statement variable");
-        // The code uses swc_core paths, not bare "ClassMember" string
-        assert!(code_str.contains("class_decl"), "Should handle class declaration");
-        assert!(code_str.contains("__mf_out"), "Should push to output");
-        // Check for raw marker format (may be @ macroforge or similar)
-        assert!(code_str.contains("macroforge") || code_str.contains("raw"), "Should use raw marker for output");
     }
 
     #[test]

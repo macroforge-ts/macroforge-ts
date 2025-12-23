@@ -8,16 +8,47 @@
 
 use super::class_wrapped_path::generate_class_wrapped_code;
 use super::function_wrapped_path::generate_function_wrapped_code;
-use super::standard_path::{generate_standard_code, StandardCodeContext};
+use super::standard_path::{StandardCodeContext, generate_standard_code};
 use super::type_placeholder_path::generate_type_placeholder_code;
+use crate::template::build::{PlaceholderSourceKind, build_placeholder_source};
 use crate::template::{
-    build_template_and_bindings, collect_block_compilations, collect_ident_name_ids,
-    generate_type_placeholder_fix, ident_name_fix_block, parse_ts_module_with_source,
-    PlaceholderUse, Segment,
+    PlaceholderUse, Segment, build_template_and_bindings, collect_block_compilations,
+    collect_ident_name_ids, generate_type_placeholder_fix, ident_name_fix_block,
+    parse_ts_module_with_source,
 };
-use crate::template::build::{build_placeholder_source, PlaceholderSourceKind};
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use std::collections::HashMap;
+
+fn format_parse_error_context(source: &str, err: &syn::Error) -> Option<String> {
+    let msg = err.to_string();
+    let range = msg.split("error: (").nth(1)?;
+    let mut parts = range.split("..");
+    let start: usize = parts.next()?.parse().ok()?;
+    let end_part = parts.next()?;
+    let end_str = end_part.split(',').next()?;
+    let end: usize = end_str.parse().ok()?;
+
+    let snippet_start = start.saturating_sub(40);
+    let snippet_end = (end + 40).min(source.len());
+    let snippet = source.get(snippet_start..snippet_end)?;
+    Some(format!(
+        "Parse context ({}..{}): ...{}...",
+        start, end, snippet
+    ))
+}
+
+fn validate_template_source(source: &str, label: &str) -> syn::Result<()> {
+    if let Err(err) = parse_ts_module_with_source(source) {
+        let context = format_parse_error_context(source, &err);
+        return Err(crate::template::template_error(
+            Span::call_site(),
+            &format!("TypeScript parse error in template {label}: {err}"),
+            context.as_deref(),
+        ));
+    }
+    Ok(())
+}
+
 
 /// Emits a run of statement segments as parsed SWC statements, attaching comments.
 ///
@@ -53,22 +84,55 @@ pub fn flush_stmt_run(
     let block_compilations =
         collect_block_compilations(run, context_map, comments_ident, pending_ident, pos_ident)?;
 
-    // Step 5: Route to appropriate code path
-    if !template_result.type_placeholders.is_empty() {
-        // Type placeholder path: Use runtime parsing with full TypeScript support
-        return Ok(generate_type_placeholder_code(
-            &template_result,
-            out_ident,
-            comments_ident,
-            pending_ident,
-            pos_ident,
-        ));
-    }
-
     // Build placeholder source for parsing (without $ substitution markers)
     // This is separate from the template which uses $name for quote! substitution
     let segments_vec: Vec<_> = run.iter().copied().cloned().collect();
-    let (placeholder_source, _) = build_placeholder_source(&segments_vec, PlaceholderSourceKind::Module);
+
+    // Step 5: Route to appropriate code path
+    let (placeholder_source, _) =
+        build_placeholder_source(&segments_vec, PlaceholderSourceKind::Module);
+
+    if !template_result.type_placeholders.is_empty() {
+        // Type placeholder path: Use runtime parsing with full TypeScript support
+        // Use the same fallback logic as other paths: module -> class -> function
+
+        // Try parsing as module first
+        if parse_ts_module_with_source(&placeholder_source).is_ok() {
+            validate_template_source(&template_result.template, "type-placeholder module")?;
+            return Ok(generate_type_placeholder_code(
+                &template_result,
+                out_ident,
+                comments_ident,
+                pending_ident,
+                pos_ident,
+            ));
+        }
+
+        // Try class-wrapped - use class_wrapped_path which already supports type placeholders
+        let class_wrapped_source = format!("class __MfWrapper {{ {} }}", &placeholder_source);
+        if let Ok((module, cm)) = parse_ts_module_with_source(&class_wrapped_source) {
+            let class_wrapped_template =
+                format!("class __MfWrapper {{ {} }}", &template_result.template);
+            validate_template_source(&class_wrapped_template, "type-placeholder class")?;
+            return generate_class_wrapped_code(&template_result, &cm, &module, out_ident);
+        }
+
+        // Try function-wrapped
+        let function_wrapped_source = format!("function __MfWrapper() {{ {} }}", &placeholder_source);
+        if let Ok((module, cm)) = parse_ts_module_with_source(&function_wrapped_source) {
+            let function_wrapped_template =
+                format!("function __MfWrapper() {{ {} }}", &template_result.template);
+            validate_template_source(&function_wrapped_template, "type-placeholder function")?;
+            return generate_function_wrapped_code(&template_result, &cm, &module, out_ident);
+        }
+
+        // All paths failed
+        return Err(crate::template::template_error(
+            Span::call_site(),
+            "TypeScript parse error in type-placeholder template. Could not parse as module, class body, or function body.",
+            Some(&format!("Source: {}", placeholder_source)),
+        ));
+    }
 
     // Try parsing as a module first
     let parse_result = parse_ts_module_with_source(&placeholder_source);
@@ -76,6 +140,7 @@ pub fn flush_stmt_run(
     // Route based on parsing result
     match parse_result {
         Ok((module, cm)) => {
+            validate_template_source(&template_result.template, "module")?;
             // Standard path: Normal module processing
             let ctx = StandardCodeContext {
                 cm: &cm,
@@ -92,19 +157,51 @@ pub fn flush_stmt_run(
         }
         Err(_) => {
             // Class wrapped path: Try wrapping in a class for class body members
-            let class_wrapped_source =
-                format!("class __MfWrapper {{ {} }}", &placeholder_source);
+            let class_wrapped_source = format!("class __MfWrapper {{ {} }}", &placeholder_source);
             match parse_ts_module_with_source(&class_wrapped_source) {
                 Ok((module, cm)) => {
+                    let class_wrapped_template =
+                        format!("class __MfWrapper {{ {} }}", &template_result.template);
+                    validate_template_source(&class_wrapped_template, "class")?;
                     generate_class_wrapped_code(&template_result, &cm, &module, out_ident)
                 }
-                Err(_) => {
+                Err(class_err) => {
                     // Function wrapped path: Try wrapping in a function for method body statements
                     // This handles code like `this.x = y;` which is valid inside a method body
                     let function_wrapped_source =
                         format!("function __MfWrapper() {{ {} }}", &placeholder_source);
-                    let (module, cm) = parse_ts_module_with_source(&function_wrapped_source)?;
-                    generate_function_wrapped_code(&template_result, &cm, &module, out_ident)
+                    match parse_ts_module_with_source(&function_wrapped_source) {
+                        Ok((module, cm)) => {
+                            let function_wrapped_template = format!(
+                                "function __MfWrapper() {{ {} }}",
+                                &template_result.template
+                            );
+                            validate_template_source(&function_wrapped_template, "function")?;
+                            generate_function_wrapped_code(
+                                &template_result,
+                                &cm,
+                                &module,
+                                out_ident,
+                            )
+                        }
+                        Err(func_err) => {
+                            let mut context = String::new();
+                            if let Some(snippet) =
+                                format_parse_error_context(&placeholder_source, &func_err)
+                            {
+                                context.push_str(&snippet);
+                            } else {
+                                context.push_str("Failed to parse placeholder source in module/class/function paths.");
+                            }
+                            Err(crate::template::template_error(
+                                Span::call_site(),
+                                &format!(
+                                    "TypeScript parse error: {func_err} (class parse error: {class_err})"
+                                ),
+                                Some(&context),
+                            ))
+                        }
+                    }
                 }
             }
         }
@@ -114,7 +211,7 @@ pub fn flush_stmt_run(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::template::{Segment, PlaceholderUse};
+    use crate::template::{PlaceholderUse, Segment};
     use quote::quote;
 
     fn create_test_ident(name: &str) -> proc_macro2::Ident {
@@ -140,7 +237,10 @@ mod tests {
         );
 
         // Empty run should produce empty result (not error)
-        assert!(result.is_ok() || result.is_err(), "Should handle empty segments");
+        assert!(
+            result.is_ok() || result.is_err(),
+            "Should handle empty segments"
+        );
     }
 
     #[test]
@@ -191,7 +291,10 @@ mod tests {
         let code = result.unwrap();
         let code_str = code.to_string();
         // Standard path should include __mf_stmt
-        assert!(code_str.contains("__mf_stmt") || code_str.is_empty(), "Should use standard path");
+        assert!(
+            code_str.contains("__mf_stmt") || code_str.is_empty(),
+            "Should use standard path"
+        );
     }
 
     #[test]
@@ -245,7 +348,10 @@ mod tests {
         assert!(result.is_ok(), "Should handle export statements");
         let code = result.unwrap();
         let code_str = code.to_string();
-        assert!(code_str.contains("ModuleItem") || code_str.contains("__mf_stmt"), "Should handle export");
+        assert!(
+            code_str.contains("ModuleItem") || code_str.contains("__mf_stmt"),
+            "Should handle export"
+        );
     }
 
     #[test]
@@ -269,7 +375,10 @@ mod tests {
         );
 
         // Constructor should trigger class wrapped path
-        assert!(result.is_ok(), "Should handle class body members via class wrapped path");
+        assert!(
+            result.is_ok(),
+            "Should handle class body members via class wrapped path"
+        );
     }
 
     #[test]
@@ -293,7 +402,10 @@ mod tests {
         );
 
         // this.x = 1; should trigger function wrapped path
-        assert!(result.is_ok(), "Should handle method body statements via function wrapped path");
+        assert!(
+            result.is_ok(),
+            "Should handle method body statements via function wrapped path"
+        );
     }
 
     #[test]
@@ -372,14 +484,15 @@ mod tests {
         );
 
         // Comment segments should be handled
-        assert!(result.is_ok() || result.is_err(), "Should handle comment segments");
+        assert!(
+            result.is_ok() || result.is_err(),
+            "Should handle comment segments"
+        );
     }
 
     #[test]
     fn test_flush_stmt_run_complex_typescript() {
-        let segment = Segment::Static(
-            "interface User { name: string; age: number; }".to_string()
-        );
+        let segment = Segment::Static("interface User { name: string; age: number; }".to_string());
         let run = vec![&segment];
         let context_map = HashMap::new();
         let out_ident = create_test_ident("__mf_out");
@@ -402,7 +515,7 @@ mod tests {
     #[test]
     fn test_flush_stmt_run_function_declaration() {
         let segment = Segment::Static(
-            "function add(a: number, b: number): number { return a + b; }".to_string()
+            "function add(a: number, b: number): number { return a + b; }".to_string(),
         );
         let run = vec![&segment];
         let context_map = HashMap::new();
@@ -425,9 +538,8 @@ mod tests {
 
     #[test]
     fn test_flush_stmt_run_class_declaration() {
-        let segment = Segment::Static(
-            "class User { constructor(public name: string) {} }".to_string()
-        );
+        let segment =
+            Segment::Static("class User { constructor(public name: string) {} }".to_string());
         let run = vec![&segment];
         let context_map = HashMap::new();
         let out_ident = create_test_ident("__mf_out");
