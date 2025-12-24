@@ -25,15 +25,10 @@
 //! Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 
 // Submodules
-mod build;
-mod classify;
-mod collect;
+mod comment;
 mod compile;
-mod escape;
 mod flush;
 mod parse;
-mod placeholder;
-mod quote;
 mod utils;
 
 #[cfg(test)]
@@ -42,30 +37,11 @@ mod tests;
 // Re-export the main public interface
 pub use parse::parse_template;
 
-// Re-export internal types for submodules
-pub(crate) use placeholder::TypePlaceholder;
-
-// Re-export submodule items for use by sibling submodules via `use crate::template::X`
-pub(crate) use build::{
-    build_comment_expr, build_string_interp_expr, build_template_and_bindings,
-    build_template_interp_expr,
-};
-pub(crate) use classify::{classify_placeholders_expr, classify_placeholders_module};
-pub(crate) use collect::{
-    collect_block_compilations, collect_ident_name_ids, has_type_placeholder_recursive,
-    is_type_position_suffix,
-};
-pub(crate) use compile::{compile_control_expr, compile_ident_block};
-pub(crate) use escape::{escape_tpl_segment, escape_tpl_segment_allow_dollar};
-pub(crate) use flush::flush_stmt_run;
-pub(crate) use parse::parse_ts_module_with_source;
+// Re-export submodule items that are actually used
+pub(crate) use comment::build_comment_expr;
 #[cfg(test)]
 pub(crate) use parse::parse_segments;
-pub(crate) use placeholder::{
-    generate_type_placeholder_fix, ident_name_fix_block, placeholder_name, placeholder_type_tokens,
-};
-pub(crate) use self::quote::quote_ts;
-pub(crate) use utils::{append_part, tokens_to_ts_string};
+pub(crate) use utils::tokens_to_ts_string;
 
 // External crate imports for type definitions
 use proc_macro2::{Span, TokenStream as TokenStream2};
@@ -73,8 +49,6 @@ use proc_macro2::{Span, TokenStream as TokenStream2};
 // Additional imports only needed for tests
 #[cfg(test)]
 use proc_macro2::{Delimiter, TokenTree};
-#[cfg(test)]
-use std::collections::HashMap;
 
 /// Generates unique placeholder IDs for dynamic segments.
 pub(crate) struct IdGen {
@@ -107,19 +81,15 @@ pub(crate) enum Segment {
         expr: TokenStream2,
     },
     StringInterp {
-        id: usize,
         parts: Vec<StringPart>,
     },
     TemplateInterp {
-        id: usize,
         parts: Vec<StringPart>,
     },
     IdentBlock {
-        id: usize,
         parts: Vec<IdentPart>,
     },
     Control {
-        id: usize,
         node: ControlNode,
     },
     Let {
@@ -129,21 +99,18 @@ pub(crate) enum Segment {
         expr: TokenStream2,
     },
     Typescript {
-        id: usize,
         expr: TokenStream2,
     },
     /// A nested brace block containing inner segments.
     /// Used to preserve the atomic structure of function bodies and object literals
     /// while still detecting interpolations and control flow inside.
     BraceBlock {
-        id: usize,
         inner: Vec<Segment>,
     },
     /// An object literal with properties generated from a for loop.
     /// This handles the pattern: `{ {#for (key, val) in items} @{key}: @{val}, {/for} }`
     /// The loop is compiled at Rust macro expansion time, not TypeScript runtime.
     ObjectPropLoop {
-        id: usize,
         /// The loop pattern (e.g., `(name_ident, value_expr)`)
         pat: TokenStream2,
         /// The iterator expression (e.g., `object_fields`)
@@ -213,15 +180,6 @@ pub(crate) struct MatchCase {
     pub(crate) body: Vec<Segment>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) enum PlaceholderUse {
-    Expr,
-    Ident,
-    IdentName,
-    Stmt,
-    Type,
-}
-
 #[derive(Debug, Clone)]
 pub(crate) enum Terminator {
     Else,
@@ -265,22 +223,4 @@ pub(crate) fn template_error(span: Span, message: &str, context: Option<&str>) -
         message.to_string()
     };
     syn::Error::new(span, full_message)
-}
-
-pub(crate) struct BindingSpec {
-    pub(crate) name: proc_macro2::Ident,
-    pub(crate) ty: TokenStream2,
-    pub(crate) expr: TokenStream2,
-}
-
-pub(crate) struct QuoteTsResult {
-    pub(crate) bindings: TokenStream2,
-    pub(crate) expr: TokenStream2,
-}
-
-/// Result of building template and bindings
-pub(crate) struct TemplateAndBindings {
-    pub(crate) template: String,
-    pub(crate) bindings: Vec<BindingSpec>,
-    pub(crate) type_placeholders: Vec<TypePlaceholder>,
 }

@@ -9,9 +9,6 @@ mod match_arms;
 mod segments;
 mod string_interpolation;
 mod template;
-mod ts_expr;
-mod ts_module;
-mod ts_module_with_source;
 mod while_let_loop;
 mod while_loop;
 
@@ -24,8 +21,5 @@ pub use match_arms::parse_match_arms;
 pub use segments::parse_segments;
 pub use string_interpolation::parse_string_interpolation;
 pub use template::parse_template;
-pub use ts_expr::parse_ts_expr;
-pub use ts_module::parse_ts_module;
-pub use ts_module_with_source::parse_ts_module_with_source;
 pub use while_let_loop::parse_while_let_loop;
 pub use while_loop::parse_while_loop;

@@ -1,7 +1,8 @@
 use proc_macro2::TokenStream as TokenStream2;
 
 use super::segment_dispatch::{compile_segment, should_flush_run};
-use crate::template::{classify_placeholders_module, flush_stmt_run, Segment};
+use crate::compiler::compile_segments_to_swc_ast;
+use crate::template::Segment;
 
 /// Compiles statement-level segments into Rust code that builds SWC statements.
 pub fn compile_stmt_segments(
@@ -11,16 +12,14 @@ pub fn compile_stmt_segments(
     pending_ident: &proc_macro2::Ident,
     pos_ident: &proc_macro2::Ident,
 ) -> syn::Result<TokenStream2> {
-    let context_map = classify_placeholders_module(segments)?;
     let mut output = TokenStream2::new();
     let mut run: Vec<&Segment> = Vec::new();
 
     for segment in segments {
         // Check if we need to flush the run buffer
-        if should_flush_run(segment, &context_map) && !run.is_empty() {
-            output.extend(flush_stmt_run(
+        if should_flush_run(segment) && !run.is_empty() {
+            output.extend(compile_segments_to_swc_ast(
                 &run,
-                &context_map,
                 out_ident,
                 comments_ident,
                 pending_ident,
@@ -32,7 +31,6 @@ pub fn compile_stmt_segments(
         // Compile the segment if it requires statement-level handling
         if let Some(compiled) = compile_segment(
             segment,
-            &context_map,
             out_ident,
             comments_ident,
             pending_ident,
@@ -47,9 +45,8 @@ pub fn compile_stmt_segments(
 
     // Flush any remaining segments in the run buffer
     if !run.is_empty() {
-        output.extend(flush_stmt_run(
+        output.extend(compile_segments_to_swc_ast(
             &run,
-            &context_map,
             out_ident,
             comments_ident,
             pending_ident,
@@ -115,10 +112,8 @@ mod tests {
             },
             Segment::Static(" ".to_string()),
             Segment::BraceBlock {
-                id: 3,
                 inner: vec![
                     Segment::Control {
-                        id: 4,
                         node: ControlNode::For {
                             pat: quote!(item),
                             iter: quote!(items),
@@ -288,7 +283,6 @@ mod tests {
     #[test]
     fn test_compile_stmt_segments_with_typescript_injection() {
         let segments = vec![Segment::Typescript {
-            id: 0,
             expr: quote! { my_stream },
         }];
         let (out, comments, pending, pos) = make_idents();
@@ -306,7 +300,6 @@ mod tests {
         let segments = vec![
             Segment::Static("const x = 1;".to_string()),
             Segment::Control {
-                id: 0,
                 node: ControlNode::If {
                     cond: quote! { true },
                     then_branch: vec![Segment::Static("const y = 2;".to_string())],

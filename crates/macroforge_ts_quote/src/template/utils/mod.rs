@@ -1,7 +1,7 @@
 mod object_prop_loop;
 mod tag_parsers;
 
-use crate::template::{IdGen, PlaceholderUse, Segment, TagType};
+use crate::template::{IdGen, Segment, TagType};
 use proc_macro2::{Delimiter, Group, TokenStream as TokenStream2, TokenTree};
 
 use object_prop_loop::{find_for_loop_in_segments, validate_key_value_body};
@@ -9,51 +9,6 @@ use tag_parsers::{
     try_parse_block_comment, try_parse_control_branch, try_parse_control_end,
     try_parse_control_start, try_parse_doc_comment, try_parse_ident_block, try_parse_runtime,
 };
-
-/// Assigns a precedence rank for placeholder usage kinds.
-pub(crate) fn use_rank(use_kind: &PlaceholderUse) -> usize {
-    match use_kind {
-        PlaceholderUse::Stmt => 5,
-        PlaceholderUse::Type => 4,
-        PlaceholderUse::Ident => 3,
-        PlaceholderUse::IdentName => 2,
-        PlaceholderUse::Expr => 1,
-    }
-}
-
-/// Appends a template part, inserting spaces between tokens when needed.
-pub(crate) fn append_part(out: &mut String, part: &str) {
-    if out.is_empty() {
-        out.push_str(part);
-        return;
-    }
-
-    let last_char = out.chars().last().unwrap_or(' ');
-    let first_char = part.chars().next().unwrap_or(' ');
-
-    // Don't add space if:
-    // - Last char is whitespace
-    // - First char is opening bracket (no space before)
-    // - Last char is opening bracket (no space after)
-    // - First char is closing bracket, colon, semicolon, comma, or dot (no space before)
-    // - Last char is a dot (no space after dots for member access)
-    // - For angle brackets < >, treat like parentheses to support type parameters (e.g., Record<string>)
-    let no_space_before = matches!(
-        first_char,
-        '(' | '[' | ')' | ']' | '}' | ':' | ';' | ',' | '.' | '<' | '>' | '?'
-    );
-    let no_space_after = matches!(last_char, '(' | '[' | '.' | '<' | '?');
-
-    let needs_space = !last_char.is_whitespace()
-        && !first_char.is_whitespace()
-        && !no_space_before
-        && !no_space_after;
-
-    if needs_space {
-        out.push(' ');
-    }
-    out.push_str(part);
-}
 
 /// Converts a token stream into a TypeScript-like string.
 pub(crate) fn tokens_to_ts_string(tokens: TokenStream2) -> String {
@@ -206,7 +161,7 @@ pub(crate) fn unescape_string(s: &str) -> String {
 /// Returns `Some(ObjectPropLoop)` if the pattern is detected, `None` otherwise.
 pub(crate) fn try_extract_object_prop_loop(
     inner_segments: &[Segment],
-    ids: &mut IdGen,
+    _ids: &mut IdGen,
 ) -> Option<Segment> {
     // Find the for loop control node
     let (pat, iter, body) = find_for_loop_in_segments(inner_segments)?;
@@ -214,9 +169,7 @@ pub(crate) fn try_extract_object_prop_loop(
     // Validate the body matches the key-value property pattern
     let (key_expr, value_expr) = validate_key_value_body(&body)?;
 
-    let id = ids.next();
     Some(Segment::ObjectPropLoop {
-        id,
         pat,
         iter,
         key_expr,
@@ -282,111 +235,6 @@ mod tests {
             unescape_string("line1\\nline2\\ttab\\r\\0null\\\\backslash\\\"quote"),
             "line1\nline2\ttab\r\0null\\backslash\"quote"
         );
-    }
-
-    #[test]
-    fn test_append_part_empty_buffer() {
-        let mut out = String::new();
-        append_part(&mut out, "hello");
-        assert_eq!(out, "hello");
-    }
-
-    #[test]
-    fn test_append_part_space_between_words() {
-        let mut out = String::from("hello");
-        append_part(&mut out, "world");
-        assert_eq!(out, "hello world");
-    }
-
-    #[test]
-    fn test_append_part_no_space_before_open_paren() {
-        let mut out = String::from("func");
-        append_part(&mut out, "(");
-        assert_eq!(out, "func(");
-    }
-
-    #[test]
-    fn test_append_part_no_space_before_open_bracket() {
-        let mut out = String::from("arr");
-        append_part(&mut out, "[");
-        assert_eq!(out, "arr[");
-    }
-
-    #[test]
-    fn test_append_part_no_space_after_open_paren() {
-        let mut out = String::from("(");
-        append_part(&mut out, "arg");
-        assert_eq!(out, "(arg");
-    }
-
-    #[test]
-    fn test_append_part_no_space_after_open_bracket() {
-        let mut out = String::from("[");
-        append_part(&mut out, "1");
-        assert_eq!(out, "[1");
-    }
-
-    #[test]
-    fn test_append_part_no_space_before_close_paren() {
-        let mut out = String::from("arg");
-        append_part(&mut out, ")");
-        assert_eq!(out, "arg)");
-    }
-
-    #[test]
-    fn test_append_part_no_space_before_close_bracket() {
-        let mut out = String::from("1");
-        append_part(&mut out, "]");
-        assert_eq!(out, "1]");
-    }
-
-    #[test]
-    fn test_append_part_no_space_before_close_brace() {
-        let mut out = String::from("x");
-        append_part(&mut out, "}");
-        assert_eq!(out, "x}");
-    }
-
-    #[test]
-    fn test_append_part_no_space_before_colon() {
-        let mut out = String::from("key");
-        append_part(&mut out, ":");
-        assert_eq!(out, "key:");
-    }
-
-    #[test]
-    fn test_append_part_no_space_before_semicolon() {
-        let mut out = String::from("x");
-        append_part(&mut out, ";");
-        assert_eq!(out, "x;");
-    }
-
-    #[test]
-    fn test_append_part_no_space_before_comma() {
-        let mut out = String::from("a");
-        append_part(&mut out, ",");
-        assert_eq!(out, "a,");
-    }
-
-    #[test]
-    fn test_append_part_no_space_before_dot() {
-        let mut out = String::from("obj");
-        append_part(&mut out, ".");
-        assert_eq!(out, "obj.");
-    }
-
-    #[test]
-    fn test_append_part_no_space_after_dot() {
-        let mut out = String::from(".");
-        append_part(&mut out, "prop");
-        assert_eq!(out, ".prop");
-    }
-
-    #[test]
-    fn test_append_part_whitespace_handling() {
-        let mut out = String::from("hello ");
-        append_part(&mut out, "world");
-        assert_eq!(out, "hello world");
     }
 
     #[test]
@@ -505,28 +353,4 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_use_rank_expr() {
-        assert_eq!(use_rank(&PlaceholderUse::Expr), 1);
-    }
-
-    #[test]
-    fn test_use_rank_ident_name() {
-        assert_eq!(use_rank(&PlaceholderUse::IdentName), 2);
-    }
-
-    #[test]
-    fn test_use_rank_ident() {
-        assert_eq!(use_rank(&PlaceholderUse::Ident), 3);
-    }
-
-    #[test]
-    fn test_use_rank_type() {
-        assert_eq!(use_rank(&PlaceholderUse::Type), 4);
-    }
-
-    #[test]
-    fn test_use_rank_stmt() {
-        assert_eq!(use_rank(&PlaceholderUse::Stmt), 5);
-    }
 }

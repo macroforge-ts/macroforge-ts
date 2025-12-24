@@ -43,7 +43,6 @@ pub fn parse_if_let_chain(
         }
         Some(Terminator::ElseIf(next_cond)) => {
             let else_branch = vec![Segment::Control {
-                id: ids.next(),
                 node: parse_if_chain(iter, next_cond, span, ids)?,
             }];
             Ok(ControlNode::IfLet {

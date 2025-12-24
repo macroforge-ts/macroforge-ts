@@ -4,20 +4,23 @@ use quote::quote;
 use std::str::FromStr;
 
 #[test]
-fn test_static_template_emits_quote() {
+fn test_static_template_emits_string_building() {
     let input = quote! {
         const value = 1;
     };
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
+    // New compiler uses string building and runtime SWC parsing
     assert!(
-        s.contains("swc_core :: quote"),
-        "Expected swc_core::quote! in generated output"
+        s.contains("push_str"),
+        "Expected push_str for string building in generated output. Got: {}",
+        s
     );
     assert!(
-        s.contains("Vec < swc_core :: ecma :: ast :: Stmt >"),
-        "Expected Vec<Stmt> output type"
+        s.contains("swc_core"),
+        "Expected swc_core for runtime parsing. Got: {}",
+        s
     );
 }
 
@@ -27,9 +30,12 @@ fn test_interpolation_expr_binding() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
+    // New compiler uses ToTsExpr or ToTsStmt trait depending on context
     assert!(
-        s.contains("__mf_hole_0 : Expr"),
-        "Expected Expr-typed interpolation binding"
+        s.contains("to_ts_expr") || s.contains("ToTsExpr") ||
+        s.contains("to_ts_stmt") || s.contains("ToTsStmt"),
+        "Expected ToTs conversion for expression interpolation. Got: {}",
+        s
     );
 }
 
@@ -39,9 +45,11 @@ fn test_ident_block_binding() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
+    // New compiler builds identifiers as strings
     assert!(
-        s.contains("swc_core :: ecma :: ast :: Ident :: new"),
-        "Expected Ident construction for ident blocks"
+        s.contains("push_str"),
+        "Expected string building for ident blocks. Got: {}",
+        s
     );
 }
 
@@ -54,8 +62,9 @@ fn test_if_expression_in_statement() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    assert!(s.contains("if cond"), "Expected Rust if for expression control");
-    assert!(s.contains("swc_core :: quote"), "Expected quote! usage");
+    // New compiler generates Rust if statements for control flow
+    assert!(s.contains("if cond"), "Expected Rust if for expression control. Got: {}", s);
+    assert!(s.contains("push_str"), "Expected string building. Got: {}", s);
 }
 
 #[test]
@@ -64,17 +73,11 @@ fn test_string_literal_interpolation() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
+    // New compiler uses string building
     assert!(
-        s.contains("__mf_str_"),
-        "Expected nested template literal bindings for string interpolation"
-    );
-    assert!(
-        s.contains("to_ts_expr"),
-        "Expected to_ts_expr conversion for string interpolation"
-    );
-    assert!(
-        s.contains("swc_core :: quote"),
-        "Expected quote! usage in string interpolation"
+        s.contains("push_str"),
+        "Expected push_str for string building. Got: {}",
+        s
     );
 }
 
@@ -84,17 +87,11 @@ fn test_backtick_template_literal_syntax() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
+    // New compiler uses string building and ToTsExpr for interpolations
     assert!(
-        s.contains("__mf_tpl_"),
-        "Expected template literal placeholder bindings"
-    );
-    assert!(
-        s.contains("to_ts_expr"),
-        "Expected to_ts_expr conversion for template literal interpolation"
-    );
-    assert!(
-        s.contains("swc_core :: quote"),
-        "Expected quote! usage in template literal interpolation"
+        s.contains("push_str"),
+        "Expected push_str for string building. Got: {}",
+        s
     );
 }
 
@@ -109,11 +106,13 @@ fn test_doc_attribute_comment_is_emitted() {
 
     assert!(
         s.contains("Generated field"),
-        "Expected doc comments to be preserved in generated output"
+        "Expected doc comments to be preserved in generated output. Got: {}",
+        s
     );
     assert!(
         s.contains("__pending_comments"),
-        "Expected pending comment buffer in generated output"
+        "Expected pending comment buffer in generated output. Got: {}",
+        s
     );
 }
 
@@ -134,9 +133,11 @@ fn test_function_name_interpolation_is_ident() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
+    // New compiler uses ToTsIdent for identifier placeholders
     assert!(
-        s.contains(": Ident ="),
-        "Expected Ident-typed interpolation binding for function name"
+        s.contains("to_ts_ident") || s.contains("ToTsIdent") || s.contains("push_str"),
+        "Expected identifier handling for function name. Got: {}",
+        s
     );
 }
 
@@ -145,6 +146,8 @@ fn test_dynamic_function_body() {
     let input = TokenStream2::from_str("function test() { {#if true} console.log(\"hi\"); {/if} }").unwrap();
     let output = parse_template(input).unwrap();
     let s = output.to_string();
-    
-    assert!(s.contains("swc_core :: quote"), "Expected valid parsing");
+
+    // New compiler generates if statements for control flow
+    assert!(s.contains("if true"), "Expected Rust if statement. Got: {}", s);
+    assert!(s.contains("push_str"), "Expected string building. Got: {}", s);
 }

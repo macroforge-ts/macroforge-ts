@@ -44,6 +44,7 @@
 //!
 //! [`TsStream`]: macroforge_ts::ts_syn::TsStream
 
+mod compiler;
 mod template;
 #[cfg(test)]
 mod test;

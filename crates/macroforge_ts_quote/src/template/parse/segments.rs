@@ -64,17 +64,13 @@ pub fn parse_segments(
                 if let Some(parts) = parse_backtick_template(lit)? {
                     iter.next();
                     flush_static(&mut segments, &mut static_tokens);
-                    let id = ids.next();
                     segments.push(Segment::TemplateInterp {
-                        id,
                         parts,
                     });
                 } else if let Some(parts) = parse_string_interpolation(lit)? {
                     iter.next();
                     flush_static(&mut segments, &mut static_tokens);
-                    let id = ids.next();
                     segments.push(Segment::StringInterp {
-                        id,
                         parts,
                     });
                 } else {
@@ -114,15 +110,13 @@ pub fn parse_segments(
                         iter.next();
                         flush_static(&mut segments, &mut static_tokens);
                         let node = parse_if_chain(iter, cond, span, ids)?;
-                        let id = ids.next();
-                        segments.push(Segment::Control { id, node });
+                        segments.push(Segment::Control { node });
                     }
                     TagType::IfLet(pattern, expr) => {
                         iter.next();
                         flush_static(&mut segments, &mut static_tokens);
                         let node = parse_if_let_chain(iter, pattern, expr, span, ids)?;
-                        let id = ids.next();
-                        segments.push(Segment::Control { id, node });
+                        segments.push(Segment::Control { node });
                     }
                     TagType::For(pat, iter_expr) => {
                         iter.next();
@@ -136,9 +130,7 @@ pub fn parse_segments(
                                 Some("{#for item in collection}..."),
                             ));
                         }
-                        let id = ids.next();
                         segments.push(Segment::Control {
-                            id,
                             node: ControlNode::For {
                                 pat,
                                 iter: iter_expr,
@@ -150,22 +142,19 @@ pub fn parse_segments(
                         iter.next();
                         flush_static(&mut segments, &mut static_tokens);
                         let node = parse_match_arms(iter, expr, span, ids)?;
-                        let id = ids.next();
-                        segments.push(Segment::Control { id, node });
+                        segments.push(Segment::Control { node });
                     }
                     TagType::While(cond) => {
                         iter.next();
                         flush_static(&mut segments, &mut static_tokens);
                         let node = parse_while_loop(iter, cond, span, ids)?;
-                        let id = ids.next();
-                        segments.push(Segment::Control { id, node });
+                        segments.push(Segment::Control { node });
                     }
                     TagType::WhileLet(pattern, expr) => {
                         iter.next();
                         flush_static(&mut segments, &mut static_tokens);
                         let node = parse_while_let_loop(iter, pattern, expr, span, ids)?;
-                        let id = ids.next();
-                        segments.push(Segment::Control { id, node });
+                        segments.push(Segment::Control { node });
                     }
                     TagType::Else => {
                         if let Some(stops) = stop_at
@@ -258,15 +247,13 @@ pub fn parse_segments(
                     TagType::Typescript(expr) => {
                         iter.next();
                         flush_static(&mut segments, &mut static_tokens);
-                        let id = ids.next();
-                        segments.push(Segment::Typescript { id, expr });
+                        segments.push(Segment::Typescript { expr });
                     }
                     TagType::IdentBlock => {
                         iter.next();
                         flush_static(&mut segments, &mut static_tokens);
                         let parts = parse_ident_block_parts(g)?;
-                        let id = ids.next();
-                        segments.push(Segment::IdentBlock { id, parts });
+                        segments.push(Segment::IdentBlock { parts });
                     }
                     TagType::DocComment(content) => {
                         iter.next();
@@ -311,9 +298,7 @@ pub fn parse_segments(
                             {
                                 segments.push(obj_prop_loop);
                             } else {
-                                let id = ids.next();
                                 segments.push(Segment::BraceBlock {
-                                    id,
                                     inner: inner_segments,
                                 });
                             }
