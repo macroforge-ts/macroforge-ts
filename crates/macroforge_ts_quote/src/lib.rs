@@ -182,11 +182,11 @@ fn parse_position(
 
             // Check if remaining starts with a brace group
             let mut remaining_iter = remaining.into_iter();
-            if let Some(proc_macro2::TokenTree::Group(group)) = remaining_iter.next() {
-                if group.delimiter() == proc_macro2::Delimiter::Brace {
-                    // Return the position and the contents of the brace group
-                    return Ok((pos, group.stream()));
-                }
+            if let Some(proc_macro2::TokenTree::Group(group)) = remaining_iter.next()
+                && group.delimiter() == proc_macro2::Delimiter::Brace
+            {
+                // Return the position and the contents of the brace group
+                return Ok((pos, group.stream()));
             }
 
             // Position keyword without braces - error
@@ -233,11 +233,11 @@ fn ts_template_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2:
         // Parse the template body normally for non-class-body content
         let template_code = parse_template(body)?;
 
-        // The template_code generates: (__stmts, __patches, __comments)
-        // We need to wrap this in TsStream construction
+        // The template_code generates: (__stmts, __patches, __comments, __injected_streams)
+        // We need to wrap this in TsStream construction and merge any injected streams
         Ok(quote! {
             {
-                let (__stmts, __patches, __comments) = #template_code;
+                let (__stmts, mut __patches, __comments, __injected_streams) = #template_code;
 
                 // Build source from AST
                 let __source = macroforge_ts::ts_syn::emit_module_items(&__stmts, &__comments);
@@ -245,6 +245,12 @@ fn ts_template_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2:
                 // Create TsStream with position
                 let mut __stream = macroforge_ts::ts_syn::TsStream::with_insert_pos(__source, #insert_pos);
                 __stream.runtime_patches = __patches;
+
+                // Merge any injected TsStreams (from {$typescript} directives)
+                for __injected in __injected_streams {
+                    __stream = __stream.merge(__injected);
+                }
+
                 __stream
             }
         })

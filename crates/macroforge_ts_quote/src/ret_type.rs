@@ -2,7 +2,7 @@ use std::any::type_name;
 
 use anyhow::{anyhow, bail, Context, Error};
 use swc_core::common::{sync::Lrc, FileName, SourceMap};
-use swc_core::ecma::ast::{AssignTarget, Decl, EsVersion, ModuleDecl, ModuleItem, PropOrSpread, Stmt};
+use swc_core::ecma::ast::{AssignTarget, Decl, EsVersion, ModuleDecl, ModuleItem, Stmt};
 use swc_core::ecma::parser::{lexer::Lexer, PResult, Parser, StringInput, Syntax, TsSyntax};
 use syn::{GenericArgument, PathArguments, Type};
 
@@ -44,6 +44,7 @@ pub(crate) fn parse_input_type(input_str: &str, ty: &Type) -> Result<BoxWrapper,
                 return parse_assign_target(input_str);
             }
             "ModuleItem" => return parse(input_str, &mut |p| p.parse_module_item()),
+            "Module" => return parse(input_str, &mut |p| p.parse_module()),
             "TsType" => return parse_ts_type(input_str),
             "PropOrSpread" => return parse_prop_or_spread(input_str),
             _ => {}
@@ -70,10 +71,32 @@ where
         None,
     );
     let mut parser = Parser::new_from(lexer);
-    op(&mut parser)
+    let result = op(&mut parser)
         .map_err(|err| anyhow!("{err:?}"))
-        .with_context(|| format!("failed to parse input as `{}`", type_name::<T>()))
-        .map(|val| BoxWrapper(Box::new(val)))
+        .with_context(|| format!("failed to parse input as `{}`", type_name::<T>()));
+
+    // Debug: write failures to logs directory for inspection
+    if result.is_err() {
+        use std::io::Write;
+        static COUNTER: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+        let count = COUNTER.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let logs_dir = format!("{}/logs", env!("CARGO_MANIFEST_DIR"));
+        let _ = std::fs::create_dir_all(&logs_dir);
+        let filename = format!(
+            "{}/malformed_{:03}_{}.ts",
+            logs_dir,
+            count,
+            type_name::<T>().split("::").last().unwrap_or("unknown")
+        );
+        if let Ok(mut file) = std::fs::File::create(&filename) {
+            let _ = writeln!(file, "// Failed to parse as: {}", type_name::<T>());
+            let _ = writeln!(file, "// Error: {:?}", result.as_ref().err());
+            let _ = writeln!(file);
+            let _ = write!(file, "{}", input_str);
+        }
+    }
+
+    result.map(|val| BoxWrapper(Box::new(val)))
 }
 
 /// Parse an assign target pattern.

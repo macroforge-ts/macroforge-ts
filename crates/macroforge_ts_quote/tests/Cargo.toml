@@ -3,6 +3,10 @@ name = "compile_time_parser_external_tester"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "expand_closure"
+path = "expand_closure.rs"
+
 [dependencies]
 macroforge_ts_quote = { path = ".." }
 macroforge_ts_syn = { path = "../../macroforge_ts_syn" }

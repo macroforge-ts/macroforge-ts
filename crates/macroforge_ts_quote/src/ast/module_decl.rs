@@ -1,5 +1,8 @@
 use swc_core::ecma::ast::*;
 
+// Module is the top-level container for a TypeScript/JavaScript file
+impl_struct!(Module, [span, body, shebang]);
+
 impl_enum!(
     ModuleDecl,
     [

@@ -35,6 +35,61 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::cell::Cell;
 
+/// Debug logging for template transformations.
+/// Writes .ts files to the logs directory showing both original and transformed templates.
+#[cfg(debug_assertions)]
+mod debug_log {
+    use std::io::Write;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    static LOG_COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+    /// Logs a template transformation to a .ts file for debugging.
+    pub fn log_template_transform(
+        original_template: &str,
+        transformed_template: &str,
+        parse_context: &str,
+        brace_balance: &str,
+        transform_type: &str, // e.g., "virtual_completion_closer", "balanced_split", etc.
+        placeholders: &[(String, super::PlaceholderKind, String)],
+    ) {
+        if std::env::var("MF_DEBUG_CODEGEN").is_err() {
+            return;
+        }
+
+        let count = LOG_COUNTER.fetch_add(1, Ordering::SeqCst);
+        let logs_dir = format!("{}/logs", env!("CARGO_MANIFEST_DIR"));
+        let _ = std::fs::create_dir_all(&logs_dir);
+
+        let filename = format!("{}/transform_{:04}_{}.ts", logs_dir, count, transform_type);
+
+        if let Ok(mut file) = std::fs::File::create(&filename) {
+            let _ = writeln!(file, "// ============================================================");
+            let _ = writeln!(file, "// TEMPLATE TRANSFORMATION LOG #{}", count);
+            let _ = writeln!(file, "// ============================================================");
+            let _ = writeln!(file, "// Transform Type: {}", transform_type);
+            let _ = writeln!(file, "// Parse Context: {}", parse_context);
+            let _ = writeln!(file, "// Brace Balance: {}", brace_balance);
+            let _ = writeln!(file, "//");
+            let _ = writeln!(file, "// Placeholders:");
+            for (name, kind, expr) in placeholders {
+                let _ = writeln!(file, "//   ${}: {:?} = {}", name, kind, expr);
+            }
+            let _ = writeln!(file, "// ============================================================");
+            let _ = writeln!(file);
+            let _ = writeln!(file, "// ORIGINAL TEMPLATE:");
+            let _ = writeln!(file, "// -------------------");
+            for line in original_template.lines() {
+                let _ = writeln!(file, "// {}", line);
+            }
+            let _ = writeln!(file);
+            let _ = writeln!(file, "// TRANSFORMED (passed to ts_quote!):");
+            let _ = writeln!(file, "// ------------------------------------");
+            let _ = writeln!(file, "{}", transformed_template);
+        }
+    }
+}
+
 /// Parse context - determines what AST node type to parse as.
 ///
 /// When template code is split by control flow, each chunk needs to know
@@ -55,6 +110,303 @@ pub enum ParseContext {
     ClassBody,
     /// Type object literal `{ prop: Type }` - expects TsPropertySignature
     TypeObjectLiteral,
+}
+
+// ============================================================================
+// CONTEXT-FIRST ARCHITECTURE
+// ============================================================================
+//
+// The core principle: Context is the primary organizing structure.
+// Brace "balance" is implicit in the context stack depth.
+//
+// Every operation is either:
+// 1. Push context (on `{` or `[`)
+// 2. Pop context (on `}` or `]`)
+// 3. Match on current context to decide handling
+//
+// ============================================================================
+
+/// A span of template text with its context and depth information.
+#[derive(Debug, Clone)]
+struct ContextSpan {
+    /// The text content of this span
+    text: String,
+    /// The context this span should be parsed in
+    context: ParseContext,
+    /// Depth relative to starting context:
+    /// - negative = closer (we've popped contexts)
+    /// - zero = same level as start
+    /// - positive = opener (we've pushed contexts)
+    start_depth: i32,
+    /// Depth at end of this span
+    end_depth: i32,
+    /// Byte offset in original template where this span starts
+    start_offset: usize,
+    /// Byte offset in original template where this span ends
+    end_offset: usize,
+}
+
+impl ContextSpan {
+    /// Returns true if this span closes contexts (ends shallower than it starts)
+    fn is_closer(&self) -> bool {
+        self.end_depth < self.start_depth
+    }
+
+    /// Returns true if this span opens contexts (ends deeper than it starts)
+    fn is_opener(&self) -> bool {
+        self.end_depth > self.start_depth
+    }
+
+    /// Returns true if this span is balanced (same depth at start and end)
+    fn is_balanced(&self) -> bool {
+        self.end_depth == self.start_depth
+    }
+
+    /// Number of contexts closed by this span
+    fn closes_count(&self) -> i32 {
+        (self.start_depth - self.end_depth).max(0)
+    }
+
+    /// Number of contexts opened by this span
+    fn opens_count(&self) -> i32 {
+        (self.end_depth - self.start_depth).max(0)
+    }
+}
+
+/// Context stack that tracks where we are in the template.
+///
+/// This is the PRIMARY data structure for template processing.
+/// Brace balance is implicit in stack depth relative to starting depth.
+#[derive(Debug, Clone)]
+struct ContextStack {
+    /// Stack of contexts, with Module at the bottom
+    stack: Vec<ParseContext>,
+    /// The depth when we started (to compute relative depth)
+    starting_depth: usize,
+}
+
+impl ContextStack {
+    /// Create a new context stack starting in the given context.
+    fn new(starting_context: ParseContext) -> Self {
+        let mut stack = vec![ParseContext::Module];
+        if starting_context != ParseContext::Module {
+            stack.push(starting_context);
+        }
+        let starting_depth = stack.len();
+        Self { stack, starting_depth }
+    }
+
+    /// Get the current (innermost) context.
+    fn current(&self) -> ParseContext {
+        *self.stack.last().unwrap_or(&ParseContext::Module)
+    }
+
+    /// Push a new context onto the stack.
+    fn push(&mut self, ctx: ParseContext) {
+        self.stack.push(ctx);
+    }
+
+    /// Pop a context from the stack. Returns the popped context.
+    /// Never pops below Module level.
+    fn pop(&mut self) -> Option<ParseContext> {
+        if self.stack.len() > 1 {
+            self.stack.pop()
+        } else {
+            None
+        }
+    }
+
+    /// Depth relative to starting depth.
+    /// - Negative = we've closed more than we've opened (closer)
+    /// - Zero = same depth as start
+    /// - Positive = we've opened more than we've closed (opener)
+    fn relative_depth(&self) -> i32 {
+        self.stack.len() as i32 - self.starting_depth as i32
+    }
+
+    /// Returns true if we're at module level (stack only has Module)
+    fn at_module_level(&self) -> bool {
+        self.stack.len() == 1
+    }
+
+    /// Scan a template and split it into context-aware spans.
+    ///
+    /// This is the core algorithm: we scan character by character,
+    /// pushing/popping context on braces, and split whenever we
+    /// transition to module level with module-level content following.
+    fn scan_template(&mut self, template: &str) -> Vec<ContextSpan> {
+        let mut spans = Vec::new();
+        let mut current_span_start = 0;
+        let mut current_span_start_depth = self.relative_depth();
+        // Track the actual context at the start of the current span
+        let mut current_span_context = self.current();
+
+        let mut in_string = false;
+        let mut string_char = '"';
+        let mut escape_next = false;
+
+        let chars: Vec<char> = template.chars().collect();
+        let len = chars.len();
+        let mut byte_pos = 0;
+        let mut i = 0;
+
+        while i < len {
+            let ch = chars[i];
+            let char_byte_len = ch.len_utf8();
+
+            if escape_next {
+                escape_next = false;
+                byte_pos += char_byte_len;
+                i += 1;
+                continue;
+            }
+
+            if ch == '\\' {
+                escape_next = true;
+                byte_pos += char_byte_len;
+                i += 1;
+                continue;
+            }
+
+            if in_string {
+                if ch == string_char {
+                    in_string = false;
+                }
+                byte_pos += char_byte_len;
+                i += 1;
+                continue;
+            }
+
+            match ch {
+                '"' | '\'' | '`' => {
+                    in_string = true;
+                    string_char = ch;
+                }
+                '{' => {
+                    // Classify what kind of context this brace opens
+                    let new_context = Self::classify_open_brace(&chars, i);
+                    self.push(new_context);
+                }
+                '}' => {
+                    // Check if we're about to pop BELOW starting depth (to actual Module level)
+                    let was_at_depth = self.relative_depth();
+                    self.pop();
+                    let now_at_depth = self.relative_depth();
+
+                    // Only split if we've gone BELOW starting depth (negative relative depth)
+                    // This means we've closed more braces than we've opened relative to start
+                    // AND we're now actually at module level in the stack
+                    if now_at_depth < 0 && was_at_depth >= 0 && self.at_module_level() {
+                        // Look ahead for module-level content
+                        let remaining = &template[byte_pos + char_byte_len..];
+                        if Self::has_module_level_content(remaining) {
+                            // Split here! End current span after the `}`
+                            let span_end = byte_pos + char_byte_len;
+                            if span_end > current_span_start {
+                                spans.push(ContextSpan {
+                                    text: template[current_span_start..span_end].to_string(),
+                                    context: current_span_context,
+                                    start_depth: current_span_start_depth,
+                                    end_depth: now_at_depth,
+                                    start_offset: current_span_start,
+                                    end_offset: span_end,
+                                });
+                            }
+                            // Start new span at module level
+                            current_span_start = span_end;
+                            current_span_start_depth = now_at_depth;
+                            current_span_context = ParseContext::Module;
+                        }
+                    }
+                }
+                '[' => {
+                    self.push(ParseContext::ArrayLiteral);
+                }
+                ']' => {
+                    if self.current() == ParseContext::ArrayLiteral {
+                        self.pop();
+                    }
+                }
+                _ => {}
+            }
+
+            byte_pos += char_byte_len;
+            i += 1;
+        }
+
+        // Push final span using the tracked context
+        if byte_pos > current_span_start || spans.is_empty() {
+            spans.push(ContextSpan {
+                text: template[current_span_start..].to_string(),
+                context: current_span_context,
+                start_depth: current_span_start_depth,
+                end_depth: self.relative_depth(),
+                start_offset: current_span_start,
+                end_offset: template.len(),
+            });
+        }
+
+        spans
+    }
+
+    /// Classify what context an opening brace introduces.
+    fn classify_open_brace(chars: &[char], brace_pos: usize) -> ParseContext {
+        // Look backwards to determine context
+        let before: String = chars[..brace_pos].iter().collect();
+        let trimmed = before.trim_end();
+
+        // Object literal patterns: `= {`, `return {`, `: {`, `( {`, `[ {`, `, {`
+        if trimmed.ends_with('=')
+            || trimmed.ends_with("return")
+            || trimmed.ends_with(':')
+            || trimmed.ends_with('(')
+            || trimmed.ends_with('[')
+            || trimmed.ends_with(',')
+            || trimmed.ends_with("=>")
+        {
+            return ParseContext::ObjectLiteral;
+        }
+
+        // Type object: `type X = {`, `interface X {`
+        if trimmed.contains("type ") && trimmed.ends_with('=') {
+            return ParseContext::TypeObjectLiteral;
+        }
+
+        // Class body: `class X {`, `class X extends Y {`
+        if trimmed.contains("class ") {
+            return ParseContext::ClassBody;
+        }
+
+        // Function body: `function`, `) {`, `=> {` (arrow already handled above for objects)
+        if trimmed.ends_with(')')
+            || trimmed.contains("function ")
+            || trimmed.contains("function(")
+        {
+            return ParseContext::FunctionBody;
+        }
+
+        // Default to function body for blocks like `if {`, `else {`, `for {`
+        ParseContext::FunctionBody
+    }
+
+    /// Check if the remaining text starts with module-level content.
+    fn has_module_level_content(text: &str) -> bool {
+        let trimmed = text.trim_start();
+        trimmed.starts_with("export ")
+            || trimmed.starts_with("import ")
+            || trimmed.starts_with("function ")
+            || trimmed.starts_with("class ")
+            || trimmed.starts_with("interface ")
+            || trimmed.starts_with("type ")
+            || trimmed.starts_with("enum ")
+            || trimmed.starts_with("const ")
+            || trimmed.starts_with("let ")
+            || trimmed.starts_with("var ")
+            || trimmed.starts_with("declare ")
+            || trimmed.starts_with("abstract ")
+            || trimmed.starts_with("async function")
+            || trimmed.starts_with("namespace ")
+    }
 }
 
 impl ParseContext {
@@ -128,6 +480,9 @@ struct ContextAnalysis {
     /// Stack of contexts introduced by unclosed braces in this chunk.
     /// Used to properly close contexts when matching `}` or `]` are found.
     context_stack: Vec<ParseContext>,
+    /// Number of closes that escaped beyond the starting context.
+    /// When this is > 0, we've returned to Module level.
+    escaped_closes: i32,
 }
 
 impl Default for ContextAnalysis {
@@ -135,6 +490,7 @@ impl Default for ContextAnalysis {
         Self {
             inner_context: ParseContext::Module,
             context_stack: Vec::new(),
+            escaped_closes: 0,
         }
     }
 }
@@ -147,11 +503,21 @@ impl ContextAnalysis {
     /// - `[` → ArrayLiteral
     /// - `function foo() {` or `=> {` → FunctionBody
     /// - `class Foo {` → ClassBody
+    ///
+    /// Also tracks when closes escape beyond the starting context,
+    /// which means we've returned to Module level.
     fn analyze(template: &str, starting_context: ParseContext) -> Self {
-        let mut context_stack: Vec<ParseContext> = vec![starting_context];
+        // Start with Module as the base, then push the starting context on top
+        // This allows us to properly pop back to Module when closes escape
+        let mut context_stack: Vec<ParseContext> = vec![ParseContext::Module];
+        if starting_context != ParseContext::Module {
+            context_stack.push(starting_context);
+        }
+
         let mut in_string = false;
         let mut string_char = '"';
         let mut escape_next = false;
+        let mut escaped_closes: i32 = 0;
 
         let chars: Vec<char> = template.chars().collect();
         let len = chars.len();
@@ -191,9 +557,12 @@ impl ContextAnalysis {
                     context_stack.push(context);
                 }
                 '}' => {
-                    // Pop the context (but keep at least one)
+                    // Pop the context, but track if we're escaping beyond the starting context
                     if context_stack.len() > 1 {
                         context_stack.pop();
+                    } else {
+                        // We're trying to close beyond Module - this is an escaped close
+                        escaped_closes += 1;
                     }
                 }
                 '[' => {
@@ -211,12 +580,115 @@ impl ContextAnalysis {
             i += 1;
         }
 
-        let inner_context = *context_stack.last().unwrap_or(&starting_context);
+        let inner_context = *context_stack.last().unwrap_or(&ParseContext::Module);
 
         Self {
             inner_context,
             context_stack,
+            escaped_closes,
         }
+    }
+
+    /// Finds where a template transitions to module level and has module-level content.
+    ///
+    /// This is used for templates that are "balanced" in brace count but transition
+    /// from FunctionBody to Module level with subsequent module declarations.
+    ///
+    /// Returns (split_pos, before_split, after_split) if found.
+    fn find_module_level_split(
+        template: &str,
+        starting_context: ParseContext,
+    ) -> Option<(usize, String, String)> {
+        // Only relevant when starting inside a function body
+        if starting_context == ParseContext::Module {
+            return None;
+        }
+
+        let mut in_string = false;
+        let mut string_char = '"';
+        let mut escape_next = false;
+        // Track depth relative to starting context (1 = inside function, 0 = at module level)
+        let mut depth: i32 = 1;
+        let mut last_module_level_pos: Option<usize> = None;
+
+        let chars: Vec<char> = template.chars().collect();
+        let len = chars.len();
+        let mut i = 0;
+
+        while i < len {
+            let ch = chars[i];
+
+            if escape_next {
+                escape_next = false;
+                i += 1;
+                continue;
+            }
+
+            if ch == '\\' {
+                escape_next = true;
+                i += 1;
+                continue;
+            }
+
+            if in_string {
+                if ch == string_char {
+                    in_string = false;
+                }
+                i += 1;
+                continue;
+            }
+
+            match ch {
+                '"' | '\'' | '`' => {
+                    in_string = true;
+                    string_char = ch;
+                }
+                '{' => {
+                    depth += 1;
+                }
+                '}' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        // We've reached module level - remember this position (after the `}`)
+                        last_module_level_pos = Some(i + 1);
+                    }
+                }
+                _ => {}
+            }
+            i += 1;
+        }
+
+        // If we reached module level at some point, check if there's module-level content after
+        if let Some(pos) = last_module_level_pos {
+            let remaining = &template[pos..];
+            let remaining_trimmed = remaining.trim_start();
+
+            // Check if remaining content is module-level
+            let is_module_level = remaining_trimmed.starts_with("export ")
+                || remaining_trimmed.starts_with("import ")
+                || remaining_trimmed.starts_with("function ")
+                || remaining_trimmed.starts_with("class ")
+                || remaining_trimmed.starts_with("interface ")
+                || remaining_trimmed.starts_with("type ")
+                || remaining_trimmed.starts_with("enum ")
+                || remaining_trimmed.starts_with("const ")
+                || remaining_trimmed.starts_with("let ")
+                || remaining_trimmed.starts_with("var ")
+                || remaining_trimmed.starts_with("declare ")
+                || remaining_trimmed.starts_with("abstract ")
+                || remaining_trimmed.starts_with("async function")
+                || remaining_trimmed.starts_with("namespace ");
+
+            if is_module_level && !remaining_trimmed.is_empty() {
+                return Some((
+                    pos,
+                    template[..pos].to_string(),
+                    template[pos..].to_string(),
+                ));
+            }
+        }
+
+        None
     }
 
     /// Classifies what context an opening brace `{` introduces.
@@ -379,6 +851,114 @@ impl BraceBalance {
     /// Returns true if the template has balanced braces.
     fn is_balanced(&self) -> bool {
         self.net_change == 0 && self.unclosed_opens == 0 && self.unmatched_closes == 0
+    }
+
+    /// Finds the position where unmatched closes are consumed in the template.
+    /// Returns `Some((split_pos, closer_part, remaining_part))` if the template can be
+    /// split into a closer part (the closes) and a remaining balanced MODULE-LEVEL part.
+    /// Returns `None` if there's no balanced module-level content after the closes.
+    fn find_closer_split(template: &str, unmatched_closes: i32) -> Option<(usize, String, String)> {
+        if unmatched_closes <= 0 {
+            return None;
+        }
+
+        let mut depth: i32 = 0;
+        let mut closes_seen: i32 = 0;
+        let mut in_string = false;
+        let mut string_char = '"';
+        let mut escape_next = false;
+        let mut split_pos: Option<usize> = None;
+
+        let chars: Vec<char> = template.chars().collect();
+        let len = chars.len();
+        let mut i = 0;
+
+        while i < len {
+            let ch = chars[i];
+
+            if escape_next {
+                escape_next = false;
+                i += 1;
+                continue;
+            }
+
+            if ch == '\\' {
+                escape_next = true;
+                i += 1;
+                continue;
+            }
+
+            if in_string {
+                if ch == string_char {
+                    in_string = false;
+                }
+                i += 1;
+                continue;
+            }
+
+            match ch {
+                '"' | '\'' | '`' => {
+                    in_string = true;
+                    string_char = ch;
+                }
+                '{' => {
+                    depth += 1;
+                }
+                '}' => {
+                    if depth > 0 {
+                        depth -= 1;
+                    } else {
+                        closes_seen += 1;
+                        if closes_seen >= unmatched_closes && split_pos.is_none() {
+                            // Found where all unmatched closes are consumed
+                            split_pos = Some(i + 1);
+                        }
+                    }
+                }
+                _ => {}
+            }
+            i += 1;
+        }
+
+        // Check if we found a split point and remaining content is balanced MODULE-LEVEL code
+        if let Some(pos) = split_pos {
+            let remaining = &template[pos..];
+            let remaining_trimmed = remaining.trim_start();
+
+            // Only split if the remaining content is MODULE-LEVEL (export/import/function/class/etc.)
+            // NOT if it's statement-level like `else`, `catch`, operators, etc.
+            let is_module_level = remaining_trimmed.starts_with("export ")
+                || remaining_trimmed.starts_with("import ")
+                || remaining_trimmed.starts_with("function ")
+                || remaining_trimmed.starts_with("class ")
+                || remaining_trimmed.starts_with("interface ")
+                || remaining_trimmed.starts_with("type ")
+                || remaining_trimmed.starts_with("enum ")
+                || remaining_trimmed.starts_with("const ")
+                || remaining_trimmed.starts_with("let ")
+                || remaining_trimmed.starts_with("var ")
+                || remaining_trimmed.starts_with("declare ")
+                || remaining_trimmed.starts_with("abstract ");
+
+            if !is_module_level {
+                return None;
+            }
+
+            let remaining_balance = Self::analyze(remaining);
+
+            // If remaining content is balanced, we can split here
+            if remaining_balance.unmatched_closes == 0 && remaining_balance.unclosed_opens == 0 {
+                let closer_part = template[..pos].to_string();
+                let remaining_part = remaining.to_string();
+
+                // Only split if there's actual content in the remaining part
+                if !remaining_part.trim().is_empty() {
+                    return Some((pos, closer_part, remaining_part));
+                }
+            }
+        }
+
+        None
     }
 }
 
@@ -728,238 +1308,413 @@ impl Codegen {
         }
     }
 
-    /// Generates code for a parseable chunk.
+    /// Generates code for a parseable chunk using context-first architecture.
     ///
-    /// Uses macroforge_ts_quote::ts_quote! to build AST at compile time with ToTs* traits
-    /// for type-safe placeholder substitution.
+    /// ## Context-First Design
     ///
-    /// ## Virtual Completion
+    /// 1. First, scan template with ContextStack to split at module-level transitions
+    /// 2. For each span, match on context to determine handling
+    /// 3. Depth info (from span) determines opener/closer/balanced
     ///
-    /// When a chunk has unbalanced braces (due to control flow splitting), we use
-    /// virtual completion to make it parseable:
-    /// - Unclosed opens: add virtual `}` for validation, extract body statements
-    /// - Unmatched closes: wrap in virtual function, extract body statements
-    ///
-    /// ## Type Placeholder Substitution
-    ///
-    /// ts_quote! natively supports TsType placeholders via `$name: TsType = expr` syntax.
-    ///
-    /// ## Context-Aware Parsing
-    ///
-    /// The `parse_context` determines what AST node type to parse as:
-    /// - Module: ModuleItem (exports, imports, top-level)
-    /// - FunctionBody: Stmt
-    /// - ObjectLiteral: PropOrSpread
-    /// - ArrayLiteral: Expr (element)
-    /// - ClassBody: ClassMember
+    /// This replaces the old brace-balance-first approach.
     fn generate_parseable_chunk(
         &self,
         template: &str,
         placeholders: &[(String, PlaceholderKind, String)],
-        brace_balance: BraceBalance,
+        _brace_balance: BraceBalance, // TODO: Remove once refactor is complete
         parse_context: ParseContext,
     ) -> TokenStream {
-        let output_var = format_ident!("{}", self.config.output_var);
-
         // Skip empty templates
         if template.trim().is_empty() && placeholders.is_empty() {
             return quote! {};
         }
 
-        // Generate placeholder bindings (convert Rust exprs to SWC AST nodes)
-        let (binding_stmts, quote_bindings) = self.generate_placeholder_bindings(placeholders);
+        // STEP 1: Use ContextStack to scan and split at module-level transitions
+        let mut ctx_stack = ContextStack::new(parse_context);
+        let spans = ctx_stack.scan_template(template);
 
-        // Debug: print the template being passed to ts_quote!
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
             eprintln!(
-                "[MF_DEBUG_CODEGEN] Template for ts_quote!: {:?} (balance: {:?}, context: {:?})",
-                template, brace_balance, parse_context
+                "[MF_DEBUG_CODEGEN] Context-first scan: {} spans from template (context={:?})",
+                spans.len(), parse_context
             );
-            for (ph_name, kind, rust_expr) in placeholders {
+            for (i, span) in spans.iter().enumerate() {
                 eprintln!(
-                    "[MF_DEBUG_CODEGEN]   Placeholder {}: kind={:?}, expr={}",
-                    ph_name, kind, rust_expr
+                    "[MF_DEBUG_CODEGEN]   Span {}: context={:?}, depth={}→{}, text={:?}",
+                    i, span.context, span.start_depth, span.end_depth,
+                    if span.text.len() > 60 { format!("{}...", &span.text[..60]) } else { span.text.clone() }
                 );
             }
         }
 
-        // Check if this is a module-level declaration (export/import)
-        let trimmed = template.trim_start();
-        let is_module_decl = trimmed.starts_with("export ") || trimmed.starts_with("import ");
+        // STEP 2: Generate code for each span
+        let mut code_parts: Vec<TokenStream> = Vec::new();
 
-        // Handle unbalanced braces with virtual completion
-        if !brace_balance.is_balanced() {
-            return self.generate_virtually_completed_chunk(
-                template,
-                &binding_stmts,
-                &quote_bindings,
-                brace_balance,
-                is_module_decl,
-                parse_context,
-            );
+        for span in &spans {
+            // Split placeholders for this span based on byte offsets
+            let span_placeholders: Vec<(String, PlaceholderKind, String)> = placeholders
+                .iter()
+                .filter(|(name, _, _)| {
+                    let marker = format!("${}", name);
+                    if let Some(pos) = template.find(&marker) {
+                        pos >= span.start_offset && pos < span.end_offset
+                    } else {
+                        false
+                    }
+                })
+                .cloned()
+                .collect();
+
+            let span_code = self.generate_span(span, &span_placeholders);
+            code_parts.push(span_code);
         }
 
-        // Normal case: balanced braces - use context-aware parsing
-        let template_lit = syn::LitStr::new(template, proc_macro2::Span::call_site());
+        quote! {
+            #(#code_parts)*
+        }
+    }
 
-        match parse_context {
-            ParseContext::ObjectLiteral => {
-                // For balanced chunks in ObjectLiteral context (e.g., properties inside a for-loop),
-                // wrap in a virtual object, parse, extract the property, and push to collector.
-                let wrapped_template = format!("({{ {} }})", template);
-                let wrapped_lit = syn::LitStr::new(&wrapped_template, proc_macro2::Span::call_site());
+    /// Generates code for a single context span.
+    ///
+    /// Match on context, then on depth to determine handling:
+    /// - Module context: emit as ModuleItem or inject as stream
+    /// - FunctionBody/etc: check depth for opener/closer/balanced
+    fn generate_span(
+        &self,
+        span: &ContextSpan,
+        placeholders: &[(String, PlaceholderKind, String)],
+    ) -> TokenStream {
+        if span.text.trim().is_empty() && placeholders.is_empty() {
+            return quote! {};
+        }
 
-                #[cfg(debug_assertions)]
-                if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-                    eprintln!(
-                        "[MF_DEBUG_CODEGEN] ObjectLiteral balanced chunk - collecting property: {:?}",
-                        wrapped_template
-                    );
-                }
+        // Generate placeholder bindings
+        let (binding_stmts, quote_bindings) = self.generate_placeholder_bindings(placeholders);
 
-                let quote_call = if quote_bindings.is_empty() {
-                    quote! {
-                        macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr)
-                    }
-                } else {
-                    quote! {
-                        macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr, #(#quote_bindings),*)
-                    }
-                };
-
-                // Parse the property and push to the context collector
-                quote! {
-                    {
-                        #(#binding_stmts)*
-                        let __mf_wrapped_expr: swc_core::ecma::ast::Expr = #quote_call;
-                        if let Some(__mf_prop) = macroforge_ts_syn::__internal::extract_prop_from_wrapped_expr(&__mf_wrapped_expr) {
-                            macroforge_ts_syn::__internal::push_object_prop(&mut __mf_context_collector, __mf_prop);
-                        }
-                    }
-                }
-            }
-
-            ParseContext::ArrayLiteral => {
-                // For balanced chunks in ArrayLiteral context (e.g., elements inside a for-loop),
-                // wrap in array, parse, extract the element, and push to collector.
-                let wrapped_template = format!("[{}]", template);
-                let wrapped_lit = syn::LitStr::new(&wrapped_template, proc_macro2::Span::call_site());
-
-                #[cfg(debug_assertions)]
-                if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-                    eprintln!(
-                        "[MF_DEBUG_CODEGEN] ArrayLiteral balanced chunk - collecting element: {:?}",
-                        wrapped_template
-                    );
-                }
-
-                let quote_call = if quote_bindings.is_empty() {
-                    quote! {
-                        macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr)
-                    }
-                } else {
-                    quote! {
-                        macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr, #(#quote_bindings),*)
-                    }
-                };
-
-                // Parse the element and push to the context collector
-                quote! {
-                    {
-                        #(#binding_stmts)*
-                        let __mf_wrapped_expr: swc_core::ecma::ast::Expr = #quote_call;
-                        if let Some(__mf_elem) = macroforge_ts_syn::__internal::extract_elem_from_wrapped_expr(&__mf_wrapped_expr) {
-                            macroforge_ts_syn::__internal::push_array_elem(&mut __mf_context_collector, __mf_elem);
-                        }
-                    }
-                }
-            }
-
-            ParseContext::Module | ParseContext::ClassBody => {
-                if is_module_decl {
-                    // Parse as ModuleItem for export/import declarations
-                    let quote_call = if quote_bindings.is_empty() {
-                        quote! {
-                            macroforge_ts_quote::ts_quote!(#template_lit as ModuleItem)
-                        }
-                    } else {
-                        quote! {
-                            macroforge_ts_quote::ts_quote!(#template_lit as ModuleItem, #(#quote_bindings),*)
-                        }
-                    };
-
-                    quote! {
-                        {
-                            #(#binding_stmts)*
-                            #output_var.push(#quote_call);
-                        }
-                    }
-                } else {
-                    // Parse as Stmt for regular statements
-                    let quote_call = if quote_bindings.is_empty() {
-                        quote! {
-                            macroforge_ts_quote::ts_quote!(#template_lit as Stmt)
-                        }
-                    } else {
-                        quote! {
-                            macroforge_ts_quote::ts_quote!(#template_lit as Stmt, #(#quote_bindings),*)
-                        }
-                    };
-
-                    quote! {
-                        {
-                            #(#binding_stmts)*
-                            #output_var.push(swc_core::ecma::ast::ModuleItem::Stmt(#quote_call));
-                        }
-                    }
-                }
+        // MATCH ON CONTEXT - this is the primary dispatch
+        match span.context {
+            ParseContext::Module => {
+                // Module-level content - inject as raw source stream
+                // This handles multiple declarations correctly
+                self.generate_module_span(&span.text, placeholders)
             }
 
             ParseContext::FunctionBody => {
-                // Parse as Stmt for function body
-                let quote_call = if quote_bindings.is_empty() {
-                    quote! {
-                        macroforge_ts_quote::ts_quote!(#template_lit as Stmt)
+                // MATCH ON DEPTH - determines opener/closer/balanced
+                match (span.is_opener(), span.is_closer(), span.is_balanced()) {
+                    (true, false, false) => {
+                        // Opener: opens more contexts than it closes
+                        self.generate_opener_span(&span.text, &binding_stmts, &quote_bindings, span)
                     }
-                } else {
-                    quote! {
-                        macroforge_ts_quote::ts_quote!(#template_lit as Stmt, #(#quote_bindings),*)
+                    (false, true, false) => {
+                        // Closer: closes more contexts than it opens
+                        self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
                     }
-                };
-
-                quote! {
-                    {
-                        #(#binding_stmts)*
-                        #output_var.push(swc_core::ecma::ast::ModuleItem::Stmt(#quote_call));
+                    (false, false, true) => {
+                        // Balanced: same depth at start and end
+                        self.generate_balanced_stmt_span(&span.text, &binding_stmts, &quote_bindings)
+                    }
+                    (true, true, false) => {
+                        // Middle: both opens and closes (depth changes but net != 0)
+                        self.generate_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    }
+                    _ => {
+                        // Fallback - shouldn't happen
+                        quote! {}
                     }
                 }
+            }
+
+            ParseContext::ObjectLiteral => {
+                // Object literal - collect properties
+                self.generate_object_span(&span.text, &binding_stmts, &quote_bindings, span)
+            }
+
+            ParseContext::ArrayLiteral => {
+                // Array literal - collect elements
+                self.generate_array_span(&span.text, &binding_stmts, &quote_bindings, span)
+            }
+
+            ParseContext::ClassBody => {
+                // Class body - similar to module for now
+                self.generate_balanced_stmt_span(&span.text, &binding_stmts, &quote_bindings)
             }
 
             ParseContext::TypeObjectLiteral => {
-                // TypeScript type literals - treat like ObjectLiteral for now
-                // TODO: Add proper TsPropertySignature support
-                let wrapped_template = format!("({{ {} }})", template);
-                let wrapped_lit = syn::LitStr::new(&wrapped_template, proc_macro2::Span::call_site());
+                // Type object literal
+                self.generate_object_span(&span.text, &binding_stmts, &quote_bindings, span)
+            }
+        }
+    }
 
-                let quote_call = if quote_bindings.is_empty() {
-                    quote! {
-                        macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr)
-                    }
-                } else {
-                    quote! {
-                        macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr, #(#quote_bindings),*)
-                    }
-                };
+    /// Generate code for a module-level span (inject as raw source).
+    fn generate_module_span(
+        &self,
+        text: &str,
+        placeholders: &[(String, PlaceholderKind, String)],
+    ) -> TokenStream {
+        if text.trim().is_empty() {
+            return quote! {};
+        }
 
-                quote! {
-                    {
-                        #(#binding_stmts)*
-                        let _ = #quote_call;
-                        // TODO: Collect and merge type properties with opener's type literal
+        let (binding_stmts, _) = self.generate_placeholder_bindings(placeholders);
+
+        // Build format string with placeholders replaced
+        let mut format_str = text.replace("{", "{{").replace("}", "}}");
+        let mut format_args: Vec<TokenStream> = Vec::new();
+
+        for (name, kind, _) in placeholders {
+            let marker = format!("${}", name);
+            let ph_ident = format_ident!("{}", name);
+            format_str = format_str.replace(&marker, "{}");
+
+            let arg = match kind {
+                PlaceholderKind::Ident => quote! { #ph_ident.sym.as_str() },
+                PlaceholderKind::Type => quote! { macroforge_ts::ts_syn::emit_ts_type(&#ph_ident) },
+                PlaceholderKind::Expr => quote! { macroforge_ts::ts_syn::emit_expr(&#ph_ident) },
+                PlaceholderKind::Stmt => quote! { macroforge_ts::ts_syn::emit_stmt(&#ph_ident) },
+            };
+            format_args.push(arg);
+        }
+
+        let format_lit = syn::LitStr::new(&format_str, proc_macro2::Span::call_site());
+
+        if placeholders.is_empty() {
+            let text_lit = syn::LitStr::new(text, proc_macro2::Span::call_site());
+            quote! {
+                __injected_streams.push(
+                    macroforge_ts::ts_syn::TsStream::from_string(#text_lit.to_string())
+                );
+            }
+        } else {
+            quote! {
+                {
+                    #(#binding_stmts)*
+                    let __src = format!(#format_lit, #(#format_args),*);
+                    __injected_streams.push(
+                        macroforge_ts::ts_syn::TsStream::from_string(__src)
+                    );
+                }
+            }
+        }
+    }
+
+    /// Generate code for an opener span (virtually complete with closing braces).
+    fn generate_opener_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+        span: &ContextSpan,
+    ) -> TokenStream {
+        let output_var = format_ident!("{}", self.config.output_var);
+        let opens = span.opens_count() as usize;
+        let virtual_closes = "}".repeat(opens);
+        let completed = format!("{}{}", text, virtual_closes);
+        let completed_lit = syn::LitStr::new(&completed, proc_macro2::Span::call_site());
+
+        #[cfg(debug_assertions)]
+        if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+            eprintln!("[MF_DEBUG_CODEGEN] Opener span: {:?}", completed);
+        }
+
+        let quote_call = if quote_bindings.is_empty() {
+            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem) }
+        } else {
+            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*) }
+        };
+
+        quote! {
+            {
+                #(#binding_stmts)*
+                let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
+                let __mf_idx = macroforge_ts_syn::__internal::push_opener(
+                    __mf_item,
+                    &mut #output_var,
+                    #opens,
+                );
+                __mf_opener_stack.push(__mf_idx);
+            }
+        }
+    }
+
+    /// Generate code for a closer span (virtually complete with opening function).
+    fn generate_closer_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+        span: &ContextSpan,
+    ) -> TokenStream {
+        let output_var = format_ident!("{}", self.config.output_var);
+        let closes = span.closes_count() as usize;
+        let extra_opens = "{".repeat(closes.saturating_sub(1));
+        let completed = format!("function __mf_virtual() {{ {}{}", extra_opens, text);
+        let completed_lit = syn::LitStr::new(&completed, proc_macro2::Span::call_site());
+
+        #[cfg(debug_assertions)]
+        if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+            eprintln!("[MF_DEBUG_CODEGEN] Closer span: {:?}", completed);
+        }
+
+        let quote_call = if quote_bindings.is_empty() {
+            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem) }
+        } else {
+            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*) }
+        };
+
+        quote! {
+            {
+                #(#binding_stmts)*
+                let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
+                let __mf_opener_idx = __mf_opener_stack.pop()
+                    .expect("Virtual completion: no matching opener for closer");
+                macroforge_ts_syn::__internal::finalize_closer(
+                    __mf_item,
+                    &mut #output_var,
+                    __mf_opener_idx,
+                );
+            }
+        }
+    }
+
+    /// Generate code for a balanced statement span.
+    fn generate_balanced_stmt_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+    ) -> TokenStream {
+        let output_var = format_ident!("{}", self.config.output_var);
+        let template_lit = syn::LitStr::new(text, proc_macro2::Span::call_site());
+
+        let quote_call = if quote_bindings.is_empty() {
+            quote! { macroforge_ts_quote::ts_quote!(#template_lit as Stmt) }
+        } else {
+            quote! { macroforge_ts_quote::ts_quote!(#template_lit as Stmt, #(#quote_bindings),*) }
+        };
+
+        quote! {
+            {
+                #(#binding_stmts)*
+                #output_var.push(swc_core::ecma::ast::ModuleItem::Stmt(#quote_call));
+            }
+        }
+    }
+
+    /// Generate code for a middle span (both opens and closes).
+    fn generate_middle_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+        span: &ContextSpan,
+    ) -> TokenStream {
+        let output_var = format_ident!("{}", self.config.output_var);
+        let opens = span.opens_count() as usize;
+        let closes = span.closes_count() as usize;
+
+        let virtual_opens = "{".repeat(closes);
+        let virtual_closes = "}".repeat(opens);
+        let completed = format!("function __mf_virtual() {{ {}{}{} }}", virtual_opens, text, virtual_closes);
+        let completed_lit = syn::LitStr::new(&completed, proc_macro2::Span::call_site());
+
+        #[cfg(debug_assertions)]
+        if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+            eprintln!("[MF_DEBUG_CODEGEN] Middle span: {:?}", completed);
+        }
+
+        let quote_call = if quote_bindings.is_empty() {
+            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem) }
+        } else {
+            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*) }
+        };
+
+        quote! {
+            {
+                #(#binding_stmts)*
+                let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
+                let __mf_opener_idx = *__mf_opener_stack.last()
+                    .expect("Virtual completion: no matching opener for middle chunk");
+                macroforge_ts_syn::__internal::push_middle(
+                    __mf_item,
+                    &mut #output_var,
+                    __mf_opener_idx,
+                );
+            }
+        }
+    }
+
+    /// Generate code for an object literal span.
+    fn generate_object_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+        span: &ContextSpan,
+    ) -> TokenStream {
+        if span.is_balanced() {
+            // Balanced - collect property
+            let wrapped = format!("({{ {} }})", text);
+            let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
+
+            let quote_call = if quote_bindings.is_empty() {
+                quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr) }
+            } else {
+                quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr, #(#quote_bindings),*) }
+            };
+
+            quote! {
+                {
+                    #(#binding_stmts)*
+                    let __mf_wrapped_expr: swc_core::ecma::ast::Expr = #quote_call;
+                    if let Some(__mf_prop) = macroforge_ts_syn::__internal::extract_prop_from_wrapped_expr(&__mf_wrapped_expr) {
+                        macroforge_ts_syn::__internal::push_object_prop(&mut __mf_context_collector, __mf_prop);
                     }
                 }
             }
+        } else if span.is_closer() {
+            // Closer in object context
+            self.generate_closer_span(text, binding_stmts, quote_bindings, span)
+        } else {
+            // Opener in object context
+            self.generate_opener_span(text, binding_stmts, quote_bindings, span)
+        }
+    }
+
+    /// Generate code for an array literal span.
+    fn generate_array_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+        span: &ContextSpan,
+    ) -> TokenStream {
+        if span.is_balanced() {
+            // Balanced - collect element
+            let wrapped = format!("[{}]", text);
+            let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
+
+            let quote_call = if quote_bindings.is_empty() {
+                quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr) }
+            } else {
+                quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr, #(#quote_bindings),*) }
+            };
+
+            quote! {
+                {
+                    #(#binding_stmts)*
+                    let __mf_wrapped_expr: swc_core::ecma::ast::Expr = #quote_call;
+                    if let Some(__mf_elem) = macroforge_ts_syn::__internal::extract_elem_from_wrapped_expr(&__mf_wrapped_expr) {
+                        macroforge_ts_syn::__internal::push_array_elem(&mut __mf_context_collector, __mf_elem);
+                    }
+                }
+            }
+        } else if span.is_closer() {
+            self.generate_closer_span(text, binding_stmts, quote_bindings, span)
+        } else {
+            self.generate_opener_span(text, binding_stmts, quote_bindings, span)
         }
     }
 
@@ -988,8 +1743,9 @@ impl Codegen {
             // ts_quote! supports Ident, Expr, Pat, and TsType placeholder types natively.
             match kind {
                 PlaceholderKind::Expr => {
+                    // Clone the expression to allow reuse if the same variable appears multiple times
                     binding_stmts.push(quote! {
-                        let #ph_ident: swc_core::ecma::ast::Expr = macroforge_ts_syn::ToTsExpr::to_ts_expr(#expr);
+                        let #ph_ident: swc_core::ecma::ast::Expr = macroforge_ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
                     });
                     quote_bindings.push(quote! { #ph_ident: Expr = #ph_ident });
                 }
@@ -1048,10 +1804,20 @@ impl Codegen {
             let completed_template = format!("{}{}", template, virtual_closes);
 
             #[cfg(debug_assertions)]
-            if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-                eprintln!(
-                    "[MF_DEBUG_CODEGEN] Virtually completed opener template: {:?}",
-                    completed_template
+            {
+                if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+                    eprintln!(
+                        "[MF_DEBUG_CODEGEN] Virtually completed opener template: {:?}",
+                        completed_template
+                    );
+                }
+                debug_log::log_template_transform(
+                    template,
+                    &completed_template,
+                    &format!("{:?}", _parse_context),
+                    &format!("{:?}", brace_balance),
+                    "virtual_opener",
+                    &[], // placeholders already converted to bindings
                 );
             }
 
@@ -1091,6 +1857,9 @@ impl Codegen {
             // e.g., "return x; }" or "} as Type; }"
             // Strategy: Wrap in virtual function opening, parse, finalize the opener
             //
+            // NOTE: The split logic for balanced content after closes is handled in
+            // generate_parseable_chunk before calling this function.
+            //
             // Context-aware: If we're in ObjectLiteral context, the first `}` closes
             // an object literal, so we need to open with `return { __dummy: 0` not just `{`
 
@@ -1125,10 +1894,20 @@ impl Codegen {
             };
 
             #[cfg(debug_assertions)]
-            if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-                eprintln!(
-                    "[MF_DEBUG_CODEGEN] Virtually completed closer template (context={:?}): {:?}",
-                    _parse_context, completed_template
+            {
+                if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+                    eprintln!(
+                        "[MF_DEBUG_CODEGEN] Virtually completed closer template (context={:?}): {:?}",
+                        _parse_context, completed_template
+                    );
+                }
+                debug_log::log_template_transform(
+                    template,
+                    &completed_template,
+                    &format!("{:?}", _parse_context),
+                    &format!("{:?}", brace_balance),
+                    "virtual_closer",
+                    &[], // placeholders already converted to bindings
                 );
             }
 
@@ -1224,6 +2003,9 @@ impl Codegen {
             // e.g., "} else { const y = 2;" (closes one, opens one)
             // Strategy: Wrap for validation, collect statements to current opener
             //
+            // NOTE: Split logic for module-level content is handled in
+            // generate_parseable_chunk before calling this function.
+            //
             // Context-aware for ObjectLiteral: opening close is object literal
 
             let (virtual_opens, virtual_closes) = match _parse_context {
@@ -1261,10 +2043,20 @@ impl Codegen {
             );
 
             #[cfg(debug_assertions)]
-            if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-                eprintln!(
-                    "[MF_DEBUG_CODEGEN] Virtually completed middle template (context={:?}): {:?}",
-                    _parse_context, completed_template
+            {
+                if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+                    eprintln!(
+                        "[MF_DEBUG_CODEGEN] Virtually completed middle template (context={:?}): {:?}",
+                        _parse_context, completed_template
+                    );
+                }
+                debug_log::log_template_transform(
+                    template,
+                    &completed_template,
+                    &format!("{:?}", _parse_context),
+                    &format!("{:?}", brace_balance),
+                    "virtual_middle",
+                    &[], // placeholders already converted to bindings
                 );
             }
 
@@ -1761,29 +2553,12 @@ impl Codegen {
 
     /// Generates code for a typescript directive.
     fn generate_typescript(&self, stream: &str) -> TokenStream {
-        let output_var = format_ident!("{}", self.config.output_var);
         let s: TokenStream = stream.parse().unwrap_or_else(|_| quote! { () });
 
+        // Instead of re-parsing the TsStream source, collect it for later merging
         quote! {
-            // {$typescript} injects a TsStream - parse it and extend with its module items
-            {
-                let mut __ts_stream = #s;
-                __patches.extend(__ts_stream.runtime_patches.drain(..));
-                let __ts_source = __ts_stream.source().to_string();
-
-                // Parse the TsStream source into a Module and extract items
-                let mut __ts_parser = macroforge_ts::ts_syn::TsStream::from_string(__ts_source);
-                let __ts_module: swc_core::ecma::ast::Module = __ts_parser
-                    .parse()
-                    .unwrap_or_else(|e| panic!(
-                        "Failed to parse injected TsStream from {{$typescript}}: {:?}\n\nSource:\n{}",
-                        e,
-                        __ts_source
-                    ));
-
-                // Extend output with the module's items
-                #output_var.extend(__ts_module.body);
-            }
+            // {$typescript} injects a TsStream - collect for merging at output
+            __injected_streams.push(#s);
         }
     }
 }

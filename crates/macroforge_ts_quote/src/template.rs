@@ -408,9 +408,11 @@ pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
             let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
             let __comments = swc_core::common::comments::SingleThreadedComments::default();
             let mut __pending_comments: Vec<swc_core::common::comments::Comment> = Vec::new();
+            // Collect injected TsStreams for merging at output
+            let mut __injected_streams: Vec<macroforge_ts::ts_syn::TsStream> = Vec::new();
             let __mf_items: Vec<swc_core::ecma::ast::ModuleItem> = #stmts_builder;
             __stmts.extend(__mf_items);
-            (__stmts, __patches, __comments)
+            (__stmts, __patches, __comments, __injected_streams)
         }
     })
 }
