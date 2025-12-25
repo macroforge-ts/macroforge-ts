@@ -120,7 +120,7 @@
 use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{DefaultFieldOptions, get_type_default, has_known_default};
-use crate::macros::{body, ts_macro_derive, ts_template};
+use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_expr, parse_ts_macro_input,
@@ -216,15 +216,15 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             // Generate the method body using parsed field data
             // Note: field_data is consumed by the body! macro below
             let _ = &field_data; // Explicitly mark as used to satisfy clippy
-            let class_body = body! {
-                static defaultValue(): @{class_ident} {
-                    const instance = new @{class_expr}();
+            let class_body = ts_template!(Within {
+                static defaultValue(): @{class_ident.clone()} {
+                    const instance = new @{class_expr.clone()}();
                     {#for (name_ident, value_expr) in field_data}
                         instance.@{name_ident} = @{value_expr};
                     {/for}
                     return instance;
                 }
-            };
+            });
 
             // Also generate standalone function for consistency
             // Using {$typescript} to compose TsStream objects
@@ -232,8 +232,8 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             Ok(ts_template! {
                 {$typescript class_body}
 
-                export function @{fn_name_ident}(): @{class_ident} {
-                    return @{class_expr}.defaultValue();
+                export function @{fn_name_ident}(): @{class_ident.clone()} {
+                    return @{class_expr.clone()}.defaultValue();
                 }
             })
         }
@@ -345,18 +345,18 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     .collect::<Result<_, MacroforgeError>>()?;
 
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(): @{interface_ident} {
+                    export function @{fn_name_ident}(): @{interface_ident.clone()} {
                         return {
                             {#for (name_ident, value_expr) in object_fields}
                                 @{name_ident}: @{value_expr},
                             {/for}
-                        } as @{interface_ident};
+                        } as @{interface_ident.clone()};
                     }
                 })
             } else {
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(): @{interface_ident} {
-                        return {} as @{interface_ident};
+                    export function @{fn_name_ident}(): @{interface_ident.clone()} {
+                        return {} as @{interface_ident.clone()};
                     }
                 })
             }
@@ -448,18 +448,18 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         .collect::<Result<_, MacroforgeError>>()?;
 
                     Ok(ts_template! {
-                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
+                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident.clone()} {
                             return {
                                 {#for (name_ident, value_expr) in object_fields}
                                     @{name_ident}: @{value_expr},
                                 {/for}
-                            } as @{full_type_ident};
+                            } as @{full_type_ident.clone()};
                         }
                     })
                 } else {
                     Ok(ts_template! {
-                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
-                            return {} as @{full_type_ident};
+                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident.clone()} {
+                            return {} as @{full_type_ident.clone()};
                         }
                     })
                 }
@@ -594,7 +594,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         )
                     })?;
                     Ok(ts_template! {
-                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
+                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident.clone()} {
                             return @{return_expr};
                         }
                     })
@@ -622,7 +622,7 @@ mod tests {
         let class_name = "User";
         let class_ident = ident!(class_name);
 
-        let _default_fields: Vec<DefaultField> = vec![
+        let default_fields: Vec<DefaultField> = vec![
             DefaultField {
                 name: "id".to_string(),
                 value: "0".to_string(),
@@ -633,17 +633,17 @@ mod tests {
             },
         ];
 
-        let output = body! {
+        let output = ts_template!(Within {
             static defaultValue(): @{class_ident.clone()} {
                 const instance = new @{class_ident.clone()}();
                 {#if !default_fields.is_empty()}
-                    {#for f in _default_fields.iter()}
+                    {#for f in default_fields.iter()}
                         instance.@{ident!(f.name.as_str())} = @{*parse_ts_expr(&f.value).expect("should parse")};
                     {/for}
                 {/if}
                 return instance;
             }
-        };
+        });
 
         let source = output.source();
         let body_content = source

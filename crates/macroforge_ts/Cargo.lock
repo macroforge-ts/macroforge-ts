@@ -209,7 +209,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "thiserror 2.0.17",
+ "thiserror",
 ]
 
 [[package]]
@@ -303,6 +303,12 @@ checksum = "633458d4ef8c78b72454de2d54fd6ab2e60f9e02be22f3c6104cdc8a4e0fceb9"
 dependencies = [
  "unicode-segmentation",
 ]
+
+[[package]]
+name = "countme"
+version = "3.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7704b5fdd17b18ae31c4c1da5a2e0305a2bf17b5249300a9ee9ed7b72114c636"
 
 [[package]]
 name = "crossbeam-deque"
@@ -677,7 +683,7 @@ dependencies = [
  "hashbrown 0.14.5",
  "new_debug_unreachable",
  "once_cell",
- "rustc-hash",
+ "rustc-hash 2.1.1",
  "serde",
  "triomphe",
 ]
@@ -929,7 +935,7 @@ dependencies = [
  "serde_json",
  "swc_core",
  "tempfile",
- "thiserror 2.0.17",
+ "thiserror",
 ]
 
 [[package]]
@@ -948,10 +954,14 @@ dependencies = [
 name = "macroforge_ts_quote"
 version = "0.1.61"
 dependencies = [
- "convert_case 0.6.0",
+ "anyhow",
+ "convert_case 0.10.0",
  "proc-macro2",
  "quote",
+ "rowan",
+ "rustc-hash 2.1.1",
  "swc_core",
+ "swc_macros_common",
  "syn",
 ]
 
@@ -961,7 +971,7 @@ version = "0.1.61"
 dependencies = [
  "serde",
  "swc_core",
- "thiserror 1.0.69",
+ "thiserror",
 ]
 
 [[package]]
@@ -982,7 +992,7 @@ dependencies = [
  "napi-build",
  "napi-sys",
  "nohash-hasher",
- "rustc-hash",
+ "rustc-hash 2.1.1",
 ]
 
 [[package]]
@@ -1271,6 +1281,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a2d987857b319362043e95f5353c0535c1f58eec5336fdfcf626430af7def58"
 
 [[package]]
+name = "rowan"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "417a3a9f582e349834051b8a10c8d71ca88da4211e4093528e36b9845f6b5f21"
+dependencies = [
+ "countme",
+ "hashbrown 0.14.5",
+ "rustc-hash 1.1.0",
+ "text-size",
+]
+
+[[package]]
+name = "rustc-hash"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
+
+[[package]]
 name = "rustc-hash"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1460,7 +1488,7 @@ dependencies = [
  "allocator-api2",
  "bumpalo",
  "hashbrown 0.14.5",
- "rustc-hash",
+ "rustc-hash 2.1.1",
 ]
 
 [[package]]
@@ -1488,7 +1516,7 @@ dependencies = [
  "from_variant",
  "num-bigint",
  "once_cell",
- "rustc-hash",
+ "rustc-hash 2.1.1",
  "serde",
  "siphasher 0.3.11",
  "swc_atoms",
@@ -1501,9 +1529,9 @@ dependencies = [
 
 [[package]]
 name = "swc_core"
-version = "51.0.0"
+version = "52.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "907edde32447c184b1bf26858b260e2c5082c0816b94b80acd3586c65f447cab"
+checksum = "33540bdcbf752611f66dcd5576272ce25141356c2d6e7b7ae63a801633a21f02"
 dependencies = [
  "swc_allocator",
  "swc_atoms",
@@ -1529,7 +1557,7 @@ dependencies = [
  "num-bigint",
  "once_cell",
  "phf",
- "rustc-hash",
+ "rustc-hash 2.1.1",
  "string_enum",
  "swc_atoms",
  "swc_common",
@@ -1549,7 +1577,7 @@ dependencies = [
  "num-bigint",
  "once_cell",
  "regex",
- "rustc-hash",
+ "rustc-hash 2.1.1",
  "ryu-js",
  "serde",
  "swc_allocator",
@@ -1582,7 +1610,7 @@ dependencies = [
  "either",
  "num-bigint",
  "phf",
- "rustc-hash",
+ "rustc-hash 2.1.1",
  "seq-macro",
  "serde",
  "smartstring",
@@ -1601,7 +1629,7 @@ dependencies = [
  "anyhow",
  "proc-macro2",
  "quote",
- "rustc-hash",
+ "rustc-hash 2.1.1",
  "swc_atoms",
  "swc_common",
  "swc_ecma_ast",
@@ -1621,7 +1649,7 @@ dependencies = [
  "once_cell",
  "par-core",
  "phf",
- "rustc-hash",
+ "rustc-hash 2.1.1",
  "serde",
  "swc_atoms",
  "swc_common",
@@ -1642,7 +1670,7 @@ dependencies = [
  "num_cpus",
  "once_cell",
  "par-core",
- "rustc-hash",
+ "rustc-hash 2.1.1",
  "ryu-js",
  "swc_atoms",
  "swc_common",
@@ -1700,7 +1728,7 @@ dependencies = [
  "data-encoding",
  "debugid",
  "if_chain",
- "rustc-hash",
+ "rustc-hash 2.1.1",
  "serde",
  "serde_json",
  "unicode-id-start",
@@ -1759,13 +1787,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "thiserror"
-version = "1.0.69"
+name = "text-size"
+version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
-dependencies = [
- "thiserror-impl 1.0.69",
-]
+checksum = "f18aa187839b2bdb1ad2fa35ead8c4c2976b64e4363c386d45ac0f7ee85c9233"
 
 [[package]]
 name = "thiserror"
@@ -1773,18 +1798,7 @@ version = "2.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f63587ca0f12b72a0600bcba1d40081f830876000bb46dd2337a3051618f4fc8"
 dependencies = [
- "thiserror-impl 2.0.17",
-]
-
-[[package]]
-name = "thiserror-impl"
-version = "1.0.69"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
+ "thiserror-impl",
 ]
 
 [[package]]

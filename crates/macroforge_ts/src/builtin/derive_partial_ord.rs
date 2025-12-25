@@ -106,14 +106,10 @@
 use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
-use crate::builtin::return_types::{
-    is_none_check, partial_ord_return_type, unwrap_option_or_null,
-};
-use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{
-    ident, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
-};
+use crate::builtin::return_types::{is_none_check, partial_ord_return_type, unwrap_option_or_null};
+use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_macro_input};
 
 /// Contains field information needed for partial ordering comparison generation.
 ///
@@ -301,11 +297,11 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             };
 
             // Generate static wrapper method that delegates to standalone function
-            let class_body = body! {
+            let class_body = ts_template!(Within {
                 static compareTo(a: @{class_ident}, b: @{class_ident}): @{return_type_ident} {
                     return @{fn_name_expr}(a, b);
                 }
-            };
+            });
 
             // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
@@ -501,13 +497,13 @@ mod tests {
 
         let return_type = partial_ord_return_type();
         let return_type_ident = ident!(return_type);
-        let output = body! {
+        let output = ts_template!(Within {
             compareTo(other: unknown): @{return_type_ident} {
                 if (a === b) return 0;
                 {$typescript TsStream::from_string(compare_body_str)}
                 return 0;
             }
-        };
+        });
 
         let source = output.source();
         let body_content = source

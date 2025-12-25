@@ -91,7 +91,7 @@ pub mod macros {
     pub use macroforge_ts_macros::ts_macro_derive;
 
     // Re-export all quote macros
-    pub use macroforge_ts_quote::{above, below, body, signature, ts_template};
+    pub use macroforge_ts_quote::{ts_quote, ts_template};
 }
 
 // Re-export swc_core and common modules (via ts_syn for version consistency)

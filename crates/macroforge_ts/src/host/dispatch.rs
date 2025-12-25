@@ -181,6 +181,7 @@ impl MacroDispatcher {
                             ),
                         }],
                         tokens: None,
+                        insert_pos: Default::default(),
                         debug: None,
                     };
                 }
@@ -203,6 +204,7 @@ impl MacroDispatcher {
                                     help: None,
                                 }],
                                 tokens: None,
+                                insert_pos: Default::default(),
                                 debug: None,
                             };
                         }
@@ -235,6 +237,7 @@ impl MacroDispatcher {
                                 help: None,
                             }],
                             tokens: None,
+                            insert_pos: Default::default(),
                             debug: None,
                         }
                     }
@@ -256,6 +259,7 @@ impl MacroDispatcher {
                         help: None,
                     }],
                     tokens: None,
+                    insert_pos: Default::default(),
                     debug: None,
                 }
             }

@@ -110,11 +110,11 @@
 use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
-use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{
-    ident, parse_ts_expr, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
-};
+use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::{
+    Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_expr, parse_ts_macro_input,
+};
 
 /// Contains field information needed for hash code generation.
 ///
@@ -296,7 +296,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
-                export function @{fn_name_ident}(value: @{class_ident}): number {
+                export function @{fn_name_ident}(value: @{class_ident.clone()}): number {
                     let hash = 17;
                     {#if _has_fields}
                         {#for hash_expr in _hash_exprs}
@@ -308,11 +308,11 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             };
 
             // Generate static wrapper method that delegates to standalone function
-            let class_body = body! {
-                static hashCode(value: @{class_ident}): number {
+            let class_body = ts_template!(Within {
+                static hashCode(value: @{class_ident.clone()}): number {
                     return @{fn_name_expr}(value);
                 }
-            };
+            });
 
             // Combine standalone function with class body using {$typescript} for proper composition
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
@@ -497,7 +497,7 @@ mod tests {
             })
             .collect();
 
-        let output = body! {
+        let output = ts_template!(Within {
             hashCode(): number {
                 let hash = 17;
                 {#if _has_fields}
@@ -507,7 +507,7 @@ mod tests {
                 {/if}
                 return hash;
             }
-        };
+        });
 
         let source = output.source();
         let body_content = source

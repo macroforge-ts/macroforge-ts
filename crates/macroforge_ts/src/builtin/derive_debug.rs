@@ -64,7 +64,7 @@
 
 use convert_case::{Case, Casing};
 
-use crate::macros::{body, ts_macro_derive, ts_template};
+use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_macro_input};
 
@@ -200,7 +200,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
-                export function @{fn_name_ident}(value: @{class_ident}): string {
+                export function @{fn_name_ident}(value: @{class_ident.clone()}): string {
                     {#if !_debug_fields.is_empty()}
                         const parts: string[] = [];
                         {#for (label, name) in _debug_fields}
@@ -214,11 +214,11 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             };
 
             // Generate static wrapper method that delegates to standalone function
-            let class_body = body! {
-                static toString(value: @{class_ident}): string {
+            let class_body = ts_template!(Within {
+                static toString(value: @{class_ident.clone()}): string {
                     return @{fn_name_expr}(value);
                 }
-            };
+            });
 
             // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
@@ -238,10 +238,12 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 .collect();
 
             let fn_name_ident = ident!("{}ToString", enum_name.to_case(Case::Camel));
+            // Convert ident to expression for array access
+            let enum_expr: Expr = enum_ident.clone().into();
             Ok(ts_template! {
-                export function @{fn_name_ident}(value: @{enum_ident}): string {
+                export function @{fn_name_ident}(value: @{enum_ident.clone()}): string {
                     {#if !_variants.is_empty()}
-                        const key = @{enum_ident.clone().into()}[value as unknown as keyof typeof @{enum_ident}];
+                        const key = @{enum_expr.clone()}[value as unknown as keyof typeof @{enum_ident.clone()}];
                         if (key !== undefined) {
                             return "@{enum_name}." + key;
                         }
@@ -273,7 +275,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let fn_name_ident = ident!("{}ToString", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name_ident}(value: @{interface_ident}): string {
+                export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
                     {#if !_debug_fields.is_empty()}
                         const parts: string[] = [];
                         {#for (label, name) in _debug_fields}
@@ -310,7 +312,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 let fn_name_ident = ident!("{}ToString", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{type_ident}): string {
+                    export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
                         {#if !_debug_fields.is_empty()}
                             const parts: string[] = [];
                             {#for (label, name) in _debug_fields}
@@ -327,7 +329,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 let fn_name_ident = ident!("{}ToString", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{type_ident}): string {
+                    export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
                         return "@{type_name}(" + JSON.stringify(value) + ")";
                     }
                 })
