@@ -216,16 +216,43 @@ fn ts_template_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2:
 
     // For Within position, we need to parse as class members, not statements
     if position == Some("Within") {
-        // For class body content, we wrap in a dummy class, parse, then extract members
-        let body_str = body.to_string();
+        // Wrap body in a dummy class so it parses as valid TypeScript
+        // The template content contains class member syntax (static methods, constructors, etc.)
+        let wrapped_body = quote! { class __MF_DUMMY__ { #body } };
 
+        // Parse the wrapped template to handle placeholders and control flow
+        let template_code = parse_template(wrapped_body)?;
+
+        // Extract just the class body from the output and add the body marker
         Ok(quote! {
             {
-                // Build source with body marker for class member parsing
-                let __source = format!("/* @macroforge:body */{}", #body_str);
+                let (__stmts, mut __patches, __comments, __injected_streams) = #template_code;
+
+                // Build source from AST - this will be "class __MF_DUMMY__ { ... }"
+                let __full_source = macroforge_ts::ts_syn::emit_module_items(&__stmts, &__comments);
+
+                // Extract just the class body (everything between first { and last })
+                let __body_source = if let Some(start) = __full_source.find('{') {
+                    if let Some(end) = __full_source.rfind('}') {
+                        &__full_source[start + 1..end]
+                    } else {
+                        &__full_source[start + 1..]
+                    }
+                } else {
+                    __full_source.as_str()
+                };
+
+                let __source = format!("/* @macroforge:body */{}", __body_source.trim());
 
                 // Create TsStream with position
                 let mut __stream = macroforge_ts::ts_syn::TsStream::with_insert_pos(__source, #insert_pos);
+                __stream.runtime_patches = __patches;
+
+                // Merge any injected TsStreams (from {$typescript} directives)
+                for __injected in __injected_streams {
+                    __stream = __stream.merge(__injected);
+                }
+
                 __stream
             }
         })

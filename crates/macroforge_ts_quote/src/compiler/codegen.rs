@@ -140,6 +140,8 @@ struct ContextSpan {
     start_depth: i32,
     /// Depth at end of this span
     end_depth: i32,
+    /// Minimum depth reached during this span (for detecting middle spans)
+    min_depth: i32,
     /// Byte offset in original template where this span starts
     start_offset: usize,
     /// Byte offset in original template where this span ends
@@ -157,14 +159,22 @@ impl ContextSpan {
         self.end_depth > self.start_depth
     }
 
-    /// Returns true if this span is balanced (same depth at start and end)
+    /// Returns true if this span is truly balanced (same depth at start and end,
+    /// and never went below start depth during the span)
     fn is_balanced(&self) -> bool {
-        self.end_depth == self.start_depth
+        self.end_depth == self.start_depth && self.min_depth >= self.start_depth
     }
 
-    /// Number of contexts closed by this span
+    /// Returns true if this span is a "middle" span - it closes and opens contexts,
+    /// ending at the same depth but going below start during the span.
+    /// Example: `} foo {` starts at 0, goes to -1, ends at 0
+    fn is_middle(&self) -> bool {
+        self.end_depth == self.start_depth && self.min_depth < self.start_depth
+    }
+
+    /// Number of contexts closed by this span (based on minimum depth reached)
     fn closes_count(&self) -> i32 {
-        (self.start_depth - self.end_depth).max(0)
+        (self.start_depth - self.min_depth).max(0)
     }
 
     /// Number of contexts opened by this span
@@ -238,6 +248,8 @@ impl ContextStack {
         let mut spans = Vec::new();
         let mut current_span_start = 0;
         let mut current_span_start_depth = self.relative_depth();
+        // Track the minimum depth reached during this span (for detecting middle spans)
+        let mut current_span_min_depth = current_span_start_depth;
         // Track the actual context at the start of the current span
         let mut current_span_context = self.current();
 
@@ -293,6 +305,11 @@ impl ContextStack {
                     self.pop();
                     let now_at_depth = self.relative_depth();
 
+                    // Track minimum depth for this span
+                    if now_at_depth < current_span_min_depth {
+                        current_span_min_depth = now_at_depth;
+                    }
+
                     // Only split if we've gone BELOW starting depth (negative relative depth)
                     // This means we've closed more braces than we've opened relative to start
                     // AND we're now actually at module level in the stack
@@ -308,6 +325,7 @@ impl ContextStack {
                                     context: current_span_context,
                                     start_depth: current_span_start_depth,
                                     end_depth: now_at_depth,
+                                    min_depth: current_span_min_depth,
                                     start_offset: current_span_start,
                                     end_offset: span_end,
                                 });
@@ -315,6 +333,7 @@ impl ContextStack {
                             // Start new span at module level
                             current_span_start = span_end;
                             current_span_start_depth = now_at_depth;
+                            current_span_min_depth = now_at_depth;
                             current_span_context = ParseContext::Module;
                         }
                     }
@@ -341,6 +360,7 @@ impl ContextStack {
                 context: current_span_context,
                 start_depth: current_span_start_depth,
                 end_depth: self.relative_depth(),
+                min_depth: current_span_min_depth,
                 start_offset: current_span_start,
                 end_offset: template.len(),
             });
@@ -1401,28 +1421,19 @@ impl Codegen {
             }
 
             ParseContext::FunctionBody => {
-                // MATCH ON DEPTH - determines opener/closer/balanced
-                match (span.is_opener(), span.is_closer(), span.is_balanced()) {
-                    (true, false, false) => {
-                        // Opener: opens more contexts than it closes
-                        self.generate_opener_span(&span.text, &binding_stmts, &quote_bindings, span)
-                    }
-                    (false, true, false) => {
-                        // Closer: closes more contexts than it opens
-                        self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
-                    }
-                    (false, false, true) => {
-                        // Balanced: same depth at start and end
-                        self.generate_balanced_stmt_span(&span.text, &binding_stmts, &quote_bindings)
-                    }
-                    (true, true, false) => {
-                        // Middle: both opens and closes (depth changes but net != 0)
-                        self.generate_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
-                    }
-                    _ => {
-                        // Fallback - shouldn't happen
-                        quote! {}
-                    }
+                // Check span type: balanced, middle, closer, or opener
+                if span.is_balanced() {
+                    // Truly balanced: same depth at start and end, never went below
+                    self.generate_balanced_stmt_span(&span.text, &binding_stmts, &quote_bindings)
+                } else if span.is_middle() {
+                    // Middle: closes and opens (e.g., `} else {`)
+                    self.generate_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else if span.is_closer() {
+                    // Closer: closes more contexts than it opens
+                    self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else {
+                    // Opener: opens more contexts than it closes
+                    self.generate_opener_span(&span.text, &binding_stmts, &quote_bindings, span)
                 }
             }
 
@@ -1437,8 +1448,22 @@ impl Codegen {
             }
 
             ParseContext::ClassBody => {
-                // Class body - similar to module for now
-                self.generate_balanced_stmt_span(&span.text, &binding_stmts, &quote_bindings)
+                // Class body - collect class members
+                // Use same pattern as FunctionBody: check balanced, middle, closer, opener
+                if span.is_balanced() {
+                    // Truly balanced - collect class member
+                    self.generate_class_body_span(&span.text, &binding_stmts, &quote_bindings)
+                } else if span.is_middle() {
+                    // Middle span: closes and opens (e.g., `} static foo() {`)
+                    // Handle like FunctionBody middle span
+                    self.generate_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else if span.is_closer() {
+                    // Closer in class body context
+                    self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else {
+                    // Opener in class body context
+                    self.generate_opener_span(&span.text, &binding_stmts, &quote_bindings, span)
+                }
             }
 
             ParseContext::TypeObjectLiteral => {
@@ -1715,6 +1740,36 @@ impl Codegen {
             self.generate_closer_span(text, binding_stmts, quote_bindings, span)
         } else {
             self.generate_opener_span(text, binding_stmts, quote_bindings, span)
+        }
+    }
+
+    /// Generate code for a class body span.
+    ///
+    /// Wraps the content in a dummy class for parsing, then extracts the class members.
+    fn generate_class_body_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+    ) -> TokenStream {
+        // Wrap in a dummy class so it parses as valid TypeScript
+        let wrapped = format!("class __MF_DUMMY__ {{ {} }}", text);
+        let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
+
+        let quote_call = if quote_bindings.is_empty() {
+            quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem) }
+        } else {
+            quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem, #(#quote_bindings),*) }
+        };
+
+        quote! {
+            {
+                #(#binding_stmts)*
+                let __mf_wrapped_item: swc_core::ecma::ast::ModuleItem = #quote_call;
+                for __mf_member in macroforge_ts_syn::__internal::extract_class_members_from_wrapped(&__mf_wrapped_item) {
+                    macroforge_ts_syn::__internal::push_class_member(&mut __mf_context_collector, __mf_member);
+                }
+            }
         }
     }
 
