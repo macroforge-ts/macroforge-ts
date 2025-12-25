@@ -13,6 +13,10 @@ readme = "README.md"
 
 [lib]
 proc-macro = true
+path = "src/lib/mod.rs"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(swc_ast_unknown)'] }
 
 [dependencies]
 proc-macro2 = "1.0.95"
@@ -20,6 +24,9 @@ quote = "1.0.40"
 syn = { version = "2.0.104", features = ["full"] }
 convert_case = "0.10.0"
 rowan = "0.16.1"
+anyhow = "1.0"
+rustc-hash = "2.1.1"
+swc_macros_common = "1.0"
 swc_core = { version = "52.0.0", default-features = false, features = [
   "common",
   "ecma_ast",

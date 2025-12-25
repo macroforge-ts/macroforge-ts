@@ -182,7 +182,7 @@ impl Codegen {
     fn next_placeholder_name(&self) -> String {
         let n = self.placeholder_counter.get();
         self.placeholder_counter.set(n + 1);
-        format!("__ph_{}", n)
+        format!("MfPh{}", n)
     }
 
     /// Generates Rust TokenStream from IR.
@@ -255,18 +255,11 @@ impl Codegen {
 
                 IrNode::Placeholder { kind, rust_expr } => {
                     let ph_name = self.next_placeholder_name();
-                    match kind {
-                        // For Type placeholders, use a concrete marker (no $ prefix)
-                        // because SWC quote! doesn't support $ in type positions
-                        PlaceholderKind::Type => {
-                            current_template.push_str(&ph_name);
-                        }
-                        // For Ident, Expr - use $ prefix for SWC quote! substitution
-                        _ => {
-                            current_template.push('$');
-                            current_template.push_str(&ph_name);
-                        }
-                    }
+                    // Use $ prefix for ALL placeholders - SWC quote! will substitute them
+                    // For Type placeholders, we provide an Ident binding with the marker name,
+                    // then replace the Ident in type positions with actual TsType after parsing
+                    current_template.push('$');
+                    current_template.push_str(&ph_name);
                     current_placeholders.push((ph_name, *kind, rust_expr.clone()));
                 }
 
@@ -667,6 +660,15 @@ impl Codegen {
 
             let virtual_closes = "}".repeat(brace_balance.unclosed_opens as usize);
             let completed_template = format!("{}{}", template, virtual_closes);
+
+            #[cfg(debug_assertions)]
+            if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+                eprintln!(
+                    "[MF_DEBUG_CODEGEN] Virtually completed opener template: {:?}",
+                    completed_template
+                );
+            }
+
             let completed_lit =
                 syn::LitStr::new(&completed_template, proc_macro2::Span::call_site());
 
