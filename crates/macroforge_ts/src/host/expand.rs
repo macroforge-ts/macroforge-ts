@@ -691,6 +691,15 @@ impl MacroExpander {
                     result = self.dispatcher.dispatch(fallback_ctx);
                 }
 
+                // Debug output for macro result
+                eprintln!("[DEBUG] Macro '{}' result:", ctx.macro_name);
+                eprintln!("[DEBUG]   runtime_patches: {}", result.runtime_patches.len());
+                eprintln!("[DEBUG]   type_patches: {}", result.type_patches.len());
+                eprintln!("[DEBUG]   tokens: {:?}", result.tokens.as_ref().map(|t| t.len()));
+                if let Some(tokens) = &result.tokens {
+                    eprintln!("[DEBUG]   tokens content (first 500 chars): {:?}", &tokens[..tokens.len().min(500)]);
+                }
+
                 let no_output = result.runtime_patches.is_empty()
                     && result.type_patches.is_empty()
                     && result.tokens.is_none();
@@ -801,7 +810,7 @@ impl MacroExpander {
 
             match &ctx.target {
                 TargetIR::Class(class_ir) => {
-                    let chunks = split_by_markers(tokens);
+                    let chunks = split_by_markers(tokens, result.insert_pos);
 
                     for (location, code) in chunks {
                         match location {
@@ -954,7 +963,7 @@ impl MacroExpander {
                     }
                 }
                 TargetIR::Interface(interface_ir) => {
-                    let chunks = split_by_markers(tokens);
+                    let chunks = split_by_markers(tokens, result.insert_pos);
 
                     for (location, code) in chunks {
                         match location {
@@ -987,7 +996,7 @@ impl MacroExpander {
                     }
                 }
                 TargetIR::Enum(enum_ir) => {
-                    let chunks = split_by_markers(tokens);
+                    let chunks = split_by_markers(tokens, result.insert_pos);
 
                     for (location, code) in chunks {
                         match location {
@@ -1020,7 +1029,7 @@ impl MacroExpander {
                     }
                 }
                 TargetIR::TypeAlias(type_alias_ir) => {
-                    let chunks = split_by_markers(tokens);
+                    let chunks = split_by_markers(tokens, result.insert_pos);
 
                     for (location, code) in chunks {
                         match location {
@@ -1459,6 +1468,7 @@ const tryImport = async (id) => {
             type_patches: host_result.type_patches,
             diagnostics: host_result.diagnostics,
             tokens: host_result.tokens,
+            insert_pos: host_result.insert_pos,
             debug: host_result.debug,
         })
     }
@@ -2360,12 +2370,26 @@ fn find_macro_comment_span(source: &str, target_start: u32) -> Option<SpanIR> {
     Some(SpanIR::new(start_idx as u32 + 1, end_idx as u32 + 1))
 }
 
-fn split_by_markers(source: &str) -> Vec<(&str, String)> {
+/// Convert InsertPos enum to the string location used internally.
+fn insert_pos_to_location(pos: crate::ts_syn::InsertPos) -> &'static str {
+    match pos {
+        crate::ts_syn::InsertPos::Top => "top",
+        crate::ts_syn::InsertPos::Above => "above",
+        crate::ts_syn::InsertPos::Within => "body",
+        crate::ts_syn::InsertPos::Below => "below",
+        crate::ts_syn::InsertPos::Bottom => "bottom",
+    }
+}
+
+fn split_by_markers(source: &str, default_pos: crate::ts_syn::InsertPos) -> Vec<(&'static str, String)> {
     let markers = [
+        ("top", "/* @macroforge:top */"),
         ("above", "/* @macroforge:above */"),
         ("below", "/* @macroforge:below */"),
         ("body", "/* @macroforge:body */"),
-        ("signature", "/* @macroforge:signature */"),
+        ("bottom", "/* @macroforge:bottom */"),
+        // Legacy markers for backward compatibility
+        ("body", "/* @macroforge:signature */"),
     ];
 
     let mut occurrences = Vec::new();
@@ -2376,8 +2400,10 @@ fn split_by_markers(source: &str) -> Vec<(&str, String)> {
     }
     occurrences.sort_by_key(|k| k.0);
 
+    let default_location = insert_pos_to_location(default_pos);
+
     if occurrences.is_empty() {
-        return vec![("below", source.to_string())];
+        return vec![(default_location, source.to_string())];
     }
 
     let mut chunks = Vec::new();
@@ -2385,7 +2411,7 @@ fn split_by_markers(source: &str) -> Vec<(&str, String)> {
     if occurrences[0].0 > 0 {
         let text = &source[0..occurrences[0].0];
         if !text.trim().is_empty() {
-            chunks.push(("below", text.to_string()));
+            chunks.push((default_location, text.to_string()));
         }
     }
 

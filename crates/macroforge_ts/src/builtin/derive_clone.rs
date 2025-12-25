@@ -65,7 +65,7 @@
 
 use convert_case::{Case, Casing};
 
-use crate::macros::{body, ts_macro_derive, ts_template};
+use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_macro_input};
 
@@ -119,18 +119,15 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             };
 
             // Generate static wrapper method that delegates to standalone function
-            let class_body = body! {
+            let class_body = ts_template!(Within {
                 static clone(value: @{class_ident}): @{class_ident} {
                     return @{fn_name_expr}(value);
                 }
-            };
+            });
 
             // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(ts_template! {
-                {$typescript standalone}
-                {$typescript class_body}
-            })
+            Ok(standalone.merge(class_body))
         }
         Data::Enum(_) => {
             // Enums are primitive values, cloning is just returning the value

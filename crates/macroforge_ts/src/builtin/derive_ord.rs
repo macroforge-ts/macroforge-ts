@@ -95,11 +95,11 @@
 use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
-use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{
-    ident, parse_ts_expr, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
-};
+use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
+use crate::ts_syn::{
+    Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_expr, parse_ts_macro_input,
+};
 
 /// Contains field information needed for ordering comparison generation.
 ///
@@ -279,11 +279,11 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
             };
 
             // Generate static wrapper method that delegates to standalone function
-            let class_body = body! {
+            let class_body = ts_template!(Within {
                 static compareTo(a: @{class_ident}, b: @{class_ident}): number {
                     return @{fn_name_expr}(a, b);
                 }
-            };
+            });
 
             // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
@@ -488,7 +488,7 @@ mod tests {
         // Explicitly use compare_steps to satisfy clippy (it's consumed by body! macro)
         let _ = &compare_steps;
 
-        let output = body! {
+        let output = ts_template!(Within {
             compareTo(other: @{class_ident}): number {
                 if (a === b) return 0;
                 {#for (cmp_ident, cmp_expr) in &compare_steps}
@@ -497,7 +497,7 @@ mod tests {
                 {/for}
                 return 0;
             }
-        };
+        });
 
         let source = output.source();
         let body_content = source

@@ -163,6 +163,8 @@ class User {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
+        eprintln!("=== Type Output ===\n{}", type_output);
+
         // New format: static method + standalone function
         assert!(
             type_output.contains("static toString(value: User): string"),

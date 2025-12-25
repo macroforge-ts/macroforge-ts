@@ -158,11 +158,11 @@
 use convert_case::{Case, Casing};
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
-use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{
-    ident, parse_ts_expr, Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
-};
+use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::{
+    Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_expr, parse_ts_macro_input,
+};
 
 /// Contains field information needed for equality comparison generation.
 ///
@@ -324,11 +324,11 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             };
 
             // Generate static wrapper method that delegates to standalone function
-            let class_body = body! {
+            let class_body = ts_template!(Within {
                 static equals(a: @{class_ident}, b: @{class_ident}): boolean {
                     return @{fn_name_expr}(a, b);
                 }
-            };
+            });
 
             // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
@@ -484,12 +484,12 @@ mod tests {
             .join(" && ");
         let comparison_expr = parse_ts_expr(&comparison).expect("comparison expr should parse");
 
-        let output = body! {
+        let output = ts_template!(Within {
             equals(other: unknown): boolean {
                 if (a === b) return true;
                 return @{comparison_expr};
             }
-        };
+        });
 
         let source = output.source();
         let body_content = source
