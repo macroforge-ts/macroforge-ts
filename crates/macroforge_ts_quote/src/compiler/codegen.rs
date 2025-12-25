@@ -159,27 +159,39 @@ impl ContextSpan {
         self.end_depth > self.start_depth
     }
 
-    /// Returns true if this span is truly balanced (same depth at start and end,
-    /// and never went below start depth during the span)
+    /// Returns true if this span is balanced (same depth at start and end)
     fn is_balanced(&self) -> bool {
-        self.end_depth == self.start_depth && self.min_depth >= self.start_depth
+        self.end_depth == self.start_depth
     }
 
-    /// Returns true if this span is a "middle" span - it closes and opens contexts,
+    /// Returns true if this span is a "middle" span - closes then opens contexts,
     /// ending at the same depth but going below start during the span.
-    /// Example: `} foo {` starts at 0, goes to -1, ends at 0
+    /// Example: `} foo {` starts at 0, goes to -1, ends at 0.
+    /// Middle spans are a subset of balanced spans that need special handling.
     fn is_middle(&self) -> bool {
         self.end_depth == self.start_depth && self.min_depth < self.start_depth
     }
 
-    /// Number of contexts closed by this span (based on minimum depth reached)
+    /// Number of contexts closed by this span
     fn closes_count(&self) -> i32 {
-        (self.start_depth - self.min_depth).max(0)
+        (self.start_depth - self.end_depth).max(0)
     }
 
     /// Number of contexts opened by this span
     fn opens_count(&self) -> i32 {
         (self.end_depth - self.start_depth).max(0)
+    }
+
+    /// For middle spans, get the number of unmatched closes at the start.
+    /// This is how far below the start depth we went.
+    fn middle_closes_count(&self) -> i32 {
+        (self.start_depth - self.min_depth).max(0)
+    }
+
+    /// For middle spans, get the number of unmatched opens at the end.
+    /// This is how far we recovered from the minimum depth.
+    fn middle_opens_count(&self) -> i32 {
+        (self.end_depth - self.min_depth).max(0)
     }
 }
 
@@ -1048,6 +1060,34 @@ impl Codegen {
         format!("MfPh{}", n)
     }
 
+    /// Detects if text contains class member syntax (method declarations, properties).
+    ///
+    /// Used to identify middle spans that transition through class body level,
+    /// e.g., `} static foo() {` which ends one method and starts another.
+    fn contains_class_member_syntax(text: &str) -> bool {
+        // Look for patterns that indicate class member declarations
+        // These typically appear after a `}` that closes a previous method
+        let patterns = [
+            "} static ",
+            "} readonly ",
+            "} public ",
+            "} private ",
+            "} protected ",
+            "} abstract ",
+            "} async ",
+            "} get ",
+            "} set ",
+            "} constructor",
+            // Also check for method/property declarations without modifiers
+            "}\n    static",
+            "}\n        static",
+            "}\n    readonly",
+            "}\n        readonly",
+        ];
+
+        patterns.iter().any(|p| text.contains(p))
+    }
+
     /// Generates Rust TokenStream from IR.
     ///
     /// The generated code builds `Vec<ModuleItem>` at compile time using
@@ -1421,13 +1461,15 @@ impl Codegen {
             }
 
             ParseContext::FunctionBody => {
-                // Check span type: balanced, middle, closer, or opener
-                if span.is_balanced() {
-                    // Truly balanced: same depth at start and end, never went below
+                // Check span type: middle spans with class members get special handling,
+                // otherwise use standard balanced/closer/opener logic
+                if span.is_middle() && Self::contains_class_member_syntax(&span.text) {
+                    // Middle span with class member syntax: `} static foo() {`
+                    // This transitions through ClassBody level between methods
+                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else if span.is_balanced() {
+                    // Balanced: same depth at start and end (includes regular middle spans like `} else {`)
                     self.generate_balanced_stmt_span(&span.text, &binding_stmts, &quote_bindings)
-                } else if span.is_middle() {
-                    // Middle: closes and opens (e.g., `} else {`)
-                    self.generate_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
                 } else if span.is_closer() {
                     // Closer: closes more contexts than it opens
                     self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
@@ -1449,14 +1491,13 @@ impl Codegen {
 
             ParseContext::ClassBody => {
                 // Class body - collect class members
-                // Use same pattern as FunctionBody: check balanced, middle, closer, opener
-                if span.is_balanced() {
-                    // Truly balanced - collect class member
-                    self.generate_class_body_span(&span.text, &binding_stmts, &quote_bindings)
-                } else if span.is_middle() {
+                // Check is_middle() first since it's a subset of is_balanced()
+                if span.is_middle() {
                     // Middle span: closes and opens (e.g., `} static foo() {`)
-                    // Handle like FunctionBody middle span
-                    self.generate_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else if span.is_balanced() {
+                    // Balanced - collect class member
+                    self.generate_class_body_span(&span.text, &binding_stmts, &quote_bindings)
                 } else if span.is_closer() {
                     // Closer in class body context
                     self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
@@ -1768,6 +1809,101 @@ impl Codegen {
                 let __mf_wrapped_item: swc_core::ecma::ast::ModuleItem = #quote_call;
                 for __mf_member in macroforge_ts_syn::__internal::extract_class_members_from_wrapped(&__mf_wrapped_item) {
                     macroforge_ts_syn::__internal::push_class_member(&mut __mf_context_collector, __mf_member);
+                }
+            }
+        }
+    }
+
+    /// Generate code for a class body middle span (closes and opens contexts).
+    ///
+    /// For content like `} static foo() {` that ends one method and starts another.
+    /// This is complex because the content transitions between method bodies (FunctionBody)
+    /// and class body (ClassBody) levels. Since we can't easily parse this as-is,
+    /// we emit it as raw source with placeholder substitution and let the
+    /// TsStream assembly handle the final structure.
+    ///
+    /// We still need to update the opener/closer stack to keep it balanced for
+    /// subsequent chunks.
+    fn generate_class_middle_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+        span: &ContextSpan,
+    ) -> TokenStream {
+        let output_var = format_ident!("{}", self.config.output_var);
+        // For middle spans, use the middle-specific counts which track the actual
+        // transitions through the class body level
+        let closes = span.middle_closes_count() as usize;
+        let opens = span.middle_opens_count() as usize;
+
+        #[cfg(debug_assertions)]
+        if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+            eprintln!("[MF_DEBUG_CODEGEN] Class middle span (raw source): {:?} closes={} opens={}", text, closes, opens);
+        }
+
+        // Build format string with placeholders replaced
+        // This mirrors the Module span approach but keeps the text as-is
+        let mut format_str = text.replace('{', "{{").replace('}', "}}");
+        let mut format_args: Vec<TokenStream> = Vec::new();
+
+        // Extract placeholder info from quote_bindings
+        // The placeholder names are embedded in the quote_bindings as $Name patterns
+        for binding in quote_bindings {
+            let binding_str = binding.to_string();
+            // Extract the placeholder name (e.g., "$MfPh0" -> "MfPh0")
+            if let Some(start) = binding_str.find('$') {
+                if let Some(end) = binding_str[start..].find(|c: char| !c.is_alphanumeric() && c != '_') {
+                    let ph_name = &binding_str[start + 1..start + end];
+                    let marker = format!("${}", ph_name);
+                    if format_str.contains(&marker) {
+                        format_str = format_str.replace(&marker, "{}");
+                        let ph_ident = format_ident!("{}", ph_name);
+                        // Emit as type (most common in class member signatures)
+                        format_args.push(quote! { macroforge_ts::ts_syn::emit_ts_type(&#ph_ident) });
+                    }
+                }
+            }
+        }
+
+        // Generate stack updates: pop for closes, push for opens
+        // This keeps the opener stack balanced for subsequent chunks
+        let stack_pops: Vec<TokenStream> = (0..closes).map(|_| {
+            quote! {
+                let _ = __mf_opener_stack.pop();
+            }
+        }).collect();
+
+        let stack_pushes: Vec<TokenStream> = (0..opens).map(|_| {
+            quote! {
+                __mf_opener_stack.push(#output_var.len());
+            }
+        }).collect();
+
+        // If we have placeholders, use format!; otherwise just use the text directly
+        if format_args.is_empty() {
+            let text_lit = syn::LitStr::new(text, proc_macro2::Span::call_site());
+            quote! {
+                {
+                    #(#binding_stmts)*
+                    #(#stack_pops)*
+                    __injected_streams.push(
+                        macroforge_ts::ts_syn::TsStream::from_string(#text_lit.to_string())
+                    );
+                    #(#stack_pushes)*
+                }
+            }
+        } else {
+            let format_lit = syn::LitStr::new(&format_str, proc_macro2::Span::call_site());
+            quote! {
+                {
+                    #(#binding_stmts)*
+                    #(#stack_pops)*
+                    let __formatted = format!(#format_lit, #(#format_args),*);
+                    __injected_streams.push(
+                        macroforge_ts::ts_syn::TsStream::from_string(__formatted)
+                    );
+                    #(#stack_pushes)*
                 }
             }
         }
