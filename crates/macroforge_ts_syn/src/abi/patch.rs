@@ -48,6 +48,69 @@
 use serde::{Deserialize, Serialize};
 
 use crate::abi::{SpanIR, swc_ast};
+
+/// Specifies where generated code should be inserted relative to the target.
+///
+/// This enum provides structured control over code placement, replacing
+/// the string-based marker system (`/* @macroforge:body */`, etc.).
+///
+/// # Positions
+///
+/// ```text
+/// // ─── Top ─────────────────────────
+/// import { foo } from "./runtime";
+///
+/// // ─── Above ───────────────────────
+/// /** @derive(Debug) */
+/// class User {
+///     // ─── Within ──────────────────
+///     name: string;
+///     debug() { ... }  // <-- inserted here
+/// }
+/// // ─── Below ───────────────────────
+/// User.prototype.toJSON = ...;
+///
+/// // ─── Bottom ──────────────────────
+/// export { User };
+/// ```
+///
+/// # Example
+///
+/// ```rust
+/// use macroforge_ts_syn::InsertPos;
+///
+/// // Generated imports go at the top
+/// let import_pos = InsertPos::Top;
+///
+/// // Generated methods go inside the class
+/// let method_pos = InsertPos::Within;
+///
+/// // Prototype extensions go after the class
+/// let proto_pos = InsertPos::Below;
+/// ```
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+pub enum InsertPos {
+    /// Insert at the top of the file (before all other code).
+    /// Use for imports and module-level setup.
+    Top,
+
+    /// Insert immediately before the target declaration.
+    /// Use for helper functions or type declarations that the target depends on.
+    Above,
+
+    /// Insert inside the target's body (class body, interface body, etc.).
+    /// Use for generated methods, properties, or members.
+    Within,
+
+    /// Insert immediately after the target declaration.
+    /// Use for prototype extensions, companion functions, or related code.
+    #[default]
+    Below,
+
+    /// Insert at the bottom of the file (after all other code).
+    /// Use for exports or cleanup code.
+    Bottom,
+}
 #[cfg(feature = "swc")]
 use swc_core::common::{DUMMY_SP, SyntaxContext};
 
@@ -403,6 +466,12 @@ pub struct MacroResult {
     /// Optional raw token stream (source code) returned by the macro.
     /// Used for macros that generate complete output rather than patches.
     pub tokens: Option<String>,
+
+    /// Where to insert the tokens relative to the target.
+    /// Defaults to `Below` (after the target declaration).
+    /// This is used when `tokens` is set and no string markers are present.
+    #[serde(default)]
+    pub insert_pos: InsertPos,
 
     /// Optional debug information for development.
     /// Can be displayed in verbose mode or logged for debugging.

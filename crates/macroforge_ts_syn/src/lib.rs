@@ -221,6 +221,240 @@ pub fn to_ts_expr<T: ToTsExpr>(value: T) -> swc_core::ecma::ast::Expr {
     value.to_ts_expr()
 }
 
+// =============================================================================
+// Type conversion helpers
+// =============================================================================
+
+/// Converts common Rust values into SWC [`TsType`](swc_core::ecma::ast::TsType) nodes.
+///
+/// This enables ergonomic interpolation in template literals where a type
+/// annotation is expected.
+#[cfg(feature = "swc")]
+pub trait ToTsType {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType;
+}
+
+#[cfg(feature = "swc")]
+impl ToTsType for swc_core::ecma::ast::TsType {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        self.clone()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsType for Box<swc_core::ecma::ast::TsType> {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        (**self).clone()
+    }
+}
+
+/// Convert a string to a TsTypeRef (type reference by name).
+#[cfg(feature = "swc")]
+impl ToTsType for String {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        swc_core::ecma::ast::TsType::TsTypeRef(swc_core::ecma::ast::TsTypeRef {
+            span: swc_core::common::DUMMY_SP,
+            type_name: swc_core::ecma::ast::TsEntityName::Ident(
+                swc_core::ecma::ast::Ident::new_no_ctxt(self.clone().into(), swc_core::common::DUMMY_SP),
+            ),
+            type_params: None,
+        })
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsType for str {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        self.to_string().to_ts_type()
+    }
+}
+
+/// Convert an Ident to a TsTypeRef.
+#[cfg(feature = "swc")]
+impl ToTsType for swc_core::ecma::ast::Ident {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        swc_core::ecma::ast::TsType::TsTypeRef(swc_core::ecma::ast::TsTypeRef {
+            span: swc_core::common::DUMMY_SP,
+            type_name: swc_core::ecma::ast::TsEntityName::Ident(self.clone()),
+            type_params: None,
+        })
+    }
+}
+
+/// Convert an Expr to a TsType. Only works for identifier expressions.
+#[cfg(feature = "swc")]
+impl ToTsType for swc_core::ecma::ast::Expr {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        match self {
+            swc_core::ecma::ast::Expr::Ident(ident) => ident.to_ts_type(),
+            // For other expressions, create a typeof type
+            other => swc_core::ecma::ast::TsType::TsTypeQuery(swc_core::ecma::ast::TsTypeQuery {
+                span: swc_core::common::DUMMY_SP,
+                expr_name: swc_core::ecma::ast::TsTypeQueryExpr::TsEntityName(
+                    swc_core::ecma::ast::TsEntityName::Ident(swc_core::ecma::ast::Ident::new_no_ctxt(
+                        format!("{:?}", other).into(),
+                        swc_core::common::DUMMY_SP,
+                    )),
+                ),
+                type_args: None,
+            }),
+        }
+    }
+}
+
+/// Convert a value into a TypeScript [`TsType`](swc_core::ecma::ast::TsType).
+///
+/// This is a convenience wrapper for [`ToTsType`].
+#[cfg(feature = "swc")]
+pub fn to_ts_type<T: ToTsType>(value: &T) -> swc_core::ecma::ast::TsType {
+    value.to_ts_type()
+}
+
+// =============================================================================
+// Identifier conversion helpers
+// =============================================================================
+
+/// Converts common Rust values into SWC [`Ident`](swc_core::ecma::ast::Ident) nodes.
+///
+/// This enables ergonomic interpolation in template literals where an identifier
+/// is expected.
+#[cfg(feature = "swc")]
+pub trait ToTsIdent {
+    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident;
+}
+
+#[cfg(feature = "swc")]
+impl ToTsIdent for swc_core::ecma::ast::Ident {
+    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+        self.clone()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsIdent for String {
+    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+        swc_core::ecma::ast::Ident::new_no_ctxt(self.clone().into(), swc_core::common::DUMMY_SP)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsIdent for str {
+    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+        swc_core::ecma::ast::Ident::new_no_ctxt(self.into(), swc_core::common::DUMMY_SP)
+    }
+}
+
+/// Convert an Expr to an Ident. Only works for identifier expressions.
+#[cfg(feature = "swc")]
+impl ToTsIdent for swc_core::ecma::ast::Expr {
+    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+        match self {
+            swc_core::ecma::ast::Expr::Ident(ident) => ident.clone(),
+            // For non-ident expressions, create a placeholder identifier
+            _ => swc_core::ecma::ast::Ident::new_no_ctxt(
+                "__expr__".into(),
+                swc_core::common::DUMMY_SP,
+            ),
+        }
+    }
+}
+
+/// Convert a TsType to an Ident. Only works for type references with simple names.
+#[cfg(feature = "swc")]
+impl ToTsIdent for swc_core::ecma::ast::TsType {
+    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+        match self {
+            swc_core::ecma::ast::TsType::TsTypeRef(swc_core::ecma::ast::TsTypeRef {
+                type_name: swc_core::ecma::ast::TsEntityName::Ident(ident),
+                ..
+            }) => ident.clone(),
+            // For other types, create a placeholder
+            _ => swc_core::ecma::ast::Ident::new_no_ctxt(
+                "__type__".into(),
+                swc_core::common::DUMMY_SP,
+            ),
+        }
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsIdent for Box<swc_core::ecma::ast::TsType> {
+    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+        (**self).to_ts_ident()
+    }
+}
+
+/// Convert a value into a TypeScript [`Ident`](swc_core::ecma::ast::Ident).
+///
+/// This is a convenience wrapper for [`ToTsIdent`].
+#[cfg(feature = "swc")]
+pub fn to_ts_ident<T: ToTsIdent>(value: &T) -> swc_core::ecma::ast::Ident {
+    value.to_ts_ident()
+}
+
+// =============================================================================
+// Statement conversion helpers
+// =============================================================================
+
+/// Converts common Rust values into SWC [`Stmt`](swc_core::ecma::ast::Stmt) nodes.
+///
+/// This enables ergonomic interpolation in template literals where a statement
+/// is expected.
+#[cfg(feature = "swc")]
+pub trait ToTsStmt {
+    fn to_ts_stmt(self) -> swc_core::ecma::ast::Stmt;
+}
+
+#[cfg(feature = "swc")]
+impl ToTsStmt for swc_core::ecma::ast::Stmt {
+    fn to_ts_stmt(self) -> swc_core::ecma::ast::Stmt {
+        self
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsStmt for Box<swc_core::ecma::ast::Stmt> {
+    fn to_ts_stmt(self) -> swc_core::ecma::ast::Stmt {
+        *self
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsStmt for &swc_core::ecma::ast::Stmt {
+    fn to_ts_stmt(self) -> swc_core::ecma::ast::Stmt {
+        self.clone()
+    }
+}
+
+/// Convert an expression to an expression statement.
+#[cfg(feature = "swc")]
+impl ToTsStmt for swc_core::ecma::ast::Expr {
+    fn to_ts_stmt(self) -> swc_core::ecma::ast::Stmt {
+        swc_core::ecma::ast::Stmt::Expr(swc_core::ecma::ast::ExprStmt {
+            span: swc_core::common::DUMMY_SP,
+            expr: Box::new(self),
+        })
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsStmt for Box<swc_core::ecma::ast::Expr> {
+    fn to_ts_stmt(self) -> swc_core::ecma::ast::Stmt {
+        swc_core::ecma::ast::Stmt::Expr(swc_core::ecma::ast::ExprStmt {
+            span: swc_core::common::DUMMY_SP,
+            expr: self,
+        })
+    }
+}
+
+/// Convert a value into a TypeScript [`Stmt`](swc_core::ecma::ast::Stmt).
+///
+/// This is a convenience wrapper for [`ToTsStmt`].
+#[cfg(feature = "swc")]
+pub fn to_ts_stmt<T: ToTsStmt>(value: T) -> swc_core::ecma::ast::Stmt {
+    value.to_ts_stmt()
+}
+
 /// Trait for converting values to type name strings.
 ///
 /// This is used for type placeholder substitution in templates.
@@ -305,8 +539,12 @@ impl ToTsTypeName for &str {
 #[macro_export]
 macro_rules! ident {
     // Single argument - direct string
+    // Use AsRef<str> to handle String, &String, &str, etc.
     ($name:expr) => {
-        swc_core::ecma::ast::Ident::new_no_ctxt($name.into(), swc_core::common::DUMMY_SP)
+        swc_core::ecma::ast::Ident::new_no_ctxt(
+            AsRef::<str>::as_ref(&$name).into(),
+            swc_core::common::DUMMY_SP,
+        )
     };
     // Format string with arguments
     ($fmt:expr, $($args:expr),+ $(,)?) => {
@@ -828,4 +1066,780 @@ macro_rules! fn_assign {
             })),
         })
     }};
+}
+
+// =============================================================================
+// AST to string conversion helpers (for template codegen)
+// =============================================================================
+
+/// Converts an expression to its TypeScript string representation.
+///
+/// This is used by the template compiler to convert AST nodes back to strings
+/// for runtime parsing.
+#[cfg(feature = "swc")]
+pub fn expr_to_string(expr: &swc_core::ecma::ast::Expr) -> String {
+    use swc_core::common::sync::Lrc;
+    use swc_core::ecma::ast::{Module, ModuleItem, Stmt, ExprStmt};
+    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+
+    // Wrap expression in a module as expression statement
+    let module = Module {
+        span: swc_core::common::DUMMY_SP,
+        body: vec![ModuleItem::Stmt(Stmt::Expr(ExprStmt {
+            span: swc_core::common::DUMMY_SP,
+            expr: Box::new(expr.clone()),
+        }))],
+        shebang: None,
+    };
+
+    let cm = Lrc::new(swc_core::common::SourceMap::default());
+    let mut buf = Vec::new();
+    {
+        let mut emitter = Emitter {
+            cfg: Config::default(),
+            cm: cm.clone(),
+            comments: None,
+            wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+        };
+        let _ = emitter.emit_module(&module);
+    }
+    // The output will be "expr;\n" - trim the semicolon and newline
+    let s = String::from_utf8(buf).unwrap_or_default();
+    s.trim_end().trim_end_matches(';').to_string()
+}
+
+/// Converts a type to its TypeScript string representation.
+#[cfg(feature = "swc")]
+pub fn type_to_string(ty: &swc_core::ecma::ast::TsType) -> String {
+    use swc_core::common::sync::Lrc;
+    use swc_core::ecma::ast::*;
+    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+
+    // Wrap type in a type alias declaration: type __T = <type>;
+    let module = Module {
+        span: swc_core::common::DUMMY_SP,
+        body: vec![ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(Box::new(
+            TsTypeAliasDecl {
+                span: swc_core::common::DUMMY_SP,
+                declare: false,
+                id: Ident::new_no_ctxt("__T".into(), swc_core::common::DUMMY_SP),
+                type_params: None,
+                type_ann: Box::new(ty.clone()),
+            },
+        ))))],
+        shebang: None,
+    };
+
+    let cm = Lrc::new(swc_core::common::SourceMap::default());
+    let mut buf = Vec::new();
+    {
+        let mut emitter = Emitter {
+            cfg: Config::default(),
+            cm: cm.clone(),
+            comments: None,
+            wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+        };
+        let _ = emitter.emit_module(&module);
+    }
+    // Output: "type __T = <type>;\n" - extract the type part
+    let s = String::from_utf8(buf).unwrap_or_default();
+    // Extract between "= " and ";"
+    if let Some(eq_pos) = s.find("= ") {
+        let after_eq = &s[eq_pos + 2..];
+        if let Some(semi_pos) = after_eq.rfind(';') {
+            return after_eq[..semi_pos].to_string();
+        }
+    }
+    s.trim().to_string()
+}
+
+/// Converts an identifier to its TypeScript string representation.
+#[cfg(feature = "swc")]
+pub fn ident_to_string(ident: &swc_core::ecma::ast::Ident) -> String {
+    ident.sym.to_string()
+}
+
+/// Emits a list of module items to a TypeScript source string.
+///
+/// This function takes AST nodes and optional comments, and produces
+/// properly formatted TypeScript source code.
+///
+/// # Example
+///
+/// ```ignore
+/// use macroforge_ts_syn::emit_module_items;
+/// use swc_core::ecma::ast::ModuleItem;
+/// use swc_core::common::comments::SingleThreadedComments;
+///
+/// let items: Vec<ModuleItem> = vec![/* ... */];
+/// let comments = SingleThreadedComments::default();
+/// let source = emit_module_items(&items, &comments);
+/// ```
+#[cfg(feature = "swc")]
+pub fn emit_module_items(
+    items: &[swc_core::ecma::ast::ModuleItem],
+    comments: &swc_core::common::comments::SingleThreadedComments,
+) -> String {
+    use swc_core::common::sync::Lrc;
+    use swc_core::ecma::ast::Module;
+    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+
+    let module = Module {
+        span: swc_core::common::DUMMY_SP,
+        body: items.to_vec(),
+        shebang: None,
+    };
+
+    let cm = Lrc::new(swc_core::common::SourceMap::default());
+    let mut buf = Vec::new();
+    {
+        let mut emitter = Emitter {
+            cfg: Config::default().with_minify(false),
+            cm: cm.clone(),
+            comments: Some(comments),
+            wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+        };
+        let _ = emitter.emit_module(&module);
+    }
+    String::from_utf8(buf).unwrap_or_default()
+}
+
+// =============================================================================
+// Internal helpers for virtual completion (used by generated code)
+// =============================================================================
+
+/// Internal module for virtual completion helpers.
+///
+/// These functions are used by the generated code from `ts_quote!` macro
+/// when templates contain control flow inside function bodies. The template
+/// gets split into incomplete chunks that are validated individually, and
+/// these helpers reassemble the complete AST at runtime.
+///
+/// **DO NOT USE DIRECTLY** - These are implementation details of the macro system.
+#[cfg(feature = "swc")]
+pub mod __internal {
+    use std::collections::HashMap;
+    use swc_core::ecma::ast::*;
+    use swc_core::ecma::visit::{VisitMut, VisitMutWith};
+
+    // =========================================================================
+    // Context-aware collector system
+    // =========================================================================
+
+    /// Collector for items generated inside control flow, parameterized by context.
+    ///
+    /// When a for-loop or if-block appears inside an object literal, array literal,
+    /// class body, or type literal, the items generated need to be collected and
+    /// later merged into the parent structure.
+    #[derive(Debug, Clone)]
+    pub enum ContextCollector {
+        /// Object literal properties: `{ key: value, ... }`
+        ObjectProps(Vec<PropOrSpread>),
+        /// Array literal elements: `[elem, ...]`
+        ArrayElems(Vec<ExprOrSpread>),
+        /// Class body members: `class { member... }`
+        ClassMembers(Vec<ClassMember>),
+        /// Type literal properties: `{ prop: Type, ... }`
+        TypeProps(Vec<TsTypeElement>),
+        /// Statements (for function/block bodies) - handled separately
+        Stmts(Vec<Stmt>),
+    }
+
+    impl ContextCollector {
+        /// Creates a new empty collector for the given context type.
+        ///
+        /// Context values: 0=ObjectLiteral, 1=ArrayLiteral, 2=ClassBody, 3=TypeObjectLiteral, _=Stmts
+        pub fn new(context_type: u8) -> Self {
+            match context_type {
+                0 => Self::ObjectProps(vec![]),
+                1 => Self::ArrayElems(vec![]),
+                2 => Self::ClassMembers(vec![]),
+                3 => Self::TypeProps(vec![]),
+                _ => Self::Stmts(vec![]),
+            }
+        }
+
+        /// Creates a collector for object literal properties.
+        pub fn for_object() -> Self {
+            Self::ObjectProps(vec![])
+        }
+
+        /// Creates a collector for array literal elements.
+        pub fn for_array() -> Self {
+            Self::ArrayElems(vec![])
+        }
+
+        /// Creates a collector for class body members.
+        pub fn for_class() -> Self {
+            Self::ClassMembers(vec![])
+        }
+
+        /// Creates a collector for type literal properties.
+        pub fn for_type_object() -> Self {
+            Self::TypeProps(vec![])
+        }
+    }
+
+    /// Pushes an object property to a collector.
+    ///
+    /// Panics if the collector is not an ObjectProps variant.
+    pub fn push_object_prop(collector: &mut ContextCollector, prop: PropOrSpread) {
+        match collector {
+            ContextCollector::ObjectProps(props) => props.push(prop),
+            _ => panic!("push_object_prop called on non-ObjectProps collector"),
+        }
+    }
+
+    /// Pushes an array element to a collector.
+    ///
+    /// Panics if the collector is not an ArrayElems variant.
+    pub fn push_array_elem(collector: &mut ContextCollector, elem: ExprOrSpread) {
+        match collector {
+            ContextCollector::ArrayElems(elems) => elems.push(elem),
+            _ => panic!("push_array_elem called on non-ArrayElems collector"),
+        }
+    }
+
+    /// Pushes a class member to a collector.
+    ///
+    /// Panics if the collector is not a ClassMembers variant.
+    pub fn push_class_member(collector: &mut ContextCollector, member: ClassMember) {
+        match collector {
+            ContextCollector::ClassMembers(members) => members.push(member),
+            _ => panic!("push_class_member called on non-ClassMembers collector"),
+        }
+    }
+
+    /// Pushes a type property to a collector.
+    ///
+    /// Panics if the collector is not a TypeProps variant.
+    pub fn push_type_prop(collector: &mut ContextCollector, prop: TsTypeElement) {
+        match collector {
+            ContextCollector::TypeProps(props) => props.push(prop),
+            _ => panic!("push_type_prop called on non-TypeProps collector"),
+        }
+    }
+
+    /// Extracts a PropOrSpread from a wrapped expression `({ prop })`.
+    ///
+    /// This is used when parsing object literal properties in a for-loop body.
+    /// The property is wrapped in `({ ... })` to make it parseable, then we
+    /// extract the actual property.
+    pub fn extract_prop_from_wrapped_expr(expr: &Expr) -> Option<PropOrSpread> {
+        // Expected structure: Paren(Object({ props: [prop] }))
+        if let Expr::Paren(ParenExpr { expr: inner, .. }) = expr {
+            if let Expr::Object(ObjectLit { props, .. }) = inner.as_ref() {
+                // Skip __mf_dummy property if present, return the real property
+                for prop in props {
+                    match prop {
+                        PropOrSpread::Prop(p) => {
+                            if let Prop::KeyValue(KeyValueProp { key, .. }) = p.as_ref() {
+                                if let PropName::Ident(ident) = key {
+                                    if ident.sym.as_ref() == "__mf_dummy" {
+                                        continue;
+                                    }
+                                }
+                            }
+                            return Some(prop.clone());
+                        }
+                        PropOrSpread::Spread(_) => return Some(prop.clone()),
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    /// Extracts an ExprOrSpread from a wrapped array expression `[elem]`.
+    ///
+    /// This is used when parsing array literal elements in a for-loop body.
+    pub fn extract_elem_from_wrapped_expr(expr: &Expr) -> Option<ExprOrSpread> {
+        // Expected structure: Array({ elems: [Some(elem)] })
+        if let Expr::Array(ArrayLit { elems, .. }) = expr {
+            for elem in elems.iter().flatten() {
+                return Some(elem.clone());
+            }
+        }
+        None
+    }
+
+    /// Merges collected object properties into an opener's object literal.
+    ///
+    /// Finds the object literal in the opener (typically inside a return statement)
+    /// and adds the collected properties to it, removing any dummy properties.
+    pub fn merge_object_props(item: &mut ModuleItem, props: Vec<PropOrSpread>) {
+        let mut merger = ObjectPropMerger { props_to_add: props };
+        item.visit_mut_with(&mut merger);
+    }
+
+    /// Merges collected array elements into an opener's array literal.
+    pub fn merge_array_elems(item: &mut ModuleItem, elems: Vec<ExprOrSpread>) {
+        let mut merger = ArrayElemMerger { elems_to_add: elems };
+        item.visit_mut_with(&mut merger);
+    }
+
+    /// Merges collected class members into an opener's class body.
+    pub fn merge_class_members(item: &mut ModuleItem, members: Vec<ClassMember>) {
+        let mut merger = ClassMemberMerger { members_to_add: members };
+        item.visit_mut_with(&mut merger);
+    }
+
+    /// Merges collected type properties into an opener's type literal.
+    pub fn merge_type_props(item: &mut ModuleItem, props: Vec<TsTypeElement>) {
+        let mut merger = TypePropMerger { props_to_add: props };
+        item.visit_mut_with(&mut merger);
+    }
+
+    /// Visitor that merges properties into the first object literal found.
+    struct ObjectPropMerger {
+        props_to_add: Vec<PropOrSpread>,
+    }
+
+    impl VisitMut for ObjectPropMerger {
+        fn visit_mut_object_lit(&mut self, obj: &mut ObjectLit) {
+            if !self.props_to_add.is_empty() {
+                // Remove __mf_dummy property if present
+                obj.props.retain(|prop| {
+                    if let PropOrSpread::Prop(p) = prop {
+                        if let Prop::KeyValue(KeyValueProp { key: PropName::Ident(ident), .. }) = p.as_ref() {
+                            if ident.sym.as_ref() == "__mf_dummy" {
+                                return false;
+                            }
+                        }
+                    }
+                    true
+                });
+                // Add collected properties
+                obj.props.extend(std::mem::take(&mut self.props_to_add));
+            }
+        }
+    }
+
+    /// Visitor that merges elements into the first array literal found.
+    struct ArrayElemMerger {
+        elems_to_add: Vec<ExprOrSpread>,
+    }
+
+    impl VisitMut for ArrayElemMerger {
+        fn visit_mut_array_lit(&mut self, arr: &mut ArrayLit) {
+            if !self.elems_to_add.is_empty() {
+                // Remove dummy element (first element with value 0) if present
+                if let Some(first) = arr.elems.first() {
+                    if let Some(ExprOrSpread { expr, .. }) = first {
+                        if let Expr::Lit(Lit::Num(Number { value, .. })) = expr.as_ref() {
+                            if *value == 0.0 {
+                                arr.elems.remove(0);
+                            }
+                        }
+                    }
+                }
+                // Add collected elements
+                for elem in std::mem::take(&mut self.elems_to_add) {
+                    arr.elems.push(Some(elem));
+                }
+            }
+        }
+    }
+
+    /// Visitor that merges members into the first class found.
+    struct ClassMemberMerger {
+        members_to_add: Vec<ClassMember>,
+    }
+
+    impl VisitMut for ClassMemberMerger {
+        fn visit_mut_class(&mut self, class: &mut Class) {
+            if !self.members_to_add.is_empty() {
+                class.body.extend(std::mem::take(&mut self.members_to_add));
+            }
+        }
+    }
+
+    /// Visitor that merges type properties into the first type literal found.
+    struct TypePropMerger {
+        props_to_add: Vec<TsTypeElement>,
+    }
+
+    impl VisitMut for TypePropMerger {
+        fn visit_mut_ts_type_lit(&mut self, lit: &mut TsTypeLit) {
+            if !self.props_to_add.is_empty() {
+                lit.members.extend(std::mem::take(&mut self.props_to_add));
+            }
+        }
+    }
+
+    // =========================================================================
+    // Existing type replacement helpers
+    // =========================================================================
+
+    /// Visitor that replaces marker type references with actual types.
+    struct TypeReplacer {
+        /// Mapping from placeholder names to actual types
+        replacements: HashMap<String, TsType>,
+    }
+
+    impl VisitMut for TypeReplacer {
+        fn visit_mut_ts_type(&mut self, ty: &mut TsType) {
+            // First, check if this is a type reference to one of our markers
+            if let TsType::TsTypeRef(TsTypeRef {
+                type_name: TsEntityName::Ident(ident),
+                type_params: None,
+                ..
+            }) = ty
+            {
+                let name = ident.sym.to_string();
+                if let Some(replacement) = self.replacements.get(&name) {
+                    *ty = replacement.clone();
+                    return;
+                }
+            }
+            // Continue visiting children
+            ty.visit_mut_children_with(self);
+        }
+    }
+
+    /// Replaces marker type references in a ModuleItem with actual types.
+    ///
+    /// This is used for type placeholder substitution. SWC quote! doesn't
+    /// support `$placeholder` in type positions, so we use marker names like
+    /// `__ph_0` and replace them after parsing.
+    ///
+    /// # Arguments
+    /// * `item` - The ModuleItem to transform (modified in-place)
+    /// * `replacements` - Map of placeholder names to actual TsType values
+    pub fn replace_type_markers(item: &mut ModuleItem, replacements: HashMap<String, TsType>) {
+        let mut replacer = TypeReplacer { replacements };
+        item.visit_mut_with(&mut replacer);
+    }
+
+    /// Replaces marker type references in a Statement with actual types.
+    pub fn replace_type_markers_stmt(stmt: &mut Stmt, replacements: HashMap<String, TsType>) {
+        let mut replacer = TypeReplacer { replacements };
+        stmt.visit_mut_with(&mut replacer);
+    }
+
+    /// Handle an opener chunk (template with unclosed braces).
+    ///
+    /// This is called when a template like `export function foo() { const x = 1;`
+    /// was parsed with virtual closing braces. We push the item to output and
+    /// return the index so the closer can find it.
+    ///
+    /// # Arguments
+    /// * `item` - The parsed ModuleItem (function/class with virtual body)
+    /// * `output` - The accumulator Vec<ModuleItem>
+    /// * `depth` - Number of virtual closing braces that were added
+    ///
+    /// # Returns
+    /// The index of the pushed item in output
+    pub fn push_opener(item: ModuleItem, output: &mut Vec<ModuleItem>, _depth: usize) -> usize {
+        let idx = output.len();
+        output.push(item);
+        idx
+    }
+
+    /// Handle a closer chunk (template with unmatched closing braces).
+    ///
+    /// This is called when a template like `return x; }` was parsed with a
+    /// virtual function wrapper. We extract the statements and add them to
+    /// the opener's body.
+    ///
+    /// # Arguments
+    /// * `item` - The parsed ModuleItem (virtual wrapper containing actual statements)
+    /// * `output` - The accumulator Vec<ModuleItem>
+    /// * `opener_idx` - The index of the opener item (from push_opener)
+    /// * `_depth` - Number of virtual opening braces that were added
+    pub fn finalize_closer(
+        item: ModuleItem,
+        output: &mut Vec<ModuleItem>,
+        opener_idx: usize,
+    ) {
+        // Extract statements from the virtual wrapper (function __mf_virtual() { ... })
+        let closer_stmts = extract_function_body_statements(&item);
+
+        // Collect all items pushed after the opener (these are statements from control flow)
+        let intermediate_items: Vec<ModuleItem> = output.drain((opener_idx + 1)..).collect();
+
+        // Convert intermediate ModuleItems to Statements
+        let intermediate_stmts: Vec<Stmt> = intermediate_items
+            .into_iter()
+            .filter_map(|mi| match mi {
+                ModuleItem::Stmt(stmt) => Some(stmt),
+                _ => None, // Skip module declarations (shouldn't happen in function body)
+            })
+            .collect();
+
+        // Extend the opener's body with intermediate + closer statements
+        if let Some(opener) = output.get_mut(opener_idx) {
+            let all_stmts: Vec<Stmt> =
+                intermediate_stmts.into_iter().chain(closer_stmts).collect();
+            extend_item_body(opener, all_stmts);
+        }
+    }
+
+    /// Handle a middle chunk (template with both unclosed and unmatched braces).
+    ///
+    /// This is for cases like `} else {` which close one block and open another.
+    /// We extract the statements and add them to the opener's body.
+    ///
+    /// # Arguments
+    /// * `item` - The parsed ModuleItem (virtual wrapper)
+    /// * `output` - The accumulator Vec<ModuleItem>
+    /// * `opener_idx` - The index of the opener item
+    pub fn push_middle(item: ModuleItem, output: &mut Vec<ModuleItem>, opener_idx: usize) {
+        // Extract statements from the virtual wrapper
+        let stmts = extract_function_body_statements(&item);
+
+        // Collect intermediate items
+        let intermediate_items: Vec<ModuleItem> = output.drain((opener_idx + 1)..).collect();
+
+        let intermediate_stmts: Vec<Stmt> = intermediate_items
+            .into_iter()
+            .filter_map(|mi| match mi {
+                ModuleItem::Stmt(stmt) => Some(stmt),
+                _ => None,
+            })
+            .collect();
+
+        // Extend the opener's body
+        if let Some(opener) = output.get_mut(opener_idx) {
+            let all_stmts: Vec<Stmt> = intermediate_stmts.into_iter().chain(stmts).collect();
+            extend_item_body(opener, all_stmts);
+        }
+    }
+
+    /// Extract the body statements from a function declaration.
+    fn extract_function_body_statements(item: &ModuleItem) -> Vec<Stmt> {
+        match item {
+            // function foo() { ... }
+            ModuleItem::Stmt(Stmt::Decl(Decl::Fn(FnDecl { function, .. }))) => {
+                if let Some(body) = &function.body {
+                    body.stmts.clone()
+                } else {
+                    vec![]
+                }
+            }
+            // export function foo() { ... }
+            ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
+                decl: Decl::Fn(FnDecl { function, .. }),
+                ..
+            })) => {
+                if let Some(body) = &function.body {
+                    body.stmts.clone()
+                } else {
+                    vec![]
+                }
+            }
+            _ => vec![],
+        }
+    }
+
+    /// Extend the body of a function or class method with additional statements.
+    fn extend_item_body(item: &mut ModuleItem, stmts: Vec<Stmt>) {
+        match item {
+            // export function foo() { ... }
+            ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
+                decl: Decl::Fn(FnDecl { function, .. }),
+                ..
+            })) => {
+                if let Some(ref mut body) = function.body {
+                    body.stmts.extend(stmts);
+                }
+            }
+
+            // export default function() { ... }
+            ModuleItem::ModuleDecl(ModuleDecl::ExportDefaultDecl(ExportDefaultDecl {
+                decl: DefaultDecl::Fn(FnExpr { function, .. }),
+                ..
+            })) => {
+                if let Some(ref mut body) = function.body {
+                    body.stmts.extend(stmts);
+                }
+            }
+
+            // function foo() { ... }
+            ModuleItem::Stmt(Stmt::Decl(Decl::Fn(FnDecl { function, .. }))) => {
+                if let Some(ref mut body) = function.body {
+                    body.stmts.extend(stmts);
+                }
+            }
+
+            // export class Foo { method() { ... } }
+            ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
+                decl: Decl::Class(ClassDecl { class, .. }),
+                ..
+            })) => {
+                // Find the last method and extend its body
+                for member in class.body.iter_mut().rev() {
+                    if let ClassMember::Method(ClassMethod { function, .. }) = member {
+                        if let Some(ref mut body) = function.body {
+                            body.stmts.extend(stmts);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // class Foo { ... }
+            ModuleItem::Stmt(Stmt::Decl(Decl::Class(ClassDecl { class, .. }))) => {
+                for member in class.body.iter_mut().rev() {
+                    if let ClassMember::Method(ClassMethod { function, .. }) = member {
+                        if let Some(ref mut body) = function.body {
+                            body.stmts.extend(stmts);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            _ => {
+                // For other cases, we can't extend the body
+            }
+        }
+    }
+}
+
+/// Converts a statement to its TypeScript string representation.
+#[cfg(feature = "swc")]
+pub fn stmt_to_string(stmt: &swc_core::ecma::ast::Stmt) -> String {
+    use swc_core::common::sync::Lrc;
+    use swc_core::ecma::ast::{Module, ModuleItem};
+    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+
+    let module = Module {
+        span: swc_core::common::DUMMY_SP,
+        body: vec![ModuleItem::Stmt(stmt.clone())],
+        shebang: None,
+    };
+
+    let cm = Lrc::new(swc_core::common::SourceMap::default());
+    let mut buf = Vec::new();
+    {
+        let mut emitter = Emitter {
+            cfg: Config::default(),
+            cm: cm.clone(),
+            comments: None,
+            wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+        };
+        let _ = emitter.emit_module(&module);
+    }
+    String::from_utf8(buf).unwrap_or_default().trim().to_string()
+}
+
+/// Parses a TypeScript string into a Vec of ModuleItems.
+///
+/// This is used by the template compiler to parse generated code at runtime.
+#[cfg(feature = "swc")]
+pub fn parse_ts_to_module_items(source: &str) -> Vec<swc_core::ecma::ast::ModuleItem> {
+    use swc_core::common::{FileName, SourceMap, sync::Lrc};
+    use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+
+    let cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
+    let fm = cm.new_source_file(
+        FileName::Custom("template.ts".into()).into(),
+        source.to_string(),
+    );
+    let syntax = Syntax::Typescript(TsSyntax {
+        tsx: true,
+        decorators: true,
+        ..Default::default()
+    });
+    let lexer = Lexer::new(
+        syntax,
+        swc_core::ecma::ast::EsVersion::latest(),
+        StringInput::from(&*fm),
+        None,
+    );
+    let mut parser = Parser::new_from(lexer);
+    match parser.parse_module() {
+        Ok(module) => module.body,
+        Err(_) => vec![],
+    }
+}
+
+/// Extends the body of a function or class with additional statements.
+///
+/// This helper is used by the generated code for virtually-completed chunks.
+/// When a template has control flow inside a function body, the function is
+/// parsed with an empty body and this function extends it with the actual
+/// statements collected at runtime.
+///
+/// # Arguments
+///
+/// * `item` - The `ModuleItem` containing a function or class declaration
+/// * `stmts` - The statements to add to the function/class body
+///
+/// # Supported Structures
+///
+/// - `export function ...` - Extends the function body
+/// - `export class ... { method() {} }` - Extends the last method's body
+/// - `function ...` (non-export) - Extends the function body
+#[cfg(feature = "swc")]
+pub fn extend_module_item_body(
+    item: &mut swc_core::ecma::ast::ModuleItem,
+    stmts: Vec<swc_core::ecma::ast::Stmt>,
+) {
+    use swc_core::ecma::ast::*;
+
+    match item {
+        // export function foo() { ... }
+        ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
+            decl: Decl::Fn(FnDecl { function, .. }),
+            ..
+        })) => {
+            if let Some(ref mut body) = function.body {
+                body.stmts.extend(stmts);
+            }
+        }
+
+        // export default function() { ... }
+        ModuleItem::ModuleDecl(ModuleDecl::ExportDefaultDecl(ExportDefaultDecl {
+            decl: DefaultDecl::Fn(FnExpr { function, .. }),
+            ..
+        })) => {
+            if let Some(ref mut body) = function.body {
+                body.stmts.extend(stmts);
+            }
+        }
+
+        // function foo() { ... }
+        ModuleItem::Stmt(Stmt::Decl(Decl::Fn(FnDecl { function, .. }))) => {
+            if let Some(ref mut body) = function.body {
+                body.stmts.extend(stmts);
+            }
+        }
+
+        // export class Foo { method() { ... } }
+        ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
+            decl: Decl::Class(ClassDecl { class, .. }),
+            ..
+        })) => {
+            // Find the last method and extend its body
+            for member in class.body.iter_mut().rev() {
+                if let ClassMember::Method(ClassMethod { function, .. }) = member {
+                    if let Some(ref mut body) = function.body {
+                        body.stmts.extend(stmts);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // class Foo { ... }
+        ModuleItem::Stmt(Stmt::Decl(Decl::Class(ClassDecl { class, .. }))) => {
+            // Find the last method and extend its body
+            for member in class.body.iter_mut().rev() {
+                if let ClassMember::Method(ClassMethod { function, .. }) = member {
+                    if let Some(ref mut body) = function.body {
+                        body.stmts.extend(stmts);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Arrow function expression or other constructs
+        _ => {
+            // For other cases, we can't easily extend the body
+            // Just ignore - the statements won't be added
+        }
+    }
 }

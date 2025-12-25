@@ -219,6 +219,9 @@ pub struct TsStream {
     pub ctx: Option<crate::abi::MacroContextIR>,
     /// Runtime patches to apply (e.g., imports at file level)
     pub runtime_patches: Vec<crate::abi::Patch>,
+    /// Where this stream's code should be inserted relative to the target.
+    /// Defaults to `Below` (after the target declaration).
+    pub insert_pos: crate::abi::InsertPos,
 }
 
 /// Formats TypeScript source code using SWC's emitter.
@@ -337,6 +340,7 @@ impl TsStream {
             file_name: file_name.to_string(),
             ctx: None,
             runtime_patches: vec![],
+            insert_pos: crate::abi::InsertPos::default(),
         })
     }
 
@@ -348,6 +352,19 @@ impl TsStream {
             file_name: "macro_output.ts".to_string(),
             ctx: None,
             runtime_patches: vec![],
+            insert_pos: crate::abi::InsertPos::default(),
+        }
+    }
+
+    /// Create a new parsing stream with a specific insert position.
+    pub fn with_insert_pos(source: String, insert_pos: crate::abi::InsertPos) -> Self {
+        TsStream {
+            source_map: Lrc::new(Default::default()),
+            source,
+            file_name: "macro_output.ts".to_string(),
+            ctx: None,
+            runtime_patches: vec![],
+            insert_pos,
         }
     }
 
@@ -369,6 +386,7 @@ impl TsStream {
             file_name: file_name.to_string(),
             ctx: Some(ctx),
             runtime_patches: vec![],
+            insert_pos: crate::abi::InsertPos::default(),
         })
     }
 
@@ -384,6 +402,7 @@ impl TsStream {
             type_patches: vec![],
             diagnostics: vec![],
             tokens: Some(self.source),
+            insert_pos: self.insert_pos,
             debug: None,
         }
     }
@@ -486,6 +505,48 @@ impl TsStream {
             } else {
                 self.add_import_as(import.name, import.alias, import.module);
             }
+        }
+    }
+
+    /// Merge another TsStream into this one.
+    ///
+    /// Combines the source code and runtime patches from both streams.
+    /// The insert position of `self` is preserved.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let standalone = ts_template! { export function foo() {} };
+    /// let class_body = ts_template!(Within { static bar() {} });
+    ///
+    /// // Instead of: ts_template! { {$typescript standalone} {$typescript class_body} }
+    /// let combined = standalone.merge(class_body);
+    /// ```
+    pub fn merge(mut self, other: Self) -> Self {
+        // Combine source code with a newline separator
+        if !self.source.is_empty() && !other.source.is_empty() {
+            self.source.push('\n');
+        }
+        self.source.push_str(&other.source);
+
+        // Merge runtime patches
+        self.runtime_patches.extend(other.runtime_patches);
+
+        self
+    }
+
+    /// Merge multiple TsStreams into one.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let combined = TsStream::merge_all([stream1, stream2, stream3]);
+    /// ```
+    pub fn merge_all(streams: impl IntoIterator<Item = Self>) -> Self {
+        let mut iter = streams.into_iter();
+        match iter.next() {
+            Some(first) => iter.fold(first, |acc, stream| acc.merge(stream)),
+            None => Self::from_string(String::new()),
         }
     }
 
