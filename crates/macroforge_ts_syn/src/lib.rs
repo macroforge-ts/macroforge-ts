@@ -1493,6 +1493,17 @@ pub mod __internal {
         None
     }
 
+    /// Extracts class members from a wrapped class declaration `class __MF_DUMMY__ { member }`.
+    ///
+    /// This is used when parsing class body members in a for-loop body.
+    pub fn extract_class_members_from_wrapped(item: &ModuleItem) -> Vec<ClassMember> {
+        // Expected structure: ModuleItem::Stmt(Stmt::Decl(Decl::Class(ClassDecl { class: Class { body: [member] } })))
+        if let ModuleItem::Stmt(Stmt::Decl(Decl::Class(ClassDecl { class, .. }))) = item {
+            return class.body.clone();
+        }
+        vec![]
+    }
+
     /// Merges collected object properties into an opener's object literal.
     ///
     /// Finds the object literal in the opener (typically inside a return statement)
