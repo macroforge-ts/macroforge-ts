@@ -297,7 +297,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
 
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}Equals", class_name.to_case(Case::Camel));
-            let fn_name_expr: Expr = fn_name_ident.clone().into();
+            let _fn_name_expr: Expr = fn_name_ident.clone().into();
 
             let comparison_src = if eq_fields.is_empty() {
                 "true".to_string()
@@ -330,12 +330,9 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 }
             });
 
-            // Combine standalone function with class body using {$typescript}
+            // Combine standalone function with class body
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(ts_template! {
-                {$typescript standalone}
-                {$typescript class_body}
-            })
+            Ok(standalone.merge(class_body))
         }
         Data::Enum(_) => {
             // Enums: direct comparison with ===
@@ -461,7 +458,6 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::macros::body;
 
     #[test]
     fn test_partial_eq_macro_output() {
@@ -482,12 +478,12 @@ mod tests {
             .map(|f| generate_field_equality_for_interface(f, "a", "b"))
             .collect::<Vec<_>>()
             .join(" && ");
-        let comparison_expr = parse_ts_expr(&comparison).expect("comparison expr should parse");
+        let _comparison_expr = parse_ts_expr(&comparison).expect("comparison expr should parse");
 
         let output = ts_template!(Within {
             equals(other: unknown): boolean {
                 if (a === b) return true;
-                return @{comparison_expr};
+                return @{_comparison_expr};
             }
         });
 

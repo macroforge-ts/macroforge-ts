@@ -233,7 +233,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}Compare", class_name.to_case(Case::Camel));
-            let fn_name_expr: Expr = fn_name_ident.clone().into();
+            let _fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate standalone function with two parameters
             let standalone = if !ord_fields.is_empty() {
@@ -285,12 +285,9 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 }
             });
 
-            // Combine standalone function with class body using {$typescript}
+            // Combine standalone function with class body
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(ts_template! {
-                {$typescript standalone}
-                {$typescript class_body}
-            })
+            Ok(standalone.merge(class_body))
         }
         Data::Enum(_) => {
             let enum_name = input.name();
@@ -463,12 +460,11 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::macros::body;
 
     #[test]
     fn test_ord_macro_output() {
         let class_name = "User";
-        let class_ident = ident!(class_name);
+        let _class_ident = ident!(class_name);
         let ord_fields: Vec<OrdField> = vec![OrdField {
             name: "id".to_string(),
             ts_type: "number".to_string(),

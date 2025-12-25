@@ -320,7 +320,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
             // Generate function names (always prefix style)
             let fn_serialize_ident = ident!("{}Serialize", class_name.to_case(Case::Camel));
-            let fn_serialize_expr: Expr = fn_serialize_ident.clone().into();
+            let _fn_serialize_expr: Expr = fn_serialize_ident.clone().into();
             let fn_serialize_internal_ident =
                 ident!("{}SerializeWithContext", class_name.to_case(Case::Camel));
 
@@ -924,7 +924,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             standalone.add_aliased_import("SerializeContext", "macroforge/serde");
 
             // Generate static wrapper methods that delegate to standalone functions
-            let fn_serialize_internal_expr_class: Expr = fn_serialize_internal_ident.into();
+            let _fn_serialize_internal_expr_class: Expr = fn_serialize_internal_ident.into();
             let class_body = ts_template!(Within {
                 /** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
                 static serialize(value: @{class_ident}): string {
@@ -939,10 +939,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
             // Combine standalone functions with class body
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(ts_template! {
-                {$typescript standalone}
-                {$typescript class_body}
-            })
+            Ok(standalone.merge(class_body))
         }
         Data::Enum(_) => {
             // Enums: return the underlying value directly

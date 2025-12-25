@@ -261,7 +261,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}PartialCompare", class_name.to_case(Case::Camel));
-            let fn_name_expr: Expr = fn_name_ident.clone().into();
+            let _fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Get return type
             let return_type = partial_ord_return_type();
@@ -303,12 +303,9 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 }
             });
 
-            // Combine standalone function with class body using {$typescript}
+            // Combine standalone function with class body
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(ts_template! {
-                {$typescript standalone}
-                {$typescript class_body}
-            })
+            Ok(standalone.merge(class_body))
         }
         Data::Enum(_) => {
             let enum_name = input.name();
@@ -475,7 +472,6 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::macros::body;
 
     #[test]
     fn test_partial_ord_macro_output_vanilla() {
@@ -496,9 +492,9 @@ mod tests {
         }
 
         let return_type = partial_ord_return_type();
-        let return_type_ident = ident!(return_type);
+        let _return_type_ident = ident!(return_type);
         let output = ts_template!(Within {
-            compareTo(other: unknown): @{return_type_ident} {
+            compareTo(other: unknown): @{_return_type_ident} {
                 if (a === b) return 0;
                 {$typescript TsStream::from_string(compare_body_str)}
                 return 0;

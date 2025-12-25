@@ -196,7 +196,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}ToString", class_name.to_case(Case::Camel));
-            let fn_name_expr: Expr = fn_name_ident.clone().into();
+            let _fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
