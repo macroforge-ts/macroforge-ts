@@ -281,6 +281,22 @@ impl ToTsType for swc_core::ecma::ast::Ident {
     }
 }
 
+/// Convert a reference to Ident to a TsTypeRef.
+#[cfg(feature = "swc")]
+impl ToTsType for &swc_core::ecma::ast::Ident {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        (*self).to_ts_type()
+    }
+}
+
+/// Convert a reference to String to a TsType.
+#[cfg(feature = "swc")]
+impl ToTsType for &String {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        (*self).to_ts_type()
+    }
+}
+
 /// Convert an Expr to a TsType. Only works for identifier expressions.
 #[cfg(feature = "swc")]
 impl ToTsType for swc_core::ecma::ast::Expr {
@@ -1204,6 +1220,119 @@ pub fn emit_module_items(
     String::from_utf8(buf).unwrap_or_default()
 }
 
+/// Emits an expression to a string representation.
+///
+/// Used by `ts_template!` when injecting expressions into raw source strings.
+#[cfg(feature = "swc")]
+pub fn emit_expr(expr: &swc_core::ecma::ast::Expr) -> String {
+    use swc_core::common::sync::Lrc;
+    use swc_core::ecma::ast::{Module, ModuleItem, Stmt, ExprStmt};
+    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+    use swc_core::common::comments::SingleThreadedComments;
+
+    // Wrap expression in a minimal module for emission
+    let module = Module {
+        span: swc_core::common::DUMMY_SP,
+        body: vec![ModuleItem::Stmt(Stmt::Expr(ExprStmt {
+            span: swc_core::common::DUMMY_SP,
+            expr: Box::new(expr.clone()),
+        }))],
+        shebang: None,
+    };
+
+    let cm = Lrc::new(swc_core::common::SourceMap::default());
+    let comments = SingleThreadedComments::default();
+    let mut buf = Vec::new();
+    {
+        let mut emitter = Emitter {
+            cfg: Config::default().with_minify(false),
+            cm: cm.clone(),
+            comments: Some(&comments),
+            wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+        };
+        let _ = emitter.emit_module(&module);
+    }
+    // Remove the trailing semicolon added by the expression statement
+    let s = String::from_utf8(buf).unwrap_or_default();
+    s.trim_end().trim_end_matches(';').to_string()
+}
+
+/// Emits a TypeScript type to a string representation.
+///
+/// Used by `ts_template!` when injecting types into raw source strings.
+#[cfg(feature = "swc")]
+pub fn emit_ts_type(ty: &swc_core::ecma::ast::TsType) -> String {
+    use swc_core::common::sync::Lrc;
+    use swc_core::ecma::ast::{Module, ModuleItem, Stmt, Decl, TsTypeAliasDecl, Ident};
+    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+    use swc_core::common::comments::SingleThreadedComments;
+
+    // Wrap type in a type alias for emission: `type __T = <type>;`
+    let module = Module {
+        span: swc_core::common::DUMMY_SP,
+        body: vec![ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(Box::new(TsTypeAliasDecl {
+            span: swc_core::common::DUMMY_SP,
+            declare: false,
+            id: Ident::new("__T".into(), swc_core::common::DUMMY_SP, Default::default()),
+            type_params: None,
+            type_ann: Box::new(ty.clone()),
+        }))))],
+        shebang: None,
+    };
+
+    let cm = Lrc::new(swc_core::common::SourceMap::default());
+    let comments = SingleThreadedComments::default();
+    let mut buf = Vec::new();
+    {
+        let mut emitter = Emitter {
+            cfg: Config::default().with_minify(false),
+            cm: cm.clone(),
+            comments: Some(&comments),
+            wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+        };
+        let _ = emitter.emit_module(&module);
+    }
+    let s = String::from_utf8(buf).unwrap_or_default();
+    // Extract just the type part from `type __T = <type>;`
+    if let Some(start) = s.find('=') {
+        let after_eq = &s[start + 1..];
+        after_eq.trim().trim_end_matches(';').to_string()
+    } else {
+        s
+    }
+}
+
+/// Emits a statement to a string representation.
+///
+/// Used by `ts_template!` when injecting statements into raw source strings.
+#[cfg(feature = "swc")]
+pub fn emit_stmt(stmt: &swc_core::ecma::ast::Stmt) -> String {
+    use swc_core::common::sync::Lrc;
+    use swc_core::ecma::ast::{Module, ModuleItem};
+    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+    use swc_core::common::comments::SingleThreadedComments;
+
+    let module = Module {
+        span: swc_core::common::DUMMY_SP,
+        body: vec![ModuleItem::Stmt(stmt.clone())],
+        shebang: None,
+    };
+
+    let cm = Lrc::new(swc_core::common::SourceMap::default());
+    let comments = SingleThreadedComments::default();
+    let mut buf = Vec::new();
+    {
+        let mut emitter = Emitter {
+            cfg: Config::default().with_minify(false),
+            cm: cm.clone(),
+            comments: Some(&comments),
+            wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+        };
+        let _ = emitter.emit_module(&module);
+    }
+    String::from_utf8(buf).unwrap_or_default()
+}
+
 // =============================================================================
 // Internal helpers for virtual completion (used by generated code)
 // =============================================================================
@@ -1327,23 +1456,24 @@ pub mod __internal {
     /// extract the actual property.
     pub fn extract_prop_from_wrapped_expr(expr: &Expr) -> Option<PropOrSpread> {
         // Expected structure: Paren(Object({ props: [prop] }))
-        if let Expr::Paren(ParenExpr { expr: inner, .. }) = expr {
-            if let Expr::Object(ObjectLit { props, .. }) = inner.as_ref() {
-                // Skip __mf_dummy property if present, return the real property
-                for prop in props {
-                    match prop {
-                        PropOrSpread::Prop(p) => {
-                            if let Prop::KeyValue(KeyValueProp { key, .. }) = p.as_ref() {
-                                if let PropName::Ident(ident) = key {
-                                    if ident.sym.as_ref() == "__mf_dummy" {
-                                        continue;
-                                    }
-                                }
-                            }
-                            return Some(prop.clone());
+        if let Expr::Paren(ParenExpr { expr: inner, .. }) = expr
+            && let Expr::Object(ObjectLit { props, .. }) = inner.as_ref()
+        {
+            // Skip __mf_dummy property if present, return the real property
+            for prop in props {
+                match prop {
+                    PropOrSpread::Prop(p) => {
+                        if let Prop::KeyValue(KeyValueProp {
+                            key: PropName::Ident(ident),
+                            ..
+                        }) = p.as_ref()
+                            && ident.sym.as_ref() == "__mf_dummy"
+                        {
+                            continue;
                         }
-                        PropOrSpread::Spread(_) => return Some(prop.clone()),
+                        return Some(prop.clone());
                     }
+                    PropOrSpread::Spread(_) => return Some(prop.clone()),
                 }
             }
         }
@@ -1355,10 +1485,10 @@ pub mod __internal {
     /// This is used when parsing array literal elements in a for-loop body.
     pub fn extract_elem_from_wrapped_expr(expr: &Expr) -> Option<ExprOrSpread> {
         // Expected structure: Array({ elems: [Some(elem)] })
-        if let Expr::Array(ArrayLit { elems, .. }) = expr {
-            for elem in elems.iter().flatten() {
-                return Some(elem.clone());
-            }
+        if let Expr::Array(ArrayLit { elems, .. }) = expr
+            && let Some(elem) = elems.iter().flatten().next()
+        {
+            return Some(elem.clone());
         }
         None
     }
@@ -1400,12 +1530,14 @@ pub mod __internal {
             if !self.props_to_add.is_empty() {
                 // Remove __mf_dummy property if present
                 obj.props.retain(|prop| {
-                    if let PropOrSpread::Prop(p) = prop {
-                        if let Prop::KeyValue(KeyValueProp { key: PropName::Ident(ident), .. }) = p.as_ref() {
-                            if ident.sym.as_ref() == "__mf_dummy" {
-                                return false;
-                            }
-                        }
+                    if let PropOrSpread::Prop(p) = prop
+                        && let Prop::KeyValue(KeyValueProp {
+                            key: PropName::Ident(ident),
+                            ..
+                        }) = p.as_ref()
+                        && ident.sym.as_ref() == "__mf_dummy"
+                    {
+                        return false;
                     }
                     true
                 });
@@ -1424,14 +1556,11 @@ pub mod __internal {
         fn visit_mut_array_lit(&mut self, arr: &mut ArrayLit) {
             if !self.elems_to_add.is_empty() {
                 // Remove dummy element (first element with value 0) if present
-                if let Some(first) = arr.elems.first() {
-                    if let Some(ExprOrSpread { expr, .. }) = first {
-                        if let Expr::Lit(Lit::Num(Number { value, .. })) = expr.as_ref() {
-                            if *value == 0.0 {
-                                arr.elems.remove(0);
-                            }
-                        }
-                    }
+                if let Some(Some(ExprOrSpread { expr, .. })) = arr.elems.first()
+                    && let Expr::Lit(Lit::Num(Number { value, .. })) = expr.as_ref()
+                    && *value == 0.0
+                {
+                    arr.elems.remove(0);
                 }
                 // Add collected elements
                 for elem in std::mem::take(&mut self.elems_to_add) {
@@ -1669,11 +1798,11 @@ pub mod __internal {
             })) => {
                 // Find the last method and extend its body
                 for member in class.body.iter_mut().rev() {
-                    if let ClassMember::Method(ClassMethod { function, .. }) = member {
-                        if let Some(ref mut body) = function.body {
-                            body.stmts.extend(stmts);
-                            return;
-                        }
+                    if let ClassMember::Method(ClassMethod { function, .. }) = member
+                        && let Some(ref mut body) = function.body
+                    {
+                        body.stmts.extend(stmts);
+                        return;
                     }
                 }
             }
@@ -1681,11 +1810,11 @@ pub mod __internal {
             // class Foo { ... }
             ModuleItem::Stmt(Stmt::Decl(Decl::Class(ClassDecl { class, .. }))) => {
                 for member in class.body.iter_mut().rev() {
-                    if let ClassMember::Method(ClassMethod { function, .. }) = member {
-                        if let Some(ref mut body) = function.body {
-                            body.stmts.extend(stmts);
-                            return;
-                        }
+                    if let ClassMember::Method(ClassMethod { function, .. }) = member
+                        && let Some(ref mut body) = function.body
+                    {
+                        body.stmts.extend(stmts);
+                        return;
                     }
                 }
             }
@@ -1814,11 +1943,11 @@ pub fn extend_module_item_body(
         })) => {
             // Find the last method and extend its body
             for member in class.body.iter_mut().rev() {
-                if let ClassMember::Method(ClassMethod { function, .. }) = member {
-                    if let Some(ref mut body) = function.body {
-                        body.stmts.extend(stmts);
-                        return;
-                    }
+                if let ClassMember::Method(ClassMethod { function, .. }) = member
+                    && let Some(ref mut body) = function.body
+                {
+                    body.stmts.extend(stmts);
+                    return;
                 }
             }
         }
@@ -1827,11 +1956,11 @@ pub fn extend_module_item_body(
         ModuleItem::Stmt(Stmt::Decl(Decl::Class(ClassDecl { class, .. }))) => {
             // Find the last method and extend its body
             for member in class.body.iter_mut().rev() {
-                if let ClassMember::Method(ClassMethod { function, .. }) = member {
-                    if let Some(ref mut body) = function.body {
-                        body.stmts.extend(stmts);
-                        return;
-                    }
+                if let ClassMember::Method(ClassMethod { function, .. }) = member
+                    && let Some(ref mut body) = function.body
+                {
+                    body.stmts.extend(stmts);
+                    return;
                 }
             }
         }
