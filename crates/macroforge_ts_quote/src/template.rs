@@ -147,6 +147,8 @@ fn convert_doc_attributes_to_jsdoc(input: &str) -> String {
 /// - `{:else}` becomes `{ : else }`
 /// - `{$let x = 1}` becomes `{ $ let x = 1 }`
 /// - `{|ident|}` becomes `{ | ident | }`
+/// - `===` becomes `= = =` (JavaScript strict equality)
+/// - `!==` becomes `! = =` (JavaScript strict inequality)
 ///
 /// This function normalizes these back to the expected format.
 fn normalize_template_spacing(input: &str) -> String {
@@ -157,6 +159,132 @@ fn normalize_template_spacing(input: &str) -> String {
 
     while i < len {
         let c = chars[i];
+
+        // Handle JavaScript operators that get space-separated by Rust tokenizer
+        // Check for `= = =` → `===` (strict equality)
+        if c == '='
+            && i + 4 < len
+            && chars[i + 1] == ' '
+            && chars[i + 2] == '='
+            && chars[i + 3] == ' '
+            && chars[i + 4] == '='
+        {
+            result.push_str("===");
+            i += 5;
+            continue;
+        }
+
+        // Check for `! = =` → `!==` (strict inequality)
+        // Note: Rust tokenizes `!==` as `!=` (Ne) followed by `=`, so it becomes `! = =` with spaces
+        if c == '!'
+            && i + 4 < len
+            && chars[i + 1] == ' '
+            && chars[i + 2] == '='
+            && chars[i + 3] == ' '
+            && chars[i + 4] == '='
+        {
+            result.push_str("!==");
+            i += 5;
+            continue;
+        }
+
+        // Check for `! =` → `!=` (Rust Ne token becomes space-separated)
+        if c == '!' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '=' {
+            // But first check it's not part of `! = =` (already handled above)
+            if !(i + 4 < len && chars[i + 3] == ' ' && chars[i + 4] == '=') {
+                result.push_str("!=");
+                i += 3;
+                continue;
+            }
+        }
+
+        // Check for `= =` → `==` (equality, but not if part of `= = =`)
+        if c == '=' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '=' {
+            // Check if this is part of `= = =`
+            if i + 4 < len && chars[i + 3] == ' ' && chars[i + 4] == '=' {
+                // Part of ===, will be handled by the === check
+            } else {
+                result.push_str("==");
+                i += 3;
+                continue;
+            }
+        }
+
+        // Check for `& &` → `&&` (logical AND)
+        if c == '&' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '&' {
+            result.push_str("&&");
+            i += 3;
+            continue;
+        }
+
+        // Check for `| |` → `||` (logical OR)
+        if c == '|' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '|' {
+            result.push_str("||");
+            i += 3;
+            continue;
+        }
+
+        // Check for `: :` → `::` (TypeScript namespace/module access)
+        if c == ':' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == ':' {
+            result.push_str("::");
+            i += 3;
+            continue;
+        }
+
+        // Check for `= >` → `=>` (arrow function)
+        if c == '=' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '>' {
+            result.push_str("=>");
+            i += 3;
+            continue;
+        }
+
+        // Check for `< =` → `<=` (less than or equal)
+        if c == '<' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '=' {
+            result.push_str("<=");
+            i += 3;
+            continue;
+        }
+
+        // Check for `> =` → `>=` (greater than or equal)
+        if c == '>' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '=' {
+            result.push_str(">=");
+            i += 3;
+            continue;
+        }
+
+        // Check for `+ =` → `+=`
+        if c == '+' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '=' {
+            result.push_str("+=");
+            i += 3;
+            continue;
+        }
+
+        // Check for `- =` → `-=`
+        if c == '-' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '=' {
+            result.push_str("-=");
+            i += 3;
+            continue;
+        }
+
+        // Check for `- >` → `->` (not common in TS but used in comments/generics)
+        if c == '-' && i + 2 < len && chars[i + 1] == ' ' && chars[i + 2] == '>' {
+            result.push_str("->");
+            i += 3;
+            continue;
+        }
+
+        // Check for `. . .` → `...` (spread operator)
+        if c == '.'
+            && i + 4 < len
+            && chars[i + 1] == ' '
+            && chars[i + 2] == '.'
+            && chars[i + 3] == ' '
+            && chars[i + 4] == '.'
+        {
+            result.push_str("...");
+            i += 5;
+            continue;
+        }
 
         // Handle @ followed by optional whitespace then { or @
         if c == '@' {

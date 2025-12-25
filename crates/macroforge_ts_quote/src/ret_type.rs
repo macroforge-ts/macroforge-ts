@@ -2,7 +2,7 @@ use std::any::type_name;
 
 use anyhow::{anyhow, bail, Context, Error};
 use swc_core::common::{sync::Lrc, FileName, SourceMap};
-use swc_core::ecma::ast::{AssignTarget, Decl, EsVersion, ModuleDecl, ModuleItem, Stmt};
+use swc_core::ecma::ast::{AssignTarget, Decl, EsVersion, ModuleDecl, ModuleItem, PropOrSpread, Stmt};
 use swc_core::ecma::parser::{lexer::Lexer, PResult, Parser, StringInput, Syntax, TsSyntax};
 use syn::{GenericArgument, PathArguments, Type};
 
@@ -45,6 +45,7 @@ pub(crate) fn parse_input_type(input_str: &str, ty: &Type) -> Result<BoxWrapper,
             }
             "ModuleItem" => return parse(input_str, &mut |p| p.parse_module_item()),
             "TsType" => return parse_ts_type(input_str),
+            "PropOrSpread" => return parse_prop_or_spread(input_str),
             _ => {}
         }
     }
@@ -142,6 +143,44 @@ fn parse_ts_type(input_str: &str) -> Result<BoxWrapper, Error> {
     };
 
     Ok(BoxWrapper(Box::new(ts_type)))
+}
+
+/// Parse an object property by wrapping it in an object literal.
+/// We parse `({ <input> })` and extract the first property.
+fn parse_prop_or_spread(input_str: &str) -> Result<BoxWrapper, Error> {
+    // Wrap in parenthesized object literal to parse as expression
+    let wrapped = format!("({{ {input_str} }})");
+
+    let cm = Lrc::new(SourceMap::default());
+    let fm = cm.new_source_file(FileName::Anon.into(), wrapped);
+
+    let lexer = Lexer::new(
+        Syntax::Typescript(TsSyntax::default()),
+        EsVersion::Es2020,
+        StringInput::from(&*fm),
+        None,
+    );
+    let mut parser = Parser::new_from(lexer);
+
+    let expr = parser
+        .parse_expr()
+        .map_err(|err| anyhow!("{err:?}"))
+        .context("failed to parse object literal wrapper")?;
+
+    // Extract the property from: ({ prop })
+    let prop = match *expr {
+        swc_core::ecma::ast::Expr::Paren(paren) => match *paren.expr {
+            swc_core::ecma::ast::Expr::Object(obj) => {
+                obj.props.into_iter().next().ok_or_else(|| {
+                    anyhow!("expected at least one property in object literal")
+                })?
+            }
+            other => bail!("Expected object literal, got: {:?}", other),
+        },
+        other => bail!("Expected parenthesized expression, got: {:?}", other),
+    };
+
+    Ok(BoxWrapper(Box::new(prop)))
 }
 
 fn extract_generic<'a>(name: &str, ty: &'a Type) -> Option<&'a Type> {

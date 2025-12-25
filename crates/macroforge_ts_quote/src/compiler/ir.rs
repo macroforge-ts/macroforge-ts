@@ -283,6 +283,9 @@ impl IrLowering {
                 | SyntaxKind::CommentBlockClose
                 | SyntaxKind::At
                 | SyntaxKind::AtAt
+                | SyntaxKind::DoubleQuote
+                | SyntaxKind::SingleQuote
+                | SyntaxKind::Backtick
         )
     }
 
