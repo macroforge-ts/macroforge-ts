@@ -188,7 +188,15 @@ impl Parser {
                 self.eat(SyntaxKind::RBrace);
             }
             Some(SyntaxKind::ColonOpen) => {
-                // Else clause - handle at control block level
+                // Else clause at top level is an error - consume the whole {:...} block
+                // This should only appear inside control blocks, but consume to avoid infinite loop
+                self.bump(); // {:
+                self.bump_while(SyntaxKind::Whitespace);
+                // Consume until closing }
+                while !self.at_eof() && !self.at(SyntaxKind::RBrace) {
+                    self.bump();
+                }
+                self.eat(SyntaxKind::RBrace);
             }
             Some(SyntaxKind::DollarOpen) => self.parse_directive(),
             Some(SyntaxKind::PipeOpen) => self.parse_ident_block(),
@@ -415,9 +423,18 @@ impl Parser {
         }
         self.eat(SyntaxKind::RBrace);
 
-        // Cases
-        while self.at(SyntaxKind::ColonOpen) && self.peek(1) == Some(SyntaxKind::CaseKw) {
-            self.parse_match_case();
+        // Cases - skip whitespace before each case and check for {/match} end
+        loop {
+            // Skip whitespace/newlines between cases
+            self.bump_while(SyntaxKind::Whitespace);
+
+            // Check for case: {:case
+            if self.at(SyntaxKind::ColonOpen) && self.peek(1) == Some(SyntaxKind::CaseKw) {
+                self.parse_match_case();
+            } else {
+                // No more cases
+                break;
+            }
         }
 
         // End: {/match}
@@ -503,7 +520,17 @@ impl Parser {
     }
 
     /// Parses an ident block: {|...|}
+    ///
+    /// DEPRECATED: Ident blocks are deprecated. Use implicit concatenation instead:
+    /// - Old: `function {|get@{field}|}()`
+    /// - New: `function get@{field}()`
     fn parse_ident_block(&mut self) {
+        // Emit deprecation warning
+        eprintln!(
+            "warning: `{{|...|}}`  ident block syntax is deprecated. \
+             Use implicit concatenation instead (e.g., `get@{{field}}` instead of `{{|get@{{field}}|}}`)"
+        );
+
         self.start_node(SyntaxKind::IdentBlock);
 
         // {|

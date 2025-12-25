@@ -132,9 +132,9 @@ checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
 name = "convert_case"
-version = "0.6.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
+checksum = "633458d4ef8c78b72454de2d54fd6ab2e60f9e02be22f3c6104cdc8a4e0fceb9"
 dependencies = [
  "unicode-segmentation",
 ]
@@ -468,15 +468,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 
 [[package]]
-name = "memoffset"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
-dependencies = [
- "autocfg",
-]
-
-[[package]]
 name = "new_debug_unreachable"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -663,13 +654,12 @@ checksum = "7a2d987857b319362043e95f5353c0535c1f58eec5336fdfcf626430af7def58"
 
 [[package]]
 name = "rowan"
-version = "0.15.17"
+version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4f1e4a001f863f41ea8d0e6a0c34b356d5b733db50dadab3efef640bafb779b"
+checksum = "417a3a9f582e349834051b8a10c8d71ca88da4211e4093528e36b9845f6b5f21"
 dependencies = [
  "countme",
  "hashbrown 0.14.5",
- "memoffset",
  "rustc-hash 1.1.0",
  "text-size",
 ]
@@ -876,9 +866,9 @@ dependencies = [
 
 [[package]]
 name = "swc_core"
-version = "51.0.0"
+version = "52.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "907edde32447c184b1bf26858b260e2c5082c0816b94b80acd3586c65f447cab"
+checksum = "33540bdcbf752611f66dcd5576272ce25141356c2d6e7b7ae63a801633a21f02"
 dependencies = [
  "swc_allocator",
  "swc_atoms",

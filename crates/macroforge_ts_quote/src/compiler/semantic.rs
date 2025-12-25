@@ -71,7 +71,9 @@ impl Analyzer {
     /// Creates a new analyzer.
     pub fn new() -> Self {
         Self {
-            context_stack: vec![Context::Statement],
+            // Default to Expression context since most placeholders in TypeScript are expressions
+            // (property access, function calls, assignments, etc.)
+            context_stack: vec![Context::Expression],
             placeholders: HashMap::new(),
             placeholder_id: 0,
         }
@@ -181,7 +183,9 @@ impl Analyzer {
                 self.record_interpolation(node);
             }
 
-            // Control flow - visit body with statement context
+            // Control flow - visit body with expression context
+            // Most placeholders in TypeScript code are expressions (property access, function calls, etc.)
+            // not statements, so we default to Expression context for better inference
             SyntaxKind::IfBlock
             | SyntaxKind::ForBlock
             | SyntaxKind::WhileBlock
@@ -189,7 +193,7 @@ impl Analyzer {
             | SyntaxKind::ElseClause
             | SyntaxKind::ElseIfClause
             | SyntaxKind::MatchCase => {
-                self.push_context(Context::Statement);
+                self.push_context(Context::Expression);
                 self.visit_children(node);
                 self.pop_context();
             }
@@ -201,16 +205,17 @@ impl Analyzer {
         }
     }
 
-    /// Visits all children of a node.
+    /// Visits all children of a node in document order.
+    /// This ensures tokens like `=` are processed before nodes like interpolations.
     fn visit_children(&mut self, node: &SyntaxNode) {
-        for child in node.children() {
-            self.visit_node(&child);
-        }
-
-        // Also check tokens for context switches
-        for token in node.children_with_tokens() {
-            if let rowan::NodeOrToken::Token(token) = token {
-                self.visit_token(&token);
+        for child in node.children_with_tokens() {
+            match child {
+                rowan::NodeOrToken::Node(child_node) => {
+                    self.visit_node(&child_node);
+                }
+                rowan::NodeOrToken::Token(token) => {
+                    self.visit_token(&token);
+                }
             }
         }
     }
@@ -220,6 +225,10 @@ impl Analyzer {
         match token.kind() {
             // Colon starts a type annotation context
             SyntaxKind::Colon => {
+                // Pop Identifier context if we're in one (for `const x: Type`)
+                if self.current_context() == Context::Identifier {
+                    self.pop_context();
+                }
                 // Check if we're in a position where : means type annotation
                 // (not object property)
                 if self.current_context() != Context::ObjectLiteral {
@@ -232,14 +241,70 @@ impl Analyzer {
                 self.push_context(Context::TypeAssertion);
             }
 
-            // `<` might start generic params (context-dependent)
-            SyntaxKind::Lt => {
-                // Only if we're potentially in a type context
-                // This is heuristic - proper implementation would track more state
+            // `function` keyword - next identifier is a function name
+            SyntaxKind::FunctionKw => {
+                self.push_context(Context::Identifier);
             }
 
-            // Semicolon or closing brace ends type context
-            SyntaxKind::Semicolon | SyntaxKind::RBrace => {
+            // `class` keyword - next identifier is a class name
+            SyntaxKind::ClassKw => {
+                self.push_context(Context::Identifier);
+            }
+
+            // `const`, `let` keywords - next identifier is a variable name
+            SyntaxKind::ConstKw | SyntaxKind::LetKw => {
+                self.push_context(Context::Identifier);
+            }
+
+            // `return` keyword - next is an expression
+            SyntaxKind::ReturnKw => {
+                self.push_context(Context::Expression);
+            }
+
+            // `.` (member access) - next token is a property name (identifier)
+            SyntaxKind::Dot => {
+                self.push_context(Context::Identifier);
+            }
+
+            // Regular identifier token consumes the Identifier context
+            SyntaxKind::Ident => {
+                if self.current_context() == Context::Identifier {
+                    self.pop_context();
+                }
+            }
+
+            // `(` ends identifier context (start of function params)
+            SyntaxKind::LParen => {
+                if self.current_context() == Context::Identifier {
+                    self.pop_context();
+                }
+            }
+
+            // `<` might start generic params or end identifier context
+            SyntaxKind::Lt => {
+                if self.current_context() == Context::Identifier {
+                    self.pop_context();
+                }
+                // Could also start generic params - context-dependent
+            }
+
+            // Semicolon ends expression context and type contexts
+            SyntaxKind::Semicolon => {
+                // First pop expression context if we're in one
+                if self.current_context() == Context::Expression {
+                    self.pop_context();
+                }
+                // Pop any type contexts
+                while matches!(
+                    self.current_context(),
+                    Context::TypeAnnotation | Context::TypeAssertion | Context::GenericParams
+                ) {
+                    self.pop_context();
+                }
+            }
+
+            // Closing brace ends type context
+            SyntaxKind::RBrace => {
                 // Pop any type contexts
                 while matches!(
                     self.current_context(),
@@ -259,11 +324,19 @@ impl Analyzer {
                 }
             }
 
-            // Equals ends type annotation
+            // Equals ends type annotation or identifier context and starts expression context
             SyntaxKind::Eq => {
+                // Pop Identifier context if we're in one (for `const x = ...`)
+                if self.current_context() == Context::Identifier {
+                    self.pop_context();
+                }
+                // Pop TypeAnnotation context if we're in one (for `let x: T = ...`)
                 if self.current_context() == Context::TypeAnnotation {
                     self.pop_context();
                 }
+                // Push expression context for the right-hand side
+                // (applies to `const x = ...`, `x = ...`, `let x: T = ...`, etc.)
+                self.push_context(Context::Expression);
             }
 
             _ => {}
@@ -369,6 +442,46 @@ mod tests {
     }
 
     #[test]
+    fn test_function_name_placeholder() {
+        let result = analyze_template("export function @{fn_name}(x: number): void {}");
+        // Should have one placeholder for function name (Ident)
+        // and the type annotation `:` shouldn't affect function name context
+        let placeholder = result.placeholders.values().next().unwrap();
+        assert_eq!(placeholder.kind, PlaceholderKind::Ident, "Function name should be Ident, got {:?}", placeholder.kind);
+    }
+
+    #[test]
+    fn test_function_name_with_doc_comment() {
+        let result = analyze_template("/** Documentation */ export function @{fn_name}(x: number): void {}");
+        // Function name should still be Ident even with doc comment before
+        let placeholder = result.placeholders.values().next().unwrap();
+        assert_eq!(placeholder.kind, PlaceholderKind::Ident, "Function name after doc comment should be Ident, got {:?}", placeholder.kind);
+    }
+
+    #[test]
+    fn test_multi_placeholder_function() {
+        // This matches a real template pattern from derive_serialize.rs
+        let result = analyze_template("export function @{fn_serialize_ident}(value: @{interface_ident}): string { const ctx = @{serialize_context_expr}.create(); }");
+        assert_eq!(result.placeholders.len(), 3, "Expected 3 placeholders");
+
+        // Print all placeholders for debugging
+        for (id, info) in &result.placeholders {
+            eprintln!("Placeholder {}: kind={:?}, tokens={}", id, info.kind, info.tokens);
+        }
+
+        // Check each placeholder's kind
+        let mut placeholders: Vec<_> = result.placeholders.iter().collect();
+        placeholders.sort_by_key(|(id, _)| *id);
+
+        // First placeholder (fn_serialize_ident) should be Ident (after function keyword)
+        assert_eq!(placeholders[0].1.kind, PlaceholderKind::Ident, "Function name should be Ident");
+        // Second placeholder (interface_ident) should be Type (after :)
+        assert_eq!(placeholders[1].1.kind, PlaceholderKind::Type, "Parameter type should be Type");
+        // Third placeholder (serialize_context_expr) should be Expr (after =)
+        assert_eq!(placeholders[2].1.kind, PlaceholderKind::Expr, "Expression should be Expr");
+    }
+
+    #[test]
     fn test_mixed_placeholders() {
         let result = analyze_template("const @{name}: @{type} = @{value}");
         assert_eq!(result.placeholders.len(), 3);
@@ -411,5 +524,40 @@ mod tests {
         // In object literal, colon is property separator, not type annotation
         // So this should NOT be classified as Type
         assert_ne!(placeholder.kind, PlaceholderKind::Type);
+    }
+
+    #[test]
+    fn test_function_with_doc_attribute_tokenstream_format() {
+        // This is how doc comments appear after going through Rust's TokenStream:
+        // /** Doc */ becomes # [doc = "Doc"]
+        // The = in the attribute should NOT trigger Expression context
+        let result = analyze_template(
+            r#"# [doc = "Doc comment"] export function @{fn_name}(value: @{type_param}): string { return @{body_expr}; }"#
+        );
+
+        assert_eq!(result.placeholders.len(), 3, "Expected 3 placeholders");
+
+        // Print all placeholders for debugging
+        let mut placeholders: Vec<_> = result.placeholders.iter().collect();
+        placeholders.sort_by_key(|(id, _)| *id);
+        for (id, info) in &placeholders {
+            eprintln!("TokenStream format - Placeholder {}: kind={:?}, tokens={}", id, info.kind, info.tokens);
+        }
+
+        // First placeholder (fn_name) should be Ident (after function keyword)
+        assert_eq!(
+            placeholders[0].1.kind, PlaceholderKind::Ident,
+            "Function name should be Ident, got {:?}", placeholders[0].1.kind
+        );
+        // Second placeholder (type_param) should be Type (after :)
+        assert_eq!(
+            placeholders[1].1.kind, PlaceholderKind::Type,
+            "Parameter type should be Type, got {:?}", placeholders[1].1.kind
+        );
+        // Third placeholder (body_expr) should be Expr (after =)
+        assert_eq!(
+            placeholders[2].1.kind, PlaceholderKind::Expr,
+            "Body expression should be Expr, got {:?}", placeholders[2].1.kind
+        );
     }
 }

@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use macroforge_ts_quote::{above, below, body, signature, ts_quote, ts_template};
+    use macroforge_ts_quote::{above, below, body, ident as ident_macro, signature, ts_quote, ts_template};
+    use macroforge_ts_syn::parse_ts_expr;
     use swc_core::common::{SyntaxContext, DUMMY_SP};
     use swc_core::ecma::ast::{Decl, Expr, FnDecl, Ident as TsIdent, Lit, Number, Stmt, VarDeclKind};
-    use macroforge_ts_quote::ts_template;
     use std::fs;
     use proc_macro2::{
         Ident as PmIdent, Spacing, Span as PmSpan, TokenStream as TokenStream2, TokenTree,
@@ -1837,6 +1837,657 @@ mod tests {
             assert!(source.contains(r#"if ("age" in obj)"#));
             assert!(source.contains(r#"const __raw_age = obj["age"] as number"#));
             assert!(source.contains("instance.age = __raw_age"));
+        }
+    }
+
+    // =============================================================================
+    // Builtin Macro Template Tests
+    // =============================================================================
+    // These tests mirror the actual templates used in macroforge_ts builtin derive macros
+
+    mod builtin_templates {
+        use super::*;
+
+        // -------------------------------------------------------------------------
+        // derive(Clone) Template Tests
+        // -------------------------------------------------------------------------
+
+        /// Clone for class - mirrors derive_clone.rs class implementation
+        #[test]
+        fn derive_clone_class_template() {
+            let class_name = "User";
+            let class_ident = ident(class_name);
+            let fn_name_ident = ident("userClone");
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
+
+            // Field names (simulating class.field_names())
+            let field_names = vec!["name", "age", "email"];
+
+            let standalone = ts_template! {
+                export function @{fn_name_ident}(value: @{class_ident}): @{class_ident} {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    {#for field in field_names.iter().map(|f| ident(f))}
+                        cloned.@{field.clone()} = value.@{field};
+                    {/for}
+                    return cloned;
+                }
+            };
+
+            let class_body = body! {
+                static clone(value: @{class_ident}): @{class_ident} {
+                    return @{fn_name_expr}(value);
+                }
+            };
+
+            let source = standalone.source();
+            assert!(source.contains("export function userClone(value: User): User"));
+            assert!(source.contains("const cloned = Object.create(Object.getPrototypeOf(value))"));
+            assert!(source.contains("cloned.name = value.name"));
+            assert!(source.contains("cloned.age = value.age"));
+            assert!(source.contains("cloned.email = value.email"));
+            assert!(source.contains("return cloned"));
+
+            let body_source = class_body.source();
+            assert!(body_source.contains("static clone(value: User): User"));
+            assert!(body_source.contains("return userClone(value)"));
+        }
+
+        /// Clone for enum - mirrors derive_clone.rs enum implementation
+        #[test]
+        fn derive_clone_enum_template() {
+            let enum_name = "Status";
+            let fn_name_ident = ident("statusClone");
+
+            let stream = ts_template! {
+                export function @{fn_name_ident}(value: @{ident(enum_name)}): @{ident(enum_name)} {
+                    return value;
+                }
+            };
+
+            let source = stream.source();
+            assert!(source.contains("export function statusClone(value: Status): Status"));
+            assert!(source.contains("return value"));
+        }
+
+        /// Clone for interface - mirrors derive_clone.rs interface implementation
+        #[test]
+        fn derive_clone_interface_template() {
+            let interface_name = "UserInterface";
+            let interface_ident = ident(interface_name);
+            let fn_name_ident = ident("userInterfaceClone");
+
+            let field_names = vec!["id", "username", "active"];
+
+            let stream = ts_template! {
+                export function @{fn_name_ident}(value: @{interface_ident}): @{interface_ident} {
+                    const result = {} as any;
+                    {#for field in field_names.iter().map(|f| ident(f))}
+                        result.@{field.clone()} = value.@{field};
+                    {/for}
+                    return result as @{interface_ident};
+                }
+            };
+
+            let source = stream.source();
+            assert!(source.contains("export function userInterfaceClone(value: UserInterface): UserInterface"));
+            assert!(source.contains("const result = {} as any"));
+            assert!(source.contains("result.id = value.id"));
+            assert!(source.contains("result.username = value.username"));
+            assert!(source.contains("result.active = value.active"));
+            assert!(source.contains("return result as UserInterface"));
+        }
+
+        // -------------------------------------------------------------------------
+        // derive(Hash) Template Tests
+        // -------------------------------------------------------------------------
+
+        /// Hash for class - mirrors derive_hash.rs class implementation
+        #[test]
+        fn derive_hash_class_template() {
+            let class_name = "User";
+            let class_ident = ident(class_name);
+            let fn_name_ident = ident("userHashCode");
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
+            let _has_fields = true;
+
+            // Simulated hash expressions (in real code these come from generate_field_hash)
+            let hash_exprs: Vec<Expr> = vec![
+                parse_ts_expr("(value.name ? value.name.length : 0)").unwrap(),
+                parse_ts_expr("(value.age | 0)").unwrap(),
+            ];
+
+            let standalone = ts_template! {
+                export function @{fn_name_ident}(value: @{class_ident}): number {
+                    let hash = 17;
+                    {#if _has_fields}
+                        {#for hash_expr in hash_exprs}
+                            hash = (hash * 31 + @{hash_expr}) | 0;
+                        {/for}
+                    {/if}
+                    return hash;
+                }
+            };
+
+            let class_body = body! {
+                static hashCode(value: @{class_ident}): number {
+                    return @{fn_name_expr}(value);
+                }
+            };
+
+            let source = standalone.source();
+            assert!(source.contains("export function userHashCode(value: User): number"));
+            assert!(source.contains("let hash = 17"));
+            assert!(source.contains("hash = (hash * 31 + (value.name ? value.name.length : 0)) | 0"));
+            assert!(source.contains("hash = (hash * 31 + (value.age | 0)) | 0"));
+            assert!(source.contains("return hash"));
+
+            let body_source = class_body.source();
+            assert!(body_source.contains("static hashCode(value: User): number"));
+            assert!(body_source.contains("return userHashCode(value)"));
+        }
+
+        /// Hash for string enum - mirrors derive_hash.rs string enum implementation
+        #[test]
+        fn derive_hash_string_enum_template() {
+            let enum_name = "Color";
+            let fn_name_ident = ident("colorHashCode");
+
+            let stream = ts_template! {
+                export function @{fn_name_ident}(value: @{ident(enum_name)}): number {
+                    let hash = 0;
+                    for (let i = 0; i < value.length; i++) {
+                        hash = (hash * 31 + value.charCodeAt(i)) | 0;
+                    }
+                    return hash;
+                }
+            };
+
+            let source = stream.source();
+            assert!(source.contains("export function colorHashCode(value: Color): number"));
+            assert!(source.contains("let hash = 0"));
+            assert!(source.contains("value.charCodeAt(i)"));
+        }
+
+        // -------------------------------------------------------------------------
+        // derive(Debug) Template Tests
+        // -------------------------------------------------------------------------
+
+        /// Debug for class - mirrors derive_debug.rs class implementation
+        #[test]
+        fn derive_debug_class_template() {
+            let class_name = "Person";
+            let class_ident = ident(class_name);
+            let fn_name_ident = ident("personToString");
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
+            let has_fields = true;
+
+            struct FieldDebug {
+                name: TsIdent,
+                quoted_name: String,
+            }
+
+            let fields: Vec<FieldDebug> = vec![
+                FieldDebug { name: ident("firstName"), quoted_name: "firstName".to_string() },
+                FieldDebug { name: ident("lastName"), quoted_name: "lastName".to_string() },
+            ];
+
+            let standalone = ts_template! {
+                export function @{fn_name_ident}(value: @{class_ident}): string {
+                    {#if has_fields}
+                        const parts: string[] = [];
+                        {#for field in &fields}
+                            parts.push("@{field.quoted_name}: " + value.@{field.name});
+                        {/for}
+                        return "@{class_name} { " + parts.join(", ") + " }";
+                    {:else}
+                        return "@{class_name} {}";
+                    {/if}
+                }
+            };
+
+            let class_body = body! {
+                static toString(value: @{class_ident}): string {
+                    return @{fn_name_expr}(value);
+                }
+            };
+
+            let source = standalone.source();
+            assert!(source.contains("export function personToString(value: Person): string"));
+            assert!(source.contains("const parts: string[] = []"));
+            assert!(source.contains(r#"parts.push("firstName: " + value.firstName)"#));
+            assert!(source.contains(r#"parts.push("lastName: " + value.lastName)"#));
+
+            let body_source = class_body.source();
+            assert!(body_source.contains("static toString(value: Person): string"));
+            assert!(body_source.contains("return personToString(value)"));
+        }
+
+        // -------------------------------------------------------------------------
+        // derive(Default) Template Tests
+        // -------------------------------------------------------------------------
+
+        /// Default for class - mirrors derive_default.rs class implementation
+        #[test]
+        fn derive_default_class_template() {
+            let class_name = "Config";
+            let class_ident = ident(class_name);
+            let class_expr: Expr = class_ident.clone().into();
+            let fn_name_ident = ident("configDefault");
+            let has_fields = true;
+
+            struct DefaultField {
+                name_ident: TsIdent,
+                value_expr: Expr,
+            }
+
+            let fields: Vec<DefaultField> = vec![
+                DefaultField {
+                    name_ident: ident("timeout"),
+                    value_expr: *parse_ts_expr("5000").unwrap(),
+                },
+                DefaultField {
+                    name_ident: ident("retries"),
+                    value_expr: *parse_ts_expr("3").unwrap(),
+                },
+                DefaultField {
+                    name_ident: ident("enabled"),
+                    value_expr: *parse_ts_expr("true").unwrap(),
+                },
+            ];
+
+            let class_body = body! {
+                static defaultValue(): @{class_ident} {
+                    const instance = new @{class_expr}();
+                    {#if has_fields}
+                        {#for field in &fields}
+                            instance.@{field.name_ident} = @{field.value_expr};
+                        {/for}
+                    {/if}
+                    return instance;
+                }
+            };
+
+            let standalone = ts_template! {
+                export function @{fn_name_ident}(): @{class_ident} {
+                    return @{class_expr}.defaultValue();
+                }
+            };
+
+            let body_source = class_body.source();
+            assert!(body_source.contains("static defaultValue(): Config"));
+            assert!(body_source.contains("const instance = new Config()"));
+            assert!(body_source.contains("instance.timeout = 5000"));
+            assert!(body_source.contains("instance.retries = 3"));
+            assert!(body_source.contains("instance.enabled = true"));
+            assert!(body_source.contains("return instance"));
+
+            let source = standalone.source();
+            assert!(source.contains("export function configDefault(): Config"));
+            assert!(source.contains("return Config.defaultValue()"));
+        }
+
+        /// Default for interface - mirrors derive_default.rs interface implementation
+        #[test]
+        fn derive_default_interface_template() {
+            let interface_name = "Options";
+            let interface_ident = ident(interface_name);
+            let fn_name_ident = ident("optionsDefault");
+            let has_fields = true;
+
+            struct DefaultField {
+                name_expr: Expr,
+                value_expr: Expr,
+            }
+
+            let fields: Vec<DefaultField> = vec![
+                DefaultField {
+                    name_expr: *parse_ts_expr("\"debug\"").unwrap(),
+                    value_expr: *parse_ts_expr("false").unwrap(),
+                },
+                DefaultField {
+                    name_expr: *parse_ts_expr("\"level\"").unwrap(),
+                    value_expr: *parse_ts_expr("1").unwrap(),
+                },
+            ];
+
+            let stream = ts_template! {
+                export function @{fn_name_ident}(): @{interface_ident} {
+                    return {
+                        {#if has_fields}
+                            {#for field in &fields}
+                                @{field.name_expr}: @{field.value_expr},
+                            {/for}
+                        {/if}
+                    } as @{interface_ident};
+                }
+            };
+
+            let source = stream.source();
+            assert!(source.contains("export function optionsDefault(): Options"));
+            assert!(source.contains("\"debug\": false"));
+            assert!(source.contains("\"level\": 1"));
+            assert!(source.contains("} as Options"));
+        }
+
+        // -------------------------------------------------------------------------
+        // derive(Serialize) Template Tests
+        // -------------------------------------------------------------------------
+
+        /// Serialize for class - mirrors derive_serialize.rs class implementation
+        #[test]
+        fn derive_serialize_class_template() {
+            let class_name = "User";
+            let class_ident = ident(class_name);
+            let fn_serialize_ident = ident("serializeUser");
+            let fn_serialize_internal_ident = ident("serializeUserInternal");
+            let fn_serialize_internal_expr: Expr = fn_serialize_internal_ident.clone().into();
+            let serialize_context_ident = ident("SerializeContext");
+            let serialize_context_expr: Expr = serialize_context_ident.clone().into();
+            let has_regular = true;
+
+            struct RegularField {
+                field_ident: TsIdent,
+                json_key: String,
+                serialize_expr: Expr,
+            }
+
+            let regular_fields: Vec<RegularField> = vec![
+                RegularField {
+                    field_ident: ident("name"),
+                    json_key: "name".to_string(),
+                    serialize_expr: *parse_ts_expr("value.name").unwrap(),
+                },
+                RegularField {
+                    field_ident: ident("age"),
+                    json_key: "age".to_string(),
+                    serialize_expr: *parse_ts_expr("value.age").unwrap(),
+                },
+            ];
+
+            let stream = ts_template! {
+                /** Serializes a User to JSON string */
+                export function @{fn_serialize_ident}(value: @{class_ident}): string {
+                    const ctx = @{serialize_context_expr}.create();
+                    return JSON.stringify(@{fn_serialize_internal_expr}(value, ctx));
+                }
+
+                /** Internal serializer with context for cycle detection */
+                export function @{fn_serialize_internal_ident}(value: @{class_ident}, ctx: @{serialize_context_ident}): Record<string, unknown> {
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+                    const __id = ctx.register(value);
+                    const result: Record<string, unknown> = {
+                        __type: "@{class_name}",
+                        __id,
+                    };
+                    {#if has_regular}
+                        {#for field in &regular_fields}
+                            result["@{field.json_key}"] = @{field.serialize_expr};
+                        {/for}
+                    {/if}
+                    return result;
+                }
+            };
+
+            let source = stream.source();
+            assert!(source.contains("export function serializeUser(value: User): string"));
+            assert!(source.contains("const ctx = SerializeContext.create()"));
+            assert!(source.contains("return JSON.stringify(serializeUserInternal(value, ctx))"));
+            assert!(source.contains("export function serializeUserInternal(value: User, ctx: SerializeContext)"));
+            assert!(source.contains("const existingId = ctx.getId(value)"));
+            assert!(source.contains("return { __ref: existingId }"));
+            assert!(source.contains(r#"__type: "User""#));
+            assert!(source.contains(r#"result["name"] = value.name"#));
+            assert!(source.contains(r#"result["age"] = value.age"#));
+        }
+
+        // -------------------------------------------------------------------------
+        // derive(Deserialize) Template Tests
+        // -------------------------------------------------------------------------
+
+        /// Deserialize for class - mirrors derive_deserialize.rs implementation
+        #[test]
+        fn derive_deserialize_class_template() {
+            let class_name = "User";
+            let class_ident = ident(class_name);
+            let class_expr: Expr = class_ident.clone().into();
+            let fn_deserialize_ident = ident("deserializeUser");
+            let deserialize_options_ident = ident("DeserializeOptions");
+            let return_type_ident = ident(class_name);
+            let has_required = true;
+            let has_optional = true;
+
+            struct RequiredField {
+                field_ident: TsIdent,
+                json_key: String,
+                raw_var: String,
+            }
+
+            struct OptionalField {
+                field_ident: TsIdent,
+                json_key: String,
+                raw_var: String,
+            }
+
+            let required_fields: Vec<RequiredField> = vec![
+                RequiredField {
+                    field_ident: ident("name"),
+                    json_key: "name".to_string(),
+                    raw_var: "__raw_name".to_string(),
+                },
+            ];
+
+            let optional_fields: Vec<OptionalField> = vec![
+                OptionalField {
+                    field_ident: ident("age"),
+                    json_key: "age".to_string(),
+                    raw_var: "__raw_age".to_string(),
+                },
+            ];
+
+            let stream = ts_template! {
+                /** Deserializes input to User */
+                export function @{fn_deserialize_ident}(input: unknown, opts?: @{deserialize_options_ident}): @{return_type_ident} {
+                    try {
+                        const obj = typeof input === "string" ? JSON.parse(input) : input;
+                        const instance = new @{class_expr}();
+                        {#if has_required}
+                            {#for field in &required_fields}
+                                const @{ident(&field.raw_var)} = obj["@{field.json_key}"];
+                                instance.@{field.field_ident} = @{ident(&field.raw_var)};
+                            {/for}
+                        {/if}
+                        {#if has_optional}
+                            {#for field in &optional_fields}
+                                if ("@{field.json_key}" in obj) {
+                                    const @{ident(&field.raw_var)} = obj["@{field.json_key}"];
+                                    instance.@{field.field_ident} = @{ident(&field.raw_var)};
+                                }
+                            {/for}
+                        {/if}
+                        return instance;
+                    } catch (e) {
+                        throw new Error("Deserialization failed");
+                    }
+                }
+            };
+
+            let source = stream.source();
+            assert!(source.contains("export function deserializeUser(input: unknown, opts?: DeserializeOptions): User"));
+            assert!(source.contains("const obj = typeof input === \"string\" ? JSON.parse(input) : input"));
+            assert!(source.contains("const instance = new User()"));
+            assert!(source.contains(r#"const __raw_name = obj["name"]"#));
+            assert!(source.contains("instance.name = __raw_name"));
+            assert!(source.contains(r#"if ("age" in obj)"#));
+            assert!(source.contains(r#"const __raw_age = obj["age"]"#));
+            assert!(source.contains("instance.age = __raw_age"));
+            assert!(source.contains("return instance"));
+        }
+
+        // -------------------------------------------------------------------------
+        // Match with Pattern Binding Tests
+        // -------------------------------------------------------------------------
+
+        /// Match with pattern binding - tests variable scoping in match arms
+        #[test]
+        fn derive_deserialize_match_type_category() {
+            #[derive(Clone)]
+            enum TypeCategory {
+                Primitive,
+                Array(String),
+                Optional(String),
+            }
+
+            let type_cat = TypeCategory::Array("number".to_string());
+            let field_ident = ident("scores");
+            let raw_value = ident("rawValue");
+
+            let stream = ts_template! {
+                {#match type_cat}
+                    {:case TypeCategory::Primitive}
+                        instance.@{field_ident} = @{raw_value};
+                    {:case TypeCategory::Array(inner)}
+                        instance.@{field_ident} = @{raw_value} as @{ident(&inner)}[];
+                    {:case TypeCategory::Optional(inner)}
+                        if (@{raw_value} !== null && @{raw_value} !== undefined) {
+                            instance.@{field_ident} = @{raw_value} as @{ident(&inner)};
+                        }
+                {/match}
+            };
+
+            let source = stream.source();
+            // Should contain the Array case since type_cat is Array("number")
+            assert!(source.contains("instance.scores = rawValue as number[]"));
+        }
+
+        // -------------------------------------------------------------------------
+        // Body Macro Tests (Class Member Syntax)
+        // -------------------------------------------------------------------------
+
+        /// Body macro for static method - mirrors the pattern in all derive macros
+        #[test]
+        fn body_static_method_template() {
+            let class_ident = ident("Calculator");
+            let fn_external_ident = ident("add");
+            let fn_external_expr: Expr = fn_external_ident.clone().into();
+
+            let class_body = body! {
+                static add(a: number, b: number): number {
+                    return @{fn_external_expr}(a, b);
+                }
+            };
+
+            let source = class_body.source();
+            assert!(source.contains("static add(a: number, b: number): number"));
+            assert!(source.contains("return add(a, b)"));
+        }
+
+        /// Body macro for constructor - simulates derive(Deserialize) constructor pattern
+        #[test]
+        fn body_constructor_template() {
+            let has_required = true;
+            let has_optional = true;
+
+            struct FieldInit {
+                field_ident: TsIdent,
+                json_key: String,
+            }
+
+            let required_fields = vec![
+                FieldInit { field_ident: ident("id"), json_key: "id".to_string() },
+            ];
+            let optional_fields = vec![
+                FieldInit { field_ident: ident("name"), json_key: "name".to_string() },
+            ];
+
+            let class_body = body! {
+                constructor(props: Record<string, unknown>) {
+                    {#if has_required}
+                        {#for field in &required_fields}
+                            this.@{field.field_ident} = props["@{field.json_key}"] as any;
+                        {/for}
+                    {/if}
+                    {#if has_optional}
+                        {#for field in &optional_fields}
+                            if ("@{field.json_key}" in props) {
+                                this.@{field.field_ident} = props["@{field.json_key}"] as any;
+                            }
+                        {/for}
+                    {/if}
+                }
+            };
+
+            let source = class_body.source();
+            assert!(source.contains("constructor(props: Record<string, unknown>)"));
+            assert!(source.contains(r#"this.id = props["id"] as any"#));
+            assert!(source.contains(r#"if ("name" in props)"#));
+            assert!(source.contains(r#"this.name = props["name"] as any"#));
+        }
+
+        // -------------------------------------------------------------------------
+        // $typescript Directive Tests
+        // -------------------------------------------------------------------------
+
+        /// Combining standalone function with class body using $typescript
+        #[test]
+        fn typescript_directive_compose_template() {
+            let class_ident = ident("User");
+            let fn_name_ident = ident("cloneUser");
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
+
+            let standalone = ts_template! {
+                export function @{fn_name_ident}(value: @{class_ident}): @{class_ident} {
+                    return { ...value };
+                }
+            };
+
+            let class_body = body! {
+                static clone(value: @{class_ident}): @{class_ident} {
+                    return @{fn_name_expr}(value);
+                }
+            };
+
+            let combined = ts_template! {
+                {$typescript standalone}
+                {$typescript class_body}
+            };
+
+            let source = combined.source();
+            assert!(source.contains("export function cloneUser(value: User): User"));
+            assert!(source.contains("static clone(value: User): User"));
+            assert!(source.contains("return cloneUser(value)"));
+        }
+
+        // -------------------------------------------------------------------------
+        // ident! Macro Tests
+        // -------------------------------------------------------------------------
+
+        /// Formatted identifier using ident! macro - common pattern in derive macros
+        #[test]
+        fn ident_macro_formatted_template() {
+            let class_name = "User";
+            let fn_clone_ident = ident!("{}Clone", class_name.to_lowercase());
+            let fn_hash_ident = ident!("{}HashCode", class_name.to_lowercase());
+            let fn_default_ident = ident!("{}Default", class_name.to_lowercase());
+
+            let stream = ts_template! {
+                export function @{fn_clone_ident}(value: @{ident(class_name)}): @{ident(class_name)} {
+                    return { ...value };
+                }
+                export function @{fn_hash_ident}(value: @{ident(class_name)}): number {
+                    return 0;
+                }
+                export function @{fn_default_ident}(): @{ident(class_name)} {
+                    return {} as @{ident(class_name)};
+                }
+            };
+
+            let source = stream.source();
+            assert!(source.contains("export function userClone(value: User): User"));
+            assert!(source.contains("export function userHashCode(value: User): number"));
+            assert!(source.contains("export function userDefault(): User"));
         }
     }
 

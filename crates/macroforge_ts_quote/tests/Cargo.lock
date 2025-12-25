@@ -292,6 +292,7 @@ version = "0.1.0"
 dependencies = [
  "macroforge_ts",
  "macroforge_ts_quote",
+ "macroforge_ts_syn",
  "proc-macro2",
  "swc_core",
 ]
@@ -1492,9 +1493,9 @@ dependencies = [
 
 [[package]]
 name = "swc_core"
-version = "51.0.0"
+version = "52.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "907edde32447c184b1bf26858b260e2c5082c0816b94b80acd3586c65f447cab"
+checksum = "33540bdcbf752611f66dcd5576272ce25141356c2d6e7b7ae63a801633a21f02"
 dependencies = [
  "swc_allocator",
  "swc_atoms",

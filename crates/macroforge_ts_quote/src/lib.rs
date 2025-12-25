@@ -837,7 +837,7 @@ pub fn below(input: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn body(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
-    generate_scoped_template(input, "/* @macroforge:body */")
+    generate_scoped_body_template(input, "/* @macroforge:body */")
 }
 
 /// Generates code to be inserted into a function **signature**.
@@ -895,43 +895,122 @@ pub fn signature(input: TokenStream) -> TokenStream {
 ///
 /// Returns a compile error if template parsing fails.
 fn generate_scoped_template(input: TokenStream2, marker: &str) -> TokenStream {
-    let template_builder = match template::parse_template(input) {
-        Ok(s) => s,
-        Err(e) => return e.to_compile_error().into(),
+    generate_scoped_template_impl(input, marker, false)
+}
+
+/// Generates a scoped template for class body content (body! macro).
+///
+/// This wraps templates in a dummy class for compile-time validation,
+/// then strips the wrapper when emitting to string.
+fn generate_scoped_body_template(input: TokenStream2, marker: &str) -> TokenStream {
+    generate_scoped_template_impl(input, marker, true)
+}
+
+fn generate_scoped_template_impl(input: TokenStream2, marker: &str, body_mode: bool) -> TokenStream {
+    let template_builder = if body_mode {
+        match template::parse_template_body(input) {
+            Ok(s) => s,
+            Err(e) => return e.to_compile_error().into(),
+        }
+    } else {
+        match template::parse_template(input) {
+            Ok(s) => s,
+            Err(e) => return e.to_compile_error().into(),
+        }
     };
 
     // parse_template now returns a tuple: (Vec<Stmt>, Vec<Patch>)
     // We destructure it and set runtime_patches on the resulting TsStream
 
-    let output = quote::quote! {
-        {
-            let (__stmts, __collected_patches, __comments) = #template_builder;
-            let __content = {
-                let __module = swc_core::ecma::ast::Module {
-                    span: swc_core::common::DUMMY_SP,
-                    body: __stmts,
-                    shebang: None,
-                };
-                let __cm = swc_core::common::sync::Lrc::new(swc_core::common::SourceMap::default());
-                let mut __buf = Vec::new();
-                {
-                    use swc_core::ecma::codegen::{text_writer::JsWriter, Emitter};
-                    let mut __writer = JsWriter::new(__cm.clone(), "\n", &mut __buf, None);
-                    let mut __emitter = Emitter {
-                        cfg: swc_core::ecma::codegen::Config::default(),
-                        cm: __cm.clone(),
-                        comments: Some(&__comments),
-                        wr: __writer,
+    let output = if body_mode {
+        // For body mode, we need to strip the class wrapper after emission
+        quote::quote! {
+            {
+                let (__stmts, __collected_patches, __comments) = #template_builder;
+                let __content = {
+                    let __module = swc_core::ecma::ast::Module {
+                        span: swc_core::common::DUMMY_SP,
+                        body: __stmts,
+                        shebang: None,
                     };
-                    __emitter.emit_module(&__module).expect("Failed to emit TypeScript");
-                }
-                String::from_utf8(__buf).expect("Failed to convert TypeScript output to UTF-8")
-            };
-            let mut __ts_code = String::from(#marker);
-            __ts_code.push_str(&__content);
-            let mut __stream = macroforge_ts::ts_syn::TsStream::from_string(__ts_code);
-            __stream.runtime_patches = __collected_patches;
-            __stream
+                    let __cm = swc_core::common::sync::Lrc::new(swc_core::common::SourceMap::default());
+                    let mut __buf = Vec::new();
+                    {
+                        use swc_core::ecma::codegen::{text_writer::JsWriter, Emitter};
+                        let mut __writer = JsWriter::new(__cm.clone(), "\n", &mut __buf, None);
+                        let mut __emitter = Emitter {
+                            cfg: swc_core::ecma::codegen::Config::default(),
+                            cm: __cm.clone(),
+                            comments: Some(&__comments),
+                            wr: __writer,
+                        };
+                        __emitter.emit_module(&__module).expect("Failed to emit TypeScript");
+                    }
+                    let mut __emitted = String::from_utf8(__buf).expect("Failed to convert TypeScript output to UTF-8");
+                    // Strip the dummy class wrapper: "class __MfTemp {\n" ... "\n}"
+                    // The emitted string starts with "class __MfTemp {" and ends with "}"
+                    if __emitted.starts_with("class __MfTemp {") {
+                        // Find the opening brace and newline
+                        if let Some(start) = __emitted.find('{') {
+                            let start = start + 1; // skip the '{'
+                            // Skip leading newline if present
+                            let start = if __emitted[start..].starts_with('\n') {
+                                start + 1
+                            } else {
+                                start
+                            };
+                            // Find the closing brace (last '}')
+                            if let Some(end) = __emitted.rfind('}') {
+                                // Also strip trailing newline before '}'
+                                let end = if end > 0 && __emitted.as_bytes()[end - 1] == b'\n' {
+                                    end - 1
+                                } else {
+                                    end
+                                };
+                                __emitted = __emitted[start..end].to_string();
+                            }
+                        }
+                    }
+                    __emitted
+                };
+                let mut __ts_code = String::from(#marker);
+                __ts_code.push_str(&__content);
+                let mut __stream = macroforge_ts::ts_syn::TsStream::from_string(__ts_code);
+                __stream.runtime_patches = __collected_patches;
+                __stream
+            }
+        }
+    } else {
+        quote::quote! {
+            {
+                let (__stmts, __collected_patches, __comments) = #template_builder;
+                let __content = {
+                    let __module = swc_core::ecma::ast::Module {
+                        span: swc_core::common::DUMMY_SP,
+                        body: __stmts,
+                        shebang: None,
+                    };
+                    let __cm = swc_core::common::sync::Lrc::new(swc_core::common::SourceMap::default());
+                    let mut __buf = Vec::new();
+                    {
+                        use swc_core::ecma::codegen::{text_writer::JsWriter, Emitter};
+                        let mut __writer = JsWriter::new(__cm.clone(), "\n", &mut __buf, None);
+                        let mut __emitter = Emitter {
+                            cfg: swc_core::ecma::codegen::Config::default(),
+                            cm: __cm.clone(),
+                            comments: Some(&__comments),
+                            wr: __writer,
+                        };
+                        __emitter.emit_module(&__module).expect("Failed to emit TypeScript");
+                    }
+                    String::from_utf8(__buf).expect("Failed to convert TypeScript output to UTF-8")
+                };
+                let mut __ts_code = String::from(#marker);
+                __ts_code.push_str(&__content);
+                let mut __stream = macroforge_ts::ts_syn::TsStream::from_string(__ts_code);
+                __stream.runtime_patches = __collected_patches;
+                __stream
+            }
         }
     };
 

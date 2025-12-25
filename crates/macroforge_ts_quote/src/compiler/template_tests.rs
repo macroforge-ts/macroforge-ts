@@ -5,7 +5,7 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::compiler::integration::compile_template;
+    use crate::compiler::integration::compile_template_with_mode;
     use std::time::{Duration, Instant};
 
     const TIMEOUT: Duration = Duration::from_secs(60);
@@ -15,7 +15,7 @@ mod tests {
         eprintln!("Template length: {} chars", template.len());
 
         let start = Instant::now();
-        let result = compile_template(template, "__stmts");
+        let result = compile_template_with_mode(template, "__stmts", false);
         let elapsed = start.elapsed();
 
         if elapsed > TIMEOUT {

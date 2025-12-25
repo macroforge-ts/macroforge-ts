@@ -79,6 +79,8 @@ pub enum IrNode {
         name: String,
         /// Whether it's mutable.
         mutable: bool,
+        /// Optional type annotation (e.g., "Expr" in `name: Expr`).
+        type_hint: Option<String>,
         /// Initial value expression.
         value: String,
     },
@@ -99,8 +101,6 @@ pub enum IrNode {
     Comment {
         /// Comment text.
         text: String,
-        /// Whether it's a doc comment.
-        is_doc: bool,
     },
 }
 
@@ -208,24 +208,21 @@ impl IrLowering {
 
             SyntaxKind::LineComment | SyntaxKind::BlockComment => {
                 let text = self.extract_comment_text(node);
-                vec![IrNode::Comment {
-                    text,
-                    is_doc: false,
-                }]
+                vec![IrNode::Comment { text }]
             }
 
             SyntaxKind::DocComment => {
                 let text = self.extract_comment_text(node);
-                vec![IrNode::Comment {
-                    text,
-                    is_doc: true,
-                }]
+                vec![IrNode::Comment { text }]
             }
 
             SyntaxKind::BraceBlock
             | SyntaxKind::TypeAnnotation
             | SyntaxKind::TypeAssertion
             | SyntaxKind::TsTypeParams
+            | SyntaxKind::TsExpr
+            | SyntaxKind::TsParam
+            | SyntaxKind::TsObject
             | SyntaxKind::ElseClause
             | SyntaxKind::ElseIfClause
             | SyntaxKind::MatchCase => {
@@ -386,6 +383,17 @@ impl IrLowering {
                         SyntaxKind::ElseClause => {
                             else_body = Some(self.lower_else_clause(&child_node));
                         }
+                        SyntaxKind::Interpolation if phase == 1 => {
+                            // Interpolation in condition - must increment ID to stay in sync
+                            // with semantic analysis, and append the rust expr to condition
+                            let id = self.next_placeholder_id();
+                            if let Some(info) = self.analysis.placeholders.get(&id) {
+                                condition.push_str(&info.tokens);
+                            } else {
+                                let text = child_node.text().to_string();
+                                condition.push_str(&self.extract_interpolation_content(&text));
+                            }
+                        }
                         _ if phase == 2 => {
                             then_body.extend(self.lower_node(&child_node));
                         }
@@ -429,10 +437,24 @@ impl IrLowering {
                         _ => {}
                     }
                 }
-                rowan::NodeOrToken::Node(child_node) if phase == 2 => {
-                    body.extend(self.lower_node(&child_node));
+                rowan::NodeOrToken::Node(child_node) => {
+                    match child_node.kind() {
+                        SyntaxKind::Interpolation if phase == 1 => {
+                            // Interpolation in condition - increment ID and append rust expr
+                            let id = self.next_placeholder_id();
+                            if let Some(info) = self.analysis.placeholders.get(&id) {
+                                condition.push_str(&info.tokens);
+                            } else {
+                                let text = child_node.text().to_string();
+                                condition.push_str(&self.extract_interpolation_content(&text));
+                            }
+                        }
+                        _ if phase == 2 => {
+                            body.extend(self.lower_node(&child_node));
+                        }
+                        _ => {}
+                    }
                 }
-                _ => {}
             }
         }
 
@@ -474,7 +496,8 @@ impl IrLowering {
         for child in node.children_with_tokens() {
             match child {
                 rowan::NodeOrToken::Token(token) => {
-                    match token.kind() {
+                    let kind = token.kind();
+                    match kind {
                         SyntaxKind::ForKw if phase == 0 => {
                             // Only match the opening FOR_KW, not the closing one in {/for}
                             phase = 1;
@@ -485,19 +508,51 @@ impl IrLowering {
                         SyntaxKind::RBrace if phase == 2 => {
                             phase = 3;
                         }
+                        SyntaxKind::SlashOpen => {
+                            // Hit the closing {/for} - stop processing body
+                            break;
+                        }
                         _ if phase == 1 => {
                             pattern.push_str(token.text());
                         }
                         _ if phase == 2 => {
                             iterator.push_str(token.text());
                         }
+                        _ if phase == 3 && !self.is_structural_token(kind) => {
+                            // Body tokens (text content)
+                            body.push(IrNode::Text(token.text().to_string()));
+                        }
                         _ => {}
                     }
                 }
-                rowan::NodeOrToken::Node(child_node) if phase == 3 => {
-                    body.extend(self.lower_node(&child_node));
+                rowan::NodeOrToken::Node(child_node) => {
+                    match child_node.kind() {
+                        SyntaxKind::Interpolation if phase == 1 => {
+                            // Interpolation in pattern - increment ID and append rust expr
+                            let id = self.next_placeholder_id();
+                            if let Some(info) = self.analysis.placeholders.get(&id) {
+                                pattern.push_str(&info.tokens);
+                            } else {
+                                let text = child_node.text().to_string();
+                                pattern.push_str(&self.extract_interpolation_content(&text));
+                            }
+                        }
+                        SyntaxKind::Interpolation if phase == 2 => {
+                            // Interpolation in iterator - increment ID and append rust expr
+                            let id = self.next_placeholder_id();
+                            if let Some(info) = self.analysis.placeholders.get(&id) {
+                                iterator.push_str(&info.tokens);
+                            } else {
+                                let text = child_node.text().to_string();
+                                iterator.push_str(&self.extract_interpolation_content(&text));
+                            }
+                        }
+                        _ if phase == 3 => {
+                            body.extend(self.lower_node(&child_node));
+                        }
+                        _ => {}
+                    }
                 }
-                _ => {}
             }
         }
 
@@ -517,23 +572,46 @@ impl IrLowering {
         for child in node.children_with_tokens() {
             match child {
                 rowan::NodeOrToken::Token(token) => {
-                    match token.kind() {
+                    let kind = token.kind();
+                    match kind {
                         SyntaxKind::WhileKw if phase == 0 => {
                             phase = 1;
                         }
                         SyntaxKind::RBrace if phase == 1 => {
                             phase = 2;
                         }
+                        SyntaxKind::SlashOpen => {
+                            // Hit the closing {/while} - stop processing body
+                            break;
+                        }
                         _ if phase == 1 => {
                             condition.push_str(token.text());
+                        }
+                        _ if phase == 2 && !self.is_structural_token(kind) => {
+                            // Body tokens (text content)
+                            body.push(IrNode::Text(token.text().to_string()));
                         }
                         _ => {}
                     }
                 }
-                rowan::NodeOrToken::Node(child_node) if phase == 2 => {
-                    body.extend(self.lower_node(&child_node));
+                rowan::NodeOrToken::Node(child_node) => {
+                    match child_node.kind() {
+                        SyntaxKind::Interpolation if phase == 1 => {
+                            // Interpolation in condition - increment ID and append rust expr
+                            let id = self.next_placeholder_id();
+                            if let Some(info) = self.analysis.placeholders.get(&id) {
+                                condition.push_str(&info.tokens);
+                            } else {
+                                let text = child_node.text().to_string();
+                                condition.push_str(&self.extract_interpolation_content(&text));
+                            }
+                        }
+                        _ if phase == 2 => {
+                            body.extend(self.lower_node(&child_node));
+                        }
+                        _ => {}
+                    }
                 }
-                _ => {}
             }
         }
 
@@ -566,9 +644,22 @@ impl IrLowering {
                     }
                 }
                 rowan::NodeOrToken::Node(child_node) => {
-                    if child_node.kind() == SyntaxKind::MatchCase && phase == 2 {
-                        let (pattern, guard, body) = self.lower_match_case(&child_node);
-                        arms.push((pattern, guard, body));
+                    match child_node.kind() {
+                        SyntaxKind::Interpolation if phase == 1 => {
+                            // Interpolation in expr - increment ID and append rust expr
+                            let id = self.next_placeholder_id();
+                            if let Some(info) = self.analysis.placeholders.get(&id) {
+                                expr.push_str(&info.tokens);
+                            } else {
+                                let text = child_node.text().to_string();
+                                expr.push_str(&self.extract_interpolation_content(&text));
+                            }
+                        }
+                        SyntaxKind::MatchCase if phase == 2 => {
+                            let (pattern, guard, body) = self.lower_match_case(&child_node);
+                            arms.push((pattern, guard, body));
+                        }
+                        _ => {}
                     }
                 }
             }
@@ -589,23 +680,49 @@ impl IrLowering {
         for child in node.children_with_tokens() {
             match child {
                 rowan::NodeOrToken::Token(token) => {
-                    match token.kind() {
+                    let kind = token.kind();
+                    match kind {
                         SyntaxKind::CaseKw if phase == 0 => {
                             phase = 1;
                         }
                         SyntaxKind::RBrace if phase == 1 => {
                             phase = 2;
                         }
+                        SyntaxKind::ColonOpen | SyntaxKind::SlashOpen if phase == 2 => {
+                            // Hit the next case or closing {/match} - stop processing body
+                            break;
+                        }
+                        SyntaxKind::ColonOpen if phase == 0 => {
+                            // Opening {: of this case - skip
+                        }
                         _ if phase == 1 => {
                             pattern.push_str(token.text());
+                        }
+                        _ if phase == 2 && !self.is_structural_token(kind) => {
+                            // Body tokens (text content)
+                            body.push(IrNode::Text(token.text().to_string()));
                         }
                         _ => {}
                     }
                 }
-                rowan::NodeOrToken::Node(child_node) if phase == 2 => {
-                    body.extend(self.lower_node(&child_node));
+                rowan::NodeOrToken::Node(child_node) => {
+                    match child_node.kind() {
+                        SyntaxKind::Interpolation if phase == 1 => {
+                            // Interpolation in pattern - increment ID and append rust expr
+                            let id = self.next_placeholder_id();
+                            if let Some(info) = self.analysis.placeholders.get(&id) {
+                                pattern.push_str(&info.tokens);
+                            } else {
+                                let text = child_node.text().to_string();
+                                pattern.push_str(&self.extract_interpolation_content(&text));
+                            }
+                        }
+                        _ if phase == 2 => {
+                            body.extend(self.lower_node(&child_node));
+                        }
+                        _ => {}
+                    }
                 }
-                _ => {}
             }
         }
 
@@ -629,11 +746,22 @@ impl IrLowering {
         };
 
         if let Some(eq_pos) = rest.find('=') {
-            let name = rest[..eq_pos].trim().to_string();
+            let name_part = rest[..eq_pos].trim();
             let value = rest[eq_pos + 1..].trim().to_string();
+
+            // Parse optional type annotation: `name: Type` or just `name`
+            let (name, type_hint) = if let Some(colon_pos) = name_part.find(':') {
+                let n = name_part[..colon_pos].trim().to_string();
+                let t = name_part[colon_pos + 1..].trim().to_string();
+                (n, Some(t))
+            } else {
+                (name_part.to_string(), None)
+            };
+
             vec![IrNode::Let {
                 name,
                 mutable,
+                type_hint,
                 value,
             }]
         } else {

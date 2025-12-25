@@ -4,22 +4,17 @@ use quote::quote;
 use std::str::FromStr;
 
 #[test]
-fn test_static_template_emits_string_building() {
+fn test_static_template_emits_compile_time_parsing() {
     let input = quote! {
         const value = 1;
     };
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler uses string building and runtime SWC parsing
+    // New compiler uses compile-time SWC quote! for static templates
     assert!(
-        s.contains("push_str"),
-        "Expected push_str for string building in generated output. Got: {}",
-        s
-    );
-    assert!(
-        s.contains("swc_core"),
-        "Expected swc_core for runtime parsing. Got: {}",
+        s.contains("swc_core :: quote !"),
+        "Expected compile-time SWC quote! parsing. Got: {}",
         s
     );
 }
@@ -30,11 +25,10 @@ fn test_interpolation_expr_binding() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler uses ToTsExpr or ToTsStmt trait depending on context
+    // New compiler uses ToTsExpr trait for expression interpolation
     assert!(
-        s.contains("to_ts_expr") || s.contains("ToTsExpr") ||
-        s.contains("to_ts_stmt") || s.contains("ToTsStmt"),
-        "Expected ToTs conversion for expression interpolation. Got: {}",
+        s.contains("to_ts_expr") || s.contains("ToTsExpr"),
+        "Expected ToTsExpr for expression interpolation. Got: {}",
         s
     );
 }
@@ -45,10 +39,10 @@ fn test_ident_block_binding() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler builds identifiers as strings
+    // New compiler builds identifiers dynamically
     assert!(
-        s.contains("push_str"),
-        "Expected string building for ident blocks. Got: {}",
+        s.contains("__ident") || s.contains("Ident"),
+        "Expected identifier building for ident blocks. Got: {}",
         s
     );
 }
@@ -64,7 +58,6 @@ fn test_if_expression_in_statement() {
 
     // New compiler generates Rust if statements for control flow
     assert!(s.contains("if cond"), "Expected Rust if for expression control. Got: {}", s);
-    assert!(s.contains("push_str"), "Expected string building. Got: {}", s);
 }
 
 #[test]
@@ -73,10 +66,10 @@ fn test_string_literal_interpolation() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler uses string building
+    // New compiler uses swc_core::quote! with placeholders
     assert!(
-        s.contains("push_str"),
-        "Expected push_str for string building. Got: {}",
+        s.contains("swc_core :: quote !"),
+        "Expected swc_core::quote! for template. Got: {}",
         s
     );
 }
@@ -87,10 +80,10 @@ fn test_backtick_template_literal_syntax() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler uses string building and ToTsExpr for interpolations
+    // New compiler uses swc_core::quote! with ToTsExpr for interpolations
     assert!(
-        s.contains("push_str"),
-        "Expected push_str for string building. Got: {}",
+        s.contains("swc_core :: quote !"),
+        "Expected swc_core::quote! for template. Got: {}",
         s
     );
 }
@@ -133,10 +126,11 @@ fn test_function_name_interpolation_is_ident() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler uses ToTsIdent for identifier placeholders
+    // New compiler uses ToTsIdent or ToTsExpr for identifier placeholders
     assert!(
-        s.contains("to_ts_ident") || s.contains("ToTsIdent") || s.contains("push_str"),
-        "Expected identifier handling for function name. Got: {}",
+        s.contains("to_ts_ident") || s.contains("ToTsIdent") ||
+        s.contains("to_ts_expr") || s.contains("ToTsExpr"),
+        "Expected identifier/expression handling for function name. Got: {}",
         s
     );
 }
@@ -149,5 +143,100 @@ fn test_dynamic_function_body() {
 
     // New compiler generates if statements for control flow
     assert!(s.contains("if true"), "Expected Rust if statement. Got: {}", s);
-    assert!(s.contains("push_str"), "Expected string building. Got: {}", s);
+}
+
+#[test]
+fn test_debug_doc_comment_tokenstream() {
+    let input = quote! {
+        /** Doc comment */
+        export function @{fn_name}(value: @{type_param}): string {
+            return @{body_expr};
+        }
+    };
+    let template_str = input.to_string();
+    eprintln!("Template string from TokenStream: {}", template_str);
+
+    // Also test with direct string
+    let direct = "/** Doc comment */ export function @{fn_name}(value: @{type_param}): string { return @{body_expr}; }";
+    eprintln!("Direct string: {}", direct);
+
+    // The key difference: doc comments become #[doc = "..."] in TokenStream
+    assert!(
+        template_str.contains("doc =") || template_str.contains("Doc comment"),
+        "TokenStream should preserve doc comment somehow. Got: {}", template_str
+    );
+}
+
+#[test]
+fn test_function_with_doc_comment_uses_ident() {
+    // This test matches the actual pattern from derive_serialize.rs
+    let input = quote! {
+        /** Doc comment */
+        export function @{fn_name}(value: @{type_param}): string {
+            return @{body_expr};
+        }
+    };
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+
+    eprintln!("Generated code:\n{}", s);
+
+    // fn_name after "function" keyword should use ToTsIdent
+    assert!(
+        s.contains("to_ts_ident"),
+        "fn_name should use ToTsIdent for function name. Generated:\n{}", s
+    );
+
+    // type_param after ":" should use ToTsType
+    assert!(
+        s.contains("to_ts_type"),
+        "type_param should use ToTsType for parameter type. Generated:\n{}", s
+    );
+
+    // body_expr in function body should use ToTsExpr
+    assert!(
+        s.contains("to_ts_expr"),
+        "body_expr should use ToTsExpr for expression. Generated:\n{}", s
+    );
+}
+
+#[test]
+fn test_multiple_functions_with_doc_comments() {
+    // This matches the pattern from derive_serialize.rs with multiple functions
+    let input = quote! {
+        /** First function doc */
+        export function @{fn_name1}(value: @{type1}): string {
+            return @{body1};
+        }
+
+        /** Second function doc */
+        export function @{fn_name2}(value: @{type2}): Record<string, unknown> {
+            return @{body2};
+        }
+    };
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+
+    eprintln!("Generated code for multiple functions:\n{}", s);
+
+    // Count occurrences of to_ts_ident - should be 2 (one for each function name)
+    let ident_count = s.matches("to_ts_ident").count();
+    assert_eq!(
+        ident_count, 2,
+        "Expected 2 function names to use ToTsIdent, found {}. Generated:\n{}", ident_count, s
+    );
+
+    // Count occurrences of to_ts_type - should be 2 (one for each parameter type)
+    let type_count = s.matches("to_ts_type").count();
+    assert_eq!(
+        type_count, 2,
+        "Expected 2 parameter types to use ToTsType, found {}. Generated:\n{}", type_count, s
+    );
+
+    // Count occurrences of to_ts_expr - should be 2 (one for each body expression)
+    let expr_count = s.matches("to_ts_expr").count();
+    assert_eq!(
+        expr_count, 2,
+        "Expected 2 body expressions to use ToTsExpr, found {}. Generated:\n{}", expr_count, s
+    );
 }
