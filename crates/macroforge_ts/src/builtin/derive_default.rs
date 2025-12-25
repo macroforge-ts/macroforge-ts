@@ -619,9 +619,9 @@ mod tests {
     #[test]
     fn test_default_macro_output() {
         let class_name = "User";
-        let _class_ident = ident!(class_name);
+        let class_ident = ident!(class_name);
 
-        let _default_fields: Vec<DefaultField> = vec![
+        let default_fields: Vec<DefaultField> = vec![
             DefaultField {
                 name: "id".to_string(),
                 value: "0".to_string(),

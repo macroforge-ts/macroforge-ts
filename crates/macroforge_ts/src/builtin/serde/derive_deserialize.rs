@@ -667,10 +667,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let class_ident = ident!(class_name);
             let class_expr: Expr = class_ident.clone().into();
             let deserialize_context_ident = ident!(DESERIALIZE_CONTEXT);
-            let _deserialize_context_expr: Expr = deserialize_context_ident.clone().into();
-            let _deserialize_error_expr: Expr = ident!(DESERIALIZE_ERROR).into();
+            let deserialize_context_expr: Expr = deserialize_context_ident.clone().into();
+            let deserialize_error_expr: Expr = ident!(DESERIALIZE_ERROR).into();
             let pending_ref_ident = ident!(PENDING_REF);
-            let _pending_ref_expr: Expr = pending_ref_ident.clone().into();
+            let pending_ref_expr: Expr = pending_ref_ident.clone().into();
             let deserialize_options_ident = ident!(DESERIALIZE_OPTIONS);
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
@@ -821,7 +821,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 .filter(|f| f.optional && !f.flatten)
                 .cloned()
                 .collect();
-            let _flatten_fields: Vec<_> = fields.iter().filter(|f| f.flatten).cloned().collect();
+            let flatten_fields: Vec<_> = fields.iter().filter(|f| f.flatten).cloned().collect();
 
             // Build known keys for deny_unknown_fields
             let known_keys: Vec<String> = fields
@@ -830,20 +830,20 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 .map(|f| f.json_key.clone())
                 .collect();
 
-            let _has_optional = !optional_fields.is_empty();
+            let has_optional = !optional_fields.is_empty();
 
             // All non-flatten fields for assignments
             let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
 
             // Fields with validators for per-field validation
-            let _fields_with_validators: Vec<_> = all_fields
+            let fields_with_validators: Vec<_> = all_fields
                 .iter()
                 .filter(|f| f.has_validators())
                 .cloned()
                 .collect();
 
             // Generate shape check condition for hasShape method
-            let _shape_check_condition: String = if required_fields.is_empty() {
+            let shape_check_condition: String = if required_fields.is_empty() {
                 "true".to_string()
             } else {
                 required_fields
@@ -857,23 +857,23 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let return_type = deserialize_return_type(class_name);
             let return_type_ident = ident!(return_type.as_str());
             let success_result = wrap_success("resultOrRef");
-            let _success_result_expr =
+            let success_result_expr =
                 parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
             let error_root_ref = wrap_error(&format!(
                 r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
                 class_name
             ));
-            let _error_root_ref_expr = parse_ts_expr(&error_root_ref)
+            let error_root_ref_expr = parse_ts_expr(&error_root_ref)
                 .expect("deserialize root error wrapper should parse");
             let error_from_catch = wrap_error("e.errors");
-            let _error_from_catch_expr = parse_ts_expr(&error_from_catch)
+            let error_from_catch_expr = parse_ts_expr(&error_from_catch)
                 .expect("deserialize catch error wrapper should parse");
             let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
-            let _error_generic_message_expr = parse_ts_expr(&error_generic_message)
+            let error_generic_message_expr = parse_ts_expr(&error_generic_message)
                 .expect("deserialize generic error wrapper should parse");
 
             // Build known keys array string
-            let _known_keys_list: Vec<_> = known_keys.iter().map(|k| format!("\"{}\"", k)).collect();
+            let known_keys_list: Vec<_> = known_keys.iter().map(|k| format!("\"{}\"", k)).collect();
 
             let mut result = ts_template!(Within {
                 constructor(props: Record<string, unknown>) {

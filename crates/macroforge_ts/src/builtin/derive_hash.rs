@@ -273,6 +273,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}HashCode", class_name.to_case(Case::Camel));
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate hash expressions for each field
             // Note: Rust's linter doesn't understand template macro variable capture
