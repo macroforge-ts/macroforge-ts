@@ -1,7 +1,33 @@
+//! Rust-style templating for TypeScript code generation (AST-based)
+//!
+//! Provides a template syntax with interpolation and control flow:
+//! - `@{expr}` - Interpolate expressions (calls `.to_string()`)
+//! - `{| content |}` - Ident block: concatenates content without spaces (e.g., `{|get@{name}|}` → `getUser`)
+//! - `{> "comment" <}` - Line comment: outputs `// comment` (string preserves whitespace)
+//! - `{>> "comment" <<}` - Block comment: outputs `/* comment */` (string preserves whitespace)
+//! - `///` or `/** */` - Rust doc comments in the template emit JSDoc blocks (`/** ... */`)
+//! - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
+//! - `"string @{expr}"` - String interpolation (auto-detected)
+//! - `"'^template ${expr}^'"` - JS backtick template literal (outputs `` `template ${expr}` ``)
+//! - `{#if cond}...{/if}` - Conditional blocks
+//! - `{#if let pattern = expr}...{/if}` - Pattern matching if-let blocks
+//! - `{:else}` - Else clause
+//! - `{:else if cond}` - Else-if clause
+//! - `{#match expr}{:case pattern}...{/match}` - Match blocks with case arms
+//! - `{#for item in list}...{/for}` - Iteration
+//! - `{#while cond}...{/while}` - While loop
+//! - `{#while let pattern = expr}...{/while}` - While-let pattern matching loop
+//! - `{$let name = expr}` - Local constants
+//! - `{$let mut name = expr}` - Mutable local binding
+//! - `{$do expr}` - Execute side-effectful expression (discard result)
+//! - `{$typescript stream}` - Inject a TsStream, preserving its source and runtime_patches (imports)
+//!
+//! Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
+
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-use crate::compiler::compile_template_with_mode;
+use crate::compiler::compile_template;
 
 /// Converts Rust doc attributes back to JSDoc comments.
 ///
@@ -215,18 +241,6 @@ fn normalize_template_spacing(input: &str) -> String {
 /// }
 /// ```
 pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
-    parse_template_with_mode(input, false)
-}
-
-/// Parses a template for class body content (body! macro).
-///
-/// This wraps the template in a dummy class for compile-time validation
-/// of class member syntax like `static methodName()...`.
-pub fn parse_template_body(input: TokenStream2) -> syn::Result<TokenStream2> {
-    parse_template_with_mode(input, true)
-}
-
-fn parse_template_with_mode(input: TokenStream2, body_mode: bool) -> syn::Result<TokenStream2> {
     // Convert the token stream to a template string
     // The Rowan parser will handle @{expr} interpolations and control flow
     let template_str = input.to_string();
@@ -256,8 +270,8 @@ fn parse_template_with_mode(input: TokenStream2, body_mode: bool) -> syn::Result
         eprintln!("[MF_DEBUG] After normalization ({} chars): {:?}", template_str.len(), template_str);
     }
 
-    // Compile using the new Rowan-based compiler
-    let stmts_builder = compile_template_with_mode(&template_str, "__stmts", body_mode)?;
+    // Compile using the Rowan-based compiler
+    let stmts_builder = compile_template(&template_str, "__stmts")?;
 
     // Wrap in the expected output structure
     Ok(quote! {

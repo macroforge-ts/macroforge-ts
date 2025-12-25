@@ -13,7 +13,6 @@ readme = "README.md"
 
 [lib]
 proc-macro = true
-path = "src/lib/mod.rs"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(swc_ast_unknown)'] }

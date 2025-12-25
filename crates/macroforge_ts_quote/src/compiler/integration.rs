@@ -19,15 +19,10 @@ use super::syntax::SyntaxNode;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-/// Compiles a template with an optional body mode for class member syntax.
+/// Compiles a template string into Rust code that builds TypeScript AST.
 ///
-/// When `body_mode` is true, templates are wrapped in a dummy class for
-/// compile-time validation of class member syntax like `static methodName()...`.
-pub fn compile_template_with_mode(
-    template: &str,
-    output_var: &str,
-    body_mode: bool,
-) -> syn::Result<TokenStream> {
+/// The generated code pushes `ModuleItem` nodes into a `Vec` named by `output_var`.
+pub fn compile_template(template: &str, output_var: &str) -> syn::Result<TokenStream> {
     if template.trim().is_empty() {
         return Ok(quote! {});
     }
@@ -46,7 +41,6 @@ pub fn compile_template_with_mode(
     // Step 4: Generate code
     let config = CodegenConfig {
         output_var: output_var.to_string(),
-        body_mode,
     };
 
     let code = Codegen::with_config(config).generate(&ir);

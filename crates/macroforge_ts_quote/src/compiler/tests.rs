@@ -3,113 +3,131 @@
 //! Each test contains the EXACT template from the corresponding builtin macro file.
 //! Tests will FAIL if compilation takes more than 60 seconds.
 
-#[cfg(test)]
-mod tests {
-    use crate::compiler::integration::compile_template_with_mode;
-    use std::time::{Duration, Instant};
+use crate::compiler::compile_template;
+use std::time::{Duration, Instant};
 
-    const TIMEOUT: Duration = Duration::from_secs(60);
+const TIMEOUT: Duration = Duration::from_secs(60);
 
-    fn test_template(name: &str, template: &str) {
-        eprintln!("\n=== {} ===", name);
-        eprintln!("Template length: {} chars", template.len());
+fn test_template(name: &str, template: &str) {
+    eprintln!("\n=== {} ===", name);
+    eprintln!("Template length: {} chars", template.len());
 
-        let start = Instant::now();
-        let result = compile_template_with_mode(template, "__stmts", false);
-        let elapsed = start.elapsed();
+    let start = Instant::now();
+    let result = compile_template(template, "__stmts");
+    let elapsed = start.elapsed();
 
-        if elapsed > TIMEOUT {
-            panic!(
-                "{} TIMEOUT: compilation took {:?} (limit: {:?})",
-                name, elapsed, TIMEOUT
-            );
-        }
-
-        match result {
-            Ok(code) => {
-                let code_str = code.to_string();
-                eprintln!("Compile time: {:?}", elapsed);
-                eprintln!("Generated code size: {} bytes", code_str.len());
-
-                // Print first 1000 chars of generated code for debugging
-                if code_str.len() > 1000 {
-                    eprintln!("Generated code (first 1000 chars):\n{}", &code_str[..1000]);
-                } else {
-                    eprintln!("Generated code:\n{}", code_str);
-                }
-            }
-            Err(e) => {
-                panic!("{} failed to compile after {:?}: {:?}", name, elapsed, e);
-            }
-        }
+    if elapsed > TIMEOUT {
+        panic!(
+            "{} TIMEOUT: compilation took {:?} (limit: {:?})",
+            name, elapsed, TIMEOUT
+        );
     }
 
-    // ==================== derive_clone.rs:111-119 ====================
-    #[test]
-    fn test_derive_clone_class() {
-        test_template("derive_clone_class", r#"export function @{fn_name_ident}(value: @{class_ident}): @{class_ident} {
+    match result {
+        Ok(code) => {
+            let code_str = code.to_string();
+            eprintln!("Compile time: {:?}", elapsed);
+            eprintln!("Generated code size: {} bytes", code_str.len());
+
+            // Print first 1000 chars of generated code for debugging
+            if code_str.len() > 1000 {
+                eprintln!("Generated code (first 1000 chars):\n{}", &code_str[..1000]);
+            } else {
+                eprintln!("Generated code:\n{}", code_str);
+            }
+        }
+        Err(e) => {
+            panic!("{} failed to compile after {:?}: {:?}", name, elapsed, e);
+        }
+    }
+}
+
+// ==================== derive_clone.rs:111-119 ====================
+#[test]
+fn test_derive_clone_class() {
+    test_template(
+        "derive_clone_class",
+        r#"export function @{fn_name_ident}(value: @{class_ident}): @{class_ident} {
                     const cloned = Object.create(Object.getPrototypeOf(value));
                     {#for field in class.field_names().map(|f| ident!(f))}
                         cloned.@{field.clone()} = value.@{field};
                     {/for}
                     return cloned;
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== derive_clone.rs:130-133 ====================
-    #[test]
-    fn test_derive_clone_compose() {
-        test_template("derive_clone_compose", r#"{$typescript standalone}
-                {$typescript class_body}"#);
-    }
+// ==================== derive_clone.rs:130-133 ====================
+#[test]
+fn test_derive_clone_compose() {
+    test_template(
+        "derive_clone_compose",
+        r#"{$typescript standalone}
+                {$typescript class_body}"#,
+    );
+}
 
-    // ==================== derive_clone.rs:139-143 ====================
-    #[test]
-    fn test_derive_clone_enum() {
-        test_template("derive_clone_enum", r#"export function @{fn_name_ident}(value: @{ident!(enum_name)}): @{ident!(enum_name)} {
+// ==================== derive_clone.rs:139-143 ====================
+#[test]
+fn test_derive_clone_enum() {
+    test_template(
+        "derive_clone_enum",
+        r#"export function @{fn_name_ident}(value: @{ident!(enum_name)}): @{ident!(enum_name)} {
                     return value;
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== derive_clone.rs:150-158 ====================
-    #[test]
-    fn test_derive_clone_interface() {
-        test_template("derive_clone_interface", r#"export function @{fn_name_ident}(value: @{interface_ident}): @{interface_ident} {
+// ==================== derive_clone.rs:150-158 ====================
+#[test]
+fn test_derive_clone_interface() {
+    test_template(
+        "derive_clone_interface",
+        r#"export function @{fn_name_ident}(value: @{interface_ident}): @{interface_ident} {
                     const result = {} as any;
                     {#for field in interface.field_names().map(|f| ident!(f))}
                         result.@{field.clone()} = value.@{field};
                     {/for}
                     return result as @{interface_ident};
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== derive_clone.rs:166-174 ====================
-    #[test]
-    fn test_derive_clone_type_alias_object() {
-        test_template("derive_clone_type_alias_object", r#"export function @{fn_name_ident}(value: @{ident!(type_name)}): @{ident!(type_name)} {
+// ==================== derive_clone.rs:166-174 ====================
+#[test]
+fn test_derive_clone_type_alias_object() {
+    test_template(
+        "derive_clone_type_alias_object",
+        r#"export function @{fn_name_ident}(value: @{ident!(type_name)}): @{ident!(type_name)} {
                         const result = {} as any;
                         {#for field in type_alias.as_object().unwrap().iter().map(|f| ident!(f.name.as_str()))}
                             result.@{field.clone()} = value.@{field};
                         {/for}
                         return result as @{ident!(type_name)};
-                    }"#);
-    }
+                    }"#,
+    );
+}
 
-    // ==================== derive_clone.rs:177-184 ====================
-    #[test]
-    fn test_derive_clone_type_alias_union() {
-        test_template("derive_clone_type_alias_union", r#"export function @{fn_name_ident}(value: @{ident!(type_name)}): @{ident!(type_name)} {
+// ==================== derive_clone.rs:177-184 ====================
+#[test]
+fn test_derive_clone_type_alias_union() {
+    test_template(
+        "derive_clone_type_alias_union",
+        r#"export function @{fn_name_ident}(value: @{ident!(type_name)}): @{ident!(type_name)} {
                         if (typeof value === "object" && value !== null) {
                             return { ...value } as @{ident!(type_name)};
                         }
                         return value;
-                    }"#);
-    }
+                    }"#,
+    );
+}
 
-    // ==================== derive_debug.rs:202-214 ====================
-    #[test]
-    fn test_derive_debug_class() {
-        test_template("derive_debug_class", r#"export function @{fn_name_ident}(value: @{class_ident}): string {
+// ==================== derive_debug.rs:202-214 ====================
+#[test]
+fn test_derive_debug_class() {
+    test_template(
+        "derive_debug_class",
+        r#"export function @{fn_name_ident}(value: @{class_ident}): string {
                     {#if !_debug_fields.is_empty()}
                         const parts: string[] = [];
                         {#for (label, name) in _debug_fields}
@@ -119,13 +137,16 @@ mod tests {
                     {:else}
                         return "@{class_name} {}";
                     {/if}
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== derive_debug.rs:241-253 ====================
-    #[test]
-    fn test_derive_debug_enum() {
-        test_template("derive_debug_enum", r#"export function @{fn_name_ident}(value: @{enum_ident}): string {
+// ==================== derive_debug.rs:241-253 ====================
+#[test]
+fn test_derive_debug_enum() {
+    test_template(
+        "derive_debug_enum",
+        r#"export function @{fn_name_ident}(value: @{enum_ident}): string {
                     {#if !_variants.is_empty()}
                         const key = @{enum_ident.clone().into()}[value as unknown as keyof typeof @{enum_ident}];
                         if (key !== undefined) {
@@ -135,47 +156,59 @@ mod tests {
                     {:else}
                         return "@{enum_name}(" + String(value) + ")";
                     {/if}
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== derive_default.rs:232-238 ====================
-    #[test]
-    fn test_derive_default_class() {
-        test_template("derive_default_class", r#"{$typescript class_body}
+// ==================== derive_default.rs:232-238 ====================
+#[test]
+fn test_derive_default_class() {
+    test_template(
+        "derive_default_class",
+        r#"{$typescript class_body}
 
                 export function @{fn_name_ident}(): @{class_ident} {
                     return @{class_expr}.defaultValue();
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== derive_default.rs:347-355 ====================
-    #[test]
-    fn test_derive_default_interface() {
-        test_template("derive_default_interface", r#"export function @{fn_name_ident}(): @{interface_ident} {
+// ==================== derive_default.rs:347-355 ====================
+#[test]
+fn test_derive_default_interface() {
+    test_template(
+        "derive_default_interface",
+        r#"export function @{fn_name_ident}(): @{interface_ident} {
                         return {
                             {#for (name_ident, value_expr) in object_fields}
                                 @{name_ident}: @{value_expr},
                             {/for}
                         } as @{interface_ident};
-                    }"#);
-    }
+                    }"#,
+    );
+}
 
-    // ==================== derive_default.rs:450-458 ====================
-    #[test]
-    fn test_derive_default_type_alias_generic() {
-        test_template("derive_default_type_alias_generic", r#"export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
+// ==================== derive_default.rs:450-458 ====================
+#[test]
+fn test_derive_default_type_alias_generic() {
+    test_template(
+        "derive_default_type_alias_generic",
+        r#"export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
                             return {
                                 {#for (name_ident, value_expr) in object_fields}
                                     @{name_ident}: @{value_expr},
                                 {/for}
                             } as @{full_type_ident};
-                        }"#);
-    }
+                        }"#,
+    );
+}
 
-    // ==================== derive_hash.rs:298-308 ====================
-    #[test]
-    fn test_derive_hash_class() {
-        test_template("derive_hash_class", r#"export function @{fn_name_ident}(value: @{class_ident}): number {
+// ==================== derive_hash.rs:298-308 ====================
+#[test]
+fn test_derive_hash_class() {
+    test_template(
+        "derive_hash_class",
+        r#"export function @{fn_name_ident}(value: @{class_ident}): number {
                     let hash = 17;
                     {#if _has_fields}
                         {#for hash_expr in _hash_exprs}
@@ -183,38 +216,47 @@ mod tests {
                         {/for}
                     {/if}
                     return hash;
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== derive_hash.rs:333-341 ====================
-    #[test]
-    fn test_derive_hash_enum_string() {
-        test_template("derive_hash_enum_string", r#"export function @{fn_name_ident}(value: @{ident!(enum_name)}): number {
+// ==================== derive_hash.rs:333-341 ====================
+#[test]
+fn test_derive_hash_enum_string() {
+    test_template(
+        "derive_hash_enum_string",
+        r#"export function @{fn_name_ident}(value: @{ident!(enum_name)}): number {
                         let hash = 0;
                         for (let i = 0; i < value.length; i++) {
                             hash = (hash * 31 + value.charCodeAt(i)) | 0;
                         }
                         return hash;
-                    }"#);
-    }
+                    }"#,
+    );
+}
 
-    // ==================== derive_ord.rs:262-271 ====================
-    #[test]
-    fn test_derive_ord_class() {
-        test_template("derive_ord_class", r#"export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): number {
+// ==================== derive_ord.rs:262-271 ====================
+#[test]
+fn test_derive_ord_class() {
+    test_template(
+        "derive_ord_class",
+        r#"export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): number {
                         if (a === b) return 0;
                         {#for (cmp_ident, cmp_expr) in &compare_steps}
                             const @{cmp_ident.clone()} = @{cmp_expr.clone()};
                             if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
                         {/for}
                         return 0;
-                    }"#);
-    }
+                    }"#,
+    );
+}
 
-    // ==================== derive_ord.rs:299-311 ====================
-    #[test]
-    fn test_derive_ord_enum() {
-        test_template("derive_ord_enum", r#"export function @{fn_name_ident}(a: @{ident!(enum_name)}, b: @{ident!(enum_name)}): number {
+// ==================== derive_ord.rs:299-311 ====================
+#[test]
+fn test_derive_ord_enum() {
+    test_template(
+        "derive_ord_enum",
+        r#"export function @{fn_name_ident}(a: @{ident!(enum_name)}, b: @{ident!(enum_name)}): number {
                     // For enums, compare by value (numeric enums) or string
                     if (typeof a === "number" && typeof b === "number") {
                         return a < b ? -1 : a > b ? 1 : 0;
@@ -224,35 +266,44 @@ mod tests {
                         return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
                     }
                     return 0;
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== derive_partial_ord.rs:287-293 ====================
-    #[test]
-    fn test_derive_partial_ord_class() {
-        test_template("derive_partial_ord_class", r#"export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): @{return_type_ident} {
+// ==================== derive_partial_ord.rs:287-293 ====================
+#[test]
+fn test_derive_partial_ord_class() {
+    test_template(
+        "derive_partial_ord_class",
+        r#"export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): @{return_type_ident} {
                         if (a === b) return 0;
                         {$typescript TsStream::from_string(compare_body)}
                         return 0;
-                    }"#);
-    }
+                    }"#,
+    );
+}
 
-    // ==================== derive_partial_eq.rs - need to read ====================
-    #[test]
-    fn test_derive_partial_eq_class() {
-        test_template("derive_partial_eq_class", r#"export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): boolean {
+// ==================== derive_partial_eq.rs - need to read ====================
+#[test]
+fn test_derive_partial_eq_class() {
+    test_template(
+        "derive_partial_eq_class",
+        r#"export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): boolean {
                     if (a === b) return true;
                     {#for eq_expr in _eq_exprs}
                         if (!(@{eq_expr})) return false;
                     {/for}
                     return true;
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== serde/derive_serialize.rs:487-920 (MASSIVE) ====================
-    #[test]
-    fn test_serde_serialize_class() {
-        test_template("serde_serialize_class", r#"/** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
+// ==================== serde/derive_serialize.rs:487-920 (MASSIVE) ====================
+#[test]
+fn test_serde_serialize_class() {
+    test_template(
+        "serde_serialize_class",
+        r#"/** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
                 export function @{fn_serialize_ident}(value: @{class_ident}): string {
                     const ctx = @{serialize_context_expr}.create();
                     return JSON.stringify(@{fn_serialize_internal_expr_standalone}(value, ctx));
@@ -405,13 +456,16 @@ mod tests {
                     {/if}
 
                     return result;
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== serde/derive_deserialize.rs:1288-1303 ====================
-    #[test]
-    fn test_serde_deserialize_standalone() {
-        test_template("serde_deserialize_standalone", r#"/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors */
+// ==================== serde/derive_deserialize.rs:1288-1303 ====================
+#[test]
+fn test_serde_deserialize_standalone() {
+    test_template(
+        "serde_deserialize_standalone",
+        r#"/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors */
                 export function @{fn_deserialize_ident}(input: unknown, opts?: @{deserialize_options_ident}): @{return_type_ident} {
                     return @{&class_expr}.deserialize(input, opts);
                 }
@@ -424,13 +478,16 @@ mod tests {
                 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type */
                 export function @{fn_is_ident}(value: unknown): value is @{class_ident} {
                     return @{&class_expr}.is(value);
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== serde/derive_deserialize.rs:1324-1351 ====================
-    #[test]
-    fn test_serde_deserialize_enum() {
-        test_template("serde_deserialize_enum", r#"/** Deserializes input to an enum value. Automatically detects whether input is a JSON string or value. @param input - JSON string or value to deserialize @returns The enum value @throws Error if the value is not a valid enum member */
+// ==================== serde/derive_deserialize.rs:1324-1351 ====================
+#[test]
+fn test_serde_deserialize_enum() {
+    test_template(
+        "serde_deserialize_enum",
+        r#"/** Deserializes input to an enum value. Automatically detects whether input is a JSON string or value. @param input - JSON string or value to deserialize @returns The enum value @throws Error if the value is not a valid enum member */
                 export function @{fn_deserialize_ident}(input: unknown): @{&enum_ident} {
                     const data = typeof input === "string" ? JSON.parse(input) : input;
                     return @{fn_deserialize_internal_expr}(data);
@@ -455,24 +512,30 @@ mod tests {
                         }
                     }
                     return false;
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    // ==================== body! macro tests ====================
-    #[test]
-    fn test_body_default() {
-        test_template("body_default", r#"static defaultValue(): @{class_ident} {
+// ==================== body! macro tests ====================
+#[test]
+fn test_body_default() {
+    test_template(
+        "body_default",
+        r#"static defaultValue(): @{class_ident} {
                     const instance = new @{class_expr}();
                     {#for (name_ident, value_expr) in field_data}
                         instance.@{name_ident} = @{value_expr};
                     {/for}
                     return instance;
-                }"#);
-    }
+                }"#,
+    );
+}
 
-    #[test]
-    fn test_body_hash() {
-        test_template("body_hash", r#"hashCode(): number {
+#[test]
+fn test_body_hash() {
+    test_template(
+        "body_hash",
+        r#"hashCode(): number {
                 let hash = 17;
                 {#if _has_fields}
                     {#for hash_expr in _hash_exprs}
@@ -480,45 +543,57 @@ mod tests {
                     {/for}
                 {/if}
                 return hash;
-            }"#);
-    }
+            }"#,
+    );
+}
 
-    // ==================== Match pattern binding test ====================
-    #[test]
-    fn test_match_with_pattern_binding() {
-        test_template("match_with_pattern_binding", r#"{#match type_cat}
+// ==================== Match pattern binding test ====================
+#[test]
+fn test_match_with_pattern_binding() {
+    test_template(
+        "match_with_pattern_binding",
+        r#"{#match type_cat}
             {:case TypeCategory::Primitive}
                 instance.@{field_ident} = raw_value;
             {:case TypeCategory::Array(inner)}
                 instance.@{field_ident} = raw_value as @{inner}[];
-        {/match}"#);
-    }
+        {/match}"#,
+    );
+}
 
-    // ==================== Function name placeholder test ====================
-    #[test]
-    fn test_export_function_name() {
-        test_template("export_function_name", r#"export function @{fn_name_ident}(value: @{class_ident}): number {
+// ==================== Function name placeholder test ====================
+#[test]
+fn test_export_function_name() {
+    test_template(
+        "export_function_name",
+        r#"export function @{fn_name_ident}(value: @{class_ident}): number {
                 let hash = 17;
                 return hash;
-            }"#);
-    }
+            }"#,
+    );
+}
 
-    // ==================== Function with doc comment test ====================
-    #[test]
-    fn test_export_function_with_doc() {
-        test_template("export_function_with_doc", r#"/** Serializes a value to a JSON string. */
+// ==================== Function with doc comment test ====================
+#[test]
+fn test_export_function_with_doc() {
+    test_template(
+        "export_function_with_doc",
+        r#"/** Serializes a value to a JSON string. */
 export function @{fn_serialize_ident}(value: @{class_ident}): string {
     const ctx = @{serialize_context_expr}.create();
     return ctx.serialize();
-}"#);
-    }
+}"#,
+    );
+}
 
-    // ==================== JSDoc with @param test ====================
-    #[test]
-    fn test_jsdoc_with_at_param() {
-        test_template("jsdoc_with_at_param", r#"/** Deserializes input. @param input - JSON string @returns The deserialized value */
+// ==================== JSDoc with @param test ====================
+#[test]
+fn test_jsdoc_with_at_param() {
+    test_template(
+        "jsdoc_with_at_param",
+        r#"/** Deserializes input. @param input - JSON string @returns The deserialized value */
 export function @{fn_deserialize_ident}(input: unknown, opts?: @{opts_type}): @{return_type} {
     return null;
-}"#);
-    }
+}"#,
+    );
 }

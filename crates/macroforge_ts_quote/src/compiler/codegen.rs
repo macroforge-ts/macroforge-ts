@@ -1,7 +1,7 @@
 //! Code generation from IR to Rust TokenStream.
 //!
 //! This module generates Rust code that builds SWC AST at compile time.
-//! It uses `swc_core::quote!` for static TypeScript and ToTs* traits for placeholders.
+//! It uses `macroforge_ts_quote::ts_quote!` for TypeScript parsing with native type support.
 //!
 //! ## Virtual Completion Strategy
 //!
@@ -40,16 +40,12 @@ use std::cell::Cell;
 pub struct CodegenConfig {
     /// Variable name for the output accumulator (Vec<ModuleItem>).
     pub output_var: String,
-    /// Whether to generate code for class body members (body! macro).
-    /// When true, templates are wrapped in a dummy class for compile-time validation.
-    pub body_mode: bool,
 }
 
 impl Default for CodegenConfig {
     fn default() -> Self {
         Self {
             output_var: "__mf_stmts".to_string(),
-            body_mode: false,
         }
     }
 }
@@ -132,7 +128,7 @@ impl BraceBalance {
 #[derive(Debug)]
 enum Chunk<'a> {
     /// A parseable chunk of static text + placeholders.
-    /// Can be compiled with swc_core::quote!.
+    /// Can be compiled with macroforge_ts_quote::ts_quote!.
     Parseable {
         /// Template string with $placeholder markers.
         template: String,
@@ -188,7 +184,7 @@ impl Codegen {
     /// Generates Rust TokenStream from IR.
     ///
     /// The generated code builds `Vec<ModuleItem>` at compile time using
-    /// `swc_core::quote!` for static TypeScript and ToTs* traits for placeholders.
+    /// `macroforge_ts_quote::ts_quote!` for static TypeScript and ToTs* traits for placeholders.
     pub fn generate(&self, ir: &Ir) -> TokenStream {
         let output_var = format_ident!("{}", self.config.output_var);
         let body = self.generate_nodes(&ir.nodes);
@@ -385,7 +381,7 @@ impl Codegen {
 
     /// Generates code for a parseable chunk.
     ///
-    /// Uses swc_core::quote! to build AST at compile time with ToTs* traits
+    /// Uses macroforge_ts_quote::ts_quote! to build AST at compile time with ToTs* traits
     /// for type-safe placeholder substitution.
     ///
     /// ## Virtual Completion
@@ -397,8 +393,7 @@ impl Codegen {
     ///
     /// ## Type Placeholder Substitution
     ///
-    /// SWC quote! doesn't support placeholders in type positions, so we use marker
-    /// names (like `__ph_0`) and replace them after parsing using AST post-processing.
+    /// ts_quote! natively supports TsType placeholders via `$name: TsType = expr` syntax.
     fn generate_parseable_chunk(
         &self,
         template: &str,
@@ -413,15 +408,13 @@ impl Codegen {
         }
 
         // Generate placeholder bindings (convert Rust exprs to SWC AST nodes)
-        let (binding_stmts, quote_bindings, type_replacements) =
-            self.generate_placeholder_bindings(placeholders);
-        let has_type_placeholders = !type_replacements.is_empty();
+        let (binding_stmts, quote_bindings) = self.generate_placeholder_bindings(placeholders);
 
-        // Debug: print the template being passed to swc_core::quote!
+        // Debug: print the template being passed to ts_quote!
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
             eprintln!(
-                "[MF_DEBUG_CODEGEN] Template for SWC quote: {:?} (balance: {:?})",
+                "[MF_DEBUG_CODEGEN] Template for ts_quote!: {:?} (balance: {:?})",
                 template, brace_balance
             );
             for (ph_name, kind, rust_expr) in placeholders {
@@ -436,18 +429,12 @@ impl Codegen {
         let trimmed = template.trim_start();
         let is_module_decl = trimmed.starts_with("export ") || trimmed.starts_with("import ");
 
-        // Handle body mode (class member syntax)
-        if self.config.body_mode {
-            return self.generate_body_mode_chunk(template, &binding_stmts, &quote_bindings);
-        }
-
         // Handle unbalanced braces with virtual completion
         if !brace_balance.is_balanced() {
             return self.generate_virtually_completed_chunk(
                 template,
                 &binding_stmts,
                 &quote_bindings,
-                &type_replacements,
                 brace_balance,
                 is_module_decl,
             );
@@ -460,64 +447,36 @@ impl Codegen {
             // Parse as ModuleItem for export/import declarations
             let quote_call = if quote_bindings.is_empty() {
                 quote! {
-                    swc_core::quote!(#template_lit as ModuleItem)
+                    macroforge_ts_quote::ts_quote!(#template_lit as ModuleItem)
                 }
             } else {
                 quote! {
-                    swc_core::quote!(#template_lit as ModuleItem, #(#quote_bindings),*)
+                    macroforge_ts_quote::ts_quote!(#template_lit as ModuleItem, #(#quote_bindings),*)
                 }
             };
 
-            if has_type_placeholders {
-                // With type placeholders: parse, then replace markers
-                quote! {
-                    {
-                        #(#binding_stmts)*
-                        let mut __mf_type_replacements: std::collections::HashMap<String, swc_core::ecma::ast::TsType> = std::collections::HashMap::new();
-                        #(#type_replacements)*
-                        let mut __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
-                        macroforge_ts_syn::__internal::replace_type_markers(&mut __mf_item, __mf_type_replacements);
-                        #output_var.push(__mf_item);
-                    }
-                }
-            } else {
-                quote! {
-                    {
-                        #(#binding_stmts)*
-                        #output_var.push(#quote_call);
-                    }
+            quote! {
+                {
+                    #(#binding_stmts)*
+                    #output_var.push(#quote_call);
                 }
             }
         } else {
             // Parse as Stmt for regular statements
             let quote_call = if quote_bindings.is_empty() {
                 quote! {
-                    swc_core::quote!(#template_lit as Stmt)
+                    macroforge_ts_quote::ts_quote!(#template_lit as Stmt)
                 }
             } else {
                 quote! {
-                    swc_core::quote!(#template_lit as Stmt, #(#quote_bindings),*)
+                    macroforge_ts_quote::ts_quote!(#template_lit as Stmt, #(#quote_bindings),*)
                 }
             };
 
-            if has_type_placeholders {
-                // With type placeholders: parse, then replace markers
-                quote! {
-                    {
-                        #(#binding_stmts)*
-                        let mut __mf_type_replacements: std::collections::HashMap<String, swc_core::ecma::ast::TsType> = std::collections::HashMap::new();
-                        #(#type_replacements)*
-                        let mut __mf_stmt: swc_core::ecma::ast::Stmt = #quote_call;
-                        macroforge_ts_syn::__internal::replace_type_markers_stmt(&mut __mf_stmt, __mf_type_replacements);
-                        #output_var.push(swc_core::ecma::ast::ModuleItem::Stmt(__mf_stmt));
-                    }
-                }
-            } else {
-                quote! {
-                    {
-                        #(#binding_stmts)*
-                        #output_var.push(swc_core::ecma::ast::ModuleItem::Stmt(#quote_call));
-                    }
+            quote! {
+                {
+                    #(#binding_stmts)*
+                    #output_var.push(swc_core::ecma::ast::ModuleItem::Stmt(#quote_call));
                 }
             }
         }
@@ -525,31 +484,27 @@ impl Codegen {
 
     /// Generates placeholder binding statements and quote bindings.
     ///
-    /// The quote bindings include type annotations because `swc_core::quote!` requires
+    /// The quote bindings include type annotations because `ts_quote!` requires
     /// them to know what AST node type to expect in each position.
     ///
     /// Returns:
     /// - binding_stmts: Let statements that convert Rust values to SWC AST nodes
-    /// - quote_bindings: Bindings for swc_core::quote! macro
-    /// - type_replacements: Statements to build the type replacement HashMap
+    /// - quote_bindings: Bindings for ts_quote! macro
     fn generate_placeholder_bindings(
         &self,
         placeholders: &[(String, PlaceholderKind, String)],
-    ) -> (Vec<TokenStream>, Vec<TokenStream>, Vec<TokenStream>) {
+    ) -> (Vec<TokenStream>, Vec<TokenStream>) {
         let mut binding_stmts = Vec::new();
         let mut quote_bindings = Vec::new();
-        let mut type_replacements = Vec::new();
 
         for (ph_name, kind, rust_expr) in placeholders {
             let ph_ident = format_ident!("{}", ph_name);
-            let ph_name_str = ph_name.as_str();
             let expr: TokenStream = rust_expr.parse().unwrap_or_else(|_| {
                 let ident = format_ident!("{}", rust_expr);
                 quote! { #ident }
             });
 
-            // SWC quote! only supports Ident, Expr, Pat as placeholder types.
-            // Type placeholders use concrete marker names and are post-processed.
+            // ts_quote! supports Ident, Expr, Pat, and TsType placeholder types natively.
             match kind {
                 PlaceholderKind::Expr => {
                     binding_stmts.push(quote! {
@@ -558,18 +513,11 @@ impl Codegen {
                     quote_bindings.push(quote! { #ph_ident: Expr = #ph_ident });
                 }
                 PlaceholderKind::Type => {
-                    // Type placeholders use concrete marker names (no $ prefix) in the template.
-                    // SWC quote! parses them as regular identifiers, then we replace them.
-                    // Create the type for later replacement via AST post-processing
+                    // ts_quote! natively supports TsType placeholders
                     binding_stmts.push(quote! {
                         let #ph_ident: swc_core::ecma::ast::TsType = macroforge_ts_syn::ToTsType::to_ts_type(#expr);
                     });
-                    // Add to type replacement map
-                    type_replacements.push(quote! {
-                        __mf_type_replacements.insert(#ph_name_str.to_string(), #ph_ident);
-                    });
-                    // Type placeholders don't get quote bindings - they're markers in the template
-                    // that get replaced with the actual type after parsing
+                    quote_bindings.push(quote! { #ph_ident: TsType = #ph_ident });
                 }
                 PlaceholderKind::Ident => {
                     binding_stmts.push(quote! {
@@ -578,47 +526,16 @@ impl Codegen {
                     quote_bindings.push(quote! { #ph_ident: Ident = #ph_ident });
                 }
                 PlaceholderKind::Stmt => {
-                    // SWC quote! doesn't support Stmt - use Expr and context determines usage
+                    // ts_quote! supports Stmt directly
                     binding_stmts.push(quote! {
-                        let #ph_ident: swc_core::ecma::ast::Expr = macroforge_ts_syn::ToTsExpr::to_ts_expr(#expr);
+                        let #ph_ident: swc_core::ecma::ast::Stmt = macroforge_ts_syn::ToTsStmt::to_ts_stmt(#expr);
                     });
-                    quote_bindings.push(quote! { #ph_ident: Expr = #ph_ident });
+                    quote_bindings.push(quote! { #ph_ident: Stmt = #ph_ident });
                 }
             }
         }
 
-        (binding_stmts, quote_bindings, type_replacements)
-    }
-
-    /// Generates code for body mode (class member syntax).
-    fn generate_body_mode_chunk(
-        &self,
-        template: &str,
-        binding_stmts: &[TokenStream],
-        quote_bindings: &[TokenStream],
-    ) -> TokenStream {
-        let output_var = format_ident!("{}", self.config.output_var);
-
-        // For class body members, wrap in a dummy class for compile-time validation
-        let wrapped_template = format!("class __MfTemp {{ {} }}", template);
-        let wrapped_lit = syn::LitStr::new(&wrapped_template, proc_macro2::Span::call_site());
-
-        let quote_call = if quote_bindings.is_empty() {
-            quote! {
-                swc_core::quote!(#wrapped_lit as ModuleItem)
-            }
-        } else {
-            quote! {
-                swc_core::quote!(#wrapped_lit as ModuleItem, #(#quote_bindings),*)
-            }
-        };
-
-        quote! {
-            {
-                #(#binding_stmts)*
-                #output_var.push(#quote_call);
-            }
-        }
+        (binding_stmts, quote_bindings)
     }
 
     /// Generates code for a chunk with unbalanced braces using virtual completion.
@@ -634,23 +551,10 @@ impl Codegen {
         template: &str,
         binding_stmts: &[TokenStream],
         quote_bindings: &[TokenStream],
-        type_replacements: &[TokenStream],
         brace_balance: BraceBalance,
         _is_module_decl: bool,
     ) -> TokenStream {
         let output_var = format_ident!("{}", self.config.output_var);
-        let has_type_placeholders = !type_replacements.is_empty();
-
-        // Helper to generate type replacement code if needed
-        let type_replacement_code = if has_type_placeholders {
-            quote! {
-                let mut __mf_type_replacements: std::collections::HashMap<String, swc_core::ecma::ast::TsType> = std::collections::HashMap::new();
-                #(#type_replacements)*
-                macroforge_ts_syn::__internal::replace_type_markers(&mut __mf_item, __mf_type_replacements);
-            }
-        } else {
-            quote! {}
-        };
 
         // Determine the virtual completion strategy
         if brace_balance.unclosed_opens > 0 && brace_balance.unmatched_closes == 0 {
@@ -674,11 +578,11 @@ impl Codegen {
 
             let quote_call = if quote_bindings.is_empty() {
                 quote! {
-                    swc_core::quote!(#completed_lit as ModuleItem)
+                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem)
                 }
             } else {
                 quote! {
-                    swc_core::quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
+                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
                 }
             };
 
@@ -689,8 +593,7 @@ impl Codegen {
                 {
                     #(#binding_stmts)*
                     // Parse the virtually completed template
-                    let mut __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
-                    #type_replacement_code
+                    let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
 
                     // Push the opener and record its index for later finalization
                     let __mf_idx = macroforge_ts_syn::__internal::push_opener(
@@ -714,11 +617,11 @@ impl Codegen {
 
             let quote_call = if quote_bindings.is_empty() {
                 quote! {
-                    swc_core::quote!(#completed_lit as ModuleItem)
+                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem)
                 }
             } else {
                 quote! {
-                    swc_core::quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
+                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
                 }
             };
 
@@ -727,8 +630,7 @@ impl Codegen {
                 {
                     #(#binding_stmts)*
                     // Parse the virtually completed template
-                    let mut __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
-                    #type_replacement_code
+                    let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
 
                     // Pop the opener index and finalize with accumulated statements
                     let __mf_opener_idx = __mf_opener_stack.pop()
@@ -757,11 +659,11 @@ impl Codegen {
 
             let quote_call = if quote_bindings.is_empty() {
                 quote! {
-                    swc_core::quote!(#completed_lit as ModuleItem)
+                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem)
                 }
             } else {
                 quote! {
-                    swc_core::quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
+                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
                 }
             };
 
@@ -770,8 +672,7 @@ impl Codegen {
                 {
                     #(#binding_stmts)*
                     // Parse the virtually completed template for validation
-                    let mut __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
-                    #type_replacement_code
+                    let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
 
                     // Get the current opener index (peek, not pop)
                     let __mf_opener_idx = *__mf_opener_stack.last()
@@ -913,7 +814,7 @@ impl Codegen {
 
     /// Generates a Rust expression string that builds an identifier from parts.
     ///
-    /// This is used to embed ident blocks as placeholders in swc_core::quote!.
+    /// This is used to embed ident blocks as placeholders in macroforge_ts_quote::ts_quote!.
     fn generate_ident_builder_expr(&self, parts: &[IrNode]) -> String {
         let mut expr_parts = Vec::new();
 
@@ -1140,9 +1041,9 @@ mod tests {
     fn test_codegen_simple_text() {
         let code = compile_template("const x = 1;");
         let code_str = code.to_string();
-        // Should use swc_core::quote! for static text
+        // Should use macroforge_ts_quote::ts_quote! for static text
         assert!(
-            code_str.contains("swc_core :: quote !"),
+            code_str.contains("macroforge_ts_quote :: ts_quote !"),
             "Generated code: {}",
             code_str
         );
@@ -1170,16 +1071,10 @@ mod tests {
             "Expected ToTsType for type placeholder. Generated code: {}",
             code_str
         );
-        // Should contain type replacement mechanism
+        // ts_quote! handles TsType placeholders natively via $name: TsType = expr
         assert!(
-            code_str.contains("replace_type_markers"),
-            "Expected replace_type_markers for type substitution. Generated code: {}",
-            code_str
-        );
-        // Should build the replacement HashMap
-        assert!(
-            code_str.contains("__mf_type_replacements"),
-            "Expected type replacements map. Generated code: {}",
+            code_str.contains("TsType ="),
+            "Expected native TsType placeholder binding. Generated code: {}",
             code_str
         );
     }

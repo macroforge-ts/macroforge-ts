@@ -11,10 +11,10 @@ fn test_static_template_emits_compile_time_parsing() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler uses compile-time SWC quote! for static templates
+    // New compiler uses compile-time ts_quote! for static templates
     assert!(
-        s.contains("swc_core :: quote !"),
-        "Expected compile-time SWC quote! parsing. Got: {}",
+        s.contains("macroforge_ts_quote :: ts_quote !"),
+        "Expected compile-time ts_quote! parsing. Got: {}",
         s
     );
 }
@@ -66,10 +66,10 @@ fn test_string_literal_interpolation() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler uses swc_core::quote! with placeholders
+    // New compiler uses ts_quote! with placeholders
     assert!(
-        s.contains("swc_core :: quote !"),
-        "Expected swc_core::quote! for template. Got: {}",
+        s.contains("macroforge_ts_quote :: ts_quote !"),
+        "Expected ts_quote! for template. Got: {}",
         s
     );
 }
@@ -80,10 +80,10 @@ fn test_backtick_template_literal_syntax() {
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler uses swc_core::quote! with ToTsExpr for interpolations
+    // New compiler uses ts_quote! with ToTsExpr for interpolations
     assert!(
-        s.contains("swc_core :: quote !"),
-        "Expected swc_core::quote! for template. Got: {}",
+        s.contains("macroforge_ts_quote :: ts_quote !"),
+        "Expected ts_quote! for template. Got: {}",
         s
     );
 }

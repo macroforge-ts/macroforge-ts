@@ -41,10 +41,7 @@ pub(crate) fn parse_input_type(input_str: &str, ty: &Type) -> Result<BoxWrapper,
             "Pat" => return parse(input_str, &mut |p| p.parse_pat()),
             "Stmt" => return parse(input_str, &mut |p| p.parse_stmt_list_item()),
             "AssignTarget" => {
-                return parse(input_str, &mut |p| {
-                    Ok(AssignTarget::try_from(p.parse_pat()?)
-                        .expect("failed to parse AssignTarget"))
-                })
+                return parse_assign_target(input_str);
             }
             "ModuleItem" => return parse(input_str, &mut |p| p.parse_module_item()),
             "TsType" => return parse_ts_type(input_str),
@@ -76,6 +73,35 @@ where
         .map_err(|err| anyhow!("{err:?}"))
         .with_context(|| format!("failed to parse input as `{}`", type_name::<T>()))
         .map(|val| BoxWrapper(Box::new(val)))
+}
+
+/// Parse an assign target pattern.
+/// Not all patterns can be used as assignment targets - this will error for invalid patterns.
+fn parse_assign_target(input_str: &str) -> Result<BoxWrapper, Error> {
+    let cm = Lrc::new(SourceMap::default());
+    let fm = cm.new_source_file(FileName::Anon.into(), input_str.to_string());
+
+    let lexer = Lexer::new(
+        Syntax::Typescript(TsSyntax::default()),
+        EsVersion::Es2020,
+        StringInput::from(&*fm),
+        None,
+    );
+    let mut parser = Parser::new_from(lexer);
+
+    let pat = parser
+        .parse_pat()
+        .map_err(|err| anyhow!("{err:?}"))
+        .context("failed to parse pattern")?;
+
+    let assign_target = AssignTarget::try_from(pat).map_err(|_| {
+        anyhow!(
+            "pattern `{}` cannot be used as an assignment target",
+            input_str.trim()
+        )
+    })?;
+
+    Ok(BoxWrapper(Box::new(assign_target)))
 }
 
 /// Parse a TypeScript type by wrapping it in a type alias declaration.

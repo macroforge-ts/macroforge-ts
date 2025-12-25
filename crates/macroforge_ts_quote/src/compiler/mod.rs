@@ -9,10 +9,10 @@
 //!
 //! ## Usage
 //!
-//! The primary entry point is [`compile_template_with_mode`]:
+//! The primary entry point is [`compile_template`]:
 //!
 //! ```ignore
-//! let code = compile_template_with_mode("const x = @{expr};", "__stmts", false)?;
+//! let code = compile_template("const x = @{expr};", "__stmts")?;
 //! ```
 
 mod codegen;
@@ -23,7 +23,7 @@ mod parser;
 mod semantic;
 mod syntax;
 #[cfg(test)]
-mod template_tests;
+mod tests;
 
 // Primary API
-pub use integration::compile_template_with_mode;
+pub use integration::compile_template;

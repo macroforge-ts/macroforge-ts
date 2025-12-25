@@ -82,7 +82,7 @@ pub type Vars = FxHashMap<String, VarData>;
 pub(super) fn prepare_vars(
     src: &dyn ToCode,
     vars: Punctuated<QuoteVar, Token![,]>,
-) -> (Vec<syn::Stmt>, FxHashMap<VarPos, Vars>) {
+) -> syn::Result<(Vec<syn::Stmt>, FxHashMap<VarPos, Vars>)> {
     let mut stmts = Vec::new();
     let mut init_map = FxHashMap::<_, Vars>::default();
 
@@ -92,7 +92,7 @@ pub(super) fn prepare_vars(
         let ident = var.name.clone();
         let ident_str = ident.to_string();
 
-        let pos = match var.ty {
+        let pos = match &var.ty {
             Some(syn::Type::Path(syn::TypePath {
                 qself: None,
                 path:
@@ -109,15 +109,23 @@ pub(super) fn prepare_vars(
                     "Str" => VarPos::Str,
                     "AssignTarget" => VarPos::AssignTarget,
                     "TsType" => VarPos::TsType,
-                    _ => panic!("Invalid type: {:?}", segment.ident),
+                    ty => {
+                        return Err(syn::Error::new_spanned(
+                            &segment.ident,
+                            format!(
+                                "invalid variable type `{ty}`, expected one of: \
+                                Ident, Expr, Pat, Str, AssignTarget, TsType"
+                            ),
+                        ));
+                    }
                 }
             }
             None => VarPos::Ident,
-            _ => {
-                panic!(
-                    "Var type should be one of: Ident, Expr, Pat; got {:?}",
-                    var.ty
-                )
+            Some(ty) => {
+                return Err(syn::Error::new_spanned(
+                    ty,
+                    "variable type must be a simple identifier like Ident, Expr, Pat, etc.",
+                ));
             }
         };
 
@@ -133,8 +141,11 @@ pub(super) fn prepare_vars(
             },
         );
 
-        if let Some(old) = old {
-            panic!("Duplicate variable name: {ident_str}");
+        if old.is_some() {
+            return Err(syn::Error::new_spanned(
+                &ident,
+                format!("duplicate variable name: `{ident_str}`"),
+            ));
         }
 
         let type_name = Ident::new(
@@ -161,7 +172,7 @@ pub(super) fn prepare_vars(
     // We are done
     cx.vars
         .iter_mut()
-        .for_each(|(k, v)| v.iter_mut().for_each(|(_, v)| v.is_counting = false));
+        .for_each(|(_, v)| v.iter_mut().for_each(|(_, v)| v.is_counting = false));
 
-    (stmts, cx.vars)
+    Ok((stmts, cx.vars))
 }
