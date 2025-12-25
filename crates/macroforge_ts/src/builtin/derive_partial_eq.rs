@@ -297,7 +297,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
 
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}Equals", class_name.to_case(Case::Camel));
-            let _fn_name_expr: Expr = fn_name_ident.clone().into();
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             let comparison_src = if eq_fields.is_empty() {
                 "true".to_string()

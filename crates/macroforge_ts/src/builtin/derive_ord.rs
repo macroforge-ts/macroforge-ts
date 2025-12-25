@@ -233,7 +233,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}Compare", class_name.to_case(Case::Camel));
-            let _fn_name_expr: Expr = fn_name_ident.clone().into();
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate standalone function with two parameters
             let standalone = if !ord_fields.is_empty() {
@@ -464,7 +464,7 @@ mod tests {
     #[test]
     fn test_ord_macro_output() {
         let class_name = "User";
-        let _class_ident = ident!(class_name);
+        let class_ident = ident!(class_name);
         let ord_fields: Vec<OrdField> = vec![OrdField {
             name: "id".to_string(),
             ts_type: "number".to_string(),

@@ -261,7 +261,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             // Generate function name (always prefix style)
             let fn_name_ident = ident!("{}PartialCompare", class_name.to_case(Case::Camel));
-            let _fn_name_expr: Expr = fn_name_ident.clone().into();
+            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Get return type
             let return_type = partial_ord_return_type();
