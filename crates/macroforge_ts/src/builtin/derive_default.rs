@@ -615,14 +615,13 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::macros::body;
 
     #[test]
     fn test_default_macro_output() {
         let class_name = "User";
-        let class_ident = ident!(class_name);
+        let _class_ident = ident!(class_name);
 
-        let default_fields: Vec<DefaultField> = vec![
+        let _default_fields: Vec<DefaultField> = vec![
             DefaultField {
                 name: "id".to_string(),
                 value: "0".to_string(),

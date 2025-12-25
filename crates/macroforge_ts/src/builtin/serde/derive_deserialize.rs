@@ -667,10 +667,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let class_ident = ident!(class_name);
             let class_expr: Expr = class_ident.clone().into();
             let deserialize_context_ident = ident!(DESERIALIZE_CONTEXT);
-            let deserialize_context_expr: Expr = deserialize_context_ident.clone().into();
-            let deserialize_error_expr: Expr = ident!(DESERIALIZE_ERROR).into();
+            let _deserialize_context_expr: Expr = deserialize_context_ident.clone().into();
+            let _deserialize_error_expr: Expr = ident!(DESERIALIZE_ERROR).into();
             let pending_ref_ident = ident!(PENDING_REF);
-            let pending_ref_expr: Expr = pending_ref_ident.clone().into();
+            let _pending_ref_expr: Expr = pending_ref_ident.clone().into();
             let deserialize_options_ident = ident!(DESERIALIZE_OPTIONS);
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
@@ -821,7 +821,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 .filter(|f| f.optional && !f.flatten)
                 .cloned()
                 .collect();
-            let flatten_fields: Vec<_> = fields.iter().filter(|f| f.flatten).cloned().collect();
+            let _flatten_fields: Vec<_> = fields.iter().filter(|f| f.flatten).cloned().collect();
 
             // Build known keys for deny_unknown_fields
             let known_keys: Vec<String> = fields
@@ -836,14 +836,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
 
             // Fields with validators for per-field validation
-            let fields_with_validators: Vec<_> = all_fields
+            let _fields_with_validators: Vec<_> = all_fields
                 .iter()
                 .filter(|f| f.has_validators())
                 .cloned()
                 .collect();
 
             // Generate shape check condition for hasShape method
-            let shape_check_condition: String = if required_fields.is_empty() {
+            let _shape_check_condition: String = if required_fields.is_empty() {
                 "true".to_string()
             } else {
                 required_fields
@@ -857,23 +857,23 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let return_type = deserialize_return_type(class_name);
             let return_type_ident = ident!(return_type.as_str());
             let success_result = wrap_success("resultOrRef");
-            let success_result_expr =
+            let _success_result_expr =
                 parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
             let error_root_ref = wrap_error(&format!(
                 r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
                 class_name
             ));
-            let error_root_ref_expr = parse_ts_expr(&error_root_ref)
+            let _error_root_ref_expr = parse_ts_expr(&error_root_ref)
                 .expect("deserialize root error wrapper should parse");
             let error_from_catch = wrap_error("e.errors");
-            let error_from_catch_expr = parse_ts_expr(&error_from_catch)
+            let _error_from_catch_expr = parse_ts_expr(&error_from_catch)
                 .expect("deserialize catch error wrapper should parse");
             let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
-            let error_generic_message_expr = parse_ts_expr(&error_generic_message)
+            let _error_generic_message_expr = parse_ts_expr(&error_generic_message)
                 .expect("deserialize generic error wrapper should parse");
 
             // Build known keys array string
-            let known_keys_list: Vec<_> = known_keys.iter().map(|k| format!("\"{}\"", k)).collect();
+            let _known_keys_list: Vec<_> = known_keys.iter().map(|k| format!("\"{}\"", k)).collect();
 
             let mut result = ts_template!(Within {
                 constructor(props: Record<string, unknown>) {
@@ -1370,9 +1370,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
-            let type_name = interface_name; // Alias for template consistency
+            let _type_name = interface_name; // Alias for template consistency
             let interface_ident = ident!(interface_name);
-            let type_ident = interface_ident.clone(); // Alias for template consistency
+            let _type_ident = interface_ident.clone(); // Alias for template consistency
             let deserialize_context_ident = ident!(DESERIALIZE_CONTEXT);
             let deserialize_context_expr: Expr = deserialize_context_ident.clone().into();
             let deserialize_error_expr: Expr = ident!(DESERIALIZE_ERROR).into();
@@ -2486,12 +2486,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let has_generic_params = !generic_type_params.is_empty();
 
                 let is_literal_only = !literals.is_empty() && type_refs.is_empty();
-                let is_primitive_only = has_primitives
+                let _is_primitive_only = has_primitives
                     && !has_serializables
                     && !has_dates
                     && !has_generic_params
                     && literals.is_empty();
-                let is_serializable_only = !has_primitives
+                let _is_serializable_only = !has_primitives
                     && !has_dates
                     && !has_generic_params
                     && has_serializables
@@ -2499,7 +2499,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let has_literals = !literals.is_empty();
 
                 // Pre-compute the expected types string for error messages
-                let expected_types_str = if has_serializables {
+                let _expected_types_str = if has_serializables {
                     serializable_types
                         .iter()
                         .map(|t| t.full_type.as_str())
@@ -2519,7 +2519,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         .join(" || ")
                 };
 
-                let _serializable_type_check_condition: String = if serializable_types.is_empty() {
+                let serializable_type_check_condition: String = if serializable_types.is_empty() {
                     "false".to_string()
                 } else {
                     serializable_types
@@ -2808,7 +2808,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         return value as @{type_ident};
                     }
 
-                    export function @{fn_validate_field_ident}(
+                    export function @{fn_validate_field_ident}<K extends keyof @{type_ident}>(
                         _field: K,
                         _value: @{type_ident}[K]
                     ): Array<{ field: string; message: string }> {

@@ -66,7 +66,6 @@
 use convert_case::{Case, Casing};
 
 use crate::macros::{ts_macro_derive, ts_template};
-use crate::swc_ecma_ast::Expr;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_macro_input};
 
 /// Generates a `clone()` method for creating copies of objects.
@@ -105,7 +104,6 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             // Generate identifier for function name (Ident for declaration, Expr for call)
             let fn_name_ident = ident!("{}Clone", class_name.to_case(Case::Camel));
-            let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
