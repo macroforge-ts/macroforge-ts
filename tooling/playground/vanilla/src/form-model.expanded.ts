@@ -14,13 +14,17 @@
  */
 
 export class FormModel {
+    
     memo: string | null;
 
+    
     username: string;
 
+    
     description: string;
 
-    tags: string[];
+    
+    tags: Array<string>;
 
     metadata: Record<string, unknown> | null;
 
@@ -28,7 +32,7 @@ export class FormModel {
         memo: string | null,
         username: string,
         description: string,
-        tags: string[] = [],
+        tags: Array<string> = [],
         metadata: Record<string, unknown> | null = null
     ) {
         this.memo = memo;
@@ -37,80 +41,82 @@ export class FormModel {
         this.tags = tags;
         this.metadata = metadata;
     }
-    /** Returns field metadata for inspection  */
+/** Returns field metadata for inspection  */
 
-    static fieldMetadata(): Array<{
-        name: string;
-        label: string;
-        optional: boolean;
-        array: boolean;
-        type: string;
-    }> {
-        return [
-            {
-                name: 'memo',
-                label: 'Memo Notes',
-                optional: true,
-                array: false,
-                type: 'string | null'
-            },
-            {
-                name: 'username',
-                label: 'User Name',
-                optional: false,
-                array: false,
-                type: 'string'
-            },
-            {
-                name: 'description',
-                label: 'Description Text',
-                optional: false,
-                array: false,
-                type: 'string'
-            },
-            {
-                name: 'tags',
-                label: 'Tags',
-                optional: false,
-                array: true,
-                type: 'string[]'
-            },
-            {
-                name: 'metadata',
-                label: 'Metadata',
-                optional: true,
-                array: false,
-                type: 'Record<string, unknown> | null'
-            }
-        ];
-    }
-    /** Returns only the inspectable fields  */
+        static fieldMetadata(): Array<{
+    name: string;
+    label: string;
+    optional: boolean;
+    array: boolean;
+    type: string;
+}> {
+    return [
+        {
+            name: "memo",
+            label: "Memo Notes",
+            optional: true,
+            array: false,
+            type: "string | null"
+        },
+        {
+            name: "username",
+            label: "User Name",
+            optional: false,
+            array: false,
+            type: "string"
+        },
+        {
+            name: "description",
+            label: "Description Text",
+            optional: false,
+            array: false,
+            type: "string"
+        },
+        {
+            name: "tags",
+            label: "Tags",
+            optional: false,
+            array: true,
+            type: "Array<string>"
+        },
+        {
+            name: "metadata",
+            label: "Metadata",
+            optional: true,
+            array: false,
+            type: "Record<string, unknown> | null"
+        }
+    ];
+}
+/** Returns only the inspectable fields  */
 
-    getInspectableFields(): Record<string, unknown> {
-        const result: Record<string, unknown> = {};
-        result['memo'] = this.memo;
-        result['description'] = this.description;
-        result['tags'] = this.tags;
-        return result;
-    }
-    /** Deep clones only array fields  */
+        getInspectableFields(): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
+    result["memo"] = this.memo;
+    result["description"] = this.description;
+    result["tags"] = this.tags;
+    return result;
+}
+/** Deep clones only array fields  */
 
-    cloneArrayFields(): Partial<FormModel> {
-        const result: Partial<FormModel> = {};
-        result.tags = [...(this.tags ?? [])] as typeof this.tags;
-        return result;
-    }
-    /** Returns non-null field count  */
+        cloneArrayFields(): Partial<FormModel> {
+    const result: Partial<FormModel> = {};
+    result.tags = [
+        ...(this.tags ?? [])
+    ] as typeof this.tags;
+    return result;
+}
+/** Returns non-null field count  */
 
-    countPopulatedFields(): number {
-        let count = 0;
-        if (this.memo != null) count++;
-        count++;
-        count++;
-        count++;
-        if (this.metadata != null) count++;
-        return count;
-    }
+        countPopulatedFields(): number {
+    let count = 0;
+    if (this.memo != null) count++;
+    count++;
+    count++;
+    count++;
+    if (this.metadata != null) count++;
+    return count;
+}
 }
 
 // Test the generated methods

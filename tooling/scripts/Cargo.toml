@@ -11,11 +11,11 @@ path = "src/main.rs"
 [dependencies]
 # CLI
 clap = { version = "4", features = ["derive", "env", "wrap_help"] }
-dialoguer = "0.11"
+dialoguer = "0.12.0"
 
 # TUI
 ratatui = "0.30.0-beta.0"
-crossterm = "0.28"
+crossterm = "0.29.0"
 
 # Async
 tokio = { version = "1", features = ["full"] }
@@ -23,10 +23,10 @@ tokio = { version = "1", features = ["full"] }
 # Serialization
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-toml = "0.8"
+toml = "0.9.10+spec-1.1.0"
 
 # Graphs
-petgraph = "0.6"
+petgraph = "0.8.3"
 
 # Rust parsing
 syn = { version = "2", features = ["full", "extra-traits", "visit"] }
@@ -35,7 +35,7 @@ proc-macro2 = "1"
 
 
 # SWC Core for TypeScript parsing and transformation
-swc_core = { version = "51.0.0", features = [
+swc_core = { version = "52.0.0", features = [
     "ecma_ast",
     "ecma_parser",
     "common"
@@ -43,12 +43,12 @@ swc_core = { version = "51.0.0", features = [
 
 
 # Markdown
-pulldown-cmark = "0.12"
+pulldown-cmark = "0.13"
 htmd = "0.5"
-scraper = "0.22"
+scraper = "0.25"
 
 # Terminal
-colored = "2"
+colored = "3.0.0"
 
 # Utils
 regex = "1"
@@ -58,7 +58,7 @@ chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2"
 anyhow = "1"
 ctrlc = "3.4"
-ureq = { version = "2", features = ["json"] }
+ureq = { version = "3.1.4", features = ["json"] }
 rayon = "1"
 
 [dev-dependencies]

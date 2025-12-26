@@ -1,5 +1,5 @@
 // All dependencies are re-exported from macroforge_ts - no need for separate crate imports!
-use macroforge_ts::macros::{body, ts_macro_derive};
+use macroforge_ts::macros::ts_macro_derive;
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 fn capitalize(s: &str) -> String {
