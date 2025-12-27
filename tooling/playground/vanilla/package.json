@@ -11,7 +11,7 @@
         "cleanbuild": "npm run clean && npm install && npm run build"
     },
     "dependencies": {
-        "macroforge": "file:../../crates/macroforge_ts",
+        "macroforge": "file:../../../crates/macroforge_ts",
         "@playground/macro": "file:../macro",
         "effect": "^3.19.4"
     },
@@ -19,7 +19,7 @@
         "@types/node": "^22.10.2",
         "typescript": "^5.9.3",
         "vite": "^7.2.4",
-        "@macroforge/vite-plugin": "file:../../packages/vite-plugin",
-        "@macroforge/typescript-plugin": "file:../../packages/typescript-plugin"
+        "@macroforge/vite-plugin": "file:../../../packages/vite-plugin",
+        "@macroforge/typescript-plugin": "file:../../../packages/typescript-plugin"
     }
 }

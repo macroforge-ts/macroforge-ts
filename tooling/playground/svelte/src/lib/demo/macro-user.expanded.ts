@@ -19,43 +19,18 @@ export class MacroUser {
     static toString(value: MacroUser): string {
     return macroUserToString(value);
 }
-/** Serializes a value to a JSON string.
-@param value - The value to serialize
-@returns JSON string representation with cycle detection metadata  */
 
     static serialize(value: MacroUser): string {
     return macroUserSerialize(value);
 }
-/** @internal Serializes with an existing context for nested/cyclic object graphs.
-@param value - The value to serialize
-@param ctx - The serialization context  */
 
     static serializeWithContext(value: MacroUser, ctx: __mf_SerializeContext): Record<string, unknown> {
     return macroUserSerializeWithContext(value, ctx);
 }
 
-    constructor(props: {
-    id: string;
-    name: string;
-    role: string;
-    favoriteMacro: 'Derive' | 'JsonNative';
-    since: string;
-    apiToken: string;
-}){
-    this.id = props.id;
-    this.name = props.name;
-    this.role = props.role;
-    this.favoriteMacro = props.favoriteMacro;
-    this.since = props.since;
-    this.apiToken = props.apiToken;
-}
-/** Deserializes input to an instance of this class.
-Automatically detects whether input is a JSON string or object.
-@param input - JSON string or object to deserialize
-@param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors  */
+    constructor(props: Record<string, unknown>){}
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+    static deserialize(input: unknown, opts: __mf_DeserializeOptions): {
     success: true;
     value: MacroUser;
 } | {
@@ -107,9 +82,6 @@ Automatically detects whether input is a JSON string or object.
         };
     }
 }
-/** Deserializes with an existing context for nested/cyclic object graphs.
-@param value - The raw value to deserialize
-@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MacroUser | __mf_PendingRef {
     if (value?.__ref !== undefined) {
@@ -119,7 +91,7 @@ Automatically detects whether input is a JSON string or object.
         throw new __mf_DeserializeError([
             {
                 field: "_root",
-                message: "MacroUser.deserializeWithContext: expected an object"
+                message: `${"MacroUser"}.deserializeWithContext: expected an object`
             }
         ]);
     }
@@ -128,39 +100,39 @@ Automatically detects whether input is a JSON string or object.
         field: string;
         message: string;
     }> = [];
-    if (!("id" in obj)) {
+    if (!(`${"id"}` in obj)) {
         errors.push({
-            field: "id",
+            field: `${"id"}`,
             message: "missing required field"
         });
     }
-    if (!("name" in obj)) {
+    if (!(`${"name"}` in obj)) {
         errors.push({
-            field: "name",
+            field: `${"name"}`,
             message: "missing required field"
         });
     }
-    if (!("role" in obj)) {
+    if (!(`${"role"}` in obj)) {
         errors.push({
-            field: "role",
+            field: `${"role"}`,
             message: "missing required field"
         });
     }
-    if (!("favoriteMacro" in obj)) {
+    if (!(`${"favoriteMacro"}` in obj)) {
         errors.push({
-            field: "favoriteMacro",
+            field: `${"favoriteMacro"}`,
             message: "missing required field"
         });
     }
-    if (!("since" in obj)) {
+    if (!(`${"since"}` in obj)) {
         errors.push({
-            field: "since",
+            field: `${"since"}`,
             message: "missing required field"
         });
     }
-    if (!("apiToken" in obj)) {
+    if (!(`${"apiToken"}` in obj)) {
         errors.push({
-            field: "apiToken",
+            field: `${"apiToken"}`,
             message: "missing required field"
         });
     }
@@ -173,27 +145,27 @@ Automatically detects whether input is a JSON string or object.
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj["id"] as string;
+        const __raw_id = obj[`${"id"}`] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_name = obj["name"] as string;
+        const __raw_name = obj[`${"name"}`] as string;
         instance.name = __raw_name;
     }
     {
-        const __raw_role = obj["role"] as string;
+        const __raw_role = obj[`${"role"}`] as string;
         instance.role = __raw_role;
     }
     {
-        const __raw_favoriteMacro = obj["favoriteMacro"] as 'Derive' | 'JsonNative';
+        const __raw_favoriteMacro = obj[`${"favoriteMacro"}`] as 'Derive' | 'JsonNative';
         instance.favoriteMacro = __raw_favoriteMacro;
     }
     {
-        const __raw_since = obj["since"] as string;
+        const __raw_since = obj[`${"since"}`] as string;
         instance.since = __raw_since;
     }
     {
-        const __raw_apiToken = obj["apiToken"] as string;
+        const __raw_apiToken = obj[`${"apiToken"}`] as string;
         instance.apiToken = __raw_apiToken;
     }
     if (errors.length > 0) {
@@ -221,7 +193,7 @@ Automatically detects whether input is a JSON string or object.
         return false;
     }
     const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "role" in o && "favoriteMacro" in o && "since" in o && "apiToken" in o;
+    return '"id" in o && "name" in o && "role" in o && "favoriteMacro" in o && "since" in o && "apiToken" in o';
 }
 
     static is(obj: unknown): obj is MacroUser {
@@ -236,23 +208,59 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
-export function macroUserToString(value: MacroUser): string {const parts: string[]= []; parts.push("userId: " + value.id); parts.push("name: " + value.name); parts.push("role: " + value.role); parts.push("favoriteMacro: " + value.favoriteMacro); parts.push("since: " + value.since); return "MacroUser { " + parts.join(", " )+ " }" ; }
+export function macroUserToString(value: MacroUser): string {
+    const parts: string[] = [];
+    parts.push(`${"userId"}: ` + value.id);
+    parts.push(`${"name"}: ` + value.name);
+    parts.push(`${"role"}: ` + value.role);
+    parts.push(`${"favoriteMacro"}: ` + value.favoriteMacro);
+    parts.push(`${"since"}: ` + value.since);
+    return `${"MacroUser"} { ` + parts.join(", ") + " }";
+}
 
-/** Serializes a value to a JSON string.
-@param value - The value to serialize
-@returns JSON string representation with cycle detection metadata */export function macroUserSerialize(value: MacroUser): string {const ctx = __mf_SerializeContext.create(); return JSON.stringify(macroUserSerializeWithContext(value, ctx));}/** @internal Serializes with an existing context for nested/cyclic object graphs.
-@param value - The value to serialize
-@param ctx - The serialization context */export function macroUserSerializeWithContext(value: MacroUser, ctx: __mf_SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "MacroUser" , __id,}; result["id" ]= value.id; result["name" ]= value.name; result["role" ]= value.role; result["favoriteMacro" ]= value.favoriteMacro; result["since" ]= value.since; result["apiToken" ]= value.apiToken; return result;}
+export function macroUserSerialize(value: MacroUser): string {
+    const ctx = __mf_SerializeContext.create();
+    return JSON.stringify(macroUserSerializeWithContext(value, ctx));
+}
+export function macroUserSerializeWithContext(value: MacroUser, ctx: __mf_SerializeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return {
+            __ref: existingId
+        };
+    }
+    const __id = ctx.register(value);
+    const result: Record<string, unknown> = {
+        __type: `${"MacroUser"}`,
+        __id
+    };
+    result[`${"id"}`] = value.id;
+    result[`${"name"}`] = value.name;
+    result[`${"role"}`] = value.role;
+    result[`${"favoriteMacro"}`] = value.favoriteMacro;
+    result[`${"since"}`] = value.since;
+    result[`${"apiToken"}`] = value.apiToken;
+    return result;
+}
 
-/** Deserializes input to an instance.
-Automatically detects whether input is a JSON string or object.
-@param input - JSON string or object to deserialize
-@param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */export function macroUserDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {return MacroUser.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
-@param value - The raw value to deserialize
-@param ctx - The deserialization context */export function macroUserDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MacroUser | __mf_PendingRef {return MacroUser.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
-@param value - The value to check
-@returns True if the value can be deserialized to this type */export function macroUserIs(value: unknown): value is MacroUser {return MacroUser.is(value);}
+export function macroUserDeserialize(input: unknown, opts: __mf_DeserializeOptions): {
+    success: true;
+    value: MacroUser;
+} | {
+    success: false;
+    errors: Array<{
+        field: string;
+        message: string;
+    }>;
+} {
+    return MacroUser.deserialize(input, opts);
+}
+export function macroUserDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MacroUser | __mf_PendingRef {
+    return MacroUser.deserializeWithContext(value, ctx);
+}
+export function macroUserIs(value: unknown): value is MacroUser {
+    return MacroUser.is(value);
+}
 
 const showcaseUser = new MacroUser({
     id: 'usr_2626',

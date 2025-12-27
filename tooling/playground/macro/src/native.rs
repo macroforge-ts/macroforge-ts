@@ -1,5 +1,5 @@
 // All dependencies are re-exported from macroforge_ts - no need for separate crate imports!
-use macroforge_ts::macros::ts_macro_derive;
+use macroforge_ts::macros::{ts_macro_derive, ts_template};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 fn capitalize(s: &str) -> String {
@@ -20,8 +20,8 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
     match &input.data {
         Data::Class(class) => {
             // Use Rust-style templating for clean code generation!
-            // body! wrapper ensures this gets inserted as class members
-            Ok(body! {
+            // Within wrapper ensures this gets inserted as class members
+            Ok(ts_template!(Within {
                 toJSON(): Record<string, unknown> {
 
                     const result: Record<string, unknown> = {};
@@ -32,7 +32,7 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
                     return result;
                 }
-            })
+            }))
         }
         Data::Enum(_) => Err(MacroforgeError::new(
             input.decorator_span(),
@@ -102,51 +102,41 @@ pub fn inspect_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
                 })
                 .collect();
 
-            let stream = body! {
+            // Generate statements for each method body
+            let metadata_stmts = generate_field_metadata_stmts(&field_info);
+            let inspectable_stmts = generate_inspectable_statements(&field_info);
+            let clone_stmts = generate_clone_statements(&field_info, class_name);
+            let count_stmts = generate_count_statements(&field_info);
+
+            let stream = ts_template!(Within {
                 /** Returns field metadata for inspection */
                 static fieldMetadata(): Array<{ name: string; label: string; optional: boolean; array: boolean; type: string }> {
-                    return [
-                        {#for (name, label, _inspect, optional, array, ts_type) in &field_info}
-                        { name: "@{name}", label: "@{label}", optional: @{optional}, array: @{array}, type: "@{ts_type}" },
-                        {/for}
-                    ];
+                    const arr: Array<{ name: string; label: string; optional: boolean; array: boolean; type: string }> = [];
+                    {$typescript metadata_stmts}
+                    return arr;
                 }
 
                 /** Returns only the inspectable fields */
                 getInspectableFields(): Record<string, unknown> {
                     const result: Record<string, unknown> = {};
-                    {#for (name, _label, inspect, _optional, _array, _ts_type) in &field_info}
-                        {#if *inspect}
-                        result["@{name}"] = this.@{name};
-                        {/if}
-                    {/for}
+                    {$typescript inspectable_stmts}
                     return result;
                 }
 
                 /** Deep clones only array fields */
                 cloneArrayFields(): Partial<@{class_name}> {
                     const result: Partial<@{class_name}> = {};
-                    {#for (name, _label, _inspect, _optional, array, _ts_type) in &field_info}
-                        {#if *array}
-                        result.@{name} = [...(this.@{name} ?? [])] as typeof this.@{name};
-                        {/if}
-                    {/for}
+                    {$typescript clone_stmts}
                     return result;
                 }
 
                 /** Returns non-null field count */
                 countPopulatedFields(): number {
                     let count = 0;
-                    {#for (name, _label, _inspect, optional, _array, _ts_type) in &field_info}
-                        {#if *optional}
-                        if (this.@{name} != null) count++;
-                        {:else}
-                        count++;
-                        {/if}
-                    {/for}
+                    {$typescript count_stmts}
                     return count;
                 }
-            };
+            });
             Ok(stream)
         }
         Data::Enum(_) => Err(MacroforgeError::new(
@@ -161,5 +151,51 @@ pub fn inspect_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
             input.decorator_span(),
             "/** @derive(Inspect) */ can only target classes, not type aliases",
         )),
+    }
+}
+
+type FieldInfo = (String, String, bool, bool, bool, String);
+
+/// Generates push statements for field metadata array.
+fn generate_field_metadata_stmts(field_info: &[FieldInfo]) -> TsStream {
+    ts_template! {
+        {#for (name, label, _inspect, optional, array, ts_type) in field_info}
+            arr.push({ name: "@{name}", label: "@{label}", optional: @{*optional}, array: @{*array}, type: "@{ts_type}" });
+        {/for}
+    }
+}
+
+/// Generates the inspectable field assignment statements.
+fn generate_inspectable_statements(field_info: &[FieldInfo]) -> TsStream {
+    ts_template! {
+        {#for (name, _label, inspect, _optional, _array, _ts_type) in field_info}
+            {#if *inspect}
+                result["@{name}"] = this.@{name};
+            {/if}
+        {/for}
+    }
+}
+
+/// Generates the clone array field statements.
+fn generate_clone_statements(field_info: &[FieldInfo], class_name: &str) -> TsStream {
+    ts_template! {
+        {#for (name, _label, _inspect, _optional, array, _ts_type) in field_info}
+            {#if *array}
+                result.@{name} = [...(this.@{name} ?? [])] as Partial<@{class_name}>["@{name}"];
+            {/if}
+        {/for}
+    }
+}
+
+/// Generates the count populated fields statements.
+fn generate_count_statements(field_info: &[FieldInfo]) -> TsStream {
+    ts_template! {
+        {#for (name, _label, _inspect, optional, _array, _ts_type) in field_info}
+            {#if *optional}
+                if (this.@{name} != null) count++;
+            {:else}
+                count++;
+            {/if}
+        {/for}
     }
 }
