@@ -41,7 +41,6 @@ export class FormModel {
         this.tags = tags;
         this.metadata = metadata;
     }
-/** Returns field metadata for inspection  */
 
         static fieldMetadata(): Array<{
     name: string;
@@ -50,66 +49,57 @@ export class FormModel {
     array: boolean;
     type: string;
 }> {
-    return [
-        {
-            name: "memo",
-            label: "Memo Notes",
-            optional: true,
-            array: false,
-            type: "string | null"
-        },
-        {
-            name: "username",
-            label: "User Name",
-            optional: false,
-            array: false,
-            type: "string"
-        },
-        {
-            name: "description",
-            label: "Description Text",
-            optional: false,
-            array: false,
-            type: "string"
-        },
-        {
-            name: "tags",
-            label: "Tags",
-            optional: false,
-            array: true,
-            type: "Array<string>"
-        },
-        {
-            name: "metadata",
-            label: "Metadata",
-            optional: true,
-            array: false,
-            type: "Record<string, unknown> | null"
-        }
-    ];
-}
-/** Returns only the inspectable fields  */
-
-        getInspectableFields(): Record<string, unknown> {
-    const result: Record<string, unknown> = {};
-    result["memo"] = this.memo;
-    result["description"] = this.description;
-    result["tags"] = this.tags;
+    const arr: Array<{
+        name: string;
+        label: string;
+        optional: boolean;
+        array: boolean;
+        type: string;
+    }> = [];
+    arr.push({
+        name: `${"memo"}`,
+        label: `${"Memo Notes"}`,
+        optional: true,
+        array: false,
+        type: `${"string | null"}`
+    });
+    arr.push({
+        name: `${"username"}`,
+        label: `${"User Name"}`,
+        optional: false,
+        array: false,
+        type: `${"string"}`
+    });
+    arr.push({
+        name: `${"description"}`,
+        label: `${"Description Text"}`,
+        optional: false,
+        array: false,
+        type: `${"string"}`
+    });
+    arr.push({
+        name: `${"tags"}`,
+        label: `${"Tags"}`,
+        optional: false,
+        array: true,
+        type: `${"Array<string>"}`
+    });
+    arr.push({
+        name: `${"metadata"}`,
+        label: `${"Metadata"}`,
+        optional: true,
+        array: false,
+        type: `${"Record<string, unknown> | null"}`
+    });
+    return arr;
+    result[`${"memo"}`] = this.memo;
+    result[`${"description"}`] = this.description;
+    result[`${"tags"}`] = this.tags;
     return result;
-}
-/** Deep clones only array fields  */
-
-        cloneArrayFields(): Partial<FormModel> {
-    const result: Partial<FormModel> = {};
     result.tags = [
         ...(this.tags ?? [])
-    ] as typeof this.tags;
+    ] as Partial<FormModel>[`${tags}`];
     return result;
-}
-/** Returns non-null field count  */
-
-        countPopulatedFields(): number {
-    let count = 0;
     if (this.memo != null) count++;
     count++;
     count++;

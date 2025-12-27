@@ -361,21 +361,23 @@ use crate::gigaform::parser::EnumFormConfig;
 
 /// Generates types for an enum step form (wizard-style navigation).
 pub fn generate_enum(enum_name: &str, config: &EnumFormConfig) -> TsStream {
-    let variant_entries = generate_variant_entries(config);
     let variants_name = prefixed(enum_name, "Variants");
     let variant_entry_name = prefixed(enum_name, "VariantEntry");
     let gigaform_name = prefixed(enum_name, "Gigaform");
 
     ts_template! {
-        {>> "Variant metadata for step navigation" <<}
-        export const @{variants_name} = [
-            {$typescript variant_entries}
-        ] as const;
+        /** Variant metadata for step navigation */
+        const @{variants_name}_arr: Array<{ value: @{enum_name}; label: string; description?: string }> = [];
+        {#for variant in &config.variants}
+            {$let entry = generate_variant_entry(variant, enum_name)}
+            {$typescript entry}
+        {/for}
+        export const @{variants_name} = @{variants_name}_arr as const;
 
-        {>> "Type for a single variant entry" <<}
+        /** Type for a single variant entry */
         export type @{variant_entry_name} = typeof @{variants_name}[number];
 
-        {>> "Enum step form interface with navigation" <<}
+        /** Enum step form interface with navigation */
         export interface @{gigaform_name} {
             readonly currentStep: @{enum_name};
             readonly steps: typeof @{variants_name};
@@ -386,15 +388,19 @@ pub fn generate_enum(enum_name: &str, config: &EnumFormConfig) -> TsStream {
     }
 }
 
-/// Generates the variant entries array content.
-fn generate_variant_entries(config: &EnumFormConfig) -> TsStream {
-    ts_template! {
-        {#for variant in &config.variants}
-            {#if let Some(desc) = &variant.description}
-                { value: @{&variant.value_expr}, label: "@{&variant.label}", description: "@{desc}" },
-            {:else}
-                { value: @{&variant.value_expr}, label: "@{&variant.label}" },
-            {/if}
-        {/for}
+/// Generates a single variant entry push statement.
+fn generate_variant_entry(variant: &crate::gigaform::parser::EnumVariantFormConfig, enum_name: &str) -> TsStream {
+    let value_expr = &variant.value_expr;
+    let label = &variant.label;
+    let variants_name = prefixed(enum_name, "Variants");
+
+    if let Some(desc) = &variant.description {
+        ts_template! {
+            @{variants_name}_arr.push({ value: @{value_expr}, label: "@{label}", description: "@{desc}" });
+        }
+    } else {
+        ts_template! {
+            @{variants_name}_arr.push({ value: @{value_expr}, label: "@{label}" });
+        }
     }
 }

@@ -7,46 +7,46 @@
  * different JavaScript class name. Used internally by [`NativePlugin::get_mapper`].
  */
 export declare class NativeMapper {
-    /**
-     * Creates a new mapper wrapping the given source mapping.
-     *
-     * # Arguments
-     *
-     * * `mapping` - The source mapping result from macro expansion
-     */
-    constructor(mapping: SourceMappingResult);
-    /** Checks if this mapper has no mapping data. */
-    isEmpty(): boolean;
-    /**
-     * Converts a position in the original source to expanded source.
-     * See [`NativePositionMapper::original_to_expanded`] for details.
-     */
-    originalToExpanded(pos: number): number;
-    /**
-     * Converts a position in the expanded source back to original.
-     * See [`NativePositionMapper::expanded_to_original`] for details.
-     */
-    expandedToOriginal(pos: number): number | null;
-    /**
-     * Returns the name of the macro that generated code at the given position.
-     * See [`NativePositionMapper::generated_by`] for details.
-     */
-    generatedBy(pos: number): string | null;
-    /**
-     * Maps a span from expanded source to original source.
-     * See [`NativePositionMapper::map_span_to_original`] for details.
-     */
-    mapSpanToOriginal(start: number, length: number): SpanResult | null;
-    /**
-     * Maps a span from original source to expanded source.
-     * See [`NativePositionMapper::map_span_to_expanded`] for details.
-     */
-    mapSpanToExpanded(start: number, length: number): SpanResult;
-    /**
-     * Checks if a position is inside macro-generated code.
-     * See [`NativePositionMapper::is_in_generated`] for details.
-     */
-    isInGenerated(pos: number): boolean;
+  /**
+   * Creates a new mapper wrapping the given source mapping.
+   *
+   * # Arguments
+   *
+   * * `mapping` - The source mapping result from macro expansion
+   */
+  constructor(mapping: SourceMappingResult)
+  /** Checks if this mapper has no mapping data. */
+  isEmpty(): boolean
+  /**
+   * Converts a position in the original source to expanded source.
+   * See [`NativePositionMapper::original_to_expanded`] for details.
+   */
+  originalToExpanded(pos: number): number
+  /**
+   * Converts a position in the expanded source back to original.
+   * See [`NativePositionMapper::expanded_to_original`] for details.
+   */
+  expandedToOriginal(pos: number): number | null
+  /**
+   * Returns the name of the macro that generated code at the given position.
+   * See [`NativePositionMapper::generated_by`] for details.
+   */
+  generatedBy(pos: number): string | null
+  /**
+   * Maps a span from expanded source to original source.
+   * See [`NativePositionMapper::map_span_to_original`] for details.
+   */
+  mapSpanToOriginal(start: number, length: number): SpanResult | null
+  /**
+   * Maps a span from original source to expanded source.
+   * See [`NativePositionMapper::map_span_to_expanded`] for details.
+   */
+  mapSpanToExpanded(start: number, length: number): SpanResult
+  /**
+   * Checks if a position is inside macro-generated code.
+   * See [`NativePositionMapper::is_in_generated`] for details.
+   */
+  isInGenerated(pos: number): boolean
 }
 
 /**
@@ -77,273 +77,121 @@ export declare class NativeMapper {
  * const mapper = plugin.get_mapper("src/foo.ts");
  * ```
  */
-export declare class NativePlugin {}
-
-/**
- * The main plugin class for macro expansion with caching support.
- *
- * `NativePlugin` is designed to be instantiated once and reused across multiple
- * file processing operations. It maintains a cache of expansion results keyed
- * by filepath and version, enabling efficient incremental processing.
- *
- * # Thread Safety
- *
- * The plugin is thread-safe through the use of `Mutex` for internal state.
- * However, macro expansion itself runs in a separate thread with a 32MB stack
- * to prevent stack overflow during deep AST recursion.
- *
- * # Example
- *
- * ```javascript
- * // Create a single plugin instance (typically at startup)
- * const plugin = new NativePlugin();
- *
- * // Process files with caching
- * const result1 = plugin.process_file("src/foo.ts", code1, { version: "1" });
- * const result2 = plugin.process_file("src/foo.ts", code2, { version: "1" }); // Cache hit!
- * const result3 = plugin.process_file("src/foo.ts", code3, { version: "2" }); // Cache miss
- *
- * // Get a mapper for position translation
- * const mapper = plugin.get_mapper("src/foo.ts");
- * ```
- */
 export declare class NativePlugin {
-    /**
-     * Creates a new `NativePlugin` instance.
-     *
-     * Initializes the plugin with an empty cache and sets up a default log file
-     * at `/tmp/macroforge-plugin.log` for debugging purposes.
-     *
-     * # Returns
-     *
-     * A new `NativePlugin` ready for processing files.
-     *
-     * # Side Effects
-     *
-     * Creates or clears the log file at `/tmp/macroforge-plugin.log`.
-     */
-    constructor();
-    /**
-     * Writes a message to the plugin's log file.
-     *
-     * Useful for debugging macro expansion issues in production environments.
-     *
-     * # Arguments
-     *
-     * * `message` - The message to log
-     *
-     * # Note
-     *
-     * Messages are appended to the log file. If the log file hasn't been
-     * configured or cannot be written to, the message is silently dropped.
-     */
-    log(message: string): void;
-    /**
-     * Sets the path for the plugin's log file.
-     *
-     * # Arguments
-     *
-     * * `path` - The file path to use for logging
-     *
-     * # Note
-     *
-     * This does not create the file; it will be created when the first
-     * message is logged.
-     */
-    setLogFile(path: string): void;
-    /**
-     * Processes a TypeScript file through the macro expansion system.
-     *
-     * This is the main entry point for file processing. It handles caching,
-     * thread isolation (to prevent stack overflow), and error recovery.
-     *
-     * # Arguments
-     *
-     * * `_env` - NAPI environment (unused but required by NAPI)
-     * * `filepath` - Path to the file (used for TSX detection and caching)
-     * * `code` - The TypeScript source code to process
-     * * `options` - Optional configuration for expansion and caching
-     *
-     * # Returns
-     *
-     * An [`ExpandResult`] containing the expanded code, diagnostics, and source mapping.
-     *
-     * # Errors
-     *
-     * Returns an error if:
-     * - Thread spawning fails
-     * - The worker thread panics (often due to stack overflow)
-     * - Macro expansion fails internally
-     *
-     * # Performance
-     *
-     * - Uses a 32MB thread stack to prevent stack overflow during deep AST recursion
-     * - Caches results by filepath and version for efficient incremental processing
-     * - Early bailout for files without `@derive` decorators
-     *
-     * # Thread Safety
-     *
-     * Macro expansion runs in a separate thread because:
-     * 1. SWC AST operations can be deeply recursive, exceeding default stack limits
-     * 2. Node.js thread stack is typically only 2MB
-     * 3. Panics in the worker thread are caught and reported gracefully
-     */
-    processFile(
-        filepath: string,
-        code: string,
-        options?: ProcessFileOptions | undefined | null
-    ): ExpandResult;
-    /**
-     * Retrieves a position mapper for a previously processed file.
-     *
-     * The mapper enables translation between original and expanded source positions,
-     * which is essential for IDE features like error reporting and navigation.
-     *
-     * # Arguments
-     *
-     * * `filepath` - Path to the file (must have been previously processed)
-     *
-     * # Returns
-     *
-     * `Some(NativeMapper)` if the file has been processed and has source mapping data,
-     * `None` if the file hasn't been processed or has no mapping (no macros expanded).
-     */
-    getMapper(filepath: string): NativeMapper | null;
-    /**
-     * Maps diagnostics from expanded source positions back to original source positions.
-     *
-     * This is used by IDE integrations to show errors at the correct locations
-     * in the user's original code, rather than in the macro-expanded output.
-     *
-     * # Arguments
-     *
-     * * `filepath` - Path to the file the diagnostics are for
-     * * `diags` - Diagnostics with positions in the expanded source
-     *
-     * # Returns
-     *
-     * Diagnostics with positions mapped back to the original source.
-     * If no mapper is available for the file, returns diagnostics unchanged.
-     */
-    mapDiagnostics(filepath: string, diags: Array<JsDiagnostic>): Array<JsDiagnostic>;
-    /**
-     * Creates a new `NativePlugin` instance.
-     *
-     * Initializes the plugin with an empty cache and sets up a default log file
-     * at `/tmp/macroforge-plugin.log` for debugging purposes.
-     *
-     * # Returns
-     *
-     * A new `NativePlugin` ready for processing files.
-     *
-     * # Side Effects
-     *
-     * Creates or clears the log file at `/tmp/macroforge-plugin.log`.
-     */
-    constructor();
-    /**
-     * Writes a message to the plugin's log file.
-     *
-     * Useful for debugging macro expansion issues in production environments.
-     *
-     * # Arguments
-     *
-     * * `message` - The message to log
-     *
-     * # Note
-     *
-     * Messages are appended to the log file. If the log file hasn't been
-     * configured or cannot be written to, the message is silently dropped.
-     */
-    log(message: string): void;
-    /**
-     * Sets the path for the plugin's log file.
-     *
-     * # Arguments
-     *
-     * * `path` - The file path to use for logging
-     *
-     * # Note
-     *
-     * This does not create the file; it will be created when the first
-     * message is logged.
-     */
-    setLogFile(path: string): void;
-    /**
-     * Processes a TypeScript file through the macro expansion system.
-     *
-     * This is the main entry point for file processing. It handles caching,
-     * thread isolation (to prevent stack overflow), and error recovery.
-     *
-     * # Arguments
-     *
-     * * `_env` - NAPI environment (unused but required by NAPI)
-     * * `filepath` - Path to the file (used for TSX detection and caching)
-     * * `code` - The TypeScript source code to process
-     * * `options` - Optional configuration for expansion and caching
-     *
-     * # Returns
-     *
-     * An [`ExpandResult`] containing the expanded code, diagnostics, and source mapping.
-     *
-     * # Errors
-     *
-     * Returns an error if:
-     * - Thread spawning fails
-     * - The worker thread panics (often due to stack overflow)
-     * - Macro expansion fails internally
-     *
-     * # Performance
-     *
-     * - Uses a 32MB thread stack to prevent stack overflow during deep AST recursion
-     * - Caches results by filepath and version for efficient incremental processing
-     * - Early bailout for files without `@derive` decorators
-     *
-     * # Thread Safety
-     *
-     * Macro expansion runs in a separate thread because:
-     * 1. SWC AST operations can be deeply recursive, exceeding default stack limits
-     * 2. Node.js thread stack is typically only 2MB
-     * 3. Panics in the worker thread are caught and reported gracefully
-     */
-    processFile(
-        filepath: string,
-        code: string,
-        options?: ProcessFileOptions | undefined | null
-    ): ExpandResult;
-    /**
-     * Retrieves a position mapper for a previously processed file.
-     *
-     * The mapper enables translation between original and expanded source positions,
-     * which is essential for IDE features like error reporting and navigation.
-     *
-     * # Arguments
-     *
-     * * `filepath` - Path to the file (must have been previously processed)
-     *
-     * # Returns
-     *
-     * `Some(NativeMapper)` if the file has been processed and has source mapping data,
-     * `None` if the file hasn't been processed or has no mapping (no macros expanded).
-     */
-    getMapper(filepath: string): NativeMapper | null;
-    /**
-     * Maps diagnostics from expanded source positions back to original source positions.
-     *
-     * This is used by IDE integrations to show errors at the correct locations
-     * in the user's original code, rather than in the macro-expanded output.
-     *
-     * # Arguments
-     *
-     * * `filepath` - Path to the file the diagnostics are for
-     * * `diags` - Diagnostics with positions in the expanded source
-     *
-     * # Returns
-     *
-     * Diagnostics with positions mapped back to the original source.
-     * If no mapper is available for the file, returns diagnostics unchanged.
-     */
-    mapDiagnostics(filepath: string, diags: Array<JsDiagnostic>): Array<JsDiagnostic>;
+  /**
+   * Creates a new `NativePlugin` instance.
+   *
+   * Initializes the plugin with an empty cache and sets up a default log file
+   * at `/tmp/macroforge-plugin.log` for debugging purposes.
+   *
+   * # Returns
+   *
+   * A new `NativePlugin` ready for processing files.
+   *
+   * # Side Effects
+   *
+   * Creates or clears the log file at `/tmp/macroforge-plugin.log`.
+   */
+  constructor()
+  /**
+   * Writes a message to the plugin's log file.
+   *
+   * Useful for debugging macro expansion issues in production environments.
+   *
+   * # Arguments
+   *
+   * * `message` - The message to log
+   *
+   * # Note
+   *
+   * Messages are appended to the log file. If the log file hasn't been
+   * configured or cannot be written to, the message is silently dropped.
+   */
+  log(message: string): void
+  /**
+   * Sets the path for the plugin's log file.
+   *
+   * # Arguments
+   *
+   * * `path` - The file path to use for logging
+   *
+   * # Note
+   *
+   * This does not create the file; it will be created when the first
+   * message is logged.
+   */
+  setLogFile(path: string): void
+  /**
+   * Processes a TypeScript file through the macro expansion system.
+   *
+   * This is the main entry point for file processing. It handles caching,
+   * thread isolation (to prevent stack overflow), and error recovery.
+   *
+   * # Arguments
+   *
+   * * `_env` - NAPI environment (unused but required by NAPI)
+   * * `filepath` - Path to the file (used for TSX detection and caching)
+   * * `code` - The TypeScript source code to process
+   * * `options` - Optional configuration for expansion and caching
+   *
+   * # Returns
+   *
+   * An [`ExpandResult`] containing the expanded code, diagnostics, and source mapping.
+   *
+   * # Errors
+   *
+   * Returns an error if:
+   * - Thread spawning fails
+   * - The worker thread panics (often due to stack overflow)
+   * - Macro expansion fails internally
+   *
+   * # Performance
+   *
+   * - Uses a 32MB thread stack to prevent stack overflow during deep AST recursion
+   * - Caches results by filepath and version for efficient incremental processing
+   * - Early bailout for files without `@derive` decorators
+   *
+   * # Thread Safety
+   *
+   * Macro expansion runs in a separate thread because:
+   * 1. SWC AST operations can be deeply recursive, exceeding default stack limits
+   * 2. Node.js thread stack is typically only 2MB
+   * 3. Panics in the worker thread are caught and reported gracefully
+   */
+  processFile(filepath: string, code: string, options?: ProcessFileOptions | undefined | null): ExpandResult
+  /**
+   * Retrieves a position mapper for a previously processed file.
+   *
+   * The mapper enables translation between original and expanded source positions,
+   * which is essential for IDE features like error reporting and navigation.
+   *
+   * # Arguments
+   *
+   * * `filepath` - Path to the file (must have been previously processed)
+   *
+   * # Returns
+   *
+   * `Some(NativeMapper)` if the file has been processed and has source mapping data,
+   * `None` if the file hasn't been processed or has no mapping (no macros expanded).
+   */
+  getMapper(filepath: string): NativeMapper | null
+  /**
+   * Maps diagnostics from expanded source positions back to original source positions.
+   *
+   * This is used by IDE integrations to show errors at the correct locations
+   * in the user's original code, rather than in the macro-expanded output.
+   *
+   * # Arguments
+   *
+   * * `filepath` - Path to the file the diagnostics are for
+   * * `diags` - Diagnostics with positions in the expanded source
+   *
+   * # Returns
+   *
+   * Diagnostics with positions mapped back to the original source.
+   * If no mapper is available for the file, returns diagnostics unchanged.
+   */
+  mapDiagnostics(filepath: string, diags: Array<JsDiagnostic>): Array<JsDiagnostic>
 }
 
 /**
@@ -376,124 +224,124 @@ export declare class NativePlugin {
  * ```
  */
 export declare class PositionMapper {
-    /**
-     * Creates a new position mapper from source mapping data.
-     *
-     * # Arguments
-     *
-     * * `mapping` - The source mapping result from macro expansion
-     *
-     * # Returns
-     *
-     * A new `NativePositionMapper` ready for position translation.
-     */
-    constructor(mapping: SourceMappingResult);
-    /**
-     * Checks if this mapper has no mapping data.
-     *
-     * An empty mapper indicates no transformations occurred, so position
-     * translation is an identity operation.
-     *
-     * # Returns
-     *
-     * `true` if there are no segments and no generated regions.
-     */
-    isEmpty(): boolean;
-    /**
-     * Converts a position in the original source to the corresponding position in expanded source.
-     *
-     * Uses binary search for O(log n) lookup performance.
-     *
-     * # Arguments
-     *
-     * * `pos` - Byte offset in the original source
-     *
-     * # Returns
-     *
-     * The corresponding byte offset in the expanded source. If the position falls
-     * in a gap between segments, returns the position unchanged. If after the last
-     * segment, extrapolates based on the delta.
-     *
-     * # Algorithm
-     *
-     * 1. Binary search to find the segment containing or after `pos`
-     * 2. If inside a segment, compute offset within segment and translate
-     * 3. If after all segments, extrapolate from the last segment
-     * 4. Otherwise, return position unchanged (gap or before first segment)
-     */
-    originalToExpanded(pos: number): number;
-    /**
-     * Converts a position in the expanded source back to the original source position.
-     *
-     * Returns `None` if the position is inside macro-generated code that has no
-     * corresponding location in the original source.
-     *
-     * # Arguments
-     *
-     * * `pos` - Byte offset in the expanded source
-     *
-     * # Returns
-     *
-     * `Some(original_pos)` if the position maps to original code,
-     * `None` if the position is in macro-generated code.
-     */
-    expandedToOriginal(pos: number): number | null;
-    /**
-     * Returns the name of the macro that generated code at the given position.
-     *
-     * # Arguments
-     *
-     * * `pos` - Byte offset in the expanded source
-     *
-     * # Returns
-     *
-     * `Some(macro_name)` if the position is inside generated code (e.g., "Debug"),
-     * `None` if the position is in original (non-generated) code.
-     */
-    generatedBy(pos: number): string | null;
-    /**
-     * Maps a span (start + length) from expanded source to original source.
-     *
-     * # Arguments
-     *
-     * * `start` - Start byte offset in expanded source
-     * * `length` - Length of the span in bytes
-     *
-     * # Returns
-     *
-     * `Some(SpanResult)` with the mapped span in original source,
-     * `None` if either endpoint is in generated code.
-     */
-    mapSpanToOriginal(start: number, length: number): SpanResult | null;
-    /**
-     * Maps a span (start + length) from original source to expanded source.
-     *
-     * This always succeeds since every original position has an expanded equivalent.
-     *
-     * # Arguments
-     *
-     * * `start` - Start byte offset in original source
-     * * `length` - Length of the span in bytes
-     *
-     * # Returns
-     *
-     * A `SpanResult` with the mapped span in expanded source.
-     */
-    mapSpanToExpanded(start: number, length: number): SpanResult;
-    /**
-     * Checks if a position is inside macro-generated code.
-     *
-     * # Arguments
-     *
-     * * `pos` - Byte offset in the expanded source
-     *
-     * # Returns
-     *
-     * `true` if the position is inside a generated region, `false` otherwise.
-     */
-    isInGenerated(pos: number): boolean;
+  /**
+   * Creates a new position mapper from source mapping data.
+   *
+   * # Arguments
+   *
+   * * `mapping` - The source mapping result from macro expansion
+   *
+   * # Returns
+   *
+   * A new `NativePositionMapper` ready for position translation.
+   */
+  constructor(mapping: SourceMappingResult)
+  /**
+   * Checks if this mapper has no mapping data.
+   *
+   * An empty mapper indicates no transformations occurred, so position
+   * translation is an identity operation.
+   *
+   * # Returns
+   *
+   * `true` if there are no segments and no generated regions.
+   */
+  isEmpty(): boolean
+  /**
+   * Converts a position in the original source to the corresponding position in expanded source.
+   *
+   * Uses binary search for O(log n) lookup performance.
+   *
+   * # Arguments
+   *
+   * * `pos` - Byte offset in the original source
+   *
+   * # Returns
+   *
+   * The corresponding byte offset in the expanded source. If the position falls
+   * in a gap between segments, returns the position unchanged. If after the last
+   * segment, extrapolates based on the delta.
+   *
+   * # Algorithm
+   *
+   * 1. Binary search to find the segment containing or after `pos`
+   * 2. If inside a segment, compute offset within segment and translate
+   * 3. If after all segments, extrapolate from the last segment
+   * 4. Otherwise, return position unchanged (gap or before first segment)
+   */
+  originalToExpanded(pos: number): number
+  /**
+   * Converts a position in the expanded source back to the original source position.
+   *
+   * Returns `None` if the position is inside macro-generated code that has no
+   * corresponding location in the original source.
+   *
+   * # Arguments
+   *
+   * * `pos` - Byte offset in the expanded source
+   *
+   * # Returns
+   *
+   * `Some(original_pos)` if the position maps to original code,
+   * `None` if the position is in macro-generated code.
+   */
+  expandedToOriginal(pos: number): number | null
+  /**
+   * Returns the name of the macro that generated code at the given position.
+   *
+   * # Arguments
+   *
+   * * `pos` - Byte offset in the expanded source
+   *
+   * # Returns
+   *
+   * `Some(macro_name)` if the position is inside generated code (e.g., "Debug"),
+   * `None` if the position is in original (non-generated) code.
+   */
+  generatedBy(pos: number): string | null
+  /**
+   * Maps a span (start + length) from expanded source to original source.
+   *
+   * # Arguments
+   *
+   * * `start` - Start byte offset in expanded source
+   * * `length` - Length of the span in bytes
+   *
+   * # Returns
+   *
+   * `Some(SpanResult)` with the mapped span in original source,
+   * `None` if either endpoint is in generated code.
+   */
+  mapSpanToOriginal(start: number, length: number): SpanResult | null
+  /**
+   * Maps a span (start + length) from original source to expanded source.
+   *
+   * This always succeeds since every original position has an expanded equivalent.
+   *
+   * # Arguments
+   *
+   * * `start` - Start byte offset in original source
+   * * `length` - Length of the span in bytes
+   *
+   * # Returns
+   *
+   * A `SpanResult` with the mapped span in expanded source.
+   */
+  mapSpanToExpanded(start: number, length: number): SpanResult
+  /**
+   * Checks if a position is inside macro-generated code.
+   *
+   * # Arguments
+   *
+   * * `pos` - Byte offset in the expanded source
+   *
+   * # Returns
+   *
+   * `true` if the position is inside a generated region, `false` otherwise.
+   */
+  isInGenerated(pos: number): boolean
 }
-export type NativePositionMapper = PositionMapper;
+export type NativePositionMapper = PositionMapper
 
 /**
  * Returns debug information about all registered macro descriptors (debug API).
@@ -505,19 +353,7 @@ export type NativePositionMapper = PositionMapper;
  *
  * A vector of strings describing each registered macro descriptor.
  */
-export declare function __macroforgeDebugDescriptors(): Array<string>;
-
-/**
- * Returns debug information about all registered macro descriptors (debug API).
- *
- * This provides low-level access to the inventory-based macro registration
- * system for debugging purposes.
- *
- * # Returns
- *
- * A vector of strings describing each registered macro descriptor.
- */
-export declare function __macroforgeDebugDescriptors(): Array<string>;
+export declare function __macroforgeDebugDescriptors(): Array<string>
 
 /**
  * Returns all registered macro module names (debug API).
@@ -528,18 +364,7 @@ export declare function __macroforgeDebugDescriptors(): Array<string>;
  *
  * A vector of module names.
  */
-export declare function __macroforgeDebugGetModules(): Array<string>;
-
-/**
- * Returns all registered macro module names (debug API).
- *
- * Modules group related macros together (e.g., "builtin", "serde").
- *
- * # Returns
- *
- * A vector of module names.
- */
-export declare function __macroforgeDebugGetModules(): Array<string>;
+export declare function __macroforgeDebugGetModules(): Array<string>
 
 /**
  * Looks up a macro by module and name (debug API).
@@ -555,23 +380,7 @@ export declare function __macroforgeDebugGetModules(): Array<string>;
  *
  * A string describing whether the macro was found or not.
  */
-export declare function __macroforgeDebugLookup(module: string, name: string): string;
-
-/**
- * Looks up a macro by module and name (debug API).
- *
- * Useful for testing macro registration and debugging lookup issues.
- *
- * # Arguments
- *
- * * `module` - The module name (e.g., "builtin")
- * * `name` - The macro name (e.g., "Debug")
- *
- * # Returns
- *
- * A string describing whether the macro was found or not.
- */
-export declare function __macroforgeDebugLookup(module: string, name: string): string;
+export declare function __macroforgeDebugLookup(module: string, name: string): string
 
 /**
  * Returns the names of all registered macros.
@@ -580,16 +389,7 @@ export declare function __macroforgeDebugLookup(module: string, name: string): s
  *
  * A vector of macro names (e.g., `["Debug", "Clone", "Serialize"]`).
  */
-export declare function __macroforgeGetMacroNames(): Array<string>;
-
-/**
- * Returns the names of all registered macros.
- *
- * # Returns
- *
- * A vector of macro names (e.g., `["Debug", "Clone", "Serialize"]`).
- */
-export declare function __macroforgeGetMacroNames(): Array<string>;
+export declare function __macroforgeGetMacroNames(): Array<string>
 
 /**
  * Returns the complete manifest of all registered macros and decorators.
@@ -609,27 +409,7 @@ export declare function __macroforgeGetMacroNames(): Array<string>;
  * // ["Debug", "Clone", "PartialEq", "Hash", "Serialize", "Deserialize", ...]
  * ```
  */
-export declare function __macroforgeGetManifest(): MacroManifest;
-
-/**
- * Returns the complete manifest of all registered macros and decorators.
- *
- * This is a debug/introspection API that allows tooling to discover
- * what macros are available at runtime.
- *
- * # Returns
- *
- * A [`MacroManifest`] containing all registered macros and decorators.
- *
- * # Example (JavaScript)
- *
- * ```javascript
- * const manifest = __macroforgeGetManifest();
- * console.log("Available macros:", manifest.macros.map(m => m.name));
- * // ["Debug", "Clone", "PartialEq", "Hash", "Serialize", "Deserialize", ...]
- * ```
- */
-export declare function __macroforgeGetManifest(): MacroManifest;
+export declare function __macroforgeGetManifest(): MacroManifest
 
 /**
  * Checks if any macros are registered in this package.
@@ -640,18 +420,7 @@ export declare function __macroforgeGetManifest(): MacroManifest;
  *
  * `true` if at least one macro is registered, `false` otherwise.
  */
-export declare function __macroforgeIsMacroPackage(): boolean;
-
-/**
- * Checks if any macros are registered in this package.
- *
- * Useful for build tools to determine if macro expansion is needed.
- *
- * # Returns
- *
- * `true` if at least one macro is registered, `false` otherwise.
- */
-export declare function __macroforgeIsMacroPackage(): boolean;
+export declare function __macroforgeIsMacroPackage(): boolean
 
 /**
  * r" Run this macro with the given context.
@@ -679,7 +448,7 @@ export declare function __macroforgeIsMacroPackage(): boolean;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunClone(contextJson: string): string;
+export declare function __macroforgeRunClone(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -707,7 +476,7 @@ export declare function __macroforgeRunClone(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunDebug(contextJson: string): string;
+export declare function __macroforgeRunDebug(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -735,7 +504,7 @@ export declare function __macroforgeRunDebug(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunDefault(contextJson: string): string;
+export declare function __macroforgeRunDefault(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -763,7 +532,7 @@ export declare function __macroforgeRunDefault(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunDeserialize(contextJson: string): string;
+export declare function __macroforgeRunDeserialize(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -791,7 +560,7 @@ export declare function __macroforgeRunDeserialize(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunHash(contextJson: string): string;
+export declare function __macroforgeRunHash(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -819,7 +588,7 @@ export declare function __macroforgeRunHash(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunOrd(contextJson: string): string;
+export declare function __macroforgeRunOrd(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -847,7 +616,7 @@ export declare function __macroforgeRunOrd(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunPartialEq(contextJson: string): string;
+export declare function __macroforgeRunPartialEq(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -875,7 +644,7 @@ export declare function __macroforgeRunPartialEq(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunPartialOrd(contextJson: string): string;
+export declare function __macroforgeRunPartialOrd(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -903,7 +672,7 @@ export declare function __macroforgeRunPartialOrd(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunSerialize(contextJson: string): string;
+export declare function __macroforgeRunSerialize(contextJson: string): string
 
 /**
  * Checks if the given TypeScript code has valid syntax.
@@ -929,7 +698,7 @@ export declare function __macroforgeRunSerialize(contextJson: string): string;
  * }
  * ```
  */
-export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult;
+export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult
 
 /**
  * Clears the configuration cache.
@@ -949,27 +718,7 @@ export declare function checkSyntax(code: string, filepath: string): SyntaxCheck
  * const result = loadConfig(configContent, configPath);
  * ```
  */
-export declare function clearConfigCache(): void;
-
-/**
- * Clears the configuration cache.
- *
- * This is useful for testing to ensure each test starts with a clean state.
- * In production, clearing the cache will force configs to be re-parsed on next access.
- *
- * # Example
- *
- * ```javascript
- * const { clearConfigCache, loadConfig } = require('macroforge-ts');
- *
- * // Clear cache before each test
- * clearConfigCache();
- *
- * // Now load a fresh config
- * const result = loadConfig(configContent, configPath);
- * ```
- */
-export declare function clearConfigCache(): void;
+export declare function clearConfigCache(): void
 
 /**
  * Entry for a registered decorator in the manifest.
@@ -978,31 +727,14 @@ export declare function clearConfigCache(): void;
  * that can be used with macros.
  */
 export interface DecoratorManifestEntry {
-    /** The module this decorator belongs to (e.g., "serde"). */
-    module: string;
-    /** The exported name of the decorator (e.g., "skip", "rename"). */
-    export: string;
-    /** The decorator kind: "class", "property", "method", "accessor", "parameter". */
-    kind: string;
-    /** Documentation string for the decorator. */
-    docs: string;
-}
-
-/**
- * Entry for a registered decorator in the manifest.
- *
- * Used by [`MacroManifest`] to describe field-level decorators
- * that can be used with macros.
- */
-export interface DecoratorManifestEntry {
-    /** The module this decorator belongs to (e.g., "serde"). */
-    module: string;
-    /** The exported name of the decorator (e.g., "skip", "rename"). */
-    export: string;
-    /** The decorator kind: "class", "property", "method", "accessor", "parameter". */
-    kind: string;
-    /** Documentation string for the decorator. */
-    docs: string;
+  /** The module this decorator belongs to (e.g., "serde"). */
+  module: string
+  /** The exported name of the decorator (e.g., "skip", "rename"). */
+  export: string
+  /** The decorator kind: "class", "property", "method", "accessor", "parameter". */
+  kind: string
+  /** Documentation string for the decorator. */
+  docs: string
 }
 
 /**
@@ -1024,28 +756,7 @@ export interface DecoratorManifestEntry {
  * }
  * ```
  */
-export declare function Derive(...features: Array<any>): ClassDecorator;
-
-/**
- * The `@Derive` decorator function exported to JavaScript/TypeScript.
- *
- * This is a no-op function that exists purely for TypeScript type checking.
- * The actual decorator processing happens during macro expansion, where
- * `@derive(...)` decorators are recognized and transformed.
- *
- * # TypeScript Usage
- *
- * ```typescript
- * import { Derive } from "macroforge-ts";
- *
- * @Derive(Debug, Clone, Serialize)
- * class User {
- *     name: string;
- *     email: string;
- * }
- * ```
- */
-export declare function Derive(...features: Array<any>): ClassDecorator;
+export declare function Derive(...features: any[]): ClassDecorator
 
 /**
  * Options for macro expansion.
@@ -1053,100 +764,49 @@ export declare function Derive(...features: Array<any>): ClassDecorator;
  * Used by [`expand_sync`] to configure expansion behavior.
  */
 export interface ExpandOptions {
-    /**
-     * If `true`, preserves `@derive` decorators in the output.
-     * If `false` (default), decorators are stripped after expansion.
-     */
-    keepDecorators?: boolean;
-    /**
-     * Additional decorator module names from external macros.
-     *
-     * These are used during decorator stripping to identify Macroforge-specific
-     * decorators that should be removed from the output. Built-in decorator modules
-     * (like "serde", "debug") are automatically included.
-     *
-     * External macro packages should export their decorator module names, which
-     * plugins can collect and pass here.
-     *
-     * # Example
-     *
-     * ```javascript
-     * expandSync(code, filepath, {
-     *   keepDecorators: false,
-     *   externalDecoratorModules: ["myMacro", "customValidator"]
-     * });
-     * ```
-     */
-    externalDecoratorModules?: Array<string>;
-    /**
-     * Path to a previously loaded config file.
-     *
-     * When provided, the expansion will use the cached configuration
-     * (including foreign types) from this path. The config must have been
-     * previously loaded via [`load_config`].
-     *
-     * # Example
-     *
-     * ```javascript
-     * // First, load the config
-     * const configResult = loadConfig(configContent, configPath);
-     *
-     * // Then use it during expansion
-     * expandSync(code, filepath, { configPath });
-     * ```
-     */
-    configPath?: string;
-}
-
-/**
- * Options for macro expansion.
- *
- * Used by [`expand_sync`] to configure expansion behavior.
- */
-export interface ExpandOptions {
-    /**
-     * If `true`, preserves `@derive` decorators in the output.
-     * If `false` (default), decorators are stripped after expansion.
-     */
-    keepDecorators?: boolean;
-    /**
-     * Additional decorator module names from external macros.
-     *
-     * These are used during decorator stripping to identify Macroforge-specific
-     * decorators that should be removed from the output. Built-in decorator modules
-     * (like "serde", "debug") are automatically included.
-     *
-     * External macro packages should export their decorator module names, which
-     * plugins can collect and pass here.
-     *
-     * # Example
-     *
-     * ```javascript
-     * expandSync(code, filepath, {
-     *   keepDecorators: false,
-     *   externalDecoratorModules: ["myMacro", "customValidator"]
-     * });
-     * ```
-     */
-    externalDecoratorModules?: Array<string>;
-    /**
-     * Path to a previously loaded config file.
-     *
-     * When provided, the expansion will use the cached configuration
-     * (including foreign types) from this path. The config must have been
-     * previously loaded via [`load_config`].
-     *
-     * # Example
-     *
-     * ```javascript
-     * // First, load the config
-     * const configResult = loadConfig(configContent, configPath);
-     *
-     * // Then use it during expansion
-     * expandSync(code, filepath, { configPath });
-     * ```
-     */
-    configPath?: string;
+  /**
+   * If `true`, preserves `@derive` decorators in the output.
+   * If `false` (default), decorators are stripped after expansion.
+   */
+  keepDecorators?: boolean
+  /**
+   * Additional decorator module names from external macros.
+   *
+   * These are used during decorator stripping to identify Macroforge-specific
+   * decorators that should be removed from the output. Built-in decorator modules
+   * (like "serde", "debug") are automatically included.
+   *
+   * External macro packages should export their decorator module names, which
+   * plugins can collect and pass here.
+   *
+   * # Example
+   *
+   * ```javascript
+   * expandSync(code, filepath, {
+   *   keepDecorators: false,
+   *   externalDecoratorModules: ["myMacro", "customValidator"]
+   * });
+   * ```
+   */
+  externalDecoratorModules?: Array<string>
+  /**
+   * Path to a previously loaded config file.
+   *
+   * When provided, the expansion will use the cached configuration
+   * (including foreign types) from this path. The config must have been
+   * previously loaded via [`load_config`].
+   *
+   * # Example
+   *
+   * ```javascript
+   * // First, load the config
+   * const configResult = loadConfig(configContent, configPath);
+   *
+   * // Then use it during expansion
+   * expandSync(code, filepath, { configPath });
+   * ```
+   */
+  configPath?: string
 }
 
 /**
@@ -1176,16 +836,16 @@ export interface ExpandOptions {
  * ```
  */
 export interface ExpandResult {
-    /** The expanded TypeScript code with all macros processed. */
-    code: string;
-    /** Optional TypeScript type declarations for generated methods. */
-    types?: string;
-    /** Optional JSON metadata about processed classes. */
-    metadata?: string;
-    /** Diagnostics (errors, warnings, info) from the expansion process. */
-    diagnostics: Array<MacroDiagnostic>;
-    /** Source mapping for position translation between original and expanded code. */
-    sourceMapping?: SourceMappingResult;
+  /** The expanded TypeScript code with all macros processed. */
+  code: string
+  /** Optional TypeScript type declarations for generated methods. */
+  types?: string
+  /** Optional JSON metadata about processed classes. */
+  metadata?: string
+  /** Diagnostics (errors, warnings, info) from the expansion process. */
+  diagnostics: Array<MacroDiagnostic>
+  /** Source mapping for position translation between original and expanded code. */
+  sourceMapping?: SourceMappingResult
 }
 
 /**
@@ -1225,54 +885,7 @@ export interface ExpandResult {
  * console.log(result.diagnostics); // Any warnings or errors
  * ```
  */
-export declare function expandSync(
-    code: string,
-    filepath: string,
-    options?: ExpandOptions | undefined | null
-): ExpandResult;
-
-/**
- * Synchronously expands macros in TypeScript code.
- *
- * This is the standalone macro expansion function that doesn't use caching.
- * For cached expansion, use [`NativePlugin::process_file`] instead.
- *
- * # Arguments
- *
- * * `_env` - NAPI environment (unused but required by NAPI)
- * * `code` - The TypeScript source code to expand
- * * `filepath` - The file path (used for TSX detection)
- * * `options` - Optional configuration (e.g., `keep_decorators`)
- *
- * # Returns
- *
- * An [`ExpandResult`] containing the expanded code, diagnostics, and source mapping.
- *
- * # Errors
- *
- * Returns an error if:
- * - Thread spawning fails
- * - The worker thread panics
- * - Macro host initialization fails
- *
- * # Performance
- *
- * - Uses a 32MB thread stack to prevent stack overflow
- * - Performs early bailout for files without `@derive` decorators
- *
- * # Example
- *
- * ```javascript
- * const result = expand_sync(env, code, "user.ts", { keep_decorators: false });
- * console.log(result.code); // Expanded TypeScript code
- * console.log(result.diagnostics); // Any warnings or errors
- * ```
- */
-export declare function expandSync(
-    code: string,
-    filepath: string,
-    options?: ExpandOptions | undefined | null
-): ExpandResult;
+export declare function expandSync(code: string, filepath: string, options?: ExpandOptions | undefined | null): ExpandResult
 
 /**
  * A region in the expanded source that was generated by a macro.
@@ -1287,12 +900,12 @@ export declare function expandSync(
  * with `source_macro = "Debug"`.
  */
 export interface GeneratedRegionResult {
-    /** Byte offset where the generated region starts in the expanded source. */
-    start: number;
-    /** Byte offset where the generated region ends in the expanded source. */
-    end: number;
-    /** Name of the macro that generated this region (e.g., "Debug", "Clone"). */
-    sourceMacro: string;
+  /** Byte offset where the generated region starts in the expanded source. */
+  start: number
+  /** Byte offset where the generated region ends in the expanded source. */
+  end: number
+  /** Name of the macro that generated this region (e.g., "Debug", "Clone"). */
+  sourceMacro: string
 }
 
 /**
@@ -1301,10 +914,10 @@ export interface GeneratedRegionResult {
  * Used to track where decorators and macro-related imports come from.
  */
 export interface ImportSourceResult {
-    /** Local identifier name in the import statement (e.g., `Derive` in `import { Derive }`). */
-    local: string;
-    /** Module specifier this identifier was imported from (e.g., `"macroforge-ts"`). */
-    module: string;
+  /** Local identifier name in the import statement (e.g., `Derive` in `import { Derive }`). */
+  local: string
+  /** Module specifier this identifier was imported from (e.g., `"macroforge-ts"`). */
+  module: string
 }
 
 /**
@@ -1314,16 +927,16 @@ export interface ImportSourceResult {
  * with language servers and IDEs.
  */
 export interface JsDiagnostic {
-    /** Byte offset where the diagnostic starts. `None` for global diagnostics. */
-    start?: number;
-    /** Length of the diagnostic span in bytes. */
-    length?: number;
-    /** Human-readable diagnostic message. */
-    message?: string;
-    /** TypeScript diagnostic code (e.g., 2304 for "Cannot find name"). */
-    code?: number;
-    /** Diagnostic category: "error", "warning", "suggestion", "message". */
-    category?: string;
+  /** Byte offset where the diagnostic starts. `None` for global diagnostics. */
+  start?: number
+  /** Length of the diagnostic span in bytes. */
+  length?: number
+  /** Human-readable diagnostic message. */
+  message?: string
+  /** TypeScript diagnostic code (e.g., 2304 for "Cannot find name"). */
+  code?: number
+  /** Diagnostic category: "error", "warning", "suggestion", "message". */
+  category?: string
 }
 
 /**
@@ -1359,42 +972,7 @@ export interface JsDiagnostic {
  * const expanded = expandSync(code, filepath, { configPath });
  * ```
  */
-export declare function loadConfig(content: string, filepath: string): LoadConfigResult;
-
-/**
- * Load and parse a macroforge configuration file.
- *
- * Parses a `macroforge.config.js/ts` file and caches the result for use
- * during macro expansion. The configuration includes both simple settings
- * (like `keepDecorators`) and foreign type handlers.
- *
- * # Arguments
- *
- * * `content` - The raw content of the configuration file
- * * `filepath` - Path to the configuration file (used to determine syntax and as cache key)
- *
- * # Returns
- *
- * A [`LoadConfigResult`] containing the parsed configuration summary.
- *
- * # Example
- *
- * ```javascript
- * import { loadConfig, expandSync } from 'macroforge';
- * import fs from 'fs';
- *
- * const configPath = 'macroforge.config.js';
- * const configContent = fs.readFileSync(configPath, 'utf-8');
- *
- * // Load and cache the configuration
- * const result = loadConfig(configContent, configPath);
- * console.log(`Loaded config with ${result.foreignTypeCount} foreign types`);
- *
- * // The config is now cached and will be used by expandSync
- * const expanded = expandSync(code, filepath, { configPath });
- * ```
- */
-export declare function loadConfig(content: string, filepath: string): LoadConfigResult;
+export declare function loadConfig(content: string, filepath: string): LoadConfigResult
 
 /**
  * Result of loading a macroforge configuration file.
@@ -1402,30 +980,14 @@ export declare function loadConfig(content: string, filepath: string): LoadConfi
  * Returned by [`load_config`] after parsing a `macroforge.config.js/ts` file.
  */
 export interface LoadConfigResult {
-    /** Whether to preserve `@derive` decorators in the output code. */
-    keepDecorators: boolean;
-    /** Whether to generate a convenience const for non-class types. */
-    generateConvenienceConst: boolean;
-    /** Whether the config has any foreign type handlers defined. */
-    hasForeignTypes: boolean;
-    /** Number of foreign types configured. */
-    foreignTypeCount: number;
-}
-
-/**
- * Result of loading a macroforge configuration file.
- *
- * Returned by [`load_config`] after parsing a `macroforge.config.js/ts` file.
- */
-export interface LoadConfigResult {
-    /** Whether to preserve `@derive` decorators in the output code. */
-    keepDecorators: boolean;
-    /** Whether to generate a convenience const for non-class types. */
-    generateConvenienceConst: boolean;
-    /** Whether the config has any foreign type handlers defined. */
-    hasForeignTypes: boolean;
-    /** Number of foreign types configured. */
-    foreignTypeCount: number;
+  /** Whether to preserve `@derive` decorators in the output code. */
+  keepDecorators: boolean
+  /** Whether to generate a convenience const for non-class types. */
+  generateConvenienceConst: boolean
+  /** Whether the config has any foreign type handlers defined. */
+  hasForeignTypes: boolean
+  /** Number of foreign types configured. */
+  foreignTypeCount: number
 }
 
 /**
@@ -1455,23 +1017,23 @@ export interface LoadConfigResult {
  * ```
  */
 export interface MacroDiagnostic {
-    /**
-     * Severity level of the diagnostic.
-     * One of: "error", "warning", "info".
-     */
-    level: string;
-    /** Human-readable message describing the diagnostic. */
-    message: string;
-    /**
-     * Byte offset in the original source where the issue starts.
-     * `None` if the diagnostic is not associated with a specific location.
-     */
-    start?: number;
-    /**
-     * Byte offset in the original source where the issue ends.
-     * `None` if the diagnostic is not associated with a specific location.
-     */
-    end?: number;
+  /**
+   * Severity level of the diagnostic.
+   * One of: "error", "warning", "info".
+   */
+  level: string
+  /** Human-readable message describing the diagnostic. */
+  message: string
+  /**
+   * Byte offset in the original source where the issue starts.
+   * `None` if the diagnostic is not associated with a specific location.
+   */
+  start?: number
+  /**
+   * Byte offset in the original source where the issue ends.
+   * `None` if the diagnostic is not associated with a specific location.
+   */
+  end?: number
 }
 
 /**
@@ -1483,29 +1045,12 @@ export interface MacroDiagnostic {
  * - Tooling integration
  */
 export interface MacroManifest {
-    /** ABI version for compatibility checking. */
-    version: number;
-    /** All registered macros (derive, attribute, function). */
-    macros: Array<MacroManifestEntry>;
-    /** All registered field/class decorators. */
-    decorators: Array<DecoratorManifestEntry>;
-}
-
-/**
- * Complete manifest of all available macros and decorators.
- *
- * This is returned by [`get_macro_manifest`] and is useful for:
- * - IDE autocompletion
- * - Documentation generation
- * - Tooling integration
- */
-export interface MacroManifest {
-    /** ABI version for compatibility checking. */
-    version: number;
-    /** All registered macros (derive, attribute, function). */
-    macros: Array<MacroManifestEntry>;
-    /** All registered field/class decorators. */
-    decorators: Array<DecoratorManifestEntry>;
+  /** ABI version for compatibility checking. */
+  version: number
+  /** All registered macros (derive, attribute, function). */
+  macros: Array<MacroManifestEntry>
+  /** All registered field/class decorators. */
+  decorators: Array<DecoratorManifestEntry>
 }
 
 /**
@@ -1515,31 +1060,14 @@ export interface MacroManifest {
  * such as IDE extensions and documentation generators.
  */
 export interface MacroManifestEntry {
-    /** The macro name (e.g., "Debug", "Clone", "Serialize"). */
-    name: string;
-    /** The macro kind: "derive", "attribute", or "function". */
-    kind: string;
-    /** Human-readable description of what the macro does. */
-    description: string;
-    /** The package that provides this macro (e.g., "macroforge-ts"). */
-    package: string;
-}
-
-/**
- * Entry for a registered macro in the manifest.
- *
- * Used by [`MacroManifest`] to describe available macros to tooling
- * such as IDE extensions and documentation generators.
- */
-export interface MacroManifestEntry {
-    /** The macro name (e.g., "Debug", "Clone", "Serialize"). */
-    name: string;
-    /** The macro kind: "derive", "attribute", or "function". */
-    kind: string;
-    /** Human-readable description of what the macro does. */
-    description: string;
-    /** The package that provides this macro (e.g., "macroforge-ts"). */
-    package: string;
+  /** The macro name (e.g., "Debug", "Clone", "Serialize"). */
+  name: string
+  /** The macro kind: "derive", "attribute", or "function". */
+  kind: string
+  /** Human-readable description of what the macro does. */
+  description: string
+  /** The package that provides this macro (e.g., "macroforge-ts"). */
+  package: string
 }
 
 /**
@@ -1556,14 +1084,14 @@ export interface MacroManifestEntry {
  * - Segments are non-overlapping and sorted by position
  */
 export interface MappingSegmentResult {
-    /** Byte offset where this segment starts in the original source. */
-    originalStart: number;
-    /** Byte offset where this segment ends in the original source. */
-    originalEnd: number;
-    /** Byte offset where this segment starts in the expanded source. */
-    expandedStart: number;
-    /** Byte offset where this segment ends in the expanded source. */
-    expandedEnd: number;
+  /** Byte offset where this segment starts in the original source. */
+  originalStart: number
+  /** Byte offset where this segment ends in the original source. */
+  originalEnd: number
+  /** Byte offset where this segment starts in the expanded source. */
+  expandedStart: number
+  /** Byte offset where this segment ends in the expanded source. */
+  expandedEnd: number
 }
 
 /**
@@ -1597,46 +1125,7 @@ export interface MappingSegmentResult {
  * // ]
  * ```
  */
-export declare function parseImportSources(
-    code: string,
-    filepath: string
-): Array<ImportSourceResult>;
-
-/**
- * Parses import statements from TypeScript code and returns their sources.
- *
- * This function extracts information about all import statements in the code,
- * mapping each imported identifier to its source module. Useful for analyzing
- * dependencies and understanding where decorators come from.
- *
- * # Arguments
- *
- * * `code` - The TypeScript source code to parse
- * * `filepath` - The file path (used for TSX detection)
- *
- * # Returns
- *
- * A vector of [`ImportSourceResult`] entries, one for each imported identifier.
- *
- * # Errors
- *
- * Returns an error if the code cannot be parsed.
- *
- * # Example
- *
- * ```javascript
- * // For code: import { Derive, Clone } from "macroforge-ts";
- * const imports = parse_import_sources(code, "test.ts");
- * // Returns: [
- * //   { local: "Derive", module: "macroforge-ts" },
- * //   { local: "Clone", module: "macroforge-ts" }
- * // ]
- * ```
- */
-export declare function parseImportSources(
-    code: string,
-    filepath: string
-): Array<ImportSourceResult>;
+export declare function parseImportSources(code: string, filepath: string): Array<ImportSourceResult>
 
 /**
  * Options for processing a file through the macro system.
@@ -1645,55 +1134,26 @@ export declare function parseImportSources(
  * and caching.
  */
 export interface ProcessFileOptions {
-    /**
-     * If `true`, preserves `@derive` decorators in the output.
-     * If `false` (default), decorators are stripped after expansion.
-     */
-    keepDecorators?: boolean;
-    /**
-     * Version string for cache invalidation.
-     * When provided, cached results are only reused if versions match.
-     */
-    version?: string;
-    /**
-     * Additional decorator module names from external macros.
-     * See [`ExpandOptions::external_decorator_modules`] for details.
-     */
-    externalDecoratorModules?: Array<string>;
-    /**
-     * Path to a previously loaded config file (for foreign types lookup).
-     * See [`ExpandOptions::config_path`] for details.
-     */
-    configPath?: string;
-}
-
-/**
- * Options for processing a file through the macro system.
- *
- * Used by [`NativePlugin::process_file`] to configure expansion behavior
- * and caching.
- */
-export interface ProcessFileOptions {
-    /**
-     * If `true`, preserves `@derive` decorators in the output.
-     * If `false` (default), decorators are stripped after expansion.
-     */
-    keepDecorators?: boolean;
-    /**
-     * Version string for cache invalidation.
-     * When provided, cached results are only reused if versions match.
-     */
-    version?: string;
-    /**
-     * Additional decorator module names from external macros.
-     * See [`ExpandOptions::external_decorator_modules`] for details.
-     */
-    externalDecoratorModules?: Array<string>;
-    /**
-     * Path to a previously loaded config file (for foreign types lookup).
-     * See [`ExpandOptions::config_path`] for details.
-     */
-    configPath?: string;
+  /**
+   * If `true`, preserves `@derive` decorators in the output.
+   * If `false` (default), decorators are stripped after expansion.
+   */
+  keepDecorators?: boolean
+  /**
+   * Version string for cache invalidation.
+   * When provided, cached results are only reused if versions match.
+   */
+  version?: string
+  /**
+   * Additional decorator module names from external macros.
+   * See [`ExpandOptions::external_decorator_modules`] for details.
+   */
+  externalDecoratorModules?: Array<string>
+  /**
+   * Path to a previously loaded config file (for foreign types lookup).
+   * See [`ExpandOptions::config_path`] for details.
+   */
+  configPath?: string
 }
 
 /**
@@ -1710,16 +1170,16 @@ export interface ProcessFileOptions {
  * - Mapping IDE diagnostics from expanded code back to original source
  */
 export interface SourceMappingResult {
-    /**
-     * Segments mapping preserved regions between original and expanded source.
-     * Sorted by position for efficient binary search lookups.
-     */
-    segments: Array<MappingSegmentResult>;
-    /**
-     * Regions in the expanded source that were generated by macros.
-     * Used to identify synthetic code with no original source location.
-     */
-    generatedRegions: Array<GeneratedRegionResult>;
+  /**
+   * Segments mapping preserved regions between original and expanded source.
+   * Sorted by position for efficient binary search lookups.
+   */
+  segments: Array<MappingSegmentResult>
+  /**
+   * Regions in the expanded source that were generated by macros.
+   * Used to identify synthetic code with no original source location.
+   */
+  generatedRegions: Array<GeneratedRegionResult>
 }
 
 /**
@@ -1728,10 +1188,10 @@ export interface SourceMappingResult {
  * Used for mapping diagnostics and other positional information.
  */
 export interface SpanResult {
-    /** Byte offset where the span starts. */
-    start: number;
-    /** Length of the span in bytes. */
-    length: number;
+  /** Byte offset where the span starts. */
+  start: number
+  /** Length of the span in bytes. */
+  length: number
 }
 
 /**
@@ -1740,10 +1200,10 @@ export interface SpanResult {
  * Returned by [`check_syntax`] to indicate whether code parses successfully.
  */
 export interface SyntaxCheckResult {
-    /** `true` if the code parsed without errors, `false` otherwise. */
-    ok: boolean;
-    /** Error message if parsing failed, `None` if successful. */
-    error?: string;
+  /** `true` if the code parsed without errors, `false` otherwise. */
+  ok: boolean
+  /** Error message if parsing failed, `None` if successful. */
+  error?: string
 }
 
 /**
@@ -1760,23 +1220,23 @@ export interface SyntaxCheckResult {
  * * `metadata` - Optional JSON metadata about processed classes
  */
 export interface TransformResult {
-    /** The transformed TypeScript/JavaScript code with all macros expanded. */
-    code: string;
-    /**
-     * Source map for mapping transformed positions back to original.
-     * Currently always `None` - source mapping is handled separately via `SourceMappingResult`.
-     */
-    map?: string;
-    /**
-     * TypeScript type declarations (`.d.ts` content) for generated methods.
-     * Used by IDEs to provide type information for macro-generated code.
-     */
-    types?: string;
-    /**
-     * JSON-serialized metadata about processed classes.
-     * Contains information about which classes were processed and what was generated.
-     */
-    metadata?: string;
+  /** The transformed TypeScript/JavaScript code with all macros expanded. */
+  code: string
+  /**
+   * Source map for mapping transformed positions back to original.
+   * Currently always `None` - source mapping is handled separately via `SourceMappingResult`.
+   */
+  map?: string
+  /**
+   * TypeScript type declarations (`.d.ts` content) for generated methods.
+   * Used by IDEs to provide type information for macro-generated code.
+   */
+  types?: string
+  /**
+   * JSON-serialized metadata about processed classes.
+   * Contains information about which classes were processed and what was generated.
+   */
+  metadata?: string
 }
 
 /**
@@ -1806,36 +1266,7 @@ export interface TransformResult {
  *
  * Uses a 32MB thread stack to prevent stack overflow during deep AST recursion.
  */
-export declare function transformSync(code: string, filepath: string): TransformResult;
-
-/**
- * Synchronously transforms TypeScript code through the macro expansion system.
- *
- * This is similar to [`expand_sync`] but returns a [`TransformResult`] which
- * includes source map information (when available).
- *
- * # Arguments
- *
- * * `_env` - NAPI environment (unused but required by NAPI)
- * * `code` - The TypeScript source code to transform
- * * `filepath` - The file path (used for TSX detection)
- *
- * # Returns
- *
- * A [`TransformResult`] containing the transformed code and metadata.
- *
- * # Errors
- *
- * Returns an error if:
- * - Thread spawning fails
- * - The worker thread panics
- * - Macro expansion fails
- *
- * # Thread Safety
- *
- * Uses a 32MB thread stack to prevent stack overflow during deep AST recursion.
- */
-export declare function transformSync(code: string, filepath: string): TransformResult;
+export declare function transformSync(code: string, filepath: string): TransformResult
 /**
  * r" Run this macro with the given context.
  * r"
@@ -1862,7 +1293,7 @@ export declare function transformSync(code: string, filepath: string): Transform
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunGigaform(contextJson: string): string;
+export declare function __macroforgeRunGigaform(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -1890,7 +1321,7 @@ export declare function __macroforgeRunGigaform(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunInspect(contextJson: string): string;
+export declare function __macroforgeRunInspect(contextJson: string): string
 
 /**
  * r" Run this macro with the given context.
@@ -1918,4 +1349,4 @@ export declare function __macroforgeRunInspect(contextJson: string): string;
  * r" - The `TsStream` cannot be created from the context
  * r" - The result cannot be serialized to JSON
  */
-export declare function __macroforgeRunJSON(contextJson: string): string;
+export declare function __macroforgeRunJSON(contextJson: string): string

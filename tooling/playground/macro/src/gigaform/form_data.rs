@@ -104,21 +104,26 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
 
 /// Generates the switch cases for variant field extraction.
 fn generate_variant_cases(config: &UnionConfig, _discriminant_field: &str) -> TsStream {
-    ts_template! {
-        {#for (i, variant) in config.variants.iter().enumerate()}
-            {$let value = &variant.discriminant_value}
-            {$let field_extractions = generate_field_extractions(&variant.fields, "")}
-            {#if i == 0}
-                if (discriminant === "@{value}") {
-                    {$typescript field_extractions}
+    // Generate case statements for each variant
+    let case_streams: Vec<TsStream> = config
+        .variants
+        .iter()
+        .map(|variant| {
+            let value = &variant.discriminant_value;
+            let field_extractions = generate_field_extractions(&variant.fields, "");
+            ts_template! {
+                {
+                    // Case for variant @{value}
+                    if (discriminant === "@{value}") {
+                        {$typescript field_extractions}
+                    }
                 }
-            {:else}
-                else if (discriminant === "@{value}") {
-                    {$typescript field_extractions}
-                }
-            {/if}
-        {/for}
-    }
+            }
+        })
+        .collect();
+
+    // Combine all case streams
+    TsStream::merge_all(case_streams)
 }
 
 /// Generates the field extraction statements.
@@ -214,10 +219,11 @@ fn generate_primitive_extraction(
                     }
                 }
             } else {
+                // Use BigInt(0) instead of 0n since the ToCode trait doesn't support BigInt literals
                 ts_template! {
                     {
                         const {|@{name}Str|} = formData.get("@{form_key}");
-                        obj.@{name} = {|@{name}Str|} ? BigInt({|@{name}Str|} as string) : 0n;
+                        obj.@{name} = {|@{name}Str|} ? BigInt({|@{name}Str|} as string) : BigInt(0);
                     }
                 }
             }
@@ -316,7 +322,7 @@ fn generate_nested_extraction(name: &str, form_key: &str, field: &ParsedField) -
 }
 
 /// Extracts the base type from a potentially nullable/optional type.
-fn extract_base_type(ts_type: &str) -> &str {
+pub fn extract_base_type(ts_type: &str) -> &str {
     let trimmed = ts_type.trim();
 
     // Handle "T | null", "null | T", "T | undefined", etc.

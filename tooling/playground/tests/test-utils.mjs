@@ -11,7 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const playgroundRoot = path.resolve(__dirname, '..');
-export const repoRoot = path.resolve(playgroundRoot, '..');
+// tooling/playground -> tooling -> repo root
+export const repoRoot = path.resolve(playgroundRoot, '../..');
 export const vanillaRoot = path.join(playgroundRoot, 'vanilla');
 export const svelteRoot = path.join(playgroundRoot, 'svelte');
 export const rootConfigPath = path.join(repoRoot, 'macroforge.json');

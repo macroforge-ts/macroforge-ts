@@ -33,7 +33,13 @@ export class User {
 }
 }
 
-export function userToString(value: User): string {const parts: string[]= []; parts.push("identifier: " + value.id); parts.push("name: " + value.name); parts.push("email: " + value.email); return "User { " + parts.join(", " )+ " }" ; }
+export function userToString(value: User): string {
+    const parts: string[] = [];
+    parts.push(`${"identifier"}: ` + value.id);
+    parts.push(`${"name"}: ` + value.name);
+    parts.push(`${"email"}: ` + value.email);
+    return `${"User"} { ` + parts.join(", ") + " }";
+}
 
 const user = new User(1, 'John Doe', 'john@example.com', 'tok_live_secret');
 

@@ -18,9 +18,9 @@
     },
     "dependencies": {
         "vite": "^7.2.6",
-        "macroforge": "file:../../crates/macroforge_ts",
+        "macroforge": "file:../../../crates/macroforge_ts",
         "@playground/macro": "file:../macro",
-        "@macroforge/typescript-plugin": "file:../../packages/typescript-plugin",
-        "@macroforge/vite-plugin": "file:../../packages/vite-plugin"
+        "@macroforge/typescript-plugin": "file:../../../packages/typescript-plugin",
+        "@macroforge/vite-plugin": "file:../../../packages/vite-plugin"
     }
 }
