@@ -21,7 +21,7 @@ macro_rules! impl_enum_body {
                 $E::$v(inner) => {
                     let val = crate::ast::ToCode::to_code(inner, $cx);
                     syn::parse_quote!(
-                        swc_core::ecma::ast::$E::$v(#val)
+                        macroforge_ts::swc_core::ecma::ast::$E::$v(#val)
                     )
                 },
             )*
@@ -129,13 +129,13 @@ impl_struct!(Invalid, [span]);
 
 impl ToCode for Span {
     fn to_code(&self, _: &Ctx) -> syn::Expr {
-        parse_quote!(swc_core::common::DUMMY_SP)
+        parse_quote!(macroforge_ts::swc_core::common::DUMMY_SP)
     }
 }
 
 impl ToCode for SyntaxContext {
     fn to_code(&self, _: &Ctx) -> syn::Expr {
-        parse_quote!(swc_core::common::SyntaxContext::empty())
+        parse_quote!(macroforge_ts::swc_core::common::SyntaxContext::empty())
     }
 }
 

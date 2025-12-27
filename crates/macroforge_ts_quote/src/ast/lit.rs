@@ -33,14 +33,14 @@ impl_struct!(Regex, [span, exp, flags]);
 impl ToCode for Atom {
     fn to_code(&self, _: &Ctx) -> syn::Expr {
         let val = &**self;
-        parse_quote!(swc_core::atoms::atom!(#val))
+        parse_quote!(macroforge_ts::swc_core::atoms::atom!(#val))
     }
 }
 
 impl ToCode for Wtf8Atom {
     fn to_code(&self, _: &Ctx) -> syn::Expr {
         let bytes_literal = LitByteStr::new(self.as_bytes(), Span::call_site());
-        parse_quote!(unsafe { swc_core::atoms::Wtf8Atom::from_bytes_unchecked(#bytes_literal) })
+        parse_quote!(unsafe { macroforge_ts::swc_core::atoms::Wtf8Atom::from_bytes_unchecked(#bytes_literal) })
     }
 }
 

@@ -44,6 +44,8 @@ pub struct Analyzer {
     placeholders: HashMap<usize, PlaceholderInfo>,
     /// Placeholder counter.
     placeholder_id: usize,
+    /// Full source text for context-aware placeholder classification.
+    source: String,
 }
 
 /// Analysis context.
@@ -76,11 +78,13 @@ impl Analyzer {
             context_stack: vec![Context::Expression],
             placeholders: HashMap::new(),
             placeholder_id: 0,
+            source: String::new(),
         }
     }
 
     /// Analyzes a syntax tree and returns the analysis result.
     pub fn analyze(mut self, root: &SyntaxNode) -> SemanticAnalysis {
+        self.source = root.text().to_string();
         self.visit_node(root);
         SemanticAnalysis {
             placeholders: self.placeholders,
@@ -162,11 +166,15 @@ impl Analyzer {
                 self.pop_context();
             }
 
-            // Object literals
+            // Object literals / brace blocks
             SyntaxKind::TsObject | SyntaxKind::BraceBlock => {
-                // Need to check if this is an object literal vs code block
-                // For now, treat braces after `:` or `=` as object literals
-                self.push_context(Context::ObjectLiteral);
+                let is_object_literal = node.kind() == SyntaxKind::TsObject
+                    || self.is_object_literal_brace(node);
+                if is_object_literal {
+                    self.push_context(Context::ObjectLiteral);
+                } else {
+                    self.push_context(Context::Expression);
+                }
                 self.visit_children(node);
                 self.pop_context();
             }
@@ -345,7 +353,13 @@ impl Analyzer {
 
     /// Records an interpolation with its context-based classification.
     fn record_interpolation(&mut self, node: &SyntaxNode) {
-        let kind = self.placeholder_kind_from_context();
+        let mut kind = self.placeholder_kind_from_context();
+        if self.should_force_ident(node) {
+            kind = PlaceholderKind::Ident;
+        }
+        if kind == PlaceholderKind::Expr && self.should_force_type(node) {
+            kind = PlaceholderKind::Type;
+        }
 
         // Extract the tokens from inside the interpolation
         // The interpolation contains: @ { rust_tokens }
@@ -354,10 +368,163 @@ impl Analyzer {
         let id = self.placeholder_id;
         self.placeholder_id += 1;
 
-        self.placeholders.insert(
-            id,
-            PlaceholderInfo { kind, tokens },
-        );
+        self.placeholders.insert(id, PlaceholderInfo { kind, tokens });
+    }
+
+    fn should_force_ident(&self, node: &SyntaxNode) -> bool {
+        if self.source.is_empty() {
+            return false;
+        }
+
+        let start: usize = node.text_range().start().into();
+        let end: usize = node.text_range().end().into();
+
+        let prev = match self.prev_non_whitespace_byte(start) {
+            Some(prev) => prev,
+            None => return false,
+        };
+
+        if prev == b'.' {
+            return true;
+        }
+
+        if prev == b'{' || prev == b',' {
+            if let Some((next_idx, next)) = self.next_non_whitespace_byte(end) {
+                if next == b':' {
+                    return true;
+                }
+                if next == b'?' {
+                    if let Some((_, after_q)) = self.next_non_whitespace_byte(next_idx + 1) {
+                        return after_q == b':';
+                    }
+                }
+            }
+        }
+
+        false
+    }
+
+    fn should_force_type(&self, node: &SyntaxNode) -> bool {
+        if self.source.is_empty() {
+            return false;
+        }
+
+        let start: usize = node.text_range().start().into();
+        if let Some(token) = self.prev_ident_token(start) {
+            if token == "keyof" {
+                return true;
+            }
+        }
+
+        if let Some((prev_idx, prev)) = self.prev_non_whitespace_with_idx(start) {
+            if prev == b':' {
+                if let Some((_, before_colon)) = self.prev_non_whitespace_with_idx(prev_idx) {
+                    if matches!(before_colon, b')' | b']' | b'>') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        false
+    }
+
+    fn is_object_literal_brace(&self, node: &SyntaxNode) -> bool {
+        let start: usize = node.text_range().start().into();
+        if start == 0 || start > self.source.len() {
+            return false;
+        }
+        let before = &self.source[..start];
+        let trimmed = before.trim_end();
+
+        trimmed.ends_with('=')
+            || trimmed.ends_with("return")
+            || trimmed.ends_with(':')
+            || trimmed.ends_with('(')
+            || trimmed.ends_with('[')
+            || trimmed.ends_with(',')
+            || trimmed.ends_with("=>")
+    }
+
+    fn prev_ident_token(&self, idx: usize) -> Option<String> {
+        let bytes = self.source.as_bytes();
+        if idx == 0 {
+            return None;
+        }
+
+        let mut i = idx;
+        while i > 0 {
+            let b = bytes[i - 1];
+            if b == b' ' || b == b'\t' || b == b'\n' || b == b'\r' {
+                i -= 1;
+            } else {
+                break;
+            }
+        }
+
+        let end = i;
+        while i > 0 {
+            let b = bytes[i - 1];
+            if Self::is_ascii_ident_char(b) {
+                i -= 1;
+            } else {
+                break;
+            }
+        }
+
+        if i == end {
+            return None;
+        }
+
+        Some(self.source[i..end].to_string())
+    }
+
+    fn is_ascii_ident_char(b: u8) -> bool {
+        matches!(b, b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'_' | b'$')
+    }
+
+    fn prev_non_whitespace_byte(&self, idx: usize) -> Option<u8> {
+        let bytes = self.source.as_bytes();
+        if idx == 0 {
+            return None;
+        }
+        let mut i = idx;
+        while i > 0 {
+            i -= 1;
+            match bytes[i] {
+                b' ' | b'\t' | b'\n' | b'\r' => continue,
+                _ => return Some(bytes[i]),
+            }
+        }
+        None
+    }
+
+    fn prev_non_whitespace_with_idx(&self, idx: usize) -> Option<(usize, u8)> {
+        let bytes = self.source.as_bytes();
+        if idx == 0 {
+            return None;
+        }
+        let mut i = idx;
+        while i > 0 {
+            i -= 1;
+            match bytes[i] {
+                b' ' | b'\t' | b'\n' | b'\r' => continue,
+                _ => return Some((i, bytes[i])),
+            }
+        }
+        None
+    }
+
+    fn next_non_whitespace_byte(&self, idx: usize) -> Option<(usize, u8)> {
+        let bytes = self.source.as_bytes();
+        let mut i = idx;
+        while i < bytes.len() {
+            match bytes[i] {
+                b' ' | b'\t' | b'\n' | b'\r' => i += 1,
+                _ => return Some((i, bytes[i])),
+            }
+        }
+        None
     }
 
     /// Extracts the Rust tokens from an interpolation node.
@@ -439,6 +606,56 @@ mod tests {
         let result = analyze_template("{|get@{name}|}");
         // Should have a placeholder in identifier context
         assert!(!result.placeholders.is_empty());
+    }
+
+    #[test]
+    fn test_member_access_placeholder() {
+        let result = analyze_template("const x = value.@{field}");
+        let placeholder = result.placeholders.values().next().unwrap();
+        assert_eq!(
+            placeholder.kind,
+            PlaceholderKind::Ident,
+            "Member access placeholder should be Ident, got {:?}",
+            placeholder.kind
+        );
+    }
+
+    #[test]
+    fn test_object_literal_key_placeholder() {
+        let result = analyze_template("const x = { @{key}: 1 }");
+        let placeholder = result.placeholders.values().next().unwrap();
+        assert_eq!(
+            placeholder.kind,
+            PlaceholderKind::Ident,
+            "Object literal key placeholder should be Ident, got {:?}",
+            placeholder.kind
+        );
+    }
+
+    #[test]
+    fn test_keyof_placeholder_is_type() {
+        let result = analyze_template("type K = keyof @{Target};");
+        let placeholder = result.placeholders.values().next().unwrap();
+        assert_eq!(
+            placeholder.kind,
+            PlaceholderKind::Type,
+            "keyof placeholder should be Type, got {:?}",
+            placeholder.kind
+        );
+    }
+
+    #[test]
+    fn test_return_type_placeholder_after_parens() {
+        let result = analyze_template(
+            "class Foo { compareTo(other: unknown): @{ReturnType} { return 0; } }",
+        );
+        let placeholder = result.placeholders.values().next().unwrap();
+        assert_eq!(
+            placeholder.kind,
+            PlaceholderKind::Type,
+            "Return type placeholder should be Type, got {:?}",
+            placeholder.kind
+        );
     }
 
     #[test]

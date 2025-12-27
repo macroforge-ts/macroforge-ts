@@ -33,7 +33,7 @@ use crate::compiler::compile_template;
 ///
 /// When `/** Doc */` goes through Rust's TokenStream, it becomes `# [doc = r" Doc "]`.
 /// This function converts them back to `/** Doc */` for valid TypeScript.
-fn convert_doc_attributes_to_jsdoc(input: &str) -> String {
+pub(crate) fn convert_doc_attributes_to_jsdoc(input: &str) -> String {
     let mut result = String::with_capacity(input.len());
     let chars: Vec<char> = input.chars().collect();
     let len = chars.len();
@@ -114,11 +114,17 @@ fn convert_doc_attributes_to_jsdoc(input: &str) -> String {
                                     // Extract and trim doc text
                                     let doc_text: String =
                                         chars[doc_start..doc_end].iter().collect();
-                                    let doc_text = doc_text.trim();
+                                    let mut doc_text = doc_text.trim().to_string();
+                                    if let Some(stripped) = doc_text.strip_prefix('*') {
+                                        doc_text = stripped.trim_start().to_string();
+                                    }
+                                    if let Some(stripped) = doc_text.strip_suffix("*/") {
+                                        doc_text = stripped.trim_end().to_string();
+                                    }
 
                                     // Output JSDoc comment
                                     result.push_str("/** ");
-                                    result.push_str(doc_text);
+                                    result.push_str(&doc_text);
                                     result.push_str(" */");
 
                                     i = j;
@@ -151,7 +157,7 @@ fn convert_doc_attributes_to_jsdoc(input: &str) -> String {
 /// - `!==` becomes `! = =` (JavaScript strict inequality)
 ///
 /// This function normalizes these back to the expected format.
-fn normalize_template_spacing(input: &str) -> String {
+pub(crate) fn normalize_template_spacing(input: &str) -> String {
     let mut result = String::with_capacity(input.len());
     let chars: Vec<char> = input.chars().collect();
     let len = chars.len();
@@ -286,6 +292,27 @@ fn normalize_template_spacing(input: &str) -> String {
             continue;
         }
 
+        // Restore missing '/' for doc comments that were tokenized without it.
+        if c == '*' && i + 1 < len && chars[i + 1] == '*' {
+            let mut j = i;
+            while j > 0 {
+                let prev = chars[j - 1];
+                if prev == '\n' || prev == '\r' {
+                    break;
+                }
+                if prev.is_whitespace() {
+                    j -= 1;
+                    continue;
+                }
+                break;
+            }
+            if j == 0 || chars[j.saturating_sub(1)] == '\n' || chars[j.saturating_sub(1)] == '\r' {
+                result.push_str("/**");
+                i += 2;
+                continue;
+            }
+        }
+
         // Handle @ followed by optional whitespace then { or @
         if c == '@' {
             result.push('@');
@@ -352,6 +379,92 @@ fn normalize_template_spacing(input: &str) -> String {
     result
 }
 
+pub(crate) fn collapse_template_newlines(input: &str) -> String {
+    let mut result = String::with_capacity(input.len());
+    let chars: Vec<char> = input.chars().collect();
+    let len = chars.len();
+    let mut i = 0;
+
+    let mut in_string = false;
+    let mut string_char = '\0';
+    let mut escape_next = false;
+    let mut in_line_comment = false;
+    let mut in_block_comment = false;
+
+    while i < len {
+        let ch = chars[i];
+
+        if in_line_comment {
+            result.push(ch);
+            if ch == '\n' {
+                in_line_comment = false;
+            }
+            i += 1;
+            continue;
+        }
+
+        if in_block_comment {
+            result.push(ch);
+            if ch == '*' && i + 1 < len && chars[i + 1] == '/' {
+                result.push('/');
+                i += 2;
+                in_block_comment = false;
+                continue;
+            }
+            i += 1;
+            continue;
+        }
+
+        if in_string {
+            result.push(ch);
+            if escape_next {
+                escape_next = false;
+            } else if ch == '\\' {
+                escape_next = true;
+            } else if ch == string_char {
+                in_string = false;
+            }
+            i += 1;
+            continue;
+        }
+
+        if ch == '/' && i + 1 < len {
+            if chars[i + 1] == '/' {
+                in_line_comment = true;
+                result.push(ch);
+                result.push('/');
+                i += 2;
+                continue;
+            }
+            if chars[i + 1] == '*' {
+                in_block_comment = true;
+                result.push(ch);
+                result.push('*');
+                i += 2;
+                continue;
+            }
+        }
+
+        if ch == '\n' || ch == '\r' {
+            if !result.ends_with(' ') {
+                result.push(' ');
+            }
+            i += 1;
+            continue;
+        }
+
+        if ch == '"' || ch == '\'' || ch == '`' {
+            in_string = true;
+            string_char = ch;
+        }
+
+        result.push(ch);
+        i += 1;
+    }
+
+    result
+}
+
 /// Parses a template token stream into Rust that builds TypeScript AST output.
 ///
 /// This function takes the raw token stream from the macro invocation,
@@ -392,6 +505,7 @@ pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     // so "@ { expr }" needs to become "@{expr}" for the lexer to recognize it.
     // Also normalize control flow tags: "{ # if" -> "{#if", "{ / if" -> "{/if", etc.
     let template_str = normalize_template_spacing(&template_str);
+    let template_str = collapse_template_newlines(&template_str);
 
     #[cfg(debug_assertions)]
     if std::env::var("MF_DEBUG_TEMPLATE").is_ok() {
@@ -404,13 +518,60 @@ pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     // Wrap in the expected output structure
     Ok(quote! {
         {
-            let mut __stmts: Vec<swc_core::ecma::ast::ModuleItem> = Vec::new();
+            let mut __stmts: Vec<macroforge_ts::swc_core::ecma::ast::ModuleItem> = Vec::new();
             let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
-            let __comments = swc_core::common::comments::SingleThreadedComments::default();
-            let mut __pending_comments: Vec<swc_core::common::comments::Comment> = Vec::new();
+            let __comments = macroforge_ts::swc_core::common::comments::SingleThreadedComments::default();
+            let mut __pending_comments: Vec<macroforge_ts::swc_core::common::comments::Comment> = Vec::new();
             // Collect injected TsStreams for merging at output
             let mut __injected_streams: Vec<macroforge_ts::ts_syn::TsStream> = Vec::new();
-            let __mf_items: Vec<swc_core::ecma::ast::ModuleItem> = #stmts_builder;
+            let __mf_items: Vec<macroforge_ts::swc_core::ecma::ast::ModuleItem> = #stmts_builder;
+            __stmts.extend(__mf_items);
+            (__stmts, __patches, __comments, __injected_streams)
+        }
+    })
+}
+
+pub(crate) fn strip_doc_comments(input: &str) -> String {
+    let bytes = input.as_bytes();
+    let mut result = String::with_capacity(input.len());
+    let mut i = 0;
+
+    while i < bytes.len() {
+        if bytes[i..].starts_with(b"/**") {
+            if let Some(end) = input[i + 3..].find("*/") {
+                i += 3 + end + 2;
+                continue;
+            }
+        }
+
+        if bytes[i..].starts_with(b"///") {
+            if let Some(end) = input[i + 3..].find('\n') {
+                i += 3 + end + 1;
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        result.push(bytes[i] as char);
+        i += 1;
+    }
+
+    result
+}
+
+pub(crate) fn parse_template_str(template_str: &str) -> syn::Result<TokenStream2> {
+    let stmts_builder = compile_template(template_str, "__stmts")?;
+
+    Ok(quote! {
+        {
+            let mut __stmts: Vec<macroforge_ts::swc_core::ecma::ast::ModuleItem> = Vec::new();
+            let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
+            let __comments = macroforge_ts::swc_core::common::comments::SingleThreadedComments::default();
+            let mut __pending_comments: Vec<macroforge_ts::swc_core::common::comments::Comment> = Vec::new();
+            // Collect injected TsStreams for merging at output
+            let mut __injected_streams: Vec<macroforge_ts::ts_syn::TsStream> = Vec::new();
+            let __mf_items: Vec<macroforge_ts::swc_core::ecma::ast::ModuleItem> = #stmts_builder;
             __stmts.extend(__mf_items);
             (__stmts, __patches, __comments, __injected_streams)
         }

@@ -29,9 +29,9 @@ fn test_template(name: &str, template: &str) {
             eprintln!("Compile time: {:?}", elapsed);
             eprintln!("Generated code size: {} bytes", code_str.len());
 
-            // Print first 1000 chars of generated code for debugging
-            if code_str.len() > 1000 {
-                eprintln!("Generated code (first 1000 chars):\n{}", &code_str[..1000]);
+            // Print first 3000 chars of generated code for debugging
+            if code_str.len() > 3000 {
+                eprintln!("Generated code (first 3000 chars):\n{}", &code_str[..3000]);
             } else {
                 eprintln!("Generated code:\n{}", code_str);
             }

@@ -1,7 +1,7 @@
 //! Code generation from IR to Rust TokenStream.
 //!
 //! This module generates Rust code that builds SWC AST at compile time.
-//! It uses `macroforge_ts_quote::ts_quote!` for TypeScript parsing with native type support.
+//! It uses `macroforge_ts::macroforge_ts_quote::ts_quote!` for TypeScript parsing with native type support.
 //!
 //! ## Virtual Completion Strategy
 //!
@@ -146,6 +146,10 @@ struct ContextSpan {
     start_offset: usize,
     /// Byte offset in original template where this span ends
     end_offset: usize,
+    /// Actual count of opening braces `{` in this span (not limited by context stack)
+    actual_opens: i32,
+    /// Actual count of closing braces `}` in this span (not limited by context stack)
+    actual_closes: i32,
 }
 
 impl ContextSpan {
@@ -192,6 +196,24 @@ impl ContextSpan {
     /// This is how far we recovered from the minimum depth.
     fn middle_opens_count(&self) -> i32 {
         (self.end_depth - self.min_depth).max(0)
+    }
+
+    /// Actual brace imbalance (opens - closes).
+    /// Positive = more opens than closes (opener)
+    /// Negative = more closes than opens (closer)
+    fn actual_brace_imbalance(&self) -> i32 {
+        self.actual_opens - self.actual_closes
+    }
+
+    /// Number of actual closing braces that exceed opens (for virtual completion).
+    /// This gives the real count needed for virtual completion, not limited by context stack.
+    fn actual_excess_closes(&self) -> i32 {
+        (self.actual_closes - self.actual_opens).max(0)
+    }
+
+    /// Number of actual opening braces that exceed closes (for virtual completion).
+    fn actual_excess_opens(&self) -> i32 {
+        (self.actual_opens - self.actual_closes).max(0)
     }
 }
 
@@ -264,6 +286,9 @@ impl ContextStack {
         let mut current_span_min_depth = current_span_start_depth;
         // Track the actual context at the start of the current span
         let mut current_span_context = self.current();
+        // Track actual brace counts for this span (not limited by context stack)
+        let mut current_span_opens: i32 = 0;
+        let mut current_span_closes: i32 = 0;
 
         let mut in_string = false;
         let mut string_char = '"';
@@ -307,11 +332,15 @@ impl ContextStack {
                     string_char = ch;
                 }
                 '{' => {
+                    // Track actual brace count
+                    current_span_opens += 1;
                     // Classify what kind of context this brace opens
                     let new_context = Self::classify_open_brace(&chars, i);
                     self.push(new_context);
                 }
                 '}' => {
+                    // Track actual brace count
+                    current_span_closes += 1;
                     // Check if we're about to pop BELOW starting depth (to actual Module level)
                     let was_at_depth = self.relative_depth();
                     self.pop();
@@ -340,6 +369,8 @@ impl ContextStack {
                                     min_depth: current_span_min_depth,
                                     start_offset: current_span_start,
                                     end_offset: span_end,
+                                    actual_opens: current_span_opens,
+                                    actual_closes: current_span_closes,
                                 });
                             }
                             // Start new span at module level
@@ -347,6 +378,8 @@ impl ContextStack {
                             current_span_start_depth = now_at_depth;
                             current_span_min_depth = now_at_depth;
                             current_span_context = ParseContext::Module;
+                            current_span_opens = 0;
+                            current_span_closes = 0;
                         }
                     }
                 }
@@ -375,6 +408,8 @@ impl ContextStack {
                 min_depth: current_span_min_depth,
                 start_offset: current_span_start,
                 end_offset: template.len(),
+                actual_opens: current_span_opens,
+                actual_closes: current_span_closes,
             });
         }
 
@@ -405,8 +440,11 @@ impl ContextStack {
         }
 
         // Class body: `class X {`, `class X extends Y {`
-        if trimmed.contains("class ") {
-            return ParseContext::ClassBody;
+        if let Some(class_pos) = trimmed.rfind("class ") {
+            let after_class = &trimmed[class_pos..];
+            if !after_class.contains('{') {
+                return ParseContext::ClassBody;
+            }
         }
 
         // Function body: `function`, `) {`, `=> {` (arrow already handled above for objects)
@@ -998,7 +1036,7 @@ impl BraceBalance {
 #[derive(Debug)]
 enum Chunk<'a> {
     /// A parseable chunk of static text + placeholders.
-    /// Can be compiled with macroforge_ts_quote::ts_quote!.
+    /// Can be compiled with macroforge_ts::macroforge_ts_quote::ts_quote!.
     Parseable {
         /// Template string with $placeholder markers.
         template: String,
@@ -1019,7 +1057,10 @@ enum Chunk<'a> {
         body_context: ParseContext,
     },
     /// Directive that generates Rust code directly.
-    Directive(&'a IrNode),
+    Directive {
+        node: &'a IrNode,
+        context: ParseContext,
+    },
     /// String interpolation for template literals.
     StringInterp {
         quote_char: char,
@@ -1065,40 +1106,386 @@ impl Codegen {
     /// Used to identify middle spans that transition through class body level,
     /// e.g., `} static foo() {` which ends one method and starts another.
     fn contains_class_member_syntax(text: &str) -> bool {
-        // Look for patterns that indicate class member declarations
-        // These typically appear after a `}` that closes a previous method
-        let patterns = [
-            "} static ",
-            "} readonly ",
-            "} public ",
-            "} private ",
-            "} protected ",
-            "} abstract ",
-            "} async ",
-            "} get ",
-            "} set ",
-            "} constructor",
-            // Also check for method/property declarations without modifiers
-            "}\n    static",
-            "}\n        static",
-            "}\n    readonly",
-            "}\n        readonly",
+        Self::find_class_member_transition(text).is_some()
+    }
+
+    /// Finds the index of a `}` that is followed by a class member declaration,
+    /// skipping whitespace and comments (for JSDoc between members).
+    fn find_class_member_transition(text: &str) -> Option<usize> {
+        let bytes = text.as_bytes();
+        let len = bytes.len();
+        let mut i = 0;
+
+        while i < len {
+            if bytes[i] == b'}' {
+                let mut j = i + 1;
+                loop {
+                    while j < len && bytes[j].is_ascii_whitespace() {
+                        j += 1;
+                    }
+                    if j + 1 < len && bytes[j] == b'/' && bytes[j + 1] == b'/' {
+                        j += 2;
+                        while j < len && bytes[j] != b'\n' {
+                            j += 1;
+                        }
+                        continue;
+                    }
+                    if j + 1 < len && bytes[j] == b'/' && bytes[j + 1] == b'*' {
+                        j += 2;
+                        while j + 1 < len && !(bytes[j] == b'*' && bytes[j + 1] == b'/') {
+                            j += 1;
+                        }
+                        if j + 1 < len {
+                            j += 2;
+                        }
+                        continue;
+                    }
+                    break;
+                }
+
+                if j < len && Self::starts_with_class_member_token(&text[j..]) {
+                    return Some(i);
+                }
+            }
+            i += 1;
+        }
+
+        None
+    }
+
+    fn starts_with_class_member_token(text: &str) -> bool {
+        let text = text.trim_start();
+        if text.starts_with("async") {
+            let rest = text["async".len()..].trim_start();
+            if rest.starts_with("function") {
+                return false;
+            }
+        }
+
+        let keywords = [
+            "static",
+            "readonly",
+            "public",
+            "private",
+            "protected",
+            "abstract",
+            "async",
+            "get",
+            "set",
+            "constructor",
         ];
 
-        patterns.iter().any(|p| text.contains(p))
+        for kw in keywords {
+            if text.starts_with(kw) {
+                let next = text[kw.len()..].as_bytes().first().copied();
+                if next.map_or(true, |b| !Self::is_ident_char(b)) {
+                    return true;
+                }
+            }
+        }
+
+        text.starts_with('@')
+    }
+
+    fn is_ident_char(b: u8) -> bool {
+        b.is_ascii_alphanumeric() || b == b'_' || b == b'$'
+    }
+
+    /// Count actual `{` and `}` braces in a string, ignoring strings/escapes.
+    fn count_actual_braces(text: &str) -> (i32, i32) {
+        let mut opens = 0;
+        let mut closes = 0;
+        let mut in_string = false;
+        let mut string_char = '"';
+        let mut escape_next = false;
+
+        for ch in text.chars() {
+            if escape_next {
+                escape_next = false;
+                continue;
+            }
+
+            if ch == '\\' {
+                escape_next = true;
+                continue;
+            }
+
+            if in_string {
+                if ch == string_char {
+                    in_string = false;
+                }
+                continue;
+            }
+
+            match ch {
+                '"' | '\'' | '`' => {
+                    in_string = true;
+                    string_char = ch;
+                }
+                '{' => opens += 1,
+                '}' => closes += 1,
+                _ => {}
+            }
+        }
+
+        (opens, closes)
+    }
+
+    /// Find the byte index of the first actual `}` brace (ignores strings/escapes).
+    fn find_first_actual_closing_brace(text: &str) -> Option<usize> {
+        let mut in_string = false;
+        let mut string_char = '"';
+        let mut escape_next = false;
+
+        for (idx, ch) in text.char_indices() {
+            if escape_next {
+                escape_next = false;
+                continue;
+            }
+
+            if ch == '\\' {
+                escape_next = true;
+                continue;
+            }
+
+            if in_string {
+                if ch == string_char {
+                    in_string = false;
+                }
+                continue;
+            }
+
+            match ch {
+                '"' | '\'' | '`' => {
+                    in_string = true;
+                    string_char = ch;
+                }
+                '}' => return Some(idx),
+                _ => {}
+            }
+        }
+
+        None
+    }
+
+    fn starts_with_module_decl(text: &str) -> bool {
+        text.starts_with("export async function ")
+            || text.starts_with("export function ")
+            || text.starts_with("export default function ")
+            || text.starts_with("export abstract class ")
+            || text.starts_with("export class ")
+            || text.starts_with("export interface ")
+            || text.starts_with("export type ")
+            || text.starts_with("export enum ")
+            || text.starts_with("export namespace ")
+            || text.starts_with("export declare ")
+            || text.starts_with("async function ")
+            || text.starts_with("function ")
+            || text.starts_with("abstract class ")
+            || text.starts_with("class ")
+            || text.starts_with("interface ")
+            || text.starts_with("type ")
+            || text.starts_with("enum ")
+            || text.starts_with("namespace ")
+            || text.starts_with("declare ")
+    }
+
+    fn find_module_level_opener_split(text: &str) -> Option<usize> {
+        let mut depth: i32 = 0;
+        let mut in_string = false;
+        let mut string_char = '"';
+        let mut escape_next = false;
+        let mut last_pos: Option<usize> = None;
+
+        let chars: Vec<char> = text.chars().collect();
+        let len = chars.len();
+        let mut byte_pos = 0;
+        let mut i = 0;
+
+        while i < len {
+            let ch = chars[i];
+            let char_byte_len = ch.len_utf8();
+
+            if escape_next {
+                escape_next = false;
+                byte_pos += char_byte_len;
+                i += 1;
+                continue;
+            }
+
+            if ch == '\\' {
+                escape_next = true;
+                byte_pos += char_byte_len;
+                i += 1;
+                continue;
+            }
+
+            if in_string {
+                if ch == string_char {
+                    in_string = false;
+                }
+                byte_pos += char_byte_len;
+                i += 1;
+                continue;
+            }
+
+            match ch {
+                '"' | '\'' | '`' => {
+                    in_string = true;
+                    string_char = ch;
+                }
+                '{' => {
+                    depth += 1;
+                }
+                '}' => {
+                    if depth > 0 {
+                        depth -= 1;
+                    }
+                }
+                _ => {}
+            }
+
+            if depth == 0 && !ch.is_whitespace() {
+                let remaining = &text[byte_pos..];
+                if Self::starts_with_module_decl(remaining) {
+                    let before = text[..byte_pos].trim_end();
+                    let preceded_by_export = before.ends_with("export");
+                    if preceded_by_export {
+                        byte_pos += char_byte_len;
+                        i += 1;
+                        continue;
+                    }
+                    last_pos = Some(byte_pos);
+                }
+            }
+
+            byte_pos += char_byte_len;
+            i += 1;
+        }
+
+        if depth > 0 {
+            last_pos
+        } else {
+            None
+        }
+    }
+
+    fn split_placeholders_by_pos(
+        &self,
+        template: &str,
+        placeholders: &[(String, PlaceholderKind, String)],
+        split_pos: usize,
+    ) -> (Vec<(String, PlaceholderKind, String)>, Vec<(String, PlaceholderKind, String)>) {
+        let mut left = Vec::new();
+        let mut right = Vec::new();
+
+        for (name, kind, expr) in placeholders {
+            let marker = format!("${}", name);
+            if let Some(pos) = Self::find_placeholder_pos(template, &marker) {
+                if pos < split_pos {
+                    left.push((name.clone(), *kind, expr.clone()));
+                } else {
+                    right.push((name.clone(), *kind, expr.clone()));
+                }
+            } else {
+                right.push((name.clone(), *kind, expr.clone()));
+            }
+        }
+
+        (left, right)
+    }
+
+    fn find_placeholder_pos(text: &str, marker: &str) -> Option<usize> {
+        let mut offset = 0;
+        let mut remaining = text;
+        while let Some(pos) = remaining.find(marker) {
+            let absolute = offset + pos;
+            let after_idx = absolute + marker.len();
+            let after = text
+                .as_bytes()
+                .get(after_idx)
+                .copied()
+                .map(|b| b as u8);
+            if after.map_or(true, |b| !Self::is_ident_char(b)) {
+                return Some(absolute);
+            }
+            offset = after_idx;
+            remaining = &text[offset..];
+        }
+        None
+    }
+
+    fn is_standalone_stmt_placeholder(
+        &self,
+        text: &str,
+        placeholders: &[(String, PlaceholderKind, String)],
+    ) -> Option<String> {
+        if placeholders.len() != 1 {
+            return None;
+        }
+        let (name, kind, _) = &placeholders[0];
+        if *kind != PlaceholderKind::Stmt {
+            return None;
+        }
+
+        let mut trimmed = text.trim();
+        if let Some(stripped) = trimmed.strip_suffix(';') {
+            trimmed = stripped.trim();
+        }
+        let marker = format!("${}", name);
+        if trimmed == marker {
+            Some(name.clone())
+        } else {
+            None
+        }
+    }
+
+    /// Clone placeholder bindings so they can be passed to multiple ts_quote! calls.
+    fn clone_quote_bindings(
+        &self,
+        quote_bindings: &[TokenStream],
+    ) -> (Vec<TokenStream>, Vec<TokenStream>) {
+        let mut clone_stmts = Vec::new();
+        let mut clone_bindings = Vec::new();
+        let mut seen = std::collections::HashSet::new();
+
+        for binding in quote_bindings {
+            let binding_str = binding.to_string();
+            let Some((name_part, rest)) = binding_str.split_once(':') else {
+                continue;
+            };
+            let name = name_part.trim();
+            if name.is_empty() || !seen.insert(name.to_string()) {
+                continue;
+            }
+            let ty_part = rest.split('=').next().unwrap_or("").trim();
+            if ty_part.is_empty() {
+                continue;
+            }
+
+            let clone_name = format!("{}_mf_clone", name);
+            let ph_ident = format_ident!("{}", name);
+            let clone_ident = format_ident!("{}", clone_name);
+            let ty_tokens: TokenStream = ty_part.parse().unwrap_or_else(|_| quote! { _ });
+
+            clone_stmts.push(quote! { let #clone_ident = #ph_ident.clone(); });
+            clone_bindings.push(quote! { #ph_ident: #ty_tokens = #clone_ident });
+        }
+
+        (clone_stmts, clone_bindings)
     }
 
     /// Generates Rust TokenStream from IR.
     ///
     /// The generated code builds `Vec<ModuleItem>` at compile time using
-    /// `macroforge_ts_quote::ts_quote!` for static TypeScript and ToTs* traits for placeholders.
+    /// `macroforge_ts::macroforge_ts_quote::ts_quote!` for static TypeScript and ToTs* traits for placeholders.
     pub fn generate(&self, ir: &Ir) -> TokenStream {
         let output_var = format_ident!("{}", self.config.output_var);
         let body = self.generate_nodes(&ir.nodes);
 
         quote! {
             {
-                let mut #output_var: Vec<swc_core::ecma::ast::ModuleItem> = Vec::new();
+                let mut #output_var: Vec<macroforge_ts::swc_core::ecma::ast::ModuleItem> = Vec::new();
                 #body
                 #output_var
             }
@@ -1111,7 +1498,18 @@ impl Codegen {
 
         // Check if we have any unbalanced chunks that need opener/closer tracking
         let has_unbalanced = chunks.iter().any(|c| match c {
-            Chunk::Parseable { brace_balance, .. } => !brace_balance.is_balanced(),
+            Chunk::Parseable {
+                template,
+                brace_balance,
+                parse_context,
+                ..
+            } => {
+                !brace_balance.is_balanced()
+                    || self.parseable_needs_opener_stack(template, *parse_context)
+            }
+            Chunk::ControlFlow { node, body_context } => {
+                self.controlflow_needs_outer_opener_stack(node, *body_context)
+            }
             _ => false,
         });
 
@@ -1134,7 +1532,7 @@ impl Codegen {
                 // Need both opener stack and context collector
                 quote! {
                     let mut __mf_opener_stack: Vec<usize> = Vec::new();
-                    let mut __mf_context_collector = macroforge_ts_syn::__internal::ContextCollector::for_object();
+                    let mut __mf_context_collector = macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::for_object();
                     #(#stmts)*
                 }
             }
@@ -1149,6 +1547,86 @@ impl Codegen {
                 quote! { #(#stmts)* }
             }
         }
+    }
+
+    fn parseable_needs_opener_stack(&self, template: &str, parse_context: ParseContext) -> bool {
+        match parse_context {
+            ParseContext::Module => Self::starts_with_class_member_token(template.trim_start()),
+            ParseContext::FunctionBody | ParseContext::ClassBody => {
+                Self::contains_class_member_syntax(template)
+            }
+            _ => false,
+        }
+    }
+
+    fn controlflow_needs_outer_opener_stack(
+        &self,
+        node: &IrNode,
+        body_context: ParseContext,
+    ) -> bool {
+        match node {
+            IrNode::If {
+                then_body,
+                else_if_branches,
+                else_body,
+                ..
+            } => {
+                self.nodes_need_outer_opener_stack(then_body, body_context)
+                    || else_if_branches.iter().any(|(_, body)| {
+                        self.nodes_need_outer_opener_stack(body, body_context)
+                    })
+                    || else_body.as_ref().map_or(false, |body| {
+                        self.nodes_need_outer_opener_stack(body, body_context)
+                    })
+            }
+            IrNode::For { body, .. } | IrNode::While { body, .. } => {
+                self.nodes_need_outer_opener_stack(body, body_context)
+            }
+            IrNode::Match { arms, .. } => arms.iter().any(|(_, _, body)| {
+                self.nodes_need_outer_opener_stack(body, body_context)
+            }),
+            _ => false,
+        }
+    }
+
+    fn nodes_need_outer_opener_stack(
+        &self,
+        nodes: &[IrNode],
+        context: ParseContext,
+    ) -> bool {
+        let saved_counter = self.placeholder_counter.get();
+        let chunks = self.chunk_nodes_with_context(nodes, context);
+        self.placeholder_counter.set(saved_counter);
+
+        let has_unbalanced = chunks.iter().any(|c| match c {
+            Chunk::Parseable { brace_balance, .. } => !brace_balance.is_balanced(),
+            _ => false,
+        });
+        if has_unbalanced {
+            return false;
+        }
+
+        for chunk in &chunks {
+            match chunk {
+                Chunk::Parseable {
+                    template,
+                    parse_context,
+                    ..
+                } => {
+                    if self.parseable_needs_opener_stack(template, *parse_context) {
+                        return true;
+                    }
+                }
+                Chunk::ControlFlow { node, body_context } => {
+                    if self.controlflow_needs_outer_opener_stack(node, *body_context) {
+                        return true;
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        false
     }
 
     /// Groups consecutive nodes into chunks that can be processed together.
@@ -1206,14 +1684,34 @@ impl Codegen {
                     current_context = inner_ctx;
                 }
 
-                IrNode::Let { .. } | IrNode::Do { .. } | IrNode::TypeScript { .. } => {
+                IrNode::Let { .. } | IrNode::Do { .. } => {
                     let inner_ctx = self.flush_parseable_with_context(
                         &mut chunks,
                         &mut current_template,
                         &mut current_placeholders,
                         current_context,
                     );
-                    chunks.push(Chunk::Directive(node));
+                    chunks.push(Chunk::Directive {
+                        node,
+                        context: inner_ctx,
+                    });
+                    current_context = inner_ctx;
+                }
+
+                IrNode::TypeScript { stream: _ } => {
+                    // {$typescript stream} - always flush and add as directive chunk.
+                    // The directive will be handled by generate_typescript_with_context
+                    // which properly parses the stream and adds statements/patches.
+                    let inner_ctx = self.flush_parseable_with_context(
+                        &mut chunks,
+                        &mut current_template,
+                        &mut current_placeholders,
+                        current_context,
+                    );
+                    chunks.push(Chunk::Directive {
+                        node,
+                        context: inner_ctx,
+                    });
                     current_context = inner_ctx;
                 }
 
@@ -1251,7 +1749,7 @@ impl Codegen {
                                 IrNode::Placeholder { kind, rust_expr } => {
                                     // Add placeholder inline using template literal syntax
                                     let ph_name = self.next_placeholder_name();
-                                    current_template.push_str("${");
+                                    current_template.push_str("${$");
                                     current_template.push_str(&ph_name);
                                     current_template.push('}');
                                     current_placeholders.push((ph_name, *kind, rust_expr.clone()));
@@ -1348,7 +1846,9 @@ impl Codegen {
                 self.generate_control_flow_with_context(node, *body_context)
             }
 
-            Chunk::Directive(node) => self.generate_directive(node),
+            Chunk::Directive { node, context } => {
+                self.generate_directive_with_context(node, *context)
+            }
 
             Chunk::StringInterp { quote_char, parts } => {
                 self.generate_string_interp(*quote_char, parts)
@@ -1358,9 +1858,9 @@ impl Codegen {
                 // Emit code to add the comment to __pending_comments
                 let comment_text = format!("* {} ", text.trim());
                 quote! {
-                    __pending_comments.push(swc_core::common::comments::Comment {
-                        kind: swc_core::common::comments::CommentKind::Block,
-                        span: swc_core::common::DUMMY_SP,
+                    __pending_comments.push(macroforge_ts::swc_core::common::comments::Comment {
+                        kind: macroforge_ts::swc_core::common::comments::CommentKind::Block,
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
                         text: #comment_text.into(),
                     });
                 }
@@ -1389,9 +1889,62 @@ impl Codegen {
             return quote! {};
         }
 
+        if parse_context == ParseContext::Module && _brace_balance.unclosed_opens > 0 {
+            if let Some(split_pos) = Self::find_module_level_opener_split(template) {
+                if split_pos > 0 && split_pos < template.len() {
+                    let (left_placeholders, right_placeholders) =
+                        self.split_placeholders_by_pos(template, placeholders, split_pos);
+                    let left = &template[..split_pos];
+                    let right = &template[split_pos..];
+                    let left_balance = BraceBalance::analyze(left);
+                    let right_balance = BraceBalance::analyze(right);
+
+                    let left_code = self.generate_parseable_chunk(
+                        left,
+                        &left_placeholders,
+                        left_balance,
+                        parse_context,
+                    );
+                    let right_code = self.generate_parseable_chunk(
+                        right,
+                        &right_placeholders,
+                        right_balance,
+                        parse_context,
+                    );
+
+                    return quote! {
+                        #left_code
+                        #right_code
+                    };
+                }
+            }
+        }
+
         // STEP 1: Use ContextStack to scan and split at module-level transitions
         let mut ctx_stack = ContextStack::new(parse_context);
         let spans = ctx_stack.scan_template(template);
+
+        if std::env::var("MF_DEBUG_SPANS").is_ok() {
+            eprintln!(
+                "[MF_DEBUG_SPANS] template context={:?}, spans={}",
+                parse_context,
+                spans.len()
+            );
+            for (i, span) in spans.iter().enumerate() {
+                eprintln!(
+                    "[MF_DEBUG_SPANS]   Span {}: context={:?}, depth={}→{}, text={:?}",
+                    i,
+                    span.context,
+                    span.start_depth,
+                    span.end_depth,
+                    if span.text.len() > 120 {
+                        format!("{}...", &span.text[..120])
+                    } else {
+                        span.text.clone()
+                    }
+                );
+            }
+        }
 
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
@@ -1417,7 +1970,7 @@ impl Codegen {
                 .iter()
                 .filter(|(name, _, _)| {
                     let marker = format!("${}", name);
-                    if let Some(pos) = template.find(&marker) {
+                    if let Some(pos) = Self::find_placeholder_pos(template, &marker) {
                         pos >= span.start_offset && pos < span.end_offset
                     } else {
                         false
@@ -1452,26 +2005,85 @@ impl Codegen {
         // Generate placeholder bindings
         let (binding_stmts, quote_bindings) = self.generate_placeholder_bindings(placeholders);
 
+        if matches!(span.context, ParseContext::Module | ParseContext::FunctionBody)
+            && span.is_balanced()
+            && let Some(stmt_name) = self.is_standalone_stmt_placeholder(&span.text, placeholders)
+        {
+            let output_var = format_ident!("{}", self.config.output_var);
+            let stmt_ident = format_ident!("{}", stmt_name);
+            return quote! {
+                {
+                    #(#binding_stmts)*
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(#stmt_ident));
+                }
+            };
+        }
+
         // MATCH ON CONTEXT - this is the primary dispatch
         match span.context {
             ParseContext::Module => {
-                // Module-level content - inject as raw source stream
-                // This handles multiple declarations correctly
-                self.generate_module_span(&span.text, placeholders)
+                if Self::starts_with_class_member_token(span.text.trim_start()) {
+                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else if span.is_balanced() {
+                    // Module-level content - inject as raw source stream
+                    // This handles multiple declarations correctly
+                    self.generate_module_span(&span.text, placeholders)
+                } else if span.is_closer() {
+                    self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else if span.is_opener() {
+                    self.generate_opener_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else {
+                    self.generate_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                }
             }
 
             ParseContext::FunctionBody => {
-                // Check span type: middle spans with class members get special handling,
+                // Check span type: spans with class members get special handling (raw source),
                 // otherwise use standard balanced/closer/opener logic
-                if span.is_middle() && Self::contains_class_member_syntax(&span.text) {
-                    // Middle span with class member syntax: `} static foo() {`
-                    // This transitions through ClassBody level between methods
+                //
+                // Also use raw source for:
+                // - Closers that close multiple levels (going past FunctionBody to Module)
+                //   These can't be properly tracked in the opener stack because the opener
+                //   might have been in Module context (which uses raw source, no stack push)
+                let multi_level_closer = span.is_closer() && span.actual_excess_closes() > 1;
+                if Self::contains_class_member_syntax(&span.text) {
+                    // Class member transitions like `} static foo() {` need special handling
                     self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                } else if multi_level_closer {
+                    if let Some(split_at) = Self::find_first_actual_closing_brace(&span.text) {
+                        let (before, after) = span.text.split_at(split_at + 1);
+                        let (before_opens, before_closes) = Self::count_actual_braces(before);
+                        let before_excess_closes = (before_closes - before_opens).max(0) as usize;
+                        let closer_code = self.generate_closer_span_with_count(
+                            before,
+                            &quote_bindings,
+                            before_excess_closes,
+                        );
+                        let after_code = if after.trim().is_empty() {
+                            quote! {}
+                        } else {
+                            self.build_raw_source_emit(after, &quote_bindings)
+                        };
+
+                        quote! {
+                            {
+                                #(#binding_stmts)*
+                                #closer_code
+                                #after_code
+                            }
+                        }
+                    } else {
+                        self.generate_raw_source_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    }
                 } else if span.is_balanced() {
                     // Balanced: same depth at start and end (includes regular middle spans like `} else {`)
-                    self.generate_balanced_stmt_span(&span.text, &binding_stmts, &quote_bindings)
+                    self.generate_balanced_stmt_items_span(
+                        &span.text,
+                        &binding_stmts,
+                        &quote_bindings,
+                    )
                 } else if span.is_closer() {
-                    // Closer: closes more contexts than it opens
+                    // Closer: closes exactly one context
                     self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
                 } else {
                     // Opener: opens more contexts than it closes
@@ -1491,19 +2103,19 @@ impl Codegen {
 
             ParseContext::ClassBody => {
                 // Class body - collect class members
-                // Check is_middle() first since it's a subset of is_balanced()
-                if span.is_middle() {
-                    // Middle span: closes and opens (e.g., `} static foo() {`)
-                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
-                } else if span.is_balanced() {
-                    // Balanced - collect class member
+                if span.is_balanced() {
+                    // Balanced - collect class members as a single wrapped class
                     self.generate_class_body_span(&span.text, &binding_stmts, &quote_bindings)
+                } else if Self::contains_class_member_syntax(&span.text) {
+                    // Content contains class member transitions (e.g., `} static foo() { ... }`)
+                    // Use generate_class_middle_span which handles stack updates properly
+                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
                 } else if span.is_closer() {
                     // Closer in class body context
                     self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
                 } else {
-                    // Opener in class body context
-                    self.generate_opener_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    // Opener in class body context: treat as class member start
+                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
                 }
             }
 
@@ -1524,44 +2136,27 @@ impl Codegen {
             return quote! {};
         }
 
-        let (binding_stmts, _) = self.generate_placeholder_bindings(placeholders);
+        let output_var = format_ident!("{}", self.config.output_var);
 
-        // Build format string with placeholders replaced
-        let mut format_str = text.replace("{", "{{").replace("}", "}}");
-        let mut format_args: Vec<TokenStream> = Vec::new();
+        // TsStream placeholders use marker-based insertion:
+        // - Markers like /*__MF_MARKER_MfPh0__*/ stay in the template as comments
+        // - Bindings push to __injected_streams with the marker
+        // - lib.rs replaces markers with stream content at runtime
+        // No special handling needed here - just generate normal bindings
 
-        for (name, kind, _) in placeholders {
-            let marker = format!("${}", name);
-            let ph_ident = format_ident!("{}", name);
-            format_str = format_str.replace(&marker, "{}");
-
-            let arg = match kind {
-                PlaceholderKind::Ident => quote! { #ph_ident.sym.as_str() },
-                PlaceholderKind::Type => quote! { macroforge_ts::ts_syn::emit_ts_type(&#ph_ident) },
-                PlaceholderKind::Expr => quote! { macroforge_ts::ts_syn::emit_expr(&#ph_ident) },
-                PlaceholderKind::Stmt => quote! { macroforge_ts::ts_syn::emit_stmt(&#ph_ident) },
-            };
-            format_args.push(arg);
-        }
-
-        let format_lit = syn::LitStr::new(&format_str, proc_macro2::Span::call_site());
-
-        if placeholders.is_empty() {
-            let text_lit = syn::LitStr::new(text, proc_macro2::Span::call_site());
-            quote! {
-                __injected_streams.push(
-                    macroforge_ts::ts_syn::TsStream::from_string(#text_lit.to_string())
-                );
-            }
+        let (binding_stmts, quote_bindings) = self.generate_placeholder_bindings(placeholders);
+        let template_lit = syn::LitStr::new(text, proc_macro2::Span::call_site());
+        let quote_call = if quote_bindings.is_empty() {
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#template_lit as Module) }
         } else {
-            quote! {
-                {
-                    #(#binding_stmts)*
-                    let __src = format!(#format_lit, #(#format_args),*);
-                    __injected_streams.push(
-                        macroforge_ts::ts_syn::TsStream::from_string(__src)
-                    );
-                }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#template_lit as Module, #(#quote_bindings),*) }
+        };
+
+        quote! {
+            {
+                #(#binding_stmts)*
+                let __mf_module: macroforge_ts::swc_core::ecma::ast::Module = #quote_call;
+                #output_var.extend(__mf_module.body);
             }
         }
     }
@@ -1575,30 +2170,31 @@ impl Codegen {
         span: &ContextSpan,
     ) -> TokenStream {
         let output_var = format_ident!("{}", self.config.output_var);
-        let opens = span.opens_count() as usize;
-        let virtual_closes = "}".repeat(opens);
+        // Use actual brace counts for virtual completion
+        let actual_opens = span.actual_excess_opens() as usize;
+        let virtual_closes = "}".repeat(actual_opens);
         let completed = format!("{}{}", text, virtual_closes);
         let completed_lit = syn::LitStr::new(&completed, proc_macro2::Span::call_site());
 
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-            eprintln!("[MF_DEBUG_CODEGEN] Opener span: {:?}", completed);
+            eprintln!("[MF_DEBUG_CODEGEN] Opener span: {:?} (actual_opens={})", completed, actual_opens);
         }
 
         let quote_call = if quote_bindings.is_empty() {
-            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem) }
         } else {
-            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*) }
         };
 
         quote! {
             {
                 #(#binding_stmts)*
-                let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
-                let __mf_idx = macroforge_ts_syn::__internal::push_opener(
+                let __mf_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
+                let __mf_idx = macroforge_ts::macroforge_ts_syn::__internal::push_opener(
                     __mf_item,
                     &mut #output_var,
-                    #opens,
+                    #actual_opens,
                 );
                 __mf_opener_stack.push(__mf_idx);
             }
@@ -1613,35 +2209,51 @@ impl Codegen {
         quote_bindings: &[TokenStream],
         span: &ContextSpan,
     ) -> TokenStream {
+        let actual_closes = span.actual_excess_closes() as usize;
+        let closer_code =
+            self.generate_closer_span_with_count(text, quote_bindings, actual_closes);
+        quote! {
+            {
+                #(#binding_stmts)*
+                #closer_code
+            }
+        }
+    }
+
+    fn generate_closer_span_with_count(
+        &self,
+        text: &str,
+        quote_bindings: &[TokenStream],
+        actual_closes: usize,
+    ) -> TokenStream {
         let output_var = format_ident!("{}", self.config.output_var);
-        let closes = span.closes_count() as usize;
-        let extra_opens = "{".repeat(closes.saturating_sub(1));
+        let extra_opens = "{".repeat(actual_closes.saturating_sub(1));
         let completed = format!("function __mf_virtual() {{ {}{}", extra_opens, text);
         let completed_lit = syn::LitStr::new(&completed, proc_macro2::Span::call_site());
 
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-            eprintln!("[MF_DEBUG_CODEGEN] Closer span: {:?}", completed);
+            eprintln!(
+                "[MF_DEBUG_CODEGEN] Closer span: {:?} (actual_closes={})",
+                completed, actual_closes
+            );
         }
 
         let quote_call = if quote_bindings.is_empty() {
-            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem) }
         } else {
-            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*) }
         };
 
         quote! {
-            {
-                #(#binding_stmts)*
-                let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
-                let __mf_opener_idx = __mf_opener_stack.pop()
-                    .expect("Virtual completion: no matching opener for closer");
-                macroforge_ts_syn::__internal::finalize_closer(
-                    __mf_item,
-                    &mut #output_var,
-                    __mf_opener_idx,
-                );
-            }
+            let __mf_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
+            let __mf_opener_idx = __mf_opener_stack.pop()
+                .expect("Virtual completion: no matching opener for closer");
+            macroforge_ts::macroforge_ts_syn::__internal::finalize_closer(
+                __mf_item,
+                &mut #output_var,
+                __mf_opener_idx,
+            );
         }
     }
 
@@ -1656,15 +2268,48 @@ impl Codegen {
         let template_lit = syn::LitStr::new(text, proc_macro2::Span::call_site());
 
         let quote_call = if quote_bindings.is_empty() {
-            quote! { macroforge_ts_quote::ts_quote!(#template_lit as Stmt) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#template_lit as Stmt) }
         } else {
-            quote! { macroforge_ts_quote::ts_quote!(#template_lit as Stmt, #(#quote_bindings),*) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#template_lit as Stmt, #(#quote_bindings),*) }
         };
 
         quote! {
             {
                 #(#binding_stmts)*
-                #output_var.push(swc_core::ecma::ast::ModuleItem::Stmt(#quote_call));
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(#quote_call));
+            }
+        }
+    }
+
+    fn generate_balanced_stmt_items_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+    ) -> TokenStream {
+        let output_var = format_ident!("{}", self.config.output_var);
+        if text.trim().is_empty() {
+            return quote! {};
+        }
+
+        let wrapped = format!("function __mf_virtual() {{ {} }}", text);
+        let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
+
+        let quote_call = if quote_bindings.is_empty() {
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem) }
+        } else {
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem, #(#quote_bindings),*) }
+        };
+
+        quote! {
+            {
+                #(#binding_stmts)*
+                let __mf_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
+                let __mf_stmts =
+                    macroforge_ts::macroforge_ts_syn::__internal::extract_function_body_statements(&__mf_item);
+                for __mf_stmt in __mf_stmts {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__mf_stmt));
+                }
             }
         }
     }
@@ -1678,32 +2323,33 @@ impl Codegen {
         span: &ContextSpan,
     ) -> TokenStream {
         let output_var = format_ident!("{}", self.config.output_var);
-        let opens = span.opens_count() as usize;
-        let closes = span.closes_count() as usize;
+        // Use actual brace counts for virtual completion
+        let actual_opens = span.actual_opens as usize;
+        let actual_closes = span.actual_closes as usize;
 
-        let virtual_opens = "{".repeat(closes);
-        let virtual_closes = "}".repeat(opens);
+        let virtual_opens = "{".repeat(actual_closes);
+        let virtual_closes = "}".repeat(actual_opens);
         let completed = format!("function __mf_virtual() {{ {}{}{} }}", virtual_opens, text, virtual_closes);
         let completed_lit = syn::LitStr::new(&completed, proc_macro2::Span::call_site());
 
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-            eprintln!("[MF_DEBUG_CODEGEN] Middle span: {:?}", completed);
+            eprintln!("[MF_DEBUG_CODEGEN] Middle span: {:?} (opens={}, closes={})", completed, actual_opens, actual_closes);
         }
 
         let quote_call = if quote_bindings.is_empty() {
-            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem) }
         } else {
-            quote! { macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*) }
         };
 
         quote! {
             {
                 #(#binding_stmts)*
-                let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
+                let __mf_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
                 let __mf_opener_idx = *__mf_opener_stack.last()
                     .expect("Virtual completion: no matching opener for middle chunk");
-                macroforge_ts_syn::__internal::push_middle(
+                macroforge_ts::macroforge_ts_syn::__internal::push_middle(
                     __mf_item,
                     &mut #output_var,
                     __mf_opener_idx,
@@ -1726,23 +2372,25 @@ impl Codegen {
             let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
 
             let quote_call = if quote_bindings.is_empty() {
-                quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr) }
+                quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr) }
             } else {
-                quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr, #(#quote_bindings),*) }
+                quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr, #(#quote_bindings),*) }
             };
 
             quote! {
                 {
                     #(#binding_stmts)*
-                    let __mf_wrapped_expr: swc_core::ecma::ast::Expr = #quote_call;
-                    if let Some(__mf_prop) = macroforge_ts_syn::__internal::extract_prop_from_wrapped_expr(&__mf_wrapped_expr) {
-                        macroforge_ts_syn::__internal::push_object_prop(&mut __mf_context_collector, __mf_prop);
+                    let __mf_wrapped_expr: macroforge_ts::swc_core::ecma::ast::Expr = #quote_call;
+                    if let Some(__mf_prop) = macroforge_ts::macroforge_ts_syn::__internal::extract_prop_from_wrapped_expr(&__mf_wrapped_expr) {
+                        macroforge_ts::macroforge_ts_syn::__internal::push_object_prop(&mut __mf_context_collector, __mf_prop);
                     }
                 }
             }
         } else if span.is_closer() {
-            // Closer in object context
-            self.generate_closer_span(text, binding_stmts, quote_bindings, span)
+            // Closer in object context - use raw source emission because object literal
+            // closers often contain type assertions (e.g., `} as SomeType;`) that can't
+            // be wrapped in a block statement
+            self.generate_raw_source_span(text, binding_stmts, quote_bindings, span)
         } else {
             // Opener in object context
             self.generate_opener_span(text, binding_stmts, quote_bindings, span)
@@ -1763,22 +2411,23 @@ impl Codegen {
             let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
 
             let quote_call = if quote_bindings.is_empty() {
-                quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr) }
+                quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr) }
             } else {
-                quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr, #(#quote_bindings),*) }
+                quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as Expr, #(#quote_bindings),*) }
             };
 
             quote! {
                 {
                     #(#binding_stmts)*
-                    let __mf_wrapped_expr: swc_core::ecma::ast::Expr = #quote_call;
-                    if let Some(__mf_elem) = macroforge_ts_syn::__internal::extract_elem_from_wrapped_expr(&__mf_wrapped_expr) {
-                        macroforge_ts_syn::__internal::push_array_elem(&mut __mf_context_collector, __mf_elem);
+                    let __mf_wrapped_expr: macroforge_ts::swc_core::ecma::ast::Expr = #quote_call;
+                    if let Some(__mf_elem) = macroforge_ts::macroforge_ts_syn::__internal::extract_elem_from_wrapped_expr(&__mf_wrapped_expr) {
+                        macroforge_ts::macroforge_ts_syn::__internal::push_array_elem(&mut __mf_context_collector, __mf_elem);
                     }
                 }
             }
         } else if span.is_closer() {
-            self.generate_closer_span(text, binding_stmts, quote_bindings, span)
+            // Closer in array context - use raw source emission similar to object literal
+            self.generate_raw_source_span(text, binding_stmts, quote_bindings, span)
         } else {
             self.generate_opener_span(text, binding_stmts, quote_bindings, span)
         }
@@ -1798,17 +2447,17 @@ impl Codegen {
         let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
 
         let quote_call = if quote_bindings.is_empty() {
-            quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem) }
         } else {
-            quote! { macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem, #(#quote_bindings),*) }
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem, #(#quote_bindings),*) }
         };
 
         quote! {
             {
                 #(#binding_stmts)*
-                let __mf_wrapped_item: swc_core::ecma::ast::ModuleItem = #quote_call;
-                for __mf_member in macroforge_ts_syn::__internal::extract_class_members_from_wrapped(&__mf_wrapped_item) {
-                    macroforge_ts_syn::__internal::push_class_member(&mut __mf_context_collector, __mf_member);
+                let __mf_wrapped_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
+                for __mf_member in macroforge_ts::macroforge_ts_syn::__internal::extract_class_members_from_wrapped(&__mf_wrapped_item) {
+                    macroforge_ts::macroforge_ts_syn::__internal::push_class_member(&mut __mf_context_collector, __mf_member);
                 }
             }
         }
@@ -1817,13 +2466,11 @@ impl Codegen {
     /// Generate code for a class body middle span (closes and opens contexts).
     ///
     /// For content like `} static foo() {` that ends one method and starts another.
-    /// This is complex because the content transitions between method bodies (FunctionBody)
-    /// and class body (ClassBody) levels. Since we can't easily parse this as-is,
-    /// we emit it as raw source with placeholder substitution and let the
-    /// TsStream assembly handle the final structure.
-    ///
-    /// We still need to update the opener/closer stack to keep it balanced for
-    /// subsequent chunks.
+    /// This transitions between FunctionBody and ClassBody contexts, so we:
+    /// - finalize the previous method using a virtual closer
+    /// - parse the new class member by wrapping it in a dummy class
+    /// - merge the new member into the existing class AST
+    /// - push a new opener if the new method body is still open
     fn generate_class_middle_span(
         &self,
         text: &str,
@@ -1832,79 +2479,274 @@ impl Codegen {
         span: &ContextSpan,
     ) -> TokenStream {
         let output_var = format_ident!("{}", self.config.output_var);
-        // For middle spans, use the middle-specific counts which track the actual
-        // transitions through the class body level
-        let closes = span.middle_closes_count() as usize;
-        let opens = span.middle_opens_count() as usize;
+        let _ = span;
+        let split_at = Self::find_class_member_transition(text);
+        let (before, after, has_transition) = match split_at {
+            Some(idx) => {
+                let (before, after) = text.split_at(idx + 1);
+                (before, after, true)
+            }
+            None => ("", text, false),
+        };
+
+        let (before_opens, before_closes) = if has_transition {
+            Self::count_actual_braces(before)
+        } else {
+            (0, 0)
+        };
+        let before_excess_closes = (before_closes - before_opens).max(0) as usize;
+        let after_trimmed = after.trim_start();
+        let (after_opens, after_closes) = Self::count_actual_braces(after_trimmed);
+        let after_excess_opens = (after_opens - after_closes).max(0) as usize;
+        let virtual_closes = "}".repeat(after_excess_opens);
 
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-            eprintln!("[MF_DEBUG_CODEGEN] Class middle span (raw source): {:?} closes={} opens={}", text, closes, opens);
+            eprintln!(
+                "[MF_DEBUG_CODEGEN] Class middle span: closes={} opens={}, after={:?}",
+                span.middle_closes_count(),
+                span.middle_opens_count(),
+                if after_trimmed.len() > 60 { format!("{}...", &after_trimmed[..60]) } else { after_trimmed.to_string() }
+            );
         }
 
-        // Build format string with placeholders replaced
-        // This mirrors the Module span approach but keeps the text as-is
-        let mut format_str = text.replace('{', "{{").replace('}', "}}");
-        let mut format_args: Vec<TokenStream> = Vec::new();
+        if !has_transition {
+            if after_trimmed.is_empty() {
+                return quote! { #(#binding_stmts)* };
+            }
 
-        // Extract placeholder info from quote_bindings
-        // The placeholder names are embedded in the quote_bindings as $Name patterns
-        for binding in quote_bindings {
-            let binding_str = binding.to_string();
-            // Extract the placeholder name (e.g., "$MfPh0" -> "MfPh0")
-            if let Some(start) = binding_str.find('$') {
-                if let Some(end) = binding_str[start..].find(|c: char| !c.is_alphanumeric() && c != '_') {
-                    let ph_name = &binding_str[start + 1..start + end];
-                    let marker = format!("${}", ph_name);
-                    if format_str.contains(&marker) {
-                        format_str = format_str.replace(&marker, "{}");
-                        let ph_ident = format_ident!("{}", ph_name);
-                        // Emit as type (most common in class member signatures)
-                        format_args.push(quote! { macroforge_ts::ts_syn::emit_ts_type(&#ph_ident) });
+            let wrapped = format!("class __MF_DUMMY__ {{ {}{} }}", after_trimmed, virtual_closes);
+            let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
+
+            let quote_call = if quote_bindings.is_empty() {
+                quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem) }
+            } else {
+                quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem, #(#quote_bindings),*) }
+            };
+
+            let should_push = after_excess_opens > 0;
+
+            return quote! {
+                {
+                    #(#binding_stmts)*
+                    let __mf_wrapped_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
+                    let __mf_members =
+                        macroforge_ts::macroforge_ts_syn::__internal::extract_class_members_from_wrapped(&__mf_wrapped_item);
+                    let __mf_last_idx = #output_var.len().checked_sub(1);
+                    let __mf_has_last_class = __mf_last_idx.map_or(false, |idx| {
+                        matches!(
+                            #output_var.get(idx),
+                            Some(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                                macroforge_ts::swc_core::ecma::ast::Stmt::Decl(
+                                    macroforge_ts::swc_core::ecma::ast::Decl::Class(_)
+                                )
+                            ))
+                                | Some(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                                    macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportDecl(
+                                        macroforge_ts::swc_core::ecma::ast::ExportDecl {
+                                            decl: macroforge_ts::swc_core::ecma::ast::Decl::Class(_),
+                                            ..
+                                        }
+                                    )
+                                ))
+                                | Some(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                                    macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportDefaultDecl(
+                                        macroforge_ts::swc_core::ecma::ast::ExportDefaultDecl {
+                                            decl: macroforge_ts::swc_core::ecma::ast::DefaultDecl::Class(_),
+                                            ..
+                                        }
+                                    )
+                                ))
+                        )
+                    });
+
+                    if let Some(&__mf_opener_idx) = __mf_opener_stack.last() {
+                        if let Some(__mf_opener) = #output_var.get_mut(__mf_opener_idx) {
+                            macroforge_ts::macroforge_ts_syn::__internal::merge_class_members(__mf_opener, __mf_members);
+                        }
+
+                        if #should_push {
+                            __mf_opener_stack.push(__mf_opener_idx);
+                        }
+                    } else if __mf_has_last_class {
+                        let __mf_opener_idx = __mf_last_idx.expect("last class index missing");
+                        if let Some(__mf_opener) = #output_var.get_mut(__mf_opener_idx) {
+                            macroforge_ts::macroforge_ts_syn::__internal::merge_class_members(__mf_opener, __mf_members);
+                        }
+
+                        if #should_push {
+                            __mf_opener_stack.push(__mf_opener_idx);
+                        }
+                    } else {
+                        let __mf_opener_idx = #output_var.len();
+                        #output_var.push(__mf_wrapped_item);
+
+                        if #should_push {
+                            __mf_opener_stack.push(__mf_opener_idx);
+                        }
                     }
+                }
+            };
+        }
+
+        let (clone_stmts, clone_bindings) = self.clone_quote_bindings(quote_bindings);
+
+        let closer_lit = if before_excess_closes > 0 {
+            let extra_opens = "{".repeat(before_excess_closes.saturating_sub(1));
+            let completed = format!("function __mf_virtual() {{ {}{}", extra_opens, before);
+            syn::LitStr::new(&completed, proc_macro2::Span::call_site())
+        } else {
+            syn::LitStr::new("function __mf_virtual() {}", proc_macro2::Span::call_site())
+        };
+
+        let closer_call = if quote_bindings.is_empty() {
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#closer_lit as ModuleItem) }
+        } else {
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#closer_lit as ModuleItem, #(#quote_bindings),*) }
+        };
+
+        if after_trimmed.is_empty() {
+            return quote! {
+                {
+                    #(#binding_stmts)*
+                    #(#clone_stmts)*
+                    let __mf_closer_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #closer_call;
+                    let __mf_opener_idx = __mf_opener_stack.pop()
+                        .expect("Virtual completion: no matching opener for class member transition");
+                    macroforge_ts::macroforge_ts_syn::__internal::finalize_closer(
+                        __mf_closer_item,
+                        &mut #output_var,
+                        __mf_opener_idx,
+                    );
+                }
+            };
+        }
+
+        let wrapped = format!("class __MF_DUMMY__ {{ {}{} }}", after_trimmed, virtual_closes);
+        let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
+
+        let quote_call = if !clone_bindings.is_empty() {
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem, #(#clone_bindings),*) }
+        } else if quote_bindings.is_empty() {
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem) }
+        } else {
+            quote! { macroforge_ts::macroforge_ts_quote::ts_quote!(#wrapped_lit as ModuleItem, #(#quote_bindings),*) }
+        };
+
+        let should_push = after_excess_opens > 0;
+
+        quote! {
+            {
+                #(#binding_stmts)*
+                #(#clone_stmts)*
+                let __mf_closer_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #closer_call;
+                let __mf_opener_idx = __mf_opener_stack.pop()
+                    .expect("Virtual completion: no matching opener for class member transition");
+                macroforge_ts::macroforge_ts_syn::__internal::finalize_closer(
+                    __mf_closer_item,
+                    &mut #output_var,
+                    __mf_opener_idx,
+                );
+
+                let __mf_wrapped_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
+                let __mf_members = macroforge_ts::macroforge_ts_syn::__internal::extract_class_members_from_wrapped(&__mf_wrapped_item);
+                if let Some(__mf_opener) = #output_var.get_mut(__mf_opener_idx) {
+                    macroforge_ts::macroforge_ts_syn::__internal::merge_class_members(__mf_opener, __mf_members);
+                }
+
+                if #should_push {
+                    __mf_opener_stack.push(__mf_opener_idx);
                 }
             }
         }
+    }
 
-        // Generate stack updates: pop for closes, push for opens
-        // This keeps the opener stack balanced for subsequent chunks
-        let stack_pops: Vec<TokenStream> = (0..closes).map(|_| {
-            quote! {
-                let _ = __mf_opener_stack.pop();
+    /// Generate code for a span that should be emitted as raw source.
+    ///
+    /// Used for complex closers (like ObjectLiteral closers with type assertions)
+    /// that can't be wrapped in a function block for virtual completion.
+    ///
+    /// Raw source spans bypass the virtual completion system entirely - they don't
+    /// interact with the opener/closer stack. The text is injected directly as source.
+    fn generate_raw_source_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+        _span: &ContextSpan,
+    ) -> TokenStream {
+        #[cfg(debug_assertions)]
+        if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+            eprintln!("[MF_DEBUG_CODEGEN] Raw source span: {:?}", text);
+        }
+
+        let emit_code = self.build_raw_source_emit(text, quote_bindings);
+
+        // Raw source bypasses virtual completion - no opener/closer stack operations
+        quote! {
+            {
+                #(#binding_stmts)*
+                #emit_code
             }
-        }).collect();
+        }
+    }
 
-        let stack_pushes: Vec<TokenStream> = (0..opens).map(|_| {
-            quote! {
-                __mf_opener_stack.push(#output_var.len());
+    fn build_raw_source_emit(
+        &self,
+        text: &str,
+        quote_bindings: &[TokenStream],
+    ) -> TokenStream {
+        let mut format_str = text.to_string();
+        let mut format_args: Vec<TokenStream> = Vec::new();
+        let mut tokens: Vec<String> = Vec::new();
+
+        for (idx, binding) in quote_bindings.iter().enumerate() {
+            let binding_str = binding.to_string();
+            let Some((name_part, rest)) = binding_str.split_once(':') else {
+                continue;
+            };
+            let name = name_part.trim();
+            if name.is_empty() {
+                continue;
             }
-        }).collect();
+            let kind = rest.split('=').next().unwrap_or("").trim();
+            let marker = format!("${}", name);
+            if let Some(pos) = Self::find_placeholder_pos(&format_str, &marker) {
+                let token = format!("__MF_FMT_{}__", idx);
+                format_str.replace_range(pos..pos + marker.len(), &token);
+                tokens.push(token);
 
-        // If we have placeholders, use format!; otherwise just use the text directly
+                let ph_ident = format_ident!("{}", name);
+                let arg = match kind {
+                    "Ident" => quote! { #ph_ident.sym.as_str() },
+                    "Expr" => quote! { macroforge_ts::ts_syn::emit_expr(&#ph_ident) },
+                    "Stmt" => quote! { macroforge_ts::ts_syn::emit_stmt(&#ph_ident) },
+                    "TsType" => quote! { macroforge_ts::ts_syn::emit_ts_type(&#ph_ident) },
+                    _ => quote! { macroforge_ts::ts_syn::emit_ts_type(&#ph_ident) },
+                };
+                format_args.push(arg);
+            }
+        }
+
+        format_str = format_str.replace('{', "{{").replace('}', "}}");
+        for token in tokens {
+            format_str = format_str.replace(&token, "{}");
+        }
+
         if format_args.is_empty() {
             let text_lit = syn::LitStr::new(text, proc_macro2::Span::call_site());
             quote! {
-                {
-                    #(#binding_stmts)*
-                    #(#stack_pops)*
-                    __injected_streams.push(
-                        macroforge_ts::ts_syn::TsStream::from_string(#text_lit.to_string())
-                    );
-                    #(#stack_pushes)*
-                }
+                __injected_streams.push(
+                    macroforge_ts::ts_syn::TsStream::from_string(#text_lit.to_string())
+                );
             }
         } else {
             let format_lit = syn::LitStr::new(&format_str, proc_macro2::Span::call_site());
             quote! {
-                {
-                    #(#binding_stmts)*
-                    #(#stack_pops)*
-                    let __formatted = format!(#format_lit, #(#format_args),*);
-                    __injected_streams.push(
-                        macroforge_ts::ts_syn::TsStream::from_string(__formatted)
-                    );
-                    #(#stack_pushes)*
-                }
+                let __formatted = format!(#format_lit, #(#format_args),*);
+                __injected_streams.push(
+                    macroforge_ts::ts_syn::TsStream::from_string(__formatted)
+                );
             }
         }
     }
@@ -1936,27 +2778,27 @@ impl Codegen {
                 PlaceholderKind::Expr => {
                     // Clone the expression to allow reuse if the same variable appears multiple times
                     binding_stmts.push(quote! {
-                        let #ph_ident: swc_core::ecma::ast::Expr = macroforge_ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
+                        let #ph_ident: macroforge_ts::swc_core::ecma::ast::Expr = macroforge_ts::macroforge_ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
                     });
                     quote_bindings.push(quote! { #ph_ident: Expr = #ph_ident });
                 }
                 PlaceholderKind::Type => {
                     // ts_quote! natively supports TsType placeholders
                     binding_stmts.push(quote! {
-                        let #ph_ident: swc_core::ecma::ast::TsType = macroforge_ts_syn::ToTsType::to_ts_type(&#expr);
+                        let #ph_ident: macroforge_ts::swc_core::ecma::ast::TsType = macroforge_ts::macroforge_ts_syn::ToTsType::to_ts_type(&#expr);
                     });
                     quote_bindings.push(quote! { #ph_ident: TsType = #ph_ident });
                 }
                 PlaceholderKind::Ident => {
                     binding_stmts.push(quote! {
-                        let #ph_ident: swc_core::ecma::ast::Ident = macroforge_ts_syn::ToTsIdent::to_ts_ident(&#expr);
+                        let #ph_ident: macroforge_ts::swc_core::ecma::ast::Ident = macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(&#expr);
                     });
                     quote_bindings.push(quote! { #ph_ident: Ident = #ph_ident });
                 }
                 PlaceholderKind::Stmt => {
                     // ts_quote! supports Stmt directly
                     binding_stmts.push(quote! {
-                        let #ph_ident: swc_core::ecma::ast::Stmt = macroforge_ts_syn::ToTsStmt::to_ts_stmt(#expr);
+                        let #ph_ident: macroforge_ts::swc_core::ecma::ast::Stmt = macroforge_ts::macroforge_ts_syn::ToTsStmt::to_ts_stmt(#expr);
                     });
                     quote_bindings.push(quote! { #ph_ident: Stmt = #ph_ident });
                 }
@@ -2017,11 +2859,11 @@ impl Codegen {
 
             let quote_call = if quote_bindings.is_empty() {
                 quote! {
-                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem)
+                    macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem)
                 }
             } else {
                 quote! {
-                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
+                    macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
                 }
             };
 
@@ -2032,10 +2874,10 @@ impl Codegen {
                 {
                     #(#binding_stmts)*
                     // Parse the virtually completed template
-                    let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
+                    let __mf_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
 
                     // Push the opener and record its index for later finalization
-                    let __mf_idx = macroforge_ts_syn::__internal::push_opener(
+                    let __mf_idx = macroforge_ts::macroforge_ts_syn::__internal::push_opener(
                         __mf_item,
                         &mut #output_var,
                         #unclosed,
@@ -2107,11 +2949,11 @@ impl Codegen {
 
             let quote_call = if quote_bindings.is_empty() {
                 quote! {
-                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem)
+                    macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem)
                 }
             } else {
                 quote! {
-                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
+                    macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
                 }
             };
 
@@ -2120,11 +2962,11 @@ impl Codegen {
                 ParseContext::ObjectLiteral => {
                     quote! {
                         // Merge collected object properties into the opener
-                        if let macroforge_ts_syn::__internal::ContextCollector::ObjectProps(props) =
-                            std::mem::replace(&mut __mf_context_collector, macroforge_ts_syn::__internal::ContextCollector::for_object())
+                        if let macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::ObjectProps(props) =
+                            std::mem::replace(&mut __mf_context_collector, macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::for_object())
                         {
                             if let Some(opener) = #output_var.get_mut(__mf_opener_idx) {
-                                macroforge_ts_syn::__internal::merge_object_props(opener, props);
+                                macroforge_ts::macroforge_ts_syn::__internal::merge_object_props(opener, props);
                             }
                         }
                     }
@@ -2132,11 +2974,11 @@ impl Codegen {
                 ParseContext::ArrayLiteral => {
                     quote! {
                         // Merge collected array elements into the opener
-                        if let macroforge_ts_syn::__internal::ContextCollector::ArrayElems(elems) =
-                            std::mem::replace(&mut __mf_context_collector, macroforge_ts_syn::__internal::ContextCollector::for_array())
+                        if let macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::ArrayElems(elems) =
+                            std::mem::replace(&mut __mf_context_collector, macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::for_array())
                         {
                             if let Some(opener) = #output_var.get_mut(__mf_opener_idx) {
-                                macroforge_ts_syn::__internal::merge_array_elems(opener, elems);
+                                macroforge_ts::macroforge_ts_syn::__internal::merge_array_elems(opener, elems);
                             }
                         }
                     }
@@ -2144,11 +2986,11 @@ impl Codegen {
                 ParseContext::ClassBody => {
                     quote! {
                         // Merge collected class members into the opener
-                        if let macroforge_ts_syn::__internal::ContextCollector::ClassMembers(members) =
-                            std::mem::replace(&mut __mf_context_collector, macroforge_ts_syn::__internal::ContextCollector::for_class())
+                        if let macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::ClassMembers(members) =
+                            std::mem::replace(&mut __mf_context_collector, macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::for_class())
                         {
                             if let Some(opener) = #output_var.get_mut(__mf_opener_idx) {
-                                macroforge_ts_syn::__internal::merge_class_members(opener, members);
+                                macroforge_ts::macroforge_ts_syn::__internal::merge_class_members(opener, members);
                             }
                         }
                     }
@@ -2156,11 +2998,11 @@ impl Codegen {
                 ParseContext::TypeObjectLiteral => {
                     quote! {
                         // Merge collected type properties into the opener
-                        if let macroforge_ts_syn::__internal::ContextCollector::TypeProps(props) =
-                            std::mem::replace(&mut __mf_context_collector, macroforge_ts_syn::__internal::ContextCollector::for_type_object())
+                        if let macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::TypeProps(props) =
+                            std::mem::replace(&mut __mf_context_collector, macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::for_type_object())
                         {
                             if let Some(opener) = #output_var.get_mut(__mf_opener_idx) {
-                                macroforge_ts_syn::__internal::merge_type_props(opener, props);
+                                macroforge_ts::macroforge_ts_syn::__internal::merge_type_props(opener, props);
                             }
                         }
                     }
@@ -2172,7 +3014,7 @@ impl Codegen {
                 {
                     #(#binding_stmts)*
                     // Parse the virtually completed template
-                    let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
+                    let __mf_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
 
                     // Pop the opener index and finalize with accumulated statements
                     let __mf_opener_idx = __mf_opener_stack.pop()
@@ -2181,7 +3023,7 @@ impl Codegen {
                     // Merge collected items (if any) into the opener
                     #merge_code
 
-                    macroforge_ts_syn::__internal::finalize_closer(
+                    macroforge_ts::macroforge_ts_syn::__internal::finalize_closer(
                         __mf_item,
                         &mut #output_var,
                         __mf_opener_idx,
@@ -2256,11 +3098,11 @@ impl Codegen {
 
             let quote_call = if quote_bindings.is_empty() {
                 quote! {
-                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem)
+                    macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem)
                 }
             } else {
                 quote! {
-                    macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
+                    macroforge_ts::macroforge_ts_quote::ts_quote!(#completed_lit as ModuleItem, #(#quote_bindings),*)
                 }
             };
 
@@ -2269,12 +3111,12 @@ impl Codegen {
                 {
                     #(#binding_stmts)*
                     // Parse the virtually completed template for validation
-                    let __mf_item: swc_core::ecma::ast::ModuleItem = #quote_call;
+                    let __mf_item: macroforge_ts::swc_core::ecma::ast::ModuleItem = #quote_call;
 
                     // Get the current opener index (peek, not pop)
                     let __mf_opener_idx = *__mf_opener_stack.last()
                         .expect("Virtual completion: no matching opener for middle chunk");
-                    macroforge_ts_syn::__internal::push_middle(
+                    macroforge_ts::macroforge_ts_syn::__internal::push_middle(
                         __mf_item,
                         &mut #output_var,
                         __mf_opener_idx,
@@ -2330,8 +3172,8 @@ impl Codegen {
         }
     }
 
-    /// Generates code for directive nodes.
-    fn generate_directive(&self, node: &IrNode) -> TokenStream {
+    /// Generates code for directive nodes with context awareness.
+    fn generate_directive_with_context(&self, node: &IrNode, context: ParseContext) -> TokenStream {
         match node {
             IrNode::Let {
                 name,
@@ -2340,7 +3182,9 @@ impl Codegen {
                 value,
             } => self.generate_let(name, *mutable, type_hint.as_deref(), value),
             IrNode::Do { code } => self.generate_do(code),
-            IrNode::TypeScript { stream } => self.generate_typescript(stream),
+            IrNode::TypeScript { stream } => {
+                self.generate_typescript_with_context(stream, context)
+            }
             _ => quote! {},
         }
     }
@@ -2542,7 +3386,7 @@ impl Codegen {
                 // Need both opener stack and context collector
                 quote! {
                     let mut __mf_opener_stack: Vec<usize> = Vec::new();
-                    let mut __mf_context_collector = macroforge_ts_syn::__internal::ContextCollector::for_object();
+                    let mut __mf_context_collector = macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::for_object();
                     #(#stmts)*
                 }
             }
@@ -2559,7 +3403,7 @@ impl Codegen {
                 if context.is_non_statement_context() {
                     let collector_type = context.collector_type();
                     quote! {
-                        let mut __mf_context_collector = macroforge_ts_syn::__internal::ContextCollector::new(#collector_type);
+                        let mut __mf_context_collector = macroforge_ts::macroforge_ts_syn::__internal::ContextCollector::new(#collector_type);
                         #(#stmts)*
                     }
                 } else {
@@ -2571,7 +3415,7 @@ impl Codegen {
 
     /// Generates a Rust expression string that builds an identifier from parts.
     ///
-    /// This is used to embed ident blocks as placeholders in macroforge_ts_quote::ts_quote!.
+    /// This is used to embed ident blocks as placeholders in macroforge_ts::macroforge_ts_quote::ts_quote!.
     fn generate_ident_builder_expr(&self, parts: &[IrNode]) -> String {
         let mut expr_parts = Vec::new();
 
@@ -2592,12 +3436,12 @@ impl Codegen {
 
         if expr_parts.is_empty() {
             // Empty ident block - just return empty string builder
-            return "{ let s = String::new(); swc_core::ecma::ast::Ident::new_no_ctxt(s.into(), swc_core::common::DUMMY_SP) }".to_string();
+            return "{ let s = String::new(); macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(s.into(), macroforge_ts::swc_core::common::DUMMY_SP) }".to_string();
         }
 
         // Generate expression that concatenates all parts and creates an Ident
         format!(
-            "{{ let mut __s = String::new(); {} swc_core::ecma::ast::Ident::new_no_ctxt(__s.into(), swc_core::common::DUMMY_SP) }}",
+            "{{ let mut __s = String::new(); {} macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(__s.into(), macroforge_ts::swc_core::common::DUMMY_SP) }}",
             expr_parts.iter().map(|p| format!("__s.push_str(&{});", p)).collect::<Vec<_>>().join(" ")
         )
     }
@@ -2630,14 +3474,14 @@ impl Codegen {
             {
                 let mut __ident_parts = String::new();
                 #(#part_stmts)*
-                let __ident = swc_core::ecma::ast::Ident::new_no_ctxt(
+                let __ident = macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
                     __ident_parts.into(),
-                    swc_core::common::DUMMY_SP
+                    macroforge_ts::swc_core::common::DUMMY_SP
                 );
-                #output_var.push(swc_core::ecma::ast::ModuleItem::Stmt(
-                    swc_core::ecma::ast::Stmt::Expr(swc_core::ecma::ast::ExprStmt {
-                        span: swc_core::common::DUMMY_SP,
-                        expr: Box::new(swc_core::ecma::ast::Expr::Ident(__ident)),
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Expr(macroforge_ts::swc_core::ecma::ast::ExprStmt {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        expr: Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Ident(__ident)),
                     })
                 ));
             }
@@ -2662,8 +3506,8 @@ impl Codegen {
                     // Flush current quasi
                     let quasi_text = std::mem::take(&mut current_quasi);
                     quasis.push(quote! {
-                        swc_core::ecma::ast::TplElement {
-                            span: swc_core::common::DUMMY_SP,
+                        macroforge_ts::swc_core::ecma::ast::TplElement {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
                             tail: false,
                             cooked: Some(#quasi_text.into()),
                             raw: #quasi_text.into(),
@@ -2675,7 +3519,7 @@ impl Codegen {
                         quote! { #ident }
                     });
                     exprs.push(quote! {
-                        Box::new(macroforge_ts_syn::ToTsExpr::to_ts_expr(#expr))
+                        Box::new(macroforge_ts::macroforge_ts_syn::ToTsExpr::to_ts_expr(#expr))
                     });
                 }
                 _ => {}
@@ -2685,8 +3529,8 @@ impl Codegen {
         // Final quasi (tail)
         let final_quasi = current_quasi;
         quasis.push(quote! {
-            swc_core::ecma::ast::TplElement {
-                span: swc_core::common::DUMMY_SP,
+            macroforge_ts::swc_core::ecma::ast::TplElement {
+                span: macroforge_ts::swc_core::common::DUMMY_SP,
                 tail: true,
                 cooked: Some(#final_quasi.into()),
                 raw: #final_quasi.into(),
@@ -2696,11 +3540,11 @@ impl Codegen {
         let _ = quote_char; // We build a template literal regardless of quote char
 
         quote! {
-            #output_var.push(swc_core::ecma::ast::ModuleItem::Stmt(
-                swc_core::ecma::ast::Stmt::Expr(swc_core::ecma::ast::ExprStmt {
-                    span: swc_core::common::DUMMY_SP,
-                    expr: Box::new(swc_core::ecma::ast::Expr::Tpl(swc_core::ecma::ast::Tpl {
-                        span: swc_core::common::DUMMY_SP,
+            #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                macroforge_ts::swc_core::ecma::ast::Stmt::Expr(macroforge_ts::swc_core::ecma::ast::ExprStmt {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    expr: Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Tpl(macroforge_ts::swc_core::ecma::ast::Tpl {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
                         exprs: vec![#(#exprs),*],
                         quasis: vec![#(#quasis),*],
                     })),
@@ -2742,14 +3586,71 @@ impl Codegen {
         }
     }
 
-    /// Generates code for a typescript directive.
-    fn generate_typescript(&self, stream: &str) -> TokenStream {
+    /// Generates code for a typescript directive with context awareness.
+    fn generate_typescript_with_context(
+        &self,
+        stream: &str,
+        context: ParseContext,
+    ) -> TokenStream {
+        let output_var = format_ident!("{}", self.config.output_var);
         let s: TokenStream = stream.parse().unwrap_or_else(|_| quote! { () });
 
-        // Instead of re-parsing the TsStream source, collect it for later merging
-        quote! {
-            // {$typescript} injects a TsStream - collect for merging at output
-            __injected_streams.push(#s);
+        match context {
+            ParseContext::Module => {
+                quote! {
+                    {
+                        let __mf_stream: macroforge_ts::ts_syn::TsStream = #s;
+                        let __mf_source = __mf_stream.source();
+                        let __mf_insert_pos = __mf_stream.insert_pos;
+                        if __mf_insert_pos == macroforge_ts::ts_syn::abi::InsertPos::Within
+                            || __mf_source.contains("/* @macroforge:")
+                        {
+                            __injected_streams.push(__mf_stream);
+                        } else {
+                            let __mf_items =
+                                macroforge_ts::macroforge_ts_syn::parse_ts_to_module_items(__mf_source);
+                            if __mf_items.is_empty() && !__mf_source.trim().is_empty() {
+                                __injected_streams.push(__mf_stream);
+                            } else {
+                                #output_var.extend(__mf_items);
+                                __patches.extend(__mf_stream.runtime_patches);
+                            }
+                        }
+                    }
+                }
+            }
+            ParseContext::FunctionBody => {
+                quote! {
+                    {
+                        let __mf_stream: macroforge_ts::ts_syn::TsStream = #s;
+                        let __mf_items =
+                            macroforge_ts::macroforge_ts_syn::parse_ts_to_module_items(__mf_stream.source());
+                        #[cfg(debug_assertions)]
+                        if std::env::var("MF_DEBUG_TS_DIRECTIVE").is_ok() {
+                            let __mf_src = __mf_stream.source();
+                            let __mf_preview_len = __mf_src.len().min(160);
+                            eprintln!(
+                                "[MF_DEBUG_TS_DIRECTIVE] fn_body items={} preview={:?}",
+                                __mf_items.len(),
+                                &__mf_src[..__mf_preview_len]
+                            );
+                        }
+                        for __mf_item in __mf_items {
+                            if let macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__mf_stmt) = __mf_item {
+                                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__mf_stmt));
+                            }
+                        }
+                        __patches.extend(__mf_stream.runtime_patches);
+                    }
+                }
+            }
+            _ => {
+                // Fallback: collect for merging at output.
+                quote! {
+                    // {$typescript} injects a TsStream - collect for merging at output
+                    __injected_streams.push(#s);
+                }
+            }
         }
     }
 }
@@ -2781,7 +3682,7 @@ mod tests {
     fn test_codegen_simple_text() {
         let code = compile_template("const x = 1;");
         let code_str = code.to_string();
-        // Should use macroforge_ts_quote::ts_quote! for static text
+        // Should use macroforge_ts::macroforge_ts_quote::ts_quote! for static text
         assert!(
             code_str.contains("macroforge_ts_quote :: ts_quote !"),
             "Generated code: {}",
@@ -2842,7 +3743,7 @@ mod tests {
         let code_str = code.to_string();
         // Should generate Vec<ModuleItem>
         assert!(
-            code_str.contains("Vec < swc_core :: ecma :: ast :: ModuleItem >"),
+            code_str.contains("Vec < macroforge_ts :: swc_core :: ecma :: ast :: ModuleItem >"),
             "Generated code: {}",
             code_str
         );

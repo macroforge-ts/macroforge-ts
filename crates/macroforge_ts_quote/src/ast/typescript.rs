@@ -27,83 +27,83 @@ impl ToCode for TsType {
         match self {
             TsType::TsKeywordType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsKeywordType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsKeywordType(#val))
             }
             TsType::TsThisType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsThisType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsThisType(#val))
             }
             TsType::TsFnOrConstructorType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsFnOrConstructorType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsFnOrConstructorType(#val))
             }
             TsType::TsTypeRef(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsTypeRef(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsTypeRef(#val))
             }
             TsType::TsTypeQuery(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsTypeQuery(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsTypeQuery(#val))
             }
             TsType::TsTypeLit(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsTypeLit(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsTypeLit(#val))
             }
             TsType::TsArrayType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsArrayType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsArrayType(#val))
             }
             TsType::TsTupleType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsTupleType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsTupleType(#val))
             }
             TsType::TsOptionalType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsOptionalType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsOptionalType(#val))
             }
             TsType::TsRestType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsRestType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsRestType(#val))
             }
             TsType::TsUnionOrIntersectionType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsUnionOrIntersectionType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsUnionOrIntersectionType(#val))
             }
             TsType::TsConditionalType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsConditionalType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsConditionalType(#val))
             }
             TsType::TsInferType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsInferType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsInferType(#val))
             }
             TsType::TsParenthesizedType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsParenthesizedType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsParenthesizedType(#val))
             }
             TsType::TsTypeOperator(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsTypeOperator(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsTypeOperator(#val))
             }
             TsType::TsIndexedAccessType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsIndexedAccessType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsIndexedAccessType(#val))
             }
             TsType::TsMappedType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsMappedType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsMappedType(#val))
             }
             TsType::TsLitType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsLitType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsLitType(#val))
             }
             TsType::TsTypePredicate(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsTypePredicate(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsTypePredicate(#val))
             }
             TsType::TsImportType(v) => {
                 let val = v.to_code(cx);
-                parse_quote!(swc_core::ecma::ast::TsType::TsImportType(#val))
+                parse_quote!(macroforge_ts::swc_core::ecma::ast::TsType::TsImportType(#val))
             }
         }
     }
@@ -142,7 +142,7 @@ impl ToCode for TsKeywordTypeKind {
             TsKeywordTypeKind::TsIntrinsicKeyword => "TsIntrinsicKeyword",
         };
         let ident = syn::Ident::new(variant, proc_macro2::Span::call_site());
-        parse_quote!(swc_core::ecma::ast::TsKeywordTypeKind::#ident)
+        parse_quote!(macroforge_ts::swc_core::ecma::ast::TsKeywordTypeKind::#ident)
     }
 }
 
@@ -207,7 +207,7 @@ impl ToCode for TsTypeOperatorOp {
             TsTypeOperatorOp::ReadOnly => "ReadOnly",
         };
         let ident = syn::Ident::new(variant, proc_macro2::Span::call_site());
-        parse_quote!(swc_core::ecma::ast::TsTypeOperatorOp::#ident)
+        parse_quote!(macroforge_ts::swc_core::ecma::ast::TsTypeOperatorOp::#ident)
     }
 }
 
@@ -225,7 +225,7 @@ impl ToCode for TruePlusMinus {
             TruePlusMinus::Minus => "Minus",
         };
         let ident = syn::Ident::new(variant, proc_macro2::Span::call_site());
-        parse_quote!(swc_core::ecma::ast::TruePlusMinus::#ident)
+        parse_quote!(macroforge_ts::swc_core::ecma::ast::TruePlusMinus::#ident)
     }
 }
 

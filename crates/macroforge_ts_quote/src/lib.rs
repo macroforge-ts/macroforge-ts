@@ -220,8 +220,15 @@ fn ts_template_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2:
         // The template content contains class member syntax (static methods, constructors, etc.)
         let wrapped_body = quote! { class __MF_DUMMY__ { #body } };
 
+        // Normalize and strip doc comments to avoid splitting class body across chunks.
+        let mut wrapped_str = wrapped_body.to_string();
+        wrapped_str = crate::template::convert_doc_attributes_to_jsdoc(&wrapped_str);
+        wrapped_str = crate::template::normalize_template_spacing(&wrapped_str);
+        wrapped_str = crate::template::collapse_template_newlines(&wrapped_str);
+        wrapped_str = crate::template::strip_doc_comments(&wrapped_str);
+
         // Parse the wrapped template to handle placeholders and control flow
-        let template_code = parse_template(wrapped_body)?;
+        let template_code = crate::template::parse_template_str(&wrapped_str)?;
 
         // Extract just the class body from the output and add the body marker
         Ok(quote! {
@@ -229,18 +236,97 @@ fn ts_template_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2:
                 let (__stmts, mut __patches, __comments, __injected_streams) = #template_code;
 
                 // Build source from AST - this will be "class __MF_DUMMY__ { ... }"
-                let __full_source = macroforge_ts::ts_syn::emit_module_items(&__stmts, &__comments);
+                let __full_source =
+                    macroforge_ts::ts_syn::emit_module_items(&__stmts, &__comments);
 
-                // Extract just the class body (everything between first { and last })
-                let __body_source = if let Some(start) = __full_source.find('{') {
-                    if let Some(end) = __full_source.rfind('}') {
-                        &__full_source[start + 1..end]
-                    } else {
-                        &__full_source[start + 1..]
+                fn __mf_clean_fragment(fragment: &str) -> String {
+                    let mut cleaned = String::new();
+                    for line in fragment.lines() {
+                        let trimmed = line.trim_start();
+                        if trimmed.starts_with("** ") || trimmed == "**" || trimmed == "*/" {
+                            continue;
+                        }
+                        cleaned.push_str(line);
+                        cleaned.push('\n');
                     }
+                    cleaned.trim_end().to_string()
+                }
+
+                fn __mf_extract_body_fragment(source: &str) -> Option<String> {
+                    let marker = "class __MF_DUMMY__";
+                    let trimmed = source.trim();
+                    if trimmed.is_empty() {
+                        return None;
+                    }
+
+                    let body = if let Some(pos) = source.find(marker) {
+                        let after = &source[pos + marker.len()..];
+                        let after_trimmed = after.trim_start();
+                        if after_trimmed.starts_with('{') {
+                            let brace_offset = after.len() - after_trimmed.len();
+                            let after_brace = &after[brace_offset + 1..];
+                            if let Some(end) = after_brace.rfind('}') {
+                                &after_brace[..end]
+                            } else {
+                                after_brace
+                            }
+                        } else {
+                            after
+                        }
+                    } else {
+                        source
+                    };
+
+                    let body = body.trim();
+                    if body.is_empty() {
+                        None
+                    } else {
+                        Some(__mf_clean_fragment(body))
+                    }
+                }
+
+                let mut __body_fragments: Vec<String> = Vec::new();
+                if let Some(fragment) = __mf_extract_body_fragment(&__full_source) {
+                    if !fragment.trim().is_empty() {
+                        __body_fragments.push(fragment);
+                    }
+                }
+
+                let __full_source_empty = __full_source.trim().is_empty();
+                if __full_source_empty {
+                    for __stream in __injected_streams.iter() {
+                        if let Some(fragment) = __mf_extract_body_fragment(__stream.source()) {
+                            if !fragment.trim().is_empty() {
+                                __body_fragments.push(fragment);
+                            }
+                        }
+                    }
+                }
+
+                let __body_source = if __body_fragments.is_empty() {
+                    __full_source.as_str().to_string()
                 } else {
-                    __full_source.as_str()
+                    __body_fragments.join("\n")
                 };
+
+                if std::env::var("MF_DEBUG_WITHIN").is_ok() {
+                    eprintln!("[MF_DEBUG_WITHIN] full_source:\n{}", __full_source);
+                    eprintln!("[MF_DEBUG_WITHIN] body_source:\n{}", __body_source);
+                    for (idx, __stream) in __injected_streams.iter().enumerate() {
+                        eprintln!(
+                            "[MF_DEBUG_WITHIN] injected_stream[{}]:\n{}",
+                            idx,
+                            __stream.source()
+                        );
+                        if std::env::var("MF_DEBUG_WITHIN_RAW").is_ok() {
+                            eprintln!(
+                                "[MF_DEBUG_WITHIN] injected_stream[{}] (debug): {:?}",
+                                idx,
+                                __stream.source()
+                            );
+                        }
+                    }
+                }
 
                 let __source = format!("/* @macroforge:body */{}", __body_source.trim());
 
@@ -248,9 +334,9 @@ fn ts_template_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2:
                 let mut __stream = macroforge_ts::ts_syn::TsStream::with_insert_pos(__source, #insert_pos);
                 __stream.runtime_patches = __patches;
 
-                // Merge any injected TsStreams (from {$typescript} directives)
+                // Preserve runtime patches from injected TsStreams without duplicating their sources.
                 for __injected in __injected_streams {
-                    __stream = __stream.merge(__injected);
+                    __stream.runtime_patches.extend(__injected.runtime_patches);
                 }
 
                 __stream
