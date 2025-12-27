@@ -523,9 +523,13 @@ impl TsStream {
     /// let combined = standalone.merge(class_body);
     /// ```
     pub fn merge(mut self, other: Self) -> Self {
-        // Combine source code with a newline separator
+        // Combine source code with a separator only when needed.
         if !self.source.is_empty() && !other.source.is_empty() {
-            self.source.push('\n');
+            let left_ends_ws = self.source.chars().last().map(|c| c.is_whitespace()).unwrap_or(false);
+            let right_starts_ws = other.source.chars().next().map(|c| c.is_whitespace()).unwrap_or(false);
+            if !(left_ends_ws || right_starts_ws) {
+                self.source.push('\n');
+            }
         }
         self.source.push_str(&other.source);
 

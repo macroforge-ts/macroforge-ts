@@ -424,7 +424,7 @@ impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
 /// # Example
 ///
 /// ```rust,no_run
-/// use macroforge_ts_syn::{MacroResult, Patch, Diagnostic, DiagnosticLevel};
+/// use macroforge_ts_syn::{MacroResult, Patch, Diagnostic, DiagnosticLevel, InsertPos};
 ///
 /// fn my_macro() -> MacroResult {
 ///     // Success with patches
@@ -433,6 +433,7 @@ impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
 ///         type_patches: vec![],
 ///         diagnostics: vec![],
 ///         tokens: None,
+///         insert_pos: InsertPos::Below,
 ///         debug: Some("Generated 2 methods".to_string()),
 ///     }
 /// }

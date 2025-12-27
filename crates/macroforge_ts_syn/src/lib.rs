@@ -213,6 +213,25 @@ impl ToTsExpr for &str {
     }
 }
 
+#[cfg(feature = "swc")]
+impl ToTsExpr for bool {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        swc_core::ecma::ast::Expr::Lit(swc_core::ecma::ast::Lit::Bool(
+            swc_core::ecma::ast::Bool {
+                span: swc_core::common::DUMMY_SP,
+                value: self,
+            },
+        ))
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsExpr for &bool {
+    fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
+        (*self).to_ts_expr()
+    }
+}
+
 /// Convert a value into a TypeScript [`Expr`](swc_core::ecma::ast::Expr).
 ///
 /// This is a convenience wrapper for [`ToTsExpr`].
@@ -269,6 +288,13 @@ impl ToTsType for str {
     }
 }
 
+#[cfg(feature = "swc")]
+impl ToTsType for &str {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        (*self).to_ts_type()
+    }
+}
+
 /// Convert an Ident to a TsTypeRef.
 #[cfg(feature = "swc")]
 impl ToTsType for swc_core::ecma::ast::Ident {
@@ -292,6 +318,28 @@ impl ToTsType for &swc_core::ecma::ast::Ident {
 /// Convert a reference to String to a TsType.
 #[cfg(feature = "swc")]
 impl ToTsType for &String {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        (*self).to_ts_type()
+    }
+}
+
+/// Convert a bool to a TsLiteralType (true or false literal type).
+#[cfg(feature = "swc")]
+impl ToTsType for bool {
+    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+        swc_core::ecma::ast::TsType::TsLitType(swc_core::ecma::ast::TsLitType {
+            span: swc_core::common::DUMMY_SP,
+            lit: swc_core::ecma::ast::TsLit::Bool(swc_core::ecma::ast::Bool {
+                span: swc_core::common::DUMMY_SP,
+                value: *self,
+            }),
+        })
+    }
+}
+
+/// Convert a reference to bool to a TsType.
+#[cfg(feature = "swc")]
+impl ToTsType for &bool {
     fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
         (*self).to_ts_type()
     }
@@ -357,6 +405,20 @@ impl ToTsIdent for String {
 impl ToTsIdent for str {
     fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
         swc_core::ecma::ast::Ident::new_no_ctxt(self.into(), swc_core::common::DUMMY_SP)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsIdent for &str {
+    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+        (*self).to_ts_ident()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsIdent for &String {
+    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+        self.as_str().to_ts_ident()
     }
 }
 
@@ -460,6 +522,47 @@ impl ToTsStmt for Box<swc_core::ecma::ast::Expr> {
             span: swc_core::common::DUMMY_SP,
             expr: self,
         })
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsStmt for String {
+    fn to_ts_stmt(self) -> swc_core::ecma::ast::Stmt {
+        use swc_core::ecma::ast::{BlockStmt, EmptyStmt, ModuleItem, Stmt};
+
+        let mut stmts: Vec<Stmt> = parse_ts_to_module_items(&self)
+            .into_iter()
+            .filter_map(|item| match item {
+                ModuleItem::Stmt(stmt) => Some(stmt),
+                _ => None,
+            })
+            .collect();
+
+        match stmts.len() {
+            0 => Stmt::Empty(EmptyStmt {
+                span: swc_core::common::DUMMY_SP,
+            }),
+            1 => stmts.pop().expect("single statement missing"),
+            _ => Stmt::Block(BlockStmt {
+                span: swc_core::common::DUMMY_SP,
+                ctxt: swc_core::common::SyntaxContext::empty(),
+                stmts,
+            }),
+        }
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsStmt for &String {
+    fn to_ts_stmt(self) -> swc_core::ecma::ast::Stmt {
+        self.as_str().to_ts_stmt()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsStmt for &str {
+    fn to_ts_stmt(self) -> swc_core::ecma::ast::Stmt {
+        self.to_string().to_ts_stmt()
     }
 }
 
@@ -1747,7 +1850,7 @@ pub mod __internal {
     }
 
     /// Extract the body statements from a function declaration.
-    fn extract_function_body_statements(item: &ModuleItem) -> Vec<Stmt> {
+    pub fn extract_function_body_statements(item: &ModuleItem) -> Vec<Stmt> {
         match item {
             // function foo() { ... }
             ModuleItem::Stmt(Stmt::Decl(Decl::Fn(FnDecl { function, .. }))) => {
@@ -1830,9 +1933,59 @@ pub mod __internal {
                 }
             }
 
+            ModuleItem::Stmt(stmt) => {
+                extend_stmt_body(stmt, stmts);
+            }
+
             _ => {
                 // For other cases, we can't extend the body
             }
+        }
+    }
+
+    fn extend_stmt_body(stmt: &mut Stmt, stmts: Vec<Stmt>) {
+        match stmt {
+            Stmt::Block(block) => {
+                block.stmts.extend(stmts);
+            }
+            Stmt::If(if_stmt) => {
+                if let Some(alt) = if_stmt.alt.as_deref_mut() {
+                    extend_stmt_body(alt, stmts);
+                } else {
+                    extend_stmt_body(if_stmt.cons.as_mut(), stmts);
+                }
+            }
+            Stmt::For(for_stmt) => {
+                extend_stmt_body(for_stmt.body.as_mut(), stmts);
+            }
+            Stmt::ForIn(for_in_stmt) => {
+                extend_stmt_body(for_in_stmt.body.as_mut(), stmts);
+            }
+            Stmt::ForOf(for_of_stmt) => {
+                extend_stmt_body(for_of_stmt.body.as_mut(), stmts);
+            }
+            Stmt::While(while_stmt) => {
+                extend_stmt_body(while_stmt.body.as_mut(), stmts);
+            }
+            Stmt::DoWhile(do_while_stmt) => {
+                extend_stmt_body(do_while_stmt.body.as_mut(), stmts);
+            }
+            Stmt::Labeled(labeled_stmt) => {
+                extend_stmt_body(labeled_stmt.body.as_mut(), stmts);
+            }
+            Stmt::With(with_stmt) => {
+                extend_stmt_body(with_stmt.body.as_mut(), stmts);
+            }
+            Stmt::Try(try_stmt) => {
+                if let Some(finalizer) = &mut try_stmt.finalizer {
+                    finalizer.stmts.extend(stmts);
+                } else if let Some(handler) = &mut try_stmt.handler {
+                    handler.body.stmts.extend(stmts);
+                } else {
+                    try_stmt.block.stmts.extend(stmts);
+                }
+            }
+            _ => {}
         }
     }
 }
