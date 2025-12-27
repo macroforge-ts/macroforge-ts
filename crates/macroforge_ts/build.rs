@@ -23,12 +23,25 @@ fn napi_auto_build(package_name: &str) {
     // Get parent PID to watch
     let parent_pid = unsafe { libc::getppid() };
 
-    // Check if we're being called from within napi build (prevents recursion)
+    // Check if any ancestor process is running napi build (prevents recursion)
+    // Walk up the entire process tree since bun/node may be several levels up
     let ancestry_check = Command::new("sh")
         .args([
             "-c",
             &format!(
-                "ps -o command= -p $(ps -o ppid= -p {}) 2>/dev/null | grep -qE '(napi|node.*napi)'",
+                r#"
+                pid={}
+                while [ "$pid" != "1" ] && [ -n "$pid" ]; do
+                    ppid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+                    if [ -z "$ppid" ]; then break; fi
+                    cmd=$(ps -o command= -p "$ppid" 2>/dev/null)
+                    if echo "$cmd" | grep -qE '(napi|node.*napi|bun.*napi|bunx.*napi)'; then
+                        exit 0
+                    fi
+                    pid=$ppid
+                done
+                exit 1
+                "#,
                 parent_pid
             ),
         ])
