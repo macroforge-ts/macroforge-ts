@@ -816,11 +816,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 .filter(|f| !f.optional && !f.flatten)
                 .cloned()
                 .collect();
-            let optional_fields: Vec<_> = fields
-                .iter()
-                .filter(|f| f.optional && !f.flatten)
-                .cloned()
-                .collect();
             let flatten_fields: Vec<_> = fields.iter().filter(|f| f.flatten).cloned().collect();
 
             // Build known keys for deny_unknown_fields
@@ -829,8 +824,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 .filter(|f| !f.flatten)
                 .map(|f| f.json_key.clone())
                 .collect();
-
-            let has_optional = !optional_fields.is_empty();
 
             // All non-flatten fields for assignments
             let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
@@ -963,7 +956,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     // Assign fields
                     {#if !all_fields.is_empty()}
                         {#for field in all_fields}
-                            {$let raw_var = format!("__raw_{}", field._field_name)}
+                            {$let raw_var_name = format!("__raw_{}", field._field_name)}
+                            {$let raw_var_ident: Ident = ident!(raw_var_name)}
                             {$let has_validators = field.has_validators()}
                             {#if let Some(fn_expr) = &field._deserialize_with}
                                 // Custom deserialization function (deserializeWith)
@@ -977,45 +971,48 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {:else}
                             {#if field.optional}
                                 if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                                    const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                    const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.ts_type};
                                     {#match &field._type_cat}
                                         {:case TypeCategory::Primitive}
                                             {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
-                                                @{validation_code}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
+                                                {$typescript validation_code}
+                                                
                                             {/if}
-                                            instance.@{field._field_ident} = @{raw_var};
+                                            instance.@{field._field_ident} = @{raw_var_ident};
 
                                         {:case TypeCategory::Date}
                                             {
-                                                const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
                                                 {#if has_validators}
                                                     {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
-                                                    @{validation_code}
+                                                    {$typescript validation_code}
+                                                    
                                                 {/if}
                                                 instance.@{field._field_ident} = __dateVal;
                                             }
 
                                         {:case TypeCategory::Array(inner)}
-                                            if (Array.isArray(@{raw_var})) {
+                                            if (Array.isArray(@{raw_var_ident})) {
                                                 {#if has_validators}
-                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
-                                                    @{validation_code}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
+                                                    {$typescript validation_code}
+                                                    
                                                 {/if}
 
                                                 {#match field._array_elem_kind.unwrap_or(SerdeValueKind::Other)}
                                                     {:case SerdeValueKind::PrimitiveLike}
-                                                        instance.@{field._field_ident} = @{raw_var} as @{inner}[];
+                                                        instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                     {:case SerdeValueKind::Date}
-                                                        instance.@{field._field_ident} = (@{raw_var} as any[]).map(
+                                                        instance.@{field._field_ident} = (@{raw_var_ident} as any[]).map(
                                                             (item) => typeof item === "string" ? new Date(item) : item as Date
                                                         ) as any;
                                                     {:case SerdeValueKind::NullableDate}
-                                                        instance.@{field._field_ident} = (@{raw_var} as any[]).map(
+                                                        instance.@{field._field_ident} = (@{raw_var_ident} as any[]).map(
                                                             (item) => item === null ? null : (typeof item === "string" ? new Date(item) : item as Date)
                                                         ) as any;
                                                     {:case _}
-                                                        const __arr = (@{raw_var} as any[]).map((item, idx) => {
+                                                        const __arr = (@{raw_var_ident} as any[]).map((item, idx) => {
                                                             if (typeof item?.deserializeWithContext === "function") {
                                                                 const result = item.deserializeWithContext(item, ctx);
                                                                 if (@{pending_ref_expr}.is(result)) {
@@ -1044,62 +1041,62 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             }
 
                                         {:case TypeCategory::Map(key_type, value_type)}
-                                            if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                            if (typeof @{raw_var_ident} === "object" && @{raw_var_ident} !== null) {
                                                 instance.@{field._field_ident} = new Map(
-                                                    Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                    Object.entries(@{raw_var_ident} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
                                                 );
                                             }
 
                                         {:case TypeCategory::Set(inner)}
-                                            if (Array.isArray(@{raw_var})) {
-                                                instance.@{field._field_ident} = new Set(@{raw_var} as @{inner}[]);
+                                            if (Array.isArray(@{raw_var_ident})) {
+                                                instance.@{field._field_ident} = new Set(@{raw_var_ident} as @{inner}[]);
                                             }
 
                                         {:case TypeCategory::Record(_, _)}
-                                            if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
-                                                instance.@{field._field_ident} = @{raw_var} as any;
+                                            if (typeof @{raw_var_ident} === "object" && @{raw_var_ident} !== null) {
+                                                instance.@{field._field_ident} = @{raw_var_ident} as any;
                                             }
 
                                         {:case TypeCategory::Wrapper(_)}
                                             // Wrapper types (Partial<T>, Required<T>, etc.) preserve structure
                                             // Pass through directly - the value has the same shape as T
-                                            instance.@{field._field_ident} = @{raw_var} as any;
+                                            instance.@{field._field_ident} = @{raw_var_ident} as any;
 
                                         {:case TypeCategory::Serializable(type_name)}
                                             {$let type_expr: Expr = ident!(type_name).into()}
                                             {
-                                                const __result = @{type_expr}.deserializeWithContext(@{raw_var}, ctx);
+                                                const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                             }
 
                                         {:case TypeCategory::Nullable(_)}
                                             {#match field._nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                                 {:case SerdeValueKind::PrimitiveLike}
-                                                    instance.@{field._field_ident} = @{raw_var};
+                                                    instance.@{field._field_ident} = @{raw_var_ident};
                                                 {:case SerdeValueKind::Date}
-                                                    if (@{raw_var} === null) {
+                                                    if (@{raw_var_ident} === null) {
                                                         instance.@{field._field_ident} = null;
                                                     } else {
-                                                        instance.@{field._field_ident} = typeof @{raw_var} === "string"
-                                                            ? new Date(@{raw_var} as any)
-                                                            : @{raw_var} as any;
+                                                        instance.@{field._field_ident} = typeof @{raw_var_ident} === "string"
+                                                            ? new Date(@{raw_var_ident} as any)
+                                                            : @{raw_var_ident} as any;
                                                     }
                                                 {:case _}
-                                                    if (@{raw_var} === null) {
+                                                    if (@{raw_var_ident} === null) {
                                                         instance.@{field._field_ident} = null;
                                                     } else {
                                                         {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                             {$let inner_type_expr: Expr = ident!(inner_type).into()}
-                                                            const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var}, ctx);
+                                                            const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                             ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                         {:else}
-                                                            instance.@{field._field_ident} = @{raw_var};
+                                                            instance.@{field._field_ident} = @{raw_var_ident};
                                                         {/if}
                                                     }
                                             {/match}
 
                                         {:case _}
-                                            instance.@{field._field_ident} = @{raw_var};
+                                            instance.@{field._field_ident} = @{raw_var_ident};
                                     {/match}
                                 }
                                 {#if let Some(default_expr) = &field._default_expr}
@@ -1109,45 +1106,48 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 {/if}
                             {:else}
                                 {
-                                    const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                    const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.ts_type};
                                     {#match &field._type_cat}
                                         {:case TypeCategory::Primitive}
                                             {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
-                                                @{validation_code}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
+                                                {$typescript validation_code}
+                                                
                                             {/if}
-                                            instance.@{field._field_ident} = @{raw_var};
+                                            instance.@{field._field_ident} = @{raw_var_ident};
 
                                         {:case TypeCategory::Date}
                                             {
-                                                const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
                                                 {#if has_validators}
                                                     {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
-                                                    @{validation_code}
+                                                    {$typescript validation_code}
+                                                    
                                                 {/if}
                                                 instance.@{field._field_ident} = __dateVal;
                                             }
 
                                         {:case TypeCategory::Array(inner)}
-                                            if (Array.isArray(@{raw_var})) {
+                                            if (Array.isArray(@{raw_var_ident})) {
                                                 {#if has_validators}
-                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
-                                                    @{validation_code}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
+                                                    {$typescript validation_code}
+                                                    
                                                 {/if}
 
                                                 {#match field._array_elem_kind.unwrap_or(SerdeValueKind::Other)}
                                                     {:case SerdeValueKind::PrimitiveLike}
-                                                        instance.@{field._field_ident} = @{raw_var} as @{inner}[];
+                                                        instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                     {:case SerdeValueKind::Date}
-                                                        instance.@{field._field_ident} = (@{raw_var} as any[]).map(
+                                                        instance.@{field._field_ident} = (@{raw_var_ident} as any[]).map(
                                                             (item) => typeof item === "string" ? new Date(item) : item as Date
                                                         ) as any;
                                                     {:case SerdeValueKind::NullableDate}
-                                                        instance.@{field._field_ident} = (@{raw_var} as any[]).map(
+                                                        instance.@{field._field_ident} = (@{raw_var_ident} as any[]).map(
                                                             (item) => item === null ? null : (typeof item === "string" ? new Date(item) : item as Date)
                                                         ) as any;
                                                     {:case _}
-                                                        const __arr = (@{raw_var} as any[]).map((item, idx) => {
+                                                        const __arr = (@{raw_var_ident} as any[]).map((item, idx) => {
                                                             if (item?.__ref !== undefined) {
                                                                 const result = ctx.getOrDefer(item.__ref);
                                                                 if (@{pending_ref_expr}.is(result)) {
@@ -1168,47 +1168,47 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                         {:case TypeCategory::Map(key_type, value_type)}
                                             instance.@{field._field_ident} = new Map(
-                                                Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                Object.entries(@{raw_var_ident} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
                                             );
 
                                         {:case TypeCategory::Set(inner)}
-                                            instance.@{field._field_ident} = new Set(@{raw_var} as @{inner}[]);
+                                            instance.@{field._field_ident} = new Set(@{raw_var_ident} as @{inner}[]);
 
                                         {:case TypeCategory::Serializable(type_name)}
                                             {$let type_expr: Expr = ident!(type_name).into()}
                                             {
-                                                const __result = @{type_expr}.deserializeWithContext(@{raw_var}, ctx);
+                                                const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                             }
 
                                         {:case TypeCategory::Nullable(_)}
                                             {#match field._nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                                 {:case SerdeValueKind::PrimitiveLike}
-                                                    instance.@{field._field_ident} = @{raw_var};
+                                                    instance.@{field._field_ident} = @{raw_var_ident};
                                                 {:case SerdeValueKind::Date}
-                                                    if (@{raw_var} === null) {
+                                                    if (@{raw_var_ident} === null) {
                                                         instance.@{field._field_ident} = null;
                                                     } else {
-                                                        instance.@{field._field_ident} = typeof @{raw_var} === "string"
-                                                            ? new Date(@{raw_var} as any)
-                                                            : @{raw_var} as any;
+                                                        instance.@{field._field_ident} = typeof @{raw_var_ident} === "string"
+                                                            ? new Date(@{raw_var_ident} as any)
+                                                            : @{raw_var_ident} as any;
                                                     }
                                                 {:case _}
-                                                    if (@{raw_var} === null) {
+                                                    if (@{raw_var_ident} === null) {
                                                         instance.@{field._field_ident} = null;
                                                     } else {
                                                         {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                             {$let inner_type_expr: Expr = ident!(inner_type).into()}
-                                                            const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var}, ctx);
+                                                            const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                             ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                         {:else}
-                                                            instance.@{field._field_ident} = @{raw_var};
+                                                            instance.@{field._field_ident} = @{raw_var_ident};
                                                         {/if}
                                                     }
                                             {/match}
 
                                         {:case _}
-                                            instance.@{field._field_ident} = @{raw_var};
+                                            instance.@{field._field_ident} = @{raw_var_ident};
                                     {/match}
                                 }
                             {/if}
@@ -1248,7 +1248,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     if (_field === "@{field._field_name}") {
                         const __val = _value as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name)}
-                        @{validation_code}
+                        {$typescript validation_code}
+                        
                     }
                     {/for}
                     return errors;
@@ -1266,7 +1267,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     if ("@{field._field_name}" in _partial && _partial.@{field._field_ident} !== undefined) {
                         const __val = _partial.@{field._field_ident} as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name)}
-                        @{validation_code}
+                        {$typescript validation_code}
+                        
                     }
                     {/for}
                     return errors;
@@ -1648,7 +1650,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                         {#if !all_fields.is_empty()}
                             {#for field in all_fields}
-                                {$let raw_var = format!("__raw_{}", field._field_name)}
+                                {$let raw_var_name = format!("__raw_{}", field._field_name)}
+                                {$let raw_var_ident: Ident = ident!(raw_var_name)}
                                 {$let has_validators = field.has_validators()}
                                 {#if let Some(fn_expr) = &field._deserialize_with}
                                     // Custom deserialization function (deserializeWith)
@@ -1662,81 +1665,84 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 {:else}
                                 {#if field.optional}
                                     if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                                        const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                        const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.ts_type};
                                         {#match &field._type_cat}
                                             {:case TypeCategory::Primitive}
                                                 {#if has_validators}
-                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, interface_name)}
-                                                    @{validation_code}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name)}
+                                                    {$typescript validation_code}
+                                                    
                                                 {/if}
-                                                instance.@{field._field_ident} = @{raw_var};
+                                                instance.@{field._field_ident} = @{raw_var_ident};
 
                                             {:case TypeCategory::Date}
                                                 {
-                                                    const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                    const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
                                                     {#if has_validators}
                                                         {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name)}
-                                                        @{validation_code}
+                                                        {$typescript validation_code}
+                                                        
                                                     {/if}
                                                     instance.@{field._field_ident} = __dateVal;
                                                 }
 
                                             {:case TypeCategory::Array(inner)}
-                                                if (Array.isArray(@{raw_var})) {
+                                                if (Array.isArray(@{raw_var_ident})) {
                                                     {#if has_validators}
-                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, interface_name)}
-                                                        @{validation_code}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name)}
+                                                        {$typescript validation_code}
+                                                        
                                                     {/if}
-                                                    instance.@{field._field_ident} = @{raw_var} as @{inner}[];
+                                                    instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                 }
 
                                             {:case TypeCategory::Map(key_type, value_type)}
-                                                if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                if (typeof @{raw_var_ident} === "object" && @{raw_var_ident} !== null) {
                                                     instance.@{field._field_ident} = new Map(
-                                                        Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                        Object.entries(@{raw_var_ident} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
                                                     );
                                                 }
 
                                             {:case TypeCategory::Set(inner)}
-                                                if (Array.isArray(@{raw_var})) {
-                                                    instance.@{field._field_ident} = new Set(@{raw_var} as @{inner}[]);
+                                                if (Array.isArray(@{raw_var_ident})) {
+                                                    instance.@{field._field_ident} = new Set(@{raw_var_ident} as @{inner}[]);
                                                 }
 
                                             {:case TypeCategory::Serializable(type_name)}
                                                 {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(type_name)).into()}
                                                 {
-                                                    const __result = @{deserialize_with_context_fn}(@{raw_var}, ctx);
+                                                    const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                 }
 
                                             {:case TypeCategory::Nullable(_)}
                                                 {#match field._nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                                     {:case SerdeValueKind::PrimitiveLike}
-                                                        instance.@{field._field_ident} = @{raw_var};
+                                                        instance.@{field._field_ident} = @{raw_var_ident};
                                                     {:case SerdeValueKind::Date}
-                                                        if (@{raw_var} === null) {
+                                                        if (@{raw_var_ident} === null) {
                                                             instance.@{field._field_ident} = null;
                                                         } else {
-                                                            instance.@{field._field_ident} = typeof @{raw_var} === "string"
-                                                                ? new Date(@{raw_var} as any)
-                                                                : @{raw_var} as any;
+                                                            instance.@{field._field_ident} = typeof @{raw_var_ident} === "string"
+                                                                ? new Date(@{raw_var_ident} as any)
+                                                                : @{raw_var_ident} as any;
                                                         }
                                                     {:case _}
-                                                        if (@{raw_var} === null) {
+                                                        if (@{raw_var_ident} === null) {
                                                             instance.@{field._field_ident} = null;
                                                         } else {
                                                             {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                                 {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(inner_type)).into()}
-                                                                const __result = @{deserialize_with_context_fn}(@{raw_var}, ctx);
+                                                                const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                             {:else}
-                                                                instance.@{field._field_ident} = @{raw_var};
+                                                                instance.@{field._field_ident} = @{raw_var_ident};
                                                             {/if}
                                                         }
                                                 {/match}
 
                                             {:case _}
-                                                instance.@{field._field_ident} = @{raw_var};
+                                                instance.@{field._field_ident} = @{raw_var_ident};
                                         {/match}
                                     }
                                     {#if let Some(default_expr) = &field._default_expr}
@@ -1746,81 +1752,84 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     {/if}
                                 {:else}
                                     {
-                                        const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                        const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.ts_type};
                                         {#match &field._type_cat}
                                             {:case TypeCategory::Primitive}
                                                 {#if has_validators}
-                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, interface_name)}
-                                                    @{validation_code}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name)}
+                                                    {$typescript validation_code}
+                                                    
                                                 {/if}
-                                                instance.@{field._field_ident} = @{raw_var};
+                                                instance.@{field._field_ident} = @{raw_var_ident};
 
                                             {:case TypeCategory::Date}
                                                 {
-                                                    const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                    const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
                                                     {#if has_validators}
                                                         {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name)}
-                                                        @{validation_code}
+                                                        {$typescript validation_code}
+                                                        
                                                     {/if}
                                                     instance.@{field._field_ident} = __dateVal;
                                                 }
 
                                             {:case TypeCategory::Array(inner)}
-                                                if (Array.isArray(@{raw_var})) {
+                                                if (Array.isArray(@{raw_var_ident})) {
                                                     {#if has_validators}
-                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, interface_name)}
-                                                        @{validation_code}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name)}
+                                                        {$typescript validation_code}
+                                                        
                                                     {/if}
-                                                    instance.@{field._field_ident} = @{raw_var} as @{inner}[];
+                                                    instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                 }
 
                                             {:case TypeCategory::Map(key_type, value_type)}
-                                                if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                if (typeof @{raw_var_ident} === "object" && @{raw_var_ident} !== null) {
                                                     instance.@{field._field_ident} = new Map(
-                                                        Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                        Object.entries(@{raw_var_ident} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
                                                     );
                                                 }
 
                                             {:case TypeCategory::Set(inner)}
-                                                if (Array.isArray(@{raw_var})) {
-                                                    instance.@{field._field_ident} = new Set(@{raw_var} as @{inner}[]);
+                                                if (Array.isArray(@{raw_var_ident})) {
+                                                    instance.@{field._field_ident} = new Set(@{raw_var_ident} as @{inner}[]);
                                                 }
 
                                             {:case TypeCategory::Serializable(type_name)}
                                                 {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(type_name)).into()}
                                                 {
-                                                    const __result = @{deserialize_with_context_fn}(@{raw_var}, ctx);
+                                                    const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                 }
 
                                             {:case TypeCategory::Nullable(_)}
                                                 {#match field._nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                                     {:case SerdeValueKind::PrimitiveLike}
-                                                        instance.@{field._field_ident} = @{raw_var};
+                                                        instance.@{field._field_ident} = @{raw_var_ident};
                                                     {:case SerdeValueKind::Date}
-                                                        if (@{raw_var} === null) {
+                                                        if (@{raw_var_ident} === null) {
                                                             instance.@{field._field_ident} = null;
                                                         } else {
-                                                            instance.@{field._field_ident} = typeof @{raw_var} === "string"
-                                                                ? new Date(@{raw_var} as any)
-                                                                : @{raw_var} as any;
+                                                            instance.@{field._field_ident} = typeof @{raw_var_ident} === "string"
+                                                                ? new Date(@{raw_var_ident} as any)
+                                                                : @{raw_var_ident} as any;
                                                         }
                                                     {:case _}
-                                                        if (@{raw_var} === null) {
+                                                        if (@{raw_var_ident} === null) {
                                                             instance.@{field._field_ident} = null;
                                                         } else {
                                                             {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                                 {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(inner_type)).into()}
-                                                                const __result = @{deserialize_with_context_fn}(@{raw_var}, ctx);
+                                                                const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                             {:else}
-                                                                instance.@{field._field_ident} = @{raw_var};
+                                                                instance.@{field._field_ident} = @{raw_var_ident};
                                                             {/if}
                                                         }
                                                 {/match}
 
                                             {:case _}
-                                                instance.@{field._field_ident} = @{raw_var};
+                                                instance.@{field._field_ident} = @{raw_var_ident};
                                         {/match}
                                     }
                                 {/if}
@@ -1845,7 +1854,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         if (_field === "@{field._field_name}") {
                             const __val = _value as @{field.ts_type};
                             {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name)}
-                            @{validation_code}
+                            {$typescript validation_code}
+                            
                         }
                         {/for}
                         return errors;
@@ -1863,7 +1873,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         if ("@{field._field_name}" in _partial && _partial.@{field._field_ident} !== undefined) {
                             const __val = _partial.@{field._field_ident} as @{field.ts_type};
                             {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name)}
-                            @{validation_code}
+                            {$typescript validation_code}
+                            
                         }
                         {/for}
                         return errors;
@@ -2177,7 +2188,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                             {#if !all_fields.is_empty()}
                                 {#for field in all_fields}
-                                    {$let raw_var = format!("__raw_{}", field._field_name)}
+                                    {$let raw_var_name = format!("__raw_{}", field._field_name)}
+                                    {$let raw_var_ident: Ident = ident!(raw_var_name)}
                                     {$let has_validators = field.has_validators()}
                                     {#if let Some(fn_expr) = &field._deserialize_with}
                                         // Custom deserialization function (deserializeWith)
@@ -2191,81 +2203,84 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     {:else}
                                     {#if field.optional}
                                         if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                                            const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                            const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.ts_type};
                                             {#match &field._type_cat}
                                                 {:case TypeCategory::Primitive}
                                                     {#if has_validators}
-                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, type_name)}
-                                                        @{validation_code}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
+                                                        {$typescript validation_code}
+                                                        
                                                     {/if}
-                                                    instance.@{field._field_ident} = @{raw_var};
+                                                    instance.@{field._field_ident} = @{raw_var_ident};
 
                                                 {:case TypeCategory::Date}
                                                     {
-                                                        const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                        const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
                                                         {#if has_validators}
                                                             {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name)}
-                                                            @{validation_code}
+                                                            {$typescript validation_code}
+                                                            
                                                         {/if}
                                                         instance.@{field._field_ident} = __dateVal;
                                                     }
 
                                                 {:case TypeCategory::Array(inner)}
-                                                    if (Array.isArray(@{raw_var})) {
+                                                    if (Array.isArray(@{raw_var_ident})) {
                                                         {#if has_validators}
-                                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, type_name)}
-                                                            @{validation_code}
+                                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
+                                                            {$typescript validation_code}
+                                                            
                                                         {/if}
-                                                        instance.@{field._field_ident} = @{raw_var} as @{inner}[];
+                                                        instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                     }
 
                                                 {:case TypeCategory::Map(key_type, value_type)}
-                                                    if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                    if (typeof @{raw_var_ident} === "object" && @{raw_var_ident} !== null) {
                                                         instance.@{field._field_ident} = new Map(
-                                                            Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                            Object.entries(@{raw_var_ident} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
                                                         );
                                                     }
 
                                                 {:case TypeCategory::Set(inner)}
-                                                    if (Array.isArray(@{raw_var})) {
-                                                        instance.@{field._field_ident} = new Set(@{raw_var} as @{inner}[]);
+                                                    if (Array.isArray(@{raw_var_ident})) {
+                                                        instance.@{field._field_ident} = new Set(@{raw_var_ident} as @{inner}[]);
                                                     }
 
                                                 {:case TypeCategory::Serializable(inner_type_name)}
                                                     {$let inner_type_expr: Expr = ident!(inner_type_name).into()}
                                                     {
-                                                        const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var}, ctx);
+                                                        const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                         ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                     }
 
                                                 {:case TypeCategory::Nullable(_)}
                                                     {#match field._nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                                         {:case SerdeValueKind::PrimitiveLike}
-                                                            instance.@{field._field_ident} = @{raw_var};
+                                                            instance.@{field._field_ident} = @{raw_var_ident};
                                                         {:case SerdeValueKind::Date}
-                                                            if (@{raw_var} === null) {
+                                                            if (@{raw_var_ident} === null) {
                                                                 instance.@{field._field_ident} = null;
                                                             } else {
-                                                                instance.@{field._field_ident} = typeof @{raw_var} === "string"
-                                                                    ? new Date(@{raw_var} as any)
-                                                                    : @{raw_var} as any;
+                                                                instance.@{field._field_ident} = typeof @{raw_var_ident} === "string"
+                                                                    ? new Date(@{raw_var_ident} as any)
+                                                                    : @{raw_var_ident} as any;
                                                             }
                                                         {:case _}
-                                                            if (@{raw_var} === null) {
+                                                            if (@{raw_var_ident} === null) {
                                                                 instance.@{field._field_ident} = null;
                                                             } else {
                                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                                     {$let inner_type_expr: Expr = ident!(inner_type).into()}
-                                                                    const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var}, ctx);
+                                                                    const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                                 {:else}
-                                                                    instance.@{field._field_ident} = @{raw_var};
+                                                                    instance.@{field._field_ident} = @{raw_var_ident};
                                                                 {/if}
                                                             }
                                                     {/match}
 
                                                 {:case _}
-                                                    instance.@{field._field_ident} = @{raw_var};
+                                                    instance.@{field._field_ident} = @{raw_var_ident};
                                             {/match}
                                         }
                                         {#if let Some(default_expr) = &field._default_expr}
@@ -2275,81 +2290,84 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         {/if}
                                     {:else}
                                         {
-                                            const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                            const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.ts_type};
                                             {#match &field._type_cat}
                                                 {:case TypeCategory::Primitive}
                                                     {#if has_validators}
-                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, type_name)}
-                                                        @{validation_code}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
+                                                        {$typescript validation_code}
+                                                        
                                                     {/if}
-                                                    instance.@{field._field_ident} = @{raw_var};
+                                                    instance.@{field._field_ident} = @{raw_var_ident};
 
                                                 {:case TypeCategory::Date}
                                                     {
-                                                        const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                        const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
                                                         {#if has_validators}
                                                             {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name)}
-                                                            @{validation_code}
+                                                            {$typescript validation_code}
+                                                            
                                                         {/if}
                                                         instance.@{field._field_ident} = __dateVal;
                                                     }
 
                                                 {:case TypeCategory::Array(inner)}
-                                                    if (Array.isArray(@{raw_var})) {
+                                                    if (Array.isArray(@{raw_var_ident})) {
                                                         {#if has_validators}
-                                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, type_name)}
-                                                            @{validation_code}
+                                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
+                                                            {$typescript validation_code}
+                                                            
                                                         {/if}
-                                                        instance.@{field._field_ident} = @{raw_var} as @{inner}[];
+                                                        instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                     }
 
                                                 {:case TypeCategory::Map(key_type, value_type)}
-                                                    if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                    if (typeof @{raw_var_ident} === "object" && @{raw_var_ident} !== null) {
                                                         instance.@{field._field_ident} = new Map(
-                                                            Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                            Object.entries(@{raw_var_ident} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
                                                         );
                                                     }
 
                                                 {:case TypeCategory::Set(inner)}
-                                                    if (Array.isArray(@{raw_var})) {
-                                                        instance.@{field._field_ident} = new Set(@{raw_var} as @{inner}[]);
+                                                    if (Array.isArray(@{raw_var_ident})) {
+                                                        instance.@{field._field_ident} = new Set(@{raw_var_ident} as @{inner}[]);
                                                     }
 
                                                 {:case TypeCategory::Serializable(inner_type_name)}
                                                     {$let inner_type_expr: Expr = ident!(inner_type_name).into()}
                                                     {
-                                                        const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var}, ctx);
+                                                        const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                         ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                     }
 
                                                 {:case TypeCategory::Nullable(_)}
                                                     {#match field._nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                                         {:case SerdeValueKind::PrimitiveLike}
-                                                            instance.@{field._field_ident} = @{raw_var};
+                                                            instance.@{field._field_ident} = @{raw_var_ident};
                                                         {:case SerdeValueKind::Date}
-                                                            if (@{raw_var} === null) {
+                                                            if (@{raw_var_ident} === null) {
                                                                 instance.@{field._field_ident} = null;
                                                             } else {
-                                                                instance.@{field._field_ident} = typeof @{raw_var} === "string"
-                                                                    ? new Date(@{raw_var} as any)
-                                                                    : @{raw_var} as any;
+                                                                instance.@{field._field_ident} = typeof @{raw_var_ident} === "string"
+                                                                    ? new Date(@{raw_var_ident} as any)
+                                                                    : @{raw_var_ident} as any;
                                                             }
                                                         {:case _}
-                                                            if (@{raw_var} === null) {
+                                                            if (@{raw_var_ident} === null) {
                                                                 instance.@{field._field_ident} = null;
                                                             } else {
                                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                                     {$let inner_type_expr: Expr = ident!(inner_type).into()}
-                                                                    const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var}, ctx);
+                                                                    const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                                 {:else}
-                                                                    instance.@{field._field_ident} = @{raw_var};
+                                                                    instance.@{field._field_ident} = @{raw_var_ident};
                                                                 {/if}
                                                             }
                                                     {/match}
 
                                                 {:case _}
-                                                    instance.@{field._field_ident} = @{raw_var};
+                                                    instance.@{field._field_ident} = @{raw_var_ident};
                                             {/match}
                                         }
                                     {/if}
@@ -2374,7 +2392,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             if (_field === "@{field._field_name}") {
                                 const __val = _value as @{field.ts_type};
                                 {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
-                                @{validation_code}
+                                {$typescript validation_code}
+                                
                             }
                             {/for}
                             return errors;
@@ -2392,7 +2411,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             if ("@{field._field_name}" in _partial && _partial.@{field._field_ident} !== undefined) {
                                 const __val = _partial.@{field._field_ident} as @{field.ts_type};
                                 {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
-                                @{validation_code}
+                                {$typescript validation_code}
+                                
                             }
                             {/for}
                             return errors;
@@ -2846,13 +2866,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 /// * `context_name` - Context name for error messages (e.g., class name)
 ///
 /// # Returns
-/// A string containing TypeScript validation code
+/// A TypeScript expression that runs the validation statements.
 fn generate_field_validations(
     validators: &[ValidatorSpec],
     value_var: &str,
     field_name: &str,
     context_name: &str,
-) -> String {
+) -> TsStream {
     let mut code = String::new();
 
     for spec in validators {
@@ -2955,7 +2975,7 @@ fn generate_field_validations(
         ));
     }
 
-    code
+    TsStream::from_string(code)
 }
 
 /// Generate default error message for a validator

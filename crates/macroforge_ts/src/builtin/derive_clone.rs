@@ -125,6 +125,11 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 }
             });
 
+            if std::env::var("MF_DEBUG_CLONE").is_ok() {
+                eprintln!("[MF_DEBUG_CLONE] standalone:\n{}", standalone.source());
+                eprintln!("[MF_DEBUG_CLONE] class_body:\n{}", class_body.source());
+            }
+
             // Combine standalone function with class body using {$typescript}
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
             Ok(standalone.merge(class_body))

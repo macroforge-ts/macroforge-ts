@@ -123,7 +123,8 @@ use crate::builtin::derive_common::{DefaultFieldOptions, get_type_default, has_k
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_expr, parse_ts_macro_input,
+    Data, DeriveInput, MacroforgeError, TsStream, emit_expr, ident, parse_ts_expr,
+    parse_ts_macro_input,
 };
 
 /// Contains field information needed for default value generation.
@@ -344,19 +345,28 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     })
                     .collect::<Result<_, MacroforgeError>>()?;
 
+                let mut props = String::new();
+                for (name_ident, value_expr) in &object_fields {
+                    let name = name_ident.sym.as_ref();
+                    let value = emit_expr(value_expr);
+                    props.push_str(&format!("{name}: {value},\n"));
+                }
+
+                let return_stmt = format!("return {{\n{props}}} as {interface_name};");
+                let return_stmt_stream = TsStream::from_string(return_stmt);
+
                 Ok(ts_template! {
                     export function @{fn_name_ident}(): @{interface_ident.clone()} {
-                        return {
-                            {#for (name_ident, value_expr) in object_fields}
-                                @{name_ident}: @{value_expr},
-                            {/for}
-                        } as @{interface_ident.clone()};
+                        {$typescript return_stmt_stream}
                     }
                 })
             } else {
+                let return_stmt = format!("return {{}} as {interface_name};");
+                let return_stmt_stream = TsStream::from_string(return_stmt);
+
                 Ok(ts_template! {
                     export function @{fn_name_ident}(): @{interface_ident.clone()} {
-                        return {} as @{interface_ident.clone()};
+                        {$typescript return_stmt_stream}
                     }
                 })
             }
@@ -447,19 +457,28 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         })
                         .collect::<Result<_, MacroforgeError>>()?;
 
+                    let mut props = String::new();
+                    for (name_ident, value_expr) in &object_fields {
+                        let name = name_ident.sym.as_ref();
+                        let value = emit_expr(value_expr);
+                        props.push_str(&format!("{name}: {value},\n"));
+                    }
+
+                    let return_stmt = format!("return {{\n{props}}} as {full_type_name};");
+                    let return_stmt_stream = TsStream::from_string(return_stmt);
+
                     Ok(ts_template! {
                         export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident.clone()} {
-                            return {
-                                {#for (name_ident, value_expr) in object_fields}
-                                    @{name_ident}: @{value_expr},
-                                {/for}
-                            } as @{full_type_ident.clone()};
+                            {$typescript return_stmt_stream}
                         }
                     })
                 } else {
+                    let return_stmt = format!("return {{}} as {full_type_name};");
+                    let return_stmt_stream = TsStream::from_string(return_stmt);
+
                     Ok(ts_template! {
                         export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident.clone()} {
-                            return {} as @{full_type_ident.clone()};
+                            {$typescript return_stmt_stream}
                         }
                     })
                 }

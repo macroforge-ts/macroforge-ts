@@ -691,13 +691,24 @@ impl MacroExpander {
                     result = self.dispatcher.dispatch(fallback_ctx);
                 }
 
-                // Debug output for macro result
-                eprintln!("[DEBUG] Macro '{}' result:", ctx.macro_name);
-                eprintln!("[DEBUG]   runtime_patches: {}", result.runtime_patches.len());
-                eprintln!("[DEBUG]   type_patches: {}", result.type_patches.len());
-                eprintln!("[DEBUG]   tokens: {:?}", result.tokens.as_ref().map(|t| t.len()));
-                if let Some(tokens) = &result.tokens {
-                    eprintln!("[DEBUG]   tokens content (first 500 chars): {:?}", &tokens[..tokens.len().min(500)]);
+                if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                    eprintln!("[DEBUG] Macro '{}' result:", ctx.macro_name);
+                    eprintln!("[DEBUG]   runtime_patches: {}", result.runtime_patches.len());
+                    eprintln!("[DEBUG]   type_patches: {}", result.type_patches.len());
+                    eprintln!("[DEBUG]   tokens: {:?}", result.tokens.as_ref().map(|t| t.len()));
+                    if let Some(tokens) = &result.tokens {
+                        eprintln!(
+                            "[DEBUG]   tokens content (first 500 chars): {:?}",
+                            &tokens[..tokens.len().min(500)]
+                        );
+                        #[cfg(debug_assertions)]
+                        if std::env::var("MF_DEBUG_TOKENS").is_ok() {
+                            eprintln!(
+                                "[MF_DEBUG_TOKENS] has_validation={}",
+                                tokens.contains("valid email")
+                            );
+                        }
+                    }
                 }
 
                 let no_output = result.runtime_patches.is_empty()
