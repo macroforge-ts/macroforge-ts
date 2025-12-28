@@ -199,14 +199,15 @@ pub fn run(args: PrepArgs) -> Result<()> {
         anyhow::bail!("No repos matched filter: {}", args.repos);
     }
 
+    // Track initial repos for conditional version bumping
+    let initial_names: HashSet<String> = initial_repos.iter().map(|r| r.name.clone()).collect();
+
     // Cascade to dependents if needed
     let repo_names: Vec<String> = if args.no_cascade || args.repos == "all" {
         initial_repos.iter().map(|r| r.name.clone()).collect()
     } else {
         let cascaded = cascade_to_dependents(&initial_repos, &config.repos, &config.deps);
         if cascaded.len() > initial_repos.len() {
-            let initial_names: HashSet<String> =
-                initial_repos.iter().map(|r| r.name.clone()).collect();
             let added: Vec<&str> = cascaded
                 .iter()
                 .filter(|n| !initial_names.contains(*n))
@@ -314,19 +315,38 @@ pub fn run(args: PrepArgs) -> Result<()> {
 
     let mut versions_cache = config.versions.clone();
 
-    if !args.dry_run && !args.bump_only {
+    if !args.dry_run {
         for repo in &repos {
-            let version = if args.sync_versions {
-                target_version.clone()
+            // For cascaded dependents (not in initial_names), only bump if local == registry
+            let is_cascaded = !initial_names.contains(&repo.name);
+            let should_bump = if is_cascaded {
+                let local = versions_cache.get_local(&repo.name);
+                let registry = versions_cache.get_registry(&repo.name);
+                // Only bump cascaded repos if they haven't been bumped yet (local == registry)
+                local == registry
             } else {
-                args.version
-                    .clone()
-                    .unwrap_or_else(|| {
-                        let current = versions_cache
-                            .get_local(&repo.name)
-                            .unwrap_or("0.1.0");
-                        versions::increment_patch(current).unwrap_or("0.1.0".to_string())
-                    })
+                true // Always bump initial repos
+            };
+
+            let version = if should_bump {
+                if args.sync_versions {
+                    target_version.clone()
+                } else {
+                    args.version
+                        .clone()
+                        .unwrap_or_else(|| {
+                            let current = versions_cache
+                                .get_local(&repo.name)
+                                .unwrap_or("0.1.0");
+                            versions::increment_patch(current).unwrap_or("0.1.0".to_string())
+                        })
+                }
+            } else {
+                // Keep current version, but still update dependencies
+                versions_cache
+                    .get_local(&repo.name)
+                    .unwrap_or("0.1.0")
+                    .to_string()
             };
 
             if repo.package_json.is_some() || repo.cargo_toml.is_some() {
@@ -338,6 +358,9 @@ pub fn run(args: PrepArgs) -> Result<()> {
         if args.repos == "all" {
             let _ = manifests::update_zed_extensions(&config.root, &versions_cache);
         }
+
+        // Save the updated versions cache to disk
+        versions_cache.save(&config.root)?;
     }
 
     // [2/9] Extract API documentation

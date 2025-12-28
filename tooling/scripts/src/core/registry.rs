@@ -28,11 +28,14 @@ pub fn npm_version(package_name: &str) -> Result<Option<String>> {
     let url = format!("https://registry.npmjs.org/{}/latest", package_name);
 
     match ureq::get(&url).call() {
-        Ok(response) => {
-            let pkg: NpmPackageResponse = response.into_json()?;
+        Ok(resp) => {
+            if resp.status() == 404 {
+                return Ok(None);
+            }
+            let pkg: NpmPackageResponse = resp.into_body().read_json()?;
             Ok(pkg.version)
         }
-        Err(ureq::Error::Status(404, _)) => Ok(None),
+        Err(ureq::Error::StatusCode(404)) => Ok(None),
         Err(e) => Err(e.into()),
     }
 }
@@ -42,14 +45,17 @@ pub fn crates_version(crate_name: &str) -> Result<Option<String>> {
     let url = format!("https://crates.io/api/v1/crates/{}", crate_name);
 
     match ureq::get(&url)
-        .set("User-Agent", "mf-cli (github.com/anthropics/macroforge)")
+        .header("User-Agent", "mf-cli (github.com/anthropics/macroforge)")
         .call()
     {
-        Ok(response) => {
-            let resp: CratesResponse = response.into_json()?;
-            Ok(resp.crate_info.map(|c| c.max_version))
+        Ok(resp) => {
+            if resp.status() == 404 {
+                return Ok(None);
+            }
+            let crates_resp: CratesResponse = resp.into_body().read_json()?;
+            Ok(crates_resp.crate_info.map(|c| c.max_version))
         }
-        Err(ureq::Error::Status(404, _)) => Ok(None),
+        Err(ureq::Error::StatusCode(404)) => Ok(None),
         Err(e) => Err(e.into()),
     }
 }
