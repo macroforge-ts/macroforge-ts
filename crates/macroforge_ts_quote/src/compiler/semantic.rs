@@ -65,7 +65,7 @@ enum Context {
     Parameters,
     /// Object literal.
     ObjectLiteral,
-    /// Identifier context (for {|...|} blocks).
+    /// Identifier context (for ... blocks).
     Identifier,
 }
 
@@ -602,7 +602,7 @@ mod tests {
 
     #[test]
     fn test_ident_block() {
-        let result = analyze_template("{|get@{name}|}");
+        let result = analyze_template("get@{name}");
         // Should have a placeholder in identifier context
         assert!(!result.placeholders.is_empty());
     }
@@ -811,6 +811,55 @@ mod tests {
             PlaceholderKind::Expr,
             "Body expression should be Expr, got {:?}",
             placeholders[2].1.kind
+        );
+    }
+
+    #[test]
+    fn test_adjacent_function_name_and_generic_params() {
+        // Tests the pattern from derive_default.rs: function @{fn_name_ident}@{generic_params_ident}()
+        // Both adjacent placeholders after function keyword should be Ident
+        let result = analyze_template(
+            "export function @{fn_name_ident}@{generic_params_ident}(): @{return_type_ident} { return @{return_expr}; }",
+        );
+        assert_eq!(result.placeholders.len(), 4, "Expected 4 placeholders");
+
+        // Print all placeholders for debugging
+        let mut placeholders: Vec<_> = result.placeholders.iter().collect();
+        placeholders.sort_by_key(|(id, _)| *id);
+        for (id, info) in &placeholders {
+            eprintln!(
+                "Adjacent placeholder test - Placeholder {}: kind={:?}, tokens={}",
+                id, info.kind, info.tokens
+            );
+        }
+
+        // First placeholder (fn_name_ident) should be Ident (after function keyword)
+        assert_eq!(
+            placeholders[0].1.kind,
+            PlaceholderKind::Ident,
+            "Function name should be Ident, got {:?}",
+            placeholders[0].1.kind
+        );
+        // Second placeholder (generic_params_ident) should ALSO be Ident (concatenated with function name)
+        assert_eq!(
+            placeholders[1].1.kind,
+            PlaceholderKind::Ident,
+            "Generic params should be Ident, got {:?}",
+            placeholders[1].1.kind
+        );
+        // Third placeholder (return_type_ident) should be Type (after :)
+        assert_eq!(
+            placeholders[2].1.kind,
+            PlaceholderKind::Type,
+            "Return type should be Type, got {:?}",
+            placeholders[2].1.kind
+        );
+        // Fourth placeholder (return_expr) should be Expr (after return)
+        assert_eq!(
+            placeholders[3].1.kind,
+            PlaceholderKind::Expr,
+            "Return expression should be Expr, got {:?}",
+            placeholders[3].1.kind
         );
     }
 }

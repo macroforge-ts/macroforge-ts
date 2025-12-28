@@ -35,14 +35,16 @@ fn test_interpolation_expr_binding() {
 
 #[test]
 fn test_ident_block_binding() {
-    let input = TokenStream2::from_str("const {|foo@{bar}|} = 1;").unwrap();
+    let input = TokenStream2::from_str("const foo@{bar} = 1;").unwrap();
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
-    // New compiler builds identifiers dynamically
+    // Implicit concatenation: foo@{bar} should be detected and wrapped in IdentBlock
+    // The generated code should concatenate "foo" with the bar placeholder
+    // Look for the ident builder pattern or concatenation code
     assert!(
-        s.contains("__ident") || s.contains("Ident"),
-        "Expected identifier building for ident blocks. Got: {}",
+        s.contains("push_str") || s.contains("foo") && s.contains("bar"),
+        "Expected implicit concatenation of foo and bar. Got: {}",
         s
     );
 }

@@ -193,7 +193,7 @@ fn test_derive_default_interface() {
 fn test_derive_default_type_alias_generic() {
     test_template(
         "derive_default_type_alias_generic",
-        r#"export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident} {
+        r#"export function @{fn_name_ident}@{generic_decl_ident}(): @{full_type_ident} {
                             return {
                                 {#for (name_ident, value_expr) in object_fields}
                                     @{name_ident}: @{value_expr},
@@ -615,5 +615,36 @@ fn test_debug_constructor_for_loop() {
         {/for}
     }
 }"#,
+    );
+}
+
+// ==================== For-only template with external variable ====================
+// This tests the pattern where a template ONLY contains a for loop that uses
+// an external variable. This pattern causes "unused variable" warnings in Rust
+// because the variable capture might not be happening correctly.
+#[test]
+fn test_for_only_template_with_external_var() {
+    // Matches pattern from gigaform/types.rs generate_variant_errors
+    test_template(
+        "for_only_template_with_external_var",
+        r#"{#for v in &config.variants}export type @{type_name}@{v.name}Errors = {};{/for}"#,
+    );
+}
+
+#[test]
+fn test_for_only_template_concatenated_ident() {
+    // Tests that variables used in concatenated identifiers inside for loops are captured
+    test_template(
+        "for_only_template_concatenated_ident",
+        r#"{#for item in items}export interface @{prefix}@{item.suffix}Controller {}{/for}"#,
+    );
+}
+
+#[test]
+fn test_for_only_with_let_binding() {
+    // Tests for loop with $let that uses external variable
+    test_template(
+        "for_only_with_let_binding",
+        r#"{#for v in &config.variants}{$let variant_name = to_pascal_case(&v.value)}export type @{type_name}@{variant_name}Tainted = {};{/for}"#,
     );
 }

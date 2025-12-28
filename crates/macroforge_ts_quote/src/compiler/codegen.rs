@@ -1413,7 +1413,14 @@ impl Codegen {
             let absolute = offset + pos;
             let after_idx = absolute + marker.len();
             let after = text.as_bytes().get(after_idx).copied();
-            if after.is_none_or(|b| !Self::is_ident_char(b)) {
+            // Check if the character after the marker is NOT a continuation of the placeholder name.
+            // Placeholder names are like $MfPh0, $MfPh12, etc. - they end with digits.
+            // After the placeholder, valid terminators are:
+            // - End of string
+            // - $ (start of next placeholder)
+            // - Any non-digit (since placeholder names end in digits, a letter means end)
+            // The only invalid case is another digit (e.g., $MfPh1 followed by 0 = $MfPh10)
+            if after.is_none_or(|b| !b.is_ascii_digit()) {
                 return Some(absolute);
             }
             offset = after_idx;
@@ -1657,27 +1664,91 @@ impl Codegen {
         let mut current_template = String::new();
         let mut current_placeholders: Vec<(String, PlaceholderKind, String)> = Vec::new();
         let mut current_context = starting_context;
+        // Track pending Ident placeholder for merging adjacent ones
+        let mut pending_ident_exprs: Vec<String> = Vec::new();
+
+        // Helper to flush pending ident expressions into a single placeholder
+        let flush_pending_idents =
+            |template: &mut String,
+             placeholders: &mut Vec<(String, PlaceholderKind, String)>,
+             pending: &mut Vec<String>,
+             counter: &Cell<usize>| {
+                if pending.is_empty() {
+                    return;
+                }
+                let ph_name = {
+                    let n = counter.get();
+                    counter.set(n + 1);
+                    format!("MfPh{}", n)
+                };
+                template.push('$');
+                template.push_str(&ph_name);
+
+                // Generate ident concatenation expression
+                let ident_expr = if pending.len() == 1 {
+                    // Single ident - just use it directly
+                    pending[0].clone()
+                } else {
+                    // Multiple idents - concatenate their symbols and create a new Ident
+                    // Build: { let mut __s = String::new(); __s.push_str(&a.sym); __s.push_str(&b.sym); Ident::new_no_ctxt(__s.into(), DUMMY_SP) }
+                    let push_stmts = pending
+                        .iter()
+                        .map(|e| format!("__mf_s.push_str(macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(&{}).sym.as_ref());", e))
+                        .collect::<Vec<_>>()
+                        .join(" ");
+                    format!(
+                        "{{ let mut __mf_s = String::new(); {} macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(__mf_s.into(), macroforge_ts::swc_core::common::DUMMY_SP) }}",
+                        push_stmts
+                    )
+                };
+                placeholders.push((ph_name, PlaceholderKind::Ident, ident_expr));
+                pending.clear();
+            };
 
         for node in nodes {
             match node {
                 IrNode::Text(text) => {
+                    // Flush any pending idents before adding text
+                    flush_pending_idents(
+                        &mut current_template,
+                        &mut current_placeholders,
+                        &mut pending_ident_exprs,
+                        &self.placeholder_counter,
+                    );
                     current_template.push_str(text);
                 }
 
                 IrNode::Placeholder { kind, rust_expr } => {
-                    let ph_name = self.next_placeholder_name();
-                    // Use $ prefix for ALL placeholders - SWC quote! will substitute them
-                    // For Type placeholders, we provide an Ident binding with the marker name,
-                    // then replace the Ident in type positions with actual TsType after parsing
-                    current_template.push('$');
-                    current_template.push_str(&ph_name);
-                    current_placeholders.push((ph_name, *kind, rust_expr.clone()));
+                    if *kind == PlaceholderKind::Ident {
+                        // Accumulate Ident placeholders for potential merging
+                        pending_ident_exprs.push(rust_expr.clone());
+                    } else {
+                        // Flush any pending idents first
+                        flush_pending_idents(
+                            &mut current_template,
+                            &mut current_placeholders,
+                            &mut pending_ident_exprs,
+                            &self.placeholder_counter,
+                        );
+                        // Then emit this non-Ident placeholder
+                        let ph_name = self.next_placeholder_name();
+                        current_template.push('$');
+                        current_template.push_str(&ph_name);
+                        current_placeholders.push((ph_name, *kind, rust_expr.clone()));
+                    }
                 }
 
                 IrNode::If { .. }
                 | IrNode::For { .. }
                 | IrNode::While { .. }
                 | IrNode::Match { .. } => {
+                    // Flush any pending idents first
+                    flush_pending_idents(
+                        &mut current_template,
+                        &mut current_placeholders,
+                        &mut pending_ident_exprs,
+                        &self.placeholder_counter,
+                    );
                     // Flush pending template and get the inner context
                     let inner_ctx = self.flush_parseable_with_context(
                         &mut chunks,
@@ -1695,6 +1766,12 @@ impl Codegen {
                 }
 
                 IrNode::Let { .. } | IrNode::Do { .. } => {
+                    flush_pending_idents(
+                        &mut current_template,
+                        &mut current_placeholders,
+                        &mut pending_ident_exprs,
+                        &self.placeholder_counter,
+                    );
                     let inner_ctx = self.flush_parseable_with_context(
                         &mut chunks,
                         &mut current_template,
@@ -1712,6 +1789,12 @@ impl Codegen {
                     // {$typescript stream} - always flush and add as directive chunk.
                     // The directive will be handled by generate_typescript_with_context
                     // which properly parses the stream and adds statements/patches.
+                    flush_pending_idents(
+                        &mut current_template,
+                        &mut current_placeholders,
+                        &mut pending_ident_exprs,
+                        &self.placeholder_counter,
+                    );
                     let inner_ctx = self.flush_parseable_with_context(
                         &mut chunks,
                         &mut current_template,
@@ -1726,6 +1809,13 @@ impl Codegen {
                 }
 
                 IrNode::IdentBlock { parts } => {
+                    // Flush any pending idents first
+                    flush_pending_idents(
+                        &mut current_template,
+                        &mut current_placeholders,
+                        &mut pending_ident_exprs,
+                        &self.placeholder_counter,
+                    );
                     // Treat ident block as an Ident placeholder embedded in the template
                     let ph_name = self.next_placeholder_name();
                     current_template.push('$');
@@ -1737,6 +1827,13 @@ impl Codegen {
                 }
 
                 IrNode::StringInterp { quote: q, parts } => {
+                    // Flush any pending idents first
+                    flush_pending_idents(
+                        &mut current_template,
+                        &mut current_placeholders,
+                        &mut pending_ident_exprs,
+                        &self.placeholder_counter,
+                    );
                     // Check if this string actually contains interpolations
                     let has_interpolations = parts
                         .iter()
@@ -1808,6 +1905,13 @@ impl Codegen {
                 }
 
                 IrNode::Comment { text } => {
+                    // Flush any pending idents first
+                    flush_pending_idents(
+                        &mut current_template,
+                        &mut current_placeholders,
+                        &mut pending_ident_exprs,
+                        &self.placeholder_counter,
+                    );
                     // Flush any pending template before the comment
                     let inner_ctx = self.flush_parseable_with_context(
                         &mut chunks,
@@ -1822,6 +1926,14 @@ impl Codegen {
                 }
             }
         }
+
+        // Flush any remaining pending idents
+        flush_pending_idents(
+            &mut current_template,
+            &mut current_placeholders,
+            &mut pending_ident_exprs,
+            &self.placeholder_counter,
+        );
 
         // Flush remaining
         self.flush_parseable_with_context(

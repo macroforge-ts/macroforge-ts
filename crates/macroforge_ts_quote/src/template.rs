@@ -2,7 +2,7 @@
 //!
 //! Provides a template syntax with interpolation and control flow:
 //! - `@{expr}` - Interpolate expressions (calls `.to_string()`)
-//! - `{| content |}` - Ident block: concatenates content without spaces (e.g., `{|get@{name}|}` → `getUser`)
+//! - ` content ` - Ident block: concatenates content without spaces (e.g., `get@{name}` → `getUser`)
 //! - `{> "comment" <}` - Line comment: outputs `// comment` (string preserves whitespace)
 //! - `{>> "comment" <<}` - Block comment: outputs `/* comment */` (string preserves whitespace)
 //! - `///` or `/** */` - Rust doc comments in the template emit JSDoc blocks (`/** ... */`)
@@ -151,7 +151,7 @@ pub(crate) fn convert_doc_attributes_to_jsdoc(input: &str) -> String {
 /// - `{/if}` becomes `{ / if }`
 /// - `{:else}` becomes `{ : else }`
 /// - `{$let x = 1}` becomes `{ $ let x = 1 }`
-/// - `{|ident|}` becomes `{ | ident | }`
+/// - `ident` becomes `{ | ident | }`
 /// - `===` becomes `= = =` (JavaScript strict equality)
 /// - `!==` becomes `! = =` (JavaScript strict inequality)
 ///
@@ -314,17 +314,21 @@ pub(crate) fn normalize_template_spacing(input: &str) -> String {
 
         // Handle @ followed by optional whitespace then { or @
         if c == '@' {
-            result.push('@');
-            i += 1;
             // Skip whitespace after @
-            while i < len && chars[i].is_whitespace() {
-                i += 1;
+            let mut peek = i + 1;
+            while peek < len && chars[peek].is_whitespace() {
+                peek += 1;
             }
-            // Check what follows
-            if i < len && (chars[i] == '{' || chars[i] == '@') {
-                // Don't add space, continue to next iteration which will handle the char
+
+            // Check if this is @{ or @@ (interpolation or escape)
+            if peek < len && (chars[peek] == '{' || chars[peek] == '@') {
+                result.push('@');
+                i = peek; // Skip to the { or @
                 continue;
             }
+
+            result.push('@');
+            i += 1;
         }
         // Handle { followed by optional whitespace then #, /, :, $, or |
         else if c == '{' {

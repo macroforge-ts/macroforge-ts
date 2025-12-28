@@ -1468,7 +1468,7 @@ mod tests {
             let prefix = "get";
             let field = "Name";
             let stream = ts_template! {
-                this.{|@{prefix}@{field}|}();
+                this.@{prefix}@{field}();
             };
             let source = stream.source();
             assert!(source.contains("this.getName()"));
@@ -1479,7 +1479,7 @@ mod tests {
             let fields = vec!["user", "email"];
             let stream = ts_template! {
                 {#for field in &fields}
-                    this.{|get@{field.to_pascal_case()}|}();
+                    this.get@{field.to_pascal_case()}();
                 {/for}
             };
             let source = stream.source();

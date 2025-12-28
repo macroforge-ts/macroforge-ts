@@ -292,7 +292,167 @@ impl IrLowering {
             result.push(IrNode::Text(pending_text));
         }
 
+        // Detect and wrap implicit identifier concatenations
+        self.detect_implicit_concatenations(result)
+    }
+
+    /// Detects implicit identifier concatenation patterns and wraps them in IdentBlock.
+    ///
+    /// Pattern: Text ending with `identifier_char + space` followed by Ident placeholder
+    /// indicates the space was added by tokenization, not intentional.
+    ///
+    /// Example: `foo@{bar}` becomes `foo @ { bar }` after tokenization → Text("foo ") + Placeholder(Ident)
+    /// We detect this and wrap in IdentBlock for proper concatenation.
+    fn detect_implicit_concatenations(&self, nodes: Vec<IrNode>) -> Vec<IrNode> {
+        let mut result = Vec::new();
+        let mut i = 0;
+
+        while i < nodes.len() {
+            // Check for pattern: Text ending with "ident_char + space" followed by Ident placeholder
+            if let IrNode::Text(text) = &nodes[i] {
+                if i + 1 < nodes.len() {
+                    if let IrNode::Placeholder {
+                        kind: PlaceholderKind::Ident,
+                        ..
+                    } = &nodes[i + 1]
+                    {
+                        // Check if text ends with "identifier_char + single_space"
+                        if text.ends_with(' ') && text.len() >= 2 {
+                            let chars: Vec<char> = text.chars().collect();
+                            let char_before_space = chars[chars.len() - 2];
+                            // Only trigger for identifier characters (letters, digits, underscore)
+                            // NOT for keywords - we check that the preceding "word" is not a keyword
+                            if char_before_space.is_alphanumeric() || char_before_space == '_' {
+                                // Extract the last "word" to check if it's a keyword
+                                let trimmed = text.trim_end();
+                                let last_word = trimmed
+                                    .rsplit(|c: char| !c.is_alphanumeric() && c != '_')
+                                    .next()
+                                    .unwrap_or("");
+
+                                // Don't treat as concatenation after keywords
+                                if !Self::is_ts_keyword(last_word) {
+                                    // This is implicit concatenation - wrap in IdentBlock
+                                    // Strip trailing space from text and combine with placeholder
+                                    let text_without_space = &text[..text.len() - 1];
+                                    let mut parts = Vec::new();
+                                    if !text_without_space.is_empty() {
+                                        parts.push(IrNode::Text(text_without_space.to_string()));
+                                    }
+                                    parts.push(nodes[i + 1].clone());
+
+                                    // Check for more consecutive Ident placeholders
+                                    let mut j = i + 2;
+                                    while j < nodes.len() {
+                                        if let IrNode::Placeholder {
+                                            kind: PlaceholderKind::Ident,
+                                            ..
+                                        } = &nodes[j]
+                                        {
+                                            parts.push(nodes[j].clone());
+                                            j += 1;
+                                        } else {
+                                            break;
+                                        }
+                                    }
+
+                                    result.push(IrNode::IdentBlock { parts });
+                                    i = j;
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            result.push(nodes[i].clone());
+            i += 1;
+        }
+
         result
+    }
+
+    /// Checks if a word is a TypeScript/JavaScript keyword.
+    fn is_ts_keyword(word: &str) -> bool {
+        matches!(
+            word,
+            "abstract"
+                | "any"
+                | "as"
+                | "async"
+                | "await"
+                | "bigint"
+                | "boolean"
+                | "break"
+                | "case"
+                | "catch"
+                | "class"
+                | "const"
+                | "continue"
+                | "debugger"
+                | "declare"
+                | "default"
+                | "delete"
+                | "do"
+                | "else"
+                | "enum"
+                | "export"
+                | "extends"
+                | "false"
+                | "finally"
+                | "for"
+                | "from"
+                | "function"
+                | "get"
+                | "if"
+                | "implements"
+                | "import"
+                | "in"
+                | "infer"
+                | "instanceof"
+                | "interface"
+                | "is"
+                | "keyof"
+                | "let"
+                | "module"
+                | "namespace"
+                | "never"
+                | "new"
+                | "null"
+                | "number"
+                | "object"
+                | "of"
+                | "override"
+                | "package"
+                | "private"
+                | "protected"
+                | "public"
+                | "readonly"
+                | "require"
+                | "return"
+                | "satisfies"
+                | "set"
+                | "static"
+                | "string"
+                | "super"
+                | "switch"
+                | "symbol"
+                | "this"
+                | "throw"
+                | "true"
+                | "try"
+                | "type"
+                | "typeof"
+                | "undefined"
+                | "unique"
+                | "unknown"
+                | "var"
+                | "void"
+                | "while"
+                | "with"
+                | "yield"
+        )
     }
 
     /// Collects text from a node and its children (for simple text nodes).

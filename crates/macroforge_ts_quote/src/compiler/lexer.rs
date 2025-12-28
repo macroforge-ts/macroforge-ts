@@ -28,7 +28,7 @@ enum LexerMode {
     Directive,
     /// Inside an interpolation `@{...}`
     Interpolation,
-    /// Inside an ident block `{|...|}`
+    /// Inside an ident block `...`
     IdentBlock,
     /// Inside a string literal
     StringLiteral,
@@ -548,11 +548,11 @@ impl<'a> Lexer<'a> {
         SyntaxKind::RustTokens
     }
 
-    /// Lexes inside an ident block `{|...|}`.
+    /// Lexes inside an ident block `{|...|}`
     fn lex_ident_block(&mut self) -> SyntaxKind {
         let remaining = self.remaining();
 
-        // Check for closing
+        // Check for closing |}
         if remaining.starts_with("|}") {
             self.advance(2);
             self.pop_mode();

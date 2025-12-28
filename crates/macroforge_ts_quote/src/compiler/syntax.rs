@@ -47,9 +47,9 @@ pub enum SyntaxKind {
     ColonOpen,
     /// `{$` - directive open (let, do, typescript)
     DollarOpen,
-    /// `{|` - ident block open
+    /// `` - ident block open
     PipeOpen,
-    /// `|}` - ident block close
+    /// `` - ident block close
     PipeClose,
     /// `{>` - line comment open
     CommentLineOpen,
@@ -157,7 +157,7 @@ pub enum SyntaxKind {
     // Interpolation nodes
     /// `@{expr}` - basic interpolation
     Interpolation,
-    /// `{| parts |}` - ident block (concatenated identifier)
+    /// ` parts ` - ident block (concatenated identifier)
     IdentBlock,
 
     // String/template nodes

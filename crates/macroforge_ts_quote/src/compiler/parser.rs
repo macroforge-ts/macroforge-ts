@@ -519,24 +519,24 @@ impl Parser {
         self.finish_node();
     }
 
-    /// Parses an ident block: {|...|}
+    /// Parses an ident block: ...
     ///
     /// DEPRECATED: Ident blocks are deprecated. Use implicit concatenation instead:
-    /// - Old: `function {|get@{field}|}()`
+    /// - Old: `function get@{field}()`
     /// - New: `function get@{field}()`
     fn parse_ident_block(&mut self) {
         // Emit deprecation warning
         eprintln!(
-            "warning: `{{|...|}}`  ident block syntax is deprecated. \
+            "warning: `{{|...|}}` ident block syntax is deprecated. \
              Use implicit concatenation instead (e.g., `get@{{field}}` instead of `{{|get@{{field}}|}}`)"
         );
 
         self.start_node(SyntaxKind::IdentBlock);
 
-        // {|
+        //
         self.bump();
 
-        // Content until |}
+        // Content until
         while !self.at_eof() && !self.at(SyntaxKind::PipeClose) {
             if self.at(SyntaxKind::At) {
                 self.parse_interpolation();
