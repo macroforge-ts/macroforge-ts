@@ -977,7 +977,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             {#if has_validators}
                                                 {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
                                                 {$typescript validation_code}
-                                                
+
                                             {/if}
                                             instance.@{field._field_ident} = @{raw_var_ident};
 
@@ -987,7 +987,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {#if has_validators}
                                                     {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
                                                     {$typescript validation_code}
-                                                    
+
                                                 {/if}
                                                 instance.@{field._field_ident} = __dateVal;
                                             }
@@ -997,7 +997,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {#if has_validators}
                                                     {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
                                                     {$typescript validation_code}
-                                                    
+
                                                 {/if}
 
                                                 {#match field._array_elem_kind.unwrap_or(SerdeValueKind::Other)}
@@ -1112,7 +1112,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             {#if has_validators}
                                                 {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
                                                 {$typescript validation_code}
-                                                
+
                                             {/if}
                                             instance.@{field._field_ident} = @{raw_var_ident};
 
@@ -1122,7 +1122,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {#if has_validators}
                                                     {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
                                                     {$typescript validation_code}
-                                                    
+
                                                 {/if}
                                                 instance.@{field._field_ident} = __dateVal;
                                             }
@@ -1132,7 +1132,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {#if has_validators}
                                                     {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
                                                     {$typescript validation_code}
-                                                    
+
                                                 {/if}
 
                                                 {#match field._array_elem_kind.unwrap_or(SerdeValueKind::Other)}
@@ -1249,7 +1249,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         const __val = _value as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name)}
                         {$typescript validation_code}
-                        
+
                     }
                     {/for}
                     return errors;
@@ -1268,7 +1268,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         const __val = _partial.@{field._field_ident} as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name)}
                         {$typescript validation_code}
-                        
+
                     }
                     {/for}
                     return errors;
@@ -1671,7 +1671,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {#if has_validators}
                                                     {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name)}
                                                     {$typescript validation_code}
-                                                    
+
                                                 {/if}
                                                 instance.@{field._field_ident} = @{raw_var_ident};
 
@@ -1681,7 +1681,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {#if has_validators}
                                                         {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name)}
                                                         {$typescript validation_code}
-                                                        
+
                                                     {/if}
                                                     instance.@{field._field_ident} = __dateVal;
                                                 }
@@ -1691,7 +1691,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {#if has_validators}
                                                         {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name)}
                                                         {$typescript validation_code}
-                                                        
+
                                                     {/if}
                                                     instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                 }
@@ -1758,7 +1758,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {#if has_validators}
                                                     {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name)}
                                                     {$typescript validation_code}
-                                                    
+
                                                 {/if}
                                                 instance.@{field._field_ident} = @{raw_var_ident};
 
@@ -1768,7 +1768,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {#if has_validators}
                                                         {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name)}
                                                         {$typescript validation_code}
-                                                        
+
                                                     {/if}
                                                     instance.@{field._field_ident} = __dateVal;
                                                 }
@@ -1778,7 +1778,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {#if has_validators}
                                                         {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name)}
                                                         {$typescript validation_code}
-                                                        
+
                                                     {/if}
                                                     instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                 }
@@ -1855,7 +1855,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             const __val = _value as @{field.ts_type};
                             {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name)}
                             {$typescript validation_code}
-                            
+
                         }
                         {/for}
                         return errors;
@@ -1874,7 +1874,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             const __val = _partial.@{field._field_ident} as @{field.ts_type};
                             {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name)}
                             {$typescript validation_code}
-                            
+
                         }
                         {/for}
                         return errors;
@@ -2209,7 +2209,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {#if has_validators}
                                                         {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
                                                         {$typescript validation_code}
-                                                        
+
                                                     {/if}
                                                     instance.@{field._field_ident} = @{raw_var_ident};
 
@@ -2219,7 +2219,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         {#if has_validators}
                                                             {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name)}
                                                             {$typescript validation_code}
-                                                            
+
                                                         {/if}
                                                         instance.@{field._field_ident} = __dateVal;
                                                     }
@@ -2229,7 +2229,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         {#if has_validators}
                                                             {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
                                                             {$typescript validation_code}
-                                                            
+
                                                         {/if}
                                                         instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                     }
@@ -2296,7 +2296,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {#if has_validators}
                                                         {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
                                                         {$typescript validation_code}
-                                                        
+
                                                     {/if}
                                                     instance.@{field._field_ident} = @{raw_var_ident};
 
@@ -2306,7 +2306,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         {#if has_validators}
                                                             {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name)}
                                                             {$typescript validation_code}
-                                                            
+
                                                         {/if}
                                                         instance.@{field._field_ident} = __dateVal;
                                                     }
@@ -2316,7 +2316,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         {#if has_validators}
                                                             {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
                                                             {$typescript validation_code}
-                                                            
+
                                                         {/if}
                                                         instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];
                                                     }
@@ -2393,7 +2393,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 const __val = _value as @{field.ts_type};
                                 {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
                                 {$typescript validation_code}
-                                
+
                             }
                             {/for}
                             return errors;
@@ -2412,7 +2412,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 const __val = _partial.@{field._field_ident} as @{field.ts_type};
                                 {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
                                 {$typescript validation_code}
-                                
+
                             }
                             {/for}
                             return errors;
