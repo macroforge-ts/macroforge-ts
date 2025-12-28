@@ -296,7 +296,7 @@ mod tests {
         let base_props_method = format!("make{}BaseProps", class_name_str);
 
         let stream: TsStream = ts_template! {
-            {|make@{class_name}BaseProps|}<D extends number, const P extends DeepPath<@{class_name}, D>, V = DeepValue<@{class_name}, P, never, D>>(
+            make@{class_name}BaseProps<D extends number, const P extends DeepPath<@{class_name}, D>, V = DeepValue<@{class_name}, P, never, D>>(
                 superForm: SuperForm<@{class_name}>,
                 path: P,
                 overrides?: BasePropsOverrides<@{class_name}, V, D>
@@ -368,15 +368,15 @@ mod tests {
         );
     }
 
-    // ========== Ident Block {| |} Integration Tests ==========
+    // ========== Ident Block   Integration Tests ==========
 
     #[test]
     fn test_ident_block_basic_concatenation() {
-        // Test that {| |} concatenates content without spaces
+        // Test that   concatenates content without spaces
         let suffix = "Status";
 
         let stream: TsStream = ts_template! {
-            const {|namespace@{suffix}|} = "value";
+            const namespace@{suffix} = "value";
         };
 
         let s = stream.source();
@@ -396,7 +396,7 @@ mod tests {
         let type_name = "User";
 
         let stream: TsStream = ts_template! {
-            function {|get@{type_name}|}(): @{type_name} {
+            function get@{type_name}(): @{type_name} {
                 return {} as @{type_name};
             }
         };
@@ -427,7 +427,7 @@ mod tests {
         let suffix = "ById";
 
         let stream: TsStream = ts_template! {
-            function {|@{prefix}@{middle}@{suffix}|}(id: string) { }
+            function @{prefix}@{middle}@{suffix}(id: string) { }
         };
 
         let s = stream.source();
@@ -443,11 +443,11 @@ mod tests {
 
     #[test]
     fn test_ident_block_preserves_external_spacing() {
-        // Test that space before {| |} is preserved
+        // Test that space before   is preserved
         let name = "Handler";
 
         let stream: TsStream = ts_template! {
-            export class {|Event@{name}|} { }
+            export class Event@{name} { }
         };
 
         let s = stream.source();
@@ -468,7 +468,7 @@ mod tests {
 
         // With ident block - explicit no space
         let with_block: TsStream = ts_template! {
-            {|create@{type_name}|}
+            create@{type_name}
         };
 
         // Regular interpolation - relies on heuristics
@@ -496,7 +496,7 @@ mod tests {
         let prop = "Status";
 
         let stream: TsStream = ts_template! {
-            const value = obj.{|get@{prop}|}();
+            const value = obj.get@{prop}();
         };
 
         let s = stream.source();
@@ -514,7 +514,7 @@ mod tests {
     fn test_ident_block_empty() {
         // Test empty ident block produces empty string
         let stream: TsStream = ts_template! {
-            const prefix{||}suffix = 1;
+            const prefixsuffix = 1;
         };
 
         let s = stream.source();
@@ -531,12 +531,12 @@ mod tests {
     #[test]
     fn test_ident_block_with_underscore_separator() {
         // Test ident blocks with underscores (snake_case generation)
-        // All parts that need concatenation should be inside {| |}
+        // All parts that need concatenation should be inside
         let entity = "user";
         let action = "create";
 
         let stream: TsStream = ts_template! {
-            function {|@{entity}_@{action}|}() { }
+            function @{entity}_@{action}() { }
         };
 
         let s = stream.source();
@@ -555,7 +555,8 @@ mod tests {
     #[test]
     fn test_union_type_for_loop_basic() {
         // Test basic for loop with Vec<String> - simulating union type refs
-        let type_refs: Vec<String> = vec!["User".to_string(), "Admin".to_string(), "Guest".to_string()];
+        let type_refs: Vec<String> =
+            vec!["User".to_string(), "Admin".to_string(), "Guest".to_string()];
 
         let stream: TsStream = ts_template! {
             function dispatch(value: any) {
@@ -570,9 +571,21 @@ mod tests {
         let s = stream.source();
         println!("Generated Source:\n{}", s);
 
-        assert!(s.contains("User.deserializeWithContext"), "Expected User.deserializeWithContext, found: {}", s);
-        assert!(s.contains("Admin.deserializeWithContext"), "Expected Admin.deserializeWithContext, found: {}", s);
-        assert!(s.contains("Guest.deserializeWithContext"), "Expected Guest.deserializeWithContext, found: {}", s);
+        assert!(
+            s.contains("User.deserializeWithContext"),
+            "Expected User.deserializeWithContext, found: {}",
+            s
+        );
+        assert!(
+            s.contains("Admin.deserializeWithContext"),
+            "Expected Admin.deserializeWithContext, found: {}",
+            s
+        );
+        assert!(
+            s.contains("Guest.deserializeWithContext"),
+            "Expected Guest.deserializeWithContext, found: {}",
+            s
+        );
     }
 
     #[test]
@@ -606,8 +619,16 @@ mod tests {
         let s = stream.source();
         println!("Generated Source:\n{}", s);
 
-        assert!(s.contains("Success.deserializeWithContext"), "Expected Success.deserializeWithContext, found: {}", s);
-        assert!(s.contains("Failure.deserializeWithContext"), "Expected Failure.deserializeWithContext, found: {}", s);
+        assert!(
+            s.contains("Success.deserializeWithContext"),
+            "Expected Success.deserializeWithContext, found: {}",
+            s
+        );
+        assert!(
+            s.contains("Failure.deserializeWithContext"),
+            "Expected Failure.deserializeWithContext, found: {}",
+            s
+        );
     }
 
     #[test]
@@ -633,8 +654,16 @@ mod tests {
         println!("Generated Source:\n{}", s);
 
         // Count occurrences - should appear twice each
-        assert!(s.matches("TypeA").count() >= 2, "Expected TypeA to appear at least twice, found: {}", s);
-        assert!(s.matches("TypeB").count() >= 2, "Expected TypeB to appear at least twice, found: {}", s);
+        assert!(
+            s.matches("TypeA").count() >= 2,
+            "Expected TypeA to appear at least twice, found: {}",
+            s
+        );
+        assert!(
+            s.matches("TypeB").count() >= 2,
+            "Expected TypeB to appear at least twice, found: {}",
+            s
+        );
     }
 
     #[test]
@@ -664,7 +693,15 @@ mod tests {
         let s = stream.source();
         println!("Generated Source:\n{}", s);
 
-        assert!(s.contains("Option1.deserializeWithContext"), "Expected Option1.deserializeWithContext, found: {}", s);
-        assert!(s.contains("Option2.deserializeWithContext"), "Expected Option2.deserializeWithContext, found: {}", s);
+        assert!(
+            s.contains("Option1.deserializeWithContext"),
+            "Expected Option1.deserializeWithContext, found: {}",
+            s
+        );
+        assert!(
+            s.contains("Option2.deserializeWithContext"),
+            "Expected Option2.deserializeWithContext, found: {}",
+            s
+        );
     }
 }
