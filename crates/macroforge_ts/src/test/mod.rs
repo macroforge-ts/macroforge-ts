@@ -1677,6 +1677,13 @@ interface Point {
             result.code.contains("pointSerializeWithContext"),
             "Should generate prefix-style pointSerializeWithContext function"
         );
+
+        // Verify no syntax context markers in output (would indicate Ident emission bug)
+        assert!(
+            !result.code.contains("#0"),
+            "Output should not contain SWC syntax context markers like #0. Got:\n{}",
+            result.code
+        );
     });
 }
 
@@ -2198,6 +2205,13 @@ type User = {
         assert!(
             result.code.contains("userSerialize"),
             "Should generate userSerialize function for type"
+        );
+
+        // Verify no syntax context markers in output (would indicate Ident emission bug)
+        assert!(
+            !result.code.contains("#0"),
+            "Output should not contain SWC syntax context markers like #0. Got:\n{}",
+            result.code
         );
     });
 }
@@ -3010,5 +3024,49 @@ export { User, Role, Status, createUser, users };
     assert!(
         result.diagnostics.is_empty(),
         "No diagnostics for regular TypeScript"
+    );
+}
+
+#[test]
+fn test_serialize_generates_correct_field_access() {
+    // Test that serialization uses correct property access syntax
+    use crate::expand_inner;
+
+    let source = r#"
+/** @derive(Serialize) */
+class Point {
+    x: number;
+    y: number;
+}
+"#;
+
+    let result = expand_inner(source, "test.ts", None).unwrap();
+
+    // Should have __type marker with class name
+    assert!(
+        result.code.contains("__type"),
+        "Should have __type marker. Got:\n{}",
+        result.code
+    );
+
+    // Should use direct property access (result.x) not computed (result["x"])
+    assert!(
+        result.code.contains("result.x =") || result.code.contains("result.x="),
+        "Should use direct property access for x. Got:\n{}",
+        result.code
+    );
+
+    // Should NOT have template literal property access
+    assert!(
+        !result.code.contains("`${"),
+        "Should not have template literal syntax. Got:\n{}",
+        result.code
+    );
+
+    // Should NOT have #0 syntax context markers
+    assert!(
+        !result.code.contains("#0"),
+        "Should not have SWC syntax context markers. Got:\n{}",
+        result.code
     );
 }

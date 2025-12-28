@@ -1970,41 +1970,70 @@ fn collect_macro_import_comments(source: &str) -> HashMap<String, String> {
     let mut out = HashMap::new();
     let mut search_start = 0usize;
 
-    while let Some(idx) = source[search_start..].find("/** import macro") {
+    while let Some(idx) = source[search_start..].find("/**") {
         let abs_idx = search_start + idx;
-        let remaining = &source[abs_idx..];
-        let Some(end_idx) = remaining.find("*/") else {
+        let remaining = &source[abs_idx + 3..];
+        let Some(end_rel) = remaining.find("*/") else {
             break;
         };
-        let block = &remaining[..end_idx];
+        let body = &remaining[..end_rel];
+        let normalized = normalize_macro_import_body(body);
+        let normalized_lower = normalized.to_ascii_lowercase();
 
-        if let Some(open_brace) = block.find('{')
-            && let Some(close_brace) = block.find('}')
+        if normalized_lower.contains("import macro")
+            && let (Some(open_brace), Some(close_brace)) =
+                (normalized.find('{'), normalized.find('}'))
             && close_brace > open_brace
-            && let Some(from_idx) = block[close_brace..].find("from")
+            && let Some(from_idx) = normalized_lower[close_brace..].find("from")
         {
-            let names_src = &block[open_brace + 1..close_brace];
-            let from_section = &block[close_brace + from_idx + "from".len()..];
-            let module_src = from_section
-                .split(['"', '\''])
-                .nth(1)
-                .map(str::trim)
-                .unwrap_or("");
-
-            if !module_src.is_empty() {
+            let names_src = normalized[open_brace + 1..close_brace].trim();
+            let from_section = &normalized[close_brace + from_idx + "from".len()..];
+            if let Some(module_src) = extract_quoted_string(from_section) {
                 for name in names_src.split(',') {
                     let trimmed = name.trim();
                     if !trimmed.is_empty() {
-                        out.insert(trimmed.to_string(), module_src.to_string());
+                        out.insert(trimmed.to_string(), module_src.clone());
                     }
                 }
             }
         }
 
-        search_start = abs_idx + end_idx + 2;
+        search_start = abs_idx + 3 + end_rel + 2;
     }
 
     out
+}
+
+fn normalize_macro_import_body(body: &str) -> String {
+    let mut normalized = String::new();
+    for line in body.lines() {
+        let mut trimmed = line.trim();
+        if let Some(stripped) = trimmed.strip_prefix('*') {
+            trimmed = stripped.trim();
+        }
+        if trimmed.is_empty() {
+            continue;
+        }
+        if !normalized.is_empty() {
+            normalized.push(' ');
+        }
+        normalized.push_str(trimmed);
+    }
+    normalized
+}
+
+fn extract_quoted_string(input: &str) -> Option<String> {
+    for (idx, ch) in input.char_indices() {
+        if ch == '"' || ch == '\'' {
+            let start = idx + 1;
+            let rest = &input[start..];
+            if let Some(end) = rest.find(ch) {
+                return Some(rest[..end].trim().to_string());
+            }
+            break;
+        }
+    }
+    None
 }
 
 fn collect_derive_targets(
