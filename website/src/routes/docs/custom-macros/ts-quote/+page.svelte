@@ -223,7 +223,7 @@ let code = ts_template! {
     code={`let field_name = "User";
 
 let code = ts_template! {
-    function {|get@{field_name}|}() {
+    function get@{field_name}() {
         return this.@{field_name.to_lowercase()};
     }
 };`}
@@ -251,7 +251,7 @@ let code = ts_template! {
 ts_template! { namespace @{name} }  // → "namespace Status"
 
 // Without space (ident block)
-ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"`}
+ts_template! { namespace@{name} }  // → "namespaceStatus"`}
     lang="rust"
 />
 
@@ -261,7 +261,7 @@ ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"`}
     code={`let entity = "user";
 let action = "create";
 
-ts_template! { {|@{entity}_@{action}|} }  // → "user_create"`}
+ts_template! { @{entity}_@{action} }  // → "user_create"`}
     lang="rust"
 />
 
