@@ -146,42 +146,42 @@ export function orderSerializeWithContext(value: Order, ctx: __mf_SerializeConte
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Order"}`,
+        __type: "Order",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"account"}`] = value.account;
-    result[`${"stage"}`] = orderStageSerializeWithContext(value.stage, ctx);
-    result[`${"number"}`] = value.number;
-    result[`${"payments"}`] = value.payments;
-    result[`${"opportunity"}`] = value.opportunity;
-    result[`${"reference"}`] = value.reference;
-    result[`${"leadSource"}`] = value.leadSource;
-    result[`${"salesRep"}`] = value.salesRep;
-    result[`${"group"}`] = value.group;
-    result[`${"subgroup"}`] = value.subgroup;
-    result[`${"isPosted"}`] = value.isPosted;
-    result[`${"needsReview"}`] = value.needsReview;
-    result[`${"actionItem"}`] = value.actionItem;
-    result[`${"upsale"}`] = value.upsale;
-    result[`${"dateCreated"}`] = dateTime.dateTimeSerializeWithContext(value.dateCreated, ctx);
-    result[`${"appointment"}`] = value.appointment;
-    result[`${"lastTechs"}`] = value.lastTechs;
+    result.id = value.id;
+    result.account = value.account;
+    result.stage = orderStageSerializeWithContext(value.stage, ctx);
+    result.number = value.number;
+    result.payments = value.payments;
+    result.opportunity = value.opportunity;
+    result.reference = value.reference;
+    result.leadSource = value.leadSource;
+    result.salesRep = value.salesRep;
+    result.group = value.group;
+    result.subgroup = value.subgroup;
+    result.isPosted = value.isPosted;
+    result.needsReview = value.needsReview;
+    result.actionItem = value.actionItem;
+    result.upsale = value.upsale;
+    result.dateCreated = dateTime.dateTimeSerializeWithContext(value.dateCreated, ctx);
+    result.appointment = value.appointment;
+    result.lastTechs = value.lastTechs;
     if (value.package !== null) {
-        result[`${"package"}`] = value.package;
+        result.package = value.package;
     }
     if (value.promotion !== null) {
-        result[`${"promotion"}`] = value.promotion;
+        result.promotion = value.promotion;
     }
-    result[`${"balance"}`] = value.balance;
-    result[`${"due"}`] = dateTime.dateTimeSerializeWithContext(value.due, ctx);
-    result[`${"total"}`] = value.total;
-    result[`${"site"}`] = value.site;
-    result[`${"billedItems"}`] = value.billedItems.map((item)=>billedItemSerializeWithContext(item, ctx));
-    result[`${"memo"}`] = option<string>SerializeWithContext(value.memo, ctx);
-    result[`${"discount"}`] = value.discount;
-    result[`${"tip"}`] = value.tip;
-    result[`${"commissions"}`] = value.commissions;
+    result.balance = value.balance;
+    result.due = dateTime.dateTimeSerializeWithContext(value.due, ctx);
+    result.total = value.total;
+    result.site = value.site;
+    result.billedItems = value.billedItems.map((item)=>billedItemSerializeWithContext(item, ctx));
+    result.memo = option<string>SerializeWithContext(value.memo, ctx);
+    result.discount = value.discount;
+    result.tip = value.tip;
+    result.commissions = value.commissions;
     return result;
 }
 
@@ -245,177 +245,177 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"account"}` in obj)) {
+    if (!("account" in obj)) {
         errors.push({
-            field: `${"account"}`,
+            field: "account",
             message: "missing required field"
         });
     }
-    if (!(`${"stage"}` in obj)) {
+    if (!("stage" in obj)) {
         errors.push({
-            field: `${"stage"}`,
+            field: "stage",
             message: "missing required field"
         });
     }
-    if (!(`${"number"}` in obj)) {
+    if (!("number" in obj)) {
         errors.push({
-            field: `${"number"}`,
+            field: "number",
             message: "missing required field"
         });
     }
-    if (!(`${"payments"}` in obj)) {
+    if (!("payments" in obj)) {
         errors.push({
-            field: `${"payments"}`,
+            field: "payments",
             message: "missing required field"
         });
     }
-    if (!(`${"opportunity"}` in obj)) {
+    if (!("opportunity" in obj)) {
         errors.push({
-            field: `${"opportunity"}`,
+            field: "opportunity",
             message: "missing required field"
         });
     }
-    if (!(`${"reference"}` in obj)) {
+    if (!("reference" in obj)) {
         errors.push({
-            field: `${"reference"}`,
+            field: "reference",
             message: "missing required field"
         });
     }
-    if (!(`${"leadSource"}` in obj)) {
+    if (!("leadSource" in obj)) {
         errors.push({
-            field: `${"leadSource"}`,
+            field: "leadSource",
             message: "missing required field"
         });
     }
-    if (!(`${"salesRep"}` in obj)) {
+    if (!("salesRep" in obj)) {
         errors.push({
-            field: `${"salesRep"}`,
+            field: "salesRep",
             message: "missing required field"
         });
     }
-    if (!(`${"group"}` in obj)) {
+    if (!("group" in obj)) {
         errors.push({
-            field: `${"group"}`,
+            field: "group",
             message: "missing required field"
         });
     }
-    if (!(`${"subgroup"}` in obj)) {
+    if (!("subgroup" in obj)) {
         errors.push({
-            field: `${"subgroup"}`,
+            field: "subgroup",
             message: "missing required field"
         });
     }
-    if (!(`${"isPosted"}` in obj)) {
+    if (!("isPosted" in obj)) {
         errors.push({
-            field: `${"isPosted"}`,
+            field: "isPosted",
             message: "missing required field"
         });
     }
-    if (!(`${"needsReview"}` in obj)) {
+    if (!("needsReview" in obj)) {
         errors.push({
-            field: `${"needsReview"}`,
+            field: "needsReview",
             message: "missing required field"
         });
     }
-    if (!(`${"actionItem"}` in obj)) {
+    if (!("actionItem" in obj)) {
         errors.push({
-            field: `${"actionItem"}`,
+            field: "actionItem",
             message: "missing required field"
         });
     }
-    if (!(`${"upsale"}` in obj)) {
+    if (!("upsale" in obj)) {
         errors.push({
-            field: `${"upsale"}`,
+            field: "upsale",
             message: "missing required field"
         });
     }
-    if (!(`${"dateCreated"}` in obj)) {
+    if (!("dateCreated" in obj)) {
         errors.push({
-            field: `${"dateCreated"}`,
+            field: "dateCreated",
             message: "missing required field"
         });
     }
-    if (!(`${"appointment"}` in obj)) {
+    if (!("appointment" in obj)) {
         errors.push({
-            field: `${"appointment"}`,
+            field: "appointment",
             message: "missing required field"
         });
     }
-    if (!(`${"lastTechs"}` in obj)) {
+    if (!("lastTechs" in obj)) {
         errors.push({
-            field: `${"lastTechs"}`,
+            field: "lastTechs",
             message: "missing required field"
         });
     }
-    if (!(`${"package"}` in obj)) {
+    if (!("package" in obj)) {
         errors.push({
-            field: `${"package"}`,
+            field: "package",
             message: "missing required field"
         });
     }
-    if (!(`${"promotion"}` in obj)) {
+    if (!("promotion" in obj)) {
         errors.push({
-            field: `${"promotion"}`,
+            field: "promotion",
             message: "missing required field"
         });
     }
-    if (!(`${"balance"}` in obj)) {
+    if (!("balance" in obj)) {
         errors.push({
-            field: `${"balance"}`,
+            field: "balance",
             message: "missing required field"
         });
     }
-    if (!(`${"due"}` in obj)) {
+    if (!("due" in obj)) {
         errors.push({
-            field: `${"due"}`,
+            field: "due",
             message: "missing required field"
         });
     }
-    if (!(`${"total"}` in obj)) {
+    if (!("total" in obj)) {
         errors.push({
-            field: `${"total"}`,
+            field: "total",
             message: "missing required field"
         });
     }
-    if (!(`${"site"}` in obj)) {
+    if (!("site" in obj)) {
         errors.push({
-            field: `${"site"}`,
+            field: "site",
             message: "missing required field"
         });
     }
-    if (!(`${"billedItems"}` in obj)) {
+    if (!("billedItems" in obj)) {
         errors.push({
-            field: `${"billedItems"}`,
+            field: "billedItems",
             message: "missing required field"
         });
     }
-    if (!(`${"memo"}` in obj)) {
+    if (!("memo" in obj)) {
         errors.push({
-            field: `${"memo"}`,
+            field: "memo",
             message: "missing required field"
         });
     }
-    if (!(`${"discount"}` in obj)) {
+    if (!("discount" in obj)) {
         errors.push({
-            field: `${"discount"}`,
+            field: "discount",
             message: "missing required field"
         });
     }
-    if (!(`${"tip"}` in obj)) {
+    if (!("tip" in obj)) {
         errors.push({
-            field: `${"tip"}`,
+            field: "tip",
             message: "missing required field"
         });
     }
-    if (!(`${"commissions"}` in obj)) {
+    if (!("commissions" in obj)) {
         errors.push({
-            field: `${"commissions"}`,
+            field: "commissions",
             message: "missing required field"
         });
     }
@@ -428,32 +428,32 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_account = obj[`${"account"}`] as string | Account;
+        const __raw_account = obj["account"] as string | Account;
         instance.account = __raw_account;
     }
     {
-        const __raw_stage = obj[`${"stage"}`] as OrderStage;
+        const __raw_stage = obj["stage"] as OrderStage;
         {
             const __result = orderStageDeserializeWithContext(__raw_stage, ctx);
-            ctx.assignOrDefer(instance, `${"stage"}`, __result);
+            ctx.assignOrDefer(instance, "stage", __result);
         }
     }
     {
-        const __raw_number = obj[`${"number"}`] as number;
+        const __raw_number = obj["number"] as number;
         instance.number = __raw_number;
     }
     {
-        const __raw_payments = obj[`${"payments"}`] as Array<string | Payment>;
+        const __raw_payments = obj["payments"] as Array<string | Payment>;
         if (Array.isArray(__raw_payments)) {
             instance.payments = __raw_payments as string | Payment[];
         }
     }
     {
-        const __raw_opportunity = obj[`${"opportunity"}`] as string;
+        const __raw_opportunity = obj["opportunity"] as string;
         if (__raw_opportunity.trim().length === 0) {
             errors.push({
                 field: "opportunity",
@@ -463,7 +463,7 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         instance.opportunity = __raw_opportunity;
     }
     {
-        const __raw_reference = obj[`${"reference"}`] as string;
+        const __raw_reference = obj["reference"] as string;
         if (__raw_reference.trim().length === 0) {
             errors.push({
                 field: "reference",
@@ -473,7 +473,7 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         instance.reference = __raw_reference;
     }
     {
-        const __raw_leadSource = obj[`${"leadSource"}`] as string;
+        const __raw_leadSource = obj["leadSource"] as string;
         if (__raw_leadSource.trim().length === 0) {
             errors.push({
                 field: "leadSource",
@@ -483,11 +483,11 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         instance.leadSource = __raw_leadSource;
     }
     {
-        const __raw_salesRep = obj[`${"salesRep"}`] as string | Employee;
+        const __raw_salesRep = obj["salesRep"] as string | Employee;
         instance.salesRep = __raw_salesRep;
     }
     {
-        const __raw_group = obj[`${"group"}`] as string;
+        const __raw_group = obj["group"] as string;
         if (__raw_group.trim().length === 0) {
             errors.push({
                 field: "group",
@@ -497,7 +497,7 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         instance.group = __raw_group;
     }
     {
-        const __raw_subgroup = obj[`${"subgroup"}`] as string;
+        const __raw_subgroup = obj["subgroup"] as string;
         if (__raw_subgroup.trim().length === 0) {
             errors.push({
                 field: "subgroup",
@@ -507,15 +507,15 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         instance.subgroup = __raw_subgroup;
     }
     {
-        const __raw_isPosted = obj[`${"isPosted"}`] as boolean;
+        const __raw_isPosted = obj["isPosted"] as boolean;
         instance.isPosted = __raw_isPosted;
     }
     {
-        const __raw_needsReview = obj[`${"needsReview"}`] as boolean;
+        const __raw_needsReview = obj["needsReview"] as boolean;
         instance.needsReview = __raw_needsReview;
     }
     {
-        const __raw_actionItem = obj[`${"actionItem"}`] as string;
+        const __raw_actionItem = obj["actionItem"] as string;
         if (__raw_actionItem.trim().length === 0) {
             errors.push({
                 field: "actionItem",
@@ -525,28 +525,28 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         instance.actionItem = __raw_actionItem;
     }
     {
-        const __raw_upsale = obj[`${"upsale"}`] as number;
+        const __raw_upsale = obj["upsale"] as number;
         instance.upsale = __raw_upsale;
     }
     {
-        const __raw_dateCreated = obj[`${"dateCreated"}`] as DateTime.DateTime;
+        const __raw_dateCreated = obj["dateCreated"] as DateTime.DateTime;
         {
             const __result = dateTime.dateTimeDeserializeWithContext(__raw_dateCreated, ctx);
-            ctx.assignOrDefer(instance, `${"dateCreated"}`, __result);
+            ctx.assignOrDefer(instance, "dateCreated", __result);
         }
     }
     {
-        const __raw_appointment = obj[`${"appointment"}`] as string | Appointment;
+        const __raw_appointment = obj["appointment"] as string | Appointment;
         instance.appointment = __raw_appointment;
     }
     {
-        const __raw_lastTechs = obj[`${"lastTechs"}`] as Array<string | Employee>;
+        const __raw_lastTechs = obj["lastTechs"] as Array<string | Employee>;
         if (Array.isArray(__raw_lastTechs)) {
             instance.lastTechs = __raw_lastTechs as string | Employee[];
         }
     }
     {
-        const __raw_package = obj[`${"package"}`] as Array<string | Package> | null;
+        const __raw_package = obj["package"] as Array<string | Package> | null;
         if (__raw_package === null) {
             instance.package = null;
         } else {
@@ -554,7 +554,7 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         }
     }
     {
-        const __raw_promotion = obj[`${"promotion"}`] as Array<string | Promotion> | null;
+        const __raw_promotion = obj["promotion"] as Array<string | Promotion> | null;
         if (__raw_promotion === null) {
             instance.promotion = null;
         } else {
@@ -562,47 +562,47 @@ export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         }
     }
     {
-        const __raw_balance = obj[`${"balance"}`] as number;
+        const __raw_balance = obj["balance"] as number;
         instance.balance = __raw_balance;
     }
     {
-        const __raw_due = obj[`${"due"}`] as DateTime.DateTime;
+        const __raw_due = obj["due"] as DateTime.DateTime;
         {
             const __result = dateTime.dateTimeDeserializeWithContext(__raw_due, ctx);
-            ctx.assignOrDefer(instance, `${"due"}`, __result);
+            ctx.assignOrDefer(instance, "due", __result);
         }
     }
     {
-        const __raw_total = obj[`${"total"}`] as number;
+        const __raw_total = obj["total"] as number;
         instance.total = __raw_total;
     }
     {
-        const __raw_site = obj[`${"site"}`] as string | Site;
+        const __raw_site = obj["site"] as string | Site;
         instance.site = __raw_site;
     }
     {
-        const __raw_billedItems = obj[`${"billedItems"}`] as Array<BilledItem>;
+        const __raw_billedItems = obj["billedItems"] as Array<BilledItem>;
         if (Array.isArray(__raw_billedItems)) {
             instance.billedItems = __raw_billedItems as BilledItem[];
         }
     }
     {
-        const __raw_memo = obj[`${"memo"}`] as Option<string>;
+        const __raw_memo = obj["memo"] as Option<string>;
         {
             const __result = option<string>DeserializeWithContext(__raw_memo, ctx);
-            ctx.assignOrDefer(instance, `${"memo"}`, __result);
+            ctx.assignOrDefer(instance, "memo", __result);
         }
     }
     {
-        const __raw_discount = obj[`${"discount"}`] as number;
+        const __raw_discount = obj["discount"] as number;
         instance.discount = __raw_discount;
     }
     {
-        const __raw_tip = obj[`${"tip"}`] as number;
+        const __raw_tip = obj["tip"] as number;
         instance.tip = __raw_tip;
     }
     {
-        const __raw_commissions = obj[`${"commissions"}`] as Array<number>;
+        const __raw_commissions = obj["commissions"] as Array<number>;
         if (Array.isArray(__raw_commissions)) {
             instance.commissions = __raw_commissions as number[];
         }
@@ -620,7 +620,7 @@ export function orderValidateField<K extends keyof Order>(_field: K, _value: Ord
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"opportunity"}`) {
+    if (_field === "opportunity") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -629,7 +629,7 @@ export function orderValidateField<K extends keyof Order>(_field: K, _value: Ord
             });
         }
     }
-    if (_field === `${"reference"}`) {
+    if (_field === "reference") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -638,7 +638,7 @@ export function orderValidateField<K extends keyof Order>(_field: K, _value: Ord
             });
         }
     }
-    if (_field === `${"leadSource"}`) {
+    if (_field === "leadSource") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -647,7 +647,7 @@ export function orderValidateField<K extends keyof Order>(_field: K, _value: Ord
             });
         }
     }
-    if (_field === `${"group"}`) {
+    if (_field === "group") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -656,7 +656,7 @@ export function orderValidateField<K extends keyof Order>(_field: K, _value: Ord
             });
         }
     }
-    if (_field === `${"subgroup"}`) {
+    if (_field === "subgroup") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -665,7 +665,7 @@ export function orderValidateField<K extends keyof Order>(_field: K, _value: Ord
             });
         }
     }
-    if (_field === `${"actionItem"}`) {
+    if (_field === "actionItem") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -684,7 +684,7 @@ export function orderValidateFields(_partial: Partial<Order>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"opportunity"}` in _partial && _partial.opportunity !== undefined) {
+    if ("opportunity" in _partial && _partial.opportunity !== undefined) {
         const __val = _partial.opportunity as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -693,7 +693,7 @@ export function orderValidateFields(_partial: Partial<Order>): Array<{
             });
         }
     }
-    if (`${"reference"}` in _partial && _partial.reference !== undefined) {
+    if ("reference" in _partial && _partial.reference !== undefined) {
         const __val = _partial.reference as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -702,7 +702,7 @@ export function orderValidateFields(_partial: Partial<Order>): Array<{
             });
         }
     }
-    if (`${"leadSource"}` in _partial && _partial.leadSource !== undefined) {
+    if ("leadSource" in _partial && _partial.leadSource !== undefined) {
         const __val = _partial.leadSource as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -711,7 +711,7 @@ export function orderValidateFields(_partial: Partial<Order>): Array<{
             });
         }
     }
-    if (`${"group"}` in _partial && _partial.group !== undefined) {
+    if ("group" in _partial && _partial.group !== undefined) {
         const __val = _partial.group as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -720,7 +720,7 @@ export function orderValidateFields(_partial: Partial<Order>): Array<{
             });
         }
     }
-    if (`${"subgroup"}` in _partial && _partial.subgroup !== undefined) {
+    if ("subgroup" in _partial && _partial.subgroup !== undefined) {
         const __val = _partial.subgroup as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -729,7 +729,7 @@ export function orderValidateFields(_partial: Partial<Order>): Array<{
             });
         }
     }
-    if (`${"actionItem"}` in _partial && _partial.actionItem !== undefined) {
+    if ("actionItem" in _partial && _partial.actionItem !== undefined) {
         const __val = _partial.actionItem as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -755,11 +755,1285 @@ export function orderIs(obj: unknown): obj is Order {
     return result.success;
 }
 
+export type OrderErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    account: __gf_Option<Array<string>>;
+    stage: __gf_Option<Array<string>>;
+    number: __gf_Option<Array<string>>;
+    payments: __gf_Option<Array<string>>;
+    opportunity: __gf_Option<Array<string>>;
+    reference: __gf_Option<Array<string>>;
+    leadSource: __gf_Option<Array<string>>;
+    salesRep: __gf_Option<Array<string>>;
+    group: __gf_Option<Array<string>>;
+    subgroup: __gf_Option<Array<string>>;
+    isPosted: __gf_Option<Array<string>>;
+    needsReview: __gf_Option<Array<string>>;
+    actionItem: __gf_Option<Array<string>>;
+    upsale: __gf_Option<Array<string>>;
+    dateCreated: __gf_Option<Array<string>>;
+    appointment: __gf_Option<Array<string>>;
+    lastTechs: __gf_Option<Array<string>>;
+    package: __gf_Option<Array<string>>;
+    promotion: __gf_Option<Array<string>>;
+    balance: __gf_Option<Array<string>>;
+    due: __gf_Option<Array<string>>;
+    total: __gf_Option<Array<string>>;
+    site: __gf_Option<Array<string>>;
+    billedItems: __gf_Option<Array<string>>;
+    memo: __gf_Option<Array<string>>;
+    discount: __gf_Option<Array<string>>;
+    tip: __gf_Option<Array<string>>;
+    commissions: __gf_Option<Array<string>>;
+};
+export type OrderTainted = {
+    id: __gf_Option<boolean>;
+    account: __gf_Option<boolean>;
+    stage: __gf_Option<boolean>;
+    number: __gf_Option<boolean>;
+    payments: __gf_Option<boolean>;
+    opportunity: __gf_Option<boolean>;
+    reference: __gf_Option<boolean>;
+    leadSource: __gf_Option<boolean>;
+    salesRep: __gf_Option<boolean>;
+    group: __gf_Option<boolean>;
+    subgroup: __gf_Option<boolean>;
+    isPosted: __gf_Option<boolean>;
+    needsReview: __gf_Option<boolean>;
+    actionItem: __gf_Option<boolean>;
+    upsale: __gf_Option<boolean>;
+    dateCreated: __gf_Option<boolean>;
+    appointment: __gf_Option<boolean>;
+    lastTechs: __gf_Option<boolean>;
+    package: __gf_Option<boolean>;
+    promotion: __gf_Option<boolean>;
+    balance: __gf_Option<boolean>;
+    due: __gf_Option<boolean>;
+    total: __gf_Option<boolean>;
+    site: __gf_Option<boolean>;
+    billedItems: __gf_Option<boolean>;
+    memo: __gf_Option<boolean>;
+    discount: __gf_Option<boolean>;
+    tip: __gf_Option<boolean>;
+    commissions: __gf_Option<boolean>;
+};
+export interface OrderFieldControllers {
+    readonly id: FieldController<string>;
+    readonly account: FieldController<string | Account>;
+    readonly stage: FieldController<OrderStage>;
+    readonly number: FieldController<number>;
+    readonly payments: ArrayFieldController<string | Payment>;
+    readonly opportunity: FieldController<string>;
+    readonly reference: FieldController<string>;
+    readonly leadSource: FieldController<string>;
+    readonly salesRep: FieldController<string | Employee>;
+    readonly group: FieldController<string>;
+    readonly subgroup: FieldController<string>;
+    readonly isPosted: FieldController<boolean>;
+    readonly needsReview: FieldController<boolean>;
+    readonly actionItem: FieldController<string>;
+    readonly upsale: FieldController<number>;
+    readonly dateCreated: FieldController<DateTime.DateTime>;
+    readonly appointment: FieldController<string | Appointment>;
+    readonly lastTechs: ArrayFieldController<string | Employee>;
+    readonly package: FieldController<Array<string | Package> | null>;
+    readonly promotion: FieldController<Array<string | Promotion> | null>;
+    readonly balance: FieldController<number>;
+    readonly due: FieldController<DateTime.DateTime>;
+    readonly total: FieldController<number>;
+    readonly site: FieldController<string | Site>;
+    readonly billedItems: ArrayFieldController<BilledItem>;
+    readonly memo: FieldController<Option<string>>;
+    readonly discount: FieldController<number>;
+    readonly tip: FieldController<number>;
+    readonly commissions: ArrayFieldController<number>;
+}
+export interface OrderGigaform {
+    readonly data: Order;
+    readonly errors: OrderErrors;
+    readonly tainted: OrderTainted;
+    readonly fields: OrderFieldControllers;
+    validate(): Exit<Order, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Order>): void;
+}
+export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
+    let data = $state({
+        ...orderDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<OrderErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        account: optionNone(),
+        stage: optionNone(),
+        number: optionNone(),
+        payments: optionNone(),
+        opportunity: optionNone(),
+        reference: optionNone(),
+        leadSource: optionNone(),
+        salesRep: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        isPosted: optionNone(),
+        needsReview: optionNone(),
+        actionItem: optionNone(),
+        upsale: optionNone(),
+        dateCreated: optionNone(),
+        appointment: optionNone(),
+        lastTechs: optionNone(),
+        package: optionNone(),
+        promotion: optionNone(),
+        balance: optionNone(),
+        due: optionNone(),
+        total: optionNone(),
+        site: optionNone(),
+        billedItems: optionNone(),
+        memo: optionNone(),
+        discount: optionNone(),
+        tip: optionNone(),
+        commissions: optionNone()
+    } as OrderErrors);
+    let tainted = $state<OrderTainted>({
+        id: optionNone(),
+        account: optionNone(),
+        stage: optionNone(),
+        number: optionNone(),
+        payments: optionNone(),
+        opportunity: optionNone(),
+        reference: optionNone(),
+        leadSource: optionNone(),
+        salesRep: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        isPosted: optionNone(),
+        needsReview: optionNone(),
+        actionItem: optionNone(),
+        upsale: optionNone(),
+        dateCreated: optionNone(),
+        appointment: optionNone(),
+        lastTechs: optionNone(),
+        package: optionNone(),
+        promotion: optionNone(),
+        balance: optionNone(),
+        due: optionNone(),
+        total: optionNone(),
+        site: optionNone(),
+        billedItems: optionNone(),
+        memo: optionNone(),
+        discount: optionNone(),
+        tip: optionNone(),
+        commissions: optionNone()
+    } as OrderTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        account: {
+            path: [
+                "account"
+            ] as const,
+            name: "account",
+            constraints: {
+                required: true
+            },
+            label: "Account",
+            get: ()=>data.account,
+            set: (value: string | Account)=>{
+                data.account = value;
+            },
+            transform: (value: string | Account): string | Account =>value,
+            getError: ()=>errors.account,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.account = value;
+            },
+            getTainted: ()=>tainted.account,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.account = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("account", data.account);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        stage: {
+            path: [
+                "stage"
+            ] as const,
+            name: "stage",
+            constraints: {
+                required: true
+            },
+            label: "Stage",
+            get: ()=>data.stage,
+            set: (value: OrderStage)=>{
+                data.stage = value;
+            },
+            transform: (value: OrderStage): OrderStage =>value,
+            getError: ()=>errors.stage,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.stage = value;
+            },
+            getTainted: ()=>tainted.stage,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.stage = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("stage", data.stage);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        number: {
+            path: [
+                "number"
+            ] as const,
+            name: "number",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.number,
+            set: (value: number)=>{
+                data.number = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.number,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.number = value;
+            },
+            getTainted: ()=>tainted.number,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.number = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("number", data.number);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        payments: {
+            path: [
+                "payments"
+            ] as const,
+            name: "payments",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.payments,
+            set: (value: Array<string | Payment>)=>{
+                data.payments = value;
+            },
+            transform: (value: Array<string | Payment>): Array<string | Payment> =>value,
+            getError: ()=>errors.payments,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.payments = value;
+            },
+            getTainted: ()=>tainted.payments,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.payments = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("payments", data.payments);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "payments",
+                        index
+                    ] as const,
+                    name: "'^payments.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.payments[index]!,
+                    set: (value: string | Payment)=>{
+                        data.payments[index] = value;
+                    },
+                    transform: (value: string | Payment): string | Payment =>value,
+                    getError: ()=>errors.payments,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.payments = value;
+                    },
+                    getTainted: ()=>tainted.payments,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.payments = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: string | Payment)=>{
+                data.payments.push(item);
+            },
+            remove: (index: number)=>{
+                data.payments.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.payments[a]!;
+                data.payments[a] = data.payments[b]!;
+                data.payments[b] = tmp;
+            }
+        },
+        opportunity: {
+            path: [
+                "opportunity"
+            ] as const,
+            name: "opportunity",
+            constraints: {
+                required: true
+            },
+            label: "Opportunity",
+            get: ()=>data.opportunity,
+            set: (value: string)=>{
+                data.opportunity = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.opportunity,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.opportunity = value;
+            },
+            getTainted: ()=>tainted.opportunity,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.opportunity = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("opportunity", data.opportunity);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        reference: {
+            path: [
+                "reference"
+            ] as const,
+            name: "reference",
+            constraints: {
+                required: true
+            },
+            label: "Reference",
+            get: ()=>data.reference,
+            set: (value: string)=>{
+                data.reference = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.reference,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.reference = value;
+            },
+            getTainted: ()=>tainted.reference,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.reference = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("reference", data.reference);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        leadSource: {
+            path: [
+                "leadSource"
+            ] as const,
+            name: "leadSource",
+            constraints: {
+                required: true
+            },
+            label: "Lead Source",
+            get: ()=>data.leadSource,
+            set: (value: string)=>{
+                data.leadSource = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.leadSource,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.leadSource = value;
+            },
+            getTainted: ()=>tainted.leadSource,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.leadSource = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("leadSource", data.leadSource);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        salesRep: {
+            path: [
+                "salesRep"
+            ] as const,
+            name: "salesRep",
+            constraints: {
+                required: true
+            },
+            label: "Sales Rep",
+            get: ()=>data.salesRep,
+            set: (value: string | Employee)=>{
+                data.salesRep = value;
+            },
+            transform: (value: string | Employee): string | Employee =>value,
+            getError: ()=>errors.salesRep,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.salesRep = value;
+            },
+            getTainted: ()=>tainted.salesRep,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.salesRep = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("salesRep", data.salesRep);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        group: {
+            path: [
+                "group"
+            ] as const,
+            name: "group",
+            constraints: {
+                required: true
+            },
+            label: "Group",
+            get: ()=>data.group,
+            set: (value: string)=>{
+                data.group = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.group,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.group = value;
+            },
+            getTainted: ()=>tainted.group,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.group = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("group", data.group);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        subgroup: {
+            path: [
+                "subgroup"
+            ] as const,
+            name: "subgroup",
+            constraints: {
+                required: true
+            },
+            label: "Subgroup",
+            get: ()=>data.subgroup,
+            set: (value: string)=>{
+                data.subgroup = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.subgroup,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.subgroup = value;
+            },
+            getTainted: ()=>tainted.subgroup,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.subgroup = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("subgroup", data.subgroup);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        isPosted: {
+            path: [
+                "isPosted"
+            ] as const,
+            name: "isPosted",
+            constraints: {
+                required: true
+            },
+            label: "Posted",
+            get: ()=>data.isPosted,
+            set: (value: boolean)=>{
+                data.isPosted = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.isPosted,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.isPosted = value;
+            },
+            getTainted: ()=>tainted.isPosted,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.isPosted = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("isPosted", data.isPosted);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        needsReview: {
+            path: [
+                "needsReview"
+            ] as const,
+            name: "needsReview",
+            constraints: {
+                required: true
+            },
+            label: "Needs Review",
+            get: ()=>data.needsReview,
+            set: (value: boolean)=>{
+                data.needsReview = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.needsReview,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.needsReview = value;
+            },
+            getTainted: ()=>tainted.needsReview,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.needsReview = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("needsReview", data.needsReview);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        actionItem: {
+            path: [
+                "actionItem"
+            ] as const,
+            name: "actionItem",
+            constraints: {
+                required: true
+            },
+            label: "Action Item",
+            get: ()=>data.actionItem,
+            set: (value: string)=>{
+                data.actionItem = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.actionItem,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.actionItem = value;
+            },
+            getTainted: ()=>tainted.actionItem,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.actionItem = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("actionItem", data.actionItem);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        upsale: {
+            path: [
+                "upsale"
+            ] as const,
+            name: "upsale",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.upsale,
+            set: (value: number)=>{
+                data.upsale = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.upsale,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.upsale = value;
+            },
+            getTainted: ()=>tainted.upsale,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.upsale = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("upsale", data.upsale);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        dateCreated: {
+            path: [
+                "dateCreated"
+            ] as const,
+            name: "dateCreated",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.dateCreated,
+            set: (value: DateTime.DateTime)=>{
+                data.dateCreated = value;
+            },
+            transform: (value: DateTime.DateTime): DateTime.DateTime =>value,
+            getError: ()=>errors.dateCreated,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.dateCreated = value;
+            },
+            getTainted: ()=>tainted.dateCreated,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.dateCreated = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("dateCreated", data.dateCreated);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        appointment: {
+            path: [
+                "appointment"
+            ] as const,
+            name: "appointment",
+            constraints: {
+                required: true
+            },
+            label: "Appointment",
+            get: ()=>data.appointment,
+            set: (value: string | Appointment)=>{
+                data.appointment = value;
+            },
+            transform: (value: string | Appointment): string | Appointment =>value,
+            getError: ()=>errors.appointment,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.appointment = value;
+            },
+            getTainted: ()=>tainted.appointment,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.appointment = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("appointment", data.appointment);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        lastTechs: {
+            path: [
+                "lastTechs"
+            ] as const,
+            name: "lastTechs",
+            constraints: {
+                required: true
+            },
+            label: "Technicians",
+            get: ()=>data.lastTechs,
+            set: (value: Array<string | Employee>)=>{
+                data.lastTechs = value;
+            },
+            transform: (value: Array<string | Employee>): Array<string | Employee> =>value,
+            getError: ()=>errors.lastTechs,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.lastTechs = value;
+            },
+            getTainted: ()=>tainted.lastTechs,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.lastTechs = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("lastTechs", data.lastTechs);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "lastTechs",
+                        index
+                    ] as const,
+                    name: "'^lastTechs.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.lastTechs[index]!,
+                    set: (value: string | Employee)=>{
+                        data.lastTechs[index] = value;
+                    },
+                    transform: (value: string | Employee): string | Employee =>value,
+                    getError: ()=>errors.lastTechs,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.lastTechs = value;
+                    },
+                    getTainted: ()=>tainted.lastTechs,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.lastTechs = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: string | Employee)=>{
+                data.lastTechs.push(item);
+            },
+            remove: (index: number)=>{
+                data.lastTechs.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.lastTechs[a]!;
+                data.lastTechs[a] = data.lastTechs[b]!;
+                data.lastTechs[b] = tmp;
+            }
+        },
+        package: {
+            path: [
+                "package"
+            ] as const,
+            name: "package",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.package,
+            set: (value: Array<string | Package> | null)=>{
+                data.package = value;
+            },
+            transform: (value: Array<string | Package> | null): Array<string | Package> | null =>value,
+            getError: ()=>errors.package,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.package = value;
+            },
+            getTainted: ()=>tainted.package,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.package = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("package", data.package);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        promotion: {
+            path: [
+                "promotion"
+            ] as const,
+            name: "promotion",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.promotion,
+            set: (value: Array<string | Promotion> | null)=>{
+                data.promotion = value;
+            },
+            transform: (value: Array<string | Promotion> | null): Array<string | Promotion> | null =>value,
+            getError: ()=>errors.promotion,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.promotion = value;
+            },
+            getTainted: ()=>tainted.promotion,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.promotion = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("promotion", data.promotion);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        balance: {
+            path: [
+                "balance"
+            ] as const,
+            name: "balance",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.balance,
+            set: (value: number)=>{
+                data.balance = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.balance,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.balance = value;
+            },
+            getTainted: ()=>tainted.balance,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.balance = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("balance", data.balance);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        due: {
+            path: [
+                "due"
+            ] as const,
+            name: "due",
+            constraints: {
+                required: true
+            },
+            label: "Due",
+            get: ()=>data.due,
+            set: (value: DateTime.DateTime)=>{
+                data.due = value;
+            },
+            transform: (value: DateTime.DateTime): DateTime.DateTime =>value,
+            getError: ()=>errors.due,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.due = value;
+            },
+            getTainted: ()=>tainted.due,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.due = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("due", data.due);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        total: {
+            path: [
+                "total"
+            ] as const,
+            name: "total",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.total,
+            set: (value: number)=>{
+                data.total = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.total,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.total = value;
+            },
+            getTainted: ()=>tainted.total,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.total = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("total", data.total);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        site: {
+            path: [
+                "site"
+            ] as const,
+            name: "site",
+            constraints: {
+                required: true
+            },
+            label: "Site",
+            get: ()=>data.site,
+            set: (value: string | Site)=>{
+                data.site = value;
+            },
+            transform: (value: string | Site): string | Site =>value,
+            getError: ()=>errors.site,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.site = value;
+            },
+            getTainted: ()=>tainted.site,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.site = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("site", data.site);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        billedItems: {
+            path: [
+                "billedItems"
+            ] as const,
+            name: "billedItems",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.billedItems,
+            set: (value: Array<BilledItem>)=>{
+                data.billedItems = value;
+            },
+            transform: (value: Array<BilledItem>): Array<BilledItem> =>value,
+            getError: ()=>errors.billedItems,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.billedItems = value;
+            },
+            getTainted: ()=>tainted.billedItems,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.billedItems = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("billedItems", data.billedItems);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "billedItems",
+                        index
+                    ] as const,
+                    name: "'^billedItems.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.billedItems[index]!,
+                    set: (value: BilledItem)=>{
+                        data.billedItems[index] = value;
+                    },
+                    transform: (value: BilledItem): BilledItem =>value,
+                    getError: ()=>errors.billedItems,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.billedItems = value;
+                    },
+                    getTainted: ()=>tainted.billedItems,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.billedItems = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: BilledItem)=>{
+                data.billedItems.push(item);
+            },
+            remove: (index: number)=>{
+                data.billedItems.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.billedItems[a]!;
+                data.billedItems[a] = data.billedItems[b]!;
+                data.billedItems[b] = tmp;
+            }
+        },
+        memo: {
+            path: [
+                "memo"
+            ] as const,
+            name: "memo",
+            constraints: {
+                required: true
+            },
+            label: "Memo",
+            get: ()=>data.memo,
+            set: (value: Option<string>)=>{
+                data.memo = value;
+            },
+            transform: (value: Option<string>): Option<string> =>value,
+            getError: ()=>errors.memo,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.memo = value;
+            },
+            getTainted: ()=>tainted.memo,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.memo = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("memo", data.memo);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        discount: {
+            path: [
+                "discount"
+            ] as const,
+            name: "discount",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.discount,
+            set: (value: number)=>{
+                data.discount = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.discount,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.discount = value;
+            },
+            getTainted: ()=>tainted.discount,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.discount = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("discount", data.discount);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        tip: {
+            path: [
+                "tip"
+            ] as const,
+            name: "tip",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.tip,
+            set: (value: number)=>{
+                data.tip = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.tip,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.tip = value;
+            },
+            getTainted: ()=>tainted.tip,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.tip = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("tip", data.tip);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        commissions: {
+            path: [
+                "commissions"
+            ] as const,
+            name: "commissions",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.commissions,
+            set: (value: Array<number>)=>{
+                data.commissions = value;
+            },
+            transform: (value: Array<number>): Array<number> =>value,
+            getError: ()=>errors.commissions,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.commissions = value;
+            },
+            getTainted: ()=>tainted.commissions,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.commissions = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderValidateField("commissions", data.commissions);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "commissions",
+                        index
+                    ] as const,
+                    name: "'^commissions.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.commissions[index]!,
+                    set: (value: number)=>{
+                        data.commissions[index] = value;
+                    },
+                    transform: (value: number): number =>value,
+                    getError: ()=>errors.commissions,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.commissions = value;
+                    },
+                    getTainted: ()=>tainted.commissions,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.commissions = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: number)=>{
+                data.commissions.push(item);
+            },
+            remove: (index: number)=>{
+                data.commissions.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.commissions[a]!;
+                data.commissions[a] = data.commissions[b]!;
+                data.commissions[b] = tmp;
+            }
+        }
+    } as OrderFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Order, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(orderDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Order>): void {
+        data = {
+            ...orderDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            account: optionNone(),
+            stage: optionNone(),
+            number: optionNone(),
+            payments: optionNone(),
+            opportunity: optionNone(),
+            reference: optionNone(),
+            leadSource: optionNone(),
+            salesRep: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            isPosted: optionNone(),
+            needsReview: optionNone(),
+            actionItem: optionNone(),
+            upsale: optionNone(),
+            dateCreated: optionNone(),
+            appointment: optionNone(),
+            lastTechs: optionNone(),
+            package: optionNone(),
+            promotion: optionNone(),
+            balance: optionNone(),
+            due: optionNone(),
+            total: optionNone(),
+            site: optionNone(),
+            billedItems: optionNone(),
+            memo: optionNone(),
+            discount: optionNone(),
+            tip: optionNone(),
+            commissions: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            account: optionNone(),
+            stage: optionNone(),
+            number: optionNone(),
+            payments: optionNone(),
+            opportunity: optionNone(),
+            reference: optionNone(),
+            leadSource: optionNone(),
+            salesRep: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            isPosted: optionNone(),
+            needsReview: optionNone(),
+            actionItem: optionNone(),
+            upsale: optionNone(),
+            dateCreated: optionNone(),
+            appointment: optionNone(),
+            lastTechs: optionNone(),
+            package: optionNone(),
+            promotion: optionNone(),
+            balance: optionNone(),
+            due: optionNone(),
+            total: optionNone(),
+            site: optionNone(),
+            billedItems: optionNone(),
+            memo: optionNone(),
+            discount: optionNone(),
+            tip: optionNone(),
+            commissions: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function orderFromFormData(formData: FormData): Exit<Order, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Order, Array<{ field: string; message: string }>>";
     obj.id = formData.get(`${"id"}`) ?? "";
     obj.account = formData.get(`${"account"}`) ?? "";
     {
@@ -911,279 +2185,8 @@ export function orderFromFormData(formData: FormData): Exit<Order, Array<{
         if (obj.tip !== undefined && isNaN(obj.tip as number)) obj.tip = "0";
     }
     obj.commissions = formData.getAll(`${"commissions"}`).map((v)=>parseFloat(v as string)).filter((n)=>!isNaN(n));
-    return toExit("orderDeserialize(obj)");
+    return toExit(orderDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: Order;
-    readonly errors: OrderErrors;
-    readonly tainted: OrderTainted;
-    readonly fields: OrderFieldControllers;
-    validate(): Exit<Order, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Order>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function orderCreateForm(overrides: Partial<Order>): OrderGigaform {}
-let data = $state({
-    ...orderDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as OrderErrors);
-let tainted = $state<$MfPh3>({} as OrderTainted);
-const fields = {} as OrderFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.account = {
-    label: `${"account"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.stage = {
-    label: `${"stage"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.number = {
-    label: `${"number"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.payments = {
-    label: `${"payments"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.opportunity = {
-    label: `${"opportunity"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.reference = {
-    label: `${"reference"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.leadSource = {
-    label: `${"leadSource"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.salesRep = {
-    label: `${"salesRep"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.group = {
-    label: `${"group"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.subgroup = {
-    label: `${"subgroup"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.isPosted = {
-    label: `${"isPosted"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.needsReview = {
-    label: `${"needsReview"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.actionItem = {
-    label: `${"actionItem"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.upsale = {
-    label: `${"upsale"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.dateCreated = {
-    label: `${"dateCreated"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.appointment = {
-    label: `${"appointment"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.lastTechs = {
-    label: `${"lastTechs"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.package = {
-    label: `${"package"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.promotion = {
-    label: `${"promotion"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.balance = {
-    label: `${"balance"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.due = {
-    label: `${"due"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.total = {
-    label: `${"total"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.site = {
-    label: `${"site"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.billedItems = {
-    label: `${"billedItems"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.memo = {
-    label: `${"memo"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.discount = {
-    label: `${"discount"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.tip = {
-    label: `${"tip"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.commissions = {
-    label: `${"commissions"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-function validate(): Exit<Order, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("orderDeserialize(data)");
-    data = {
-        ...orderDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Order = {
   defaultValue: orderDefaultValue,
@@ -1194,6 +2197,6 @@ export const Order = {
   validateFields: orderValidateFields,
   hasShape: orderHasShape,
   is: orderIs,
-  fromFormData: orderFromFormData,
-  createForm: orderCreateForm
+  createForm: orderCreateForm,
+  fromFormData: orderFromFormData
 } as const;

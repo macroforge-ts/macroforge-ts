@@ -20,11 +20,11 @@ export function leadStageDefaultValue#0#0(): LeadStage {
     return 'Open';
 }
 
-export function leadStageSerialize#0#0(value: LeadStage): string {
+export function leadStageSerialize(value: LeadStage): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(leadStageSerializeWithContext(value, ctx));
 }
-export function leadStageSerializeWithContext#0#0(value: LeadStage, ctx: __mf_SerializeContext): unknown {
+export function leadStageSerializeWithContext(value: LeadStage, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -98,44 +98,131 @@ export function leadStageIs(value: unknown): value is LeadStage {
     return allowedValues.includes(value as any);
 }
 
+export type LeadStageOpenErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type LeadStageInitialContactErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type LeadStageQualifiedErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type LeadStageEstimateErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type LeadStageNegotiationErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type LeadStageOpenTainted = {
+};
+export type LeadStageInitialContactTainted = {
+};
+export type LeadStageQualifiedTainted = {
+};
+export type LeadStageEstimateTainted = {
+};
+export type LeadStageNegotiationTainted = {
+};
+export type LeadStageErrors = ({
+    _value: "Open";
+} & LeadStageOpenErrors) | ({
+    _value: "InitialContact";
+} & LeadStageInitialContactErrors) | ({
+    _value: "Qualified";
+} & LeadStageQualifiedErrors) | ({
+    _value: "Estimate";
+} & LeadStageEstimateErrors) | ({
+    _value: "Negotiation";
+} & LeadStageNegotiationErrors);
+export type LeadStageTainted = ({
+    _value: "Open";
+} & LeadStageOpenTainted) | ({
+    _value: "InitialContact";
+} & LeadStageInitialContactTainted) | ({
+    _value: "Qualified";
+} & LeadStageQualifiedTainted) | ({
+    _value: "Estimate";
+} & LeadStageEstimateTainted) | ({
+    _value: "Negotiation";
+} & LeadStageNegotiationTainted);
+export interface LeadStageOpenFieldControllers {
+}
+export interface LeadStageInitialContactFieldControllers {
+}
+export interface LeadStageQualifiedFieldControllers {
+}
+export interface LeadStageEstimateFieldControllers {
+}
+export interface LeadStageNegotiationFieldControllers {
+}
+export interface LeadStageGigaform {
+    readonly currentVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation";
+    readonly data: LeadStage;
+    readonly errors: LeadStageErrors;
+    readonly tainted: LeadStageTainted;
+    readonly variants: LeadStageVariantFields;
+    switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void;
+    validate(): Exit<LeadStage, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<LeadStage>): void;
+}
+export interface LeadStageVariantFields {
+    readonly Open: {
+        readonly fields: LeadStageOpenFieldControllers;
+    };
+    readonly InitialContact: {
+        readonly fields: LeadStageInitialContactFieldControllers;
+    };
+    readonly Qualified: {
+        readonly fields: LeadStageQualifiedFieldControllers;
+    };
+    readonly Estimate: {
+        readonly fields: LeadStageEstimateFieldControllers;
+    };
+    readonly Negotiation: {
+        readonly fields: LeadStageNegotiationFieldControllers;
+    };
+}
 function leadStageGetDefaultForVariant(variant: string): LeadStage {
-    if (variant === `${"Open"}`) {
-        return `${"Open"}` as LeadStage;
+    if (variant === "Open") {
+        return "Open" as LeadStage;
     }
-    if (variant === `${"InitialContact"}`) {
-        return `${"InitialContact"}` as LeadStage;
+    if (variant === "InitialContact") {
+        return "InitialContact" as LeadStage;
     }
-    if (variant === `${"Qualified"}`) {
-        return `${"Qualified"}` as LeadStage;
+    if (variant === "Qualified") {
+        return "Qualified" as LeadStage;
     }
-    if (variant === `${"Estimate"}`) {
-        return `${"Estimate"}` as LeadStage;
+    if (variant === "Estimate") {
+        return "Estimate" as LeadStage;
     }
-    if (variant === `${"Negotiation"}`) {
-        return `${"Negotiation"}` as LeadStage;
+    if (variant === "Negotiation") {
+        return "Negotiation" as LeadStage;
     }
-    return `${"Open"}` as LeadStage;
+    return "Open" as LeadStage;
 }
 export function leadStageCreateForm(initial: LeadStage): LeadStageGigaform {
-    const initialVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" = '(initial as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation") ?? "Open"';
+    const initialVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" = (initial as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation") ?? "Open";
     let currentVariant = $state<$MfPh5>(initialVariant);
     let data = $state<$MfPh6>(initial ?? "leadStageGetDefaultForVariant"(initialVariant));
     let errors = $state<$MfPh8>({} as LeadStageErrors);
     let tainted = $state<$MfPh10>({} as LeadStageTainted);
     const variants = {} as LeadStageVariantFields;
-    variants[Open] = {
+    variants[__expr__] = {
         fields: {} as LeadStageOpenFieldControllers
     };
-    variants[InitialContact] = {
+    variants[__expr__] = {
         fields: {} as LeadStageInitialContactFieldControllers
     };
-    variants[Qualified] = {
+    variants[__expr__] = {
         fields: {} as LeadStageQualifiedFieldControllers
     };
-    variants[Estimate] = {
+    variants[__expr__] = {
         fields: {} as LeadStageEstimateFieldControllers
     };
-    variants[Negotiation] = {
+    variants[__expr__] = {
         fields: {} as LeadStageNegotiationFieldControllers
     };
     function switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {
@@ -148,10 +235,10 @@ export function leadStageCreateForm(initial: LeadStage): LeadStageGigaform {
         field: string;
         message: string;
     }>> {
-        return toExit("leadStageDeserialize(data)");
+        return toExit(leadStageDeserialize(data));
     }
     function reset(overrides: Partial<LeadStage>): void {
-        data = "overrides ? overrides as typeof data : leadStageGetDefaultForVariant(currentVariant)";
+        data = overrides ? overrides as typeof data : leadStageGetDefaultForVariant(currentVariant);
         errors = {} as LeadStageErrors;
         tainted = {} as LeadStageTainted;
     }
@@ -201,63 +288,12 @@ export function leadStageFromFormData(formData: FormData): Exit<LeadStage, Array
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
-    return toExit("leadStageDeserialize(obj)");
+    return toExit(leadStageDeserialize(obj));
 }
-export type $MfPh0 = $MfPh1;
-export type $MfPh2 = $MfPh3;
-export interface LeadStageOpenFieldControllers {
-}
-export interface LeadStageInitialContactFieldControllers {
-}
-export interface LeadStageQualifiedFieldControllers {
-}
-export interface LeadStageEstimateFieldControllers {
-}
-export interface LeadStageNegotiationFieldControllers {
-}
-export interface $MfPh4 {
-    readonly currentVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation";
-    readonly data: LeadStage;
-    readonly errors: LeadStageErrors;
-    readonly tainted: LeadStageTainted;
-    readonly variants: LeadStageVariantFields;
-    switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void;
-    validate(): Exit<LeadStage, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<LeadStage>): void;
-}
-export interface $MfPh13 {
-}
-export type LeadStageOpenErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type LeadStageInitialContactErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type LeadStageQualifiedErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type LeadStageEstimateErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type LeadStageNegotiationErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
- };  };  };  };  }; export type LeadStageOpenTainted = {
-};
-export type LeadStageInitialContactTainted = {
-};
-export type LeadStageQualifiedTainted = {
-};
-export type LeadStageEstimateTainted = {
-};
-export type LeadStageNegotiationTainted = {
-};
- };  };  };  };  };
 
 export const LeadStage = {
+  serialize: leadStageSerialize,
+  serializeWithContext: leadStageSerializeWithContext,
   deserialize: leadStageDeserialize,
   deserializeWithContext: leadStageDeserializeWithContext,
   is: leadStageIs,

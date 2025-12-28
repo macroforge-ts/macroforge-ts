@@ -6,6 +6,11 @@ import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
 import { dataPathDeserializeWithContext } from "./data-path.svelte";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 import type { DataPath } from './data-path.svelte';
 
@@ -36,11 +41,11 @@ export function columnConfigSerializeWithContext(value: ColumnConfig, ctx: __mf_
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"ColumnConfig"}`,
+        __type: "ColumnConfig",
         __id
     };
-    result[`${"heading"}`] = value.heading;
-    result[`${"dataPath"}`] = dataPathSerializeWithContext(value.dataPath, ctx);
+    result.heading = value.heading;
+    result.dataPath = dataPathSerializeWithContext(value.dataPath, ctx);
     return result;
 }
 
@@ -104,15 +109,15 @@ export function columnConfigDeserializeWithContext(value: any, ctx: __mf_Deseria
         field: string;
         message: string;
     }> = [];
-    if (!(`${"heading"}` in obj)) {
+    if (!("heading" in obj)) {
         errors.push({
-            field: `${"heading"}`,
+            field: "heading",
             message: "missing required field"
         });
     }
-    if (!(`${"dataPath"}` in obj)) {
+    if (!("dataPath" in obj)) {
         errors.push({
-            field: `${"dataPath"}`,
+            field: "dataPath",
             message: "missing required field"
         });
     }
@@ -125,7 +130,7 @@ export function columnConfigDeserializeWithContext(value: any, ctx: __mf_Deseria
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_heading = obj[`${"heading"}`] as string;
+        const __raw_heading = obj["heading"] as string;
         if (__raw_heading.trim().length === 0) {
             errors.push({
                 field: "heading",
@@ -135,10 +140,10 @@ export function columnConfigDeserializeWithContext(value: any, ctx: __mf_Deseria
         instance.heading = __raw_heading;
     }
     {
-        const __raw_dataPath = obj[`${"dataPath"}`] as DataPath;
+        const __raw_dataPath = obj["dataPath"] as DataPath;
         {
             const __result = dataPathDeserializeWithContext(__raw_dataPath, ctx);
-            ctx.assignOrDefer(instance, `${"dataPath"}`, __result);
+            ctx.assignOrDefer(instance, "dataPath", __result);
         }
     }
     if (errors.length > 0) {
@@ -154,7 +159,7 @@ export function columnConfigValidateField<K extends keyof ColumnConfig>(_field: 
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"heading"}`) {
+    if (_field === "heading") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -173,7 +178,7 @@ export function columnConfigValidateFields(_partial: Partial<ColumnConfig>): Arr
         field: string;
         message: string;
     }> = [];
-    if (`${"heading"}` in _partial && _partial.heading !== undefined) {
+    if ("heading" in _partial && _partial.heading !== undefined) {
         const __val = _partial.heading as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -199,6 +204,180 @@ export function columnConfigIs(obj: unknown): obj is ColumnConfig {
     return result.success;
 }
 
+export type ColumnConfigErrors = {
+    _errors: __gf_Option<Array<string>>;
+    heading: __gf_Option<Array<string>>;
+    dataPath: __gf_Option<Array<string>>;
+};
+export type ColumnConfigTainted = {
+    heading: __gf_Option<boolean>;
+    dataPath: __gf_Option<boolean>;
+};
+export interface ColumnConfigFieldControllers {
+    readonly heading: FieldController<string>;
+    readonly dataPath: FieldController<DataPath>;
+}
+export interface ColumnConfigGigaform {
+    readonly data: ColumnConfig;
+    readonly errors: ColumnConfigErrors;
+    readonly tainted: ColumnConfigTainted;
+    readonly fields: ColumnConfigFieldControllers;
+    validate(): Exit<ColumnConfig, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<ColumnConfig>): void;
+}
+export function columnConfigCreateForm(overrides?: Partial<ColumnConfig>): ColumnConfigGigaform {
+    let data = $state({
+        ...columnConfigDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<ColumnConfigErrors>({
+        _errors: optionNone(),
+        heading: optionNone(),
+        dataPath: optionNone()
+    } as ColumnConfigErrors);
+    let tainted = $state<ColumnConfigTainted>({
+        heading: optionNone(),
+        dataPath: optionNone()
+    } as ColumnConfigTainted);
+    const fields = {
+        heading: {
+            path: [
+                "heading"
+            ] as const,
+            name: "heading",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.heading,
+            set: (value: string)=>{
+                data.heading = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.heading,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.heading = value;
+            },
+            getTainted: ()=>tainted.heading,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.heading = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = columnConfigValidateField("heading", data.heading);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        dataPath: {
+            path: [
+                "dataPath"
+            ] as const,
+            name: "dataPath",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.dataPath,
+            set: (value: DataPath)=>{
+                data.dataPath = value;
+            },
+            transform: (value: DataPath): DataPath =>value,
+            getError: ()=>errors.dataPath,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.dataPath = value;
+            },
+            getTainted: ()=>tainted.dataPath,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.dataPath = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = columnConfigValidateField("dataPath", data.dataPath);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as ColumnConfigFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<ColumnConfig, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(columnConfigDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<ColumnConfig>): void {
+        data = {
+            ...columnConfigDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            heading: optionNone(),
+            dataPath: optionNone()
+        };
+        tainted = {
+            heading: optionNone(),
+            dataPath: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function columnConfigFromFormData(formData: FormData): Exit<ColumnConfig, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<ColumnConfig, Array<{ field: string; message: string }>>";
+    obj.heading = formData.get(`${"heading"}`) ?? "";
+    {
+        const dataPathObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())){
+            if (key.startsWith(`${"dataPath"}.`)) {
+                const fieldName = key.slice(`${"dataPath"}.`.length);
+                const parts = fieldName.split(".");
+                let current = dataPathObj;
+                for(let i = 0; i < parts.length - 1; i++){
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.dataPath = dataPathObj;
+    }
+    return toExit(columnConfigDeserialize(obj));
+}
+
 export const ColumnConfig = {
   defaultValue: columnConfigDefaultValue,
   serialize: columnConfigSerialize,
@@ -207,5 +386,7 @@ export const ColumnConfig = {
   deserializeWithContext: columnConfigDeserializeWithContext,
   validateFields: columnConfigValidateFields,
   hasShape: columnConfigHasShape,
-  is: columnConfigIs
+  is: columnConfigIs,
+  createForm: columnConfigCreateForm,
+  fromFormData: columnConfigFromFormData
 } as const;

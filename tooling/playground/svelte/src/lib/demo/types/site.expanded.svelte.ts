@@ -66,21 +66,21 @@ export function siteSerializeWithContext(value: Site, ctx: __mf_SerializeContext
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Site"}`,
+        __type: "Site",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"addressLine1"}`] = value.addressLine1;
-    result[`${"addressLine2"}`] = value.addressLine2;
-    result[`${"sublocalityLevel1"}`] = value.sublocalityLevel1;
-    result[`${"locality"}`] = value.locality;
-    result[`${"administrativeAreaLevel3"}`] = value.administrativeAreaLevel3;
-    result[`${"administrativeAreaLevel2"}`] = value.administrativeAreaLevel2;
-    result[`${"administrativeAreaLevel1"}`] = value.administrativeAreaLevel1;
-    result[`${"country"}`] = value.country;
-    result[`${"postalCode"}`] = value.postalCode;
-    result[`${"postalCodeSuffix"}`] = value.postalCodeSuffix;
-    result[`${"coordinates"}`] = coordinatesSerializeWithContext(value.coordinates, ctx);
+    result.id = value.id;
+    result.addressLine1 = value.addressLine1;
+    result.addressLine2 = value.addressLine2;
+    result.sublocalityLevel1 = value.sublocalityLevel1;
+    result.locality = value.locality;
+    result.administrativeAreaLevel3 = value.administrativeAreaLevel3;
+    result.administrativeAreaLevel2 = value.administrativeAreaLevel2;
+    result.administrativeAreaLevel1 = value.administrativeAreaLevel1;
+    result.country = value.country;
+    result.postalCode = value.postalCode;
+    result.postalCodeSuffix = value.postalCodeSuffix;
+    result.coordinates = coordinatesSerializeWithContext(value.coordinates, ctx);
     return result;
 }
 
@@ -144,75 +144,75 @@ export function siteDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"addressLine1"}` in obj)) {
+    if (!("addressLine1" in obj)) {
         errors.push({
-            field: `${"addressLine1"}`,
+            field: "addressLine1",
             message: "missing required field"
         });
     }
-    if (!(`${"addressLine2"}` in obj)) {
+    if (!("addressLine2" in obj)) {
         errors.push({
-            field: `${"addressLine2"}`,
+            field: "addressLine2",
             message: "missing required field"
         });
     }
-    if (!(`${"sublocalityLevel1"}` in obj)) {
+    if (!("sublocalityLevel1" in obj)) {
         errors.push({
-            field: `${"sublocalityLevel1"}`,
+            field: "sublocalityLevel1",
             message: "missing required field"
         });
     }
-    if (!(`${"locality"}` in obj)) {
+    if (!("locality" in obj)) {
         errors.push({
-            field: `${"locality"}`,
+            field: "locality",
             message: "missing required field"
         });
     }
-    if (!(`${"administrativeAreaLevel3"}` in obj)) {
+    if (!("administrativeAreaLevel3" in obj)) {
         errors.push({
-            field: `${"administrativeAreaLevel3"}`,
+            field: "administrativeAreaLevel3",
             message: "missing required field"
         });
     }
-    if (!(`${"administrativeAreaLevel2"}` in obj)) {
+    if (!("administrativeAreaLevel2" in obj)) {
         errors.push({
-            field: `${"administrativeAreaLevel2"}`,
+            field: "administrativeAreaLevel2",
             message: "missing required field"
         });
     }
-    if (!(`${"administrativeAreaLevel1"}` in obj)) {
+    if (!("administrativeAreaLevel1" in obj)) {
         errors.push({
-            field: `${"administrativeAreaLevel1"}`,
+            field: "administrativeAreaLevel1",
             message: "missing required field"
         });
     }
-    if (!(`${"country"}` in obj)) {
+    if (!("country" in obj)) {
         errors.push({
-            field: `${"country"}`,
+            field: "country",
             message: "missing required field"
         });
     }
-    if (!(`${"postalCode"}` in obj)) {
+    if (!("postalCode" in obj)) {
         errors.push({
-            field: `${"postalCode"}`,
+            field: "postalCode",
             message: "missing required field"
         });
     }
-    if (!(`${"postalCodeSuffix"}` in obj)) {
+    if (!("postalCodeSuffix" in obj)) {
         errors.push({
-            field: `${"postalCodeSuffix"}`,
+            field: "postalCodeSuffix",
             message: "missing required field"
         });
     }
-    if (!(`${"coordinates"}` in obj)) {
+    if (!("coordinates" in obj)) {
         errors.push({
-            field: `${"coordinates"}`,
+            field: "coordinates",
             message: "missing required field"
         });
     }
@@ -225,11 +225,11 @@ export function siteDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_addressLine1 = obj[`${"addressLine1"}`] as string;
+        const __raw_addressLine1 = obj["addressLine1"] as string;
         if (__raw_addressLine1.trim().length === 0) {
             errors.push({
                 field: "addressLine1",
@@ -239,15 +239,15 @@ export function siteDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.addressLine1 = __raw_addressLine1;
     }
     {
-        const __raw_addressLine2 = obj[`${"addressLine2"}`] as string | null;
+        const __raw_addressLine2 = obj["addressLine2"] as string | null;
         instance.addressLine2 = __raw_addressLine2;
     }
     {
-        const __raw_sublocalityLevel1 = obj[`${"sublocalityLevel1"}`] as string | null;
+        const __raw_sublocalityLevel1 = obj["sublocalityLevel1"] as string | null;
         instance.sublocalityLevel1 = __raw_sublocalityLevel1;
     }
     {
-        const __raw_locality = obj[`${"locality"}`] as string;
+        const __raw_locality = obj["locality"] as string;
         if (__raw_locality.trim().length === 0) {
             errors.push({
                 field: "locality",
@@ -257,15 +257,15 @@ export function siteDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.locality = __raw_locality;
     }
     {
-        const __raw_administrativeAreaLevel3 = obj[`${"administrativeAreaLevel3"}`] as string | null;
+        const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"] as string | null;
         instance.administrativeAreaLevel3 = __raw_administrativeAreaLevel3;
     }
     {
-        const __raw_administrativeAreaLevel2 = obj[`${"administrativeAreaLevel2"}`] as string | null;
+        const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"] as string | null;
         instance.administrativeAreaLevel2 = __raw_administrativeAreaLevel2;
     }
     {
-        const __raw_administrativeAreaLevel1 = obj[`${"administrativeAreaLevel1"}`] as string;
+        const __raw_administrativeAreaLevel1 = obj["administrativeAreaLevel1"] as string;
         if (__raw_administrativeAreaLevel1.trim().length === 0) {
             errors.push({
                 field: "administrativeAreaLevel1",
@@ -275,7 +275,7 @@ export function siteDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
     }
     {
-        const __raw_country = obj[`${"country"}`] as string;
+        const __raw_country = obj["country"] as string;
         if (__raw_country.trim().length === 0) {
             errors.push({
                 field: "country",
@@ -285,7 +285,7 @@ export function siteDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.country = __raw_country;
     }
     {
-        const __raw_postalCode = obj[`${"postalCode"}`] as string;
+        const __raw_postalCode = obj["postalCode"] as string;
         if (__raw_postalCode.trim().length === 0) {
             errors.push({
                 field: "postalCode",
@@ -295,14 +295,14 @@ export function siteDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.postalCode = __raw_postalCode;
     }
     {
-        const __raw_postalCodeSuffix = obj[`${"postalCodeSuffix"}`] as string | null;
+        const __raw_postalCodeSuffix = obj["postalCodeSuffix"] as string | null;
         instance.postalCodeSuffix = __raw_postalCodeSuffix;
     }
     {
-        const __raw_coordinates = obj[`${"coordinates"}`] as Coordinates;
+        const __raw_coordinates = obj["coordinates"] as Coordinates;
         {
             const __result = coordinatesDeserializeWithContext(__raw_coordinates, ctx);
-            ctx.assignOrDefer(instance, `${"coordinates"}`, __result);
+            ctx.assignOrDefer(instance, "coordinates", __result);
         }
     }
     if (errors.length > 0) {
@@ -318,7 +318,7 @@ export function siteValidateField<K extends keyof Site>(_field: K, _value: Site[
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"addressLine1"}`) {
+    if (_field === "addressLine1") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -327,7 +327,7 @@ export function siteValidateField<K extends keyof Site>(_field: K, _value: Site[
             });
         }
     }
-    if (_field === `${"locality"}`) {
+    if (_field === "locality") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -336,7 +336,7 @@ export function siteValidateField<K extends keyof Site>(_field: K, _value: Site[
             });
         }
     }
-    if (_field === `${"administrativeAreaLevel1"}`) {
+    if (_field === "administrativeAreaLevel1") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -345,7 +345,7 @@ export function siteValidateField<K extends keyof Site>(_field: K, _value: Site[
             });
         }
     }
-    if (_field === `${"country"}`) {
+    if (_field === "country") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -354,7 +354,7 @@ export function siteValidateField<K extends keyof Site>(_field: K, _value: Site[
             });
         }
     }
-    if (_field === `${"postalCode"}`) {
+    if (_field === "postalCode") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -373,7 +373,7 @@ export function siteValidateFields(_partial: Partial<Site>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"addressLine1"}` in _partial && _partial.addressLine1 !== undefined) {
+    if ("addressLine1" in _partial && _partial.addressLine1 !== undefined) {
         const __val = _partial.addressLine1 as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -382,7 +382,7 @@ export function siteValidateFields(_partial: Partial<Site>): Array<{
             });
         }
     }
-    if (`${"locality"}` in _partial && _partial.locality !== undefined) {
+    if ("locality" in _partial && _partial.locality !== undefined) {
         const __val = _partial.locality as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -391,7 +391,7 @@ export function siteValidateFields(_partial: Partial<Site>): Array<{
             });
         }
     }
-    if (`${"administrativeAreaLevel1"}` in _partial && _partial.administrativeAreaLevel1 !== undefined) {
+    if ("administrativeAreaLevel1" in _partial && _partial.administrativeAreaLevel1 !== undefined) {
         const __val = _partial.administrativeAreaLevel1 as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -400,7 +400,7 @@ export function siteValidateFields(_partial: Partial<Site>): Array<{
             });
         }
     }
-    if (`${"country"}` in _partial && _partial.country !== undefined) {
+    if ("country" in _partial && _partial.country !== undefined) {
         const __val = _partial.country as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -409,7 +409,7 @@ export function siteValidateFields(_partial: Partial<Site>): Array<{
             });
         }
     }
-    if (`${"postalCode"}` in _partial && _partial.postalCode !== undefined) {
+    if ("postalCode" in _partial && _partial.postalCode !== undefined) {
         const __val = _partial.postalCode as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -435,11 +435,517 @@ export function siteIs(obj: unknown): obj is Site {
     return result.success;
 }
 
+export type SiteErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    addressLine1: __gf_Option<Array<string>>;
+    addressLine2: __gf_Option<Array<string>>;
+    sublocalityLevel1: __gf_Option<Array<string>>;
+    locality: __gf_Option<Array<string>>;
+    administrativeAreaLevel3: __gf_Option<Array<string>>;
+    administrativeAreaLevel2: __gf_Option<Array<string>>;
+    administrativeAreaLevel1: __gf_Option<Array<string>>;
+    country: __gf_Option<Array<string>>;
+    postalCode: __gf_Option<Array<string>>;
+    postalCodeSuffix: __gf_Option<Array<string>>;
+    coordinates: __gf_Option<Array<string>>;
+};
+export type SiteTainted = {
+    id: __gf_Option<boolean>;
+    addressLine1: __gf_Option<boolean>;
+    addressLine2: __gf_Option<boolean>;
+    sublocalityLevel1: __gf_Option<boolean>;
+    locality: __gf_Option<boolean>;
+    administrativeAreaLevel3: __gf_Option<boolean>;
+    administrativeAreaLevel2: __gf_Option<boolean>;
+    administrativeAreaLevel1: __gf_Option<boolean>;
+    country: __gf_Option<boolean>;
+    postalCode: __gf_Option<boolean>;
+    postalCodeSuffix: __gf_Option<boolean>;
+    coordinates: __gf_Option<boolean>;
+};
+export interface SiteFieldControllers {
+    readonly id: FieldController<string>;
+    readonly addressLine1: FieldController<string>;
+    readonly addressLine2: FieldController<string | null>;
+    readonly sublocalityLevel1: FieldController<string | null>;
+    readonly locality: FieldController<string>;
+    readonly administrativeAreaLevel3: FieldController<string | null>;
+    readonly administrativeAreaLevel2: FieldController<string | null>;
+    readonly administrativeAreaLevel1: FieldController<string>;
+    readonly country: FieldController<string>;
+    readonly postalCode: FieldController<string>;
+    readonly postalCodeSuffix: FieldController<string | null>;
+    readonly coordinates: FieldController<Coordinates>;
+}
+export interface SiteGigaform {
+    readonly data: Site;
+    readonly errors: SiteErrors;
+    readonly tainted: SiteTainted;
+    readonly fields: SiteFieldControllers;
+    validate(): Exit<Site, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Site>): void;
+}
+export function siteCreateForm(overrides?: Partial<Site>): SiteGigaform {
+    let data = $state({
+        ...siteDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<SiteErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        addressLine1: optionNone(),
+        addressLine2: optionNone(),
+        sublocalityLevel1: optionNone(),
+        locality: optionNone(),
+        administrativeAreaLevel3: optionNone(),
+        administrativeAreaLevel2: optionNone(),
+        administrativeAreaLevel1: optionNone(),
+        country: optionNone(),
+        postalCode: optionNone(),
+        postalCodeSuffix: optionNone(),
+        coordinates: optionNone()
+    } as SiteErrors);
+    let tainted = $state<SiteTainted>({
+        id: optionNone(),
+        addressLine1: optionNone(),
+        addressLine2: optionNone(),
+        sublocalityLevel1: optionNone(),
+        locality: optionNone(),
+        administrativeAreaLevel3: optionNone(),
+        administrativeAreaLevel2: optionNone(),
+        administrativeAreaLevel1: optionNone(),
+        country: optionNone(),
+        postalCode: optionNone(),
+        postalCodeSuffix: optionNone(),
+        coordinates: optionNone()
+    } as SiteTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        addressLine1: {
+            path: [
+                "addressLine1"
+            ] as const,
+            name: "addressLine1",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.addressLine1,
+            set: (value: string)=>{
+                data.addressLine1 = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.addressLine1,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.addressLine1 = value;
+            },
+            getTainted: ()=>tainted.addressLine1,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.addressLine1 = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("addressLine1", data.addressLine1);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        addressLine2: {
+            path: [
+                "addressLine2"
+            ] as const,
+            name: "addressLine2",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.addressLine2,
+            set: (value: string | null)=>{
+                data.addressLine2 = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.addressLine2,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.addressLine2 = value;
+            },
+            getTainted: ()=>tainted.addressLine2,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.addressLine2 = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("addressLine2", data.addressLine2);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        sublocalityLevel1: {
+            path: [
+                "sublocalityLevel1"
+            ] as const,
+            name: "sublocalityLevel1",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.sublocalityLevel1,
+            set: (value: string | null)=>{
+                data.sublocalityLevel1 = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.sublocalityLevel1,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.sublocalityLevel1 = value;
+            },
+            getTainted: ()=>tainted.sublocalityLevel1,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.sublocalityLevel1 = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("sublocalityLevel1", data.sublocalityLevel1);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        locality: {
+            path: [
+                "locality"
+            ] as const,
+            name: "locality",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.locality,
+            set: (value: string)=>{
+                data.locality = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.locality,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.locality = value;
+            },
+            getTainted: ()=>tainted.locality,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.locality = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("locality", data.locality);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        administrativeAreaLevel3: {
+            path: [
+                "administrativeAreaLevel3"
+            ] as const,
+            name: "administrativeAreaLevel3",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.administrativeAreaLevel3,
+            set: (value: string | null)=>{
+                data.administrativeAreaLevel3 = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.administrativeAreaLevel3,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.administrativeAreaLevel3 = value;
+            },
+            getTainted: ()=>tainted.administrativeAreaLevel3,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.administrativeAreaLevel3 = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("administrativeAreaLevel3", data.administrativeAreaLevel3);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        administrativeAreaLevel2: {
+            path: [
+                "administrativeAreaLevel2"
+            ] as const,
+            name: "administrativeAreaLevel2",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.administrativeAreaLevel2,
+            set: (value: string | null)=>{
+                data.administrativeAreaLevel2 = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.administrativeAreaLevel2,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.administrativeAreaLevel2 = value;
+            },
+            getTainted: ()=>tainted.administrativeAreaLevel2,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.administrativeAreaLevel2 = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("administrativeAreaLevel2", data.administrativeAreaLevel2);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        administrativeAreaLevel1: {
+            path: [
+                "administrativeAreaLevel1"
+            ] as const,
+            name: "administrativeAreaLevel1",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.administrativeAreaLevel1,
+            set: (value: string)=>{
+                data.administrativeAreaLevel1 = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.administrativeAreaLevel1,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.administrativeAreaLevel1 = value;
+            },
+            getTainted: ()=>tainted.administrativeAreaLevel1,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.administrativeAreaLevel1 = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("administrativeAreaLevel1", data.administrativeAreaLevel1);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        country: {
+            path: [
+                "country"
+            ] as const,
+            name: "country",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.country,
+            set: (value: string)=>{
+                data.country = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.country,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.country = value;
+            },
+            getTainted: ()=>tainted.country,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.country = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("country", data.country);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        postalCode: {
+            path: [
+                "postalCode"
+            ] as const,
+            name: "postalCode",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.postalCode,
+            set: (value: string)=>{
+                data.postalCode = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.postalCode,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.postalCode = value;
+            },
+            getTainted: ()=>tainted.postalCode,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.postalCode = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("postalCode", data.postalCode);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        postalCodeSuffix: {
+            path: [
+                "postalCodeSuffix"
+            ] as const,
+            name: "postalCodeSuffix",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.postalCodeSuffix,
+            set: (value: string | null)=>{
+                data.postalCodeSuffix = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.postalCodeSuffix,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.postalCodeSuffix = value;
+            },
+            getTainted: ()=>tainted.postalCodeSuffix,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.postalCodeSuffix = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("postalCodeSuffix", data.postalCodeSuffix);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        coordinates: {
+            path: [
+                "coordinates"
+            ] as const,
+            name: "coordinates",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.coordinates,
+            set: (value: Coordinates)=>{
+                data.coordinates = value;
+            },
+            transform: (value: Coordinates): Coordinates =>value,
+            getError: ()=>errors.coordinates,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.coordinates = value;
+            },
+            getTainted: ()=>tainted.coordinates,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.coordinates = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = siteValidateField("coordinates", data.coordinates);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as SiteFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Site, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(siteDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Site>): void {
+        data = {
+            ...siteDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            addressLine1: optionNone(),
+            addressLine2: optionNone(),
+            sublocalityLevel1: optionNone(),
+            locality: optionNone(),
+            administrativeAreaLevel3: optionNone(),
+            administrativeAreaLevel2: optionNone(),
+            administrativeAreaLevel1: optionNone(),
+            country: optionNone(),
+            postalCode: optionNone(),
+            postalCodeSuffix: optionNone(),
+            coordinates: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            addressLine1: optionNone(),
+            addressLine2: optionNone(),
+            sublocalityLevel1: optionNone(),
+            locality: optionNone(),
+            administrativeAreaLevel3: optionNone(),
+            administrativeAreaLevel2: optionNone(),
+            administrativeAreaLevel1: optionNone(),
+            country: optionNone(),
+            postalCode: optionNone(),
+            postalCodeSuffix: optionNone(),
+            coordinates: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function siteFromFormData(formData: FormData): Exit<Site, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Site, Array<{ field: string; message: string }>>";
     obj.id = formData.get(`${"id"}`) ?? "";
     obj.addressLine1 = formData.get(`${"addressLine1"}`) ?? "";
     obj.addressLine2 = formData.get(`${"addressLine2"}`) ?? "";
@@ -470,143 +976,8 @@ export function siteFromFormData(formData: FormData): Exit<Site, Array<{
         }
         obj.coordinates = coordinatesObj;
     }
-    return toExit("siteDeserialize(obj)");
+    return toExit(siteDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: Site;
-    readonly errors: SiteErrors;
-    readonly tainted: SiteTainted;
-    readonly fields: SiteFieldControllers;
-    validate(): Exit<Site, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Site>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function siteCreateForm(overrides: Partial<Site>): SiteGigaform {}
-let data = $state({
-    ...siteDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as SiteErrors);
-let tainted = $state<$MfPh3>({} as SiteTainted);
-const fields = {} as SiteFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.addressLine1 = {
-    label: `${"addressLine1"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.addressLine2 = {
-    label: `${"addressLine2"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.sublocalityLevel1 = {
-    label: `${"sublocalityLevel1"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.locality = {
-    label: `${"locality"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.administrativeAreaLevel3 = {
-    label: `${"administrativeAreaLevel3"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.administrativeAreaLevel2 = {
-    label: `${"administrativeAreaLevel2"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.administrativeAreaLevel1 = {
-    label: `${"administrativeAreaLevel1"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.country = {
-    label: `${"country"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.postalCode = {
-    label: `${"postalCode"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.postalCodeSuffix = {
-    label: `${"postalCodeSuffix"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.coordinates = {
-    label: `${"coordinates"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Site, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("siteDeserialize(data)");
-    data = {
-        ...siteDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Site = {
   defaultValue: siteDefaultValue,
@@ -617,6 +988,6 @@ export const Site = {
   validateFields: siteValidateFields,
   hasShape: siteHasShape,
   is: siteIs,
-  fromFormData: siteFromFormData,
-  createForm: siteCreateForm
+  createForm: siteCreateForm,
+  fromFormData: siteFromFormData
 } as const;

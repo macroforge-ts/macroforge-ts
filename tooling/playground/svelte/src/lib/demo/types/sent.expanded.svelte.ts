@@ -36,11 +36,11 @@ export function sentSerializeWithContext(value: Sent, ctx: __mf_SerializeContext
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Sent"}`,
+        __type: "Sent",
         __id
     };
-    result[`${"recipient"}`] = value.recipient;
-    result[`${"method"}`] = value.method;
+    result.recipient = value.recipient;
+    result.method = value.method;
     return result;
 }
 
@@ -104,15 +104,15 @@ export function sentDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         field: string;
         message: string;
     }> = [];
-    if (!(`${"recipient"}` in obj)) {
+    if (!("recipient" in obj)) {
         errors.push({
-            field: `${"recipient"}`,
+            field: "recipient",
             message: "missing required field"
         });
     }
-    if (!(`${"method"}` in obj)) {
+    if (!("method" in obj)) {
         errors.push({
-            field: `${"method"}`,
+            field: "method",
             message: "missing required field"
         });
     }
@@ -125,11 +125,11 @@ export function sentDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_recipient = obj[`${"recipient"}`] as string | null;
+        const __raw_recipient = obj["recipient"] as string | null;
         instance.recipient = __raw_recipient;
     }
     {
-        const __raw_method = obj[`${"method"}`] as string | null;
+        const __raw_method = obj["method"] as string | null;
         instance.method = __raw_method;
     }
     if (errors.length > 0) {
@@ -164,23 +164,20 @@ export function sentIs(obj: unknown): obj is Sent {
     return result.success;
 }
 
-export function sentFromFormData(formData: FormData): Exit<Sent, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    obj.recipient = formData.get(`${"recipient"}`) ?? "";
-    obj.method = formData.get(`${"method"}`) ?? "";
-    return toExit("sentDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type SentErrors = {
     _errors: __gf_Option<Array<string>>;
+    recipient: __gf_Option<Array<string>>;
+    method: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type SentTainted = {
+    recipient: __gf_Option<boolean>;
+    method: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface SentFieldControllers {
+    readonly recipient: FieldController<string | null>;
+    readonly method: FieldController<string | null>;
 }
-export interface $MfPh3 {
+export interface SentGigaform {
     readonly data: Sent;
     readonly errors: SentErrors;
     readonly tainted: SentTainted;
@@ -189,45 +186,139 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Sent>): void;
+    reset(overrides?: Partial<Sent>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function sentCreateForm(overrides: Partial<Sent>): SentGigaform {}
-let data = $state({
-    ...sentDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as SentErrors);
-let tainted = $state<$MfPh3>({} as SentTainted);
-const fields = {} as SentFieldControllers;
-fields.recipient = {
-    label: `${"recipient"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.method = {
-    label: `${"method"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Sent, Array<{
+export function sentCreateForm(overrides?: Partial<Sent>): SentGigaform {
+    let data = $state({
+        ...sentDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<SentErrors>({
+        _errors: optionNone(),
+        recipient: optionNone(),
+        method: optionNone()
+    } as SentErrors);
+    let tainted = $state<SentTainted>({
+        recipient: optionNone(),
+        method: optionNone()
+    } as SentTainted);
+    const fields = {
+        recipient: {
+            path: [
+                "recipient"
+            ] as const,
+            name: "recipient",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.recipient,
+            set: (value: string | null)=>{
+                data.recipient = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.recipient,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.recipient = value;
+            },
+            getTainted: ()=>tainted.recipient,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.recipient = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = sentValidateField("recipient", data.recipient);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        method: {
+            path: [
+                "method"
+            ] as const,
+            name: "method",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.method,
+            set: (value: string | null)=>{
+                data.method = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.method,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.method = value;
+            },
+            getTainted: ()=>tainted.method,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.method = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = sentValidateField("method", data.method);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as SentFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Sent, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(sentDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Sent>): void {
+        data = {
+            ...sentDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            recipient: optionNone(),
+            method: optionNone()
+        };
+        tainted = {
+            recipient: optionNone(),
+            method: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function sentFromFormData(formData: FormData): Exit<Sent, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("sentDeserialize(data)");
-    data = {
-        ...sentDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Sent, Array<{ field: string; message: string }>>";
+    obj.recipient = formData.get(`${"recipient"}`) ?? "";
+    obj.method = formData.get(`${"method"}`) ?? "";
+    return toExit(sentDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Sent = {
   defaultValue: sentDefaultValue,
@@ -238,6 +329,6 @@ export const Sent = {
   validateFields: sentValidateFields,
   hasShape: sentHasShape,
   is: sentIs,
-  fromFormData: sentFromFormData,
-  createForm: sentCreateForm
+  createForm: sentCreateForm,
+  fromFormData: sentFromFormData
 } as const;

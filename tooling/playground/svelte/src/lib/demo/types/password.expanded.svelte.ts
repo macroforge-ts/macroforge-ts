@@ -35,10 +35,10 @@ export function passwordSerializeWithContext(value: Password, ctx: __mf_Serializ
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Password"}`,
+        __type: "Password",
         __id
     };
-    result[`${"password"}`] = value.password;
+    result.password = value.password;
     return result;
 }
 
@@ -102,9 +102,9 @@ export function passwordDeserializeWithContext(value: any, ctx: __mf_Deserialize
         field: string;
         message: string;
     }> = [];
-    if (!(`${"password"}` in obj)) {
+    if (!("password" in obj)) {
         errors.push({
-            field: `${"password"}`,
+            field: "password",
             message: "missing required field"
         });
     }
@@ -117,7 +117,7 @@ export function passwordDeserializeWithContext(value: any, ctx: __mf_Deserialize
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_password = obj[`${"password"}`] as string;
+        const __raw_password = obj["password"] as string;
         if (__raw_password.trim().length === 0) {
             errors.push({
                 field: "password",
@@ -139,7 +139,7 @@ export function passwordValidateField<K extends keyof Password>(_field: K, _valu
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"password"}`) {
+    if (_field === "password") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -158,7 +158,7 @@ export function passwordValidateFields(_partial: Partial<Password>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"password"}` in _partial && _partial.password !== undefined) {
+    if ("password" in _partial && _partial.password !== undefined) {
         const __val = _partial.password as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -184,22 +184,17 @@ export function passwordIs(obj: unknown): obj is Password {
     return result.success;
 }
 
-export function passwordFromFormData(formData: FormData): Exit<Password, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    obj.password = formData.get(`${"password"}`) ?? "";
-    return toExit("passwordDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type PasswordErrors = {
     _errors: __gf_Option<Array<string>>;
+    password: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type PasswordTainted = {
+    password: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface PasswordFieldControllers {
+    readonly password: FieldController<string>;
 }
-export interface $MfPh3 {
+export interface PasswordGigaform {
     readonly data: Password;
     readonly errors: PasswordErrors;
     readonly tainted: PasswordTainted;
@@ -208,37 +203,105 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Password>): void;
+    reset(overrides?: Partial<Password>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
- }; export function passwordCreateForm(overrides: Partial<Password>): PasswordGigaform {}
-let data = $state({
-    ...passwordDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as PasswordErrors);
-let tainted = $state<$MfPh3>({} as PasswordTainted);
-const fields = {} as PasswordFieldControllers;
-fields.password = {
-    label: `${"password"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Password, Array<{
+export function passwordCreateForm(overrides?: Partial<Password>): PasswordGigaform {
+    let data = $state({
+        ...passwordDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<PasswordErrors>({
+        _errors: optionNone(),
+        password: optionNone()
+    } as PasswordErrors);
+    let tainted = $state<PasswordTainted>({
+        password: optionNone()
+    } as PasswordTainted);
+    const fields = {
+        password: {
+            path: [
+                "password"
+            ] as const,
+            name: "password",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.password,
+            set: (value: string)=>{
+                data.password = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.password,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.password = value;
+            },
+            getTainted: ()=>tainted.password,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.password = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = passwordValidateField("password", data.password);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as PasswordFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Password, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(passwordDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Password>): void {
+        data = {
+            ...passwordDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            password: optionNone()
+        };
+        tainted = {
+            password: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function passwordFromFormData(formData: FormData): Exit<Password, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("passwordDeserialize(data)");
-    data = {
-        ...passwordDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Password, Array<{ field: string; message: string }>>";
+    obj.password = formData.get(`${"password"}`) ?? "";
+    return toExit(passwordDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Password = {
   defaultValue: passwordDefaultValue,
@@ -249,6 +312,6 @@ export const Password = {
   validateFields: passwordValidateFields,
   hasShape: passwordHasShape,
   is: passwordIs,
-  fromFormData: passwordFromFormData,
-  createForm: passwordCreateForm
+  createForm: passwordCreateForm,
+  fromFormData: passwordFromFormData
 } as const;

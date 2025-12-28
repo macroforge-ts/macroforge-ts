@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -31,11 +36,11 @@ export function coordinatesSerializeWithContext(value: Coordinates, ctx: __mf_Se
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Coordinates"}`,
+        __type: "Coordinates",
         __id
     };
-    result[`${"lat"}`] = value.lat;
-    result[`${"lng"}`] = value.lng;
+    result.lat = value.lat;
+    result.lng = value.lng;
     return result;
 }
 
@@ -99,15 +104,15 @@ export function coordinatesDeserializeWithContext(value: any, ctx: __mf_Deserial
         field: string;
         message: string;
     }> = [];
-    if (!(`${"lat"}` in obj)) {
+    if (!("lat" in obj)) {
         errors.push({
-            field: `${"lat"}`,
+            field: "lat",
             message: "missing required field"
         });
     }
-    if (!(`${"lng"}` in obj)) {
+    if (!("lng" in obj)) {
         errors.push({
-            field: `${"lng"}`,
+            field: "lng",
             message: "missing required field"
         });
     }
@@ -120,11 +125,11 @@ export function coordinatesDeserializeWithContext(value: any, ctx: __mf_Deserial
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_lat = obj[`${"lat"}`] as number;
+        const __raw_lat = obj["lat"] as number;
         instance.lat = __raw_lat;
     }
     {
-        const __raw_lng = obj[`${"lng"}`] as number;
+        const __raw_lng = obj["lng"] as number;
         instance.lng = __raw_lng;
     }
     if (errors.length > 0) {
@@ -159,6 +164,170 @@ export function coordinatesIs(obj: unknown): obj is Coordinates {
     return result.success;
 }
 
+export type CoordinatesErrors = {
+    _errors: __gf_Option<Array<string>>;
+    lat: __gf_Option<Array<string>>;
+    lng: __gf_Option<Array<string>>;
+};
+export type CoordinatesTainted = {
+    lat: __gf_Option<boolean>;
+    lng: __gf_Option<boolean>;
+};
+export interface CoordinatesFieldControllers {
+    readonly lat: FieldController<number>;
+    readonly lng: FieldController<number>;
+}
+export interface CoordinatesGigaform {
+    readonly data: Coordinates;
+    readonly errors: CoordinatesErrors;
+    readonly tainted: CoordinatesTainted;
+    readonly fields: CoordinatesFieldControllers;
+    validate(): Exit<Coordinates, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Coordinates>): void;
+}
+export function coordinatesCreateForm(overrides?: Partial<Coordinates>): CoordinatesGigaform {
+    let data = $state({
+        ...coordinatesDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<CoordinatesErrors>({
+        _errors: optionNone(),
+        lat: optionNone(),
+        lng: optionNone()
+    } as CoordinatesErrors);
+    let tainted = $state<CoordinatesTainted>({
+        lat: optionNone(),
+        lng: optionNone()
+    } as CoordinatesTainted);
+    const fields = {
+        lat: {
+            path: [
+                "lat"
+            ] as const,
+            name: "lat",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.lat,
+            set: (value: number)=>{
+                data.lat = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.lat,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.lat = value;
+            },
+            getTainted: ()=>tainted.lat,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.lat = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = coordinatesValidateField("lat", data.lat);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        lng: {
+            path: [
+                "lng"
+            ] as const,
+            name: "lng",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.lng,
+            set: (value: number)=>{
+                data.lng = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.lng,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.lng = value;
+            },
+            getTainted: ()=>tainted.lng,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.lng = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = coordinatesValidateField("lng", data.lng);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as CoordinatesFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Coordinates, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(coordinatesDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Coordinates>): void {
+        data = {
+            ...coordinatesDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            lat: optionNone(),
+            lng: optionNone()
+        };
+        tainted = {
+            lat: optionNone(),
+            lng: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function coordinatesFromFormData(formData: FormData): Exit<Coordinates, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Coordinates, Array<{ field: string; message: string }>>";
+    {
+        const latStr = formData.get(`${"lat"}`);
+        obj.lat = latStr ? parseFloat(latStr as string) : $MfPh5;
+        if (obj.lat !== undefined && isNaN(obj.lat as number)) obj.lat = "0";
+    }
+    {
+        const lngStr = formData.get(`${"lng"}`);
+        obj.lng = lngStr ? parseFloat(lngStr as string) : $MfPh5;
+        if (obj.lng !== undefined && isNaN(obj.lng as number)) obj.lng = "0";
+    }
+    return toExit(coordinatesDeserialize(obj));
+}
+
 export const Coordinates = {
   defaultValue: coordinatesDefaultValue,
   serialize: coordinatesSerialize,
@@ -167,5 +336,7 @@ export const Coordinates = {
   deserializeWithContext: coordinatesDeserializeWithContext,
   validateFields: coordinatesValidateFields,
   hasShape: coordinatesHasShape,
-  is: coordinatesIs
+  is: coordinatesIs,
+  createForm: coordinatesCreateForm,
+  fromFormData: coordinatesFromFormData
 } as const;

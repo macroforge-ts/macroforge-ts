@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -34,12 +39,12 @@ export function editedSerializeWithContext(value: Edited, ctx: __mf_SerializeCon
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Edited"}`,
+        __type: "Edited",
         __id
     };
-    result[`${"fieldName"}`] = value.fieldName;
-    result[`${"oldValue"}`] = value.oldValue;
-    result[`${"newValue"}`] = value.newValue;
+    result.fieldName = value.fieldName;
+    result.oldValue = value.oldValue;
+    result.newValue = value.newValue;
     return result;
 }
 
@@ -103,21 +108,21 @@ export function editedDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         field: string;
         message: string;
     }> = [];
-    if (!(`${"fieldName"}` in obj)) {
+    if (!("fieldName" in obj)) {
         errors.push({
-            field: `${"fieldName"}`,
+            field: "fieldName",
             message: "missing required field"
         });
     }
-    if (!(`${"oldValue"}` in obj)) {
+    if (!("oldValue" in obj)) {
         errors.push({
-            field: `${"oldValue"}`,
+            field: "oldValue",
             message: "missing required field"
         });
     }
-    if (!(`${"newValue"}` in obj)) {
+    if (!("newValue" in obj)) {
         errors.push({
-            field: `${"newValue"}`,
+            field: "newValue",
             message: "missing required field"
         });
     }
@@ -130,7 +135,7 @@ export function editedDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_fieldName = obj[`${"fieldName"}`] as string;
+        const __raw_fieldName = obj["fieldName"] as string;
         if (__raw_fieldName.trim().length === 0) {
             errors.push({
                 field: "fieldName",
@@ -140,11 +145,11 @@ export function editedDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         instance.fieldName = __raw_fieldName;
     }
     {
-        const __raw_oldValue = obj[`${"oldValue"}`] as string | null;
+        const __raw_oldValue = obj["oldValue"] as string | null;
         instance.oldValue = __raw_oldValue;
     }
     {
-        const __raw_newValue = obj[`${"newValue"}`] as string | null;
+        const __raw_newValue = obj["newValue"] as string | null;
         instance.newValue = __raw_newValue;
     }
     if (errors.length > 0) {
@@ -160,7 +165,7 @@ export function editedValidateField<K extends keyof Edited>(_field: K, _value: E
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"fieldName"}`) {
+    if (_field === "fieldName") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -179,7 +184,7 @@ export function editedValidateFields(_partial: Partial<Edited>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"fieldName"}` in _partial && _partial.fieldName !== undefined) {
+    if ("fieldName" in _partial && _partial.fieldName !== undefined) {
         const __val = _partial.fieldName as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -205,6 +210,199 @@ export function editedIs(obj: unknown): obj is Edited {
     return result.success;
 }
 
+export type EditedErrors = {
+    _errors: __gf_Option<Array<string>>;
+    fieldName: __gf_Option<Array<string>>;
+    oldValue: __gf_Option<Array<string>>;
+    newValue: __gf_Option<Array<string>>;
+};
+export type EditedTainted = {
+    fieldName: __gf_Option<boolean>;
+    oldValue: __gf_Option<boolean>;
+    newValue: __gf_Option<boolean>;
+};
+export interface EditedFieldControllers {
+    readonly fieldName: FieldController<string>;
+    readonly oldValue: FieldController<string | null>;
+    readonly newValue: FieldController<string | null>;
+}
+export interface EditedGigaform {
+    readonly data: Edited;
+    readonly errors: EditedErrors;
+    readonly tainted: EditedTainted;
+    readonly fields: EditedFieldControllers;
+    validate(): Exit<Edited, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Edited>): void;
+}
+export function editedCreateForm(overrides?: Partial<Edited>): EditedGigaform {
+    let data = $state({
+        ...editedDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<EditedErrors>({
+        _errors: optionNone(),
+        fieldName: optionNone(),
+        oldValue: optionNone(),
+        newValue: optionNone()
+    } as EditedErrors);
+    let tainted = $state<EditedTainted>({
+        fieldName: optionNone(),
+        oldValue: optionNone(),
+        newValue: optionNone()
+    } as EditedTainted);
+    const fields = {
+        fieldName: {
+            path: [
+                "fieldName"
+            ] as const,
+            name: "fieldName",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.fieldName,
+            set: (value: string)=>{
+                data.fieldName = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.fieldName,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.fieldName = value;
+            },
+            getTainted: ()=>tainted.fieldName,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.fieldName = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = editedValidateField("fieldName", data.fieldName);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        oldValue: {
+            path: [
+                "oldValue"
+            ] as const,
+            name: "oldValue",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.oldValue,
+            set: (value: string | null)=>{
+                data.oldValue = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.oldValue,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.oldValue = value;
+            },
+            getTainted: ()=>tainted.oldValue,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.oldValue = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = editedValidateField("oldValue", data.oldValue);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        newValue: {
+            path: [
+                "newValue"
+            ] as const,
+            name: "newValue",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.newValue,
+            set: (value: string | null)=>{
+                data.newValue = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.newValue,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.newValue = value;
+            },
+            getTainted: ()=>tainted.newValue,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.newValue = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = editedValidateField("newValue", data.newValue);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as EditedFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Edited, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(editedDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Edited>): void {
+        data = {
+            ...editedDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            fieldName: optionNone(),
+            oldValue: optionNone(),
+            newValue: optionNone()
+        };
+        tainted = {
+            fieldName: optionNone(),
+            oldValue: optionNone(),
+            newValue: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function editedFromFormData(formData: FormData): Exit<Edited, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Edited, Array<{ field: string; message: string }>>";
+    obj.fieldName = formData.get(`${"fieldName"}`) ?? "";
+    obj.oldValue = formData.get(`${"oldValue"}`) ?? "";
+    obj.newValue = formData.get(`${"newValue"}`) ?? "";
+    return toExit(editedDeserialize(obj));
+}
+
 export const Edited = {
   defaultValue: editedDefaultValue,
   serialize: editedSerialize,
@@ -213,5 +411,7 @@ export const Edited = {
   deserializeWithContext: editedDeserializeWithContext,
   validateFields: editedValidateFields,
   hasShape: editedHasShape,
-  is: editedIs
+  is: editedIs,
+  createForm: editedCreateForm,
+  fromFormData: editedFromFormData
 } as const;

@@ -40,11 +40,11 @@ export function weeklyRecurrenceRuleSerializeWithContext(value: WeeklyRecurrence
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"WeeklyRecurrenceRule"}`,
+        __type: "WeeklyRecurrenceRule",
         __id
     };
-    result[`${"quantityOfWeeks"}`] = value.quantityOfWeeks;
-    result[`${"weekdays"}`] = value.weekdays.map((item)=>weekdaySerializeWithContext(item, ctx));
+    result.quantityOfWeeks = value.quantityOfWeeks;
+    result.weekdays = value.weekdays.map((item)=>weekdaySerializeWithContext(item, ctx));
     return result;
 }
 
@@ -108,15 +108,15 @@ export function weeklyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf
         field: string;
         message: string;
     }> = [];
-    if (!(`${"quantityOfWeeks"}` in obj)) {
+    if (!("quantityOfWeeks" in obj)) {
         errors.push({
-            field: `${"quantityOfWeeks"}`,
+            field: "quantityOfWeeks",
             message: "missing required field"
         });
     }
-    if (!(`${"weekdays"}` in obj)) {
+    if (!("weekdays" in obj)) {
         errors.push({
-            field: `${"weekdays"}`,
+            field: "weekdays",
             message: "missing required field"
         });
     }
@@ -129,11 +129,11 @@ export function weeklyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_quantityOfWeeks = obj[`${"quantityOfWeeks"}`] as number;
+        const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;
         instance.quantityOfWeeks = __raw_quantityOfWeeks;
     }
     {
-        const __raw_weekdays = obj[`${"weekdays"}`] as Array<Weekday>;
+        const __raw_weekdays = obj["weekdays"] as Array<Weekday>;
         if (Array.isArray(__raw_weekdays)) {
             instance.weekdays = __raw_weekdays as Weekday[];
         }
@@ -170,11 +170,192 @@ export function weeklyRecurrenceRuleIs(obj: unknown): obj is WeeklyRecurrenceRul
     return result.success;
 }
 
+export type WeeklyRecurrenceRuleErrors = {
+    _errors: __gf_Option<Array<string>>;
+    quantityOfWeeks: __gf_Option<Array<string>>;
+    weekdays: __gf_Option<Array<string>>;
+};
+export type WeeklyRecurrenceRuleTainted = {
+    quantityOfWeeks: __gf_Option<boolean>;
+    weekdays: __gf_Option<boolean>;
+};
+export interface WeeklyRecurrenceRuleFieldControllers {
+    readonly quantityOfWeeks: FieldController<number>;
+    readonly weekdays: ArrayFieldController<Weekday>;
+}
+export interface WeeklyRecurrenceRuleGigaform {
+    readonly data: WeeklyRecurrenceRule;
+    readonly errors: WeeklyRecurrenceRuleErrors;
+    readonly tainted: WeeklyRecurrenceRuleTainted;
+    readonly fields: WeeklyRecurrenceRuleFieldControllers;
+    validate(): Exit<WeeklyRecurrenceRule, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<WeeklyRecurrenceRule>): void;
+}
+export function weeklyRecurrenceRuleCreateForm(overrides?: Partial<WeeklyRecurrenceRule>): WeeklyRecurrenceRuleGigaform {
+    let data = $state({
+        ...weeklyRecurrenceRuleDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<WeeklyRecurrenceRuleErrors>({
+        _errors: optionNone(),
+        quantityOfWeeks: optionNone(),
+        weekdays: optionNone()
+    } as WeeklyRecurrenceRuleErrors);
+    let tainted = $state<WeeklyRecurrenceRuleTainted>({
+        quantityOfWeeks: optionNone(),
+        weekdays: optionNone()
+    } as WeeklyRecurrenceRuleTainted);
+    const fields = {
+        quantityOfWeeks: {
+            path: [
+                "quantityOfWeeks"
+            ] as const,
+            name: "quantityOfWeeks",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.quantityOfWeeks,
+            set: (value: number)=>{
+                data.quantityOfWeeks = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.quantityOfWeeks,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.quantityOfWeeks = value;
+            },
+            getTainted: ()=>tainted.quantityOfWeeks,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.quantityOfWeeks = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = weeklyRecurrenceRuleValidateField("quantityOfWeeks", data.quantityOfWeeks);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        weekdays: {
+            path: [
+                "weekdays"
+            ] as const,
+            name: "weekdays",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.weekdays,
+            set: (value: Array<Weekday>)=>{
+                data.weekdays = value;
+            },
+            transform: (value: Array<Weekday>): Array<Weekday> =>value,
+            getError: ()=>errors.weekdays,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.weekdays = value;
+            },
+            getTainted: ()=>tainted.weekdays,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.weekdays = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = weeklyRecurrenceRuleValidateField("weekdays", data.weekdays);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "weekdays",
+                        index
+                    ] as const,
+                    name: "'^weekdays.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.weekdays[index]!,
+                    set: (value: Weekday)=>{
+                        data.weekdays[index] = value;
+                    },
+                    transform: (value: Weekday): Weekday =>value,
+                    getError: ()=>errors.weekdays,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.weekdays = value;
+                    },
+                    getTainted: ()=>tainted.weekdays,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.weekdays = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: Weekday)=>{
+                data.weekdays.push(item);
+            },
+            remove: (index: number)=>{
+                data.weekdays.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.weekdays[a]!;
+                data.weekdays[a] = data.weekdays[b]!;
+                data.weekdays[b] = tmp;
+            }
+        }
+    } as WeeklyRecurrenceRuleFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<WeeklyRecurrenceRule, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(weeklyRecurrenceRuleDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<WeeklyRecurrenceRule>): void {
+        data = {
+            ...weeklyRecurrenceRuleDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            quantityOfWeeks: optionNone(),
+            weekdays: optionNone()
+        };
+        tainted = {
+            quantityOfWeeks: optionNone(),
+            weekdays: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function weeklyRecurrenceRuleFromFormData(formData: FormData): Exit<WeeklyRecurrenceRule, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<WeeklyRecurrenceRule, Array<{ field: string; message: string }>>";
     {
         const quantityOfWeeksStr = formData.get(`${"quantityOfWeeks"}`);
         obj.quantityOfWeeks = quantityOfWeeksStr ? parseFloat(quantityOfWeeksStr as string) : $MfPh5;
@@ -201,63 +382,8 @@ export function weeklyRecurrenceRuleFromFormData(formData: FormData): Exit<Weekl
         }
         obj.weekdays = weekdaysItems;
     }
-    return toExit("weeklyRecurrenceRuleDeserialize(obj)");
+    return toExit(weeklyRecurrenceRuleDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: WeeklyRecurrenceRule;
-    readonly errors: WeeklyRecurrenceRuleErrors;
-    readonly tainted: WeeklyRecurrenceRuleTainted;
-    readonly fields: WeeklyRecurrenceRuleFieldControllers;
-    validate(): Exit<WeeklyRecurrenceRule, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<WeeklyRecurrenceRule>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function weeklyRecurrenceRuleCreateForm(overrides: Partial<WeeklyRecurrenceRule>): WeeklyRecurrenceRuleGigaform {}
-let data = $state({
-    ...weeklyRecurrenceRuleDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as WeeklyRecurrenceRuleErrors);
-let tainted = $state<$MfPh3>({} as WeeklyRecurrenceRuleTainted);
-const fields = {} as WeeklyRecurrenceRuleFieldControllers;
-fields.quantityOfWeeks = {
-    label: `${"quantityOfWeeks"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.weekdays = {
-    label: `${"weekdays"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-function validate(): Exit<WeeklyRecurrenceRule, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("weeklyRecurrenceRuleDeserialize(data)");
-    data = {
-        ...weeklyRecurrenceRuleDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const WeeklyRecurrenceRule = {
   defaultValue: weeklyRecurrenceRuleDefaultValue,
@@ -268,6 +394,6 @@ export const WeeklyRecurrenceRule = {
   validateFields: weeklyRecurrenceRuleValidateFields,
   hasShape: weeklyRecurrenceRuleHasShape,
   is: weeklyRecurrenceRuleIs,
-  fromFormData: weeklyRecurrenceRuleFromFormData,
-  createForm: weeklyRecurrenceRuleCreateForm
+  createForm: weeklyRecurrenceRuleCreateForm,
+  fromFormData: weeklyRecurrenceRuleFromFormData
 } as const;

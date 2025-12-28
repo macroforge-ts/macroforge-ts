@@ -39,11 +39,11 @@ export function productDefaultsSerializeWithContext(value: ProductDefaults, ctx:
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"ProductDefaults"}`,
+        __type: "ProductDefaults",
         __id
     };
-    result[`${"price"}`] = value.price;
-    result[`${"description"}`] = value.description;
+    result.price = value.price;
+    result.description = value.description;
     return result;
 }
 
@@ -107,15 +107,15 @@ export function productDefaultsDeserializeWithContext(value: any, ctx: __mf_Dese
         field: string;
         message: string;
     }> = [];
-    if (!(`${"price"}` in obj)) {
+    if (!("price" in obj)) {
         errors.push({
-            field: `${"price"}`,
+            field: "price",
             message: "missing required field"
         });
     }
-    if (!(`${"description"}` in obj)) {
+    if (!("description" in obj)) {
         errors.push({
-            field: `${"description"}`,
+            field: "description",
             message: "missing required field"
         });
     }
@@ -128,11 +128,11 @@ export function productDefaultsDeserializeWithContext(value: any, ctx: __mf_Dese
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_price = obj[`${"price"}`] as number;
+        const __raw_price = obj["price"] as number;
         instance.price = __raw_price;
     }
     {
-        const __raw_description = obj[`${"description"}`] as string;
+        const __raw_description = obj["description"] as string;
         if (__raw_description.trim().length === 0) {
             errors.push({
                 field: "description",
@@ -154,7 +154,7 @@ export function productDefaultsValidateField<K extends keyof ProductDefaults>(_f
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"description"}`) {
+    if (_field === "description") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -173,7 +173,7 @@ export function productDefaultsValidateFields(_partial: Partial<ProductDefaults>
         field: string;
         message: string;
     }> = [];
-    if (`${"description"}` in _partial && _partial.description !== undefined) {
+    if ("description" in _partial && _partial.description !== undefined) {
         const __val = _partial.description as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -199,27 +199,20 @@ export function productDefaultsIs(obj: unknown): obj is ProductDefaults {
     return result.success;
 }
 
-export function productDefaultsFromFormData(formData: FormData): Exit<ProductDefaults, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    {
-        const priceStr = formData.get(`${"price"}`);
-        obj.price = priceStr ? parseFloat(priceStr as string) : $MfPh5;
-        if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = "0";
-    }
-    obj.description = formData.get(`${"description"}`) ?? "";
-    return toExit("productDefaultsDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type ProductDefaultsErrors = {
     _errors: __gf_Option<Array<string>>;
+    price: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type ProductDefaultsTainted = {
+    price: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface ProductDefaultsFieldControllers {
+    readonly price: FieldController<number>;
+    readonly description: FieldController<string>;
 }
-export interface $MfPh3 {
+export interface ProductDefaultsGigaform {
     readonly data: ProductDefaults;
     readonly errors: ProductDefaultsErrors;
     readonly tainted: ProductDefaultsTainted;
@@ -228,45 +221,145 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<ProductDefaults>): void;
+    reset(overrides?: Partial<ProductDefaults>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function productDefaultsCreateForm(overrides: Partial<ProductDefaults>): ProductDefaultsGigaform {}
-let data = $state({
-    ...productDefaultsDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as ProductDefaultsErrors);
-let tainted = $state<$MfPh3>({} as ProductDefaultsTainted);
-const fields = {} as ProductDefaultsFieldControllers;
-fields.price = {
-    label: `${"price"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.description = {
-    label: `${"description"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<ProductDefaults, Array<{
+export function productDefaultsCreateForm(overrides?: Partial<ProductDefaults>): ProductDefaultsGigaform {
+    let data = $state({
+        ...productDefaultsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<ProductDefaultsErrors>({
+        _errors: optionNone(),
+        price: optionNone(),
+        description: optionNone()
+    } as ProductDefaultsErrors);
+    let tainted = $state<ProductDefaultsTainted>({
+        price: optionNone(),
+        description: optionNone()
+    } as ProductDefaultsTainted);
+    const fields = {
+        price: {
+            path: [
+                "price"
+            ] as const,
+            name: "price",
+            constraints: {
+                required: true
+            },
+            label: "Price",
+            get: ()=>data.price,
+            set: (value: number)=>{
+                data.price = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.price,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.price = value;
+            },
+            getTainted: ()=>tainted.price,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.price = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productDefaultsValidateField("price", data.price);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        description: {
+            path: [
+                "description"
+            ] as const,
+            name: "description",
+            constraints: {
+                required: true
+            },
+            label: "Description",
+            get: ()=>data.description,
+            set: (value: string)=>{
+                data.description = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.description,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.description = value;
+            },
+            getTainted: ()=>tainted.description,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.description = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productDefaultsValidateField("description", data.description);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as ProductDefaultsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<ProductDefaults, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(productDefaultsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<ProductDefaults>): void {
+        data = {
+            ...productDefaultsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            price: optionNone(),
+            description: optionNone()
+        };
+        tainted = {
+            price: optionNone(),
+            description: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function productDefaultsFromFormData(formData: FormData): Exit<ProductDefaults, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("productDefaultsDeserialize(data)");
-    data = {
-        ...productDefaultsDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<ProductDefaults, Array<{ field: string; message: string }>>";
+    {
+        const priceStr = formData.get(`${"price"}`);
+        obj.price = priceStr ? parseFloat(priceStr as string) : $MfPh5;
+        if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = "0";
+    }
+    obj.description = formData.get(`${"description"}`) ?? "";
+    return toExit(productDefaultsDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const ProductDefaults = {
   defaultValue: productDefaultsDefaultValue,
@@ -277,6 +370,6 @@ export const ProductDefaults = {
   validateFields: productDefaultsValidateFields,
   hasShape: productDefaultsHasShape,
   is: productDefaultsIs,
-  fromFormData: productDefaultsFromFormData,
-  createForm: productDefaultsCreateForm
+  createForm: productDefaultsCreateForm,
+  fromFormData: productDefaultsFromFormData
 } as const;

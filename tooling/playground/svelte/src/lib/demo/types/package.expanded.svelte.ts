@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -33,11 +38,11 @@ export function packageSerializeWithContext(value: Package, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Package"}`,
+        __type: "Package",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"date"}`] = value.date;
+    result.id = value.id;
+    result.date = value.date;
     return result;
 }
 
@@ -101,15 +106,15 @@ export function packageDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"date"}` in obj)) {
+    if (!("date" in obj)) {
         errors.push({
-            field: `${"date"}`,
+            field: "date",
             message: "missing required field"
         });
     }
@@ -122,11 +127,11 @@ export function packageDeserializeWithContext(value: any, ctx: __mf_DeserializeC
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_date = obj[`${"date"}`] as string;
+        const __raw_date = obj["date"] as string;
         instance.date = __raw_date;
     }
     if (errors.length > 0) {
@@ -161,6 +166,163 @@ export function packageIs(obj: unknown): obj is Package {
     return result.success;
 }
 
+export type PackageErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    date: __gf_Option<Array<string>>;
+};
+export type PackageTainted = {
+    id: __gf_Option<boolean>;
+    date: __gf_Option<boolean>;
+};
+export interface PackageFieldControllers {
+    readonly id: FieldController<string>;
+    readonly date: FieldController<string>;
+}
+export interface PackageGigaform {
+    readonly data: Package;
+    readonly errors: PackageErrors;
+    readonly tainted: PackageTainted;
+    readonly fields: PackageFieldControllers;
+    validate(): Exit<Package, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Package>): void;
+}
+export function packageCreateForm(overrides?: Partial<Package>): PackageGigaform {
+    let data = $state({
+        ...packageDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<PackageErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        date: optionNone()
+    } as PackageErrors);
+    let tainted = $state<PackageTainted>({
+        id: optionNone(),
+        date: optionNone()
+    } as PackageTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = packageValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        date: {
+            path: [
+                "date"
+            ] as const,
+            name: "date",
+            constraints: {
+                required: true
+            },
+            label: "Date",
+            get: ()=>data.date,
+            set: (value: string)=>{
+                data.date = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.date,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.date = value;
+            },
+            getTainted: ()=>tainted.date,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.date = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = packageValidateField("date", data.date);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as PackageFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Package, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(packageDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Package>): void {
+        data = {
+            ...packageDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            date: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            date: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function packageFromFormData(formData: FormData): Exit<Package, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Package, Array<{ field: string; message: string }>>";
+    obj.id = formData.get(`${"id"}`) ?? "";
+    obj.date = formData.get(`${"date"}`) ?? "";
+    return toExit(packageDeserialize(obj));
+}
+
 export const Package = {
   defaultValue: packageDefaultValue,
   serialize: packageSerialize,
@@ -169,5 +331,7 @@ export const Package = {
   deserializeWithContext: packageDeserializeWithContext,
   validateFields: packageValidateFields,
   hasShape: packageHasShape,
-  is: packageIs
+  is: packageIs,
+  createForm: packageCreateForm,
+  fromFormData: packageFromFormData
 } as const;

@@ -36,11 +36,11 @@ export function viewedSerializeWithContext(value: Viewed, ctx: __mf_SerializeCon
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Viewed"}`,
+        __type: "Viewed",
         __id
     };
-    result[`${"durationSeconds"}`] = value.durationSeconds;
-    result[`${"source"}`] = value.source;
+    result.durationSeconds = value.durationSeconds;
+    result.source = value.source;
     return result;
 }
 
@@ -104,15 +104,15 @@ export function viewedDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         field: string;
         message: string;
     }> = [];
-    if (!(`${"durationSeconds"}` in obj)) {
+    if (!("durationSeconds" in obj)) {
         errors.push({
-            field: `${"durationSeconds"}`,
+            field: "durationSeconds",
             message: "missing required field"
         });
     }
-    if (!(`${"source"}` in obj)) {
+    if (!("source" in obj)) {
         errors.push({
-            field: `${"source"}`,
+            field: "source",
             message: "missing required field"
         });
     }
@@ -125,11 +125,11 @@ export function viewedDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_durationSeconds = obj[`${"durationSeconds"}`] as number | null;
+        const __raw_durationSeconds = obj["durationSeconds"] as number | null;
         instance.durationSeconds = __raw_durationSeconds;
     }
     {
-        const __raw_source = obj[`${"source"}`] as string | null;
+        const __raw_source = obj["source"] as string | null;
         instance.source = __raw_source;
     }
     if (errors.length > 0) {
@@ -164,27 +164,20 @@ export function viewedIs(obj: unknown): obj is Viewed {
     return result.success;
 }
 
-export function viewedFromFormData(formData: FormData): Exit<Viewed, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    {
-        const durationSecondsStr = formData.get(`${"durationSeconds"}`);
-        obj.durationSeconds = durationSecondsStr ? parseFloat(durationSecondsStr as string) : $MfPh5;
-        if (obj.durationSeconds !== undefined && isNaN(obj.durationSeconds as number)) obj.durationSeconds = "0";
-    }
-    obj.source = formData.get(`${"source"}`) ?? "";
-    return toExit("viewedDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type ViewedErrors = {
     _errors: __gf_Option<Array<string>>;
+    durationSeconds: __gf_Option<Array<string>>;
+    source: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type ViewedTainted = {
+    durationSeconds: __gf_Option<boolean>;
+    source: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface ViewedFieldControllers {
+    readonly durationSeconds: FieldController<number | null>;
+    readonly source: FieldController<string | null>;
 }
-export interface $MfPh3 {
+export interface ViewedGigaform {
     readonly data: Viewed;
     readonly errors: ViewedErrors;
     readonly tainted: ViewedTainted;
@@ -193,45 +186,143 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Viewed>): void;
+    reset(overrides?: Partial<Viewed>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function viewedCreateForm(overrides: Partial<Viewed>): ViewedGigaform {}
-let data = $state({
-    ...viewedDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as ViewedErrors);
-let tainted = $state<$MfPh3>({} as ViewedTainted);
-const fields = {} as ViewedFieldControllers;
-fields.durationSeconds = {
-    label: `${"durationSeconds"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.source = {
-    label: `${"source"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Viewed, Array<{
+export function viewedCreateForm(overrides?: Partial<Viewed>): ViewedGigaform {
+    let data = $state({
+        ...viewedDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<ViewedErrors>({
+        _errors: optionNone(),
+        durationSeconds: optionNone(),
+        source: optionNone()
+    } as ViewedErrors);
+    let tainted = $state<ViewedTainted>({
+        durationSeconds: optionNone(),
+        source: optionNone()
+    } as ViewedTainted);
+    const fields = {
+        durationSeconds: {
+            path: [
+                "durationSeconds"
+            ] as const,
+            name: "durationSeconds",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.durationSeconds,
+            set: (value: number | null)=>{
+                data.durationSeconds = value;
+            },
+            transform: (value: number | null): number | null =>value,
+            getError: ()=>errors.durationSeconds,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.durationSeconds = value;
+            },
+            getTainted: ()=>tainted.durationSeconds,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.durationSeconds = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = viewedValidateField("durationSeconds", data.durationSeconds);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        source: {
+            path: [
+                "source"
+            ] as const,
+            name: "source",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.source,
+            set: (value: string | null)=>{
+                data.source = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.source,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.source = value;
+            },
+            getTainted: ()=>tainted.source,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.source = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = viewedValidateField("source", data.source);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as ViewedFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Viewed, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(viewedDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Viewed>): void {
+        data = {
+            ...viewedDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            durationSeconds: optionNone(),
+            source: optionNone()
+        };
+        tainted = {
+            durationSeconds: optionNone(),
+            source: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function viewedFromFormData(formData: FormData): Exit<Viewed, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("viewedDeserialize(data)");
-    data = {
-        ...viewedDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Viewed, Array<{ field: string; message: string }>>";
+    {
+        const durationSecondsStr = formData.get(`${"durationSeconds"}`);
+        obj.durationSeconds = durationSecondsStr ? parseFloat(durationSecondsStr as string) : $MfPh5;
+        if (obj.durationSeconds !== undefined && isNaN(obj.durationSeconds as number)) obj.durationSeconds = "0";
+    }
+    obj.source = formData.get(`${"source"}`) ?? "";
+    return toExit(viewedDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Viewed = {
   defaultValue: viewedDefaultValue,
@@ -242,6 +333,6 @@ export const Viewed = {
   validateFields: viewedValidateFields,
   hasShape: viewedHasShape,
   is: viewedIs,
-  fromFormData: viewedFromFormData,
-  createForm: viewedCreateForm
+  createForm: viewedCreateForm,
+  fromFormData: viewedFromFormData
 } as const;

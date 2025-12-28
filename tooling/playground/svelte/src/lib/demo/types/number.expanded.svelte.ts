@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -36,12 +41,12 @@ export function numberSerializeWithContext(value: Number, ctx: __mf_SerializeCon
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Number"}`,
+        __type: "Number",
         __id
     };
-    result[`${"countryCode"}`] = value.countryCode;
-    result[`${"areaCode"}`] = value.areaCode;
-    result[`${"localNumber"}`] = value.localNumber;
+    result.countryCode = value.countryCode;
+    result.areaCode = value.areaCode;
+    result.localNumber = value.localNumber;
     return result;
 }
 
@@ -105,21 +110,21 @@ export function numberDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         field: string;
         message: string;
     }> = [];
-    if (!(`${"countryCode"}` in obj)) {
+    if (!("countryCode" in obj)) {
         errors.push({
-            field: `${"countryCode"}`,
+            field: "countryCode",
             message: "missing required field"
         });
     }
-    if (!(`${"areaCode"}` in obj)) {
+    if (!("areaCode" in obj)) {
         errors.push({
-            field: `${"areaCode"}`,
+            field: "areaCode",
             message: "missing required field"
         });
     }
-    if (!(`${"localNumber"}` in obj)) {
+    if (!("localNumber" in obj)) {
         errors.push({
-            field: `${"localNumber"}`,
+            field: "localNumber",
             message: "missing required field"
         });
     }
@@ -132,7 +137,7 @@ export function numberDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_countryCode = obj[`${"countryCode"}`] as string;
+        const __raw_countryCode = obj["countryCode"] as string;
         if (__raw_countryCode.trim().length === 0) {
             errors.push({
                 field: "countryCode",
@@ -142,7 +147,7 @@ export function numberDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         instance.countryCode = __raw_countryCode;
     }
     {
-        const __raw_areaCode = obj[`${"areaCode"}`] as string;
+        const __raw_areaCode = obj["areaCode"] as string;
         if (__raw_areaCode.trim().length === 0) {
             errors.push({
                 field: "areaCode",
@@ -152,7 +157,7 @@ export function numberDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         instance.areaCode = __raw_areaCode;
     }
     {
-        const __raw_localNumber = obj[`${"localNumber"}`] as string;
+        const __raw_localNumber = obj["localNumber"] as string;
         if (__raw_localNumber.trim().length === 0) {
             errors.push({
                 field: "localNumber",
@@ -174,7 +179,7 @@ export function numberValidateField<K extends keyof Number>(_field: K, _value: N
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"countryCode"}`) {
+    if (_field === "countryCode") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -183,7 +188,7 @@ export function numberValidateField<K extends keyof Number>(_field: K, _value: N
             });
         }
     }
-    if (_field === `${"areaCode"}`) {
+    if (_field === "areaCode") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -192,7 +197,7 @@ export function numberValidateField<K extends keyof Number>(_field: K, _value: N
             });
         }
     }
-    if (_field === `${"localNumber"}`) {
+    if (_field === "localNumber") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -211,7 +216,7 @@ export function numberValidateFields(_partial: Partial<Number>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"countryCode"}` in _partial && _partial.countryCode !== undefined) {
+    if ("countryCode" in _partial && _partial.countryCode !== undefined) {
         const __val = _partial.countryCode as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -220,7 +225,7 @@ export function numberValidateFields(_partial: Partial<Number>): Array<{
             });
         }
     }
-    if (`${"areaCode"}` in _partial && _partial.areaCode !== undefined) {
+    if ("areaCode" in _partial && _partial.areaCode !== undefined) {
         const __val = _partial.areaCode as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -229,7 +234,7 @@ export function numberValidateFields(_partial: Partial<Number>): Array<{
             });
         }
     }
-    if (`${"localNumber"}` in _partial && _partial.localNumber !== undefined) {
+    if ("localNumber" in _partial && _partial.localNumber !== undefined) {
         const __val = _partial.localNumber as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -255,6 +260,199 @@ export function numberIs(obj: unknown): obj is Number {
     return result.success;
 }
 
+export type NumberErrors = {
+    _errors: __gf_Option<Array<string>>;
+    countryCode: __gf_Option<Array<string>>;
+    areaCode: __gf_Option<Array<string>>;
+    localNumber: __gf_Option<Array<string>>;
+};
+export type NumberTainted = {
+    countryCode: __gf_Option<boolean>;
+    areaCode: __gf_Option<boolean>;
+    localNumber: __gf_Option<boolean>;
+};
+export interface NumberFieldControllers {
+    readonly countryCode: FieldController<string>;
+    readonly areaCode: FieldController<string>;
+    readonly localNumber: FieldController<string>;
+}
+export interface NumberGigaform {
+    readonly data: Number;
+    readonly errors: NumberErrors;
+    readonly tainted: NumberTainted;
+    readonly fields: NumberFieldControllers;
+    validate(): Exit<Number, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Number>): void;
+}
+export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
+    let data = $state({
+        ...numberDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<NumberErrors>({
+        _errors: optionNone(),
+        countryCode: optionNone(),
+        areaCode: optionNone(),
+        localNumber: optionNone()
+    } as NumberErrors);
+    let tainted = $state<NumberTainted>({
+        countryCode: optionNone(),
+        areaCode: optionNone(),
+        localNumber: optionNone()
+    } as NumberTainted);
+    const fields = {
+        countryCode: {
+            path: [
+                "countryCode"
+            ] as const,
+            name: "countryCode",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.countryCode,
+            set: (value: string)=>{
+                data.countryCode = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.countryCode,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.countryCode = value;
+            },
+            getTainted: ()=>tainted.countryCode,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.countryCode = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = numberValidateField("countryCode", data.countryCode);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        areaCode: {
+            path: [
+                "areaCode"
+            ] as const,
+            name: "areaCode",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.areaCode,
+            set: (value: string)=>{
+                data.areaCode = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.areaCode,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.areaCode = value;
+            },
+            getTainted: ()=>tainted.areaCode,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.areaCode = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = numberValidateField("areaCode", data.areaCode);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        localNumber: {
+            path: [
+                "localNumber"
+            ] as const,
+            name: "localNumber",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.localNumber,
+            set: (value: string)=>{
+                data.localNumber = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.localNumber,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.localNumber = value;
+            },
+            getTainted: ()=>tainted.localNumber,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.localNumber = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = numberValidateField("localNumber", data.localNumber);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as NumberFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Number, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(numberDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Number>): void {
+        data = {
+            ...numberDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            countryCode: optionNone(),
+            areaCode: optionNone(),
+            localNumber: optionNone()
+        };
+        tainted = {
+            countryCode: optionNone(),
+            areaCode: optionNone(),
+            localNumber: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function numberFromFormData(formData: FormData): Exit<Number, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Number, Array<{ field: string; message: string }>>";
+    obj.countryCode = formData.get(`${"countryCode"}`) ?? "";
+    obj.areaCode = formData.get(`${"areaCode"}`) ?? "";
+    obj.localNumber = formData.get(`${"localNumber"}`) ?? "";
+    return toExit(numberDeserialize(obj));
+}
+
 export const Number = {
   defaultValue: numberDefaultValue,
   serialize: numberSerialize,
@@ -263,5 +461,7 @@ export const Number = {
   deserializeWithContext: numberDeserializeWithContext,
   validateFields: numberValidateFields,
   hasShape: numberHasShape,
-  is: numberIs
+  is: numberIs,
+  createForm: numberCreateForm,
+  fromFormData: numberFromFormData
 } as const;

@@ -4,6 +4,12 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
+import type { ArrayFieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { DirectionHue } from './direction-hue.svelte';
@@ -32,10 +38,10 @@ export function customSerializeWithContext(value: Custom, ctx: __mf_SerializeCon
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Custom"}`,
+        __type: "Custom",
         __id
     };
-    result[`${"mappings"}`] = value.mappings.map((item)=>directionHueSerializeWithContext(item, ctx));
+    result.mappings = value.mappings.map((item)=>directionHueSerializeWithContext(item, ctx));
     return result;
 }
 
@@ -99,9 +105,9 @@ export function customDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         field: string;
         message: string;
     }> = [];
-    if (!(`${"mappings"}` in obj)) {
+    if (!("mappings" in obj)) {
         errors.push({
-            field: `${"mappings"}`,
+            field: "mappings",
             message: "missing required field"
         });
     }
@@ -114,7 +120,7 @@ export function customDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_mappings = obj[`${"mappings"}`] as Array<DirectionHue>;
+        const __raw_mappings = obj["mappings"] as Array<DirectionHue>;
         if (Array.isArray(__raw_mappings)) {
             instance.mappings = __raw_mappings as DirectionHue[];
         }
@@ -151,6 +157,180 @@ export function customIs(obj: unknown): obj is Custom {
     return result.success;
 }
 
+export type CustomErrors = {
+    _errors: __gf_Option<Array<string>>;
+    mappings: __gf_Option<Array<string>>;
+};
+export type CustomTainted = {
+    mappings: __gf_Option<boolean>;
+};
+export interface CustomFieldControllers {
+    readonly mappings: ArrayFieldController<DirectionHue>;
+}
+export interface CustomGigaform {
+    readonly data: Custom;
+    readonly errors: CustomErrors;
+    readonly tainted: CustomTainted;
+    readonly fields: CustomFieldControllers;
+    validate(): Exit<Custom, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Custom>): void;
+}
+export function customCreateForm(overrides?: Partial<Custom>): CustomGigaform {
+    let data = $state({
+        ...customDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<CustomErrors>({
+        _errors: optionNone(),
+        mappings: optionNone()
+    } as CustomErrors);
+    let tainted = $state<CustomTainted>({
+        mappings: optionNone()
+    } as CustomTainted);
+    const fields = {
+        mappings: {
+            path: [
+                "mappings"
+            ] as const,
+            name: "mappings",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.mappings,
+            set: (value: Array<DirectionHue>)=>{
+                data.mappings = value;
+            },
+            transform: (value: Array<DirectionHue>): Array<DirectionHue> =>value,
+            getError: ()=>errors.mappings,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.mappings = value;
+            },
+            getTainted: ()=>tainted.mappings,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.mappings = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = customValidateField("mappings", data.mappings);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "mappings",
+                        index
+                    ] as const,
+                    name: "'^mappings.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.mappings[index]!,
+                    set: (value: DirectionHue)=>{
+                        data.mappings[index] = value;
+                    },
+                    transform: (value: DirectionHue): DirectionHue =>value,
+                    getError: ()=>errors.mappings,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.mappings = value;
+                    },
+                    getTainted: ()=>tainted.mappings,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.mappings = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: DirectionHue)=>{
+                data.mappings.push(item);
+            },
+            remove: (index: number)=>{
+                data.mappings.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.mappings[a]!;
+                data.mappings[a] = data.mappings[b]!;
+                data.mappings[b] = tmp;
+            }
+        }
+    } as CustomFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Custom, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(customDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Custom>): void {
+        data = {
+            ...customDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            mappings: optionNone()
+        };
+        tainted = {
+            mappings: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function customFromFormData(formData: FormData): Exit<Custom, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Custom, Array<{ field: string; message: string }>>";
+    {
+        const mappingsItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while(formData.has(`${"mappings"}.` + idx + ".") || idx === 0){
+            const hasAny = Array.from(formData.keys()).some((k)=>k.startsWith(`${"mappings"}.` + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())){
+                    if (key.startsWith(`${"mappings"}.` + idx + ".")) {
+                        const fieldName = key.slice(`${"mappings"}.`.length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                mappingsItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.mappings = mappingsItems;
+    }
+    return toExit(customDeserialize(obj));
+}
+
 export const Custom = {
   defaultValue: customDefaultValue,
   serialize: customSerialize,
@@ -159,5 +339,7 @@ export const Custom = {
   deserializeWithContext: customDeserializeWithContext,
   validateFields: customValidateFields,
   hasShape: customHasShape,
-  is: customIs
+  is: customIs,
+  createForm: customCreateForm,
+  fromFormData: customFromFormData
 } as const;

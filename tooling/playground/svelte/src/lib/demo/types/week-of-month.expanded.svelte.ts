@@ -15,11 +15,11 @@ export function weekOfMonthDefaultValue#0#0(): WeekOfMonth {
     return 'First';
 }
 
-export function weekOfMonthSerialize#0#0(value: WeekOfMonth): string {
+export function weekOfMonthSerialize(value: WeekOfMonth): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(weekOfMonthSerializeWithContext(value, ctx));
 }
-export function weekOfMonthSerializeWithContext#0#0(value: WeekOfMonth, ctx: __mf_SerializeContext): unknown {
+export function weekOfMonthSerializeWithContext(value: WeekOfMonth, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -93,44 +93,131 @@ export function weekOfMonthIs(value: unknown): value is WeekOfMonth {
     return allowedValues.includes(value as any);
 }
 
+export type WeekOfMonthFirstErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekOfMonthSecondErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekOfMonthThirdErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekOfMonthFourthErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekOfMonthLastErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekOfMonthFirstTainted = {
+};
+export type WeekOfMonthSecondTainted = {
+};
+export type WeekOfMonthThirdTainted = {
+};
+export type WeekOfMonthFourthTainted = {
+};
+export type WeekOfMonthLastTainted = {
+};
+export type WeekOfMonthErrors = ({
+    _value: "First";
+} & WeekOfMonthFirstErrors) | ({
+    _value: "Second";
+} & WeekOfMonthSecondErrors) | ({
+    _value: "Third";
+} & WeekOfMonthThirdErrors) | ({
+    _value: "Fourth";
+} & WeekOfMonthFourthErrors) | ({
+    _value: "Last";
+} & WeekOfMonthLastErrors);
+export type WeekOfMonthTainted = ({
+    _value: "First";
+} & WeekOfMonthFirstTainted) | ({
+    _value: "Second";
+} & WeekOfMonthSecondTainted) | ({
+    _value: "Third";
+} & WeekOfMonthThirdTainted) | ({
+    _value: "Fourth";
+} & WeekOfMonthFourthTainted) | ({
+    _value: "Last";
+} & WeekOfMonthLastTainted);
+export interface WeekOfMonthFirstFieldControllers {
+}
+export interface WeekOfMonthSecondFieldControllers {
+}
+export interface WeekOfMonthThirdFieldControllers {
+}
+export interface WeekOfMonthFourthFieldControllers {
+}
+export interface WeekOfMonthLastFieldControllers {
+}
+export interface WeekOfMonthGigaform {
+    readonly currentVariant: "First" | "Second" | "Third" | "Fourth" | "Last";
+    readonly data: WeekOfMonth;
+    readonly errors: WeekOfMonthErrors;
+    readonly tainted: WeekOfMonthTainted;
+    readonly variants: WeekOfMonthVariantFields;
+    switchVariant(variant: "First" | "Second" | "Third" | "Fourth" | "Last"): void;
+    validate(): Exit<WeekOfMonth, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<WeekOfMonth>): void;
+}
+export interface WeekOfMonthVariantFields {
+    readonly First: {
+        readonly fields: WeekOfMonthFirstFieldControllers;
+    };
+    readonly Second: {
+        readonly fields: WeekOfMonthSecondFieldControllers;
+    };
+    readonly Third: {
+        readonly fields: WeekOfMonthThirdFieldControllers;
+    };
+    readonly Fourth: {
+        readonly fields: WeekOfMonthFourthFieldControllers;
+    };
+    readonly Last: {
+        readonly fields: WeekOfMonthLastFieldControllers;
+    };
+}
 function weekOfMonthGetDefaultForVariant(variant: string): WeekOfMonth {
-    if (variant === `${"First"}`) {
-        return `${"First"}` as WeekOfMonth;
+    if (variant === "First") {
+        return "First" as WeekOfMonth;
     }
-    if (variant === `${"Second"}`) {
-        return `${"Second"}` as WeekOfMonth;
+    if (variant === "Second") {
+        return "Second" as WeekOfMonth;
     }
-    if (variant === `${"Third"}`) {
-        return `${"Third"}` as WeekOfMonth;
+    if (variant === "Third") {
+        return "Third" as WeekOfMonth;
     }
-    if (variant === `${"Fourth"}`) {
-        return `${"Fourth"}` as WeekOfMonth;
+    if (variant === "Fourth") {
+        return "Fourth" as WeekOfMonth;
     }
-    if (variant === `${"Last"}`) {
-        return `${"Last"}` as WeekOfMonth;
+    if (variant === "Last") {
+        return "Last" as WeekOfMonth;
     }
-    return `${"First"}` as WeekOfMonth;
+    return "First" as WeekOfMonth;
 }
 export function weekOfMonthCreateForm(initial: WeekOfMonth): WeekOfMonthGigaform {
-    const initialVariant: "First" | "Second" | "Third" | "Fourth" | "Last" = '(initial as "First" | "Second" | "Third" | "Fourth" | "Last") ?? "First"';
+    const initialVariant: "First" | "Second" | "Third" | "Fourth" | "Last" = (initial as "First" | "Second" | "Third" | "Fourth" | "Last") ?? "First";
     let currentVariant = $state<$MfPh5>(initialVariant);
     let data = $state<$MfPh6>(initial ?? "weekOfMonthGetDefaultForVariant"(initialVariant));
     let errors = $state<$MfPh8>({} as WeekOfMonthErrors);
     let tainted = $state<$MfPh10>({} as WeekOfMonthTainted);
     const variants = {} as WeekOfMonthVariantFields;
-    variants[First] = {
+    variants[__expr__] = {
         fields: {} as WeekOfMonthFirstFieldControllers
     };
-    variants[Second] = {
+    variants[__expr__] = {
         fields: {} as WeekOfMonthSecondFieldControllers
     };
-    variants[Third] = {
+    variants[__expr__] = {
         fields: {} as WeekOfMonthThirdFieldControllers
     };
-    variants[Fourth] = {
+    variants[__expr__] = {
         fields: {} as WeekOfMonthFourthFieldControllers
     };
-    variants[Last] = {
+    variants[__expr__] = {
         fields: {} as WeekOfMonthLastFieldControllers
     };
     function switchVariant(variant: "First" | "Second" | "Third" | "Fourth" | "Last"): void {
@@ -143,10 +230,10 @@ export function weekOfMonthCreateForm(initial: WeekOfMonth): WeekOfMonthGigaform
         field: string;
         message: string;
     }>> {
-        return toExit("weekOfMonthDeserialize(data)");
+        return toExit(weekOfMonthDeserialize(data));
     }
     function reset(overrides: Partial<WeekOfMonth>): void {
-        data = "overrides ? overrides as typeof data : weekOfMonthGetDefaultForVariant(currentVariant)";
+        data = overrides ? overrides as typeof data : weekOfMonthGetDefaultForVariant(currentVariant);
         errors = {} as WeekOfMonthErrors;
         tainted = {} as WeekOfMonthTainted;
     }
@@ -196,63 +283,12 @@ export function weekOfMonthFromFormData(formData: FormData): Exit<WeekOfMonth, A
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
-    return toExit("weekOfMonthDeserialize(obj)");
+    return toExit(weekOfMonthDeserialize(obj));
 }
-export type $MfPh0 = $MfPh1;
-export type $MfPh2 = $MfPh3;
-export interface WeekOfMonthFirstFieldControllers {
-}
-export interface WeekOfMonthSecondFieldControllers {
-}
-export interface WeekOfMonthThirdFieldControllers {
-}
-export interface WeekOfMonthFourthFieldControllers {
-}
-export interface WeekOfMonthLastFieldControllers {
-}
-export interface $MfPh4 {
-    readonly currentVariant: "First" | "Second" | "Third" | "Fourth" | "Last";
-    readonly data: WeekOfMonth;
-    readonly errors: WeekOfMonthErrors;
-    readonly tainted: WeekOfMonthTainted;
-    readonly variants: WeekOfMonthVariantFields;
-    switchVariant(variant: "First" | "Second" | "Third" | "Fourth" | "Last"): void;
-    validate(): Exit<WeekOfMonth, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<WeekOfMonth>): void;
-}
-export interface $MfPh13 {
-}
-export type WeekOfMonthFirstErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekOfMonthSecondErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekOfMonthThirdErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekOfMonthFourthErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekOfMonthLastErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
- };  };  };  };  }; export type WeekOfMonthFirstTainted = {
-};
-export type WeekOfMonthSecondTainted = {
-};
-export type WeekOfMonthThirdTainted = {
-};
-export type WeekOfMonthFourthTainted = {
-};
-export type WeekOfMonthLastTainted = {
-};
- };  };  };  };  };
 
 export const WeekOfMonth = {
+  serialize: weekOfMonthSerialize,
+  serializeWithContext: weekOfMonthSerializeWithContext,
   deserialize: weekOfMonthDeserialize,
   deserializeWithContext: weekOfMonthDeserializeWithContext,
   is: weekOfMonthIs,

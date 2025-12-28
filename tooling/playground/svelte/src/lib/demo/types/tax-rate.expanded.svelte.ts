@@ -69,19 +69,19 @@ export function taxRateSerializeWithContext(value: TaxRate, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"TaxRate"}`,
+        __type: "TaxRate",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"name"}`] = value.name;
-    result[`${"taxAgency"}`] = value.taxAgency;
-    result[`${"zip"}`] = value.zip;
-    result[`${"city"}`] = value.city;
-    result[`${"county"}`] = value.county;
-    result[`${"state"}`] = value.state;
-    result[`${"isActive"}`] = value.isActive;
-    result[`${"description"}`] = value.description;
-    result[`${"taxComponents"}`] = value.taxComponents;
+    result.id = value.id;
+    result.name = value.name;
+    result.taxAgency = value.taxAgency;
+    result.zip = value.zip;
+    result.city = value.city;
+    result.county = value.county;
+    result.state = value.state;
+    result.isActive = value.isActive;
+    result.description = value.description;
+    result.taxComponents = value.taxComponents;
     return result;
 }
 
@@ -145,63 +145,63 @@ export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"name"}` in obj)) {
+    if (!("name" in obj)) {
         errors.push({
-            field: `${"name"}`,
+            field: "name",
             message: "missing required field"
         });
     }
-    if (!(`${"taxAgency"}` in obj)) {
+    if (!("taxAgency" in obj)) {
         errors.push({
-            field: `${"taxAgency"}`,
+            field: "taxAgency",
             message: "missing required field"
         });
     }
-    if (!(`${"zip"}` in obj)) {
+    if (!("zip" in obj)) {
         errors.push({
-            field: `${"zip"}`,
+            field: "zip",
             message: "missing required field"
         });
     }
-    if (!(`${"city"}` in obj)) {
+    if (!("city" in obj)) {
         errors.push({
-            field: `${"city"}`,
+            field: "city",
             message: "missing required field"
         });
     }
-    if (!(`${"county"}` in obj)) {
+    if (!("county" in obj)) {
         errors.push({
-            field: `${"county"}`,
+            field: "county",
             message: "missing required field"
         });
     }
-    if (!(`${"state"}` in obj)) {
+    if (!("state" in obj)) {
         errors.push({
-            field: `${"state"}`,
+            field: "state",
             message: "missing required field"
         });
     }
-    if (!(`${"isActive"}` in obj)) {
+    if (!("isActive" in obj)) {
         errors.push({
-            field: `${"isActive"}`,
+            field: "isActive",
             message: "missing required field"
         });
     }
-    if (!(`${"description"}` in obj)) {
+    if (!("description" in obj)) {
         errors.push({
-            field: `${"description"}`,
+            field: "description",
             message: "missing required field"
         });
     }
-    if (!(`${"taxComponents"}` in obj)) {
+    if (!("taxComponents" in obj)) {
         errors.push({
-            field: `${"taxComponents"}`,
+            field: "taxComponents",
             message: "missing required field"
         });
     }
@@ -214,11 +214,11 @@ export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeC
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_name = obj[`${"name"}`] as string;
+        const __raw_name = obj["name"] as string;
         if (__raw_name.trim().length === 0) {
             errors.push({
                 field: "name",
@@ -228,7 +228,7 @@ export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.name = __raw_name;
     }
     {
-        const __raw_taxAgency = obj[`${"taxAgency"}`] as string;
+        const __raw_taxAgency = obj["taxAgency"] as string;
         if (__raw_taxAgency.trim().length === 0) {
             errors.push({
                 field: "taxAgency",
@@ -238,11 +238,11 @@ export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.taxAgency = __raw_taxAgency;
     }
     {
-        const __raw_zip = obj[`${"zip"}`] as number;
+        const __raw_zip = obj["zip"] as number;
         instance.zip = __raw_zip;
     }
     {
-        const __raw_city = obj[`${"city"}`] as string;
+        const __raw_city = obj["city"] as string;
         if (__raw_city.trim().length === 0) {
             errors.push({
                 field: "city",
@@ -252,7 +252,7 @@ export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.city = __raw_city;
     }
     {
-        const __raw_county = obj[`${"county"}`] as string;
+        const __raw_county = obj["county"] as string;
         if (__raw_county.trim().length === 0) {
             errors.push({
                 field: "county",
@@ -262,7 +262,7 @@ export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.county = __raw_county;
     }
     {
-        const __raw_state = obj[`${"state"}`] as string;
+        const __raw_state = obj["state"] as string;
         if (__raw_state.trim().length === 0) {
             errors.push({
                 field: "state",
@@ -272,11 +272,11 @@ export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.state = __raw_state;
     }
     {
-        const __raw_isActive = obj[`${"isActive"}`] as boolean;
+        const __raw_isActive = obj["isActive"] as boolean;
         instance.isActive = __raw_isActive;
     }
     {
-        const __raw_description = obj[`${"description"}`] as string;
+        const __raw_description = obj["description"] as string;
         if (__raw_description.trim().length === 0) {
             errors.push({
                 field: "description",
@@ -286,7 +286,7 @@ export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.description = __raw_description;
     }
     {
-        const __raw_taxComponents = obj[`${"taxComponents"}`] as { [key: string]: number };
+        const __raw_taxComponents = obj["taxComponents"] as { [key: string]: number };
         instance.taxComponents = __raw_taxComponents;
     }
     if (errors.length > 0) {
@@ -302,7 +302,7 @@ export function taxRateValidateField<K extends keyof TaxRate>(_field: K, _value:
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"name"}`) {
+    if (_field === "name") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -311,7 +311,7 @@ export function taxRateValidateField<K extends keyof TaxRate>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"taxAgency"}`) {
+    if (_field === "taxAgency") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -320,7 +320,7 @@ export function taxRateValidateField<K extends keyof TaxRate>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"city"}`) {
+    if (_field === "city") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -329,7 +329,7 @@ export function taxRateValidateField<K extends keyof TaxRate>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"county"}`) {
+    if (_field === "county") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -338,7 +338,7 @@ export function taxRateValidateField<K extends keyof TaxRate>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"state"}`) {
+    if (_field === "state") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -347,7 +347,7 @@ export function taxRateValidateField<K extends keyof TaxRate>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"description"}`) {
+    if (_field === "description") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -366,7 +366,7 @@ export function taxRateValidateFields(_partial: Partial<TaxRate>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"name"}` in _partial && _partial.name !== undefined) {
+    if ("name" in _partial && _partial.name !== undefined) {
         const __val = _partial.name as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -375,7 +375,7 @@ export function taxRateValidateFields(_partial: Partial<TaxRate>): Array<{
             });
         }
     }
-    if (`${"taxAgency"}` in _partial && _partial.taxAgency !== undefined) {
+    if ("taxAgency" in _partial && _partial.taxAgency !== undefined) {
         const __val = _partial.taxAgency as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -384,7 +384,7 @@ export function taxRateValidateFields(_partial: Partial<TaxRate>): Array<{
             });
         }
     }
-    if (`${"city"}` in _partial && _partial.city !== undefined) {
+    if ("city" in _partial && _partial.city !== undefined) {
         const __val = _partial.city as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -393,7 +393,7 @@ export function taxRateValidateFields(_partial: Partial<TaxRate>): Array<{
             });
         }
     }
-    if (`${"county"}` in _partial && _partial.county !== undefined) {
+    if ("county" in _partial && _partial.county !== undefined) {
         const __val = _partial.county as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -402,7 +402,7 @@ export function taxRateValidateFields(_partial: Partial<TaxRate>): Array<{
             });
         }
     }
-    if (`${"state"}` in _partial && _partial.state !== undefined) {
+    if ("state" in _partial && _partial.state !== undefined) {
         const __val = _partial.state as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -411,7 +411,7 @@ export function taxRateValidateFields(_partial: Partial<TaxRate>): Array<{
             });
         }
     }
-    if (`${"description"}` in _partial && _partial.description !== undefined) {
+    if ("description" in _partial && _partial.description !== undefined) {
         const __val = _partial.description as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -437,11 +437,461 @@ export function taxRateIs(obj: unknown): obj is TaxRate {
     return result.success;
 }
 
+export type TaxRateErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    name: __gf_Option<Array<string>>;
+    taxAgency: __gf_Option<Array<string>>;
+    zip: __gf_Option<Array<string>>;
+    city: __gf_Option<Array<string>>;
+    county: __gf_Option<Array<string>>;
+    state: __gf_Option<Array<string>>;
+    isActive: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
+    taxComponents: __gf_Option<Array<string>>;
+};
+export type TaxRateTainted = {
+    id: __gf_Option<boolean>;
+    name: __gf_Option<boolean>;
+    taxAgency: __gf_Option<boolean>;
+    zip: __gf_Option<boolean>;
+    city: __gf_Option<boolean>;
+    county: __gf_Option<boolean>;
+    state: __gf_Option<boolean>;
+    isActive: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
+    taxComponents: __gf_Option<boolean>;
+};
+export interface TaxRateFieldControllers {
+    readonly id: FieldController<string>;
+    readonly name: FieldController<string>;
+    readonly taxAgency: FieldController<string>;
+    readonly zip: FieldController<number>;
+    readonly city: FieldController<string>;
+    readonly county: FieldController<string>;
+    readonly state: FieldController<string>;
+    readonly isActive: FieldController<boolean>;
+    readonly description: FieldController<string>;
+    readonly taxComponents: FieldController<{
+        [key: string]: number;
+    }>;
+}
+export interface TaxRateGigaform {
+    readonly data: TaxRate;
+    readonly errors: TaxRateErrors;
+    readonly tainted: TaxRateTainted;
+    readonly fields: TaxRateFieldControllers;
+    validate(): Exit<TaxRate, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<TaxRate>): void;
+}
+export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform {
+    let data = $state({
+        ...taxRateDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<TaxRateErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        name: optionNone(),
+        taxAgency: optionNone(),
+        zip: optionNone(),
+        city: optionNone(),
+        county: optionNone(),
+        state: optionNone(),
+        isActive: optionNone(),
+        description: optionNone(),
+        taxComponents: optionNone()
+    } as TaxRateErrors);
+    let tainted = $state<TaxRateTainted>({
+        id: optionNone(),
+        name: optionNone(),
+        taxAgency: optionNone(),
+        zip: optionNone(),
+        city: optionNone(),
+        county: optionNone(),
+        state: optionNone(),
+        isActive: optionNone(),
+        description: optionNone(),
+        taxComponents: optionNone()
+    } as TaxRateTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        name: {
+            path: [
+                "name"
+            ] as const,
+            name: "name",
+            constraints: {
+                required: true
+            },
+            label: "Name",
+            get: ()=>data.name,
+            set: (value: string)=>{
+                data.name = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.name,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.name = value;
+            },
+            getTainted: ()=>tainted.name,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.name = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("name", data.name);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        taxAgency: {
+            path: [
+                "taxAgency"
+            ] as const,
+            name: "taxAgency",
+            constraints: {
+                required: true
+            },
+            label: "Tax Agency",
+            get: ()=>data.taxAgency,
+            set: (value: string)=>{
+                data.taxAgency = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.taxAgency,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.taxAgency = value;
+            },
+            getTainted: ()=>tainted.taxAgency,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.taxAgency = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("taxAgency", data.taxAgency);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        zip: {
+            path: [
+                "zip"
+            ] as const,
+            name: "zip",
+            constraints: {
+                required: true
+            },
+            label: "Zip",
+            get: ()=>data.zip,
+            set: (value: number)=>{
+                data.zip = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.zip,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.zip = value;
+            },
+            getTainted: ()=>tainted.zip,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.zip = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("zip", data.zip);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        city: {
+            path: [
+                "city"
+            ] as const,
+            name: "city",
+            constraints: {
+                required: true
+            },
+            label: "City",
+            get: ()=>data.city,
+            set: (value: string)=>{
+                data.city = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.city,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.city = value;
+            },
+            getTainted: ()=>tainted.city,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.city = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("city", data.city);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        county: {
+            path: [
+                "county"
+            ] as const,
+            name: "county",
+            constraints: {
+                required: true
+            },
+            label: "County",
+            get: ()=>data.county,
+            set: (value: string)=>{
+                data.county = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.county,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.county = value;
+            },
+            getTainted: ()=>tainted.county,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.county = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("county", data.county);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        state: {
+            path: [
+                "state"
+            ] as const,
+            name: "state",
+            constraints: {
+                required: true
+            },
+            label: "State",
+            get: ()=>data.state,
+            set: (value: string)=>{
+                data.state = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.state,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.state = value;
+            },
+            getTainted: ()=>tainted.state,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.state = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("state", data.state);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        isActive: {
+            path: [
+                "isActive"
+            ] as const,
+            name: "isActive",
+            constraints: {
+                required: true
+            },
+            label: "Active",
+            get: ()=>data.isActive,
+            set: (value: boolean)=>{
+                data.isActive = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.isActive,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.isActive = value;
+            },
+            getTainted: ()=>tainted.isActive,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.isActive = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("isActive", data.isActive);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        description: {
+            path: [
+                "description"
+            ] as const,
+            name: "description",
+            constraints: {
+                required: true
+            },
+            label: "Description",
+            get: ()=>data.description,
+            set: (value: string)=>{
+                data.description = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.description,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.description = value;
+            },
+            getTainted: ()=>tainted.description,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.description = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("description", data.description);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        taxComponents: {
+            path: [
+                "taxComponents"
+            ] as const,
+            name: "taxComponents",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.taxComponents,
+            set: (value: {
+                [key: string]: number;
+            })=>{
+                data.taxComponents = value;
+            },
+            transform: (value: {
+                [key: string]: number;
+            }): {
+                [key: string]: number;
+            } =>value,
+            getError: ()=>errors.taxComponents,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.taxComponents = value;
+            },
+            getTainted: ()=>tainted.taxComponents,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.taxComponents = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = taxRateValidateField("taxComponents", data.taxComponents);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as TaxRateFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<TaxRate, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(taxRateDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<TaxRate>): void {
+        data = {
+            ...taxRateDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            name: optionNone(),
+            taxAgency: optionNone(),
+            zip: optionNone(),
+            city: optionNone(),
+            county: optionNone(),
+            state: optionNone(),
+            isActive: optionNone(),
+            description: optionNone(),
+            taxComponents: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            name: optionNone(),
+            taxAgency: optionNone(),
+            zip: optionNone(),
+            city: optionNone(),
+            county: optionNone(),
+            state: optionNone(),
+            isActive: optionNone(),
+            description: optionNone(),
+            taxComponents: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function taxRateFromFormData(formData: FormData): Exit<TaxRate, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<TaxRate, Array<{ field: string; message: string }>>";
     obj.id = formData.get(`${"id"}`) ?? "";
     obj.name = formData.get(`${"name"}`) ?? "";
     obj.taxAgency = formData.get(`${"taxAgency"}`) ?? "";
@@ -459,127 +909,8 @@ export function taxRateFromFormData(formData: FormData): Exit<TaxRate, Array<{
     }
     obj.description = formData.get(`${"description"}`) ?? "";
     obj.taxComponents = formData.get(`${"taxComponents"}`) ?? "";
-    return toExit("taxRateDeserialize(obj)");
+    return toExit(taxRateDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: TaxRate;
-    readonly errors: TaxRateErrors;
-    readonly tainted: TaxRateTainted;
-    readonly fields: TaxRateFieldControllers;
-    validate(): Exit<TaxRate, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<TaxRate>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function taxRateCreateForm(overrides: Partial<TaxRate>): TaxRateGigaform {}
-let data = $state({
-    ...taxRateDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as TaxRateErrors);
-let tainted = $state<$MfPh3>({} as TaxRateTainted);
-const fields = {} as TaxRateFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.name = {
-    label: `${"name"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.taxAgency = {
-    label: `${"taxAgency"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.zip = {
-    label: `${"zip"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.city = {
-    label: `${"city"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.county = {
-    label: `${"county"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.state = {
-    label: `${"state"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.isActive = {
-    label: `${"isActive"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.description = {
-    label: `${"description"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.taxComponents = {
-    label: `${"taxComponents"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<TaxRate, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("taxRateDeserialize(data)");
-    data = {
-        ...taxRateDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const TaxRate = {
   defaultValue: taxRateDefaultValue,
@@ -590,6 +921,6 @@ export const TaxRate = {
   validateFields: taxRateValidateFields,
   hasShape: taxRateHasShape,
   is: taxRateIs,
-  fromFormData: taxRateFromFormData,
-  createForm: taxRateCreateForm
+  createForm: taxRateCreateForm,
+  fromFormData: taxRateFromFormData
 } as const;

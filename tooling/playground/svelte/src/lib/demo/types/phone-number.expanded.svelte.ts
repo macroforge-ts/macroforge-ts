@@ -49,14 +49,14 @@ export function phoneNumberSerializeWithContext(value: PhoneNumber, ctx: __mf_Se
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"PhoneNumber"}`,
+        __type: "PhoneNumber",
         __id
     };
-    result[`${"main"}`] = value.main;
-    result[`${"phoneType"}`] = value.phoneType;
-    result[`${"number"}`] = value.number;
-    result[`${"canText"}`] = value.canText;
-    result[`${"canCall"}`] = value.canCall;
+    result.main = value.main;
+    result.phoneType = value.phoneType;
+    result.number = value.number;
+    result.canText = value.canText;
+    result.canCall = value.canCall;
     return result;
 }
 
@@ -120,33 +120,33 @@ export function phoneNumberDeserializeWithContext(value: any, ctx: __mf_Deserial
         field: string;
         message: string;
     }> = [];
-    if (!(`${"main"}` in obj)) {
+    if (!("main" in obj)) {
         errors.push({
-            field: `${"main"}`,
+            field: "main",
             message: "missing required field"
         });
     }
-    if (!(`${"phoneType"}` in obj)) {
+    if (!("phoneType" in obj)) {
         errors.push({
-            field: `${"phoneType"}`,
+            field: "phoneType",
             message: "missing required field"
         });
     }
-    if (!(`${"number"}` in obj)) {
+    if (!("number" in obj)) {
         errors.push({
-            field: `${"number"}`,
+            field: "number",
             message: "missing required field"
         });
     }
-    if (!(`${"canText"}` in obj)) {
+    if (!("canText" in obj)) {
         errors.push({
-            field: `${"canText"}`,
+            field: "canText",
             message: "missing required field"
         });
     }
-    if (!(`${"canCall"}` in obj)) {
+    if (!("canCall" in obj)) {
         errors.push({
-            field: `${"canCall"}`,
+            field: "canCall",
             message: "missing required field"
         });
     }
@@ -159,11 +159,11 @@ export function phoneNumberDeserializeWithContext(value: any, ctx: __mf_Deserial
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_main = obj[`${"main"}`] as boolean;
+        const __raw_main = obj["main"] as boolean;
         instance.main = __raw_main;
     }
     {
-        const __raw_phoneType = obj[`${"phoneType"}`] as string;
+        const __raw_phoneType = obj["phoneType"] as string;
         if (__raw_phoneType.trim().length === 0) {
             errors.push({
                 field: "phoneType",
@@ -173,7 +173,7 @@ export function phoneNumberDeserializeWithContext(value: any, ctx: __mf_Deserial
         instance.phoneType = __raw_phoneType;
     }
     {
-        const __raw_number = obj[`${"number"}`] as string;
+        const __raw_number = obj["number"] as string;
         if (__raw_number.trim().length === 0) {
             errors.push({
                 field: "number",
@@ -183,11 +183,11 @@ export function phoneNumberDeserializeWithContext(value: any, ctx: __mf_Deserial
         instance.number = __raw_number;
     }
     {
-        const __raw_canText = obj[`${"canText"}`] as boolean;
+        const __raw_canText = obj["canText"] as boolean;
         instance.canText = __raw_canText;
     }
     {
-        const __raw_canCall = obj[`${"canCall"}`] as boolean;
+        const __raw_canCall = obj["canCall"] as boolean;
         instance.canCall = __raw_canCall;
     }
     if (errors.length > 0) {
@@ -203,7 +203,7 @@ export function phoneNumberValidateField<K extends keyof PhoneNumber>(_field: K,
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"phoneType"}`) {
+    if (_field === "phoneType") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -212,7 +212,7 @@ export function phoneNumberValidateField<K extends keyof PhoneNumber>(_field: K,
             });
         }
     }
-    if (_field === `${"number"}`) {
+    if (_field === "number") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -231,7 +231,7 @@ export function phoneNumberValidateFields(_partial: Partial<PhoneNumber>): Array
         field: string;
         message: string;
     }> = [];
-    if (`${"phoneType"}` in _partial && _partial.phoneType !== undefined) {
+    if ("phoneType" in _partial && _partial.phoneType !== undefined) {
         const __val = _partial.phoneType as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -240,7 +240,7 @@ export function phoneNumberValidateFields(_partial: Partial<PhoneNumber>): Array
             });
         }
     }
-    if (`${"number"}` in _partial && _partial.number !== undefined) {
+    if ("number" in _partial && _partial.number !== undefined) {
         const __val = _partial.number as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -266,11 +266,270 @@ export function phoneNumberIs(obj: unknown): obj is PhoneNumber {
     return result.success;
 }
 
+export type PhoneNumberErrors = {
+    _errors: __gf_Option<Array<string>>;
+    main: __gf_Option<Array<string>>;
+    phoneType: __gf_Option<Array<string>>;
+    number: __gf_Option<Array<string>>;
+    canText: __gf_Option<Array<string>>;
+    canCall: __gf_Option<Array<string>>;
+};
+export type PhoneNumberTainted = {
+    main: __gf_Option<boolean>;
+    phoneType: __gf_Option<boolean>;
+    number: __gf_Option<boolean>;
+    canText: __gf_Option<boolean>;
+    canCall: __gf_Option<boolean>;
+};
+export interface PhoneNumberFieldControllers {
+    readonly main: FieldController<boolean>;
+    readonly phoneType: FieldController<string>;
+    readonly number: FieldController<string>;
+    readonly canText: FieldController<boolean>;
+    readonly canCall: FieldController<boolean>;
+}
+export interface PhoneNumberGigaform {
+    readonly data: PhoneNumber;
+    readonly errors: PhoneNumberErrors;
+    readonly tainted: PhoneNumberTainted;
+    readonly fields: PhoneNumberFieldControllers;
+    validate(): Exit<PhoneNumber, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<PhoneNumber>): void;
+}
+export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNumberGigaform {
+    let data = $state({
+        ...phoneNumberDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<PhoneNumberErrors>({
+        _errors: optionNone(),
+        main: optionNone(),
+        phoneType: optionNone(),
+        number: optionNone(),
+        canText: optionNone(),
+        canCall: optionNone()
+    } as PhoneNumberErrors);
+    let tainted = $state<PhoneNumberTainted>({
+        main: optionNone(),
+        phoneType: optionNone(),
+        number: optionNone(),
+        canText: optionNone(),
+        canCall: optionNone()
+    } as PhoneNumberTainted);
+    const fields = {
+        main: {
+            path: [
+                "main"
+            ] as const,
+            name: "main",
+            constraints: {
+                required: true
+            },
+            label: "Main",
+            get: ()=>data.main,
+            set: (value: boolean)=>{
+                data.main = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.main,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.main = value;
+            },
+            getTainted: ()=>tainted.main,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.main = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = phoneNumberValidateField("main", data.main);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        phoneType: {
+            path: [
+                "phoneType"
+            ] as const,
+            name: "phoneType",
+            constraints: {
+                required: true
+            },
+            label: "Phone Type",
+            get: ()=>data.phoneType,
+            set: (value: string)=>{
+                data.phoneType = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.phoneType,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.phoneType = value;
+            },
+            getTainted: ()=>tainted.phoneType,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.phoneType = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = phoneNumberValidateField("phoneType", data.phoneType);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        number: {
+            path: [
+                "number"
+            ] as const,
+            name: "number",
+            constraints: {
+                required: true
+            },
+            label: "Number",
+            get: ()=>data.number,
+            set: (value: string)=>{
+                data.number = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.number,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.number = value;
+            },
+            getTainted: ()=>tainted.number,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.number = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = phoneNumberValidateField("number", data.number);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        canText: {
+            path: [
+                "canText"
+            ] as const,
+            name: "canText",
+            constraints: {
+                required: true
+            },
+            label: "Can Text",
+            get: ()=>data.canText,
+            set: (value: boolean)=>{
+                data.canText = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.canText,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.canText = value;
+            },
+            getTainted: ()=>tainted.canText,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.canText = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = phoneNumberValidateField("canText", data.canText);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        canCall: {
+            path: [
+                "canCall"
+            ] as const,
+            name: "canCall",
+            constraints: {
+                required: true
+            },
+            label: "Can Call",
+            get: ()=>data.canCall,
+            set: (value: boolean)=>{
+                data.canCall = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.canCall,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.canCall = value;
+            },
+            getTainted: ()=>tainted.canCall,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.canCall = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = phoneNumberValidateField("canCall", data.canCall);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as PhoneNumberFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<PhoneNumber, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(phoneNumberDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<PhoneNumber>): void {
+        data = {
+            ...phoneNumberDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            main: optionNone(),
+            phoneType: optionNone(),
+            number: optionNone(),
+            canText: optionNone(),
+            canCall: optionNone()
+        };
+        tainted = {
+            main: optionNone(),
+            phoneType: optionNone(),
+            number: optionNone(),
+            canText: optionNone(),
+            canCall: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function phoneNumberFromFormData(formData: FormData): Exit<PhoneNumber, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<PhoneNumber, Array<{ field: string; message: string }>>";
     {
         const mainVal = formData.get(`${"main"}`);
         obj.main = mainVal === "true" || mainVal === "on" || mainVal === "1";
@@ -285,87 +544,8 @@ export function phoneNumberFromFormData(formData: FormData): Exit<PhoneNumber, A
         const canCallVal = formData.get(`${"canCall"}`);
         obj.canCall = canCallVal === "true" || canCallVal === "on" || canCallVal === "1";
     }
-    return toExit("phoneNumberDeserialize(obj)");
+    return toExit(phoneNumberDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: PhoneNumber;
-    readonly errors: PhoneNumberErrors;
-    readonly tainted: PhoneNumberTainted;
-    readonly fields: PhoneNumberFieldControllers;
-    validate(): Exit<PhoneNumber, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<PhoneNumber>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function phoneNumberCreateForm(overrides: Partial<PhoneNumber>): PhoneNumberGigaform {}
-let data = $state({
-    ...phoneNumberDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as PhoneNumberErrors);
-let tainted = $state<$MfPh3>({} as PhoneNumberTainted);
-const fields = {} as PhoneNumberFieldControllers;
-fields.main = {
-    label: `${"main"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.phoneType = {
-    label: `${"phoneType"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.number = {
-    label: `${"number"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.canText = {
-    label: `${"canText"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.canCall = {
-    label: `${"canCall"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<PhoneNumber, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("phoneNumberDeserialize(data)");
-    data = {
-        ...phoneNumberDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const PhoneNumber = {
   defaultValue: phoneNumberDefaultValue,
@@ -376,6 +556,6 @@ export const PhoneNumber = {
   validateFields: phoneNumberValidateFields,
   hasShape: phoneNumberHasShape,
   is: phoneNumberIs,
-  fromFormData: phoneNumberFromFormData,
-  createForm: phoneNumberCreateForm
+  createForm: phoneNumberCreateForm,
+  fromFormData: phoneNumberFromFormData
 } as const;

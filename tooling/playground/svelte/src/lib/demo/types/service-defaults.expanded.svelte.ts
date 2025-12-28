@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -34,11 +39,11 @@ export function serviceDefaultsSerializeWithContext(value: ServiceDefaults, ctx:
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"ServiceDefaults"}`,
+        __type: "ServiceDefaults",
         __id
     };
-    result[`${"price"}`] = value.price;
-    result[`${"description"}`] = value.description;
+    result.price = value.price;
+    result.description = value.description;
     return result;
 }
 
@@ -102,15 +107,15 @@ export function serviceDefaultsDeserializeWithContext(value: any, ctx: __mf_Dese
         field: string;
         message: string;
     }> = [];
-    if (!(`${"price"}` in obj)) {
+    if (!("price" in obj)) {
         errors.push({
-            field: `${"price"}`,
+            field: "price",
             message: "missing required field"
         });
     }
-    if (!(`${"description"}` in obj)) {
+    if (!("description" in obj)) {
         errors.push({
-            field: `${"description"}`,
+            field: "description",
             message: "missing required field"
         });
     }
@@ -123,11 +128,11 @@ export function serviceDefaultsDeserializeWithContext(value: any, ctx: __mf_Dese
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_price = obj[`${"price"}`] as number;
+        const __raw_price = obj["price"] as number;
         instance.price = __raw_price;
     }
     {
-        const __raw_description = obj[`${"description"}`] as string;
+        const __raw_description = obj["description"] as string;
         if (__raw_description.trim().length === 0) {
             errors.push({
                 field: "description",
@@ -149,7 +154,7 @@ export function serviceDefaultsValidateField<K extends keyof ServiceDefaults>(_f
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"description"}`) {
+    if (_field === "description") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -168,7 +173,7 @@ export function serviceDefaultsValidateFields(_partial: Partial<ServiceDefaults>
         field: string;
         message: string;
     }> = [];
-    if (`${"description"}` in _partial && _partial.description !== undefined) {
+    if ("description" in _partial && _partial.description !== undefined) {
         const __val = _partial.description as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -194,6 +199,168 @@ export function serviceDefaultsIs(obj: unknown): obj is ServiceDefaults {
     return result.success;
 }
 
+export type ServiceDefaultsErrors = {
+    _errors: __gf_Option<Array<string>>;
+    price: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
+};
+export type ServiceDefaultsTainted = {
+    price: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
+};
+export interface ServiceDefaultsFieldControllers {
+    readonly price: FieldController<number>;
+    readonly description: FieldController<string>;
+}
+export interface ServiceDefaultsGigaform {
+    readonly data: ServiceDefaults;
+    readonly errors: ServiceDefaultsErrors;
+    readonly tainted: ServiceDefaultsTainted;
+    readonly fields: ServiceDefaultsFieldControllers;
+    validate(): Exit<ServiceDefaults, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<ServiceDefaults>): void;
+}
+export function serviceDefaultsCreateForm(overrides?: Partial<ServiceDefaults>): ServiceDefaultsGigaform {
+    let data = $state({
+        ...serviceDefaultsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<ServiceDefaultsErrors>({
+        _errors: optionNone(),
+        price: optionNone(),
+        description: optionNone()
+    } as ServiceDefaultsErrors);
+    let tainted = $state<ServiceDefaultsTainted>({
+        price: optionNone(),
+        description: optionNone()
+    } as ServiceDefaultsTainted);
+    const fields = {
+        price: {
+            path: [
+                "price"
+            ] as const,
+            name: "price",
+            constraints: {
+                required: true
+            },
+            label: "Price",
+            get: ()=>data.price,
+            set: (value: number)=>{
+                data.price = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.price,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.price = value;
+            },
+            getTainted: ()=>tainted.price,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.price = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = serviceDefaultsValidateField("price", data.price);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        description: {
+            path: [
+                "description"
+            ] as const,
+            name: "description",
+            constraints: {
+                required: true
+            },
+            label: "Description",
+            get: ()=>data.description,
+            set: (value: string)=>{
+                data.description = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.description,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.description = value;
+            },
+            getTainted: ()=>tainted.description,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.description = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = serviceDefaultsValidateField("description", data.description);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as ServiceDefaultsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<ServiceDefaults, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(serviceDefaultsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<ServiceDefaults>): void {
+        data = {
+            ...serviceDefaultsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            price: optionNone(),
+            description: optionNone()
+        };
+        tainted = {
+            price: optionNone(),
+            description: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function serviceDefaultsFromFormData(formData: FormData): Exit<ServiceDefaults, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<ServiceDefaults, Array<{ field: string; message: string }>>";
+    {
+        const priceStr = formData.get(`${"price"}`);
+        obj.price = priceStr ? parseFloat(priceStr as string) : $MfPh5;
+        if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = "0";
+    }
+    obj.description = formData.get(`${"description"}`) ?? "";
+    return toExit(serviceDefaultsDeserialize(obj));
+}
+
 export const ServiceDefaults = {
   defaultValue: serviceDefaultsDefaultValue,
   serialize: serviceDefaultsSerialize,
@@ -202,5 +369,7 @@ export const ServiceDefaults = {
   deserializeWithContext: serviceDefaultsDeserializeWithContext,
   validateFields: serviceDefaultsValidateFields,
   hasShape: serviceDefaultsHasShape,
-  is: serviceDefaultsIs
+  is: serviceDefaultsIs,
+  createForm: serviceDefaultsCreateForm,
+  fromFormData: serviceDefaultsFromFormData
 } as const;

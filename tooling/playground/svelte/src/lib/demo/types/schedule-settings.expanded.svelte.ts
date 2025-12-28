@@ -46,13 +46,13 @@ export function scheduleSettingsSerializeWithContext(value: ScheduleSettings, ct
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"ScheduleSettings"}`,
+        __type: "ScheduleSettings",
         __id
     };
-    result[`${"daysPerWeek"}`] = value.daysPerWeek;
-    result[`${"rowHeight"}`] = rowHeightSerializeWithContext(value.rowHeight, ctx);
-    result[`${"visibleRoutes"}`] = value.visibleRoutes;
-    result[`${"detailedCards"}`] = value.detailedCards;
+    result.daysPerWeek = value.daysPerWeek;
+    result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);
+    result.visibleRoutes = value.visibleRoutes;
+    result.detailedCards = value.detailedCards;
     return result;
 }
 
@@ -116,27 +116,27 @@ export function scheduleSettingsDeserializeWithContext(value: any, ctx: __mf_Des
         field: string;
         message: string;
     }> = [];
-    if (!(`${"daysPerWeek"}` in obj)) {
+    if (!("daysPerWeek" in obj)) {
         errors.push({
-            field: `${"daysPerWeek"}`,
+            field: "daysPerWeek",
             message: "missing required field"
         });
     }
-    if (!(`${"rowHeight"}` in obj)) {
+    if (!("rowHeight" in obj)) {
         errors.push({
-            field: `${"rowHeight"}`,
+            field: "rowHeight",
             message: "missing required field"
         });
     }
-    if (!(`${"visibleRoutes"}` in obj)) {
+    if (!("visibleRoutes" in obj)) {
         errors.push({
-            field: `${"visibleRoutes"}`,
+            field: "visibleRoutes",
             message: "missing required field"
         });
     }
-    if (!(`${"detailedCards"}` in obj)) {
+    if (!("detailedCards" in obj)) {
         errors.push({
-            field: `${"detailedCards"}`,
+            field: "detailedCards",
             message: "missing required field"
         });
     }
@@ -149,24 +149,24 @@ export function scheduleSettingsDeserializeWithContext(value: any, ctx: __mf_Des
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_daysPerWeek = obj[`${"daysPerWeek"}`] as number;
+        const __raw_daysPerWeek = obj["daysPerWeek"] as number;
         instance.daysPerWeek = __raw_daysPerWeek;
     }
     {
-        const __raw_rowHeight = obj[`${"rowHeight"}`] as RowHeight;
+        const __raw_rowHeight = obj["rowHeight"] as RowHeight;
         {
             const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
-            ctx.assignOrDefer(instance, `${"rowHeight"}`, __result);
+            ctx.assignOrDefer(instance, "rowHeight", __result);
         }
     }
     {
-        const __raw_visibleRoutes = obj[`${"visibleRoutes"}`] as Array<string>;
+        const __raw_visibleRoutes = obj["visibleRoutes"] as Array<string>;
         if (Array.isArray(__raw_visibleRoutes)) {
             instance.visibleRoutes = __raw_visibleRoutes as string[];
         }
     }
     {
-        const __raw_detailedCards = obj[`${"detailedCards"}`] as boolean;
+        const __raw_detailedCards = obj["detailedCards"] as boolean;
         instance.detailedCards = __raw_detailedCards;
     }
     if (errors.length > 0) {
@@ -201,11 +201,264 @@ export function scheduleSettingsIs(obj: unknown): obj is ScheduleSettings {
     return result.success;
 }
 
+export type ScheduleSettingsErrors = {
+    _errors: __gf_Option<Array<string>>;
+    daysPerWeek: __gf_Option<Array<string>>;
+    rowHeight: __gf_Option<Array<string>>;
+    visibleRoutes: __gf_Option<Array<string>>;
+    detailedCards: __gf_Option<Array<string>>;
+};
+export type ScheduleSettingsTainted = {
+    daysPerWeek: __gf_Option<boolean>;
+    rowHeight: __gf_Option<boolean>;
+    visibleRoutes: __gf_Option<boolean>;
+    detailedCards: __gf_Option<boolean>;
+};
+export interface ScheduleSettingsFieldControllers {
+    readonly daysPerWeek: FieldController<number>;
+    readonly rowHeight: FieldController<RowHeight>;
+    readonly visibleRoutes: ArrayFieldController<string>;
+    readonly detailedCards: FieldController<boolean>;
+}
+export interface ScheduleSettingsGigaform {
+    readonly data: ScheduleSettings;
+    readonly errors: ScheduleSettingsErrors;
+    readonly tainted: ScheduleSettingsTainted;
+    readonly fields: ScheduleSettingsFieldControllers;
+    validate(): Exit<ScheduleSettings, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<ScheduleSettings>): void;
+}
+export function scheduleSettingsCreateForm(overrides?: Partial<ScheduleSettings>): ScheduleSettingsGigaform {
+    let data = $state({
+        ...scheduleSettingsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<ScheduleSettingsErrors>({
+        _errors: optionNone(),
+        daysPerWeek: optionNone(),
+        rowHeight: optionNone(),
+        visibleRoutes: optionNone(),
+        detailedCards: optionNone()
+    } as ScheduleSettingsErrors);
+    let tainted = $state<ScheduleSettingsTainted>({
+        daysPerWeek: optionNone(),
+        rowHeight: optionNone(),
+        visibleRoutes: optionNone(),
+        detailedCards: optionNone()
+    } as ScheduleSettingsTainted);
+    const fields = {
+        daysPerWeek: {
+            path: [
+                "daysPerWeek"
+            ] as const,
+            name: "daysPerWeek",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.daysPerWeek,
+            set: (value: number)=>{
+                data.daysPerWeek = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.daysPerWeek,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.daysPerWeek = value;
+            },
+            getTainted: ()=>tainted.daysPerWeek,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.daysPerWeek = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = scheduleSettingsValidateField("daysPerWeek", data.daysPerWeek);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        rowHeight: {
+            path: [
+                "rowHeight"
+            ] as const,
+            name: "rowHeight",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.rowHeight,
+            set: (value: RowHeight)=>{
+                data.rowHeight = value;
+            },
+            transform: (value: RowHeight): RowHeight =>value,
+            getError: ()=>errors.rowHeight,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.rowHeight = value;
+            },
+            getTainted: ()=>tainted.rowHeight,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.rowHeight = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = scheduleSettingsValidateField("rowHeight", data.rowHeight);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        visibleRoutes: {
+            path: [
+                "visibleRoutes"
+            ] as const,
+            name: "visibleRoutes",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.visibleRoutes,
+            set: (value: Array<string>)=>{
+                data.visibleRoutes = value;
+            },
+            transform: (value: Array<string>): Array<string> =>value,
+            getError: ()=>errors.visibleRoutes,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.visibleRoutes = value;
+            },
+            getTainted: ()=>tainted.visibleRoutes,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.visibleRoutes = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = scheduleSettingsValidateField("visibleRoutes", data.visibleRoutes);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "visibleRoutes",
+                        index
+                    ] as const,
+                    name: "'^visibleRoutes.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.visibleRoutes[index]!,
+                    set: (value: string)=>{
+                        data.visibleRoutes[index] = value;
+                    },
+                    transform: (value: string): string =>value,
+                    getError: ()=>errors.visibleRoutes,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.visibleRoutes = value;
+                    },
+                    getTainted: ()=>tainted.visibleRoutes,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.visibleRoutes = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: string)=>{
+                data.visibleRoutes.push(item);
+            },
+            remove: (index: number)=>{
+                data.visibleRoutes.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.visibleRoutes[a]!;
+                data.visibleRoutes[a] = data.visibleRoutes[b]!;
+                data.visibleRoutes[b] = tmp;
+            }
+        },
+        detailedCards: {
+            path: [
+                "detailedCards"
+            ] as const,
+            name: "detailedCards",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.detailedCards,
+            set: (value: boolean)=>{
+                data.detailedCards = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.detailedCards,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.detailedCards = value;
+            },
+            getTainted: ()=>tainted.detailedCards,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.detailedCards = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = scheduleSettingsValidateField("detailedCards", data.detailedCards);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as ScheduleSettingsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<ScheduleSettings, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(scheduleSettingsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<ScheduleSettings>): void {
+        data = {
+            ...scheduleSettingsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            daysPerWeek: optionNone(),
+            rowHeight: optionNone(),
+            visibleRoutes: optionNone(),
+            detailedCards: optionNone()
+        };
+        tainted = {
+            daysPerWeek: optionNone(),
+            rowHeight: optionNone(),
+            visibleRoutes: optionNone(),
+            detailedCards: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function scheduleSettingsFromFormData(formData: FormData): Exit<ScheduleSettings, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<ScheduleSettings, Array<{ field: string; message: string }>>";
     {
         const daysPerWeekStr = formData.get(`${"daysPerWeek"}`);
         obj.daysPerWeek = daysPerWeekStr ? parseFloat(daysPerWeekStr as string) : $MfPh5;
@@ -235,79 +488,8 @@ export function scheduleSettingsFromFormData(formData: FormData): Exit<ScheduleS
         const detailedCardsVal = formData.get(`${"detailedCards"}`);
         obj.detailedCards = detailedCardsVal === "true" || detailedCardsVal === "on" || detailedCardsVal === "1";
     }
-    return toExit("scheduleSettingsDeserialize(obj)");
+    return toExit(scheduleSettingsDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: ScheduleSettings;
-    readonly errors: ScheduleSettingsErrors;
-    readonly tainted: ScheduleSettingsTainted;
-    readonly fields: ScheduleSettingsFieldControllers;
-    validate(): Exit<ScheduleSettings, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<ScheduleSettings>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function scheduleSettingsCreateForm(overrides: Partial<ScheduleSettings>): ScheduleSettingsGigaform {}
-let data = $state({
-    ...scheduleSettingsDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as ScheduleSettingsErrors);
-let tainted = $state<$MfPh3>({} as ScheduleSettingsTainted);
-const fields = {} as ScheduleSettingsFieldControllers;
-fields.daysPerWeek = {
-    label: `${"daysPerWeek"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.rowHeight = {
-    label: `${"rowHeight"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.visibleRoutes = {
-    label: `${"visibleRoutes"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.detailedCards = {
-    label: `${"detailedCards"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<ScheduleSettings, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("scheduleSettingsDeserialize(data)");
-    data = {
-        ...scheduleSettingsDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const ScheduleSettings = {
   defaultValue: scheduleSettingsDefaultValue,
@@ -318,6 +500,6 @@ export const ScheduleSettings = {
   validateFields: scheduleSettingsValidateFields,
   hasShape: scheduleSettingsHasShape,
   is: scheduleSettingsIs,
-  fromFormData: scheduleSettingsFromFormData,
-  createForm: scheduleSettingsCreateForm
+  createForm: scheduleSettingsCreateForm,
+  fromFormData: scheduleSettingsFromFormData
 } as const;

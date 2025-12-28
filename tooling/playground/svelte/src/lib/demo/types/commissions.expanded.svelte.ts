@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -33,11 +38,11 @@ export function commissionsSerializeWithContext(value: Commissions, ctx: __mf_Se
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Commissions"}`,
+        __type: "Commissions",
         __id
     };
-    result[`${"technician"}`] = value.technician;
-    result[`${"salesRep"}`] = value.salesRep;
+    result.technician = value.technician;
+    result.salesRep = value.salesRep;
     return result;
 }
 
@@ -101,15 +106,15 @@ export function commissionsDeserializeWithContext(value: any, ctx: __mf_Deserial
         field: string;
         message: string;
     }> = [];
-    if (!(`${"technician"}` in obj)) {
+    if (!("technician" in obj)) {
         errors.push({
-            field: `${"technician"}`,
+            field: "technician",
             message: "missing required field"
         });
     }
-    if (!(`${"salesRep"}` in obj)) {
+    if (!("salesRep" in obj)) {
         errors.push({
-            field: `${"salesRep"}`,
+            field: "salesRep",
             message: "missing required field"
         });
     }
@@ -122,7 +127,7 @@ export function commissionsDeserializeWithContext(value: any, ctx: __mf_Deserial
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_technician = obj[`${"technician"}`] as string;
+        const __raw_technician = obj["technician"] as string;
         if (__raw_technician.trim().length === 0) {
             errors.push({
                 field: "technician",
@@ -132,7 +137,7 @@ export function commissionsDeserializeWithContext(value: any, ctx: __mf_Deserial
         instance.technician = __raw_technician;
     }
     {
-        const __raw_salesRep = obj[`${"salesRep"}`] as string;
+        const __raw_salesRep = obj["salesRep"] as string;
         if (__raw_salesRep.trim().length === 0) {
             errors.push({
                 field: "salesRep",
@@ -154,7 +159,7 @@ export function commissionsValidateField<K extends keyof Commissions>(_field: K,
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"technician"}`) {
+    if (_field === "technician") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -163,7 +168,7 @@ export function commissionsValidateField<K extends keyof Commissions>(_field: K,
             });
         }
     }
-    if (_field === `${"salesRep"}`) {
+    if (_field === "salesRep") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -182,7 +187,7 @@ export function commissionsValidateFields(_partial: Partial<Commissions>): Array
         field: string;
         message: string;
     }> = [];
-    if (`${"technician"}` in _partial && _partial.technician !== undefined) {
+    if ("technician" in _partial && _partial.technician !== undefined) {
         const __val = _partial.technician as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -191,7 +196,7 @@ export function commissionsValidateFields(_partial: Partial<Commissions>): Array
             });
         }
     }
-    if (`${"salesRep"}` in _partial && _partial.salesRep !== undefined) {
+    if ("salesRep" in _partial && _partial.salesRep !== undefined) {
         const __val = _partial.salesRep as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -217,6 +222,162 @@ export function commissionsIs(obj: unknown): obj is Commissions {
     return result.success;
 }
 
+export type CommissionsErrors = {
+    _errors: __gf_Option<Array<string>>;
+    technician: __gf_Option<Array<string>>;
+    salesRep: __gf_Option<Array<string>>;
+};
+export type CommissionsTainted = {
+    technician: __gf_Option<boolean>;
+    salesRep: __gf_Option<boolean>;
+};
+export interface CommissionsFieldControllers {
+    readonly technician: FieldController<string>;
+    readonly salesRep: FieldController<string>;
+}
+export interface CommissionsGigaform {
+    readonly data: Commissions;
+    readonly errors: CommissionsErrors;
+    readonly tainted: CommissionsTainted;
+    readonly fields: CommissionsFieldControllers;
+    validate(): Exit<Commissions, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Commissions>): void;
+}
+export function commissionsCreateForm(overrides?: Partial<Commissions>): CommissionsGigaform {
+    let data = $state({
+        ...commissionsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<CommissionsErrors>({
+        _errors: optionNone(),
+        technician: optionNone(),
+        salesRep: optionNone()
+    } as CommissionsErrors);
+    let tainted = $state<CommissionsTainted>({
+        technician: optionNone(),
+        salesRep: optionNone()
+    } as CommissionsTainted);
+    const fields = {
+        technician: {
+            path: [
+                "technician"
+            ] as const,
+            name: "technician",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.technician,
+            set: (value: string)=>{
+                data.technician = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.technician,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.technician = value;
+            },
+            getTainted: ()=>tainted.technician,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.technician = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = commissionsValidateField("technician", data.technician);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        salesRep: {
+            path: [
+                "salesRep"
+            ] as const,
+            name: "salesRep",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.salesRep,
+            set: (value: string)=>{
+                data.salesRep = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.salesRep,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.salesRep = value;
+            },
+            getTainted: ()=>tainted.salesRep,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.salesRep = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = commissionsValidateField("salesRep", data.salesRep);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as CommissionsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Commissions, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(commissionsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Commissions>): void {
+        data = {
+            ...commissionsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            technician: optionNone(),
+            salesRep: optionNone()
+        };
+        tainted = {
+            technician: optionNone(),
+            salesRep: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function commissionsFromFormData(formData: FormData): Exit<Commissions, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Commissions, Array<{ field: string; message: string }>>";
+    obj.technician = formData.get(`${"technician"}`) ?? "";
+    obj.salesRep = formData.get(`${"salesRep"}`) ?? "";
+    return toExit(commissionsDeserialize(obj));
+}
+
 export const Commissions = {
   defaultValue: commissionsDefaultValue,
   serialize: commissionsSerialize,
@@ -225,5 +386,7 @@ export const Commissions = {
   deserializeWithContext: commissionsDeserializeWithContext,
   validateFields: commissionsValidateFields,
   hasShape: commissionsHasShape,
-  is: commissionsIs
+  is: commissionsIs,
+  createForm: commissionsCreateForm,
+  fromFormData: commissionsFromFormData
 } as const;

@@ -20,11 +20,11 @@ export function userRoleDefaultValue#0#0(): UserRole {
     return 'Administrator';
 }
 
-export function userRoleSerialize#0#0(value: UserRole): string {
+export function userRoleSerialize(value: UserRole): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(userRoleSerializeWithContext(value, ctx));
 }
-export function userRoleSerializeWithContext#0#0(value: UserRole, ctx: __mf_SerializeContext): unknown {
+export function userRoleSerializeWithContext(value: UserRole, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -98,44 +98,131 @@ export function userRoleIs(value: unknown): value is UserRole {
     return allowedValues.includes(value as any);
 }
 
+export type UserRoleAdministratorErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type UserRoleSalesRepresentativeErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type UserRoleTechnicianErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type UserRoleHumanResourcesErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type UserRoleInformationTechnologyErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type UserRoleAdministratorTainted = {
+};
+export type UserRoleSalesRepresentativeTainted = {
+};
+export type UserRoleTechnicianTainted = {
+};
+export type UserRoleHumanResourcesTainted = {
+};
+export type UserRoleInformationTechnologyTainted = {
+};
+export type UserRoleErrors = ({
+    _value: "Administrator";
+} & UserRoleAdministratorErrors) | ({
+    _value: "SalesRepresentative";
+} & UserRoleSalesRepresentativeErrors) | ({
+    _value: "Technician";
+} & UserRoleTechnicianErrors) | ({
+    _value: "HumanResources";
+} & UserRoleHumanResourcesErrors) | ({
+    _value: "InformationTechnology";
+} & UserRoleInformationTechnologyErrors);
+export type UserRoleTainted = ({
+    _value: "Administrator";
+} & UserRoleAdministratorTainted) | ({
+    _value: "SalesRepresentative";
+} & UserRoleSalesRepresentativeTainted) | ({
+    _value: "Technician";
+} & UserRoleTechnicianTainted) | ({
+    _value: "HumanResources";
+} & UserRoleHumanResourcesTainted) | ({
+    _value: "InformationTechnology";
+} & UserRoleInformationTechnologyTainted);
+export interface UserRoleAdministratorFieldControllers {
+}
+export interface UserRoleSalesRepresentativeFieldControllers {
+}
+export interface UserRoleTechnicianFieldControllers {
+}
+export interface UserRoleHumanResourcesFieldControllers {
+}
+export interface UserRoleInformationTechnologyFieldControllers {
+}
+export interface UserRoleGigaform {
+    readonly currentVariant: "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology";
+    readonly data: UserRole;
+    readonly errors: UserRoleErrors;
+    readonly tainted: UserRoleTainted;
+    readonly variants: UserRoleVariantFields;
+    switchVariant(variant: "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology"): void;
+    validate(): Exit<UserRole, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<UserRole>): void;
+}
+export interface UserRoleVariantFields {
+    readonly Administrator: {
+        readonly fields: UserRoleAdministratorFieldControllers;
+    };
+    readonly SalesRepresentative: {
+        readonly fields: UserRoleSalesRepresentativeFieldControllers;
+    };
+    readonly Technician: {
+        readonly fields: UserRoleTechnicianFieldControllers;
+    };
+    readonly HumanResources: {
+        readonly fields: UserRoleHumanResourcesFieldControllers;
+    };
+    readonly InformationTechnology: {
+        readonly fields: UserRoleInformationTechnologyFieldControllers;
+    };
+}
 function userRoleGetDefaultForVariant(variant: string): UserRole {
-    if (variant === `${"Administrator"}`) {
-        return `${"Administrator"}` as UserRole;
+    if (variant === "Administrator") {
+        return "Administrator" as UserRole;
     }
-    if (variant === `${"SalesRepresentative"}`) {
-        return `${"SalesRepresentative"}` as UserRole;
+    if (variant === "SalesRepresentative") {
+        return "SalesRepresentative" as UserRole;
     }
-    if (variant === `${"Technician"}`) {
-        return `${"Technician"}` as UserRole;
+    if (variant === "Technician") {
+        return "Technician" as UserRole;
     }
-    if (variant === `${"HumanResources"}`) {
-        return `${"HumanResources"}` as UserRole;
+    if (variant === "HumanResources") {
+        return "HumanResources" as UserRole;
     }
-    if (variant === `${"InformationTechnology"}`) {
-        return `${"InformationTechnology"}` as UserRole;
+    if (variant === "InformationTechnology") {
+        return "InformationTechnology" as UserRole;
     }
-    return `${"Administrator"}` as UserRole;
+    return "Administrator" as UserRole;
 }
 export function userRoleCreateForm(initial: UserRole): UserRoleGigaform {
-    const initialVariant: "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology" = '(initial as "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology") ?? "Administrator"';
+    const initialVariant: "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology" = (initial as "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology") ?? "Administrator";
     let currentVariant = $state<$MfPh5>(initialVariant);
     let data = $state<$MfPh6>(initial ?? "userRoleGetDefaultForVariant"(initialVariant));
     let errors = $state<$MfPh8>({} as UserRoleErrors);
     let tainted = $state<$MfPh10>({} as UserRoleTainted);
     const variants = {} as UserRoleVariantFields;
-    variants[Administrator] = {
+    variants[__expr__] = {
         fields: {} as UserRoleAdministratorFieldControllers
     };
-    variants[SalesRepresentative] = {
+    variants[__expr__] = {
         fields: {} as UserRoleSalesRepresentativeFieldControllers
     };
-    variants[Technician] = {
+    variants[__expr__] = {
         fields: {} as UserRoleTechnicianFieldControllers
     };
-    variants[HumanResources] = {
+    variants[__expr__] = {
         fields: {} as UserRoleHumanResourcesFieldControllers
     };
-    variants[InformationTechnology] = {
+    variants[__expr__] = {
         fields: {} as UserRoleInformationTechnologyFieldControllers
     };
     function switchVariant(variant: "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology"): void {
@@ -148,10 +235,10 @@ export function userRoleCreateForm(initial: UserRole): UserRoleGigaform {
         field: string;
         message: string;
     }>> {
-        return toExit("userRoleDeserialize(data)");
+        return toExit(userRoleDeserialize(data));
     }
     function reset(overrides: Partial<UserRole>): void {
-        data = "overrides ? overrides as typeof data : userRoleGetDefaultForVariant(currentVariant)";
+        data = overrides ? overrides as typeof data : userRoleGetDefaultForVariant(currentVariant);
         errors = {} as UserRoleErrors;
         tainted = {} as UserRoleTainted;
     }
@@ -201,63 +288,12 @@ export function userRoleFromFormData(formData: FormData): Exit<UserRole, Array<{
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
-    return toExit("userRoleDeserialize(obj)");
+    return toExit(userRoleDeserialize(obj));
 }
-export type $MfPh0 = $MfPh1;
-export type $MfPh2 = $MfPh3;
-export interface UserRoleAdministratorFieldControllers {
-}
-export interface UserRoleSalesRepresentativeFieldControllers {
-}
-export interface UserRoleTechnicianFieldControllers {
-}
-export interface UserRoleHumanResourcesFieldControllers {
-}
-export interface UserRoleInformationTechnologyFieldControllers {
-}
-export interface $MfPh4 {
-    readonly currentVariant: "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology";
-    readonly data: UserRole;
-    readonly errors: UserRoleErrors;
-    readonly tainted: UserRoleTainted;
-    readonly variants: UserRoleVariantFields;
-    switchVariant(variant: "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology"): void;
-    validate(): Exit<UserRole, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<UserRole>): void;
-}
-export interface $MfPh13 {
-}
-export type UserRoleAdministratorErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type UserRoleSalesRepresentativeErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type UserRoleTechnicianErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type UserRoleHumanResourcesErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type UserRoleInformationTechnologyErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
- };  };  };  };  }; export type UserRoleAdministratorTainted = {
-};
-export type UserRoleSalesRepresentativeTainted = {
-};
-export type UserRoleTechnicianTainted = {
-};
-export type UserRoleHumanResourcesTainted = {
-};
-export type UserRoleInformationTechnologyTainted = {
-};
- };  };  };  };  };
 
 export const UserRole = {
+  serialize: userRoleSerialize,
+  serializeWithContext: userRoleSerializeWithContext,
   deserialize: userRoleDeserialize,
   deserializeWithContext: userRoleDeserializeWithContext,
   is: userRoleIs,

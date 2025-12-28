@@ -44,13 +44,13 @@ export function addressSerializeWithContext(value: Address, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Address"}`,
+        __type: "Address",
         __id
     };
-    result[`${"street"}`] = value.street;
-    result[`${"city"}`] = value.city;
-    result[`${"state"}`] = value.state;
-    result[`${"zipcode"}`] = value.zipcode;
+    result.street = value.street;
+    result.city = value.city;
+    result.state = value.state;
+    result.zipcode = value.zipcode;
     return result;
 }
 
@@ -114,27 +114,27 @@ export function addressDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         field: string;
         message: string;
     }> = [];
-    if (!(`${"street"}` in obj)) {
+    if (!("street" in obj)) {
         errors.push({
-            field: `${"street"}`,
+            field: "street",
             message: "missing required field"
         });
     }
-    if (!(`${"city"}` in obj)) {
+    if (!("city" in obj)) {
         errors.push({
-            field: `${"city"}`,
+            field: "city",
             message: "missing required field"
         });
     }
-    if (!(`${"state"}` in obj)) {
+    if (!("state" in obj)) {
         errors.push({
-            field: `${"state"}`,
+            field: "state",
             message: "missing required field"
         });
     }
-    if (!(`${"zipcode"}` in obj)) {
+    if (!("zipcode" in obj)) {
         errors.push({
-            field: `${"zipcode"}`,
+            field: "zipcode",
             message: "missing required field"
         });
     }
@@ -147,7 +147,7 @@ export function addressDeserializeWithContext(value: any, ctx: __mf_DeserializeC
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_street = obj[`${"street"}`] as string;
+        const __raw_street = obj["street"] as string;
         if (__raw_street.trim().length === 0) {
             errors.push({
                 field: "street",
@@ -157,7 +157,7 @@ export function addressDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.street = __raw_street;
     }
     {
-        const __raw_city = obj[`${"city"}`] as string;
+        const __raw_city = obj["city"] as string;
         if (__raw_city.trim().length === 0) {
             errors.push({
                 field: "city",
@@ -167,7 +167,7 @@ export function addressDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.city = __raw_city;
     }
     {
-        const __raw_state = obj[`${"state"}`] as string;
+        const __raw_state = obj["state"] as string;
         if (__raw_state.trim().length === 0) {
             errors.push({
                 field: "state",
@@ -177,7 +177,7 @@ export function addressDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.state = __raw_state;
     }
     {
-        const __raw_zipcode = obj[`${"zipcode"}`] as string;
+        const __raw_zipcode = obj["zipcode"] as string;
         if (__raw_zipcode.trim().length === 0) {
             errors.push({
                 field: "zipcode",
@@ -199,7 +199,7 @@ export function addressValidateField<K extends keyof Address>(_field: K, _value:
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"street"}`) {
+    if (_field === "street") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -208,7 +208,7 @@ export function addressValidateField<K extends keyof Address>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"city"}`) {
+    if (_field === "city") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -217,7 +217,7 @@ export function addressValidateField<K extends keyof Address>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"state"}`) {
+    if (_field === "state") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -226,7 +226,7 @@ export function addressValidateField<K extends keyof Address>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"zipcode"}`) {
+    if (_field === "zipcode") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -245,7 +245,7 @@ export function addressValidateFields(_partial: Partial<Address>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"street"}` in _partial && _partial.street !== undefined) {
+    if ("street" in _partial && _partial.street !== undefined) {
         const __val = _partial.street as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -254,7 +254,7 @@ export function addressValidateFields(_partial: Partial<Address>): Array<{
             });
         }
     }
-    if (`${"city"}` in _partial && _partial.city !== undefined) {
+    if ("city" in _partial && _partial.city !== undefined) {
         const __val = _partial.city as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -263,7 +263,7 @@ export function addressValidateFields(_partial: Partial<Address>): Array<{
             });
         }
     }
-    if (`${"state"}` in _partial && _partial.state !== undefined) {
+    if ("state" in _partial && _partial.state !== undefined) {
         const __val = _partial.state as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -272,7 +272,7 @@ export function addressValidateFields(_partial: Partial<Address>): Array<{
             });
         }
     }
-    if (`${"zipcode"}` in _partial && _partial.zipcode !== undefined) {
+    if ("zipcode" in _partial && _partial.zipcode !== undefined) {
         const __val = _partial.zipcode as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -298,25 +298,26 @@ export function addressIs(obj: unknown): obj is Address {
     return result.success;
 }
 
-export function addressFromFormData(formData: FormData): Exit<Address, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    obj.street = formData.get(`${"street"}`) ?? "";
-    obj.city = formData.get(`${"city"}`) ?? "";
-    obj.state = formData.get(`${"state"}`) ?? "";
-    obj.zipcode = formData.get(`${"zipcode"}`) ?? "";
-    return toExit("addressDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type AddressErrors = {
     _errors: __gf_Option<Array<string>>;
+    street: __gf_Option<Array<string>>;
+    city: __gf_Option<Array<string>>;
+    state: __gf_Option<Array<string>>;
+    zipcode: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type AddressTainted = {
+    street: __gf_Option<boolean>;
+    city: __gf_Option<boolean>;
+    state: __gf_Option<boolean>;
+    zipcode: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface AddressFieldControllers {
+    readonly street: FieldController<string>;
+    readonly city: FieldController<string>;
+    readonly state: FieldController<string>;
+    readonly zipcode: FieldController<string>;
 }
-export interface $MfPh3 {
+export interface AddressGigaform {
     readonly data: Address;
     readonly errors: AddressErrors;
     readonly tainted: AddressTainted;
@@ -325,61 +326,207 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Address>): void;
+    reset(overrides?: Partial<Address>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function addressCreateForm(overrides: Partial<Address>): AddressGigaform {}
-let data = $state({
-    ...addressDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as AddressErrors);
-let tainted = $state<$MfPh3>({} as AddressTainted);
-const fields = {} as AddressFieldControllers;
-fields.street = {
-    label: `${"street"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.city = {
-    label: `${"city"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.state = {
-    label: `${"state"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.zipcode = {
-    label: `${"zipcode"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Address, Array<{
+export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform {
+    let data = $state({
+        ...addressDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<AddressErrors>({
+        _errors: optionNone(),
+        street: optionNone(),
+        city: optionNone(),
+        state: optionNone(),
+        zipcode: optionNone()
+    } as AddressErrors);
+    let tainted = $state<AddressTainted>({
+        street: optionNone(),
+        city: optionNone(),
+        state: optionNone(),
+        zipcode: optionNone()
+    } as AddressTainted);
+    const fields = {
+        street: {
+            path: [
+                "street"
+            ] as const,
+            name: "street",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.street,
+            set: (value: string)=>{
+                data.street = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.street,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.street = value;
+            },
+            getTainted: ()=>tainted.street,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.street = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = addressValidateField("street", data.street);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        city: {
+            path: [
+                "city"
+            ] as const,
+            name: "city",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.city,
+            set: (value: string)=>{
+                data.city = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.city,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.city = value;
+            },
+            getTainted: ()=>tainted.city,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.city = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = addressValidateField("city", data.city);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        state: {
+            path: [
+                "state"
+            ] as const,
+            name: "state",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.state,
+            set: (value: string)=>{
+                data.state = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.state,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.state = value;
+            },
+            getTainted: ()=>tainted.state,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.state = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = addressValidateField("state", data.state);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        zipcode: {
+            path: [
+                "zipcode"
+            ] as const,
+            name: "zipcode",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.zipcode,
+            set: (value: string)=>{
+                data.zipcode = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.zipcode,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.zipcode = value;
+            },
+            getTainted: ()=>tainted.zipcode,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.zipcode = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = addressValidateField("zipcode", data.zipcode);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as AddressFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Address, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(addressDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Address>): void {
+        data = {
+            ...addressDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            street: optionNone(),
+            city: optionNone(),
+            state: optionNone(),
+            zipcode: optionNone()
+        };
+        tainted = {
+            street: optionNone(),
+            city: optionNone(),
+            state: optionNone(),
+            zipcode: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function addressFromFormData(formData: FormData): Exit<Address, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("addressDeserialize(data)");
-    data = {
-        ...addressDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Address, Array<{ field: string; message: string }>>";
+    obj.street = formData.get(`${"street"}`) ?? "";
+    obj.city = formData.get(`${"city"}`) ?? "";
+    obj.state = formData.get(`${"state"}`) ?? "";
+    obj.zipcode = formData.get(`${"zipcode"}`) ?? "";
+    return toExit(addressDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Address = {
   defaultValue: addressDefaultValue,
@@ -390,6 +537,6 @@ export const Address = {
   validateFields: addressValidateFields,
   hasShape: addressHasShape,
   is: addressIs,
-  fromFormData: addressFromFormData,
-  createForm: addressCreateForm
+  createForm: addressCreateForm,
+  fromFormData: addressFromFormData
 } as const;

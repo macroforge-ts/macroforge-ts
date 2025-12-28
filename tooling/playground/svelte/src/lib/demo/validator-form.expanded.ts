@@ -24,7 +24,13 @@ export class UserRegistrationForm {
     
     website: string;
 
-    constructor(props: Record<string, unknown>){}
+    constructor(props: Record<string, unknown>){
+    this.email = props.email;
+    this.password = props.password;
+    this.username = props.username;
+    this.age = props.age;
+    this.website = props.website;
+}
 
     static deserialize(input: unknown, opts: __mf_DeserializeOptions): {
     success: true;
@@ -96,33 +102,33 @@ export class UserRegistrationForm {
         field: string;
         message: string;
     }> = [];
-    if (!(`${"email"}` in obj)) {
+    if (!("email" in obj)) {
         errors.push({
-            field: `${"email"}`,
+            field: "email",
             message: "missing required field"
         });
     }
-    if (!(`${"password"}` in obj)) {
+    if (!("password" in obj)) {
         errors.push({
-            field: `${"password"}`,
+            field: "password",
             message: "missing required field"
         });
     }
-    if (!(`${"username"}` in obj)) {
+    if (!("username" in obj)) {
         errors.push({
-            field: `${"username"}`,
+            field: "username",
             message: "missing required field"
         });
     }
-    if (!(`${"age"}` in obj)) {
+    if (!("age" in obj)) {
         errors.push({
-            field: `${"age"}`,
+            field: "age",
             message: "missing required field"
         });
     }
-    if (!(`${"website"}` in obj)) {
+    if (!("website" in obj)) {
         errors.push({
-            field: `${"website"}`,
+            field: "website",
             message: "missing required field"
         });
     }
@@ -135,7 +141,7 @@ export class UserRegistrationForm {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_email = obj[`${"email"}`] as string;
+        const __raw_email = obj["email"] as string;
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) {
             errors.push({
                 field: "email",
@@ -145,7 +151,7 @@ export class UserRegistrationForm {
         instance.email = __raw_email;
     }
     {
-        const __raw_password = obj[`${"password"}`] as string;
+        const __raw_password = obj["password"] as string;
         if (__raw_password.length < 8) {
             errors.push({
                 field: "password",
@@ -161,7 +167,7 @@ export class UserRegistrationForm {
         instance.password = __raw_password;
     }
     {
-        const __raw_username = obj[`${"username"}`] as string;
+        const __raw_username = obj["username"] as string;
         if (__raw_username.length < 3) {
             errors.push({
                 field: "username",
@@ -189,7 +195,7 @@ export class UserRegistrationForm {
         instance.username = __raw_username;
     }
     {
-        const __raw_age = obj[`${"age"}`] as number;
+        const __raw_age = obj["age"] as number;
         if (!Number.isInteger(__raw_age)) {
             errors.push({
                 field: "age",
@@ -205,7 +211,7 @@ export class UserRegistrationForm {
         instance.age = __raw_age;
     }
     {
-        const __raw_website = obj[`${"website"}`] as string;
+        const __raw_website = obj["website"] as string;
         if (!/^https?:\/\/.+/.test(__raw_website)) {
             errors.push({
                 field: "website",
@@ -228,7 +234,7 @@ export class UserRegistrationForm {
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"email"}`) {
+    if (_field === "email") {
         const __val = _value as string;
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
             errors.push({
@@ -237,7 +243,7 @@ export class UserRegistrationForm {
             });
         }
     }
-    if (_field === `${"password"}`) {
+    if (_field === "password") {
         const __val = _value as string;
         if (__val.length < 8) {
             errors.push({
@@ -252,7 +258,7 @@ export class UserRegistrationForm {
             });
         }
     }
-    if (_field === `${"username"}`) {
+    if (_field === "username") {
         const __val = _value as string;
         if (__val.length < 3) {
             errors.push({
@@ -279,7 +285,7 @@ export class UserRegistrationForm {
             });
         }
     }
-    if (_field === `${"age"}`) {
+    if (_field === "age") {
         const __val = _value as number;
         if (!Number.isInteger(__val)) {
             errors.push({
@@ -294,7 +300,7 @@ export class UserRegistrationForm {
             });
         }
     }
-    if (_field === `${"website"}`) {
+    if (_field === "website") {
         const __val = _value as string;
         if (!/^https?:\/\/.+/.test(__val)) {
             errors.push({
@@ -314,7 +320,7 @@ export class UserRegistrationForm {
         field: string;
         message: string;
     }> = [];
-    if (`${"email"}` in _partial && _partial.email !== undefined) {
+    if ("email" in _partial && _partial.email !== undefined) {
         const __val = _partial.email as string;
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
             errors.push({
@@ -323,7 +329,7 @@ export class UserRegistrationForm {
             });
         }
     }
-    if (`${"password"}` in _partial && _partial.password !== undefined) {
+    if ("password" in _partial && _partial.password !== undefined) {
         const __val = _partial.password as string;
         if (__val.length < 8) {
             errors.push({
@@ -338,7 +344,7 @@ export class UserRegistrationForm {
             });
         }
     }
-    if (`${"username"}` in _partial && _partial.username !== undefined) {
+    if ("username" in _partial && _partial.username !== undefined) {
         const __val = _partial.username as string;
         if (__val.length < 3) {
             errors.push({
@@ -365,7 +371,7 @@ export class UserRegistrationForm {
             });
         }
     }
-    if (`${"age"}` in _partial && _partial.age !== undefined) {
+    if ("age" in _partial && _partial.age !== undefined) {
         const __val = _partial.age as number;
         if (!Number.isInteger(__val)) {
             errors.push({
@@ -380,7 +386,7 @@ export class UserRegistrationForm {
             });
         }
     }
-    if (`${"website"}` in _partial && _partial.website !== undefined) {
+    if ("website" in _partial && _partial.website !== undefined) {
         const __val = _partial.website as string;
         if (!/^https?:\/\/.+/.test(__val)) {
             errors.push({
@@ -448,7 +454,13 @@ export class ProductForm {
     
     sku: string;
 
-    constructor(props: Record<string, unknown>){}
+    constructor(props: Record<string, unknown>){
+    this.name = props.name;
+    this.price = props.price;
+    this.quantity = props.quantity;
+    this.tags = props.tags;
+    this.sku = props.sku;
+}
 
     static deserialize(input: unknown, opts: __mf_DeserializeOptions): {
     success: true;
@@ -520,33 +532,33 @@ export class ProductForm {
         field: string;
         message: string;
     }> = [];
-    if (!(`${"name"}` in obj)) {
+    if (!("name" in obj)) {
         errors.push({
-            field: `${"name"}`,
+            field: "name",
             message: "missing required field"
         });
     }
-    if (!(`${"price"}` in obj)) {
+    if (!("price" in obj)) {
         errors.push({
-            field: `${"price"}`,
+            field: "price",
             message: "missing required field"
         });
     }
-    if (!(`${"quantity"}` in obj)) {
+    if (!("quantity" in obj)) {
         errors.push({
-            field: `${"quantity"}`,
+            field: "quantity",
             message: "missing required field"
         });
     }
-    if (!(`${"tags"}` in obj)) {
+    if (!("tags" in obj)) {
         errors.push({
-            field: `${"tags"}`,
+            field: "tags",
             message: "missing required field"
         });
     }
-    if (!(`${"sku"}` in obj)) {
+    if (!("sku" in obj)) {
         errors.push({
-            field: `${"sku"}`,
+            field: "sku",
             message: "missing required field"
         });
     }
@@ -559,7 +571,7 @@ export class ProductForm {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_name = obj[`${"name"}`] as string;
+        const __raw_name = obj["name"] as string;
         if (__raw_name.trim().length === 0) {
             errors.push({
                 field: "name",
@@ -575,7 +587,7 @@ export class ProductForm {
         instance.name = __raw_name;
     }
     {
-        const __raw_price = obj[`${"price"}`] as number;
+        const __raw_price = obj["price"] as number;
         if (__raw_price <= 0) {
             errors.push({
                 field: "price",
@@ -591,7 +603,7 @@ export class ProductForm {
         instance.price = __raw_price;
     }
     {
-        const __raw_quantity = obj[`${"quantity"}`] as number;
+        const __raw_quantity = obj["quantity"] as number;
         if (!Number.isInteger(__raw_quantity)) {
             errors.push({
                 field: "quantity",
@@ -607,7 +619,7 @@ export class ProductForm {
         instance.quantity = __raw_quantity;
     }
     {
-        const __raw_tags = obj[`${"tags"}`] as Array<string>;
+        const __raw_tags = obj["tags"] as Array<string>;
         if (Array.isArray(__raw_tags)) {
             if (__raw_tags.length < 1) {
                 errors.push({
@@ -625,7 +637,7 @@ export class ProductForm {
         }
     }
     {
-        const __raw_sku = obj[`${"sku"}`] as string;
+        const __raw_sku = obj["sku"] as string;
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_sku)) {
             errors.push({
                 field: "sku",
@@ -648,7 +660,7 @@ export class ProductForm {
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"name"}`) {
+    if (_field === "name") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -663,7 +675,7 @@ export class ProductForm {
             });
         }
     }
-    if (_field === `${"price"}`) {
+    if (_field === "price") {
         const __val = _value as number;
         if (__val <= 0) {
             errors.push({
@@ -678,7 +690,7 @@ export class ProductForm {
             });
         }
     }
-    if (_field === `${"quantity"}`) {
+    if (_field === "quantity") {
         const __val = _value as number;
         if (!Number.isInteger(__val)) {
             errors.push({
@@ -693,7 +705,7 @@ export class ProductForm {
             });
         }
     }
-    if (_field === `${"tags"}`) {
+    if (_field === "tags") {
         const __val = _value as Array<string>;
         if (__val.length < 1) {
             errors.push({
@@ -708,7 +720,7 @@ export class ProductForm {
             });
         }
     }
-    if (_field === `${"sku"}`) {
+    if (_field === "sku") {
         const __val = _value as string;
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) {
             errors.push({
@@ -728,7 +740,7 @@ export class ProductForm {
         field: string;
         message: string;
     }> = [];
-    if (`${"name"}` in _partial && _partial.name !== undefined) {
+    if ("name" in _partial && _partial.name !== undefined) {
         const __val = _partial.name as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -743,7 +755,7 @@ export class ProductForm {
             });
         }
     }
-    if (`${"price"}` in _partial && _partial.price !== undefined) {
+    if ("price" in _partial && _partial.price !== undefined) {
         const __val = _partial.price as number;
         if (__val <= 0) {
             errors.push({
@@ -758,7 +770,7 @@ export class ProductForm {
             });
         }
     }
-    if (`${"quantity"}` in _partial && _partial.quantity !== undefined) {
+    if ("quantity" in _partial && _partial.quantity !== undefined) {
         const __val = _partial.quantity as number;
         if (!Number.isInteger(__val)) {
             errors.push({
@@ -773,7 +785,7 @@ export class ProductForm {
             });
         }
     }
-    if (`${"tags"}` in _partial && _partial.tags !== undefined) {
+    if ("tags" in _partial && _partial.tags !== undefined) {
         const __val = _partial.tags as Array<string>;
         if (__val.length < 1) {
             errors.push({
@@ -788,7 +800,7 @@ export class ProductForm {
             });
         }
     }
-    if (`${"sku"}` in _partial && _partial.sku !== undefined) {
+    if ("sku" in _partial && _partial.sku !== undefined) {
         const __val = _partial.sku as string;
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) {
             errors.push({
@@ -853,7 +865,12 @@ export class EventForm {
     
     maxAttendees: number;
 
-    constructor(props: Record<string, unknown>){}
+    constructor(props: Record<string, unknown>){
+    this.title = props.title;
+    this.startDate = props.startDate;
+    this.endDate = props.endDate;
+    this.maxAttendees = props.maxAttendees;
+}
 
     static deserialize(input: unknown, opts: __mf_DeserializeOptions): {
     success: true;
@@ -925,27 +942,27 @@ export class EventForm {
         field: string;
         message: string;
     }> = [];
-    if (!(`${"title"}` in obj)) {
+    if (!("title" in obj)) {
         errors.push({
-            field: `${"title"}`,
+            field: "title",
             message: "missing required field"
         });
     }
-    if (!(`${"startDate"}` in obj)) {
+    if (!("startDate" in obj)) {
         errors.push({
-            field: `${"startDate"}`,
+            field: "startDate",
             message: "missing required field"
         });
     }
-    if (!(`${"endDate"}` in obj)) {
+    if (!("endDate" in obj)) {
         errors.push({
-            field: `${"endDate"}`,
+            field: "endDate",
             message: "missing required field"
         });
     }
-    if (!(`${"maxAttendees"}` in obj)) {
+    if (!("maxAttendees" in obj)) {
         errors.push({
-            field: `${"maxAttendees"}`,
+            field: "maxAttendees",
             message: "missing required field"
         });
     }
@@ -958,7 +975,7 @@ export class EventForm {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_title = obj[`${"title"}`] as string;
+        const __raw_title = obj["title"] as string;
         if (__raw_title.trim().length === 0) {
             errors.push({
                 field: "title",
@@ -974,7 +991,7 @@ export class EventForm {
         instance.title = __raw_title;
     }
     {
-        const __raw_startDate = obj[`${"startDate"}`] as Date;
+        const __raw_startDate = obj["startDate"] as Date;
         {
             const __dateVal = typeof __raw_startDate === "string" ? new Date(__raw_startDate) : $MfPh116 as Date;
             if (isNaN(__dateVal.getTime())) {
@@ -993,7 +1010,7 @@ export class EventForm {
         }
     }
     {
-        const __raw_endDate = obj[`${"endDate"}`] as Date;
+        const __raw_endDate = obj["endDate"] as Date;
         {
             const __dateVal = typeof __raw_endDate === "string" ? new Date(__raw_endDate) : $MfPh116 as Date;
             if (isNaN(__dateVal.getTime())) {
@@ -1006,7 +1023,7 @@ export class EventForm {
         }
     }
     {
-        const __raw_maxAttendees = obj[`${"maxAttendees"}`] as number;
+        const __raw_maxAttendees = obj["maxAttendees"] as number;
         if (!Number.isInteger(__raw_maxAttendees)) {
             errors.push({
                 field: "maxAttendees",
@@ -1035,7 +1052,7 @@ export class EventForm {
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"title"}`) {
+    if (_field === "title") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -1050,7 +1067,7 @@ export class EventForm {
             });
         }
     }
-    if (_field === `${"startDate"}`) {
+    if (_field === "startDate") {
         const __val = _value as Date;
         if (isNaN(__val.getTime())) {
             errors.push({
@@ -1065,7 +1082,7 @@ export class EventForm {
             });
         }
     }
-    if (_field === `${"endDate"}`) {
+    if (_field === "endDate") {
         const __val = _value as Date;
         if (isNaN(__val.getTime())) {
             errors.push({
@@ -1074,7 +1091,7 @@ export class EventForm {
             });
         }
     }
-    if (_field === `${"maxAttendees"}`) {
+    if (_field === "maxAttendees") {
         const __val = _value as number;
         if (!Number.isInteger(__val)) {
             errors.push({
@@ -1100,7 +1117,7 @@ export class EventForm {
         field: string;
         message: string;
     }> = [];
-    if (`${"title"}` in _partial && _partial.title !== undefined) {
+    if ("title" in _partial && _partial.title !== undefined) {
         const __val = _partial.title as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -1115,7 +1132,7 @@ export class EventForm {
             });
         }
     }
-    if (`${"startDate"}` in _partial && _partial.startDate !== undefined) {
+    if ("startDate" in _partial && _partial.startDate !== undefined) {
         const __val = _partial.startDate as Date;
         if (isNaN(__val.getTime())) {
             errors.push({
@@ -1130,7 +1147,7 @@ export class EventForm {
             });
         }
     }
-    if (`${"endDate"}` in _partial && _partial.endDate !== undefined) {
+    if ("endDate" in _partial && _partial.endDate !== undefined) {
         const __val = _partial.endDate as Date;
         if (isNaN(__val.getTime())) {
             errors.push({
@@ -1139,7 +1156,7 @@ export class EventForm {
             });
         }
     }
-    if (`${"maxAttendees"}` in _partial && _partial.maxAttendees !== undefined) {
+    if ("maxAttendees" in _partial && _partial.maxAttendees !== undefined) {
         const __val = _partial.maxAttendees as number;
         if (!Number.isInteger(__val)) {
             errors.push({

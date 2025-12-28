@@ -21,6 +21,27 @@ import { serviceDeserializeWithContext } from "./service.svelte";
 import { siteDeserializeWithContext } from "./site.svelte";
 import { taxRateDeserializeWithContext } from "./tax-rate.svelte";
 import { userDeserializeWithContext } from "./user.svelte";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
+import { appointmentDefaultValue } from "./appointment.svelte";
+import { companyDefaultValue } from "./company.svelte";
+import { employeeDefaultValue } from "./employee.svelte";
+import { leadDefaultValue } from "./lead.svelte";
+import { orderDefaultValue } from "./order.svelte";
+import { orderedDefaultValue } from "./ordered.svelte";
+import { packageDefaultValue } from "./package.svelte";
+import { paymentDefaultValue } from "./payment.svelte";
+import { productDefaultValue } from "./product.svelte";
+import { promotionDefaultValue } from "./promotion.svelte";
+import { representsDefaultValue } from "./represents.svelte";
+import { routeDefaultValue } from "./route.svelte";
+import { serviceDefaultValue } from "./service.svelte";
+import { siteDefaultValue } from "./site.svelte";
+import { taxRateDefaultValue } from "./tax-rate.svelte";
+import { userDefaultValue } from "./user.svelte";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { Account } from './account.svelte';
@@ -65,11 +86,11 @@ export function targetDefaultValue#0#0(): Target {
     return accountDefaultValue();
 }
 
-export function targetSerialize#0#0(value: Target): string {
+export function targetSerialize(value: Target): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(targetSerializeWithContext(value, ctx));
 }
-export function targetSerializeWithContext#0#0(value: Target, ctx: __mf_SerializeContext): unknown {
+export function targetSerializeWithContext(value: Target, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -126,55 +147,55 @@ export function targetDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
     if (typeof value === "object" && value !== null) {
         const __typeName = (value as any).__type;
         if (typeof __typeName === "string") {}
-        if (__typeName === `${"Account"}`) {
+        if (__typeName === "Account") {
             return accountDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"User"}`) {
+        if (__typeName === "User") {
             return userDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Employee"}`) {
+        if (__typeName === "Employee") {
             return employeeDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Appointment"}`) {
+        if (__typeName === "Appointment") {
             return appointmentDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Lead"}`) {
+        if (__typeName === "Lead") {
             return leadDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"TaxRate"}`) {
+        if (__typeName === "TaxRate") {
             return taxRateDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Site"}`) {
+        if (__typeName === "Site") {
             return siteDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Route"}`) {
+        if (__typeName === "Route") {
             return routeDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Company"}`) {
+        if (__typeName === "Company") {
             return companyDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Product"}`) {
+        if (__typeName === "Product") {
             return productDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Service"}`) {
+        if (__typeName === "Service") {
             return serviceDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Order"}`) {
+        if (__typeName === "Order") {
             return orderDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Payment"}`) {
+        if (__typeName === "Payment") {
             return paymentDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Package"}`) {
+        if (__typeName === "Package") {
             return packageDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Promotion"}`) {
+        if (__typeName === "Promotion") {
             return promotionDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Represents"}`) {
+        if (__typeName === "Represents") {
             return representsDeserializeWithContext(value, ctx) as Target;
         }
-        if (__typeName === `${"Ordered"}`) {
+        if (__typeName === "Ordered") {
             return orderedDeserializeWithContext(value, ctx) as Target;
         }
     }
@@ -194,8 +215,445 @@ export function targetIs(value: unknown): value is Target {
 }
      }
 
+export type TargetAccountErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetUserErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetEmployeeErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetAppointmentErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetLeadErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetTaxRateErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetSiteErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetRouteErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetCompanyErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetProductErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetServiceErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetOrderErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetPaymentErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetPackageErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetPromotionErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetRepresentsErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetOrderedErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type TargetAccountTainted = {
+};
+export type TargetUserTainted = {
+};
+export type TargetEmployeeTainted = {
+};
+export type TargetAppointmentTainted = {
+};
+export type TargetLeadTainted = {
+};
+export type TargetTaxRateTainted = {
+};
+export type TargetSiteTainted = {
+};
+export type TargetRouteTainted = {
+};
+export type TargetCompanyTainted = {
+};
+export type TargetProductTainted = {
+};
+export type TargetServiceTainted = {
+};
+export type TargetOrderTainted = {
+};
+export type TargetPaymentTainted = {
+};
+export type TargetPackageTainted = {
+};
+export type TargetPromotionTainted = {
+};
+export type TargetRepresentsTainted = {
+};
+export type TargetOrderedTainted = {
+};
+export type TargetErrors = ({
+    _type: "Account";
+} & TargetAccountErrors) | ({
+    _type: "User";
+} & TargetUserErrors) | ({
+    _type: "Employee";
+} & TargetEmployeeErrors) | ({
+    _type: "Appointment";
+} & TargetAppointmentErrors) | ({
+    _type: "Lead";
+} & TargetLeadErrors) | ({
+    _type: "TaxRate";
+} & TargetTaxRateErrors) | ({
+    _type: "Site";
+} & TargetSiteErrors) | ({
+    _type: "Route";
+} & TargetRouteErrors) | ({
+    _type: "Company";
+} & TargetCompanyErrors) | ({
+    _type: "Product";
+} & TargetProductErrors) | ({
+    _type: "Service";
+} & TargetServiceErrors) | ({
+    _type: "Order";
+} & TargetOrderErrors) | ({
+    _type: "Payment";
+} & TargetPaymentErrors) | ({
+    _type: "Package";
+} & TargetPackageErrors) | ({
+    _type: "Promotion";
+} & TargetPromotionErrors) | ({
+    _type: "Represents";
+} & TargetRepresentsErrors) | ({
+    _type: "Ordered";
+} & TargetOrderedErrors);
+export type TargetTainted = ({
+    _type: "Account";
+} & TargetAccountTainted) | ({
+    _type: "User";
+} & TargetUserTainted) | ({
+    _type: "Employee";
+} & TargetEmployeeTainted) | ({
+    _type: "Appointment";
+} & TargetAppointmentTainted) | ({
+    _type: "Lead";
+} & TargetLeadTainted) | ({
+    _type: "TaxRate";
+} & TargetTaxRateTainted) | ({
+    _type: "Site";
+} & TargetSiteTainted) | ({
+    _type: "Route";
+} & TargetRouteTainted) | ({
+    _type: "Company";
+} & TargetCompanyTainted) | ({
+    _type: "Product";
+} & TargetProductTainted) | ({
+    _type: "Service";
+} & TargetServiceTainted) | ({
+    _type: "Order";
+} & TargetOrderTainted) | ({
+    _type: "Payment";
+} & TargetPaymentTainted) | ({
+    _type: "Package";
+} & TargetPackageTainted) | ({
+    _type: "Promotion";
+} & TargetPromotionTainted) | ({
+    _type: "Represents";
+} & TargetRepresentsTainted) | ({
+    _type: "Ordered";
+} & TargetOrderedTainted);
+export interface TargetAccountFieldControllers {
+}
+export interface TargetUserFieldControllers {
+}
+export interface TargetEmployeeFieldControllers {
+}
+export interface TargetAppointmentFieldControllers {
+}
+export interface TargetLeadFieldControllers {
+}
+export interface TargetTaxRateFieldControllers {
+}
+export interface TargetSiteFieldControllers {
+}
+export interface TargetRouteFieldControllers {
+}
+export interface TargetCompanyFieldControllers {
+}
+export interface TargetProductFieldControllers {
+}
+export interface TargetServiceFieldControllers {
+}
+export interface TargetOrderFieldControllers {
+}
+export interface TargetPaymentFieldControllers {
+}
+export interface TargetPackageFieldControllers {
+}
+export interface TargetPromotionFieldControllers {
+}
+export interface TargetRepresentsFieldControllers {
+}
+export interface TargetOrderedFieldControllers {
+}
+export interface TargetGigaform {
+    readonly currentVariant: "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered";
+    readonly data: Target;
+    readonly errors: TargetErrors;
+    readonly tainted: TargetTainted;
+    readonly variants: TargetVariantFields;
+    switchVariant(variant: "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered"): void;
+    validate(): Exit<Target, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Target>): void;
+}
+export interface TargetVariantFields {
+    readonly Account: {
+        readonly fields: TargetAccountFieldControllers;
+    };
+    readonly User: {
+        readonly fields: TargetUserFieldControllers;
+    };
+    readonly Employee: {
+        readonly fields: TargetEmployeeFieldControllers;
+    };
+    readonly Appointment: {
+        readonly fields: TargetAppointmentFieldControllers;
+    };
+    readonly Lead: {
+        readonly fields: TargetLeadFieldControllers;
+    };
+    readonly TaxRate: {
+        readonly fields: TargetTaxRateFieldControllers;
+    };
+    readonly Site: {
+        readonly fields: TargetSiteFieldControllers;
+    };
+    readonly Route: {
+        readonly fields: TargetRouteFieldControllers;
+    };
+    readonly Company: {
+        readonly fields: TargetCompanyFieldControllers;
+    };
+    readonly Product: {
+        readonly fields: TargetProductFieldControllers;
+    };
+    readonly Service: {
+        readonly fields: TargetServiceFieldControllers;
+    };
+    readonly Order: {
+        readonly fields: TargetOrderFieldControllers;
+    };
+    readonly Payment: {
+        readonly fields: TargetPaymentFieldControllers;
+    };
+    readonly Package: {
+        readonly fields: TargetPackageFieldControllers;
+    };
+    readonly Promotion: {
+        readonly fields: TargetPromotionFieldControllers;
+    };
+    readonly Represents: {
+        readonly fields: TargetRepresentsFieldControllers;
+    };
+    readonly Ordered: {
+        readonly fields: TargetOrderedFieldControllers;
+    };
+}
+function targetGetDefaultForVariant(variant: string): Target {
+    if (variant === "Account") {
+        return accountDefaultValue() as Target;
+    }
+    if (variant === "User") {
+        return userDefaultValue() as Target;
+    }
+    if (variant === "Employee") {
+        return employeeDefaultValue() as Target;
+    }
+    if (variant === "Appointment") {
+        return appointmentDefaultValue() as Target;
+    }
+    if (variant === "Lead") {
+        return leadDefaultValue() as Target;
+    }
+    if (variant === "TaxRate") {
+        return taxRateDefaultValue() as Target;
+    }
+    if (variant === "Site") {
+        return siteDefaultValue() as Target;
+    }
+    if (variant === "Route") {
+        return routeDefaultValue() as Target;
+    }
+    if (variant === "Company") {
+        return companyDefaultValue() as Target;
+    }
+    if (variant === "Product") {
+        return productDefaultValue() as Target;
+    }
+    if (variant === "Service") {
+        return serviceDefaultValue() as Target;
+    }
+    if (variant === "Order") {
+        return orderDefaultValue() as Target;
+    }
+    if (variant === "Payment") {
+        return paymentDefaultValue() as Target;
+    }
+    if (variant === "Package") {
+        return packageDefaultValue() as Target;
+    }
+    if (variant === "Promotion") {
+        return promotionDefaultValue() as Target;
+    }
+    if (variant === "Represents") {
+        return representsDefaultValue() as Target;
+    }
+    if (variant === "Ordered") {
+        return orderedDefaultValue() as Target;
+    }
+    return accountDefaultValue() as Target;
+}
+export function targetCreateForm(initial: Target): TargetGigaform {
+    const initialVariant: "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered" = "Account";
+    let currentVariant = $state<$MfPh5>(initialVariant);
+    let data = $state<$MfPh6>(initial ?? "targetGetDefaultForVariant"(initialVariant));
+    let errors = $state<$MfPh8>({} as TargetErrors);
+    let tainted = $state<$MfPh10>({} as TargetTainted);
+    const variants = {} as TargetVariantFields;
+    variants[__expr__] = {
+        fields: {} as TargetAccountFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetUserFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetEmployeeFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetAppointmentFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetLeadFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetTaxRateFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetSiteFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetRouteFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetCompanyFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetProductFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetServiceFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetOrderFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetPaymentFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetPackageFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetPromotionFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetRepresentsFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as TargetOrderedFieldControllers
+    };
+    function switchVariant(variant: "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered"): void {
+        currentVariant = variant;
+        data = "targetGetDefaultForVariant"(variant);
+        errors = {} as TargetErrors;
+        tainted = {} as TargetTainted;
+    }
+    function validate(): Exit<Target, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(targetDeserialize(data));
+    }
+    function reset(overrides: Partial<Target>): void {
+        data = overrides ? overrides as typeof data : targetGetDefaultForVariant(currentVariant);
+        errors = {} as TargetErrors;
+        tainted = {} as TargetTainted;
+    }
+    return {
+        get currentVariant () {
+            return currentVariant;
+        },
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        variants,
+        switchVariant,
+        validate,
+        reset
+    };
+}
+export function targetFromFormData(formData: FormData): Exit<Target, Array<{
+    field: string;
+    message: string;
+}>> {
+    const discriminant = formData.get(`${"_type"}`) as "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered" | null;
+    if (!discriminant) {
+        return toExit({
+            success: false,
+            errors: [
+                {
+                    field: `${"_type"}`,
+                    message: "Missing discriminant field"
+                }
+            ]
+        });
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    return toExit(targetDeserialize(obj));
+}
+
 export const Target = {
+  serialize: targetSerialize,
+  serializeWithContext: targetSerializeWithContext,
   deserialize: targetDeserialize,
   deserializeWithContext: targetDeserializeWithContext,
-  is: targetIs
+  is: targetIs,
+  createForm: targetCreateForm,
+  fromFormData: targetFromFormData
 } as const;

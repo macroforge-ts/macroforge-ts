@@ -17,8 +17,14 @@ import { repoRoot } from './test-utils.mjs';
 
 // Path to the CLI binary
 const cliBinary = (() => {
+    // Try the macroforge_ts crate target directory first (where cargo builds by default)
+    const releaseInCrate = path.join(repoRoot, 'crates', 'macroforge_ts', 'target', 'release', 'macroforge');
+    const debugInCrate = path.join(repoRoot, 'crates', 'macroforge_ts', 'target', 'debug', 'macroforge');
+    // Also try workspace-level target directory
     const release = path.join(repoRoot, 'crates', 'target', 'release', 'macroforge');
     const debug = path.join(repoRoot, 'crates', 'target', 'debug', 'macroforge');
+    if (fs.existsSync(releaseInCrate)) return releaseInCrate;
+    if (fs.existsSync(debugInCrate)) return debugInCrate;
     if (fs.existsSync(release)) return release;
     if (fs.existsSync(debug)) return debug;
     throw new Error('macroforge CLI binary not found. Run `cargo build --release` first.');

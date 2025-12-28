@@ -6,6 +6,11 @@ import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
 import { productDefaultsDeserializeWithContext } from "./product-defaults.svelte";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { ProductDefaults } from './product-defaults.svelte';
@@ -63,19 +68,19 @@ export function productSerializeWithContext(value: Product, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Product"}`,
+        __type: "Product",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"name"}`] = value.name;
-    result[`${"quickCode"}`] = value.quickCode;
-    result[`${"group"}`] = value.group;
-    result[`${"subgroup"}`] = value.subgroup;
-    result[`${"unit"}`] = value.unit;
-    result[`${"active"}`] = value.active;
-    result[`${"commission"}`] = value.commission;
-    result[`${"favorite"}`] = value.favorite;
-    result[`${"defaults"}`] = productDefaultsSerializeWithContext(value.defaults, ctx);
+    result.id = value.id;
+    result.name = value.name;
+    result.quickCode = value.quickCode;
+    result.group = value.group;
+    result.subgroup = value.subgroup;
+    result.unit = value.unit;
+    result.active = value.active;
+    result.commission = value.commission;
+    result.favorite = value.favorite;
+    result.defaults = productDefaultsSerializeWithContext(value.defaults, ctx);
     return result;
 }
 
@@ -139,63 +144,63 @@ export function productDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"name"}` in obj)) {
+    if (!("name" in obj)) {
         errors.push({
-            field: `${"name"}`,
+            field: "name",
             message: "missing required field"
         });
     }
-    if (!(`${"quickCode"}` in obj)) {
+    if (!("quickCode" in obj)) {
         errors.push({
-            field: `${"quickCode"}`,
+            field: "quickCode",
             message: "missing required field"
         });
     }
-    if (!(`${"group"}` in obj)) {
+    if (!("group" in obj)) {
         errors.push({
-            field: `${"group"}`,
+            field: "group",
             message: "missing required field"
         });
     }
-    if (!(`${"subgroup"}` in obj)) {
+    if (!("subgroup" in obj)) {
         errors.push({
-            field: `${"subgroup"}`,
+            field: "subgroup",
             message: "missing required field"
         });
     }
-    if (!(`${"unit"}` in obj)) {
+    if (!("unit" in obj)) {
         errors.push({
-            field: `${"unit"}`,
+            field: "unit",
             message: "missing required field"
         });
     }
-    if (!(`${"active"}` in obj)) {
+    if (!("active" in obj)) {
         errors.push({
-            field: `${"active"}`,
+            field: "active",
             message: "missing required field"
         });
     }
-    if (!(`${"commission"}` in obj)) {
+    if (!("commission" in obj)) {
         errors.push({
-            field: `${"commission"}`,
+            field: "commission",
             message: "missing required field"
         });
     }
-    if (!(`${"favorite"}` in obj)) {
+    if (!("favorite" in obj)) {
         errors.push({
-            field: `${"favorite"}`,
+            field: "favorite",
             message: "missing required field"
         });
     }
-    if (!(`${"defaults"}` in obj)) {
+    if (!("defaults" in obj)) {
         errors.push({
-            field: `${"defaults"}`,
+            field: "defaults",
             message: "missing required field"
         });
     }
@@ -208,11 +213,11 @@ export function productDeserializeWithContext(value: any, ctx: __mf_DeserializeC
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_name = obj[`${"name"}`] as string;
+        const __raw_name = obj["name"] as string;
         if (__raw_name.trim().length === 0) {
             errors.push({
                 field: "name",
@@ -222,7 +227,7 @@ export function productDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.name = __raw_name;
     }
     {
-        const __raw_quickCode = obj[`${"quickCode"}`] as string;
+        const __raw_quickCode = obj["quickCode"] as string;
         if (__raw_quickCode.trim().length === 0) {
             errors.push({
                 field: "quickCode",
@@ -232,34 +237,34 @@ export function productDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.quickCode = __raw_quickCode;
     }
     {
-        const __raw_group = obj[`${"group"}`] as string | null;
+        const __raw_group = obj["group"] as string | null;
         instance.group = __raw_group;
     }
     {
-        const __raw_subgroup = obj[`${"subgroup"}`] as string | null;
+        const __raw_subgroup = obj["subgroup"] as string | null;
         instance.subgroup = __raw_subgroup;
     }
     {
-        const __raw_unit = obj[`${"unit"}`] as string | null;
+        const __raw_unit = obj["unit"] as string | null;
         instance.unit = __raw_unit;
     }
     {
-        const __raw_active = obj[`${"active"}`] as boolean;
+        const __raw_active = obj["active"] as boolean;
         instance.active = __raw_active;
     }
     {
-        const __raw_commission = obj[`${"commission"}`] as boolean;
+        const __raw_commission = obj["commission"] as boolean;
         instance.commission = __raw_commission;
     }
     {
-        const __raw_favorite = obj[`${"favorite"}`] as boolean;
+        const __raw_favorite = obj["favorite"] as boolean;
         instance.favorite = __raw_favorite;
     }
     {
-        const __raw_defaults = obj[`${"defaults"}`] as ProductDefaults;
+        const __raw_defaults = obj["defaults"] as ProductDefaults;
         {
             const __result = productDefaultsDeserializeWithContext(__raw_defaults, ctx);
-            ctx.assignOrDefer(instance, `${"defaults"}`, __result);
+            ctx.assignOrDefer(instance, "defaults", __result);
         }
     }
     if (errors.length > 0) {
@@ -275,7 +280,7 @@ export function productValidateField<K extends keyof Product>(_field: K, _value:
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"name"}`) {
+    if (_field === "name") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -284,7 +289,7 @@ export function productValidateField<K extends keyof Product>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"quickCode"}`) {
+    if (_field === "quickCode") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -303,7 +308,7 @@ export function productValidateFields(_partial: Partial<Product>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"name"}` in _partial && _partial.name !== undefined) {
+    if ("name" in _partial && _partial.name !== undefined) {
         const __val = _partial.name as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -312,7 +317,7 @@ export function productValidateFields(_partial: Partial<Product>): Array<{
             });
         }
     }
-    if (`${"quickCode"}` in _partial && _partial.quickCode !== undefined) {
+    if ("quickCode" in _partial && _partial.quickCode !== undefined) {
         const __val = _partial.quickCode as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -338,6 +343,493 @@ export function productIs(obj: unknown): obj is Product {
     return result.success;
 }
 
+export type ProductErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    name: __gf_Option<Array<string>>;
+    quickCode: __gf_Option<Array<string>>;
+    group: __gf_Option<Array<string>>;
+    subgroup: __gf_Option<Array<string>>;
+    unit: __gf_Option<Array<string>>;
+    active: __gf_Option<Array<string>>;
+    commission: __gf_Option<Array<string>>;
+    favorite: __gf_Option<Array<string>>;
+    defaults: __gf_Option<Array<string>>;
+};
+export type ProductTainted = {
+    id: __gf_Option<boolean>;
+    name: __gf_Option<boolean>;
+    quickCode: __gf_Option<boolean>;
+    group: __gf_Option<boolean>;
+    subgroup: __gf_Option<boolean>;
+    unit: __gf_Option<boolean>;
+    active: __gf_Option<boolean>;
+    commission: __gf_Option<boolean>;
+    favorite: __gf_Option<boolean>;
+    defaults: __gf_Option<boolean>;
+};
+export interface ProductFieldControllers {
+    readonly id: FieldController<string>;
+    readonly name: FieldController<string>;
+    readonly quickCode: FieldController<string>;
+    readonly group: FieldController<string | null>;
+    readonly subgroup: FieldController<string | null>;
+    readonly unit: FieldController<string | null>;
+    readonly active: FieldController<boolean>;
+    readonly commission: FieldController<boolean>;
+    readonly favorite: FieldController<boolean>;
+    readonly defaults: FieldController<ProductDefaults>;
+}
+export interface ProductGigaform {
+    readonly data: Product;
+    readonly errors: ProductErrors;
+    readonly tainted: ProductTainted;
+    readonly fields: ProductFieldControllers;
+    validate(): Exit<Product, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Product>): void;
+}
+export function productCreateForm(overrides?: Partial<Product>): ProductGigaform {
+    let data = $state({
+        ...productDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<ProductErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        name: optionNone(),
+        quickCode: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        unit: optionNone(),
+        active: optionNone(),
+        commission: optionNone(),
+        favorite: optionNone(),
+        defaults: optionNone()
+    } as ProductErrors);
+    let tainted = $state<ProductTainted>({
+        id: optionNone(),
+        name: optionNone(),
+        quickCode: optionNone(),
+        group: optionNone(),
+        subgroup: optionNone(),
+        unit: optionNone(),
+        active: optionNone(),
+        commission: optionNone(),
+        favorite: optionNone(),
+        defaults: optionNone()
+    } as ProductTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        name: {
+            path: [
+                "name"
+            ] as const,
+            name: "name",
+            constraints: {
+                required: true
+            },
+            label: "Name",
+            get: ()=>data.name,
+            set: (value: string)=>{
+                data.name = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.name,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.name = value;
+            },
+            getTainted: ()=>tainted.name,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.name = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("name", data.name);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        quickCode: {
+            path: [
+                "quickCode"
+            ] as const,
+            name: "quickCode",
+            constraints: {
+                required: true
+            },
+            label: "Quick Code",
+            get: ()=>data.quickCode,
+            set: (value: string)=>{
+                data.quickCode = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.quickCode,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.quickCode = value;
+            },
+            getTainted: ()=>tainted.quickCode,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.quickCode = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("quickCode", data.quickCode);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        group: {
+            path: [
+                "group"
+            ] as const,
+            name: "group",
+            constraints: {
+                required: true
+            },
+            label: "Group",
+            get: ()=>data.group,
+            set: (value: string | null)=>{
+                data.group = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.group,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.group = value;
+            },
+            getTainted: ()=>tainted.group,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.group = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("group", data.group);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        subgroup: {
+            path: [
+                "subgroup"
+            ] as const,
+            name: "subgroup",
+            constraints: {
+                required: true
+            },
+            label: "Subgroup",
+            get: ()=>data.subgroup,
+            set: (value: string | null)=>{
+                data.subgroup = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.subgroup,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.subgroup = value;
+            },
+            getTainted: ()=>tainted.subgroup,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.subgroup = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("subgroup", data.subgroup);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        unit: {
+            path: [
+                "unit"
+            ] as const,
+            name: "unit",
+            constraints: {
+                required: true
+            },
+            label: "Unit",
+            get: ()=>data.unit,
+            set: (value: string | null)=>{
+                data.unit = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.unit,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.unit = value;
+            },
+            getTainted: ()=>tainted.unit,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.unit = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("unit", data.unit);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        active: {
+            path: [
+                "active"
+            ] as const,
+            name: "active",
+            constraints: {
+                required: true
+            },
+            label: "Active",
+            get: ()=>data.active,
+            set: (value: boolean)=>{
+                data.active = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.active,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.active = value;
+            },
+            getTainted: ()=>tainted.active,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.active = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("active", data.active);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        commission: {
+            path: [
+                "commission"
+            ] as const,
+            name: "commission",
+            constraints: {
+                required: true
+            },
+            label: "Commission",
+            get: ()=>data.commission,
+            set: (value: boolean)=>{
+                data.commission = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.commission,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.commission = value;
+            },
+            getTainted: ()=>tainted.commission,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.commission = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("commission", data.commission);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        favorite: {
+            path: [
+                "favorite"
+            ] as const,
+            name: "favorite",
+            constraints: {
+                required: true
+            },
+            label: "Favorite",
+            get: ()=>data.favorite,
+            set: (value: boolean)=>{
+                data.favorite = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.favorite,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.favorite = value;
+            },
+            getTainted: ()=>tainted.favorite,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.favorite = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("favorite", data.favorite);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        defaults: {
+            path: [
+                "defaults"
+            ] as const,
+            name: "defaults",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.defaults,
+            set: (value: ProductDefaults)=>{
+                data.defaults = value;
+            },
+            transform: (value: ProductDefaults): ProductDefaults =>value,
+            getError: ()=>errors.defaults,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.defaults = value;
+            },
+            getTainted: ()=>tainted.defaults,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.defaults = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = productValidateField("defaults", data.defaults);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as ProductFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Product, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(productDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Product>): void {
+        data = {
+            ...productDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            name: optionNone(),
+            quickCode: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            unit: optionNone(),
+            active: optionNone(),
+            commission: optionNone(),
+            favorite: optionNone(),
+            defaults: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            name: optionNone(),
+            quickCode: optionNone(),
+            group: optionNone(),
+            subgroup: optionNone(),
+            unit: optionNone(),
+            active: optionNone(),
+            commission: optionNone(),
+            favorite: optionNone(),
+            defaults: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function productFromFormData(formData: FormData): Exit<Product, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Product, Array<{ field: string; message: string }>>";
+    obj.id = formData.get(`${"id"}`) ?? "";
+    obj.name = formData.get(`${"name"}`) ?? "";
+    obj.quickCode = formData.get(`${"quickCode"}`) ?? "";
+    obj.group = formData.get(`${"group"}`) ?? "";
+    obj.subgroup = formData.get(`${"subgroup"}`) ?? "";
+    obj.unit = formData.get(`${"unit"}`) ?? "";
+    {
+        const activeVal = formData.get(`${"active"}`);
+        obj.active = activeVal === "true" || activeVal === "on" || activeVal === "1";
+    }
+    {
+        const commissionVal = formData.get(`${"commission"}`);
+        obj.commission = commissionVal === "true" || commissionVal === "on" || commissionVal === "1";
+    }
+    {
+        const favoriteVal = formData.get(`${"favorite"}`);
+        obj.favorite = favoriteVal === "true" || favoriteVal === "on" || favoriteVal === "1";
+    }
+    {
+        const defaultsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())){
+            if (key.startsWith(`${"defaults"}.`)) {
+                const fieldName = key.slice(`${"defaults"}.`.length);
+                const parts = fieldName.split(".");
+                let current = defaultsObj;
+                for(let i = 0; i < parts.length - 1; i++){
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.defaults = defaultsObj;
+    }
+    return toExit(productDeserialize(obj));
+}
+
 export const Product = {
   defaultValue: productDefaultValue,
   serialize: productSerialize,
@@ -346,5 +838,7 @@ export const Product = {
   deserializeWithContext: productDeserializeWithContext,
   validateFields: productValidateFields,
   hasShape: productHasShape,
-  is: productIs
+  is: productIs,
+  createForm: productCreateForm,
+  fromFormData: productFromFormData
 } as const;

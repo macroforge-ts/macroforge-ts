@@ -90,21 +90,21 @@ export function userWithDeserializeDeserializeWithContext(value: any, ctx: __mf_
         field: string;
         message: string;
     }> = [];
-    if (!(`${"name"}` in obj)) {
+    if (!("name" in obj)) {
         errors.push({
-            field: `${"name"}`,
+            field: "name",
             message: "missing required field"
         });
     }
-    if (!(`${"age"}` in obj)) {
+    if (!("age" in obj)) {
         errors.push({
-            field: `${"age"}`,
+            field: "age",
             message: "missing required field"
         });
     }
-    if (!(`${"email"}` in obj)) {
+    if (!("email" in obj)) {
         errors.push({
-            field: `${"email"}`,
+            field: "email",
             message: "missing required field"
         });
     }
@@ -117,15 +117,15 @@ export function userWithDeserializeDeserializeWithContext(value: any, ctx: __mf_
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_name = obj[`${"name"}`] as string;
+        const __raw_name = obj["name"] as string;
         instance.name = __raw_name;
     }
     {
-        const __raw_age = obj[`${"age"}`] as number;
+        const __raw_age = obj["age"] as number;
         instance.age = __raw_age;
     }
     {
-        const __raw_email = obj[`${"email"}`] as string;
+        const __raw_email = obj["email"] as string;
         instance.email = __raw_email;
     }
     if (errors.length > 0) {
@@ -258,21 +258,21 @@ export function fullFeaturedTypeDeserializeWithContext(value: any, ctx: __mf_Des
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"value"}` in obj)) {
+    if (!("value" in obj)) {
         errors.push({
-            field: `${"value"}`,
+            field: "value",
             message: "missing required field"
         });
     }
-    if (!(`${"score"}` in obj)) {
+    if (!("score" in obj)) {
         errors.push({
-            field: `${"score"}`,
+            field: "score",
             message: "missing required field"
         });
     }
@@ -285,15 +285,15 @@ export function fullFeaturedTypeDeserializeWithContext(value: any, ctx: __mf_Des
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as number;
+        const __raw_id = obj["id"] as number;
         instance.id = __raw_id;
     }
     {
-        const __raw_value = obj[`${"value"}`] as string;
+        const __raw_value = obj["value"] as string;
         instance.value = __raw_value;
     }
     {
-        const __raw_score = obj[`${"score"}`] as number;
+        const __raw_score = obj["score"] as number;
         instance.score = __raw_score;
     }
     if (errors.length > 0) {
@@ -417,9 +417,9 @@ export function typeADeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         field: string;
         message: string;
     }> = [];
-    if (!(`${"fieldA"}` in obj)) {
+    if (!("fieldA" in obj)) {
         errors.push({
-            field: `${"fieldA"}`,
+            field: "fieldA",
             message: "missing required field"
         });
     }
@@ -432,7 +432,7 @@ export function typeADeserializeWithContext(value: any, ctx: __mf_DeserializeCon
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_fieldA = obj[`${"fieldA"}`] as string;
+        const __raw_fieldA = obj["fieldA"] as string;
         instance.fieldA = __raw_fieldA;
     }
     if (errors.length > 0) {
@@ -540,9 +540,9 @@ export function typeBDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         field: string;
         message: string;
     }> = [];
-    if (!(`${"fieldB"}` in obj)) {
+    if (!("fieldB" in obj)) {
         errors.push({
-            field: `${"fieldB"}`,
+            field: "fieldB",
             message: "missing required field"
         });
     }
@@ -555,7 +555,7 @@ export function typeBDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_fieldB = obj[`${"fieldB"}`] as number;
+        const __raw_fieldB = obj["fieldB"] as number;
         instance.fieldB = __raw_fieldB;
     }
     if (errors.length > 0) {

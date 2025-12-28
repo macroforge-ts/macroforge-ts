@@ -34,10 +34,10 @@ export function dailyRecurrenceRuleSerializeWithContext(value: DailyRecurrenceRu
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"DailyRecurrenceRule"}`,
+        __type: "DailyRecurrenceRule",
         __id
     };
-    result[`${"quantityOfDays"}`] = value.quantityOfDays;
+    result.quantityOfDays = value.quantityOfDays;
     return result;
 }
 
@@ -101,9 +101,9 @@ export function dailyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf_
         field: string;
         message: string;
     }> = [];
-    if (!(`${"quantityOfDays"}` in obj)) {
+    if (!("quantityOfDays" in obj)) {
         errors.push({
-            field: `${"quantityOfDays"}`,
+            field: "quantityOfDays",
             message: "missing required field"
         });
     }
@@ -116,7 +116,7 @@ export function dailyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf_
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_quantityOfDays = obj[`${"quantityOfDays"}`] as number;
+        const __raw_quantityOfDays = obj["quantityOfDays"] as number;
         instance.quantityOfDays = __raw_quantityOfDays;
     }
     if (errors.length > 0) {
@@ -151,26 +151,17 @@ export function dailyRecurrenceRuleIs(obj: unknown): obj is DailyRecurrenceRule 
     return result.success;
 }
 
-export function dailyRecurrenceRuleFromFormData(formData: FormData): Exit<DailyRecurrenceRule, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    {
-        const quantityOfDaysStr = formData.get(`${"quantityOfDays"}`);
-        obj.quantityOfDays = quantityOfDaysStr ? parseFloat(quantityOfDaysStr as string) : $MfPh5;
-        if (obj.quantityOfDays !== undefined && isNaN(obj.quantityOfDays as number)) obj.quantityOfDays = "0";
-    }
-    return toExit("dailyRecurrenceRuleDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type DailyRecurrenceRuleErrors = {
     _errors: __gf_Option<Array<string>>;
+    quantityOfDays: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type DailyRecurrenceRuleTainted = {
+    quantityOfDays: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface DailyRecurrenceRuleFieldControllers {
+    readonly quantityOfDays: FieldController<number>;
 }
-export interface $MfPh3 {
+export interface DailyRecurrenceRuleGigaform {
     readonly data: DailyRecurrenceRule;
     readonly errors: DailyRecurrenceRuleErrors;
     readonly tainted: DailyRecurrenceRuleTainted;
@@ -179,37 +170,109 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<DailyRecurrenceRule>): void;
+    reset(overrides?: Partial<DailyRecurrenceRule>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
- }; export function dailyRecurrenceRuleCreateForm(overrides: Partial<DailyRecurrenceRule>): DailyRecurrenceRuleGigaform {}
-let data = $state({
-    ...dailyRecurrenceRuleDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as DailyRecurrenceRuleErrors);
-let tainted = $state<$MfPh3>({} as DailyRecurrenceRuleTainted);
-const fields = {} as DailyRecurrenceRuleFieldControllers;
-fields.quantityOfDays = {
-    label: `${"quantityOfDays"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<DailyRecurrenceRule, Array<{
+export function dailyRecurrenceRuleCreateForm(overrides?: Partial<DailyRecurrenceRule>): DailyRecurrenceRuleGigaform {
+    let data = $state({
+        ...dailyRecurrenceRuleDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<DailyRecurrenceRuleErrors>({
+        _errors: optionNone(),
+        quantityOfDays: optionNone()
+    } as DailyRecurrenceRuleErrors);
+    let tainted = $state<DailyRecurrenceRuleTainted>({
+        quantityOfDays: optionNone()
+    } as DailyRecurrenceRuleTainted);
+    const fields = {
+        quantityOfDays: {
+            path: [
+                "quantityOfDays"
+            ] as const,
+            name: "quantityOfDays",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.quantityOfDays,
+            set: (value: number)=>{
+                data.quantityOfDays = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.quantityOfDays,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.quantityOfDays = value;
+            },
+            getTainted: ()=>tainted.quantityOfDays,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.quantityOfDays = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = dailyRecurrenceRuleValidateField("quantityOfDays", data.quantityOfDays);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as DailyRecurrenceRuleFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<DailyRecurrenceRule, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(dailyRecurrenceRuleDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<DailyRecurrenceRule>): void {
+        data = {
+            ...dailyRecurrenceRuleDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            quantityOfDays: optionNone()
+        };
+        tainted = {
+            quantityOfDays: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function dailyRecurrenceRuleFromFormData(formData: FormData): Exit<DailyRecurrenceRule, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("dailyRecurrenceRuleDeserialize(data)");
-    data = {
-        ...dailyRecurrenceRuleDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<DailyRecurrenceRule, Array<{ field: string; message: string }>>";
+    {
+        const quantityOfDaysStr = formData.get(`${"quantityOfDays"}`);
+        obj.quantityOfDays = quantityOfDaysStr ? parseFloat(quantityOfDaysStr as string) : $MfPh5;
+        if (obj.quantityOfDays !== undefined && isNaN(obj.quantityOfDays as number)) obj.quantityOfDays = "0";
+    }
+    return toExit(dailyRecurrenceRuleDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const DailyRecurrenceRule = {
   defaultValue: dailyRecurrenceRuleDefaultValue,
@@ -220,6 +283,6 @@ export const DailyRecurrenceRule = {
   validateFields: dailyRecurrenceRuleValidateFields,
   hasShape: dailyRecurrenceRuleHasShape,
   is: dailyRecurrenceRuleIs,
-  fromFormData: dailyRecurrenceRuleFromFormData,
-  createForm: dailyRecurrenceRuleCreateForm
+  createForm: dailyRecurrenceRuleCreateForm,
+  fromFormData: dailyRecurrenceRuleFromFormData
 } as const;

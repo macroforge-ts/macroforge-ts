@@ -36,10 +36,10 @@ export function companyNameSerializeWithContext(value: CompanyName, ctx: __mf_Se
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"CompanyName"}`,
+        __type: "CompanyName",
         __id
     };
-    result[`${"companyName"}`] = value.companyName;
+    result.companyName = value.companyName;
     return result;
 }
 
@@ -103,9 +103,9 @@ export function companyNameDeserializeWithContext(value: any, ctx: __mf_Deserial
         field: string;
         message: string;
     }> = [];
-    if (!(`${"companyName"}` in obj)) {
+    if (!("companyName" in obj)) {
         errors.push({
-            field: `${"companyName"}`,
+            field: "companyName",
             message: "missing required field"
         });
     }
@@ -118,7 +118,7 @@ export function companyNameDeserializeWithContext(value: any, ctx: __mf_Deserial
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_companyName = obj[`${"companyName"}`] as string;
+        const __raw_companyName = obj["companyName"] as string;
         if (__raw_companyName.trim().length === 0) {
             errors.push({
                 field: "companyName",
@@ -140,7 +140,7 @@ export function companyNameValidateField<K extends keyof CompanyName>(_field: K,
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"companyName"}`) {
+    if (_field === "companyName") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -159,7 +159,7 @@ export function companyNameValidateFields(_partial: Partial<CompanyName>): Array
         field: string;
         message: string;
     }> = [];
-    if (`${"companyName"}` in _partial && _partial.companyName !== undefined) {
+    if ("companyName" in _partial && _partial.companyName !== undefined) {
         const __val = _partial.companyName as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -185,22 +185,17 @@ export function companyNameIs(obj: unknown): obj is CompanyName {
     return result.success;
 }
 
-export function companyNameFromFormData(formData: FormData): Exit<CompanyName, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    obj.companyName = formData.get(`${"companyName"}`) ?? "";
-    return toExit("companyNameDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type CompanyNameErrors = {
     _errors: __gf_Option<Array<string>>;
+    companyName: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type CompanyNameTainted = {
+    companyName: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface CompanyNameFieldControllers {
+    readonly companyName: FieldController<string>;
 }
-export interface $MfPh3 {
+export interface CompanyNameGigaform {
     readonly data: CompanyName;
     readonly errors: CompanyNameErrors;
     readonly tainted: CompanyNameTainted;
@@ -209,37 +204,106 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<CompanyName>): void;
+    reset(overrides?: Partial<CompanyName>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
- }; export function companyNameCreateForm(overrides: Partial<CompanyName>): CompanyNameGigaform {}
-let data = $state({
-    ...companyNameDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as CompanyNameErrors);
-let tainted = $state<$MfPh3>({} as CompanyNameTainted);
-const fields = {} as CompanyNameFieldControllers;
-fields.companyName = {
-    label: `${"companyName"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<CompanyName, Array<{
+export function companyNameCreateForm(overrides?: Partial<CompanyName>): CompanyNameGigaform {
+    let data = $state({
+        ...companyNameDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<CompanyNameErrors>({
+        _errors: optionNone(),
+        companyName: optionNone()
+    } as CompanyNameErrors);
+    let tainted = $state<CompanyNameTainted>({
+        companyName: optionNone()
+    } as CompanyNameTainted);
+    const fields = {
+        companyName: {
+            path: [
+                "companyName"
+            ] as const,
+            name: "companyName",
+            constraints: {
+                required: true
+            },
+            label: "Company Name",
+            get: ()=>data.companyName,
+            set: (value: string)=>{
+                data.companyName = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.companyName,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.companyName = value;
+            },
+            getTainted: ()=>tainted.companyName,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.companyName = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = companyNameValidateField("companyName", data.companyName);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as CompanyNameFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<CompanyName, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(companyNameDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<CompanyName>): void {
+        data = {
+            ...companyNameDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            companyName: optionNone()
+        };
+        tainted = {
+            companyName: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function companyNameFromFormData(formData: FormData): Exit<CompanyName, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("companyNameDeserialize(data)");
-    data = {
-        ...companyNameDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<CompanyName, Array<{ field: string; message: string }>>";
+    obj.companyName = formData.get(`${"companyName"}`) ?? "";
+    return toExit(companyNameDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const CompanyName = {
   defaultValue: companyNameDefaultValue,
@@ -250,6 +314,6 @@ export const CompanyName = {
   validateFields: companyNameValidateFields,
   hasShape: companyNameHasShape,
   is: companyNameIs,
-  fromFormData: companyNameFromFormData,
-  createForm: companyNameCreateForm
+  createForm: companyNameCreateForm,
+  fromFormData: companyNameFromFormData
 } as const;

@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -33,12 +38,12 @@ export function paidSerializeWithContext(value: Paid, ctx: __mf_SerializeContext
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Paid"}`,
+        __type: "Paid",
         __id
     };
-    result[`${"amount"}`] = value.amount;
-    result[`${"currency"}`] = value.currency;
-    result[`${"paymentMethod"}`] = value.paymentMethod;
+    result.amount = value.amount;
+    result.currency = value.currency;
+    result.paymentMethod = value.paymentMethod;
     return result;
 }
 
@@ -102,21 +107,21 @@ export function paidDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         field: string;
         message: string;
     }> = [];
-    if (!(`${"amount"}` in obj)) {
+    if (!("amount" in obj)) {
         errors.push({
-            field: `${"amount"}`,
+            field: "amount",
             message: "missing required field"
         });
     }
-    if (!(`${"currency"}` in obj)) {
+    if (!("currency" in obj)) {
         errors.push({
-            field: `${"currency"}`,
+            field: "currency",
             message: "missing required field"
         });
     }
-    if (!(`${"paymentMethod"}` in obj)) {
+    if (!("paymentMethod" in obj)) {
         errors.push({
-            field: `${"paymentMethod"}`,
+            field: "paymentMethod",
             message: "missing required field"
         });
     }
@@ -129,15 +134,15 @@ export function paidDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_amount = obj[`${"amount"}`] as number | null;
+        const __raw_amount = obj["amount"] as number | null;
         instance.amount = __raw_amount;
     }
     {
-        const __raw_currency = obj[`${"currency"}`] as string | null;
+        const __raw_currency = obj["currency"] as string | null;
         instance.currency = __raw_currency;
     }
     {
-        const __raw_paymentMethod = obj[`${"paymentMethod"}`] as string | null;
+        const __raw_paymentMethod = obj["paymentMethod"] as string | null;
         instance.paymentMethod = __raw_paymentMethod;
     }
     if (errors.length > 0) {
@@ -172,6 +177,203 @@ export function paidIs(obj: unknown): obj is Paid {
     return result.success;
 }
 
+export type PaidErrors = {
+    _errors: __gf_Option<Array<string>>;
+    amount: __gf_Option<Array<string>>;
+    currency: __gf_Option<Array<string>>;
+    paymentMethod: __gf_Option<Array<string>>;
+};
+export type PaidTainted = {
+    amount: __gf_Option<boolean>;
+    currency: __gf_Option<boolean>;
+    paymentMethod: __gf_Option<boolean>;
+};
+export interface PaidFieldControllers {
+    readonly amount: FieldController<number | null>;
+    readonly currency: FieldController<string | null>;
+    readonly paymentMethod: FieldController<string | null>;
+}
+export interface PaidGigaform {
+    readonly data: Paid;
+    readonly errors: PaidErrors;
+    readonly tainted: PaidTainted;
+    readonly fields: PaidFieldControllers;
+    validate(): Exit<Paid, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Paid>): void;
+}
+export function paidCreateForm(overrides?: Partial<Paid>): PaidGigaform {
+    let data = $state({
+        ...paidDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<PaidErrors>({
+        _errors: optionNone(),
+        amount: optionNone(),
+        currency: optionNone(),
+        paymentMethod: optionNone()
+    } as PaidErrors);
+    let tainted = $state<PaidTainted>({
+        amount: optionNone(),
+        currency: optionNone(),
+        paymentMethod: optionNone()
+    } as PaidTainted);
+    const fields = {
+        amount: {
+            path: [
+                "amount"
+            ] as const,
+            name: "amount",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.amount,
+            set: (value: number | null)=>{
+                data.amount = value;
+            },
+            transform: (value: number | null): number | null =>value,
+            getError: ()=>errors.amount,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.amount = value;
+            },
+            getTainted: ()=>tainted.amount,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.amount = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = paidValidateField("amount", data.amount);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        currency: {
+            path: [
+                "currency"
+            ] as const,
+            name: "currency",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.currency,
+            set: (value: string | null)=>{
+                data.currency = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.currency,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.currency = value;
+            },
+            getTainted: ()=>tainted.currency,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.currency = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = paidValidateField("currency", data.currency);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        paymentMethod: {
+            path: [
+                "paymentMethod"
+            ] as const,
+            name: "paymentMethod",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.paymentMethod,
+            set: (value: string | null)=>{
+                data.paymentMethod = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.paymentMethod,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.paymentMethod = value;
+            },
+            getTainted: ()=>tainted.paymentMethod,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.paymentMethod = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = paidValidateField("paymentMethod", data.paymentMethod);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as PaidFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Paid, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(paidDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Paid>): void {
+        data = {
+            ...paidDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            amount: optionNone(),
+            currency: optionNone(),
+            paymentMethod: optionNone()
+        };
+        tainted = {
+            amount: optionNone(),
+            currency: optionNone(),
+            paymentMethod: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function paidFromFormData(formData: FormData): Exit<Paid, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Paid, Array<{ field: string; message: string }>>";
+    {
+        const amountStr = formData.get(`${"amount"}`);
+        obj.amount = amountStr ? parseFloat(amountStr as string) : $MfPh5;
+        if (obj.amount !== undefined && isNaN(obj.amount as number)) obj.amount = "0";
+    }
+    obj.currency = formData.get(`${"currency"}`) ?? "";
+    obj.paymentMethod = formData.get(`${"paymentMethod"}`) ?? "";
+    return toExit(paidDeserialize(obj));
+}
+
 export const Paid = {
   defaultValue: paidDefaultValue,
   serialize: paidSerialize,
@@ -180,5 +382,7 @@ export const Paid = {
   deserializeWithContext: paidDeserializeWithContext,
   validateFields: paidValidateFields,
   hasShape: paidHasShape,
-  is: paidIs
+  is: paidIs,
+  createForm: paidCreateForm,
+  fromFormData: paidFromFormData
 } as const;

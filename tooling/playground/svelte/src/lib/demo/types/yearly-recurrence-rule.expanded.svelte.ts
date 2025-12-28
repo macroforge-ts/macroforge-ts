@@ -34,10 +34,10 @@ export function yearlyRecurrenceRuleSerializeWithContext(value: YearlyRecurrence
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"YearlyRecurrenceRule"}`,
+        __type: "YearlyRecurrenceRule",
         __id
     };
-    result[`${"quantityOfYears"}`] = value.quantityOfYears;
+    result.quantityOfYears = value.quantityOfYears;
     return result;
 }
 
@@ -101,9 +101,9 @@ export function yearlyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf
         field: string;
         message: string;
     }> = [];
-    if (!(`${"quantityOfYears"}` in obj)) {
+    if (!("quantityOfYears" in obj)) {
         errors.push({
-            field: `${"quantityOfYears"}`,
+            field: "quantityOfYears",
             message: "missing required field"
         });
     }
@@ -116,7 +116,7 @@ export function yearlyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_quantityOfYears = obj[`${"quantityOfYears"}`] as number;
+        const __raw_quantityOfYears = obj["quantityOfYears"] as number;
         instance.quantityOfYears = __raw_quantityOfYears;
     }
     if (errors.length > 0) {
@@ -151,26 +151,17 @@ export function yearlyRecurrenceRuleIs(obj: unknown): obj is YearlyRecurrenceRul
     return result.success;
 }
 
-export function yearlyRecurrenceRuleFromFormData(formData: FormData): Exit<YearlyRecurrenceRule, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    {
-        const quantityOfYearsStr = formData.get(`${"quantityOfYears"}`);
-        obj.quantityOfYears = quantityOfYearsStr ? parseFloat(quantityOfYearsStr as string) : $MfPh5;
-        if (obj.quantityOfYears !== undefined && isNaN(obj.quantityOfYears as number)) obj.quantityOfYears = "0";
-    }
-    return toExit("yearlyRecurrenceRuleDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type YearlyRecurrenceRuleErrors = {
     _errors: __gf_Option<Array<string>>;
+    quantityOfYears: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type YearlyRecurrenceRuleTainted = {
+    quantityOfYears: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface YearlyRecurrenceRuleFieldControllers {
+    readonly quantityOfYears: FieldController<number>;
 }
-export interface $MfPh3 {
+export interface YearlyRecurrenceRuleGigaform {
     readonly data: YearlyRecurrenceRule;
     readonly errors: YearlyRecurrenceRuleErrors;
     readonly tainted: YearlyRecurrenceRuleTainted;
@@ -179,37 +170,109 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<YearlyRecurrenceRule>): void;
+    reset(overrides?: Partial<YearlyRecurrenceRule>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
- }; export function yearlyRecurrenceRuleCreateForm(overrides: Partial<YearlyRecurrenceRule>): YearlyRecurrenceRuleGigaform {}
-let data = $state({
-    ...yearlyRecurrenceRuleDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as YearlyRecurrenceRuleErrors);
-let tainted = $state<$MfPh3>({} as YearlyRecurrenceRuleTainted);
-const fields = {} as YearlyRecurrenceRuleFieldControllers;
-fields.quantityOfYears = {
-    label: `${"quantityOfYears"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<YearlyRecurrenceRule, Array<{
+export function yearlyRecurrenceRuleCreateForm(overrides?: Partial<YearlyRecurrenceRule>): YearlyRecurrenceRuleGigaform {
+    let data = $state({
+        ...yearlyRecurrenceRuleDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<YearlyRecurrenceRuleErrors>({
+        _errors: optionNone(),
+        quantityOfYears: optionNone()
+    } as YearlyRecurrenceRuleErrors);
+    let tainted = $state<YearlyRecurrenceRuleTainted>({
+        quantityOfYears: optionNone()
+    } as YearlyRecurrenceRuleTainted);
+    const fields = {
+        quantityOfYears: {
+            path: [
+                "quantityOfYears"
+            ] as const,
+            name: "quantityOfYears",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.quantityOfYears,
+            set: (value: number)=>{
+                data.quantityOfYears = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.quantityOfYears,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.quantityOfYears = value;
+            },
+            getTainted: ()=>tainted.quantityOfYears,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.quantityOfYears = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = yearlyRecurrenceRuleValidateField("quantityOfYears", data.quantityOfYears);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as YearlyRecurrenceRuleFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<YearlyRecurrenceRule, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(yearlyRecurrenceRuleDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<YearlyRecurrenceRule>): void {
+        data = {
+            ...yearlyRecurrenceRuleDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            quantityOfYears: optionNone()
+        };
+        tainted = {
+            quantityOfYears: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function yearlyRecurrenceRuleFromFormData(formData: FormData): Exit<YearlyRecurrenceRule, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("yearlyRecurrenceRuleDeserialize(data)");
-    data = {
-        ...yearlyRecurrenceRuleDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<YearlyRecurrenceRule, Array<{ field: string; message: string }>>";
+    {
+        const quantityOfYearsStr = formData.get(`${"quantityOfYears"}`);
+        obj.quantityOfYears = quantityOfYearsStr ? parseFloat(quantityOfYearsStr as string) : $MfPh5;
+        if (obj.quantityOfYears !== undefined && isNaN(obj.quantityOfYears as number)) obj.quantityOfYears = "0";
+    }
+    return toExit(yearlyRecurrenceRuleDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const YearlyRecurrenceRule = {
   defaultValue: yearlyRecurrenceRuleDefaultValue,
@@ -220,6 +283,6 @@ export const YearlyRecurrenceRule = {
   validateFields: yearlyRecurrenceRuleValidateFields,
   hasShape: yearlyRecurrenceRuleHasShape,
   is: yearlyRecurrenceRuleIs,
-  fromFormData: yearlyRecurrenceRuleFromFormData,
-  createForm: yearlyRecurrenceRuleCreateForm
+  createForm: yearlyRecurrenceRuleCreateForm,
+  fromFormData: yearlyRecurrenceRuleFromFormData
 } as const;

@@ -130,33 +130,33 @@ export function accountSerializeWithContext(value: Account, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Account"}`,
+        __type: "Account",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"taxRate"}`] = value.taxRate;
-    result[`${"site"}`] = value.site;
+    result.id = value.id;
+    result.taxRate = value.taxRate;
+    result.site = value.site;
     if (value.salesRep !== null) {
-        result[`${"salesRep"}`] = value.salesRep;
+        result.salesRep = value.salesRep;
     }
-    result[`${"orders"}`] = value.orders.map((item)=>orderedSerializeWithContext(item, ctx));
-    result[`${"activity"}`] = value.activity.map((item)=>didSerializeWithContext(item, ctx));
-    result[`${"customFields"}`] = value.customFields;
-    result[`${"accountName"}`] = accountNameSerializeWithContext(value.accountName, ctx);
-    result[`${"sector"}`] = sectorSerializeWithContext(value.sector, ctx);
-    result[`${"memo"}`] = value.memo;
-    result[`${"phones"}`] = value.phones.map((item)=>phoneNumberSerializeWithContext(item, ctx));
-    result[`${"email"}`] = emailSerializeWithContext(value.email, ctx);
-    result[`${"leadSource"}`] = value.leadSource;
-    result[`${"colors"}`] = colorsSerializeWithContext(value.colors, ctx);
-    result[`${"needsReview"}`] = value.needsReview;
-    result[`${"hasAlert"}`] = value.hasAlert;
-    result[`${"accountType"}`] = value.accountType;
-    result[`${"subtype"}`] = value.subtype;
-    result[`${"isTaxExempt"}`] = value.isTaxExempt;
-    result[`${"paymentTerms"}`] = value.paymentTerms;
-    result[`${"tags"}`] = value.tags;
-    result[`${"dateAdded"}`] = value.dateAdded;
+    result.orders = value.orders.map((item)=>orderedSerializeWithContext(item, ctx));
+    result.activity = value.activity.map((item)=>didSerializeWithContext(item, ctx));
+    result.customFields = value.customFields;
+    result.accountName = accountNameSerializeWithContext(value.accountName, ctx);
+    result.sector = sectorSerializeWithContext(value.sector, ctx);
+    result.memo = value.memo;
+    result.phones = value.phones.map((item)=>phoneNumberSerializeWithContext(item, ctx));
+    result.email = emailSerializeWithContext(value.email, ctx);
+    result.leadSource = value.leadSource;
+    result.colors = colorsSerializeWithContext(value.colors, ctx);
+    result.needsReview = value.needsReview;
+    result.hasAlert = value.hasAlert;
+    result.accountType = value.accountType;
+    result.subtype = value.subtype;
+    result.isTaxExempt = value.isTaxExempt;
+    result.paymentTerms = value.paymentTerms;
+    result.tags = value.tags;
+    result.dateAdded = value.dateAdded;
     return result;
 }
 
@@ -220,135 +220,135 @@ export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"taxRate"}` in obj)) {
+    if (!("taxRate" in obj)) {
         errors.push({
-            field: `${"taxRate"}`,
+            field: "taxRate",
             message: "missing required field"
         });
     }
-    if (!(`${"site"}` in obj)) {
+    if (!("site" in obj)) {
         errors.push({
-            field: `${"site"}`,
+            field: "site",
             message: "missing required field"
         });
     }
-    if (!(`${"salesRep"}` in obj)) {
+    if (!("salesRep" in obj)) {
         errors.push({
-            field: `${"salesRep"}`,
+            field: "salesRep",
             message: "missing required field"
         });
     }
-    if (!(`${"orders"}` in obj)) {
+    if (!("orders" in obj)) {
         errors.push({
-            field: `${"orders"}`,
+            field: "orders",
             message: "missing required field"
         });
     }
-    if (!(`${"activity"}` in obj)) {
+    if (!("activity" in obj)) {
         errors.push({
-            field: `${"activity"}`,
+            field: "activity",
             message: "missing required field"
         });
     }
-    if (!(`${"customFields"}` in obj)) {
+    if (!("customFields" in obj)) {
         errors.push({
-            field: `${"customFields"}`,
+            field: "customFields",
             message: "missing required field"
         });
     }
-    if (!(`${"accountName"}` in obj)) {
+    if (!("accountName" in obj)) {
         errors.push({
-            field: `${"accountName"}`,
+            field: "accountName",
             message: "missing required field"
         });
     }
-    if (!(`${"sector"}` in obj)) {
+    if (!("sector" in obj)) {
         errors.push({
-            field: `${"sector"}`,
+            field: "sector",
             message: "missing required field"
         });
     }
-    if (!(`${"memo"}` in obj)) {
+    if (!("memo" in obj)) {
         errors.push({
-            field: `${"memo"}`,
+            field: "memo",
             message: "missing required field"
         });
     }
-    if (!(`${"phones"}` in obj)) {
+    if (!("phones" in obj)) {
         errors.push({
-            field: `${"phones"}`,
+            field: "phones",
             message: "missing required field"
         });
     }
-    if (!(`${"email"}` in obj)) {
+    if (!("email" in obj)) {
         errors.push({
-            field: `${"email"}`,
+            field: "email",
             message: "missing required field"
         });
     }
-    if (!(`${"leadSource"}` in obj)) {
+    if (!("leadSource" in obj)) {
         errors.push({
-            field: `${"leadSource"}`,
+            field: "leadSource",
             message: "missing required field"
         });
     }
-    if (!(`${"colors"}` in obj)) {
+    if (!("colors" in obj)) {
         errors.push({
-            field: `${"colors"}`,
+            field: "colors",
             message: "missing required field"
         });
     }
-    if (!(`${"needsReview"}` in obj)) {
+    if (!("needsReview" in obj)) {
         errors.push({
-            field: `${"needsReview"}`,
+            field: "needsReview",
             message: "missing required field"
         });
     }
-    if (!(`${"hasAlert"}` in obj)) {
+    if (!("hasAlert" in obj)) {
         errors.push({
-            field: `${"hasAlert"}`,
+            field: "hasAlert",
             message: "missing required field"
         });
     }
-    if (!(`${"accountType"}` in obj)) {
+    if (!("accountType" in obj)) {
         errors.push({
-            field: `${"accountType"}`,
+            field: "accountType",
             message: "missing required field"
         });
     }
-    if (!(`${"subtype"}` in obj)) {
+    if (!("subtype" in obj)) {
         errors.push({
-            field: `${"subtype"}`,
+            field: "subtype",
             message: "missing required field"
         });
     }
-    if (!(`${"isTaxExempt"}` in obj)) {
+    if (!("isTaxExempt" in obj)) {
         errors.push({
-            field: `${"isTaxExempt"}`,
+            field: "isTaxExempt",
             message: "missing required field"
         });
     }
-    if (!(`${"paymentTerms"}` in obj)) {
+    if (!("paymentTerms" in obj)) {
         errors.push({
-            field: `${"paymentTerms"}`,
+            field: "paymentTerms",
             message: "missing required field"
         });
     }
-    if (!(`${"tags"}` in obj)) {
+    if (!("tags" in obj)) {
         errors.push({
-            field: `${"tags"}`,
+            field: "tags",
             message: "missing required field"
         });
     }
-    if (!(`${"dateAdded"}` in obj)) {
+    if (!("dateAdded" in obj)) {
         errors.push({
-            field: `${"dateAdded"}`,
+            field: "dateAdded",
             message: "missing required field"
         });
     }
@@ -361,19 +361,19 @@ export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeC
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_taxRate = obj[`${"taxRate"}`] as string | TaxRate;
+        const __raw_taxRate = obj["taxRate"] as string | TaxRate;
         instance.taxRate = __raw_taxRate;
     }
     {
-        const __raw_site = obj[`${"site"}`] as string | Site;
+        const __raw_site = obj["site"] as string | Site;
         instance.site = __raw_site;
     }
     {
-        const __raw_salesRep = obj[`${"salesRep"}`] as Array<Represents> | null;
+        const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;
         if (__raw_salesRep === null) {
             instance.salesRep = null;
         } else {
@@ -381,56 +381,56 @@ export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         }
     }
     {
-        const __raw_orders = obj[`${"orders"}`] as Array<Ordered>;
+        const __raw_orders = obj["orders"] as Array<Ordered>;
         if (Array.isArray(__raw_orders)) {
             instance.orders = __raw_orders as Ordered[];
         }
     }
     {
-        const __raw_activity = obj[`${"activity"}`] as Array<Did>;
+        const __raw_activity = obj["activity"] as Array<Did>;
         if (Array.isArray(__raw_activity)) {
             instance.activity = __raw_activity as Did[];
         }
     }
     {
-        const __raw_customFields = obj[`${"customFields"}`] as Array<[string, string]>;
+        const __raw_customFields = obj["customFields"] as Array<[string, string]>;
         if (Array.isArray(__raw_customFields)) {
             instance.customFields = __raw_customFields as [string, string][];
         }
     }
     {
-        const __raw_accountName = obj[`${"accountName"}`] as AccountName;
+        const __raw_accountName = obj["accountName"] as AccountName;
         {
             const __result = accountNameDeserializeWithContext(__raw_accountName, ctx);
-            ctx.assignOrDefer(instance, `${"accountName"}`, __result);
+            ctx.assignOrDefer(instance, "accountName", __result);
         }
     }
     {
-        const __raw_sector = obj[`${"sector"}`] as Sector;
+        const __raw_sector = obj["sector"] as Sector;
         {
             const __result = sectorDeserializeWithContext(__raw_sector, ctx);
-            ctx.assignOrDefer(instance, `${"sector"}`, __result);
+            ctx.assignOrDefer(instance, "sector", __result);
         }
     }
     {
-        const __raw_memo = obj[`${"memo"}`] as string | null;
+        const __raw_memo = obj["memo"] as string | null;
         instance.memo = __raw_memo;
     }
     {
-        const __raw_phones = obj[`${"phones"}`] as Array<PhoneNumber>;
+        const __raw_phones = obj["phones"] as Array<PhoneNumber>;
         if (Array.isArray(__raw_phones)) {
             instance.phones = __raw_phones as PhoneNumber[];
         }
     }
     {
-        const __raw_email = obj[`${"email"}`] as Email;
+        const __raw_email = obj["email"] as Email;
         {
             const __result = emailDeserializeWithContext(__raw_email, ctx);
-            ctx.assignOrDefer(instance, `${"email"}`, __result);
+            ctx.assignOrDefer(instance, "email", __result);
         }
     }
     {
-        const __raw_leadSource = obj[`${"leadSource"}`] as string;
+        const __raw_leadSource = obj["leadSource"] as string;
         if (__raw_leadSource.trim().length === 0) {
             errors.push({
                 field: "leadSource",
@@ -440,22 +440,22 @@ export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.leadSource = __raw_leadSource;
     }
     {
-        const __raw_colors = obj[`${"colors"}`] as Colors;
+        const __raw_colors = obj["colors"] as Colors;
         {
             const __result = colorsDeserializeWithContext(__raw_colors, ctx);
-            ctx.assignOrDefer(instance, `${"colors"}`, __result);
+            ctx.assignOrDefer(instance, "colors", __result);
         }
     }
     {
-        const __raw_needsReview = obj[`${"needsReview"}`] as boolean;
+        const __raw_needsReview = obj["needsReview"] as boolean;
         instance.needsReview = __raw_needsReview;
     }
     {
-        const __raw_hasAlert = obj[`${"hasAlert"}`] as boolean;
+        const __raw_hasAlert = obj["hasAlert"] as boolean;
         instance.hasAlert = __raw_hasAlert;
     }
     {
-        const __raw_accountType = obj[`${"accountType"}`] as string;
+        const __raw_accountType = obj["accountType"] as string;
         if (__raw_accountType.trim().length === 0) {
             errors.push({
                 field: "accountType",
@@ -465,7 +465,7 @@ export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.accountType = __raw_accountType;
     }
     {
-        const __raw_subtype = obj[`${"subtype"}`] as string;
+        const __raw_subtype = obj["subtype"] as string;
         if (__raw_subtype.trim().length === 0) {
             errors.push({
                 field: "subtype",
@@ -475,11 +475,11 @@ export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.subtype = __raw_subtype;
     }
     {
-        const __raw_isTaxExempt = obj[`${"isTaxExempt"}`] as boolean;
+        const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
         instance.isTaxExempt = __raw_isTaxExempt;
     }
     {
-        const __raw_paymentTerms = obj[`${"paymentTerms"}`] as string;
+        const __raw_paymentTerms = obj["paymentTerms"] as string;
         if (__raw_paymentTerms.trim().length === 0) {
             errors.push({
                 field: "paymentTerms",
@@ -489,13 +489,13 @@ export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         instance.paymentTerms = __raw_paymentTerms;
     }
     {
-        const __raw_tags = obj[`${"tags"}`] as Array<string>;
+        const __raw_tags = obj["tags"] as Array<string>;
         if (Array.isArray(__raw_tags)) {
             instance.tags = __raw_tags as string[];
         }
     }
     {
-        const __raw_dateAdded = obj[`${"dateAdded"}`] as string;
+        const __raw_dateAdded = obj["dateAdded"] as string;
         instance.dateAdded = __raw_dateAdded;
     }
     if (errors.length > 0) {
@@ -511,7 +511,7 @@ export function accountValidateField<K extends keyof Account>(_field: K, _value:
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"leadSource"}`) {
+    if (_field === "leadSource") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -520,7 +520,7 @@ export function accountValidateField<K extends keyof Account>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"accountType"}`) {
+    if (_field === "accountType") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -529,7 +529,7 @@ export function accountValidateField<K extends keyof Account>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"subtype"}`) {
+    if (_field === "subtype") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -538,7 +538,7 @@ export function accountValidateField<K extends keyof Account>(_field: K, _value:
             });
         }
     }
-    if (_field === `${"paymentTerms"}`) {
+    if (_field === "paymentTerms") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -557,7 +557,7 @@ export function accountValidateFields(_partial: Partial<Account>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"leadSource"}` in _partial && _partial.leadSource !== undefined) {
+    if ("leadSource" in _partial && _partial.leadSource !== undefined) {
         const __val = _partial.leadSource as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -566,7 +566,7 @@ export function accountValidateFields(_partial: Partial<Account>): Array<{
             });
         }
     }
-    if (`${"accountType"}` in _partial && _partial.accountType !== undefined) {
+    if ("accountType" in _partial && _partial.accountType !== undefined) {
         const __val = _partial.accountType as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -575,7 +575,7 @@ export function accountValidateFields(_partial: Partial<Account>): Array<{
             });
         }
     }
-    if (`${"subtype"}` in _partial && _partial.subtype !== undefined) {
+    if ("subtype" in _partial && _partial.subtype !== undefined) {
         const __val = _partial.subtype as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -584,7 +584,7 @@ export function accountValidateFields(_partial: Partial<Account>): Array<{
             });
         }
     }
-    if (`${"paymentTerms"}` in _partial && _partial.paymentTerms !== undefined) {
+    if ("paymentTerms" in _partial && _partial.paymentTerms !== undefined) {
         const __val = _partial.paymentTerms as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -610,11 +610,1066 @@ export function accountIs(obj: unknown): obj is Account {
     return result.success;
 }
 
+export type AccountErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    taxRate: __gf_Option<Array<string>>;
+    site: __gf_Option<Array<string>>;
+    salesRep: __gf_Option<Array<string>>;
+    orders: __gf_Option<Array<string>>;
+    activity: __gf_Option<Array<string>>;
+    customFields: __gf_Option<Array<string>>;
+    accountName: __gf_Option<Array<string>>;
+    sector: __gf_Option<Array<string>>;
+    memo: __gf_Option<Array<string>>;
+    phones: __gf_Option<Array<string>>;
+    email: __gf_Option<Array<string>>;
+    leadSource: __gf_Option<Array<string>>;
+    colors: __gf_Option<Array<string>>;
+    needsReview: __gf_Option<Array<string>>;
+    hasAlert: __gf_Option<Array<string>>;
+    accountType: __gf_Option<Array<string>>;
+    subtype: __gf_Option<Array<string>>;
+    isTaxExempt: __gf_Option<Array<string>>;
+    paymentTerms: __gf_Option<Array<string>>;
+    tags: __gf_Option<Array<string>>;
+    dateAdded: __gf_Option<Array<string>>;
+};
+export type AccountTainted = {
+    id: __gf_Option<boolean>;
+    taxRate: __gf_Option<boolean>;
+    site: __gf_Option<boolean>;
+    salesRep: __gf_Option<boolean>;
+    orders: __gf_Option<boolean>;
+    activity: __gf_Option<boolean>;
+    customFields: __gf_Option<boolean>;
+    accountName: __gf_Option<boolean>;
+    sector: __gf_Option<boolean>;
+    memo: __gf_Option<boolean>;
+    phones: __gf_Option<boolean>;
+    email: __gf_Option<boolean>;
+    leadSource: __gf_Option<boolean>;
+    colors: __gf_Option<boolean>;
+    needsReview: __gf_Option<boolean>;
+    hasAlert: __gf_Option<boolean>;
+    accountType: __gf_Option<boolean>;
+    subtype: __gf_Option<boolean>;
+    isTaxExempt: __gf_Option<boolean>;
+    paymentTerms: __gf_Option<boolean>;
+    tags: __gf_Option<boolean>;
+    dateAdded: __gf_Option<boolean>;
+};
+export interface AccountFieldControllers {
+    readonly id: FieldController<string>;
+    readonly taxRate: FieldController<string | TaxRate>;
+    readonly site: FieldController<string | Site>;
+    readonly salesRep: FieldController<Array<Represents> | null>;
+    readonly orders: ArrayFieldController<Ordered>;
+    readonly activity: ArrayFieldController<Did>;
+    readonly customFields: ArrayFieldController<[string, string]>;
+    readonly accountName: FieldController<AccountName>;
+    readonly sector: FieldController<Sector>;
+    readonly memo: FieldController<string | null>;
+    readonly phones: ArrayFieldController<PhoneNumber>;
+    readonly email: FieldController<Email>;
+    readonly leadSource: FieldController<string>;
+    readonly colors: FieldController<Colors>;
+    readonly needsReview: FieldController<boolean>;
+    readonly hasAlert: FieldController<boolean>;
+    readonly accountType: FieldController<string>;
+    readonly subtype: FieldController<string>;
+    readonly isTaxExempt: FieldController<boolean>;
+    readonly paymentTerms: FieldController<string>;
+    readonly tags: ArrayFieldController<string>;
+    readonly dateAdded: FieldController<string>;
+}
+export interface AccountGigaform {
+    readonly data: Account;
+    readonly errors: AccountErrors;
+    readonly tainted: AccountTainted;
+    readonly fields: AccountFieldControllers;
+    validate(): Exit<Account, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Account>): void;
+}
+export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform {
+    let data = $state({
+        ...accountDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<AccountErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        taxRate: optionNone(),
+        site: optionNone(),
+        salesRep: optionNone(),
+        orders: optionNone(),
+        activity: optionNone(),
+        customFields: optionNone(),
+        accountName: optionNone(),
+        sector: optionNone(),
+        memo: optionNone(),
+        phones: optionNone(),
+        email: optionNone(),
+        leadSource: optionNone(),
+        colors: optionNone(),
+        needsReview: optionNone(),
+        hasAlert: optionNone(),
+        accountType: optionNone(),
+        subtype: optionNone(),
+        isTaxExempt: optionNone(),
+        paymentTerms: optionNone(),
+        tags: optionNone(),
+        dateAdded: optionNone()
+    } as AccountErrors);
+    let tainted = $state<AccountTainted>({
+        id: optionNone(),
+        taxRate: optionNone(),
+        site: optionNone(),
+        salesRep: optionNone(),
+        orders: optionNone(),
+        activity: optionNone(),
+        customFields: optionNone(),
+        accountName: optionNone(),
+        sector: optionNone(),
+        memo: optionNone(),
+        phones: optionNone(),
+        email: optionNone(),
+        leadSource: optionNone(),
+        colors: optionNone(),
+        needsReview: optionNone(),
+        hasAlert: optionNone(),
+        accountType: optionNone(),
+        subtype: optionNone(),
+        isTaxExempt: optionNone(),
+        paymentTerms: optionNone(),
+        tags: optionNone(),
+        dateAdded: optionNone()
+    } as AccountTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        taxRate: {
+            path: [
+                "taxRate"
+            ] as const,
+            name: "taxRate",
+            constraints: {
+                required: true
+            },
+            label: "Tax Rate",
+            get: ()=>data.taxRate,
+            set: (value: string | TaxRate)=>{
+                data.taxRate = value;
+            },
+            transform: (value: string | TaxRate): string | TaxRate =>value,
+            getError: ()=>errors.taxRate,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.taxRate = value;
+            },
+            getTainted: ()=>tainted.taxRate,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.taxRate = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("taxRate", data.taxRate);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        site: {
+            path: [
+                "site"
+            ] as const,
+            name: "site",
+            constraints: {
+                required: true
+            },
+            label: "Site",
+            get: ()=>data.site,
+            set: (value: string | Site)=>{
+                data.site = value;
+            },
+            transform: (value: string | Site): string | Site =>value,
+            getError: ()=>errors.site,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.site = value;
+            },
+            getTainted: ()=>tainted.site,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.site = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("site", data.site);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        salesRep: {
+            path: [
+                "salesRep"
+            ] as const,
+            name: "salesRep",
+            constraints: {
+                required: true
+            },
+            label: "Sales Rep",
+            get: ()=>data.salesRep,
+            set: (value: Array<Represents> | null)=>{
+                data.salesRep = value;
+            },
+            transform: (value: Array<Represents> | null): Array<Represents> | null =>value,
+            getError: ()=>errors.salesRep,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.salesRep = value;
+            },
+            getTainted: ()=>tainted.salesRep,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.salesRep = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("salesRep", data.salesRep);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        orders: {
+            path: [
+                "orders"
+            ] as const,
+            name: "orders",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.orders,
+            set: (value: Array<Ordered>)=>{
+                data.orders = value;
+            },
+            transform: (value: Array<Ordered>): Array<Ordered> =>value,
+            getError: ()=>errors.orders,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.orders = value;
+            },
+            getTainted: ()=>tainted.orders,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.orders = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("orders", data.orders);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "orders",
+                        index
+                    ] as const,
+                    name: "'^orders.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.orders[index]!,
+                    set: (value: Ordered)=>{
+                        data.orders[index] = value;
+                    },
+                    transform: (value: Ordered): Ordered =>value,
+                    getError: ()=>errors.orders,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.orders = value;
+                    },
+                    getTainted: ()=>tainted.orders,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.orders = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: Ordered)=>{
+                data.orders.push(item);
+            },
+            remove: (index: number)=>{
+                data.orders.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.orders[a]!;
+                data.orders[a] = data.orders[b]!;
+                data.orders[b] = tmp;
+            }
+        },
+        activity: {
+            path: [
+                "activity"
+            ] as const,
+            name: "activity",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.activity,
+            set: (value: Array<Did>)=>{
+                data.activity = value;
+            },
+            transform: (value: Array<Did>): Array<Did> =>value,
+            getError: ()=>errors.activity,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.activity = value;
+            },
+            getTainted: ()=>tainted.activity,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.activity = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("activity", data.activity);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "activity",
+                        index
+                    ] as const,
+                    name: "'^activity.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.activity[index]!,
+                    set: (value: Did)=>{
+                        data.activity[index] = value;
+                    },
+                    transform: (value: Did): Did =>value,
+                    getError: ()=>errors.activity,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.activity = value;
+                    },
+                    getTainted: ()=>tainted.activity,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.activity = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: Did)=>{
+                data.activity.push(item);
+            },
+            remove: (index: number)=>{
+                data.activity.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.activity[a]!;
+                data.activity[a] = data.activity[b]!;
+                data.activity[b] = tmp;
+            }
+        },
+        customFields: {
+            path: [
+                "customFields"
+            ] as const,
+            name: "customFields",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.customFields,
+            set: (value: Array<[string, string]>)=>{
+                data.customFields = value;
+            },
+            transform: (value: Array<[string, string]>): Array<[string, string]> =>value,
+            getError: ()=>errors.customFields,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.customFields = value;
+            },
+            getTainted: ()=>tainted.customFields,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.customFields = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("customFields", data.customFields);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "customFields",
+                        index
+                    ] as const,
+                    name: "'^customFields.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.customFields[index]!,
+                    set: (value: [string, string])=>{
+                        data.customFields[index] = value;
+                    },
+                    transform: (value: [string, string]): [string, string] =>value,
+                    getError: ()=>errors.customFields,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.customFields = value;
+                    },
+                    getTainted: ()=>tainted.customFields,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.customFields = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: [string, string])=>{
+                data.customFields.push(item);
+            },
+            remove: (index: number)=>{
+                data.customFields.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.customFields[a]!;
+                data.customFields[a] = data.customFields[b]!;
+                data.customFields[b] = tmp;
+            }
+        },
+        accountName: {
+            path: [
+                "accountName"
+            ] as const,
+            name: "accountName",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.accountName,
+            set: (value: AccountName)=>{
+                data.accountName = value;
+            },
+            transform: (value: AccountName): AccountName =>value,
+            getError: ()=>errors.accountName,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.accountName = value;
+            },
+            getTainted: ()=>tainted.accountName,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.accountName = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("accountName", data.accountName);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        sector: {
+            path: [
+                "sector"
+            ] as const,
+            name: "sector",
+            constraints: {
+                required: true
+            },
+            label: "Sector",
+            get: ()=>data.sector,
+            set: (value: Sector)=>{
+                data.sector = value;
+            },
+            transform: (value: Sector): Sector =>value,
+            getError: ()=>errors.sector,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.sector = value;
+            },
+            getTainted: ()=>tainted.sector,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.sector = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("sector", data.sector);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        memo: {
+            path: [
+                "memo"
+            ] as const,
+            name: "memo",
+            constraints: {
+                required: true
+            },
+            label: "Memo",
+            get: ()=>data.memo,
+            set: (value: string | null)=>{
+                data.memo = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.memo,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.memo = value;
+            },
+            getTainted: ()=>tainted.memo,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.memo = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("memo", data.memo);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        phones: {
+            path: [
+                "phones"
+            ] as const,
+            name: "phones",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.phones,
+            set: (value: Array<PhoneNumber>)=>{
+                data.phones = value;
+            },
+            transform: (value: Array<PhoneNumber>): Array<PhoneNumber> =>value,
+            getError: ()=>errors.phones,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.phones = value;
+            },
+            getTainted: ()=>tainted.phones,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.phones = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("phones", data.phones);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "phones",
+                        index
+                    ] as const,
+                    name: "'^phones.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.phones[index]!,
+                    set: (value: PhoneNumber)=>{
+                        data.phones[index] = value;
+                    },
+                    transform: (value: PhoneNumber): PhoneNumber =>value,
+                    getError: ()=>errors.phones,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.phones = value;
+                    },
+                    getTainted: ()=>tainted.phones,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.phones = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: PhoneNumber)=>{
+                data.phones.push(item);
+            },
+            remove: (index: number)=>{
+                data.phones.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.phones[a]!;
+                data.phones[a] = data.phones[b]!;
+                data.phones[b] = tmp;
+            }
+        },
+        email: {
+            path: [
+                "email"
+            ] as const,
+            name: "email",
+            constraints: {
+                required: true
+            },
+            label: "Email",
+            get: ()=>data.email,
+            set: (value: Email)=>{
+                data.email = value;
+            },
+            transform: (value: Email): Email =>value,
+            getError: ()=>errors.email,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.email = value;
+            },
+            getTainted: ()=>tainted.email,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.email = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("email", data.email);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        leadSource: {
+            path: [
+                "leadSource"
+            ] as const,
+            name: "leadSource",
+            constraints: {
+                required: true
+            },
+            label: "Lead Source",
+            get: ()=>data.leadSource,
+            set: (value: string)=>{
+                data.leadSource = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.leadSource,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.leadSource = value;
+            },
+            getTainted: ()=>tainted.leadSource,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.leadSource = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("leadSource", data.leadSource);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        colors: {
+            path: [
+                "colors"
+            ] as const,
+            name: "colors",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.colors,
+            set: (value: Colors)=>{
+                data.colors = value;
+            },
+            transform: (value: Colors): Colors =>value,
+            getError: ()=>errors.colors,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.colors = value;
+            },
+            getTainted: ()=>tainted.colors,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.colors = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("colors", data.colors);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        needsReview: {
+            path: [
+                "needsReview"
+            ] as const,
+            name: "needsReview",
+            constraints: {
+                required: true
+            },
+            label: "Needs Review",
+            get: ()=>data.needsReview,
+            set: (value: boolean)=>{
+                data.needsReview = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.needsReview,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.needsReview = value;
+            },
+            getTainted: ()=>tainted.needsReview,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.needsReview = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("needsReview", data.needsReview);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        hasAlert: {
+            path: [
+                "hasAlert"
+            ] as const,
+            name: "hasAlert",
+            constraints: {
+                required: true
+            },
+            label: "Has Alert",
+            get: ()=>data.hasAlert,
+            set: (value: boolean)=>{
+                data.hasAlert = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.hasAlert,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.hasAlert = value;
+            },
+            getTainted: ()=>tainted.hasAlert,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.hasAlert = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("hasAlert", data.hasAlert);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        accountType: {
+            path: [
+                "accountType"
+            ] as const,
+            name: "accountType",
+            constraints: {
+                required: true
+            },
+            label: "Account Type",
+            get: ()=>data.accountType,
+            set: (value: string)=>{
+                data.accountType = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.accountType,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.accountType = value;
+            },
+            getTainted: ()=>tainted.accountType,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.accountType = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("accountType", data.accountType);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        subtype: {
+            path: [
+                "subtype"
+            ] as const,
+            name: "subtype",
+            constraints: {
+                required: true
+            },
+            label: "Subtype",
+            get: ()=>data.subtype,
+            set: (value: string)=>{
+                data.subtype = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.subtype,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.subtype = value;
+            },
+            getTainted: ()=>tainted.subtype,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.subtype = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("subtype", data.subtype);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        isTaxExempt: {
+            path: [
+                "isTaxExempt"
+            ] as const,
+            name: "isTaxExempt",
+            constraints: {
+                required: true
+            },
+            label: "Tax Exempt",
+            get: ()=>data.isTaxExempt,
+            set: (value: boolean)=>{
+                data.isTaxExempt = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.isTaxExempt,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.isTaxExempt = value;
+            },
+            getTainted: ()=>tainted.isTaxExempt,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.isTaxExempt = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("isTaxExempt", data.isTaxExempt);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        paymentTerms: {
+            path: [
+                "paymentTerms"
+            ] as const,
+            name: "paymentTerms",
+            constraints: {
+                required: true
+            },
+            label: "Payment Terms",
+            get: ()=>data.paymentTerms,
+            set: (value: string)=>{
+                data.paymentTerms = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.paymentTerms,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.paymentTerms = value;
+            },
+            getTainted: ()=>tainted.paymentTerms,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.paymentTerms = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("paymentTerms", data.paymentTerms);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        tags: {
+            path: [
+                "tags"
+            ] as const,
+            name: "tags",
+            constraints: {
+                required: true
+            },
+            label: "Tags",
+            get: ()=>data.tags,
+            set: (value: Array<string>)=>{
+                data.tags = value;
+            },
+            transform: (value: Array<string>): Array<string> =>value,
+            getError: ()=>errors.tags,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.tags = value;
+            },
+            getTainted: ()=>tainted.tags,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.tags = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("tags", data.tags);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "tags",
+                        index
+                    ] as const,
+                    name: "'^tags.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.tags[index]!,
+                    set: (value: string)=>{
+                        data.tags[index] = value;
+                    },
+                    transform: (value: string): string =>value,
+                    getError: ()=>errors.tags,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.tags = value;
+                    },
+                    getTainted: ()=>tainted.tags,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.tags = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: string)=>{
+                data.tags.push(item);
+            },
+            remove: (index: number)=>{
+                data.tags.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.tags[a]!;
+                data.tags[a] = data.tags[b]!;
+                data.tags[b] = tmp;
+            }
+        },
+        dateAdded: {
+            path: [
+                "dateAdded"
+            ] as const,
+            name: "dateAdded",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.dateAdded,
+            set: (value: string)=>{
+                data.dateAdded = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.dateAdded,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.dateAdded = value;
+            },
+            getTainted: ()=>tainted.dateAdded,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.dateAdded = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = accountValidateField("dateAdded", data.dateAdded);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as AccountFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Account, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(accountDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Account>): void {
+        data = {
+            ...accountDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            taxRate: optionNone(),
+            site: optionNone(),
+            salesRep: optionNone(),
+            orders: optionNone(),
+            activity: optionNone(),
+            customFields: optionNone(),
+            accountName: optionNone(),
+            sector: optionNone(),
+            memo: optionNone(),
+            phones: optionNone(),
+            email: optionNone(),
+            leadSource: optionNone(),
+            colors: optionNone(),
+            needsReview: optionNone(),
+            hasAlert: optionNone(),
+            accountType: optionNone(),
+            subtype: optionNone(),
+            isTaxExempt: optionNone(),
+            paymentTerms: optionNone(),
+            tags: optionNone(),
+            dateAdded: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            taxRate: optionNone(),
+            site: optionNone(),
+            salesRep: optionNone(),
+            orders: optionNone(),
+            activity: optionNone(),
+            customFields: optionNone(),
+            accountName: optionNone(),
+            sector: optionNone(),
+            memo: optionNone(),
+            phones: optionNone(),
+            email: optionNone(),
+            leadSource: optionNone(),
+            colors: optionNone(),
+            needsReview: optionNone(),
+            hasAlert: optionNone(),
+            accountType: optionNone(),
+            subtype: optionNone(),
+            isTaxExempt: optionNone(),
+            paymentTerms: optionNone(),
+            tags: optionNone(),
+            dateAdded: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function accountFromFormData(formData: FormData): Exit<Account, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Account, Array<{ field: string; message: string }>>";
     obj.id = formData.get(`${"id"}`) ?? "";
     obj.taxRate = formData.get(`${"taxRate"}`) ?? "";
     obj.site = formData.get(`${"site"}`) ?? "";
@@ -798,223 +1853,8 @@ export function accountFromFormData(formData: FormData): Exit<Account, Array<{
     obj.paymentTerms = formData.get(`${"paymentTerms"}`) ?? "";
     obj.tags = formData.getAll(`${"tags"}`) as Array<string>;
     obj.dateAdded = formData.get(`${"dateAdded"}`) ?? "";
-    return toExit("accountDeserialize(obj)");
+    return toExit(accountDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: Account;
-    readonly errors: AccountErrors;
-    readonly tainted: AccountTainted;
-    readonly fields: AccountFieldControllers;
-    validate(): Exit<Account, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Account>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function accountCreateForm(overrides: Partial<Account>): AccountGigaform {}
-let data = $state({
-    ...accountDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as AccountErrors);
-let tainted = $state<$MfPh3>({} as AccountTainted);
-const fields = {} as AccountFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.taxRate = {
-    label: `${"taxRate"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.site = {
-    label: `${"site"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.salesRep = {
-    label: `${"salesRep"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.orders = {
-    label: `${"orders"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.activity = {
-    label: `${"activity"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.customFields = {
-    label: `${"customFields"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.accountName = {
-    label: `${"accountName"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.sector = {
-    label: `${"sector"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.memo = {
-    label: `${"memo"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.phones = {
-    label: `${"phones"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.email = {
-    label: `${"email"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.leadSource = {
-    label: `${"leadSource"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.colors = {
-    label: `${"colors"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.needsReview = {
-    label: `${"needsReview"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.hasAlert = {
-    label: `${"hasAlert"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.accountType = {
-    label: `${"accountType"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.subtype = {
-    label: `${"subtype"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.isTaxExempt = {
-    label: `${"isTaxExempt"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.paymentTerms = {
-    label: `${"paymentTerms"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.tags = {
-    label: `${"tags"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.dateAdded = {
-    label: `${"dateAdded"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Account, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("accountDeserialize(data)");
-    data = {
-        ...accountDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Account = {
   defaultValue: accountDefaultValue,
@@ -1025,6 +1865,6 @@ export const Account = {
   validateFields: accountValidateFields,
   hasShape: accountHasShape,
   is: accountIs,
-  fromFormData: accountFromFormData,
-  createForm: accountCreateForm
+  createForm: accountCreateForm,
+  fromFormData: accountFromFormData
 } as const;

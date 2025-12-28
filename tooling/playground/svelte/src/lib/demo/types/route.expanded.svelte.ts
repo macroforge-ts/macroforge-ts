@@ -60,22 +60,22 @@ export function routeSerializeWithContext(value: Route, ctx: __mf_SerializeConte
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Route"}`,
+        __type: "Route",
         __id
     };
-    result[`${"id"}`] = value.id;
+    result.id = value.id;
     if (value.techs !== null) {
-        result[`${"techs"}`] = value.techs;
+        result.techs = value.techs;
     }
-    result[`${"active"}`] = value.active;
-    result[`${"name"}`] = value.name;
-    result[`${"phone"}`] = value.phone;
-    result[`${"position"}`] = value.position;
-    result[`${"serviceRoute"}`] = value.serviceRoute;
-    result[`${"defaultDurationHours"}`] = value.defaultDurationHours;
-    result[`${"tags"}`] = value.tags;
-    result[`${"icon"}`] = value.icon;
-    result[`${"color"}`] = value.color;
+    result.active = value.active;
+    result.name = value.name;
+    result.phone = value.phone;
+    result.position = value.position;
+    result.serviceRoute = value.serviceRoute;
+    result.defaultDurationHours = value.defaultDurationHours;
+    result.tags = value.tags;
+    result.icon = value.icon;
+    result.color = value.color;
     return result;
 }
 
@@ -139,69 +139,69 @@ export function routeDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"techs"}` in obj)) {
+    if (!("techs" in obj)) {
         errors.push({
-            field: `${"techs"}`,
+            field: "techs",
             message: "missing required field"
         });
     }
-    if (!(`${"active"}` in obj)) {
+    if (!("active" in obj)) {
         errors.push({
-            field: `${"active"}`,
+            field: "active",
             message: "missing required field"
         });
     }
-    if (!(`${"name"}` in obj)) {
+    if (!("name" in obj)) {
         errors.push({
-            field: `${"name"}`,
+            field: "name",
             message: "missing required field"
         });
     }
-    if (!(`${"phone"}` in obj)) {
+    if (!("phone" in obj)) {
         errors.push({
-            field: `${"phone"}`,
+            field: "phone",
             message: "missing required field"
         });
     }
-    if (!(`${"position"}` in obj)) {
+    if (!("position" in obj)) {
         errors.push({
-            field: `${"position"}`,
+            field: "position",
             message: "missing required field"
         });
     }
-    if (!(`${"serviceRoute"}` in obj)) {
+    if (!("serviceRoute" in obj)) {
         errors.push({
-            field: `${"serviceRoute"}`,
+            field: "serviceRoute",
             message: "missing required field"
         });
     }
-    if (!(`${"defaultDurationHours"}` in obj)) {
+    if (!("defaultDurationHours" in obj)) {
         errors.push({
-            field: `${"defaultDurationHours"}`,
+            field: "defaultDurationHours",
             message: "missing required field"
         });
     }
-    if (!(`${"tags"}` in obj)) {
+    if (!("tags" in obj)) {
         errors.push({
-            field: `${"tags"}`,
+            field: "tags",
             message: "missing required field"
         });
     }
-    if (!(`${"icon"}` in obj)) {
+    if (!("icon" in obj)) {
         errors.push({
-            field: `${"icon"}`,
+            field: "icon",
             message: "missing required field"
         });
     }
-    if (!(`${"color"}` in obj)) {
+    if (!("color" in obj)) {
         errors.push({
-            field: `${"color"}`,
+            field: "color",
             message: "missing required field"
         });
     }
@@ -214,11 +214,11 @@ export function routeDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_techs = obj[`${"techs"}`] as Array<string | Employee> | null;
+        const __raw_techs = obj["techs"] as Array<string | Employee> | null;
         if (__raw_techs === null) {
             instance.techs = null;
         } else {
@@ -226,11 +226,11 @@ export function routeDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         }
     }
     {
-        const __raw_active = obj[`${"active"}`] as boolean;
+        const __raw_active = obj["active"] as boolean;
         instance.active = __raw_active;
     }
     {
-        const __raw_name = obj[`${"name"}`] as string;
+        const __raw_name = obj["name"] as string;
         if (__raw_name.trim().length === 0) {
             errors.push({
                 field: "name",
@@ -240,7 +240,7 @@ export function routeDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         instance.name = __raw_name;
     }
     {
-        const __raw_phone = obj[`${"phone"}`] as string;
+        const __raw_phone = obj["phone"] as string;
         if (__raw_phone.trim().length === 0) {
             errors.push({
                 field: "phone",
@@ -250,7 +250,7 @@ export function routeDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         instance.phone = __raw_phone;
     }
     {
-        const __raw_position = obj[`${"position"}`] as string;
+        const __raw_position = obj["position"] as string;
         if (__raw_position.trim().length === 0) {
             errors.push({
                 field: "position",
@@ -260,25 +260,25 @@ export function routeDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         instance.position = __raw_position;
     }
     {
-        const __raw_serviceRoute = obj[`${"serviceRoute"}`] as boolean;
+        const __raw_serviceRoute = obj["serviceRoute"] as boolean;
         instance.serviceRoute = __raw_serviceRoute;
     }
     {
-        const __raw_defaultDurationHours = obj[`${"defaultDurationHours"}`] as number;
+        const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;
         instance.defaultDurationHours = __raw_defaultDurationHours;
     }
     {
-        const __raw_tags = obj[`${"tags"}`] as Array<string>;
+        const __raw_tags = obj["tags"] as Array<string>;
         if (Array.isArray(__raw_tags)) {
             instance.tags = __raw_tags as string[];
         }
     }
     {
-        const __raw_icon = obj[`${"icon"}`] as string | null;
+        const __raw_icon = obj["icon"] as string | null;
         instance.icon = __raw_icon;
     }
     {
-        const __raw_color = obj[`${"color"}`] as string | null;
+        const __raw_color = obj["color"] as string | null;
         instance.color = __raw_color;
     }
     if (errors.length > 0) {
@@ -294,7 +294,7 @@ export function routeValidateField<K extends keyof Route>(_field: K, _value: Rou
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"name"}`) {
+    if (_field === "name") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -303,7 +303,7 @@ export function routeValidateField<K extends keyof Route>(_field: K, _value: Rou
             });
         }
     }
-    if (_field === `${"phone"}`) {
+    if (_field === "phone") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -312,7 +312,7 @@ export function routeValidateField<K extends keyof Route>(_field: K, _value: Rou
             });
         }
     }
-    if (_field === `${"position"}`) {
+    if (_field === "position") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -331,7 +331,7 @@ export function routeValidateFields(_partial: Partial<Route>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"name"}` in _partial && _partial.name !== undefined) {
+    if ("name" in _partial && _partial.name !== undefined) {
         const __val = _partial.name as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -340,7 +340,7 @@ export function routeValidateFields(_partial: Partial<Route>): Array<{
             });
         }
     }
-    if (`${"phone"}` in _partial && _partial.phone !== undefined) {
+    if ("phone" in _partial && _partial.phone !== undefined) {
         const __val = _partial.phone as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -349,7 +349,7 @@ export function routeValidateFields(_partial: Partial<Route>): Array<{
             });
         }
     }
-    if (`${"position"}` in _partial && _partial.position !== undefined) {
+    if ("position" in _partial && _partial.position !== undefined) {
         const __val = _partial.position as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -375,11 +375,516 @@ export function routeIs(obj: unknown): obj is Route {
     return result.success;
 }
 
+export type RouteErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    techs: __gf_Option<Array<string>>;
+    active: __gf_Option<Array<string>>;
+    name: __gf_Option<Array<string>>;
+    phone: __gf_Option<Array<string>>;
+    position: __gf_Option<Array<string>>;
+    serviceRoute: __gf_Option<Array<string>>;
+    defaultDurationHours: __gf_Option<Array<string>>;
+    tags: __gf_Option<Array<string>>;
+    icon: __gf_Option<Array<string>>;
+    color: __gf_Option<Array<string>>;
+};
+export type RouteTainted = {
+    id: __gf_Option<boolean>;
+    techs: __gf_Option<boolean>;
+    active: __gf_Option<boolean>;
+    name: __gf_Option<boolean>;
+    phone: __gf_Option<boolean>;
+    position: __gf_Option<boolean>;
+    serviceRoute: __gf_Option<boolean>;
+    defaultDurationHours: __gf_Option<boolean>;
+    tags: __gf_Option<boolean>;
+    icon: __gf_Option<boolean>;
+    color: __gf_Option<boolean>;
+};
+export interface RouteFieldControllers {
+    readonly id: FieldController<string>;
+    readonly techs: FieldController<Array<string | Employee> | null>;
+    readonly active: FieldController<boolean>;
+    readonly name: FieldController<string>;
+    readonly phone: FieldController<string>;
+    readonly position: FieldController<string>;
+    readonly serviceRoute: FieldController<boolean>;
+    readonly defaultDurationHours: FieldController<number>;
+    readonly tags: ArrayFieldController<string>;
+    readonly icon: FieldController<string | null>;
+    readonly color: FieldController<string | null>;
+}
+export interface RouteGigaform {
+    readonly data: Route;
+    readonly errors: RouteErrors;
+    readonly tainted: RouteTainted;
+    readonly fields: RouteFieldControllers;
+    validate(): Exit<Route, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Route>): void;
+}
+export function routeCreateForm(overrides?: Partial<Route>): RouteGigaform {
+    let data = $state({
+        ...routeDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<RouteErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        techs: optionNone(),
+        active: optionNone(),
+        name: optionNone(),
+        phone: optionNone(),
+        position: optionNone(),
+        serviceRoute: optionNone(),
+        defaultDurationHours: optionNone(),
+        tags: optionNone(),
+        icon: optionNone(),
+        color: optionNone()
+    } as RouteErrors);
+    let tainted = $state<RouteTainted>({
+        id: optionNone(),
+        techs: optionNone(),
+        active: optionNone(),
+        name: optionNone(),
+        phone: optionNone(),
+        position: optionNone(),
+        serviceRoute: optionNone(),
+        defaultDurationHours: optionNone(),
+        tags: optionNone(),
+        icon: optionNone(),
+        color: optionNone()
+    } as RouteTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        techs: {
+            path: [
+                "techs"
+            ] as const,
+            name: "techs",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.techs,
+            set: (value: Array<string | Employee> | null)=>{
+                data.techs = value;
+            },
+            transform: (value: Array<string | Employee> | null): Array<string | Employee> | null =>value,
+            getError: ()=>errors.techs,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.techs = value;
+            },
+            getTainted: ()=>tainted.techs,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.techs = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("techs", data.techs);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        active: {
+            path: [
+                "active"
+            ] as const,
+            name: "active",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.active,
+            set: (value: boolean)=>{
+                data.active = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.active,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.active = value;
+            },
+            getTainted: ()=>tainted.active,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.active = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("active", data.active);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        name: {
+            path: [
+                "name"
+            ] as const,
+            name: "name",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.name,
+            set: (value: string)=>{
+                data.name = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.name,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.name = value;
+            },
+            getTainted: ()=>tainted.name,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.name = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("name", data.name);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        phone: {
+            path: [
+                "phone"
+            ] as const,
+            name: "phone",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.phone,
+            set: (value: string)=>{
+                data.phone = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.phone,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.phone = value;
+            },
+            getTainted: ()=>tainted.phone,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.phone = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("phone", data.phone);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        position: {
+            path: [
+                "position"
+            ] as const,
+            name: "position",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.position,
+            set: (value: string)=>{
+                data.position = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.position,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.position = value;
+            },
+            getTainted: ()=>tainted.position,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.position = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("position", data.position);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        serviceRoute: {
+            path: [
+                "serviceRoute"
+            ] as const,
+            name: "serviceRoute",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.serviceRoute,
+            set: (value: boolean)=>{
+                data.serviceRoute = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.serviceRoute,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.serviceRoute = value;
+            },
+            getTainted: ()=>tainted.serviceRoute,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.serviceRoute = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("serviceRoute", data.serviceRoute);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        defaultDurationHours: {
+            path: [
+                "defaultDurationHours"
+            ] as const,
+            name: "defaultDurationHours",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.defaultDurationHours,
+            set: (value: number)=>{
+                data.defaultDurationHours = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.defaultDurationHours,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.defaultDurationHours = value;
+            },
+            getTainted: ()=>tainted.defaultDurationHours,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.defaultDurationHours = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("defaultDurationHours", data.defaultDurationHours);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        tags: {
+            path: [
+                "tags"
+            ] as const,
+            name: "tags",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.tags,
+            set: (value: Array<string>)=>{
+                data.tags = value;
+            },
+            transform: (value: Array<string>): Array<string> =>value,
+            getError: ()=>errors.tags,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.tags = value;
+            },
+            getTainted: ()=>tainted.tags,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.tags = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("tags", data.tags);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "tags",
+                        index
+                    ] as const,
+                    name: "'^tags.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.tags[index]!,
+                    set: (value: string)=>{
+                        data.tags[index] = value;
+                    },
+                    transform: (value: string): string =>value,
+                    getError: ()=>errors.tags,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.tags = value;
+                    },
+                    getTainted: ()=>tainted.tags,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.tags = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: string)=>{
+                data.tags.push(item);
+            },
+            remove: (index: number)=>{
+                data.tags.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.tags[a]!;
+                data.tags[a] = data.tags[b]!;
+                data.tags[b] = tmp;
+            }
+        },
+        icon: {
+            path: [
+                "icon"
+            ] as const,
+            name: "icon",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.icon,
+            set: (value: string | null)=>{
+                data.icon = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.icon,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.icon = value;
+            },
+            getTainted: ()=>tainted.icon,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.icon = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("icon", data.icon);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        color: {
+            path: [
+                "color"
+            ] as const,
+            name: "color",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.color,
+            set: (value: string | null)=>{
+                data.color = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.color,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.color = value;
+            },
+            getTainted: ()=>tainted.color,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.color = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = routeValidateField("color", data.color);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as RouteFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Route, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(routeDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Route>): void {
+        data = {
+            ...routeDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            techs: optionNone(),
+            active: optionNone(),
+            name: optionNone(),
+            phone: optionNone(),
+            position: optionNone(),
+            serviceRoute: optionNone(),
+            defaultDurationHours: optionNone(),
+            tags: optionNone(),
+            icon: optionNone(),
+            color: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            techs: optionNone(),
+            active: optionNone(),
+            name: optionNone(),
+            phone: optionNone(),
+            position: optionNone(),
+            serviceRoute: optionNone(),
+            defaultDurationHours: optionNone(),
+            tags: optionNone(),
+            icon: optionNone(),
+            color: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function routeFromFormData(formData: FormData): Exit<Route, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Route, Array<{ field: string; message: string }>>";
     obj.id = formData.get(`${"id"}`) ?? "";
     obj.techs = formData.get(`${"techs"}`) ?? "";
     {
@@ -401,135 +906,8 @@ export function routeFromFormData(formData: FormData): Exit<Route, Array<{
     obj.tags = formData.getAll(`${"tags"}`) as Array<string>;
     obj.icon = formData.get(`${"icon"}`) ?? "";
     obj.color = formData.get(`${"color"}`) ?? "";
-    return toExit("routeDeserialize(obj)");
+    return toExit(routeDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: Route;
-    readonly errors: RouteErrors;
-    readonly tainted: RouteTainted;
-    readonly fields: RouteFieldControllers;
-    validate(): Exit<Route, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Route>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function routeCreateForm(overrides: Partial<Route>): RouteGigaform {}
-let data = $state({
-    ...routeDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as RouteErrors);
-let tainted = $state<$MfPh3>({} as RouteTainted);
-const fields = {} as RouteFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.techs = {
-    label: `${"techs"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.active = {
-    label: `${"active"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.name = {
-    label: `${"name"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.phone = {
-    label: `${"phone"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.position = {
-    label: `${"position"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.serviceRoute = {
-    label: `${"serviceRoute"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.defaultDurationHours = {
-    label: `${"defaultDurationHours"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.tags = {
-    label: `${"tags"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.icon = {
-    label: `${"icon"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.color = {
-    label: `${"color"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Route, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("routeDeserialize(data)");
-    data = {
-        ...routeDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Route = {
   defaultValue: routeDefaultValue,
@@ -540,6 +918,6 @@ export const Route = {
   validateFields: routeValidateFields,
   hasShape: routeHasShape,
   is: routeIs,
-  fromFormData: routeFromFormData,
-  createForm: routeCreateForm
+  createForm: routeCreateForm,
+  fromFormData: routeFromFormData
 } as const;

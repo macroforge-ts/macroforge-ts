@@ -59,14 +59,14 @@ export function signUpCredentialsSerializeWithContext(value: SignUpCredentials, 
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"SignUpCredentials"}`,
+        __type: "SignUpCredentials",
         __id
     };
-    result[`${"firstName"}`] = firstNameSerializeWithContext(value.firstName, ctx);
-    result[`${"lastName"}`] = lastNameSerializeWithContext(value.lastName, ctx);
-    result[`${"email"}`] = emailPartsSerializeWithContext(value.email, ctx);
-    result[`${"password"}`] = passwordSerializeWithContext(value.password, ctx);
-    result[`${"rememberMe"}`] = value.rememberMe;
+    result.firstName = firstNameSerializeWithContext(value.firstName, ctx);
+    result.lastName = lastNameSerializeWithContext(value.lastName, ctx);
+    result.email = emailPartsSerializeWithContext(value.email, ctx);
+    result.password = passwordSerializeWithContext(value.password, ctx);
+    result.rememberMe = value.rememberMe;
     return result;
 }
 
@@ -130,33 +130,33 @@ export function signUpCredentialsDeserializeWithContext(value: any, ctx: __mf_De
         field: string;
         message: string;
     }> = [];
-    if (!(`${"firstName"}` in obj)) {
+    if (!("firstName" in obj)) {
         errors.push({
-            field: `${"firstName"}`,
+            field: "firstName",
             message: "missing required field"
         });
     }
-    if (!(`${"lastName"}` in obj)) {
+    if (!("lastName" in obj)) {
         errors.push({
-            field: `${"lastName"}`,
+            field: "lastName",
             message: "missing required field"
         });
     }
-    if (!(`${"email"}` in obj)) {
+    if (!("email" in obj)) {
         errors.push({
-            field: `${"email"}`,
+            field: "email",
             message: "missing required field"
         });
     }
-    if (!(`${"password"}` in obj)) {
+    if (!("password" in obj)) {
         errors.push({
-            field: `${"password"}`,
+            field: "password",
             message: "missing required field"
         });
     }
-    if (!(`${"rememberMe"}` in obj)) {
+    if (!("rememberMe" in obj)) {
         errors.push({
-            field: `${"rememberMe"}`,
+            field: "rememberMe",
             message: "missing required field"
         });
     }
@@ -169,35 +169,35 @@ export function signUpCredentialsDeserializeWithContext(value: any, ctx: __mf_De
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_firstName = obj[`${"firstName"}`] as FirstName;
+        const __raw_firstName = obj["firstName"] as FirstName;
         {
             const __result = firstNameDeserializeWithContext(__raw_firstName, ctx);
-            ctx.assignOrDefer(instance, `${"firstName"}`, __result);
+            ctx.assignOrDefer(instance, "firstName", __result);
         }
     }
     {
-        const __raw_lastName = obj[`${"lastName"}`] as LastName;
+        const __raw_lastName = obj["lastName"] as LastName;
         {
             const __result = lastNameDeserializeWithContext(__raw_lastName, ctx);
-            ctx.assignOrDefer(instance, `${"lastName"}`, __result);
+            ctx.assignOrDefer(instance, "lastName", __result);
         }
     }
     {
-        const __raw_email = obj[`${"email"}`] as EmailParts;
+        const __raw_email = obj["email"] as EmailParts;
         {
             const __result = emailPartsDeserializeWithContext(__raw_email, ctx);
-            ctx.assignOrDefer(instance, `${"email"}`, __result);
+            ctx.assignOrDefer(instance, "email", __result);
         }
     }
     {
-        const __raw_password = obj[`${"password"}`] as Password;
+        const __raw_password = obj["password"] as Password;
         {
             const __result = passwordDeserializeWithContext(__raw_password, ctx);
-            ctx.assignOrDefer(instance, `${"password"}`, __result);
+            ctx.assignOrDefer(instance, "password", __result);
         }
     }
     {
-        const __raw_rememberMe = obj[`${"rememberMe"}`] as boolean;
+        const __raw_rememberMe = obj["rememberMe"] as boolean;
         instance.rememberMe = __raw_rememberMe;
     }
     if (errors.length > 0) {
@@ -232,11 +232,265 @@ export function signUpCredentialsIs(obj: unknown): obj is SignUpCredentials {
     return result.success;
 }
 
+export type SignUpCredentialsErrors = {
+    _errors: __gf_Option<Array<string>>;
+    firstName: __gf_Option<Array<string>>;
+    lastName: __gf_Option<Array<string>>;
+    email: __gf_Option<Array<string>>;
+    password: __gf_Option<Array<string>>;
+    rememberMe: __gf_Option<Array<string>>;
+};
+export type SignUpCredentialsTainted = {
+    firstName: __gf_Option<boolean>;
+    lastName: __gf_Option<boolean>;
+    email: __gf_Option<boolean>;
+    password: __gf_Option<boolean>;
+    rememberMe: __gf_Option<boolean>;
+};
+export interface SignUpCredentialsFieldControllers {
+    readonly firstName: FieldController<FirstName>;
+    readonly lastName: FieldController<LastName>;
+    readonly email: FieldController<EmailParts>;
+    readonly password: FieldController<Password>;
+    readonly rememberMe: FieldController<boolean>;
+}
+export interface SignUpCredentialsGigaform {
+    readonly data: SignUpCredentials;
+    readonly errors: SignUpCredentialsErrors;
+    readonly tainted: SignUpCredentialsTainted;
+    readonly fields: SignUpCredentialsFieldControllers;
+    validate(): Exit<SignUpCredentials, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<SignUpCredentials>): void;
+}
+export function signUpCredentialsCreateForm(overrides?: Partial<SignUpCredentials>): SignUpCredentialsGigaform {
+    let data = $state({
+        ...signUpCredentialsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<SignUpCredentialsErrors>({
+        _errors: optionNone(),
+        firstName: optionNone(),
+        lastName: optionNone(),
+        email: optionNone(),
+        password: optionNone(),
+        rememberMe: optionNone()
+    } as SignUpCredentialsErrors);
+    let tainted = $state<SignUpCredentialsTainted>({
+        firstName: optionNone(),
+        lastName: optionNone(),
+        email: optionNone(),
+        password: optionNone(),
+        rememberMe: optionNone()
+    } as SignUpCredentialsTainted);
+    const fields = {
+        firstName: {
+            path: [
+                "firstName"
+            ] as const,
+            name: "firstName",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.firstName,
+            set: (value: FirstName)=>{
+                data.firstName = value;
+            },
+            transform: (value: FirstName): FirstName =>value,
+            getError: ()=>errors.firstName,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.firstName = value;
+            },
+            getTainted: ()=>tainted.firstName,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.firstName = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = signUpCredentialsValidateField("firstName", data.firstName);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        lastName: {
+            path: [
+                "lastName"
+            ] as const,
+            name: "lastName",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.lastName,
+            set: (value: LastName)=>{
+                data.lastName = value;
+            },
+            transform: (value: LastName): LastName =>value,
+            getError: ()=>errors.lastName,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.lastName = value;
+            },
+            getTainted: ()=>tainted.lastName,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.lastName = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = signUpCredentialsValidateField("lastName", data.lastName);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        email: {
+            path: [
+                "email"
+            ] as const,
+            name: "email",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.email,
+            set: (value: EmailParts)=>{
+                data.email = value;
+            },
+            transform: (value: EmailParts): EmailParts =>value,
+            getError: ()=>errors.email,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.email = value;
+            },
+            getTainted: ()=>tainted.email,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.email = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = signUpCredentialsValidateField("email", data.email);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        password: {
+            path: [
+                "password"
+            ] as const,
+            name: "password",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.password,
+            set: (value: Password)=>{
+                data.password = value;
+            },
+            transform: (value: Password): Password =>value,
+            getError: ()=>errors.password,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.password = value;
+            },
+            getTainted: ()=>tainted.password,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.password = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = signUpCredentialsValidateField("password", data.password);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        rememberMe: {
+            path: [
+                "rememberMe"
+            ] as const,
+            name: "rememberMe",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.rememberMe,
+            set: (value: boolean)=>{
+                data.rememberMe = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.rememberMe,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.rememberMe = value;
+            },
+            getTainted: ()=>tainted.rememberMe,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.rememberMe = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = signUpCredentialsValidateField("rememberMe", data.rememberMe);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as SignUpCredentialsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<SignUpCredentials, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(signUpCredentialsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<SignUpCredentials>): void {
+        data = {
+            ...signUpCredentialsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            firstName: optionNone(),
+            lastName: optionNone(),
+            email: optionNone(),
+            password: optionNone(),
+            rememberMe: optionNone()
+        };
+        tainted = {
+            firstName: optionNone(),
+            lastName: optionNone(),
+            email: optionNone(),
+            password: optionNone(),
+            rememberMe: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function signUpCredentialsFromFormData(formData: FormData): Exit<SignUpCredentials, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<SignUpCredentials, Array<{ field: string; message: string }>>";
     {
         const firstNameObj: Record<string, unknown> = {};
         for (const [key, value] of Array.from(formData.entries())){
@@ -317,87 +571,8 @@ export function signUpCredentialsFromFormData(formData: FormData): Exit<SignUpCr
         const rememberMeVal = formData.get(`${"rememberMe"}`);
         obj.rememberMe = rememberMeVal === "true" || rememberMeVal === "on" || rememberMeVal === "1";
     }
-    return toExit("signUpCredentialsDeserialize(obj)");
+    return toExit(signUpCredentialsDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: SignUpCredentials;
-    readonly errors: SignUpCredentialsErrors;
-    readonly tainted: SignUpCredentialsTainted;
-    readonly fields: SignUpCredentialsFieldControllers;
-    validate(): Exit<SignUpCredentials, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<SignUpCredentials>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function signUpCredentialsCreateForm(overrides: Partial<SignUpCredentials>): SignUpCredentialsGigaform {}
-let data = $state({
-    ...signUpCredentialsDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as SignUpCredentialsErrors);
-let tainted = $state<$MfPh3>({} as SignUpCredentialsTainted);
-const fields = {} as SignUpCredentialsFieldControllers;
-fields.firstName = {
-    label: `${"firstName"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.lastName = {
-    label: `${"lastName"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.email = {
-    label: `${"email"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.password = {
-    label: `${"password"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.rememberMe = {
-    label: `${"rememberMe"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<SignUpCredentials, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("signUpCredentialsDeserialize(data)");
-    data = {
-        ...signUpCredentialsDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const SignUpCredentials = {
   defaultValue: signUpCredentialsDefaultValue,
@@ -408,6 +583,6 @@ export const SignUpCredentials = {
   validateFields: signUpCredentialsValidateFields,
   hasShape: signUpCredentialsHasShape,
   is: signUpCredentialsIs,
-  fromFormData: signUpCredentialsFromFormData,
-  createForm: signUpCredentialsCreateForm
+  createForm: signUpCredentialsCreateForm,
+  fromFormData: signUpCredentialsFromFormData
 } as const;

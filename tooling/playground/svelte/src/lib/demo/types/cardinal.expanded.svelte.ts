@@ -40,13 +40,13 @@ export function cardinalSerializeWithContext(value: Cardinal, ctx: __mf_Serializ
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Cardinal"}`,
+        __type: "Cardinal",
         __id
     };
-    result[`${"north"}`] = value.north;
-    result[`${"east"}`] = value.east;
-    result[`${"south"}`] = value.south;
-    result[`${"west"}`] = value.west;
+    result.north = value.north;
+    result.east = value.east;
+    result.south = value.south;
+    result.west = value.west;
     return result;
 }
 
@@ -110,27 +110,27 @@ export function cardinalDeserializeWithContext(value: any, ctx: __mf_Deserialize
         field: string;
         message: string;
     }> = [];
-    if (!(`${"north"}` in obj)) {
+    if (!("north" in obj)) {
         errors.push({
-            field: `${"north"}`,
+            field: "north",
             message: "missing required field"
         });
     }
-    if (!(`${"east"}` in obj)) {
+    if (!("east" in obj)) {
         errors.push({
-            field: `${"east"}`,
+            field: "east",
             message: "missing required field"
         });
     }
-    if (!(`${"south"}` in obj)) {
+    if (!("south" in obj)) {
         errors.push({
-            field: `${"south"}`,
+            field: "south",
             message: "missing required field"
         });
     }
-    if (!(`${"west"}` in obj)) {
+    if (!("west" in obj)) {
         errors.push({
-            field: `${"west"}`,
+            field: "west",
             message: "missing required field"
         });
     }
@@ -143,19 +143,19 @@ export function cardinalDeserializeWithContext(value: any, ctx: __mf_Deserialize
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_north = obj[`${"north"}`] as number;
+        const __raw_north = obj["north"] as number;
         instance.north = __raw_north;
     }
     {
-        const __raw_east = obj[`${"east"}`] as number;
+        const __raw_east = obj["east"] as number;
         instance.east = __raw_east;
     }
     {
-        const __raw_south = obj[`${"south"}`] as number;
+        const __raw_south = obj["south"] as number;
         instance.south = __raw_south;
     }
     {
-        const __raw_west = obj[`${"west"}`] as number;
+        const __raw_west = obj["west"] as number;
         instance.west = __raw_west;
     }
     if (errors.length > 0) {
@@ -190,11 +190,229 @@ export function cardinalIs(obj: unknown): obj is Cardinal {
     return result.success;
 }
 
+export type CardinalErrors = {
+    _errors: __gf_Option<Array<string>>;
+    north: __gf_Option<Array<string>>;
+    east: __gf_Option<Array<string>>;
+    south: __gf_Option<Array<string>>;
+    west: __gf_Option<Array<string>>;
+};
+export type CardinalTainted = {
+    north: __gf_Option<boolean>;
+    east: __gf_Option<boolean>;
+    south: __gf_Option<boolean>;
+    west: __gf_Option<boolean>;
+};
+export interface CardinalFieldControllers {
+    readonly north: FieldController<number>;
+    readonly east: FieldController<number>;
+    readonly south: FieldController<number>;
+    readonly west: FieldController<number>;
+}
+export interface CardinalGigaform {
+    readonly data: Cardinal;
+    readonly errors: CardinalErrors;
+    readonly tainted: CardinalTainted;
+    readonly fields: CardinalFieldControllers;
+    validate(): Exit<Cardinal, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Cardinal>): void;
+}
+export function cardinalCreateForm(overrides?: Partial<Cardinal>): CardinalGigaform {
+    let data = $state({
+        ...cardinalDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<CardinalErrors>({
+        _errors: optionNone(),
+        north: optionNone(),
+        east: optionNone(),
+        south: optionNone(),
+        west: optionNone()
+    } as CardinalErrors);
+    let tainted = $state<CardinalTainted>({
+        north: optionNone(),
+        east: optionNone(),
+        south: optionNone(),
+        west: optionNone()
+    } as CardinalTainted);
+    const fields = {
+        north: {
+            path: [
+                "north"
+            ] as const,
+            name: "north",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.north,
+            set: (value: number)=>{
+                data.north = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.north,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.north = value;
+            },
+            getTainted: ()=>tainted.north,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.north = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = cardinalValidateField("north", data.north);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        east: {
+            path: [
+                "east"
+            ] as const,
+            name: "east",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.east,
+            set: (value: number)=>{
+                data.east = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.east,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.east = value;
+            },
+            getTainted: ()=>tainted.east,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.east = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = cardinalValidateField("east", data.east);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        south: {
+            path: [
+                "south"
+            ] as const,
+            name: "south",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.south,
+            set: (value: number)=>{
+                data.south = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.south,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.south = value;
+            },
+            getTainted: ()=>tainted.south,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.south = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = cardinalValidateField("south", data.south);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        west: {
+            path: [
+                "west"
+            ] as const,
+            name: "west",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.west,
+            set: (value: number)=>{
+                data.west = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.west,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.west = value;
+            },
+            getTainted: ()=>tainted.west,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.west = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = cardinalValidateField("west", data.west);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as CardinalFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Cardinal, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(cardinalDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Cardinal>): void {
+        data = {
+            ...cardinalDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            north: optionNone(),
+            east: optionNone(),
+            south: optionNone(),
+            west: optionNone()
+        };
+        tainted = {
+            north: optionNone(),
+            east: optionNone(),
+            south: optionNone(),
+            west: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function cardinalFromFormData(formData: FormData): Exit<Cardinal, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Cardinal, Array<{ field: string; message: string }>>";
     {
         const northStr = formData.get(`${"north"}`);
         obj.north = northStr ? parseFloat(northStr as string) : $MfPh5;
@@ -215,79 +433,8 @@ export function cardinalFromFormData(formData: FormData): Exit<Cardinal, Array<{
         obj.west = westStr ? parseFloat(westStr as string) : $MfPh5;
         if (obj.west !== undefined && isNaN(obj.west as number)) obj.west = "0";
     }
-    return toExit("cardinalDeserialize(obj)");
+    return toExit(cardinalDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: Cardinal;
-    readonly errors: CardinalErrors;
-    readonly tainted: CardinalTainted;
-    readonly fields: CardinalFieldControllers;
-    validate(): Exit<Cardinal, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Cardinal>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function cardinalCreateForm(overrides: Partial<Cardinal>): CardinalGigaform {}
-let data = $state({
-    ...cardinalDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as CardinalErrors);
-let tainted = $state<$MfPh3>({} as CardinalTainted);
-const fields = {} as CardinalFieldControllers;
-fields.north = {
-    label: `${"north"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.east = {
-    label: `${"east"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.south = {
-    label: `${"south"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.west = {
-    label: `${"west"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Cardinal, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("cardinalDeserialize(data)");
-    data = {
-        ...cardinalDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Cardinal = {
   defaultValue: cardinalDefaultValue,
@@ -298,6 +445,6 @@ export const Cardinal = {
   validateFields: cardinalValidateFields,
   hasShape: cardinalHasShape,
   is: cardinalIs,
-  fromFormData: cardinalFromFormData,
-  createForm: cardinalCreateForm
+  createForm: cardinalCreateForm,
+  fromFormData: cardinalFromFormData
 } as const;

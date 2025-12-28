@@ -15,11 +15,11 @@ export function priorityDefaultValue#0#0(): Priority {
     return 'Medium';
 }
 
-export function prioritySerialize#0#0(value: Priority): string {
+export function prioritySerialize(value: Priority): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(prioritySerializeWithContext(value, ctx));
 }
-export function prioritySerializeWithContext#0#0(value: Priority, ctx: __mf_SerializeContext): unknown {
+export function prioritySerializeWithContext(value: Priority, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -93,32 +93,91 @@ export function priorityIs(value: unknown): value is Priority {
     return allowedValues.includes(value as any);
 }
 
+export type PriorityMediumErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type PriorityHighErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type PriorityLowErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type PriorityMediumTainted = {
+};
+export type PriorityHighTainted = {
+};
+export type PriorityLowTainted = {
+};
+export type PriorityErrors = ({
+    _value: "Medium";
+} & PriorityMediumErrors) | ({
+    _value: "High";
+} & PriorityHighErrors) | ({
+    _value: "Low";
+} & PriorityLowErrors);
+export type PriorityTainted = ({
+    _value: "Medium";
+} & PriorityMediumTainted) | ({
+    _value: "High";
+} & PriorityHighTainted) | ({
+    _value: "Low";
+} & PriorityLowTainted);
+export interface PriorityMediumFieldControllers {
+}
+export interface PriorityHighFieldControllers {
+}
+export interface PriorityLowFieldControllers {
+}
+export interface PriorityGigaform {
+    readonly currentVariant: "Medium" | "High" | "Low";
+    readonly data: Priority;
+    readonly errors: PriorityErrors;
+    readonly tainted: PriorityTainted;
+    readonly variants: PriorityVariantFields;
+    switchVariant(variant: "Medium" | "High" | "Low"): void;
+    validate(): Exit<Priority, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Priority>): void;
+}
+export interface PriorityVariantFields {
+    readonly Medium: {
+        readonly fields: PriorityMediumFieldControllers;
+    };
+    readonly High: {
+        readonly fields: PriorityHighFieldControllers;
+    };
+    readonly Low: {
+        readonly fields: PriorityLowFieldControllers;
+    };
+}
 function priorityGetDefaultForVariant(variant: string): Priority {
-    if (variant === `${"Medium"}`) {
-        return `${"Medium"}` as Priority;
+    if (variant === "Medium") {
+        return "Medium" as Priority;
     }
-    if (variant === `${"High"}`) {
-        return `${"High"}` as Priority;
+    if (variant === "High") {
+        return "High" as Priority;
     }
-    if (variant === `${"Low"}`) {
-        return `${"Low"}` as Priority;
+    if (variant === "Low") {
+        return "Low" as Priority;
     }
-    return `${"Medium"}` as Priority;
+    return "Medium" as Priority;
 }
 export function priorityCreateForm(initial: Priority): PriorityGigaform {
-    const initialVariant: "Medium" | "High" | "Low" = '(initial as "Medium" | "High" | "Low") ?? "Medium"';
+    const initialVariant: "Medium" | "High" | "Low" = (initial as "Medium" | "High" | "Low") ?? "Medium";
     let currentVariant = $state<$MfPh5>(initialVariant);
     let data = $state<$MfPh6>(initial ?? "priorityGetDefaultForVariant"(initialVariant));
     let errors = $state<$MfPh8>({} as PriorityErrors);
     let tainted = $state<$MfPh10>({} as PriorityTainted);
     const variants = {} as PriorityVariantFields;
-    variants[Medium] = {
+    variants[__expr__] = {
         fields: {} as PriorityMediumFieldControllers
     };
-    variants[High] = {
+    variants[__expr__] = {
         fields: {} as PriorityHighFieldControllers
     };
-    variants[Low] = {
+    variants[__expr__] = {
         fields: {} as PriorityLowFieldControllers
     };
     function switchVariant(variant: "Medium" | "High" | "Low"): void {
@@ -131,10 +190,10 @@ export function priorityCreateForm(initial: Priority): PriorityGigaform {
         field: string;
         message: string;
     }>> {
-        return toExit("priorityDeserialize(data)");
+        return toExit(priorityDeserialize(data));
     }
     function reset(overrides: Partial<Priority>): void {
-        data = "overrides ? overrides as typeof data : priorityGetDefaultForVariant(currentVariant)";
+        data = overrides ? overrides as typeof data : priorityGetDefaultForVariant(currentVariant);
         errors = {} as PriorityErrors;
         tainted = {} as PriorityTainted;
     }
@@ -184,49 +243,12 @@ export function priorityFromFormData(formData: FormData): Exit<Priority, Array<{
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
-    return toExit("priorityDeserialize(obj)");
+    return toExit(priorityDeserialize(obj));
 }
-export type $MfPh0 = $MfPh1;
-export type $MfPh2 = $MfPh3;
-export interface PriorityMediumFieldControllers {
-}
-export interface PriorityHighFieldControllers {
-}
-export interface PriorityLowFieldControllers {
-}
-export interface $MfPh4 {
-    readonly currentVariant: "Medium" | "High" | "Low";
-    readonly data: Priority;
-    readonly errors: PriorityErrors;
-    readonly tainted: PriorityTainted;
-    readonly variants: PriorityVariantFields;
-    switchVariant(variant: "Medium" | "High" | "Low"): void;
-    validate(): Exit<Priority, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Priority>): void;
-}
-export interface $MfPh13 {
-}
-export type PriorityMediumErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type PriorityHighErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type PriorityLowErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
- };  };  }; export type PriorityMediumTainted = {
-};
-export type PriorityHighTainted = {
-};
-export type PriorityLowTainted = {
-};
- };  };  };
 
 export const Priority = {
+  serialize: prioritySerialize,
+  serializeWithContext: prioritySerializeWithContext,
   deserialize: priorityDeserialize,
   deserializeWithContext: priorityDeserializeWithContext,
   is: priorityIs,

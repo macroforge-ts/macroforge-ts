@@ -220,11 +220,11 @@ export function pointHashCode(value: Point): number {
     return hash;
 }
 
-export function pointSerialize#0#0(value: Point): string {
+export function pointSerialize(value: Point): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(pointSerializeWithContext(value, ctx));
 }
-export function pointSerializeWithContext#0#0(value: Point, ctx: __mf_SerializeContext): Record<string, unknown> {
+export function pointSerializeWithContext(value: Point, ctx: __mf_SerializeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
         return {
@@ -233,11 +233,11 @@ export function pointSerializeWithContext#0#0(value: Point, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Point"}`,
+        __type: "Point",
         __id
     };
-    result[`${"x"}`] = value.x;
-    result[`${"y"}`] = value.y;
+    result.x = value.x;
+    result.y = value.y;
     return result;
 }
 
@@ -301,15 +301,15 @@ export function pointDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
         field: string;
         message: string;
     }> = [];
-    if (!(`${"x"}` in obj)) {
+    if (!("x" in obj)) {
         errors.push({
-            field: `${"x"}`,
+            field: "x",
             message: "missing required field"
         });
     }
-    if (!(`${"y"}` in obj)) {
+    if (!("y" in obj)) {
         errors.push({
-            field: `${"y"}`,
+            field: "y",
             message: "missing required field"
         });
     }
@@ -322,11 +322,11 @@ export function pointDeserializeWithContext(value: any, ctx: __mf_DeserializeCon
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_x = obj[`${"x"}`] as number;
+        const __raw_x = obj["x"] as number;
         instance.x = __raw_x;
     }
     {
-        const __raw_y = obj[`${"y"}`] as number;
+        const __raw_y = obj["y"] as number;
         instance.y = __raw_y;
     }
     if (errors.length > 0) {
@@ -359,6 +359,8 @@ export const Point = {
   clone: pointClone,
   equals: pointEquals,
   hashCode: pointHashCode,
+  serialize: pointSerialize,
+  serializeWithContext: pointSerializeWithContext,
   deserialize: pointDeserialize,
   deserializeWithContext: pointDeserializeWithContext,
   validateFields: pointValidateFields,
@@ -409,11 +411,11 @@ export function userProfileHashCode(value: UserProfile): number {
     return hash;
 }
 
-export function userProfileSerialize#0#0(value: UserProfile): string {
+export function userProfileSerialize(value: UserProfile): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(userProfileSerializeWithContext(value, ctx));
 }
-export function userProfileSerializeWithContext#0#0(value: UserProfile, ctx: __mf_SerializeContext): Record<string, unknown> {
+export function userProfileSerializeWithContext(value: UserProfile, ctx: __mf_SerializeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
         return {
@@ -422,14 +424,14 @@ export function userProfileSerializeWithContext#0#0(value: UserProfile, ctx: __m
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"UserProfile"}`,
+        __type: "UserProfile",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"username"}`] = value.username;
-    result[`${"email"}`] = value.email;
-    result[`${"age"}`] = value.age;
-    result[`${"isVerified"}`] = value.isVerified;
+    result.id = value.id;
+    result.username = value.username;
+    result.email = value.email;
+    result.age = value.age;
+    result.isVerified = value.isVerified;
     return result;
 }
 
@@ -493,33 +495,33 @@ export function userProfileDeserializeWithContext(value: any, ctx: __mf_Deserial
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"username"}` in obj)) {
+    if (!("username" in obj)) {
         errors.push({
-            field: `${"username"}`,
+            field: "username",
             message: "missing required field"
         });
     }
-    if (!(`${"email"}` in obj)) {
+    if (!("email" in obj)) {
         errors.push({
-            field: `${"email"}`,
+            field: "email",
             message: "missing required field"
         });
     }
-    if (!(`${"age"}` in obj)) {
+    if (!("age" in obj)) {
         errors.push({
-            field: `${"age"}`,
+            field: "age",
             message: "missing required field"
         });
     }
-    if (!(`${"isVerified"}` in obj)) {
+    if (!("isVerified" in obj)) {
         errors.push({
-            field: `${"isVerified"}`,
+            field: "isVerified",
             message: "missing required field"
         });
     }
@@ -532,23 +534,23 @@ export function userProfileDeserializeWithContext(value: any, ctx: __mf_Deserial
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_username = obj[`${"username"}`] as string;
+        const __raw_username = obj["username"] as string;
         instance.username = __raw_username;
     }
     {
-        const __raw_email = obj[`${"email"}`] as string;
+        const __raw_email = obj["email"] as string;
         instance.email = __raw_email;
     }
     {
-        const __raw_age = obj[`${"age"}`] as number;
+        const __raw_age = obj["age"] as number;
         instance.age = __raw_age;
     }
     {
-        const __raw_isVerified = obj[`${"isVerified"}`] as boolean;
+        const __raw_isVerified = obj["isVerified"] as boolean;
         instance.isVerified = __raw_isVerified;
     }
     if (errors.length > 0) {
@@ -581,6 +583,8 @@ export const UserProfile = {
   clone: userProfileClone,
   equals: userProfileEquals,
   hashCode: userProfileHashCode,
+  serialize: userProfileSerialize,
+  serializeWithContext: userProfileSerializeWithContext,
   deserialize: userProfileDeserialize,
   deserializeWithContext: userProfileDeserializeWithContext,
   validateFields: userProfileValidateFields,
