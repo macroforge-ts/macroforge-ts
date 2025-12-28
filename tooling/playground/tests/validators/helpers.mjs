@@ -13,7 +13,8 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const playgroundRoot = path.resolve(__dirname, '..', '..');
-const repoRoot = path.resolve(playgroundRoot, '..');
+// playground -> tooling -> macroforge-ts (actual repo root)
+const repoRoot = path.resolve(playgroundRoot, '..', '..');
 const vanillaRoot = path.join(playgroundRoot, 'vanilla');
 
 // Use require for synchronous loading

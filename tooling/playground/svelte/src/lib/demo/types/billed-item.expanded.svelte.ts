@@ -49,13 +49,13 @@ export function billedItemSerializeWithContext(value: BilledItem, ctx: __mf_Seri
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"BilledItem"}`,
+        __type: "BilledItem",
         __id
     };
-    result[`${"item"}`] = itemSerializeWithContext(value.item, ctx);
-    result[`${"quantity"}`] = value.quantity;
-    result[`${"taxed"}`] = value.taxed;
-    result[`${"upsale"}`] = value.upsale;
+    result.item = itemSerializeWithContext(value.item, ctx);
+    result.quantity = value.quantity;
+    result.taxed = value.taxed;
+    result.upsale = value.upsale;
     return result;
 }
 
@@ -119,27 +119,27 @@ export function billedItemDeserializeWithContext(value: any, ctx: __mf_Deseriali
         field: string;
         message: string;
     }> = [];
-    if (!(`${"item"}` in obj)) {
+    if (!("item" in obj)) {
         errors.push({
-            field: `${"item"}`,
+            field: "item",
             message: "missing required field"
         });
     }
-    if (!(`${"quantity"}` in obj)) {
+    if (!("quantity" in obj)) {
         errors.push({
-            field: `${"quantity"}`,
+            field: "quantity",
             message: "missing required field"
         });
     }
-    if (!(`${"taxed"}` in obj)) {
+    if (!("taxed" in obj)) {
         errors.push({
-            field: `${"taxed"}`,
+            field: "taxed",
             message: "missing required field"
         });
     }
-    if (!(`${"upsale"}` in obj)) {
+    if (!("upsale" in obj)) {
         errors.push({
-            field: `${"upsale"}`,
+            field: "upsale",
             message: "missing required field"
         });
     }
@@ -152,22 +152,22 @@ export function billedItemDeserializeWithContext(value: any, ctx: __mf_Deseriali
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_item = obj[`${"item"}`] as Item;
+        const __raw_item = obj["item"] as Item;
         {
             const __result = itemDeserializeWithContext(__raw_item, ctx);
-            ctx.assignOrDefer(instance, `${"item"}`, __result);
+            ctx.assignOrDefer(instance, "item", __result);
         }
     }
     {
-        const __raw_quantity = obj[`${"quantity"}`] as number;
+        const __raw_quantity = obj["quantity"] as number;
         instance.quantity = __raw_quantity;
     }
     {
-        const __raw_taxed = obj[`${"taxed"}`] as boolean;
+        const __raw_taxed = obj["taxed"] as boolean;
         instance.taxed = __raw_taxed;
     }
     {
-        const __raw_upsale = obj[`${"upsale"}`] as boolean;
+        const __raw_upsale = obj["upsale"] as boolean;
         instance.upsale = __raw_upsale;
     }
     if (errors.length > 0) {
@@ -202,11 +202,233 @@ export function billedItemIs(obj: unknown): obj is BilledItem {
     return result.success;
 }
 
+export type BilledItemErrors = {
+    _errors: __gf_Option<Array<string>>;
+    item: __gf_Option<Array<string>>;
+    quantity: __gf_Option<Array<string>>;
+    taxed: __gf_Option<Array<string>>;
+    upsale: __gf_Option<Array<string>>;
+};
+export type BilledItemTainted = {
+    item: __gf_Option<boolean>;
+    quantity: __gf_Option<boolean>;
+    taxed: __gf_Option<boolean>;
+    upsale: __gf_Option<boolean>;
+};
+export interface BilledItemFieldControllers {
+    readonly item: FieldController<Item>;
+    readonly quantity: FieldController<number>;
+    readonly taxed: FieldController<boolean>;
+    readonly upsale: FieldController<boolean>;
+}
+export interface BilledItemGigaform {
+    readonly data: BilledItem;
+    readonly errors: BilledItemErrors;
+    readonly tainted: BilledItemTainted;
+    readonly fields: BilledItemFieldControllers;
+    validate(): Exit<BilledItem, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<BilledItem>): void;
+}
+export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledItemGigaform {
+    let data = $state({
+        ...billedItemDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<BilledItemErrors>({
+        _errors: optionNone(),
+        item: optionNone(),
+        quantity: optionNone(),
+        taxed: optionNone(),
+        upsale: optionNone()
+    } as BilledItemErrors);
+    let tainted = $state<BilledItemTainted>({
+        item: optionNone(),
+        quantity: optionNone(),
+        taxed: optionNone(),
+        upsale: optionNone()
+    } as BilledItemTainted);
+    const fields = {
+        item: {
+            path: [
+                "item"
+            ] as const,
+            name: "item",
+            constraints: {
+                required: true
+            },
+            label: "Item",
+            get: ()=>data.item,
+            set: (value: Item)=>{
+                data.item = value;
+            },
+            transform: (value: Item): Item =>value,
+            getError: ()=>errors.item,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.item = value;
+            },
+            getTainted: ()=>tainted.item,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.item = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = billedItemValidateField("item", data.item);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        quantity: {
+            path: [
+                "quantity"
+            ] as const,
+            name: "quantity",
+            constraints: {
+                required: true
+            },
+            label: "Quantity",
+            get: ()=>data.quantity,
+            set: (value: number)=>{
+                data.quantity = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.quantity,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.quantity = value;
+            },
+            getTainted: ()=>tainted.quantity,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.quantity = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = billedItemValidateField("quantity", data.quantity);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        taxed: {
+            path: [
+                "taxed"
+            ] as const,
+            name: "taxed",
+            constraints: {
+                required: true
+            },
+            label: "Taxed",
+            get: ()=>data.taxed,
+            set: (value: boolean)=>{
+                data.taxed = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.taxed,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.taxed = value;
+            },
+            getTainted: ()=>tainted.taxed,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.taxed = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = billedItemValidateField("taxed", data.taxed);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        upsale: {
+            path: [
+                "upsale"
+            ] as const,
+            name: "upsale",
+            constraints: {
+                required: true
+            },
+            label: "Upsale",
+            get: ()=>data.upsale,
+            set: (value: boolean)=>{
+                data.upsale = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.upsale,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.upsale = value;
+            },
+            getTainted: ()=>tainted.upsale,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.upsale = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = billedItemValidateField("upsale", data.upsale);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as BilledItemFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<BilledItem, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(billedItemDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<BilledItem>): void {
+        data = {
+            ...billedItemDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            item: optionNone(),
+            quantity: optionNone(),
+            taxed: optionNone(),
+            upsale: optionNone()
+        };
+        tainted = {
+            item: optionNone(),
+            quantity: optionNone(),
+            taxed: optionNone(),
+            upsale: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function billedItemFromFormData(formData: FormData): Exit<BilledItem, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<BilledItem, Array<{ field: string; message: string }>>";
     {
         const itemObj: Record<string, unknown> = {};
         for (const [key, value] of Array.from(formData.entries())){
@@ -239,79 +461,8 @@ export function billedItemFromFormData(formData: FormData): Exit<BilledItem, Arr
         const upsaleVal = formData.get(`${"upsale"}`);
         obj.upsale = upsaleVal === "true" || upsaleVal === "on" || upsaleVal === "1";
     }
-    return toExit("billedItemDeserialize(obj)");
+    return toExit(billedItemDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: BilledItem;
-    readonly errors: BilledItemErrors;
-    readonly tainted: BilledItemTainted;
-    readonly fields: BilledItemFieldControllers;
-    validate(): Exit<BilledItem, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<BilledItem>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function billedItemCreateForm(overrides: Partial<BilledItem>): BilledItemGigaform {}
-let data = $state({
-    ...billedItemDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as BilledItemErrors);
-let tainted = $state<$MfPh3>({} as BilledItemTainted);
-const fields = {} as BilledItemFieldControllers;
-fields.item = {
-    label: `${"item"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.quantity = {
-    label: `${"quantity"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.taxed = {
-    label: `${"taxed"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.upsale = {
-    label: `${"upsale"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<BilledItem, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("billedItemDeserialize(data)");
-    data = {
-        ...billedItemDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const BilledItem = {
   defaultValue: billedItemDefaultValue,
@@ -322,6 +473,6 @@ export const BilledItem = {
   validateFields: billedItemValidateFields,
   hasShape: billedItemHasShape,
   is: billedItemIs,
-  fromFormData: billedItemFromFormData,
-  createForm: billedItemCreateForm
+  createForm: billedItemCreateForm,
+  fromFormData: billedItemFromFormData
 } as const;

@@ -34,10 +34,10 @@ export function gradientSerializeWithContext(value: Gradient, ctx: __mf_Serializ
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Gradient"}`,
+        __type: "Gradient",
         __id
     };
-    result[`${"startHue"}`] = value.startHue;
+    result.startHue = value.startHue;
     return result;
 }
 
@@ -101,9 +101,9 @@ export function gradientDeserializeWithContext(value: any, ctx: __mf_Deserialize
         field: string;
         message: string;
     }> = [];
-    if (!(`${"startHue"}` in obj)) {
+    if (!("startHue" in obj)) {
         errors.push({
-            field: `${"startHue"}`,
+            field: "startHue",
             message: "missing required field"
         });
     }
@@ -116,7 +116,7 @@ export function gradientDeserializeWithContext(value: any, ctx: __mf_Deserialize
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_startHue = obj[`${"startHue"}`] as number;
+        const __raw_startHue = obj["startHue"] as number;
         instance.startHue = __raw_startHue;
     }
     if (errors.length > 0) {
@@ -151,26 +151,17 @@ export function gradientIs(obj: unknown): obj is Gradient {
     return result.success;
 }
 
-export function gradientFromFormData(formData: FormData): Exit<Gradient, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    {
-        const startHueStr = formData.get(`${"startHue"}`);
-        obj.startHue = startHueStr ? parseFloat(startHueStr as string) : $MfPh5;
-        if (obj.startHue !== undefined && isNaN(obj.startHue as number)) obj.startHue = "0";
-    }
-    return toExit("gradientDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type GradientErrors = {
     _errors: __gf_Option<Array<string>>;
+    startHue: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type GradientTainted = {
+    startHue: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface GradientFieldControllers {
+    readonly startHue: FieldController<number>;
 }
-export interface $MfPh3 {
+export interface GradientGigaform {
     readonly data: Gradient;
     readonly errors: GradientErrors;
     readonly tainted: GradientTainted;
@@ -179,37 +170,109 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Gradient>): void;
+    reset(overrides?: Partial<Gradient>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
- }; export function gradientCreateForm(overrides: Partial<Gradient>): GradientGigaform {}
-let data = $state({
-    ...gradientDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as GradientErrors);
-let tainted = $state<$MfPh3>({} as GradientTainted);
-const fields = {} as GradientFieldControllers;
-fields.startHue = {
-    label: `${"startHue"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Gradient, Array<{
+export function gradientCreateForm(overrides?: Partial<Gradient>): GradientGigaform {
+    let data = $state({
+        ...gradientDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<GradientErrors>({
+        _errors: optionNone(),
+        startHue: optionNone()
+    } as GradientErrors);
+    let tainted = $state<GradientTainted>({
+        startHue: optionNone()
+    } as GradientTainted);
+    const fields = {
+        startHue: {
+            path: [
+                "startHue"
+            ] as const,
+            name: "startHue",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.startHue,
+            set: (value: number)=>{
+                data.startHue = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.startHue,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.startHue = value;
+            },
+            getTainted: ()=>tainted.startHue,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.startHue = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = gradientValidateField("startHue", data.startHue);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as GradientFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Gradient, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(gradientDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Gradient>): void {
+        data = {
+            ...gradientDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            startHue: optionNone()
+        };
+        tainted = {
+            startHue: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function gradientFromFormData(formData: FormData): Exit<Gradient, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("gradientDeserialize(data)");
-    data = {
-        ...gradientDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Gradient, Array<{ field: string; message: string }>>";
+    {
+        const startHueStr = formData.get(`${"startHue"}`);
+        obj.startHue = startHueStr ? parseFloat(startHueStr as string) : $MfPh5;
+        if (obj.startHue !== undefined && isNaN(obj.startHue as number)) obj.startHue = "0";
+    }
+    return toExit(gradientDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Gradient = {
   defaultValue: gradientDefaultValue,
@@ -220,6 +283,6 @@ export const Gradient = {
   validateFields: gradientValidateFields,
   hasShape: gradientHasShape,
   is: gradientIs,
-  fromFormData: gradientFromFormData,
-  createForm: gradientCreateForm
+  createForm: gradientCreateForm,
+  fromFormData: gradientFromFormData
 } as const;

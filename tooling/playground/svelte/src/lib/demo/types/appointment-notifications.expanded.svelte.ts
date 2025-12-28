@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -33,11 +38,11 @@ export function appointmentNotificationsSerializeWithContext(value: AppointmentN
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"AppointmentNotifications"}`,
+        __type: "AppointmentNotifications",
         __id
     };
-    result[`${"personalScheduleChangeNotifications"}`] = value.personalScheduleChangeNotifications;
-    result[`${"allScheduleChangeNotifications"}`] = value.allScheduleChangeNotifications;
+    result.personalScheduleChangeNotifications = value.personalScheduleChangeNotifications;
+    result.allScheduleChangeNotifications = value.allScheduleChangeNotifications;
     return result;
 }
 
@@ -101,15 +106,15 @@ export function appointmentNotificationsDeserializeWithContext(value: any, ctx: 
         field: string;
         message: string;
     }> = [];
-    if (!(`${"personalScheduleChangeNotifications"}` in obj)) {
+    if (!("personalScheduleChangeNotifications" in obj)) {
         errors.push({
-            field: `${"personalScheduleChangeNotifications"}`,
+            field: "personalScheduleChangeNotifications",
             message: "missing required field"
         });
     }
-    if (!(`${"allScheduleChangeNotifications"}` in obj)) {
+    if (!("allScheduleChangeNotifications" in obj)) {
         errors.push({
-            field: `${"allScheduleChangeNotifications"}`,
+            field: "allScheduleChangeNotifications",
             message: "missing required field"
         });
     }
@@ -122,7 +127,7 @@ export function appointmentNotificationsDeserializeWithContext(value: any, ctx: 
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_personalScheduleChangeNotifications = obj[`${"personalScheduleChangeNotifications"}`] as string;
+        const __raw_personalScheduleChangeNotifications = obj["personalScheduleChangeNotifications"] as string;
         if (__raw_personalScheduleChangeNotifications.trim().length === 0) {
             errors.push({
                 field: "personalScheduleChangeNotifications",
@@ -132,7 +137,7 @@ export function appointmentNotificationsDeserializeWithContext(value: any, ctx: 
         instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
     }
     {
-        const __raw_allScheduleChangeNotifications = obj[`${"allScheduleChangeNotifications"}`] as string;
+        const __raw_allScheduleChangeNotifications = obj["allScheduleChangeNotifications"] as string;
         if (__raw_allScheduleChangeNotifications.trim().length === 0) {
             errors.push({
                 field: "allScheduleChangeNotifications",
@@ -154,7 +159,7 @@ export function appointmentNotificationsValidateField<K extends keyof Appointmen
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"personalScheduleChangeNotifications"}`) {
+    if (_field === "personalScheduleChangeNotifications") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -163,7 +168,7 @@ export function appointmentNotificationsValidateField<K extends keyof Appointmen
             });
         }
     }
-    if (_field === `${"allScheduleChangeNotifications"}`) {
+    if (_field === "allScheduleChangeNotifications") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -182,7 +187,7 @@ export function appointmentNotificationsValidateFields(_partial: Partial<Appoint
         field: string;
         message: string;
     }> = [];
-    if (`${"personalScheduleChangeNotifications"}` in _partial && _partial.personalScheduleChangeNotifications !== undefined) {
+    if ("personalScheduleChangeNotifications" in _partial && _partial.personalScheduleChangeNotifications !== undefined) {
         const __val = _partial.personalScheduleChangeNotifications as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -191,7 +196,7 @@ export function appointmentNotificationsValidateFields(_partial: Partial<Appoint
             });
         }
     }
-    if (`${"allScheduleChangeNotifications"}` in _partial && _partial.allScheduleChangeNotifications !== undefined) {
+    if ("allScheduleChangeNotifications" in _partial && _partial.allScheduleChangeNotifications !== undefined) {
         const __val = _partial.allScheduleChangeNotifications as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -217,6 +222,162 @@ export function appointmentNotificationsIs(obj: unknown): obj is AppointmentNoti
     return result.success;
 }
 
+export type AppointmentNotificationsErrors = {
+    _errors: __gf_Option<Array<string>>;
+    personalScheduleChangeNotifications: __gf_Option<Array<string>>;
+    allScheduleChangeNotifications: __gf_Option<Array<string>>;
+};
+export type AppointmentNotificationsTainted = {
+    personalScheduleChangeNotifications: __gf_Option<boolean>;
+    allScheduleChangeNotifications: __gf_Option<boolean>;
+};
+export interface AppointmentNotificationsFieldControllers {
+    readonly personalScheduleChangeNotifications: FieldController<string>;
+    readonly allScheduleChangeNotifications: FieldController<string>;
+}
+export interface AppointmentNotificationsGigaform {
+    readonly data: AppointmentNotifications;
+    readonly errors: AppointmentNotificationsErrors;
+    readonly tainted: AppointmentNotificationsTainted;
+    readonly fields: AppointmentNotificationsFieldControllers;
+    validate(): Exit<AppointmentNotifications, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<AppointmentNotifications>): void;
+}
+export function appointmentNotificationsCreateForm(overrides?: Partial<AppointmentNotifications>): AppointmentNotificationsGigaform {
+    let data = $state({
+        ...appointmentNotificationsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<AppointmentNotificationsErrors>({
+        _errors: optionNone(),
+        personalScheduleChangeNotifications: optionNone(),
+        allScheduleChangeNotifications: optionNone()
+    } as AppointmentNotificationsErrors);
+    let tainted = $state<AppointmentNotificationsTainted>({
+        personalScheduleChangeNotifications: optionNone(),
+        allScheduleChangeNotifications: optionNone()
+    } as AppointmentNotificationsTainted);
+    const fields = {
+        personalScheduleChangeNotifications: {
+            path: [
+                "personalScheduleChangeNotifications"
+            ] as const,
+            name: "personalScheduleChangeNotifications",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.personalScheduleChangeNotifications,
+            set: (value: string)=>{
+                data.personalScheduleChangeNotifications = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.personalScheduleChangeNotifications,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.personalScheduleChangeNotifications = value;
+            },
+            getTainted: ()=>tainted.personalScheduleChangeNotifications,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.personalScheduleChangeNotifications = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentNotificationsValidateField("personalScheduleChangeNotifications", data.personalScheduleChangeNotifications);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        allScheduleChangeNotifications: {
+            path: [
+                "allScheduleChangeNotifications"
+            ] as const,
+            name: "allScheduleChangeNotifications",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.allScheduleChangeNotifications,
+            set: (value: string)=>{
+                data.allScheduleChangeNotifications = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.allScheduleChangeNotifications,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.allScheduleChangeNotifications = value;
+            },
+            getTainted: ()=>tainted.allScheduleChangeNotifications,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.allScheduleChangeNotifications = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentNotificationsValidateField("allScheduleChangeNotifications", data.allScheduleChangeNotifications);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as AppointmentNotificationsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<AppointmentNotifications, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(appointmentNotificationsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<AppointmentNotifications>): void {
+        data = {
+            ...appointmentNotificationsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            personalScheduleChangeNotifications: optionNone(),
+            allScheduleChangeNotifications: optionNone()
+        };
+        tainted = {
+            personalScheduleChangeNotifications: optionNone(),
+            allScheduleChangeNotifications: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function appointmentNotificationsFromFormData(formData: FormData): Exit<AppointmentNotifications, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<AppointmentNotifications, Array<{ field: string; message: string }>>";
+    obj.personalScheduleChangeNotifications = formData.get(`${"personalScheduleChangeNotifications"}`) ?? "";
+    obj.allScheduleChangeNotifications = formData.get(`${"allScheduleChangeNotifications"}`) ?? "";
+    return toExit(appointmentNotificationsDeserialize(obj));
+}
+
 export const AppointmentNotifications = {
   defaultValue: appointmentNotificationsDefaultValue,
   serialize: appointmentNotificationsSerialize,
@@ -225,5 +386,7 @@ export const AppointmentNotifications = {
   deserializeWithContext: appointmentNotificationsDeserializeWithContext,
   validateFields: appointmentNotificationsValidateFields,
   hasShape: appointmentNotificationsHasShape,
-  is: appointmentNotificationsIs
+  is: appointmentNotificationsIs,
+  createForm: appointmentNotificationsCreateForm,
+  fromFormData: appointmentNotificationsFromFormData
 } as const;

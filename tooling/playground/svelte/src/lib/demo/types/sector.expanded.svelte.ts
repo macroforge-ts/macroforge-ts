@@ -15,11 +15,11 @@ export function sectorDefaultValue#0#0(): Sector {
     return 'Residential';
 }
 
-export function sectorSerialize#0#0(value: Sector): string {
+export function sectorSerialize(value: Sector): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(sectorSerializeWithContext(value, ctx));
 }
-export function sectorSerializeWithContext#0#0(value: Sector, ctx: __mf_SerializeContext): unknown {
+export function sectorSerializeWithContext(value: Sector, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -93,26 +93,71 @@ export function sectorIs(value: unknown): value is Sector {
     return allowedValues.includes(value as any);
 }
 
+export type SectorResidentialErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type SectorCommercialErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type SectorResidentialTainted = {
+};
+export type SectorCommercialTainted = {
+};
+export type SectorErrors = ({
+    _value: "Residential";
+} & SectorResidentialErrors) | ({
+    _value: "Commercial";
+} & SectorCommercialErrors);
+export type SectorTainted = ({
+    _value: "Residential";
+} & SectorResidentialTainted) | ({
+    _value: "Commercial";
+} & SectorCommercialTainted);
+export interface SectorResidentialFieldControllers {
+}
+export interface SectorCommercialFieldControllers {
+}
+export interface SectorGigaform {
+    readonly currentVariant: "Residential" | "Commercial";
+    readonly data: Sector;
+    readonly errors: SectorErrors;
+    readonly tainted: SectorTainted;
+    readonly variants: SectorVariantFields;
+    switchVariant(variant: "Residential" | "Commercial"): void;
+    validate(): Exit<Sector, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Sector>): void;
+}
+export interface SectorVariantFields {
+    readonly Residential: {
+        readonly fields: SectorResidentialFieldControllers;
+    };
+    readonly Commercial: {
+        readonly fields: SectorCommercialFieldControllers;
+    };
+}
 function sectorGetDefaultForVariant(variant: string): Sector {
-    if (variant === `${"Residential"}`) {
-        return `${"Residential"}` as Sector;
+    if (variant === "Residential") {
+        return "Residential" as Sector;
     }
-    if (variant === `${"Commercial"}`) {
-        return `${"Commercial"}` as Sector;
+    if (variant === "Commercial") {
+        return "Commercial" as Sector;
     }
-    return `${"Residential"}` as Sector;
+    return "Residential" as Sector;
 }
 export function sectorCreateForm(initial: Sector): SectorGigaform {
-    const initialVariant: "Residential" | "Commercial" = '(initial as "Residential" | "Commercial") ?? "Residential"';
+    const initialVariant: "Residential" | "Commercial" = (initial as "Residential" | "Commercial") ?? "Residential";
     let currentVariant = $state<$MfPh5>(initialVariant);
     let data = $state<$MfPh6>(initial ?? "sectorGetDefaultForVariant"(initialVariant));
     let errors = $state<$MfPh8>({} as SectorErrors);
     let tainted = $state<$MfPh10>({} as SectorTainted);
     const variants = {} as SectorVariantFields;
-    variants[Residential] = {
+    variants[__expr__] = {
         fields: {} as SectorResidentialFieldControllers
     };
-    variants[Commercial] = {
+    variants[__expr__] = {
         fields: {} as SectorCommercialFieldControllers
     };
     function switchVariant(variant: "Residential" | "Commercial"): void {
@@ -125,10 +170,10 @@ export function sectorCreateForm(initial: Sector): SectorGigaform {
         field: string;
         message: string;
     }>> {
-        return toExit("sectorDeserialize(data)");
+        return toExit(sectorDeserialize(data));
     }
     function reset(overrides: Partial<Sector>): void {
-        data = "overrides ? overrides as typeof data : sectorGetDefaultForVariant(currentVariant)";
+        data = overrides ? overrides as typeof data : sectorGetDefaultForVariant(currentVariant);
         errors = {} as SectorErrors;
         tainted = {} as SectorTainted;
     }
@@ -178,42 +223,12 @@ export function sectorFromFormData(formData: FormData): Exit<Sector, Array<{
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
-    return toExit("sectorDeserialize(obj)");
+    return toExit(sectorDeserialize(obj));
 }
-export type $MfPh0 = $MfPh1;
-export type $MfPh2 = $MfPh3;
-export interface SectorResidentialFieldControllers {
-}
-export interface SectorCommercialFieldControllers {
-}
-export interface $MfPh4 {
-    readonly currentVariant: "Residential" | "Commercial";
-    readonly data: Sector;
-    readonly errors: SectorErrors;
-    readonly tainted: SectorTainted;
-    readonly variants: SectorVariantFields;
-    switchVariant(variant: "Residential" | "Commercial"): void;
-    validate(): Exit<Sector, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Sector>): void;
-}
-export interface $MfPh13 {
-}
-export type SectorResidentialErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type SectorCommercialErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
- };  }; export type SectorResidentialTainted = {
-};
-export type SectorCommercialTainted = {
-};
- };  };
 
 export const Sector = {
+  serialize: sectorSerialize,
+  serializeWithContext: sectorSerializeWithContext,
   deserialize: sectorDeserialize,
   deserializeWithContext: sectorDeserializeWithContext,
   is: sectorIs,

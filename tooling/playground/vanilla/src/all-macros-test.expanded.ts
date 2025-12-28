@@ -48,7 +48,14 @@ export class AllMacrosTestClass {
     return allMacrosTestClassSerializeWithContext(value, ctx);
 }
 
-    constructor(props: Record<string, unknown>){}
+    constructor(props: Record<string, unknown>){
+    this.id = props.id;
+    this.name = props.name;
+    this.email = props.email;
+    this.secretToken = props.secretToken;
+    this.isActive = props.isActive;
+    this.score = props.score;
+}
 
     static deserialize(input: unknown, opts: __mf_DeserializeOptions): {
     success: true;
@@ -120,39 +127,39 @@ export class AllMacrosTestClass {
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"name"}` in obj)) {
+    if (!("name" in obj)) {
         errors.push({
-            field: `${"name"}`,
+            field: "name",
             message: "missing required field"
         });
     }
-    if (!(`${"email"}` in obj)) {
+    if (!("email" in obj)) {
         errors.push({
-            field: `${"email"}`,
+            field: "email",
             message: "missing required field"
         });
     }
-    if (!(`${"secretToken"}` in obj)) {
+    if (!("secretToken" in obj)) {
         errors.push({
-            field: `${"secretToken"}`,
+            field: "secretToken",
             message: "missing required field"
         });
     }
-    if (!(`${"isActive"}` in obj)) {
+    if (!("isActive" in obj)) {
         errors.push({
-            field: `${"isActive"}`,
+            field: "isActive",
             message: "missing required field"
         });
     }
-    if (!(`${"score"}` in obj)) {
+    if (!("score" in obj)) {
         errors.push({
-            field: `${"score"}`,
+            field: "score",
             message: "missing required field"
         });
     }
@@ -165,27 +172,27 @@ export class AllMacrosTestClass {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as number;
+        const __raw_id = obj["id"] as number;
         instance.id = __raw_id;
     }
     {
-        const __raw_name = obj[`${"name"}`] as string;
+        const __raw_name = obj["name"] as string;
         instance.name = __raw_name;
     }
     {
-        const __raw_email = obj[`${"email"}`] as string;
+        const __raw_email = obj["email"] as string;
         instance.email = __raw_email;
     }
     {
-        const __raw_secretToken = obj[`${"secretToken"}`] as string;
+        const __raw_secretToken = obj["secretToken"] as string;
         instance.secretToken = __raw_secretToken;
     }
     {
-        const __raw_isActive = obj[`${"isActive"}`] as boolean;
+        const __raw_isActive = obj["isActive"] as boolean;
         instance.isActive = __raw_isActive;
     }
     {
-        const __raw_score = obj[`${"score"}`] as number;
+        const __raw_score = obj["score"] as number;
         instance.score = __raw_score;
     }
     if (errors.length > 0) {
@@ -278,15 +285,15 @@ export function allMacrosTestClassSerializeWithContext(value: AllMacrosTestClass
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"AllMacrosTestClass"}`,
+        __type: "AllMacrosTestClass",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"name"}`] = value.name;
-    result[`${"email"}`] = value.email;
-    result[`${"secretToken"}`] = value.secretToken;
-    result[`${"isActive"}`] = value.isActive;
-    result[`${"score"}`] = value.score;
+    result.id = value.id;
+    result.name = value.name;
+    result.email = value.email;
+    result.secretToken = value.secretToken;
+    result.isActive = value.isActive;
+    result.score = value.score;
     return result;
 }
 

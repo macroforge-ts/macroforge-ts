@@ -22,11 +22,11 @@ export function weekdayDefaultValue#0#0(): Weekday {
     return 'Monday';
 }
 
-export function weekdaySerialize#0#0(value: Weekday): string {
+export function weekdaySerialize(value: Weekday): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(weekdaySerializeWithContext(value, ctx));
 }
-export function weekdaySerializeWithContext#0#0(value: Weekday, ctx: __mf_SerializeContext): unknown {
+export function weekdaySerializeWithContext(value: Weekday, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -100,56 +100,171 @@ export function weekdayIs(value: unknown): value is Weekday {
     return allowedValues.includes(value as any);
 }
 
+export type WeekdayMondayErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekdayTuesdayErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekdayWednesdayErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekdayThursdayErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekdayFridayErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekdaySaturdayErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekdaySundayErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type WeekdayMondayTainted = {
+};
+export type WeekdayTuesdayTainted = {
+};
+export type WeekdayWednesdayTainted = {
+};
+export type WeekdayThursdayTainted = {
+};
+export type WeekdayFridayTainted = {
+};
+export type WeekdaySaturdayTainted = {
+};
+export type WeekdaySundayTainted = {
+};
+export type WeekdayErrors = ({
+    _value: "Monday";
+} & WeekdayMondayErrors) | ({
+    _value: "Tuesday";
+} & WeekdayTuesdayErrors) | ({
+    _value: "Wednesday";
+} & WeekdayWednesdayErrors) | ({
+    _value: "Thursday";
+} & WeekdayThursdayErrors) | ({
+    _value: "Friday";
+} & WeekdayFridayErrors) | ({
+    _value: "Saturday";
+} & WeekdaySaturdayErrors) | ({
+    _value: "Sunday";
+} & WeekdaySundayErrors);
+export type WeekdayTainted = ({
+    _value: "Monday";
+} & WeekdayMondayTainted) | ({
+    _value: "Tuesday";
+} & WeekdayTuesdayTainted) | ({
+    _value: "Wednesday";
+} & WeekdayWednesdayTainted) | ({
+    _value: "Thursday";
+} & WeekdayThursdayTainted) | ({
+    _value: "Friday";
+} & WeekdayFridayTainted) | ({
+    _value: "Saturday";
+} & WeekdaySaturdayTainted) | ({
+    _value: "Sunday";
+} & WeekdaySundayTainted);
+export interface WeekdayMondayFieldControllers {
+}
+export interface WeekdayTuesdayFieldControllers {
+}
+export interface WeekdayWednesdayFieldControllers {
+}
+export interface WeekdayThursdayFieldControllers {
+}
+export interface WeekdayFridayFieldControllers {
+}
+export interface WeekdaySaturdayFieldControllers {
+}
+export interface WeekdaySundayFieldControllers {
+}
+export interface WeekdayGigaform {
+    readonly currentVariant: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
+    readonly data: Weekday;
+    readonly errors: WeekdayErrors;
+    readonly tainted: WeekdayTainted;
+    readonly variants: WeekdayVariantFields;
+    switchVariant(variant: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"): void;
+    validate(): Exit<Weekday, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Weekday>): void;
+}
+export interface WeekdayVariantFields {
+    readonly Monday: {
+        readonly fields: WeekdayMondayFieldControllers;
+    };
+    readonly Tuesday: {
+        readonly fields: WeekdayTuesdayFieldControllers;
+    };
+    readonly Wednesday: {
+        readonly fields: WeekdayWednesdayFieldControllers;
+    };
+    readonly Thursday: {
+        readonly fields: WeekdayThursdayFieldControllers;
+    };
+    readonly Friday: {
+        readonly fields: WeekdayFridayFieldControllers;
+    };
+    readonly Saturday: {
+        readonly fields: WeekdaySaturdayFieldControllers;
+    };
+    readonly Sunday: {
+        readonly fields: WeekdaySundayFieldControllers;
+    };
+}
 function weekdayGetDefaultForVariant(variant: string): Weekday {
-    if (variant === `${"Monday"}`) {
-        return `${"Monday"}` as Weekday;
+    if (variant === "Monday") {
+        return "Monday" as Weekday;
     }
-    if (variant === `${"Tuesday"}`) {
-        return `${"Tuesday"}` as Weekday;
+    if (variant === "Tuesday") {
+        return "Tuesday" as Weekday;
     }
-    if (variant === `${"Wednesday"}`) {
-        return `${"Wednesday"}` as Weekday;
+    if (variant === "Wednesday") {
+        return "Wednesday" as Weekday;
     }
-    if (variant === `${"Thursday"}`) {
-        return `${"Thursday"}` as Weekday;
+    if (variant === "Thursday") {
+        return "Thursday" as Weekday;
     }
-    if (variant === `${"Friday"}`) {
-        return `${"Friday"}` as Weekday;
+    if (variant === "Friday") {
+        return "Friday" as Weekday;
     }
-    if (variant === `${"Saturday"}`) {
-        return `${"Saturday"}` as Weekday;
+    if (variant === "Saturday") {
+        return "Saturday" as Weekday;
     }
-    if (variant === `${"Sunday"}`) {
-        return `${"Sunday"}` as Weekday;
+    if (variant === "Sunday") {
+        return "Sunday" as Weekday;
     }
-    return `${"Monday"}` as Weekday;
+    return "Monday" as Weekday;
 }
 export function weekdayCreateForm(initial: Weekday): WeekdayGigaform {
-    const initialVariant: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" = '(initial as "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday") ?? "Monday"';
+    const initialVariant: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" = (initial as "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday") ?? "Monday";
     let currentVariant = $state<$MfPh5>(initialVariant);
     let data = $state<$MfPh6>(initial ?? "weekdayGetDefaultForVariant"(initialVariant));
     let errors = $state<$MfPh8>({} as WeekdayErrors);
     let tainted = $state<$MfPh10>({} as WeekdayTainted);
     const variants = {} as WeekdayVariantFields;
-    variants[Monday] = {
+    variants[__expr__] = {
         fields: {} as WeekdayMondayFieldControllers
     };
-    variants[Tuesday] = {
+    variants[__expr__] = {
         fields: {} as WeekdayTuesdayFieldControllers
     };
-    variants[Wednesday] = {
+    variants[__expr__] = {
         fields: {} as WeekdayWednesdayFieldControllers
     };
-    variants[Thursday] = {
+    variants[__expr__] = {
         fields: {} as WeekdayThursdayFieldControllers
     };
-    variants[Friday] = {
+    variants[__expr__] = {
         fields: {} as WeekdayFridayFieldControllers
     };
-    variants[Saturday] = {
+    variants[__expr__] = {
         fields: {} as WeekdaySaturdayFieldControllers
     };
-    variants[Sunday] = {
+    variants[__expr__] = {
         fields: {} as WeekdaySundayFieldControllers
     };
     function switchVariant(variant: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"): void {
@@ -162,10 +277,10 @@ export function weekdayCreateForm(initial: Weekday): WeekdayGigaform {
         field: string;
         message: string;
     }>> {
-        return toExit("weekdayDeserialize(data)");
+        return toExit(weekdayDeserialize(data));
     }
     function reset(overrides: Partial<Weekday>): void {
-        data = "overrides ? overrides as typeof data : weekdayGetDefaultForVariant(currentVariant)";
+        data = overrides ? overrides as typeof data : weekdayGetDefaultForVariant(currentVariant);
         errors = {} as WeekdayErrors;
         tainted = {} as WeekdayTainted;
     }
@@ -215,77 +330,12 @@ export function weekdayFromFormData(formData: FormData): Exit<Weekday, Array<{
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
-    return toExit("weekdayDeserialize(obj)");
+    return toExit(weekdayDeserialize(obj));
 }
-export type $MfPh0 = $MfPh1;
-export type $MfPh2 = $MfPh3;
-export interface WeekdayMondayFieldControllers {
-}
-export interface WeekdayTuesdayFieldControllers {
-}
-export interface WeekdayWednesdayFieldControllers {
-}
-export interface WeekdayThursdayFieldControllers {
-}
-export interface WeekdayFridayFieldControllers {
-}
-export interface WeekdaySaturdayFieldControllers {
-}
-export interface WeekdaySundayFieldControllers {
-}
-export interface $MfPh4 {
-    readonly currentVariant: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
-    readonly data: Weekday;
-    readonly errors: WeekdayErrors;
-    readonly tainted: WeekdayTainted;
-    readonly variants: WeekdayVariantFields;
-    switchVariant(variant: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"): void;
-    validate(): Exit<Weekday, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Weekday>): void;
-}
-export interface $MfPh13 {
-}
-export type WeekdayMondayErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekdayTuesdayErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekdayWednesdayErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekdayThursdayErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekdayFridayErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekdaySaturdayErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type WeekdaySundayErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
- };  };  };  };  };  };  }; export type WeekdayMondayTainted = {
-};
-export type WeekdayTuesdayTainted = {
-};
-export type WeekdayWednesdayTainted = {
-};
-export type WeekdayThursdayTainted = {
-};
-export type WeekdayFridayTainted = {
-};
-export type WeekdaySaturdayTainted = {
-};
-export type WeekdaySundayTainted = {
-};
- };  };  };  };  };  };  };
 
 export const Weekday = {
+  serialize: weekdaySerialize,
+  serializeWithContext: weekdaySerializeWithContext,
   deserialize: weekdayDeserialize,
   deserializeWithContext: weekdayDeserializeWithContext,
   is: weekdayIs,

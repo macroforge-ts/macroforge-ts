@@ -97,24 +97,24 @@ export function appointmentSerializeWithContext(value: Appointment, ctx: __mf_Se
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Appointment"}`,
+        __type: "Appointment",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"title"}`] = value.title;
-    result[`${"status"}`] = statusSerializeWithContext(value.status, ctx);
-    result[`${"begins"}`] = dateTime.dateTimeSerializeWithContext(value.begins, ctx);
-    result[`${"duration"}`] = value.duration;
-    result[`${"timeZone"}`] = value.timeZone;
-    result[`${"offsetMs"}`] = value.offsetMs;
-    result[`${"allDay"}`] = value.allDay;
-    result[`${"multiDay"}`] = value.multiDay;
-    result[`${"employees"}`] = value.employees;
-    result[`${"location"}`] = value.location;
-    result[`${"description"}`] = option<string>SerializeWithContext(value.description, ctx);
-    result[`${"colors"}`] = colorsSerializeWithContext(value.colors, ctx);
+    result.id = value.id;
+    result.title = value.title;
+    result.status = statusSerializeWithContext(value.status, ctx);
+    result.begins = dateTime.dateTimeSerializeWithContext(value.begins, ctx);
+    result.duration = value.duration;
+    result.timeZone = value.timeZone;
+    result.offsetMs = value.offsetMs;
+    result.allDay = value.allDay;
+    result.multiDay = value.multiDay;
+    result.employees = value.employees;
+    result.location = value.location;
+    result.description = option<string>SerializeWithContext(value.description, ctx);
+    result.colors = colorsSerializeWithContext(value.colors, ctx);
     if (value.recurrenceRule !== null) {
-        result[`${"recurrenceRule"}`] = recurrenceRuleSerializeWithContext(value.recurrenceRule, ctx);
+        result.recurrenceRule = recurrenceRuleSerializeWithContext(value.recurrenceRule, ctx);
     }
     return result;
 }
@@ -179,87 +179,87 @@ export function appointmentDeserializeWithContext(value: any, ctx: __mf_Deserial
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"title"}` in obj)) {
+    if (!("title" in obj)) {
         errors.push({
-            field: `${"title"}`,
+            field: "title",
             message: "missing required field"
         });
     }
-    if (!(`${"status"}` in obj)) {
+    if (!("status" in obj)) {
         errors.push({
-            field: `${"status"}`,
+            field: "status",
             message: "missing required field"
         });
     }
-    if (!(`${"begins"}` in obj)) {
+    if (!("begins" in obj)) {
         errors.push({
-            field: `${"begins"}`,
+            field: "begins",
             message: "missing required field"
         });
     }
-    if (!(`${"duration"}` in obj)) {
+    if (!("duration" in obj)) {
         errors.push({
-            field: `${"duration"}`,
+            field: "duration",
             message: "missing required field"
         });
     }
-    if (!(`${"timeZone"}` in obj)) {
+    if (!("timeZone" in obj)) {
         errors.push({
-            field: `${"timeZone"}`,
+            field: "timeZone",
             message: "missing required field"
         });
     }
-    if (!(`${"offsetMs"}` in obj)) {
+    if (!("offsetMs" in obj)) {
         errors.push({
-            field: `${"offsetMs"}`,
+            field: "offsetMs",
             message: "missing required field"
         });
     }
-    if (!(`${"allDay"}` in obj)) {
+    if (!("allDay" in obj)) {
         errors.push({
-            field: `${"allDay"}`,
+            field: "allDay",
             message: "missing required field"
         });
     }
-    if (!(`${"multiDay"}` in obj)) {
+    if (!("multiDay" in obj)) {
         errors.push({
-            field: `${"multiDay"}`,
+            field: "multiDay",
             message: "missing required field"
         });
     }
-    if (!(`${"employees"}` in obj)) {
+    if (!("employees" in obj)) {
         errors.push({
-            field: `${"employees"}`,
+            field: "employees",
             message: "missing required field"
         });
     }
-    if (!(`${"location"}` in obj)) {
+    if (!("location" in obj)) {
         errors.push({
-            field: `${"location"}`,
+            field: "location",
             message: "missing required field"
         });
     }
-    if (!(`${"description"}` in obj)) {
+    if (!("description" in obj)) {
         errors.push({
-            field: `${"description"}`,
+            field: "description",
             message: "missing required field"
         });
     }
-    if (!(`${"colors"}` in obj)) {
+    if (!("colors" in obj)) {
         errors.push({
-            field: `${"colors"}`,
+            field: "colors",
             message: "missing required field"
         });
     }
-    if (!(`${"recurrenceRule"}` in obj)) {
+    if (!("recurrenceRule" in obj)) {
         errors.push({
-            field: `${"recurrenceRule"}`,
+            field: "recurrenceRule",
             message: "missing required field"
         });
     }
@@ -272,11 +272,11 @@ export function appointmentDeserializeWithContext(value: any, ctx: __mf_Deserial
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_title = obj[`${"title"}`] as string;
+        const __raw_title = obj["title"] as string;
         if (__raw_title.trim().length === 0) {
             errors.push({
                 field: "title",
@@ -286,70 +286,70 @@ export function appointmentDeserializeWithContext(value: any, ctx: __mf_Deserial
         instance.title = __raw_title;
     }
     {
-        const __raw_status = obj[`${"status"}`] as Status;
+        const __raw_status = obj["status"] as Status;
         {
             const __result = statusDeserializeWithContext(__raw_status, ctx);
-            ctx.assignOrDefer(instance, `${"status"}`, __result);
+            ctx.assignOrDefer(instance, "status", __result);
         }
     }
     {
-        const __raw_begins = obj[`${"begins"}`] as DateTime.DateTime;
+        const __raw_begins = obj["begins"] as DateTime.DateTime;
         {
             const __result = dateTime.dateTimeDeserializeWithContext(__raw_begins, ctx);
-            ctx.assignOrDefer(instance, `${"begins"}`, __result);
+            ctx.assignOrDefer(instance, "begins", __result);
         }
     }
     {
-        const __raw_duration = obj[`${"duration"}`] as number;
+        const __raw_duration = obj["duration"] as number;
         instance.duration = __raw_duration;
     }
     {
-        const __raw_timeZone = obj[`${"timeZone"}`] as string;
+        const __raw_timeZone = obj["timeZone"] as string;
         instance.timeZone = __raw_timeZone;
     }
     {
-        const __raw_offsetMs = obj[`${"offsetMs"}`] as number;
+        const __raw_offsetMs = obj["offsetMs"] as number;
         instance.offsetMs = __raw_offsetMs;
     }
     {
-        const __raw_allDay = obj[`${"allDay"}`] as boolean;
+        const __raw_allDay = obj["allDay"] as boolean;
         instance.allDay = __raw_allDay;
     }
     {
-        const __raw_multiDay = obj[`${"multiDay"}`] as boolean;
+        const __raw_multiDay = obj["multiDay"] as boolean;
         instance.multiDay = __raw_multiDay;
     }
     {
-        const __raw_employees = obj[`${"employees"}`] as Array<string | Employee>;
+        const __raw_employees = obj["employees"] as Array<string | Employee>;
         if (Array.isArray(__raw_employees)) {
             instance.employees = __raw_employees as string | Employee[];
         }
     }
     {
-        const __raw_location = obj[`${"location"}`] as string | Site;
+        const __raw_location = obj["location"] as string | Site;
         instance.location = __raw_location;
     }
     {
-        const __raw_description = obj[`${"description"}`] as Option<string>;
+        const __raw_description = obj["description"] as Option<string>;
         {
             const __result = option<string>DeserializeWithContext(__raw_description, ctx);
-            ctx.assignOrDefer(instance, `${"description"}`, __result);
+            ctx.assignOrDefer(instance, "description", __result);
         }
     }
     {
-        const __raw_colors = obj[`${"colors"}`] as Colors;
+        const __raw_colors = obj["colors"] as Colors;
         {
             const __result = colorsDeserializeWithContext(__raw_colors, ctx);
-            ctx.assignOrDefer(instance, `${"colors"}`, __result);
+            ctx.assignOrDefer(instance, "colors", __result);
         }
     }
     {
-        const __raw_recurrenceRule = obj[`${"recurrenceRule"}`] as RecurrenceRule | null;
+        const __raw_recurrenceRule = obj["recurrenceRule"] as RecurrenceRule | null;
         if (__raw_recurrenceRule === null) {
             instance.recurrenceRule = null;
         } else {
             const __result = recurrenceRuleDeserializeWithContext(__raw_recurrenceRule, ctx);
-            ctx.assignOrDefer(instance, `${"recurrenceRule"}`, __result);
+            ctx.assignOrDefer(instance, "recurrenceRule", __result);
         }
     }
     if (errors.length > 0) {
@@ -365,7 +365,7 @@ export function appointmentValidateField<K extends keyof Appointment>(_field: K,
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"title"}`) {
+    if (_field === "title") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -384,7 +384,7 @@ export function appointmentValidateFields(_partial: Partial<Appointment>): Array
         field: string;
         message: string;
     }> = [];
-    if (`${"title"}` in _partial && _partial.title !== undefined) {
+    if ("title" in _partial && _partial.title !== undefined) {
         const __val = _partial.title as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -410,11 +410,634 @@ export function appointmentIs(obj: unknown): obj is Appointment {
     return result.success;
 }
 
+export type AppointmentErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    title: __gf_Option<Array<string>>;
+    status: __gf_Option<Array<string>>;
+    begins: __gf_Option<Array<string>>;
+    duration: __gf_Option<Array<string>>;
+    timeZone: __gf_Option<Array<string>>;
+    offsetMs: __gf_Option<Array<string>>;
+    allDay: __gf_Option<Array<string>>;
+    multiDay: __gf_Option<Array<string>>;
+    employees: __gf_Option<Array<string>>;
+    location: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
+    colors: __gf_Option<Array<string>>;
+    recurrenceRule: __gf_Option<Array<string>>;
+};
+export type AppointmentTainted = {
+    id: __gf_Option<boolean>;
+    title: __gf_Option<boolean>;
+    status: __gf_Option<boolean>;
+    begins: __gf_Option<boolean>;
+    duration: __gf_Option<boolean>;
+    timeZone: __gf_Option<boolean>;
+    offsetMs: __gf_Option<boolean>;
+    allDay: __gf_Option<boolean>;
+    multiDay: __gf_Option<boolean>;
+    employees: __gf_Option<boolean>;
+    location: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
+    colors: __gf_Option<boolean>;
+    recurrenceRule: __gf_Option<boolean>;
+};
+export interface AppointmentFieldControllers {
+    readonly id: FieldController<string>;
+    readonly title: FieldController<string>;
+    readonly status: FieldController<Status>;
+    readonly begins: FieldController<DateTime.DateTime>;
+    readonly duration: FieldController<number>;
+    readonly timeZone: FieldController<string>;
+    readonly offsetMs: FieldController<number>;
+    readonly allDay: FieldController<boolean>;
+    readonly multiDay: FieldController<boolean>;
+    readonly employees: ArrayFieldController<string | Employee>;
+    readonly location: FieldController<string | Site>;
+    readonly description: FieldController<Option<string>>;
+    readonly colors: FieldController<Colors>;
+    readonly recurrenceRule: FieldController<RecurrenceRule | null>;
+}
+export interface AppointmentGigaform {
+    readonly data: Appointment;
+    readonly errors: AppointmentErrors;
+    readonly tainted: AppointmentTainted;
+    readonly fields: AppointmentFieldControllers;
+    validate(): Exit<Appointment, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Appointment>): void;
+}
+export function appointmentCreateForm(overrides?: Partial<Appointment>): AppointmentGigaform {
+    let data = $state({
+        ...appointmentDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<AppointmentErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        title: optionNone(),
+        status: optionNone(),
+        begins: optionNone(),
+        duration: optionNone(),
+        timeZone: optionNone(),
+        offsetMs: optionNone(),
+        allDay: optionNone(),
+        multiDay: optionNone(),
+        employees: optionNone(),
+        location: optionNone(),
+        description: optionNone(),
+        colors: optionNone(),
+        recurrenceRule: optionNone()
+    } as AppointmentErrors);
+    let tainted = $state<AppointmentTainted>({
+        id: optionNone(),
+        title: optionNone(),
+        status: optionNone(),
+        begins: optionNone(),
+        duration: optionNone(),
+        timeZone: optionNone(),
+        offsetMs: optionNone(),
+        allDay: optionNone(),
+        multiDay: optionNone(),
+        employees: optionNone(),
+        location: optionNone(),
+        description: optionNone(),
+        colors: optionNone(),
+        recurrenceRule: optionNone()
+    } as AppointmentTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        title: {
+            path: [
+                "title"
+            ] as const,
+            name: "title",
+            constraints: {
+                required: true
+            },
+            label: "Title",
+            get: ()=>data.title,
+            set: (value: string)=>{
+                data.title = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.title,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.title = value;
+            },
+            getTainted: ()=>tainted.title,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.title = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("title", data.title);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        status: {
+            path: [
+                "status"
+            ] as const,
+            name: "status",
+            constraints: {
+                required: true
+            },
+            label: "Status",
+            get: ()=>data.status,
+            set: (value: Status)=>{
+                data.status = value;
+            },
+            transform: (value: Status): Status =>value,
+            getError: ()=>errors.status,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.status = value;
+            },
+            getTainted: ()=>tainted.status,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.status = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("status", data.status);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        begins: {
+            path: [
+                "begins"
+            ] as const,
+            name: "begins",
+            constraints: {
+                required: true
+            },
+            label: "Begins",
+            get: ()=>data.begins,
+            set: (value: DateTime.DateTime)=>{
+                data.begins = value;
+            },
+            transform: (value: DateTime.DateTime): DateTime.DateTime =>value,
+            getError: ()=>errors.begins,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.begins = value;
+            },
+            getTainted: ()=>tainted.begins,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.begins = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("begins", data.begins);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        duration: {
+            path: [
+                "duration"
+            ] as const,
+            name: "duration",
+            constraints: {
+                required: true
+            },
+            label: "Duration",
+            get: ()=>data.duration,
+            set: (value: number)=>{
+                data.duration = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.duration,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.duration = value;
+            },
+            getTainted: ()=>tainted.duration,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.duration = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("duration", data.duration);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        timeZone: {
+            path: [
+                "timeZone"
+            ] as const,
+            name: "timeZone",
+            constraints: {
+                required: true
+            },
+            label: "Time Zone",
+            get: ()=>data.timeZone,
+            set: (value: string)=>{
+                data.timeZone = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.timeZone,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.timeZone = value;
+            },
+            getTainted: ()=>tainted.timeZone,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.timeZone = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("timeZone", data.timeZone);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        offsetMs: {
+            path: [
+                "offsetMs"
+            ] as const,
+            name: "offsetMs",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.offsetMs,
+            set: (value: number)=>{
+                data.offsetMs = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.offsetMs,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.offsetMs = value;
+            },
+            getTainted: ()=>tainted.offsetMs,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.offsetMs = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("offsetMs", data.offsetMs);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        allDay: {
+            path: [
+                "allDay"
+            ] as const,
+            name: "allDay",
+            constraints: {
+                required: true
+            },
+            label: "All Day",
+            get: ()=>data.allDay,
+            set: (value: boolean)=>{
+                data.allDay = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.allDay,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.allDay = value;
+            },
+            getTainted: ()=>tainted.allDay,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.allDay = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("allDay", data.allDay);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        multiDay: {
+            path: [
+                "multiDay"
+            ] as const,
+            name: "multiDay",
+            constraints: {
+                required: true
+            },
+            label: "Multi Day",
+            get: ()=>data.multiDay,
+            set: (value: boolean)=>{
+                data.multiDay = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.multiDay,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.multiDay = value;
+            },
+            getTainted: ()=>tainted.multiDay,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.multiDay = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("multiDay", data.multiDay);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        employees: {
+            path: [
+                "employees"
+            ] as const,
+            name: "employees",
+            constraints: {
+                required: true
+            },
+            label: "Employees",
+            get: ()=>data.employees,
+            set: (value: Array<string | Employee>)=>{
+                data.employees = value;
+            },
+            transform: (value: Array<string | Employee>): Array<string | Employee> =>value,
+            getError: ()=>errors.employees,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.employees = value;
+            },
+            getTainted: ()=>tainted.employees,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.employees = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("employees", data.employees);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "employees",
+                        index
+                    ] as const,
+                    name: "'^employees.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.employees[index]!,
+                    set: (value: string | Employee)=>{
+                        data.employees[index] = value;
+                    },
+                    transform: (value: string | Employee): string | Employee =>value,
+                    getError: ()=>errors.employees,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.employees = value;
+                    },
+                    getTainted: ()=>tainted.employees,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.employees = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: string | Employee)=>{
+                data.employees.push(item);
+            },
+            remove: (index: number)=>{
+                data.employees.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.employees[a]!;
+                data.employees[a] = data.employees[b]!;
+                data.employees[b] = tmp;
+            }
+        },
+        location: {
+            path: [
+                "location"
+            ] as const,
+            name: "location",
+            constraints: {
+                required: true
+            },
+            label: "Location",
+            get: ()=>data.location,
+            set: (value: string | Site)=>{
+                data.location = value;
+            },
+            transform: (value: string | Site): string | Site =>value,
+            getError: ()=>errors.location,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.location = value;
+            },
+            getTainted: ()=>tainted.location,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.location = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("location", data.location);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        description: {
+            path: [
+                "description"
+            ] as const,
+            name: "description",
+            constraints: {
+                required: true
+            },
+            label: "Description",
+            get: ()=>data.description,
+            set: (value: Option<string>)=>{
+                data.description = value;
+            },
+            transform: (value: Option<string>): Option<string> =>value,
+            getError: ()=>errors.description,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.description = value;
+            },
+            getTainted: ()=>tainted.description,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.description = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("description", data.description);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        colors: {
+            path: [
+                "colors"
+            ] as const,
+            name: "colors",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.colors,
+            set: (value: Colors)=>{
+                data.colors = value;
+            },
+            transform: (value: Colors): Colors =>value,
+            getError: ()=>errors.colors,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.colors = value;
+            },
+            getTainted: ()=>tainted.colors,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.colors = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("colors", data.colors);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        recurrenceRule: {
+            path: [
+                "recurrenceRule"
+            ] as const,
+            name: "recurrenceRule",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.recurrenceRule,
+            set: (value: RecurrenceRule | null)=>{
+                data.recurrenceRule = value;
+            },
+            transform: (value: RecurrenceRule | null): RecurrenceRule | null =>value,
+            getError: ()=>errors.recurrenceRule,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.recurrenceRule = value;
+            },
+            getTainted: ()=>tainted.recurrenceRule,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.recurrenceRule = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appointmentValidateField("recurrenceRule", data.recurrenceRule);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as AppointmentFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Appointment, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(appointmentDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Appointment>): void {
+        data = {
+            ...appointmentDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            title: optionNone(),
+            status: optionNone(),
+            begins: optionNone(),
+            duration: optionNone(),
+            timeZone: optionNone(),
+            offsetMs: optionNone(),
+            allDay: optionNone(),
+            multiDay: optionNone(),
+            employees: optionNone(),
+            location: optionNone(),
+            description: optionNone(),
+            colors: optionNone(),
+            recurrenceRule: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            title: optionNone(),
+            status: optionNone(),
+            begins: optionNone(),
+            duration: optionNone(),
+            timeZone: optionNone(),
+            offsetMs: optionNone(),
+            allDay: optionNone(),
+            multiDay: optionNone(),
+            employees: optionNone(),
+            location: optionNone(),
+            description: optionNone(),
+            colors: optionNone(),
+            recurrenceRule: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function appointmentFromFormData(formData: FormData): Exit<Appointment, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Appointment, Array<{ field: string; message: string }>>";
     obj.id = formData.get(`${"id"}`) ?? "";
     obj.title = formData.get(`${"title"}`) ?? "";
     {
@@ -515,159 +1138,8 @@ export function appointmentFromFormData(formData: FormData): Exit<Appointment, A
         obj.colors = colorsObj;
     }
     obj.recurrenceRule = formData.get(`${"recurrenceRule"}`) ?? "";
-    return toExit("appointmentDeserialize(obj)");
+    return toExit(appointmentDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: Appointment;
-    readonly errors: AppointmentErrors;
-    readonly tainted: AppointmentTainted;
-    readonly fields: AppointmentFieldControllers;
-    validate(): Exit<Appointment, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Appointment>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function appointmentCreateForm(overrides: Partial<Appointment>): AppointmentGigaform {}
-let data = $state({
-    ...appointmentDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as AppointmentErrors);
-let tainted = $state<$MfPh3>({} as AppointmentTainted);
-const fields = {} as AppointmentFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.title = {
-    label: `${"title"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.status = {
-    label: `${"status"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.begins = {
-    label: `${"begins"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.duration = {
-    label: `${"duration"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.timeZone = {
-    label: `${"timeZone"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.offsetMs = {
-    label: `${"offsetMs"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.allDay = {
-    label: `${"allDay"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.multiDay = {
-    label: `${"multiDay"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.employees = {
-    label: `${"employees"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.location = {
-    label: `${"location"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.description = {
-    label: `${"description"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.colors = {
-    label: `${"colors"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.recurrenceRule = {
-    label: `${"recurrenceRule"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Appointment, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("appointmentDeserialize(data)");
-    data = {
-        ...appointmentDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Appointment = {
   defaultValue: appointmentDefaultValue,
@@ -678,6 +1150,6 @@ export const Appointment = {
   validateFields: appointmentValidateFields,
   hasShape: appointmentHasShape,
   is: appointmentIs,
-  fromFormData: appointmentFromFormData,
-  createForm: appointmentCreateForm
+  createForm: appointmentCreateForm,
+  fromFormData: appointmentFromFormData
 } as const;

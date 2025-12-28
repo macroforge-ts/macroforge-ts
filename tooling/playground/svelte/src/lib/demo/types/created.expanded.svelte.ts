@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -29,10 +34,10 @@ export function createdSerializeWithContext(value: Created, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Created"}`,
+        __type: "Created",
         __id
     };
-    result[`${"initialData"}`] = value.initialData;
+    result.initialData = value.initialData;
     return result;
 }
 
@@ -96,9 +101,9 @@ export function createdDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         field: string;
         message: string;
     }> = [];
-    if (!(`${"initialData"}` in obj)) {
+    if (!("initialData" in obj)) {
         errors.push({
-            field: `${"initialData"}`,
+            field: "initialData",
             message: "missing required field"
         });
     }
@@ -111,7 +116,7 @@ export function createdDeserializeWithContext(value: any, ctx: __mf_DeserializeC
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_initialData = obj[`${"initialData"}`] as string | null;
+        const __raw_initialData = obj["initialData"] as string | null;
         instance.initialData = __raw_initialData;
     }
     if (errors.length > 0) {
@@ -146,6 +151,125 @@ export function createdIs(obj: unknown): obj is Created {
     return result.success;
 }
 
+export type CreatedErrors = {
+    _errors: __gf_Option<Array<string>>;
+    initialData: __gf_Option<Array<string>>;
+};
+export type CreatedTainted = {
+    initialData: __gf_Option<boolean>;
+};
+export interface CreatedFieldControllers {
+    readonly initialData: FieldController<string | null>;
+}
+export interface CreatedGigaform {
+    readonly data: Created;
+    readonly errors: CreatedErrors;
+    readonly tainted: CreatedTainted;
+    readonly fields: CreatedFieldControllers;
+    validate(): Exit<Created, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Created>): void;
+}
+export function createdCreateForm(overrides?: Partial<Created>): CreatedGigaform {
+    let data = $state({
+        ...createdDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<CreatedErrors>({
+        _errors: optionNone(),
+        initialData: optionNone()
+    } as CreatedErrors);
+    let tainted = $state<CreatedTainted>({
+        initialData: optionNone()
+    } as CreatedTainted);
+    const fields = {
+        initialData: {
+            path: [
+                "initialData"
+            ] as const,
+            name: "initialData",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.initialData,
+            set: (value: string | null)=>{
+                data.initialData = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.initialData,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.initialData = value;
+            },
+            getTainted: ()=>tainted.initialData,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.initialData = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = createdValidateField("initialData", data.initialData);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as CreatedFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Created, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(createdDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Created>): void {
+        data = {
+            ...createdDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            initialData: optionNone()
+        };
+        tainted = {
+            initialData: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function createdFromFormData(formData: FormData): Exit<Created, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Created, Array<{ field: string; message: string }>>";
+    obj.initialData = formData.get(`${"initialData"}`) ?? "";
+    return toExit(createdDeserialize(obj));
+}
+
 export const Created = {
   defaultValue: createdDefaultValue,
   serialize: createdSerialize,
@@ -154,5 +278,7 @@ export const Created = {
   deserializeWithContext: createdDeserializeWithContext,
   validateFields: createdValidateFields,
   hasShape: createdHasShape,
-  is: createdIs
+  is: createdIs,
+  createForm: createdCreateForm,
+  fromFormData: createdFromFormData
 } as const;

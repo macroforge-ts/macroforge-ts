@@ -15,11 +15,11 @@ export function statusDefaultValue#0#0(): Status {
     return 'Scheduled';
 }
 
-export function statusSerialize#0#0(value: Status): string {
+export function statusSerialize(value: Status): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(statusSerializeWithContext(value, ctx));
 }
-export function statusSerializeWithContext#0#0(value: Status, ctx: __mf_SerializeContext): unknown {
+export function statusSerializeWithContext(value: Status, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -93,32 +93,91 @@ export function statusIs(value: unknown): value is Status {
     return allowedValues.includes(value as any);
 }
 
+export type StatusScheduledErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type StatusOnDeckErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type StatusWaitingErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type StatusScheduledTainted = {
+};
+export type StatusOnDeckTainted = {
+};
+export type StatusWaitingTainted = {
+};
+export type StatusErrors = ({
+    _value: "Scheduled";
+} & StatusScheduledErrors) | ({
+    _value: "OnDeck";
+} & StatusOnDeckErrors) | ({
+    _value: "Waiting";
+} & StatusWaitingErrors);
+export type StatusTainted = ({
+    _value: "Scheduled";
+} & StatusScheduledTainted) | ({
+    _value: "OnDeck";
+} & StatusOnDeckTainted) | ({
+    _value: "Waiting";
+} & StatusWaitingTainted);
+export interface StatusScheduledFieldControllers {
+}
+export interface StatusOnDeckFieldControllers {
+}
+export interface StatusWaitingFieldControllers {
+}
+export interface StatusGigaform {
+    readonly currentVariant: "Scheduled" | "OnDeck" | "Waiting";
+    readonly data: Status;
+    readonly errors: StatusErrors;
+    readonly tainted: StatusTainted;
+    readonly variants: StatusVariantFields;
+    switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void;
+    validate(): Exit<Status, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Status>): void;
+}
+export interface StatusVariantFields {
+    readonly Scheduled: {
+        readonly fields: StatusScheduledFieldControllers;
+    };
+    readonly OnDeck: {
+        readonly fields: StatusOnDeckFieldControllers;
+    };
+    readonly Waiting: {
+        readonly fields: StatusWaitingFieldControllers;
+    };
+}
 function statusGetDefaultForVariant(variant: string): Status {
-    if (variant === `${"Scheduled"}`) {
-        return `${"Scheduled"}` as Status;
+    if (variant === "Scheduled") {
+        return "Scheduled" as Status;
     }
-    if (variant === `${"OnDeck"}`) {
-        return `${"OnDeck"}` as Status;
+    if (variant === "OnDeck") {
+        return "OnDeck" as Status;
     }
-    if (variant === `${"Waiting"}`) {
-        return `${"Waiting"}` as Status;
+    if (variant === "Waiting") {
+        return "Waiting" as Status;
     }
-    return `${"Scheduled"}` as Status;
+    return "Scheduled" as Status;
 }
 export function statusCreateForm(initial: Status): StatusGigaform {
-    const initialVariant: "Scheduled" | "OnDeck" | "Waiting" = '(initial as "Scheduled" | "OnDeck" | "Waiting") ?? "Scheduled"';
+    const initialVariant: "Scheduled" | "OnDeck" | "Waiting" = (initial as "Scheduled" | "OnDeck" | "Waiting") ?? "Scheduled";
     let currentVariant = $state<$MfPh5>(initialVariant);
     let data = $state<$MfPh6>(initial ?? "statusGetDefaultForVariant"(initialVariant));
     let errors = $state<$MfPh8>({} as StatusErrors);
     let tainted = $state<$MfPh10>({} as StatusTainted);
     const variants = {} as StatusVariantFields;
-    variants[Scheduled] = {
+    variants[__expr__] = {
         fields: {} as StatusScheduledFieldControllers
     };
-    variants[OnDeck] = {
+    variants[__expr__] = {
         fields: {} as StatusOnDeckFieldControllers
     };
-    variants[Waiting] = {
+    variants[__expr__] = {
         fields: {} as StatusWaitingFieldControllers
     };
     function switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void {
@@ -131,10 +190,10 @@ export function statusCreateForm(initial: Status): StatusGigaform {
         field: string;
         message: string;
     }>> {
-        return toExit("statusDeserialize(data)");
+        return toExit(statusDeserialize(data));
     }
     function reset(overrides: Partial<Status>): void {
-        data = "overrides ? overrides as typeof data : statusGetDefaultForVariant(currentVariant)";
+        data = overrides ? overrides as typeof data : statusGetDefaultForVariant(currentVariant);
         errors = {} as StatusErrors;
         tainted = {} as StatusTainted;
     }
@@ -184,49 +243,12 @@ export function statusFromFormData(formData: FormData): Exit<Status, Array<{
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
-    return toExit("statusDeserialize(obj)");
+    return toExit(statusDeserialize(obj));
 }
-export type $MfPh0 = $MfPh1;
-export type $MfPh2 = $MfPh3;
-export interface StatusScheduledFieldControllers {
-}
-export interface StatusOnDeckFieldControllers {
-}
-export interface StatusWaitingFieldControllers {
-}
-export interface $MfPh4 {
-    readonly currentVariant: "Scheduled" | "OnDeck" | "Waiting";
-    readonly data: Status;
-    readonly errors: StatusErrors;
-    readonly tainted: StatusTainted;
-    readonly variants: StatusVariantFields;
-    switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void;
-    validate(): Exit<Status, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Status>): void;
-}
-export interface $MfPh13 {
-}
-export type StatusScheduledErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type StatusOnDeckErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type StatusWaitingErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
- };  };  }; export type StatusScheduledTainted = {
-};
-export type StatusOnDeckTainted = {
-};
-export type StatusWaitingTainted = {
-};
- };  };  };
 
 export const Status = {
+  serialize: statusSerialize,
+  serializeWithContext: statusSerializeWithContext,
   deserialize: statusDeserialize,
   deserializeWithContext: statusDeserializeWithContext,
   is: statusIs,

@@ -6,6 +6,12 @@ import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/s
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
 import { companyNameDeserializeWithContext } from "./company-name.svelte";
 import { personNameDeserializeWithContext } from "./person-name.svelte";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
+import { personNameDefaultValue } from "./person-name.svelte";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { CompanyName } from './company-name.svelte';
@@ -18,11 +24,11 @@ export function accountNameDefaultValue#0#0(): AccountName {
     return companyNameDefaultValue();
 }
 
-export function accountNameSerialize#0#0(value: AccountName): string {
+export function accountNameSerialize(value: AccountName): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(accountNameSerializeWithContext(value, ctx));
 }
-export function accountNameSerializeWithContext#0#0(value: AccountName, ctx: __mf_SerializeContext): unknown {
+export function accountNameSerializeWithContext(value: AccountName, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -79,10 +85,10 @@ export function accountNameDeserializeWithContext(value: any, ctx: __mf_Deserial
     if (typeof value === "object" && value !== null) {
         const __typeName = (value as any).__type;
         if (typeof __typeName === "string") {}
-        if (__typeName === `${"CompanyName"}`) {
+        if (__typeName === "CompanyName") {
             return companyNameDeserializeWithContext(value, ctx) as AccountName;
         }
-        if (__typeName === `${"PersonName"}`) {
+        if (__typeName === "PersonName") {
             return personNameDeserializeWithContext(value, ctx) as AccountName;
         }
     }
@@ -102,8 +108,145 @@ export function accountNameIs(value: unknown): value is AccountName {
 }
      }
 
+export type AccountNameCompanyNameErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type AccountNamePersonNameErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type AccountNameCompanyNameTainted = {
+};
+export type AccountNamePersonNameTainted = {
+};
+export type AccountNameErrors = ({
+    _type: "CompanyName";
+} & AccountNameCompanyNameErrors) | ({
+    _type: "PersonName";
+} & AccountNamePersonNameErrors);
+export type AccountNameTainted = ({
+    _type: "CompanyName";
+} & AccountNameCompanyNameTainted) | ({
+    _type: "PersonName";
+} & AccountNamePersonNameTainted);
+export interface AccountNameCompanyNameFieldControllers {
+}
+export interface AccountNamePersonNameFieldControllers {
+}
+export interface AccountNameGigaform {
+    readonly currentVariant: "CompanyName" | "PersonName";
+    readonly data: AccountName;
+    readonly errors: AccountNameErrors;
+    readonly tainted: AccountNameTainted;
+    readonly variants: AccountNameVariantFields;
+    switchVariant(variant: "CompanyName" | "PersonName"): void;
+    validate(): Exit<AccountName, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<AccountName>): void;
+}
+export interface AccountNameVariantFields {
+    readonly CompanyName: {
+        readonly fields: AccountNameCompanyNameFieldControllers;
+    };
+    readonly PersonName: {
+        readonly fields: AccountNamePersonNameFieldControllers;
+    };
+}
+function accountNameGetDefaultForVariant(variant: string): AccountName {
+    if (variant === "CompanyName") {
+        return companyNameDefaultValue() as AccountName;
+    }
+    if (variant === "PersonName") {
+        return personNameDefaultValue() as AccountName;
+    }
+    return companyNameDefaultValue() as AccountName;
+}
+export function accountNameCreateForm(initial: AccountName): AccountNameGigaform {
+    const initialVariant: "CompanyName" | "PersonName" = "CompanyName";
+    let currentVariant = $state<$MfPh5>(initialVariant);
+    let data = $state<$MfPh6>(initial ?? "accountNameGetDefaultForVariant"(initialVariant));
+    let errors = $state<$MfPh8>({} as AccountNameErrors);
+    let tainted = $state<$MfPh10>({} as AccountNameTainted);
+    const variants = {} as AccountNameVariantFields;
+    variants[__expr__] = {
+        fields: {} as AccountNameCompanyNameFieldControllers
+    };
+    variants[__expr__] = {
+        fields: {} as AccountNamePersonNameFieldControllers
+    };
+    function switchVariant(variant: "CompanyName" | "PersonName"): void {
+        currentVariant = variant;
+        data = "accountNameGetDefaultForVariant"(variant);
+        errors = {} as AccountNameErrors;
+        tainted = {} as AccountNameTainted;
+    }
+    function validate(): Exit<AccountName, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(accountNameDeserialize(data));
+    }
+    function reset(overrides: Partial<AccountName>): void {
+        data = overrides ? overrides as typeof data : accountNameGetDefaultForVariant(currentVariant);
+        errors = {} as AccountNameErrors;
+        tainted = {} as AccountNameTainted;
+    }
+    return {
+        get currentVariant () {
+            return currentVariant;
+        },
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        variants,
+        switchVariant,
+        validate,
+        reset
+    };
+}
+export function accountNameFromFormData(formData: FormData): Exit<AccountName, Array<{
+    field: string;
+    message: string;
+}>> {
+    const discriminant = formData.get(`${"_type"}`) as "CompanyName" | "PersonName" | null;
+    if (!discriminant) {
+        return toExit({
+            success: false,
+            errors: [
+                {
+                    field: `${"_type"}`,
+                    message: "Missing discriminant field"
+                }
+            ]
+        });
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    return toExit(accountNameDeserialize(obj));
+}
+
 export const AccountName = {
+  serialize: accountNameSerialize,
+  serializeWithContext: accountNameSerializeWithContext,
   deserialize: accountNameDeserialize,
   deserializeWithContext: accountNameDeserializeWithContext,
-  is: accountNameIs
+  is: accountNameIs,
+  createForm: accountNameCreateForm,
+  fromFormData: accountNameFromFormData
 } as const;

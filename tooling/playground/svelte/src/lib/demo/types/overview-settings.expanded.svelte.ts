@@ -52,13 +52,13 @@ export function overviewSettingsSerializeWithContext(value: OverviewSettings, ct
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"OverviewSettings"}`,
+        __type: "OverviewSettings",
         __id
     };
-    result[`${"rowHeight"}`] = rowHeightSerializeWithContext(value.rowHeight, ctx);
-    result[`${"cardOrRow"}`] = overviewDisplaySerializeWithContext(value.cardOrRow, ctx);
-    result[`${"perPage"}`] = value.perPage;
-    result[`${"columnConfigs"}`] = value.columnConfigs.map((item)=>columnConfigSerializeWithContext(item, ctx));
+    result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);
+    result.cardOrRow = overviewDisplaySerializeWithContext(value.cardOrRow, ctx);
+    result.perPage = value.perPage;
+    result.columnConfigs = value.columnConfigs.map((item)=>columnConfigSerializeWithContext(item, ctx));
     return result;
 }
 
@@ -122,27 +122,27 @@ export function overviewSettingsDeserializeWithContext(value: any, ctx: __mf_Des
         field: string;
         message: string;
     }> = [];
-    if (!(`${"rowHeight"}` in obj)) {
+    if (!("rowHeight" in obj)) {
         errors.push({
-            field: `${"rowHeight"}`,
+            field: "rowHeight",
             message: "missing required field"
         });
     }
-    if (!(`${"cardOrRow"}` in obj)) {
+    if (!("cardOrRow" in obj)) {
         errors.push({
-            field: `${"cardOrRow"}`,
+            field: "cardOrRow",
             message: "missing required field"
         });
     }
-    if (!(`${"perPage"}` in obj)) {
+    if (!("perPage" in obj)) {
         errors.push({
-            field: `${"perPage"}`,
+            field: "perPage",
             message: "missing required field"
         });
     }
-    if (!(`${"columnConfigs"}` in obj)) {
+    if (!("columnConfigs" in obj)) {
         errors.push({
-            field: `${"columnConfigs"}`,
+            field: "columnConfigs",
             message: "missing required field"
         });
     }
@@ -155,25 +155,25 @@ export function overviewSettingsDeserializeWithContext(value: any, ctx: __mf_Des
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_rowHeight = obj[`${"rowHeight"}`] as RowHeight;
+        const __raw_rowHeight = obj["rowHeight"] as RowHeight;
         {
             const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
-            ctx.assignOrDefer(instance, `${"rowHeight"}`, __result);
+            ctx.assignOrDefer(instance, "rowHeight", __result);
         }
     }
     {
-        const __raw_cardOrRow = obj[`${"cardOrRow"}`] as OverviewDisplay;
+        const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;
         {
             const __result = overviewDisplayDeserializeWithContext(__raw_cardOrRow, ctx);
-            ctx.assignOrDefer(instance, `${"cardOrRow"}`, __result);
+            ctx.assignOrDefer(instance, "cardOrRow", __result);
         }
     }
     {
-        const __raw_perPage = obj[`${"perPage"}`] as number;
+        const __raw_perPage = obj["perPage"] as number;
         instance.perPage = __raw_perPage;
     }
     {
-        const __raw_columnConfigs = obj[`${"columnConfigs"}`] as Array<ColumnConfig>;
+        const __raw_columnConfigs = obj["columnConfigs"] as Array<ColumnConfig>;
         if (Array.isArray(__raw_columnConfigs)) {
             instance.columnConfigs = __raw_columnConfigs as ColumnConfig[];
         }
@@ -210,11 +210,264 @@ export function overviewSettingsIs(obj: unknown): obj is OverviewSettings {
     return result.success;
 }
 
+export type OverviewSettingsErrors = {
+    _errors: __gf_Option<Array<string>>;
+    rowHeight: __gf_Option<Array<string>>;
+    cardOrRow: __gf_Option<Array<string>>;
+    perPage: __gf_Option<Array<string>>;
+    columnConfigs: __gf_Option<Array<string>>;
+};
+export type OverviewSettingsTainted = {
+    rowHeight: __gf_Option<boolean>;
+    cardOrRow: __gf_Option<boolean>;
+    perPage: __gf_Option<boolean>;
+    columnConfigs: __gf_Option<boolean>;
+};
+export interface OverviewSettingsFieldControllers {
+    readonly rowHeight: FieldController<RowHeight>;
+    readonly cardOrRow: FieldController<OverviewDisplay>;
+    readonly perPage: FieldController<number>;
+    readonly columnConfigs: ArrayFieldController<ColumnConfig>;
+}
+export interface OverviewSettingsGigaform {
+    readonly data: OverviewSettings;
+    readonly errors: OverviewSettingsErrors;
+    readonly tainted: OverviewSettingsTainted;
+    readonly fields: OverviewSettingsFieldControllers;
+    validate(): Exit<OverviewSettings, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<OverviewSettings>): void;
+}
+export function overviewSettingsCreateForm(overrides?: Partial<OverviewSettings>): OverviewSettingsGigaform {
+    let data = $state({
+        ...overviewSettingsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<OverviewSettingsErrors>({
+        _errors: optionNone(),
+        rowHeight: optionNone(),
+        cardOrRow: optionNone(),
+        perPage: optionNone(),
+        columnConfigs: optionNone()
+    } as OverviewSettingsErrors);
+    let tainted = $state<OverviewSettingsTainted>({
+        rowHeight: optionNone(),
+        cardOrRow: optionNone(),
+        perPage: optionNone(),
+        columnConfigs: optionNone()
+    } as OverviewSettingsTainted);
+    const fields = {
+        rowHeight: {
+            path: [
+                "rowHeight"
+            ] as const,
+            name: "rowHeight",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.rowHeight,
+            set: (value: RowHeight)=>{
+                data.rowHeight = value;
+            },
+            transform: (value: RowHeight): RowHeight =>value,
+            getError: ()=>errors.rowHeight,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.rowHeight = value;
+            },
+            getTainted: ()=>tainted.rowHeight,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.rowHeight = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = overviewSettingsValidateField("rowHeight", data.rowHeight);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        cardOrRow: {
+            path: [
+                "cardOrRow"
+            ] as const,
+            name: "cardOrRow",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.cardOrRow,
+            set: (value: OverviewDisplay)=>{
+                data.cardOrRow = value;
+            },
+            transform: (value: OverviewDisplay): OverviewDisplay =>value,
+            getError: ()=>errors.cardOrRow,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.cardOrRow = value;
+            },
+            getTainted: ()=>tainted.cardOrRow,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.cardOrRow = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = overviewSettingsValidateField("cardOrRow", data.cardOrRow);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        perPage: {
+            path: [
+                "perPage"
+            ] as const,
+            name: "perPage",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.perPage,
+            set: (value: number)=>{
+                data.perPage = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.perPage,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.perPage = value;
+            },
+            getTainted: ()=>tainted.perPage,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.perPage = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = overviewSettingsValidateField("perPage", data.perPage);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        columnConfigs: {
+            path: [
+                "columnConfigs"
+            ] as const,
+            name: "columnConfigs",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.columnConfigs,
+            set: (value: Array<ColumnConfig>)=>{
+                data.columnConfigs = value;
+            },
+            transform: (value: Array<ColumnConfig>): Array<ColumnConfig> =>value,
+            getError: ()=>errors.columnConfigs,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.columnConfigs = value;
+            },
+            getTainted: ()=>tainted.columnConfigs,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.columnConfigs = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = overviewSettingsValidateField("columnConfigs", data.columnConfigs);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "columnConfigs",
+                        index
+                    ] as const,
+                    name: "'^columnConfigs.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.columnConfigs[index]!,
+                    set: (value: ColumnConfig)=>{
+                        data.columnConfigs[index] = value;
+                    },
+                    transform: (value: ColumnConfig): ColumnConfig =>value,
+                    getError: ()=>errors.columnConfigs,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.columnConfigs = value;
+                    },
+                    getTainted: ()=>tainted.columnConfigs,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.columnConfigs = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: ColumnConfig)=>{
+                data.columnConfigs.push(item);
+            },
+            remove: (index: number)=>{
+                data.columnConfigs.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.columnConfigs[a]!;
+                data.columnConfigs[a] = data.columnConfigs[b]!;
+                data.columnConfigs[b] = tmp;
+            }
+        }
+    } as OverviewSettingsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<OverviewSettings, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(overviewSettingsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<OverviewSettings>): void {
+        data = {
+            ...overviewSettingsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            rowHeight: optionNone(),
+            cardOrRow: optionNone(),
+            perPage: optionNone(),
+            columnConfigs: optionNone()
+        };
+        tainted = {
+            rowHeight: optionNone(),
+            cardOrRow: optionNone(),
+            perPage: optionNone(),
+            columnConfigs: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function overviewSettingsFromFormData(formData: FormData): Exit<OverviewSettings, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<OverviewSettings, Array<{ field: string; message: string }>>";
     {
         const rowHeightObj: Record<string, unknown> = {};
         for (const [key, value] of Array.from(formData.entries())){
@@ -279,79 +532,8 @@ export function overviewSettingsFromFormData(formData: FormData): Exit<OverviewS
         }
         obj.columnConfigs = columnConfigsItems;
     }
-    return toExit("overviewSettingsDeserialize(obj)");
+    return toExit(overviewSettingsDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: OverviewSettings;
-    readonly errors: OverviewSettingsErrors;
-    readonly tainted: OverviewSettingsTainted;
-    readonly fields: OverviewSettingsFieldControllers;
-    validate(): Exit<OverviewSettings, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<OverviewSettings>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function overviewSettingsCreateForm(overrides: Partial<OverviewSettings>): OverviewSettingsGigaform {}
-let data = $state({
-    ...overviewSettingsDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as OverviewSettingsErrors);
-let tainted = $state<$MfPh3>({} as OverviewSettingsTainted);
-const fields = {} as OverviewSettingsFieldControllers;
-fields.rowHeight = {
-    label: `${"rowHeight"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.cardOrRow = {
-    label: `${"cardOrRow"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.perPage = {
-    label: `${"perPage"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.columnConfigs = {
-    label: `${"columnConfigs"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-function validate(): Exit<OverviewSettings, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("overviewSettingsDeserialize(data)");
-    data = {
-        ...overviewSettingsDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const OverviewSettings = {
   defaultValue: overviewSettingsDefaultValue,
@@ -362,6 +544,6 @@ export const OverviewSettings = {
   validateFields: overviewSettingsValidateFields,
   hasShape: overviewSettingsHasShape,
   is: overviewSettingsIs,
-  fromFormData: overviewSettingsFromFormData,
-  createForm: overviewSettingsCreateForm
+  createForm: overviewSettingsCreateForm,
+  fromFormData: overviewSettingsFromFormData
 } as const;

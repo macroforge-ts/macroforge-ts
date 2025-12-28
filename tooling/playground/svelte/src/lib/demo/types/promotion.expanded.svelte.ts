@@ -36,11 +36,11 @@ export function promotionSerializeWithContext(value: Promotion, ctx: __mf_Serial
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Promotion"}`,
+        __type: "Promotion",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"date"}`] = value.date;
+    result.id = value.id;
+    result.date = value.date;
     return result;
 }
 
@@ -104,15 +104,15 @@ export function promotionDeserializeWithContext(value: any, ctx: __mf_Deserializ
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"date"}` in obj)) {
+    if (!("date" in obj)) {
         errors.push({
-            field: `${"date"}`,
+            field: "date",
             message: "missing required field"
         });
     }
@@ -125,11 +125,11 @@ export function promotionDeserializeWithContext(value: any, ctx: __mf_Deserializ
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_date = obj[`${"date"}`] as string;
+        const __raw_date = obj["date"] as string;
         instance.date = __raw_date;
     }
     if (errors.length > 0) {
@@ -164,23 +164,20 @@ export function promotionIs(obj: unknown): obj is Promotion {
     return result.success;
 }
 
-export function promotionFromFormData(formData: FormData): Exit<Promotion, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    obj.id = formData.get(`${"id"}`) ?? "";
-    obj.date = formData.get(`${"date"}`) ?? "";
-    return toExit("promotionDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type PromotionErrors = {
     _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    date: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type PromotionTainted = {
+    id: __gf_Option<boolean>;
+    date: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface PromotionFieldControllers {
+    readonly id: FieldController<string>;
+    readonly date: FieldController<string>;
 }
-export interface $MfPh3 {
+export interface PromotionGigaform {
     readonly data: Promotion;
     readonly errors: PromotionErrors;
     readonly tainted: PromotionTainted;
@@ -189,45 +186,139 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Promotion>): void;
+    reset(overrides?: Partial<Promotion>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function promotionCreateForm(overrides: Partial<Promotion>): PromotionGigaform {}
-let data = $state({
-    ...promotionDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as PromotionErrors);
-let tainted = $state<$MfPh3>({} as PromotionTainted);
-const fields = {} as PromotionFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.date = {
-    label: `${"date"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Promotion, Array<{
+export function promotionCreateForm(overrides?: Partial<Promotion>): PromotionGigaform {
+    let data = $state({
+        ...promotionDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<PromotionErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        date: optionNone()
+    } as PromotionErrors);
+    let tainted = $state<PromotionTainted>({
+        id: optionNone(),
+        date: optionNone()
+    } as PromotionTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = promotionValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        date: {
+            path: [
+                "date"
+            ] as const,
+            name: "date",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.date,
+            set: (value: string)=>{
+                data.date = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.date,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.date = value;
+            },
+            getTainted: ()=>tainted.date,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.date = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = promotionValidateField("date", data.date);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as PromotionFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Promotion, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(promotionDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Promotion>): void {
+        data = {
+            ...promotionDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            date: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            date: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function promotionFromFormData(formData: FormData): Exit<Promotion, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("promotionDeserialize(data)");
-    data = {
-        ...promotionDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Promotion, Array<{ field: string; message: string }>>";
+    obj.id = formData.get(`${"id"}`) ?? "";
+    obj.date = formData.get(`${"date"}`) ?? "";
+    return toExit(promotionDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Promotion = {
   defaultValue: promotionDefaultValue,
@@ -238,6 +329,6 @@ export const Promotion = {
   validateFields: promotionValidateFields,
   hasShape: promotionHasShape,
   is: promotionIs,
-  fromFormData: promotionFromFormData,
-  createForm: promotionCreateForm
+  createForm: promotionCreateForm,
+  fromFormData: promotionFromFormData
 } as const;

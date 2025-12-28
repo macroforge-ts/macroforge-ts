@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -32,11 +37,11 @@ export function commentedSerializeWithContext(value: Commented, ctx: __mf_Serial
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Commented"}`,
+        __type: "Commented",
         __id
     };
-    result[`${"comment"}`] = value.comment;
-    result[`${"replyTo"}`] = value.replyTo;
+    result.comment = value.comment;
+    result.replyTo = value.replyTo;
     return result;
 }
 
@@ -100,15 +105,15 @@ export function commentedDeserializeWithContext(value: any, ctx: __mf_Deserializ
         field: string;
         message: string;
     }> = [];
-    if (!(`${"comment"}` in obj)) {
+    if (!("comment" in obj)) {
         errors.push({
-            field: `${"comment"}`,
+            field: "comment",
             message: "missing required field"
         });
     }
-    if (!(`${"replyTo"}` in obj)) {
+    if (!("replyTo" in obj)) {
         errors.push({
-            field: `${"replyTo"}`,
+            field: "replyTo",
             message: "missing required field"
         });
     }
@@ -121,7 +126,7 @@ export function commentedDeserializeWithContext(value: any, ctx: __mf_Deserializ
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_comment = obj[`${"comment"}`] as string;
+        const __raw_comment = obj["comment"] as string;
         if (__raw_comment.trim().length === 0) {
             errors.push({
                 field: "comment",
@@ -131,7 +136,7 @@ export function commentedDeserializeWithContext(value: any, ctx: __mf_Deserializ
         instance.comment = __raw_comment;
     }
     {
-        const __raw_replyTo = obj[`${"replyTo"}`] as string | null;
+        const __raw_replyTo = obj["replyTo"] as string | null;
         instance.replyTo = __raw_replyTo;
     }
     if (errors.length > 0) {
@@ -147,7 +152,7 @@ export function commentedValidateField<K extends keyof Commented>(_field: K, _va
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"comment"}`) {
+    if (_field === "comment") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -166,7 +171,7 @@ export function commentedValidateFields(_partial: Partial<Commented>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"comment"}` in _partial && _partial.comment !== undefined) {
+    if ("comment" in _partial && _partial.comment !== undefined) {
         const __val = _partial.comment as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -192,6 +197,162 @@ export function commentedIs(obj: unknown): obj is Commented {
     return result.success;
 }
 
+export type CommentedErrors = {
+    _errors: __gf_Option<Array<string>>;
+    comment: __gf_Option<Array<string>>;
+    replyTo: __gf_Option<Array<string>>;
+};
+export type CommentedTainted = {
+    comment: __gf_Option<boolean>;
+    replyTo: __gf_Option<boolean>;
+};
+export interface CommentedFieldControllers {
+    readonly comment: FieldController<string>;
+    readonly replyTo: FieldController<string | null>;
+}
+export interface CommentedGigaform {
+    readonly data: Commented;
+    readonly errors: CommentedErrors;
+    readonly tainted: CommentedTainted;
+    readonly fields: CommentedFieldControllers;
+    validate(): Exit<Commented, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Commented>): void;
+}
+export function commentedCreateForm(overrides?: Partial<Commented>): CommentedGigaform {
+    let data = $state({
+        ...commentedDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<CommentedErrors>({
+        _errors: optionNone(),
+        comment: optionNone(),
+        replyTo: optionNone()
+    } as CommentedErrors);
+    let tainted = $state<CommentedTainted>({
+        comment: optionNone(),
+        replyTo: optionNone()
+    } as CommentedTainted);
+    const fields = {
+        comment: {
+            path: [
+                "comment"
+            ] as const,
+            name: "comment",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.comment,
+            set: (value: string)=>{
+                data.comment = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.comment,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.comment = value;
+            },
+            getTainted: ()=>tainted.comment,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.comment = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = commentedValidateField("comment", data.comment);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        replyTo: {
+            path: [
+                "replyTo"
+            ] as const,
+            name: "replyTo",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.replyTo,
+            set: (value: string | null)=>{
+                data.replyTo = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.replyTo,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.replyTo = value;
+            },
+            getTainted: ()=>tainted.replyTo,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.replyTo = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = commentedValidateField("replyTo", data.replyTo);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as CommentedFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Commented, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(commentedDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Commented>): void {
+        data = {
+            ...commentedDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            comment: optionNone(),
+            replyTo: optionNone()
+        };
+        tainted = {
+            comment: optionNone(),
+            replyTo: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function commentedFromFormData(formData: FormData): Exit<Commented, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Commented, Array<{ field: string; message: string }>>";
+    obj.comment = formData.get(`${"comment"}`) ?? "";
+    obj.replyTo = formData.get(`${"replyTo"}`) ?? "";
+    return toExit(commentedDeserialize(obj));
+}
+
 export const Commented = {
   defaultValue: commentedDefaultValue,
   serialize: commentedSerialize,
@@ -200,5 +361,7 @@ export const Commented = {
   deserializeWithContext: commentedDeserializeWithContext,
   validateFields: commentedValidateFields,
   hasShape: commentedHasShape,
-  is: commentedIs
+  is: commentedIs,
+  createForm: commentedCreateForm,
+  fromFormData: commentedFromFormData
 } as const;

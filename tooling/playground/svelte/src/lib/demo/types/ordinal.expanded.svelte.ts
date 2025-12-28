@@ -48,17 +48,17 @@ export function ordinalSerializeWithContext(value: Ordinal, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Ordinal"}`,
+        __type: "Ordinal",
         __id
     };
-    result[`${"north"}`] = value.north;
-    result[`${"northeast"}`] = value.northeast;
-    result[`${"east"}`] = value.east;
-    result[`${"southeast"}`] = value.southeast;
-    result[`${"south"}`] = value.south;
-    result[`${"southwest"}`] = value.southwest;
-    result[`${"west"}`] = value.west;
-    result[`${"northwest"}`] = value.northwest;
+    result.north = value.north;
+    result.northeast = value.northeast;
+    result.east = value.east;
+    result.southeast = value.southeast;
+    result.south = value.south;
+    result.southwest = value.southwest;
+    result.west = value.west;
+    result.northwest = value.northwest;
     return result;
 }
 
@@ -122,51 +122,51 @@ export function ordinalDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         field: string;
         message: string;
     }> = [];
-    if (!(`${"north"}` in obj)) {
+    if (!("north" in obj)) {
         errors.push({
-            field: `${"north"}`,
+            field: "north",
             message: "missing required field"
         });
     }
-    if (!(`${"northeast"}` in obj)) {
+    if (!("northeast" in obj)) {
         errors.push({
-            field: `${"northeast"}`,
+            field: "northeast",
             message: "missing required field"
         });
     }
-    if (!(`${"east"}` in obj)) {
+    if (!("east" in obj)) {
         errors.push({
-            field: `${"east"}`,
+            field: "east",
             message: "missing required field"
         });
     }
-    if (!(`${"southeast"}` in obj)) {
+    if (!("southeast" in obj)) {
         errors.push({
-            field: `${"southeast"}`,
+            field: "southeast",
             message: "missing required field"
         });
     }
-    if (!(`${"south"}` in obj)) {
+    if (!("south" in obj)) {
         errors.push({
-            field: `${"south"}`,
+            field: "south",
             message: "missing required field"
         });
     }
-    if (!(`${"southwest"}` in obj)) {
+    if (!("southwest" in obj)) {
         errors.push({
-            field: `${"southwest"}`,
+            field: "southwest",
             message: "missing required field"
         });
     }
-    if (!(`${"west"}` in obj)) {
+    if (!("west" in obj)) {
         errors.push({
-            field: `${"west"}`,
+            field: "west",
             message: "missing required field"
         });
     }
-    if (!(`${"northwest"}` in obj)) {
+    if (!("northwest" in obj)) {
         errors.push({
-            field: `${"northwest"}`,
+            field: "northwest",
             message: "missing required field"
         });
     }
@@ -179,35 +179,35 @@ export function ordinalDeserializeWithContext(value: any, ctx: __mf_DeserializeC
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_north = obj[`${"north"}`] as number;
+        const __raw_north = obj["north"] as number;
         instance.north = __raw_north;
     }
     {
-        const __raw_northeast = obj[`${"northeast"}`] as number;
+        const __raw_northeast = obj["northeast"] as number;
         instance.northeast = __raw_northeast;
     }
     {
-        const __raw_east = obj[`${"east"}`] as number;
+        const __raw_east = obj["east"] as number;
         instance.east = __raw_east;
     }
     {
-        const __raw_southeast = obj[`${"southeast"}`] as number;
+        const __raw_southeast = obj["southeast"] as number;
         instance.southeast = __raw_southeast;
     }
     {
-        const __raw_south = obj[`${"south"}`] as number;
+        const __raw_south = obj["south"] as number;
         instance.south = __raw_south;
     }
     {
-        const __raw_southwest = obj[`${"southwest"}`] as number;
+        const __raw_southwest = obj["southwest"] as number;
         instance.southwest = __raw_southwest;
     }
     {
-        const __raw_west = obj[`${"west"}`] as number;
+        const __raw_west = obj["west"] as number;
         instance.west = __raw_west;
     }
     {
-        const __raw_northwest = obj[`${"northwest"}`] as number;
+        const __raw_northwest = obj["northwest"] as number;
         instance.northwest = __raw_northwest;
     }
     if (errors.length > 0) {
@@ -242,11 +242,373 @@ export function ordinalIs(obj: unknown): obj is Ordinal {
     return result.success;
 }
 
+export type OrdinalErrors = {
+    _errors: __gf_Option<Array<string>>;
+    north: __gf_Option<Array<string>>;
+    northeast: __gf_Option<Array<string>>;
+    east: __gf_Option<Array<string>>;
+    southeast: __gf_Option<Array<string>>;
+    south: __gf_Option<Array<string>>;
+    southwest: __gf_Option<Array<string>>;
+    west: __gf_Option<Array<string>>;
+    northwest: __gf_Option<Array<string>>;
+};
+export type OrdinalTainted = {
+    north: __gf_Option<boolean>;
+    northeast: __gf_Option<boolean>;
+    east: __gf_Option<boolean>;
+    southeast: __gf_Option<boolean>;
+    south: __gf_Option<boolean>;
+    southwest: __gf_Option<boolean>;
+    west: __gf_Option<boolean>;
+    northwest: __gf_Option<boolean>;
+};
+export interface OrdinalFieldControllers {
+    readonly north: FieldController<number>;
+    readonly northeast: FieldController<number>;
+    readonly east: FieldController<number>;
+    readonly southeast: FieldController<number>;
+    readonly south: FieldController<number>;
+    readonly southwest: FieldController<number>;
+    readonly west: FieldController<number>;
+    readonly northwest: FieldController<number>;
+}
+export interface OrdinalGigaform {
+    readonly data: Ordinal;
+    readonly errors: OrdinalErrors;
+    readonly tainted: OrdinalTainted;
+    readonly fields: OrdinalFieldControllers;
+    validate(): Exit<Ordinal, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Ordinal>): void;
+}
+export function ordinalCreateForm(overrides?: Partial<Ordinal>): OrdinalGigaform {
+    let data = $state({
+        ...ordinalDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<OrdinalErrors>({
+        _errors: optionNone(),
+        north: optionNone(),
+        northeast: optionNone(),
+        east: optionNone(),
+        southeast: optionNone(),
+        south: optionNone(),
+        southwest: optionNone(),
+        west: optionNone(),
+        northwest: optionNone()
+    } as OrdinalErrors);
+    let tainted = $state<OrdinalTainted>({
+        north: optionNone(),
+        northeast: optionNone(),
+        east: optionNone(),
+        southeast: optionNone(),
+        south: optionNone(),
+        southwest: optionNone(),
+        west: optionNone(),
+        northwest: optionNone()
+    } as OrdinalTainted);
+    const fields = {
+        north: {
+            path: [
+                "north"
+            ] as const,
+            name: "north",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.north,
+            set: (value: number)=>{
+                data.north = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.north,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.north = value;
+            },
+            getTainted: ()=>tainted.north,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.north = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = ordinalValidateField("north", data.north);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        northeast: {
+            path: [
+                "northeast"
+            ] as const,
+            name: "northeast",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.northeast,
+            set: (value: number)=>{
+                data.northeast = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.northeast,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.northeast = value;
+            },
+            getTainted: ()=>tainted.northeast,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.northeast = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = ordinalValidateField("northeast", data.northeast);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        east: {
+            path: [
+                "east"
+            ] as const,
+            name: "east",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.east,
+            set: (value: number)=>{
+                data.east = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.east,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.east = value;
+            },
+            getTainted: ()=>tainted.east,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.east = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = ordinalValidateField("east", data.east);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        southeast: {
+            path: [
+                "southeast"
+            ] as const,
+            name: "southeast",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.southeast,
+            set: (value: number)=>{
+                data.southeast = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.southeast,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.southeast = value;
+            },
+            getTainted: ()=>tainted.southeast,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.southeast = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = ordinalValidateField("southeast", data.southeast);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        south: {
+            path: [
+                "south"
+            ] as const,
+            name: "south",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.south,
+            set: (value: number)=>{
+                data.south = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.south,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.south = value;
+            },
+            getTainted: ()=>tainted.south,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.south = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = ordinalValidateField("south", data.south);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        southwest: {
+            path: [
+                "southwest"
+            ] as const,
+            name: "southwest",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.southwest,
+            set: (value: number)=>{
+                data.southwest = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.southwest,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.southwest = value;
+            },
+            getTainted: ()=>tainted.southwest,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.southwest = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = ordinalValidateField("southwest", data.southwest);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        west: {
+            path: [
+                "west"
+            ] as const,
+            name: "west",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.west,
+            set: (value: number)=>{
+                data.west = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.west,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.west = value;
+            },
+            getTainted: ()=>tainted.west,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.west = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = ordinalValidateField("west", data.west);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        northwest: {
+            path: [
+                "northwest"
+            ] as const,
+            name: "northwest",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.northwest,
+            set: (value: number)=>{
+                data.northwest = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.northwest,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.northwest = value;
+            },
+            getTainted: ()=>tainted.northwest,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.northwest = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = ordinalValidateField("northwest", data.northwest);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as OrdinalFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Ordinal, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(ordinalDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Ordinal>): void {
+        data = {
+            ...ordinalDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            north: optionNone(),
+            northeast: optionNone(),
+            east: optionNone(),
+            southeast: optionNone(),
+            south: optionNone(),
+            southwest: optionNone(),
+            west: optionNone(),
+            northwest: optionNone()
+        };
+        tainted = {
+            north: optionNone(),
+            northeast: optionNone(),
+            east: optionNone(),
+            southeast: optionNone(),
+            south: optionNone(),
+            southwest: optionNone(),
+            west: optionNone(),
+            northwest: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function ordinalFromFormData(formData: FormData): Exit<Ordinal, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Ordinal, Array<{ field: string; message: string }>>";
     {
         const northStr = formData.get(`${"north"}`);
         obj.north = northStr ? parseFloat(northStr as string) : $MfPh5;
@@ -287,111 +649,8 @@ export function ordinalFromFormData(formData: FormData): Exit<Ordinal, Array<{
         obj.northwest = northwestStr ? parseFloat(northwestStr as string) : $MfPh5;
         if (obj.northwest !== undefined && isNaN(obj.northwest as number)) obj.northwest = "0";
     }
-    return toExit("ordinalDeserialize(obj)");
+    return toExit(ordinalDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: Ordinal;
-    readonly errors: OrdinalErrors;
-    readonly tainted: OrdinalTainted;
-    readonly fields: OrdinalFieldControllers;
-    validate(): Exit<Ordinal, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Ordinal>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function ordinalCreateForm(overrides: Partial<Ordinal>): OrdinalGigaform {}
-let data = $state({
-    ...ordinalDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as OrdinalErrors);
-let tainted = $state<$MfPh3>({} as OrdinalTainted);
-const fields = {} as OrdinalFieldControllers;
-fields.north = {
-    label: `${"north"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.northeast = {
-    label: `${"northeast"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.east = {
-    label: `${"east"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.southeast = {
-    label: `${"southeast"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.south = {
-    label: `${"south"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.southwest = {
-    label: `${"southwest"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.west = {
-    label: `${"west"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.northwest = {
-    label: `${"northwest"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Ordinal, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("ordinalDeserialize(data)");
-    data = {
-        ...ordinalDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Ordinal = {
   defaultValue: ordinalDefaultValue,
@@ -402,6 +661,6 @@ export const Ordinal = {
   validateFields: ordinalValidateFields,
   hasShape: ordinalHasShape,
   is: ordinalIs,
-  fromFormData: ordinalFromFormData,
-  createForm: ordinalCreateForm
+  createForm: ordinalCreateForm,
+  fromFormData: ordinalFromFormData
 } as const;

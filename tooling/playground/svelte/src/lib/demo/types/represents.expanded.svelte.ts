@@ -45,13 +45,13 @@ export function representsSerializeWithContext(value: Represents, ctx: __mf_Seri
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Represents"}`,
+        __type: "Represents",
         __id
     };
-    result[`${"in"}`] = value.in;
-    result[`${"out"}`] = value.out;
-    result[`${"id"}`] = value.id;
-    result[`${"dateStarted"}`] = value.dateStarted;
+    result.in = value.in;
+    result.out = value.out;
+    result.id = value.id;
+    result.dateStarted = value.dateStarted;
     return result;
 }
 
@@ -115,27 +115,27 @@ export function representsDeserializeWithContext(value: any, ctx: __mf_Deseriali
         field: string;
         message: string;
     }> = [];
-    if (!(`${"in"}` in obj)) {
+    if (!("in" in obj)) {
         errors.push({
-            field: `${"in"}`,
+            field: "in",
             message: "missing required field"
         });
     }
-    if (!(`${"out"}` in obj)) {
+    if (!("out" in obj)) {
         errors.push({
-            field: `${"out"}`,
+            field: "out",
             message: "missing required field"
         });
     }
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"dateStarted"}` in obj)) {
+    if (!("dateStarted" in obj)) {
         errors.push({
-            field: `${"dateStarted"}`,
+            field: "dateStarted",
             message: "missing required field"
         });
     }
@@ -148,19 +148,19 @@ export function representsDeserializeWithContext(value: any, ctx: __mf_Deseriali
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_in = obj[`${"in"}`] as string | Employee;
+        const __raw_in = obj["in"] as string | Employee;
         instance.in = __raw_in;
     }
     {
-        const __raw_out = obj[`${"out"}`] as string | Account;
+        const __raw_out = obj["out"] as string | Account;
         instance.out = __raw_out;
     }
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_dateStarted = obj[`${"dateStarted"}`] as string;
+        const __raw_dateStarted = obj["dateStarted"] as string;
         instance.dateStarted = __raw_dateStarted;
     }
     if (errors.length > 0) {
@@ -195,25 +195,26 @@ export function representsIs(obj: unknown): obj is Represents {
     return result.success;
 }
 
-export function representsFromFormData(formData: FormData): Exit<Represents, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    obj.in = formData.get(`${"in"}`) ?? "";
-    obj.out = formData.get(`${"out"}`) ?? "";
-    obj.id = formData.get(`${"id"}`) ?? "";
-    obj.dateStarted = formData.get(`${"dateStarted"}`) ?? "";
-    return toExit("representsDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type RepresentsErrors = {
     _errors: __gf_Option<Array<string>>;
+    in: __gf_Option<Array<string>>;
+    out: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    dateStarted: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type RepresentsTainted = {
+    in: __gf_Option<boolean>;
+    out: __gf_Option<boolean>;
+    id: __gf_Option<boolean>;
+    dateStarted: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface RepresentsFieldControllers {
+    readonly in: FieldController<string | Employee>;
+    readonly out: FieldController<string | Account>;
+    readonly id: FieldController<string>;
+    readonly dateStarted: FieldController<string>;
 }
-export interface $MfPh3 {
+export interface RepresentsGigaform {
     readonly data: Represents;
     readonly errors: RepresentsErrors;
     readonly tainted: RepresentsTainted;
@@ -222,61 +223,207 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Represents>): void;
+    reset(overrides?: Partial<Represents>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function representsCreateForm(overrides: Partial<Represents>): RepresentsGigaform {}
-let data = $state({
-    ...representsDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as RepresentsErrors);
-let tainted = $state<$MfPh3>({} as RepresentsTainted);
-const fields = {} as RepresentsFieldControllers;
-fields.in = {
-    label: `${"in"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.out = {
-    label: `${"out"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.dateStarted = {
-    label: `${"dateStarted"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Represents, Array<{
+export function representsCreateForm(overrides?: Partial<Represents>): RepresentsGigaform {
+    let data = $state({
+        ...representsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<RepresentsErrors>({
+        _errors: optionNone(),
+        in: optionNone(),
+        out: optionNone(),
+        id: optionNone(),
+        dateStarted: optionNone()
+    } as RepresentsErrors);
+    let tainted = $state<RepresentsTainted>({
+        in: optionNone(),
+        out: optionNone(),
+        id: optionNone(),
+        dateStarted: optionNone()
+    } as RepresentsTainted);
+    const fields = {
+        in: {
+            path: [
+                "in"
+            ] as const,
+            name: "in",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.in,
+            set: (value: string | Employee)=>{
+                data.in = value;
+            },
+            transform: (value: string | Employee): string | Employee =>value,
+            getError: ()=>errors.in,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.in = value;
+            },
+            getTainted: ()=>tainted.in,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.in = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = representsValidateField("in", data.in);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        out: {
+            path: [
+                "out"
+            ] as const,
+            name: "out",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.out,
+            set: (value: string | Account)=>{
+                data.out = value;
+            },
+            transform: (value: string | Account): string | Account =>value,
+            getError: ()=>errors.out,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.out = value;
+            },
+            getTainted: ()=>tainted.out,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.out = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = representsValidateField("out", data.out);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = representsValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        dateStarted: {
+            path: [
+                "dateStarted"
+            ] as const,
+            name: "dateStarted",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.dateStarted,
+            set: (value: string)=>{
+                data.dateStarted = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.dateStarted,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.dateStarted = value;
+            },
+            getTainted: ()=>tainted.dateStarted,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.dateStarted = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = representsValidateField("dateStarted", data.dateStarted);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as RepresentsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Represents, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(representsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Represents>): void {
+        data = {
+            ...representsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            in: optionNone(),
+            out: optionNone(),
+            id: optionNone(),
+            dateStarted: optionNone()
+        };
+        tainted = {
+            in: optionNone(),
+            out: optionNone(),
+            id: optionNone(),
+            dateStarted: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function representsFromFormData(formData: FormData): Exit<Represents, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("representsDeserialize(data)");
-    data = {
-        ...representsDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Represents, Array<{ field: string; message: string }>>";
+    obj.in = formData.get(`${"in"}`) ?? "";
+    obj.out = formData.get(`${"out"}`) ?? "";
+    obj.id = formData.get(`${"id"}`) ?? "";
+    obj.dateStarted = formData.get(`${"dateStarted"}`) ?? "";
+    return toExit(representsDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Represents = {
   defaultValue: representsDefaultValue,
@@ -287,6 +434,6 @@ export const Represents = {
   validateFields: representsValidateFields,
   hasShape: representsHasShape,
   is: representsIs,
-  fromFormData: representsFromFormData,
-  createForm: representsCreateForm
+  createForm: representsCreateForm,
+  fromFormData: representsFromFormData
 } as const;

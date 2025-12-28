@@ -45,13 +45,13 @@ export function orderedSerializeWithContext(value: Ordered, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Ordered"}`,
+        __type: "Ordered",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"in"}`] = value.in;
-    result[`${"out"}`] = value.out;
-    result[`${"date"}`] = value.date;
+    result.id = value.id;
+    result.in = value.in;
+    result.out = value.out;
+    result.date = value.date;
     return result;
 }
 
@@ -115,27 +115,27 @@ export function orderedDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"in"}` in obj)) {
+    if (!("in" in obj)) {
         errors.push({
-            field: `${"in"}`,
+            field: "in",
             message: "missing required field"
         });
     }
-    if (!(`${"out"}` in obj)) {
+    if (!("out" in obj)) {
         errors.push({
-            field: `${"out"}`,
+            field: "out",
             message: "missing required field"
         });
     }
-    if (!(`${"date"}` in obj)) {
+    if (!("date" in obj)) {
         errors.push({
-            field: `${"date"}`,
+            field: "date",
             message: "missing required field"
         });
     }
@@ -148,19 +148,19 @@ export function orderedDeserializeWithContext(value: any, ctx: __mf_DeserializeC
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_in = obj[`${"in"}`] as string | Account;
+        const __raw_in = obj["in"] as string | Account;
         instance.in = __raw_in;
     }
     {
-        const __raw_out = obj[`${"out"}`] as string | Order;
+        const __raw_out = obj["out"] as string | Order;
         instance.out = __raw_out;
     }
     {
-        const __raw_date = obj[`${"date"}`] as string;
+        const __raw_date = obj["date"] as string;
         instance.date = __raw_date;
     }
     if (errors.length > 0) {
@@ -195,25 +195,26 @@ export function orderedIs(obj: unknown): obj is Ordered {
     return result.success;
 }
 
-export function orderedFromFormData(formData: FormData): Exit<Ordered, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    obj.id = formData.get(`${"id"}`) ?? "";
-    obj.in = formData.get(`${"in"}`) ?? "";
-    obj.out = formData.get(`${"out"}`) ?? "";
-    obj.date = formData.get(`${"date"}`) ?? "";
-    return toExit("orderedDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type OrderedErrors = {
     _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    in: __gf_Option<Array<string>>;
+    out: __gf_Option<Array<string>>;
+    date: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type OrderedTainted = {
+    id: __gf_Option<boolean>;
+    in: __gf_Option<boolean>;
+    out: __gf_Option<boolean>;
+    date: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface OrderedFieldControllers {
+    readonly id: FieldController<string>;
+    readonly in: FieldController<string | Account>;
+    readonly out: FieldController<string | Order>;
+    readonly date: FieldController<string>;
 }
-export interface $MfPh3 {
+export interface OrderedGigaform {
     readonly data: Ordered;
     readonly errors: OrderedErrors;
     readonly tainted: OrderedTainted;
@@ -222,61 +223,207 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Ordered>): void;
+    reset(overrides?: Partial<Ordered>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function orderedCreateForm(overrides: Partial<Ordered>): OrderedGigaform {}
-let data = $state({
-    ...orderedDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as OrderedErrors);
-let tainted = $state<$MfPh3>({} as OrderedTainted);
-const fields = {} as OrderedFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.in = {
-    label: `${"in"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.out = {
-    label: `${"out"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.date = {
-    label: `${"date"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Ordered, Array<{
+export function orderedCreateForm(overrides?: Partial<Ordered>): OrderedGigaform {
+    let data = $state({
+        ...orderedDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<OrderedErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        in: optionNone(),
+        out: optionNone(),
+        date: optionNone()
+    } as OrderedErrors);
+    let tainted = $state<OrderedTainted>({
+        id: optionNone(),
+        in: optionNone(),
+        out: optionNone(),
+        date: optionNone()
+    } as OrderedTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderedValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        in: {
+            path: [
+                "in"
+            ] as const,
+            name: "in",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.in,
+            set: (value: string | Account)=>{
+                data.in = value;
+            },
+            transform: (value: string | Account): string | Account =>value,
+            getError: ()=>errors.in,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.in = value;
+            },
+            getTainted: ()=>tainted.in,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.in = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderedValidateField("in", data.in);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        out: {
+            path: [
+                "out"
+            ] as const,
+            name: "out",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.out,
+            set: (value: string | Order)=>{
+                data.out = value;
+            },
+            transform: (value: string | Order): string | Order =>value,
+            getError: ()=>errors.out,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.out = value;
+            },
+            getTainted: ()=>tainted.out,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.out = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderedValidateField("out", data.out);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        date: {
+            path: [
+                "date"
+            ] as const,
+            name: "date",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.date,
+            set: (value: string)=>{
+                data.date = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.date,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.date = value;
+            },
+            getTainted: ()=>tainted.date,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.date = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = orderedValidateField("date", data.date);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as OrderedFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Ordered, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(orderedDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Ordered>): void {
+        data = {
+            ...orderedDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            in: optionNone(),
+            out: optionNone(),
+            date: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            in: optionNone(),
+            out: optionNone(),
+            date: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function orderedFromFormData(formData: FormData): Exit<Ordered, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("orderedDeserialize(data)");
-    data = {
-        ...orderedDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Ordered, Array<{ field: string; message: string }>>";
+    obj.id = formData.get(`${"id"}`) ?? "";
+    obj.in = formData.get(`${"in"}`) ?? "";
+    obj.out = formData.get(`${"out"}`) ?? "";
+    obj.date = formData.get(`${"date"}`) ?? "";
+    return toExit(orderedDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Ordered = {
   defaultValue: orderedDefaultValue,
@@ -287,6 +434,6 @@ export const Ordered = {
   validateFields: orderedValidateFields,
   hasShape: orderedHasShape,
   is: orderedIs,
-  fromFormData: orderedFromFormData,
-  createForm: orderedCreateForm
+  createForm: orderedCreateForm,
+  fromFormData: orderedFromFormData
 } as const;

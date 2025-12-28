@@ -10,11 +10,11 @@ export function recordLinkDefaultValue#0<T>#0(): RecordLink<T> {
     return "";
 }
 
-export function recordLinkSerialize#0<T>#0(value: RecordLink<T>): string {
+export function recordLinkSerialize<$MfPh1>(value: RecordLink<T>): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(recordLinkSerializeWithContext(value, ctx));
 }
-export function recordLinkSerializeWithContext#0<T>#0(value: RecordLink<T>, ctx: __mf_SerializeContext): unknown {
+export function recordLinkSerializeWithContext<$MfPh6>(value: RecordLink<T>, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -68,7 +68,7 @@ export function recordLinkDeserializeWithContext<T>(value: any, ctx: __mf_Deseri
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref) as RecordLink<T> | __mf_PendingRef;
     }
-    if (typeof value === `${"string"}`) {
+    if (typeof value === "string") {
         return value as RecordLink<T>;
     }
     return value as RecordLink<T>;
@@ -80,6 +80,6 @@ export function recordLinkDeserializeWithContext<T>(value: any, ctx: __mf_Deseri
     ]);
 }
 export function recordLinkIs<T>(value: unknown): value is RecordLink<T> {
-    if (typeof value === `${"string"}`) return true;
+    if (typeof value === "string") return true;
     return true;
 }

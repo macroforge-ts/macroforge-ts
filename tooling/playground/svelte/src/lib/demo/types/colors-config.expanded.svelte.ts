@@ -30,11 +30,11 @@ export function colorsConfigDefaultValue#0#0(): ColorsConfig {
     return gradientDefaultValue();
 }
 
-export function colorsConfigSerialize#0#0(value: ColorsConfig): string {
+export function colorsConfigSerialize(value: ColorsConfig): string {
     const ctx = __mf_SerializeContext.create();
     return JSON.stringify(colorsConfigSerializeWithContext(value, ctx));
 }
-export function colorsConfigSerializeWithContext#0#0(value: ColorsConfig, ctx: __mf_SerializeContext): unknown {
+export function colorsConfigSerializeWithContext(value: ColorsConfig, ctx: __mf_SerializeContext): unknown {
     if (typeof (value as any)?.serializeWithContext === "function") {
         return (value as any).serializeWithContext(ctx);
     }
@@ -91,16 +91,16 @@ export function colorsConfigDeserializeWithContext(value: any, ctx: __mf_Deseria
     if (typeof value === "object" && value !== null) {
         const __typeName = (value as any).__type;
         if (typeof __typeName === "string") {}
-        if (__typeName === `${"Cardinal"}`) {
+        if (__typeName === "Cardinal") {
             return cardinalDeserializeWithContext(value, ctx) as ColorsConfig;
         }
-        if (__typeName === `${"Ordinal"}`) {
+        if (__typeName === "Ordinal") {
             return ordinalDeserializeWithContext(value, ctx) as ColorsConfig;
         }
-        if (__typeName === `${"Custom"}`) {
+        if (__typeName === "Custom") {
             return customDeserializeWithContext(value, ctx) as ColorsConfig;
         }
-        if (__typeName === `${"Gradient"}`) {
+        if (__typeName === "Gradient") {
             return gradientDeserializeWithContext(value, ctx) as ColorsConfig;
         }
     }
@@ -120,38 +120,111 @@ export function colorsConfigIs(value: unknown): value is ColorsConfig {
 }
      }
 
+export type ColorsConfigCardinalErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type ColorsConfigOrdinalErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type ColorsConfigCustomErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type ColorsConfigGradientErrors = {
+    _errors: __gf_Option<Array<string>>;
+};
+export type ColorsConfigCardinalTainted = {
+};
+export type ColorsConfigOrdinalTainted = {
+};
+export type ColorsConfigCustomTainted = {
+};
+export type ColorsConfigGradientTainted = {
+};
+export type ColorsConfigErrors = ({
+    _type: "Cardinal";
+} & ColorsConfigCardinalErrors) | ({
+    _type: "Ordinal";
+} & ColorsConfigOrdinalErrors) | ({
+    _type: "Custom";
+} & ColorsConfigCustomErrors) | ({
+    _type: "Gradient";
+} & ColorsConfigGradientErrors);
+export type ColorsConfigTainted = ({
+    _type: "Cardinal";
+} & ColorsConfigCardinalTainted) | ({
+    _type: "Ordinal";
+} & ColorsConfigOrdinalTainted) | ({
+    _type: "Custom";
+} & ColorsConfigCustomTainted) | ({
+    _type: "Gradient";
+} & ColorsConfigGradientTainted);
+export interface ColorsConfigCardinalFieldControllers {
+}
+export interface ColorsConfigOrdinalFieldControllers {
+}
+export interface ColorsConfigCustomFieldControllers {
+}
+export interface ColorsConfigGradientFieldControllers {
+}
+export interface ColorsConfigGigaform {
+    readonly currentVariant: "Cardinal" | "Ordinal" | "Custom" | "Gradient";
+    readonly data: ColorsConfig;
+    readonly errors: ColorsConfigErrors;
+    readonly tainted: ColorsConfigTainted;
+    readonly variants: ColorsConfigVariantFields;
+    switchVariant(variant: "Cardinal" | "Ordinal" | "Custom" | "Gradient"): void;
+    validate(): Exit<ColorsConfig, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<ColorsConfig>): void;
+}
+export interface ColorsConfigVariantFields {
+    readonly Cardinal: {
+        readonly fields: ColorsConfigCardinalFieldControllers;
+    };
+    readonly Ordinal: {
+        readonly fields: ColorsConfigOrdinalFieldControllers;
+    };
+    readonly Custom: {
+        readonly fields: ColorsConfigCustomFieldControllers;
+    };
+    readonly Gradient: {
+        readonly fields: ColorsConfigGradientFieldControllers;
+    };
+}
 function colorsConfigGetDefaultForVariant(variant: string): ColorsConfig {
-    if (variant === `${"Cardinal"}`) {
-        return "cardinalDefaultValue() as ColorsConfig";
+    if (variant === "Cardinal") {
+        return cardinalDefaultValue() as ColorsConfig;
     }
-    if (variant === `${"Ordinal"}`) {
-        return "ordinalDefaultValue() as ColorsConfig";
+    if (variant === "Ordinal") {
+        return ordinalDefaultValue() as ColorsConfig;
     }
-    if (variant === `${"Custom"}`) {
-        return "customDefaultValue() as ColorsConfig";
+    if (variant === "Custom") {
+        return customDefaultValue() as ColorsConfig;
     }
-    if (variant === `${"Gradient"}`) {
-        return "gradientDefaultValue() as ColorsConfig";
+    if (variant === "Gradient") {
+        return gradientDefaultValue() as ColorsConfig;
     }
-    return "cardinalDefaultValue() as ColorsConfig";
+    return cardinalDefaultValue() as ColorsConfig;
 }
 export function colorsConfigCreateForm(initial: ColorsConfig): ColorsConfigGigaform {
-    const initialVariant: "Cardinal" | "Ordinal" | "Custom" | "Gradient" = '"Cardinal"';
+    const initialVariant: "Cardinal" | "Ordinal" | "Custom" | "Gradient" = "Cardinal";
     let currentVariant = $state<$MfPh5>(initialVariant);
     let data = $state<$MfPh6>(initial ?? "colorsConfigGetDefaultForVariant"(initialVariant));
     let errors = $state<$MfPh8>({} as ColorsConfigErrors);
     let tainted = $state<$MfPh10>({} as ColorsConfigTainted);
     const variants = {} as ColorsConfigVariantFields;
-    variants[Cardinal] = {
+    variants[__expr__] = {
         fields: {} as ColorsConfigCardinalFieldControllers
     };
-    variants[Ordinal] = {
+    variants[__expr__] = {
         fields: {} as ColorsConfigOrdinalFieldControllers
     };
-    variants[Custom] = {
+    variants[__expr__] = {
         fields: {} as ColorsConfigCustomFieldControllers
     };
-    variants[Gradient] = {
+    variants[__expr__] = {
         fields: {} as ColorsConfigGradientFieldControllers
     };
     function switchVariant(variant: "Cardinal" | "Ordinal" | "Custom" | "Gradient"): void {
@@ -164,10 +237,10 @@ export function colorsConfigCreateForm(initial: ColorsConfig): ColorsConfigGigaf
         field: string;
         message: string;
     }>> {
-        return toExit("colorsConfigDeserialize(data)");
+        return toExit(colorsConfigDeserialize(data));
     }
     function reset(overrides: Partial<ColorsConfig>): void {
-        data = "overrides ? overrides as typeof data : colorsConfigGetDefaultForVariant(currentVariant)";
+        data = overrides ? overrides as typeof data : colorsConfigGetDefaultForVariant(currentVariant);
         errors = {} as ColorsConfigErrors;
         tainted = {} as ColorsConfigTainted;
     }
@@ -217,56 +290,12 @@ export function colorsConfigFromFormData(formData: FormData): Exit<ColorsConfig,
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;
-    return toExit("colorsConfigDeserialize(obj)");
+    return toExit(colorsConfigDeserialize(obj));
 }
-export type $MfPh0 = $MfPh1;
-export type $MfPh2 = $MfPh3;
-export interface ColorsConfigCardinalFieldControllers {
-}
-export interface ColorsConfigOrdinalFieldControllers {
-}
-export interface ColorsConfigCustomFieldControllers {
-}
-export interface ColorsConfigGradientFieldControllers {
-}
-export interface $MfPh4 {
-    readonly currentVariant: "Cardinal" | "Ordinal" | "Custom" | "Gradient";
-    readonly data: ColorsConfig;
-    readonly errors: ColorsConfigErrors;
-    readonly tainted: ColorsConfigTainted;
-    readonly variants: ColorsConfigVariantFields;
-    switchVariant(variant: "Cardinal" | "Ordinal" | "Custom" | "Gradient"): void;
-    validate(): Exit<ColorsConfig, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<ColorsConfig>): void;
-}
-export interface $MfPh13 {
-}
-export type ColorsConfigCardinalErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type ColorsConfigOrdinalErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type ColorsConfigCustomErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type ColorsConfigGradientErrors = {
-    _errors: __gf_Option<Array<string>>;
-};
- };  };  };  }; export type ColorsConfigCardinalTainted = {
-};
-export type ColorsConfigOrdinalTainted = {
-};
-export type ColorsConfigCustomTainted = {
-};
-export type ColorsConfigGradientTainted = {
-};
- };  };  };  };
 
 export const ColorsConfig = {
+  serialize: colorsConfigSerialize,
+  serializeWithContext: colorsConfigSerializeWithContext,
   deserialize: colorsConfigDeserialize,
   deserializeWithContext: colorsConfigDeserializeWithContext,
   is: colorsConfigIs,

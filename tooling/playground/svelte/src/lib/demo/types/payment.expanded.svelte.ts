@@ -36,11 +36,11 @@ export function paymentSerializeWithContext(value: Payment, ctx: __mf_SerializeC
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Payment"}`,
+        __type: "Payment",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"date"}`] = value.date;
+    result.id = value.id;
+    result.date = value.date;
     return result;
 }
 
@@ -104,15 +104,15 @@ export function paymentDeserializeWithContext(value: any, ctx: __mf_DeserializeC
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"date"}` in obj)) {
+    if (!("date" in obj)) {
         errors.push({
-            field: `${"date"}`,
+            field: "date",
             message: "missing required field"
         });
     }
@@ -125,11 +125,11 @@ export function paymentDeserializeWithContext(value: any, ctx: __mf_DeserializeC
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_date = obj[`${"date"}`] as string;
+        const __raw_date = obj["date"] as string;
         instance.date = __raw_date;
     }
     if (errors.length > 0) {
@@ -164,23 +164,20 @@ export function paymentIs(obj: unknown): obj is Payment {
     return result.success;
 }
 
-export function paymentFromFormData(formData: FormData): Exit<Payment, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    obj.id = formData.get(`${"id"}`) ?? "";
-    obj.date = formData.get(`${"date"}`) ?? "";
-    return toExit("paymentDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type PaymentErrors = {
     _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    date: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type PaymentTainted = {
+    id: __gf_Option<boolean>;
+    date: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface PaymentFieldControllers {
+    readonly id: FieldController<string>;
+    readonly date: FieldController<string>;
 }
-export interface $MfPh3 {
+export interface PaymentGigaform {
     readonly data: Payment;
     readonly errors: PaymentErrors;
     readonly tainted: PaymentTainted;
@@ -189,45 +186,139 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Payment>): void;
+    reset(overrides?: Partial<Payment>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function paymentCreateForm(overrides: Partial<Payment>): PaymentGigaform {}
-let data = $state({
-    ...paymentDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as PaymentErrors);
-let tainted = $state<$MfPh3>({} as PaymentTainted);
-const fields = {} as PaymentFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.date = {
-    label: `${"date"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Payment, Array<{
+export function paymentCreateForm(overrides?: Partial<Payment>): PaymentGigaform {
+    let data = $state({
+        ...paymentDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<PaymentErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        date: optionNone()
+    } as PaymentErrors);
+    let tainted = $state<PaymentTainted>({
+        id: optionNone(),
+        date: optionNone()
+    } as PaymentTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = paymentValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        date: {
+            path: [
+                "date"
+            ] as const,
+            name: "date",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.date,
+            set: (value: string)=>{
+                data.date = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.date,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.date = value;
+            },
+            getTainted: ()=>tainted.date,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.date = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = paymentValidateField("date", data.date);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as PaymentFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Payment, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(paymentDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Payment>): void {
+        data = {
+            ...paymentDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            date: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            date: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function paymentFromFormData(formData: FormData): Exit<Payment, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("paymentDeserialize(data)");
-    data = {
-        ...paymentDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Payment, Array<{ field: string; message: string }>>";
+    obj.id = formData.get(`${"id"}`) ?? "";
+    obj.date = formData.get(`${"date"}`) ?? "";
+    return toExit(paymentDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Payment = {
   defaultValue: paymentDefaultValue,
@@ -238,6 +329,6 @@ export const Payment = {
   validateFields: paymentValidateFields,
   hasShape: paymentHasShape,
   is: paymentIs,
-  fromFormData: paymentFromFormData,
-  createForm: paymentCreateForm
+  createForm: paymentCreateForm,
+  fromFormData: paymentFromFormData
 } as const;

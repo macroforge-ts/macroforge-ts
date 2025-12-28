@@ -90,27 +90,27 @@ export function employeeSerializeWithContext(value: Employee, ctx: __mf_Serializ
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Employee"}`,
+        __type: "Employee",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"imageUrl"}`] = value.imageUrl;
-    result[`${"name"}`] = value.name;
-    result[`${"phones"}`] = value.phones.map((item)=>phoneNumberSerializeWithContext(item, ctx));
-    result[`${"role"}`] = value.role;
-    result[`${"title"}`] = jobTitleSerializeWithContext(value.title, ctx);
-    result[`${"email"}`] = emailSerializeWithContext(value.email, ctx);
-    result[`${"address"}`] = value.address;
-    result[`${"username"}`] = value.username;
-    result[`${"route"}`] = value.route;
-    result[`${"ratePerHour"}`] = value.ratePerHour;
-    result[`${"active"}`] = value.active;
-    result[`${"isTechnician"}`] = value.isTechnician;
-    result[`${"isSalesRep"}`] = value.isSalesRep;
-    result[`${"description"}`] = value.description;
-    result[`${"linkedinUrl"}`] = value.linkedinUrl;
-    result[`${"attendance"}`] = value.attendance;
-    result[`${"settings"}`] = settingsSerializeWithContext(value.settings, ctx);
+    result.id = value.id;
+    result.imageUrl = value.imageUrl;
+    result.name = value.name;
+    result.phones = value.phones.map((item)=>phoneNumberSerializeWithContext(item, ctx));
+    result.role = value.role;
+    result.title = jobTitleSerializeWithContext(value.title, ctx);
+    result.email = emailSerializeWithContext(value.email, ctx);
+    result.address = value.address;
+    result.username = value.username;
+    result.route = value.route;
+    result.ratePerHour = value.ratePerHour;
+    result.active = value.active;
+    result.isTechnician = value.isTechnician;
+    result.isSalesRep = value.isSalesRep;
+    result.description = value.description;
+    result.linkedinUrl = value.linkedinUrl;
+    result.attendance = value.attendance;
+    result.settings = settingsSerializeWithContext(value.settings, ctx);
     return result;
 }
 
@@ -174,111 +174,111 @@ export function employeeDeserializeWithContext(value: any, ctx: __mf_Deserialize
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"imageUrl"}` in obj)) {
+    if (!("imageUrl" in obj)) {
         errors.push({
-            field: `${"imageUrl"}`,
+            field: "imageUrl",
             message: "missing required field"
         });
     }
-    if (!(`${"name"}` in obj)) {
+    if (!("name" in obj)) {
         errors.push({
-            field: `${"name"}`,
+            field: "name",
             message: "missing required field"
         });
     }
-    if (!(`${"phones"}` in obj)) {
+    if (!("phones" in obj)) {
         errors.push({
-            field: `${"phones"}`,
+            field: "phones",
             message: "missing required field"
         });
     }
-    if (!(`${"role"}` in obj)) {
+    if (!("role" in obj)) {
         errors.push({
-            field: `${"role"}`,
+            field: "role",
             message: "missing required field"
         });
     }
-    if (!(`${"title"}` in obj)) {
+    if (!("title" in obj)) {
         errors.push({
-            field: `${"title"}`,
+            field: "title",
             message: "missing required field"
         });
     }
-    if (!(`${"email"}` in obj)) {
+    if (!("email" in obj)) {
         errors.push({
-            field: `${"email"}`,
+            field: "email",
             message: "missing required field"
         });
     }
-    if (!(`${"address"}` in obj)) {
+    if (!("address" in obj)) {
         errors.push({
-            field: `${"address"}`,
+            field: "address",
             message: "missing required field"
         });
     }
-    if (!(`${"username"}` in obj)) {
+    if (!("username" in obj)) {
         errors.push({
-            field: `${"username"}`,
+            field: "username",
             message: "missing required field"
         });
     }
-    if (!(`${"route"}` in obj)) {
+    if (!("route" in obj)) {
         errors.push({
-            field: `${"route"}`,
+            field: "route",
             message: "missing required field"
         });
     }
-    if (!(`${"ratePerHour"}` in obj)) {
+    if (!("ratePerHour" in obj)) {
         errors.push({
-            field: `${"ratePerHour"}`,
+            field: "ratePerHour",
             message: "missing required field"
         });
     }
-    if (!(`${"active"}` in obj)) {
+    if (!("active" in obj)) {
         errors.push({
-            field: `${"active"}`,
+            field: "active",
             message: "missing required field"
         });
     }
-    if (!(`${"isTechnician"}` in obj)) {
+    if (!("isTechnician" in obj)) {
         errors.push({
-            field: `${"isTechnician"}`,
+            field: "isTechnician",
             message: "missing required field"
         });
     }
-    if (!(`${"isSalesRep"}` in obj)) {
+    if (!("isSalesRep" in obj)) {
         errors.push({
-            field: `${"isSalesRep"}`,
+            field: "isSalesRep",
             message: "missing required field"
         });
     }
-    if (!(`${"description"}` in obj)) {
+    if (!("description" in obj)) {
         errors.push({
-            field: `${"description"}`,
+            field: "description",
             message: "missing required field"
         });
     }
-    if (!(`${"linkedinUrl"}` in obj)) {
+    if (!("linkedinUrl" in obj)) {
         errors.push({
-            field: `${"linkedinUrl"}`,
+            field: "linkedinUrl",
             message: "missing required field"
         });
     }
-    if (!(`${"attendance"}` in obj)) {
+    if (!("attendance" in obj)) {
         errors.push({
-            field: `${"attendance"}`,
+            field: "attendance",
             message: "missing required field"
         });
     }
-    if (!(`${"settings"}` in obj)) {
+    if (!("settings" in obj)) {
         errors.push({
-            field: `${"settings"}`,
+            field: "settings",
             message: "missing required field"
         });
     }
@@ -291,15 +291,15 @@ export function employeeDeserializeWithContext(value: any, ctx: __mf_Deserialize
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_imageUrl = obj[`${"imageUrl"}`] as string | null;
+        const __raw_imageUrl = obj["imageUrl"] as string | null;
         instance.imageUrl = __raw_imageUrl;
     }
     {
-        const __raw_name = obj[`${"name"}`] as string;
+        const __raw_name = obj["name"] as string;
         if (__raw_name.trim().length === 0) {
             errors.push({
                 field: "name",
@@ -309,13 +309,13 @@ export function employeeDeserializeWithContext(value: any, ctx: __mf_Deserialize
         instance.name = __raw_name;
     }
     {
-        const __raw_phones = obj[`${"phones"}`] as Array<PhoneNumber>;
+        const __raw_phones = obj["phones"] as Array<PhoneNumber>;
         if (Array.isArray(__raw_phones)) {
             instance.phones = __raw_phones as PhoneNumber[];
         }
     }
     {
-        const __raw_role = obj[`${"role"}`] as string;
+        const __raw_role = obj["role"] as string;
         if (__raw_role.trim().length === 0) {
             errors.push({
                 field: "role",
@@ -325,21 +325,21 @@ export function employeeDeserializeWithContext(value: any, ctx: __mf_Deserialize
         instance.role = __raw_role;
     }
     {
-        const __raw_title = obj[`${"title"}`] as JobTitle;
+        const __raw_title = obj["title"] as JobTitle;
         {
             const __result = jobTitleDeserializeWithContext(__raw_title, ctx);
-            ctx.assignOrDefer(instance, `${"title"}`, __result);
+            ctx.assignOrDefer(instance, "title", __result);
         }
     }
     {
-        const __raw_email = obj[`${"email"}`] as Email;
+        const __raw_email = obj["email"] as Email;
         {
             const __result = emailDeserializeWithContext(__raw_email, ctx);
-            ctx.assignOrDefer(instance, `${"email"}`, __result);
+            ctx.assignOrDefer(instance, "email", __result);
         }
     }
     {
-        const __raw_address = obj[`${"address"}`] as string;
+        const __raw_address = obj["address"] as string;
         if (__raw_address.trim().length === 0) {
             errors.push({
                 field: "address",
@@ -349,7 +349,7 @@ export function employeeDeserializeWithContext(value: any, ctx: __mf_Deserialize
         instance.address = __raw_address;
     }
     {
-        const __raw_username = obj[`${"username"}`] as string;
+        const __raw_username = obj["username"] as string;
         if (__raw_username.trim().length === 0) {
             errors.push({
                 field: "username",
@@ -359,44 +359,44 @@ export function employeeDeserializeWithContext(value: any, ctx: __mf_Deserialize
         instance.username = __raw_username;
     }
     {
-        const __raw_route = obj[`${"route"}`] as string | Route;
+        const __raw_route = obj["route"] as string | Route;
         instance.route = __raw_route;
     }
     {
-        const __raw_ratePerHour = obj[`${"ratePerHour"}`] as number;
+        const __raw_ratePerHour = obj["ratePerHour"] as number;
         instance.ratePerHour = __raw_ratePerHour;
     }
     {
-        const __raw_active = obj[`${"active"}`] as boolean;
+        const __raw_active = obj["active"] as boolean;
         instance.active = __raw_active;
     }
     {
-        const __raw_isTechnician = obj[`${"isTechnician"}`] as boolean;
+        const __raw_isTechnician = obj["isTechnician"] as boolean;
         instance.isTechnician = __raw_isTechnician;
     }
     {
-        const __raw_isSalesRep = obj[`${"isSalesRep"}`] as boolean;
+        const __raw_isSalesRep = obj["isSalesRep"] as boolean;
         instance.isSalesRep = __raw_isSalesRep;
     }
     {
-        const __raw_description = obj[`${"description"}`] as string | null;
+        const __raw_description = obj["description"] as string | null;
         instance.description = __raw_description;
     }
     {
-        const __raw_linkedinUrl = obj[`${"linkedinUrl"}`] as string | null;
+        const __raw_linkedinUrl = obj["linkedinUrl"] as string | null;
         instance.linkedinUrl = __raw_linkedinUrl;
     }
     {
-        const __raw_attendance = obj[`${"attendance"}`] as Array<string>;
+        const __raw_attendance = obj["attendance"] as Array<string>;
         if (Array.isArray(__raw_attendance)) {
             instance.attendance = __raw_attendance as string[];
         }
     }
     {
-        const __raw_settings = obj[`${"settings"}`] as Settings;
+        const __raw_settings = obj["settings"] as Settings;
         {
             const __result = settingsDeserializeWithContext(__raw_settings, ctx);
-            ctx.assignOrDefer(instance, `${"settings"}`, __result);
+            ctx.assignOrDefer(instance, "settings", __result);
         }
     }
     if (errors.length > 0) {
@@ -412,7 +412,7 @@ export function employeeValidateField<K extends keyof Employee>(_field: K, _valu
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"name"}`) {
+    if (_field === "name") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -421,7 +421,7 @@ export function employeeValidateField<K extends keyof Employee>(_field: K, _valu
             });
         }
     }
-    if (_field === `${"role"}`) {
+    if (_field === "role") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -430,7 +430,7 @@ export function employeeValidateField<K extends keyof Employee>(_field: K, _valu
             });
         }
     }
-    if (_field === `${"address"}`) {
+    if (_field === "address") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -439,7 +439,7 @@ export function employeeValidateField<K extends keyof Employee>(_field: K, _valu
             });
         }
     }
-    if (_field === `${"username"}`) {
+    if (_field === "username") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -458,7 +458,7 @@ export function employeeValidateFields(_partial: Partial<Employee>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"name"}` in _partial && _partial.name !== undefined) {
+    if ("name" in _partial && _partial.name !== undefined) {
         const __val = _partial.name as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -467,7 +467,7 @@ export function employeeValidateFields(_partial: Partial<Employee>): Array<{
             });
         }
     }
-    if (`${"role"}` in _partial && _partial.role !== undefined) {
+    if ("role" in _partial && _partial.role !== undefined) {
         const __val = _partial.role as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -476,7 +476,7 @@ export function employeeValidateFields(_partial: Partial<Employee>): Array<{
             });
         }
     }
-    if (`${"address"}` in _partial && _partial.address !== undefined) {
+    if ("address" in _partial && _partial.address !== undefined) {
         const __val = _partial.address as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -485,7 +485,7 @@ export function employeeValidateFields(_partial: Partial<Employee>): Array<{
             });
         }
     }
-    if (`${"username"}` in _partial && _partial.username !== undefined) {
+    if ("username" in _partial && _partial.username !== undefined) {
         const __val = _partial.username as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -511,11 +511,803 @@ export function employeeIs(obj: unknown): obj is Employee {
     return result.success;
 }
 
+export type EmployeeErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    imageUrl: __gf_Option<Array<string>>;
+    name: __gf_Option<Array<string>>;
+    phones: __gf_Option<Array<string>>;
+    role: __gf_Option<Array<string>>;
+    title: __gf_Option<Array<string>>;
+    email: __gf_Option<Array<string>>;
+    address: __gf_Option<Array<string>>;
+    username: __gf_Option<Array<string>>;
+    route: __gf_Option<Array<string>>;
+    ratePerHour: __gf_Option<Array<string>>;
+    active: __gf_Option<Array<string>>;
+    isTechnician: __gf_Option<Array<string>>;
+    isSalesRep: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
+    linkedinUrl: __gf_Option<Array<string>>;
+    attendance: __gf_Option<Array<string>>;
+    settings: __gf_Option<Array<string>>;
+};
+export type EmployeeTainted = {
+    id: __gf_Option<boolean>;
+    imageUrl: __gf_Option<boolean>;
+    name: __gf_Option<boolean>;
+    phones: __gf_Option<boolean>;
+    role: __gf_Option<boolean>;
+    title: __gf_Option<boolean>;
+    email: __gf_Option<boolean>;
+    address: __gf_Option<boolean>;
+    username: __gf_Option<boolean>;
+    route: __gf_Option<boolean>;
+    ratePerHour: __gf_Option<boolean>;
+    active: __gf_Option<boolean>;
+    isTechnician: __gf_Option<boolean>;
+    isSalesRep: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
+    linkedinUrl: __gf_Option<boolean>;
+    attendance: __gf_Option<boolean>;
+    settings: __gf_Option<boolean>;
+};
+export interface EmployeeFieldControllers {
+    readonly id: FieldController<string>;
+    readonly imageUrl: FieldController<string | null>;
+    readonly name: FieldController<string>;
+    readonly phones: ArrayFieldController<PhoneNumber>;
+    readonly role: FieldController<string>;
+    readonly title: FieldController<JobTitle>;
+    readonly email: FieldController<Email>;
+    readonly address: FieldController<string>;
+    readonly username: FieldController<string>;
+    readonly route: FieldController<string | Route>;
+    readonly ratePerHour: FieldController<number>;
+    readonly active: FieldController<boolean>;
+    readonly isTechnician: FieldController<boolean>;
+    readonly isSalesRep: FieldController<boolean>;
+    readonly description: FieldController<string | null>;
+    readonly linkedinUrl: FieldController<string | null>;
+    readonly attendance: ArrayFieldController<string>;
+    readonly settings: FieldController<Settings>;
+}
+export interface EmployeeGigaform {
+    readonly data: Employee;
+    readonly errors: EmployeeErrors;
+    readonly tainted: EmployeeTainted;
+    readonly fields: EmployeeFieldControllers;
+    validate(): Exit<Employee, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Employee>): void;
+}
+export function employeeCreateForm(overrides?: Partial<Employee>): EmployeeGigaform {
+    let data = $state({
+        ...employeeDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<EmployeeErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        imageUrl: optionNone(),
+        name: optionNone(),
+        phones: optionNone(),
+        role: optionNone(),
+        title: optionNone(),
+        email: optionNone(),
+        address: optionNone(),
+        username: optionNone(),
+        route: optionNone(),
+        ratePerHour: optionNone(),
+        active: optionNone(),
+        isTechnician: optionNone(),
+        isSalesRep: optionNone(),
+        description: optionNone(),
+        linkedinUrl: optionNone(),
+        attendance: optionNone(),
+        settings: optionNone()
+    } as EmployeeErrors);
+    let tainted = $state<EmployeeTainted>({
+        id: optionNone(),
+        imageUrl: optionNone(),
+        name: optionNone(),
+        phones: optionNone(),
+        role: optionNone(),
+        title: optionNone(),
+        email: optionNone(),
+        address: optionNone(),
+        username: optionNone(),
+        route: optionNone(),
+        ratePerHour: optionNone(),
+        active: optionNone(),
+        isTechnician: optionNone(),
+        isSalesRep: optionNone(),
+        description: optionNone(),
+        linkedinUrl: optionNone(),
+        attendance: optionNone(),
+        settings: optionNone()
+    } as EmployeeTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        imageUrl: {
+            path: [
+                "imageUrl"
+            ] as const,
+            name: "imageUrl",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.imageUrl,
+            set: (value: string | null)=>{
+                data.imageUrl = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.imageUrl,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.imageUrl = value;
+            },
+            getTainted: ()=>tainted.imageUrl,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.imageUrl = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("imageUrl", data.imageUrl);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        name: {
+            path: [
+                "name"
+            ] as const,
+            name: "name",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.name,
+            set: (value: string)=>{
+                data.name = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.name,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.name = value;
+            },
+            getTainted: ()=>tainted.name,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.name = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("name", data.name);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        phones: {
+            path: [
+                "phones"
+            ] as const,
+            name: "phones",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.phones,
+            set: (value: Array<PhoneNumber>)=>{
+                data.phones = value;
+            },
+            transform: (value: Array<PhoneNumber>): Array<PhoneNumber> =>value,
+            getError: ()=>errors.phones,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.phones = value;
+            },
+            getTainted: ()=>tainted.phones,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.phones = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("phones", data.phones);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "phones",
+                        index
+                    ] as const,
+                    name: "'^phones.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.phones[index]!,
+                    set: (value: PhoneNumber)=>{
+                        data.phones[index] = value;
+                    },
+                    transform: (value: PhoneNumber): PhoneNumber =>value,
+                    getError: ()=>errors.phones,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.phones = value;
+                    },
+                    getTainted: ()=>tainted.phones,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.phones = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: PhoneNumber)=>{
+                data.phones.push(item);
+            },
+            remove: (index: number)=>{
+                data.phones.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.phones[a]!;
+                data.phones[a] = data.phones[b]!;
+                data.phones[b] = tmp;
+            }
+        },
+        role: {
+            path: [
+                "role"
+            ] as const,
+            name: "role",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.role,
+            set: (value: string)=>{
+                data.role = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.role,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.role = value;
+            },
+            getTainted: ()=>tainted.role,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.role = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("role", data.role);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        title: {
+            path: [
+                "title"
+            ] as const,
+            name: "title",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.title,
+            set: (value: JobTitle)=>{
+                data.title = value;
+            },
+            transform: (value: JobTitle): JobTitle =>value,
+            getError: ()=>errors.title,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.title = value;
+            },
+            getTainted: ()=>tainted.title,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.title = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("title", data.title);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        email: {
+            path: [
+                "email"
+            ] as const,
+            name: "email",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.email,
+            set: (value: Email)=>{
+                data.email = value;
+            },
+            transform: (value: Email): Email =>value,
+            getError: ()=>errors.email,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.email = value;
+            },
+            getTainted: ()=>tainted.email,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.email = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("email", data.email);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        address: {
+            path: [
+                "address"
+            ] as const,
+            name: "address",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.address,
+            set: (value: string)=>{
+                data.address = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.address,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.address = value;
+            },
+            getTainted: ()=>tainted.address,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.address = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("address", data.address);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        username: {
+            path: [
+                "username"
+            ] as const,
+            name: "username",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.username,
+            set: (value: string)=>{
+                data.username = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.username,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.username = value;
+            },
+            getTainted: ()=>tainted.username,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.username = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("username", data.username);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        route: {
+            path: [
+                "route"
+            ] as const,
+            name: "route",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.route,
+            set: (value: string | Route)=>{
+                data.route = value;
+            },
+            transform: (value: string | Route): string | Route =>value,
+            getError: ()=>errors.route,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.route = value;
+            },
+            getTainted: ()=>tainted.route,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.route = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("route", data.route);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        ratePerHour: {
+            path: [
+                "ratePerHour"
+            ] as const,
+            name: "ratePerHour",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.ratePerHour,
+            set: (value: number)=>{
+                data.ratePerHour = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.ratePerHour,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.ratePerHour = value;
+            },
+            getTainted: ()=>tainted.ratePerHour,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.ratePerHour = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("ratePerHour", data.ratePerHour);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        active: {
+            path: [
+                "active"
+            ] as const,
+            name: "active",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.active,
+            set: (value: boolean)=>{
+                data.active = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.active,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.active = value;
+            },
+            getTainted: ()=>tainted.active,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.active = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("active", data.active);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        isTechnician: {
+            path: [
+                "isTechnician"
+            ] as const,
+            name: "isTechnician",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.isTechnician,
+            set: (value: boolean)=>{
+                data.isTechnician = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.isTechnician,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.isTechnician = value;
+            },
+            getTainted: ()=>tainted.isTechnician,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.isTechnician = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("isTechnician", data.isTechnician);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        isSalesRep: {
+            path: [
+                "isSalesRep"
+            ] as const,
+            name: "isSalesRep",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.isSalesRep,
+            set: (value: boolean)=>{
+                data.isSalesRep = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.isSalesRep,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.isSalesRep = value;
+            },
+            getTainted: ()=>tainted.isSalesRep,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.isSalesRep = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("isSalesRep", data.isSalesRep);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        description: {
+            path: [
+                "description"
+            ] as const,
+            name: "description",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.description,
+            set: (value: string | null)=>{
+                data.description = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.description,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.description = value;
+            },
+            getTainted: ()=>tainted.description,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.description = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("description", data.description);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        linkedinUrl: {
+            path: [
+                "linkedinUrl"
+            ] as const,
+            name: "linkedinUrl",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.linkedinUrl,
+            set: (value: string | null)=>{
+                data.linkedinUrl = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.linkedinUrl,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.linkedinUrl = value;
+            },
+            getTainted: ()=>tainted.linkedinUrl,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.linkedinUrl = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("linkedinUrl", data.linkedinUrl);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        attendance: {
+            path: [
+                "attendance"
+            ] as const,
+            name: "attendance",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.attendance,
+            set: (value: Array<string>)=>{
+                data.attendance = value;
+            },
+            transform: (value: Array<string>): Array<string> =>value,
+            getError: ()=>errors.attendance,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.attendance = value;
+            },
+            getTainted: ()=>tainted.attendance,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.attendance = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("attendance", data.attendance);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "attendance",
+                        index
+                    ] as const,
+                    name: "'^attendance.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.attendance[index]!,
+                    set: (value: string)=>{
+                        data.attendance[index] = value;
+                    },
+                    transform: (value: string): string =>value,
+                    getError: ()=>errors.attendance,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.attendance = value;
+                    },
+                    getTainted: ()=>tainted.attendance,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.attendance = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: string)=>{
+                data.attendance.push(item);
+            },
+            remove: (index: number)=>{
+                data.attendance.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.attendance[a]!;
+                data.attendance[a] = data.attendance[b]!;
+                data.attendance[b] = tmp;
+            }
+        },
+        settings: {
+            path: [
+                "settings"
+            ] as const,
+            name: "settings",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.settings,
+            set: (value: Settings)=>{
+                data.settings = value;
+            },
+            transform: (value: Settings): Settings =>value,
+            getError: ()=>errors.settings,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.settings = value;
+            },
+            getTainted: ()=>tainted.settings,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.settings = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = employeeValidateField("settings", data.settings);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as EmployeeFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Employee, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(employeeDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Employee>): void {
+        data = {
+            ...employeeDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            imageUrl: optionNone(),
+            name: optionNone(),
+            phones: optionNone(),
+            role: optionNone(),
+            title: optionNone(),
+            email: optionNone(),
+            address: optionNone(),
+            username: optionNone(),
+            route: optionNone(),
+            ratePerHour: optionNone(),
+            active: optionNone(),
+            isTechnician: optionNone(),
+            isSalesRep: optionNone(),
+            description: optionNone(),
+            linkedinUrl: optionNone(),
+            attendance: optionNone(),
+            settings: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            imageUrl: optionNone(),
+            name: optionNone(),
+            phones: optionNone(),
+            role: optionNone(),
+            title: optionNone(),
+            email: optionNone(),
+            address: optionNone(),
+            username: optionNone(),
+            route: optionNone(),
+            ratePerHour: optionNone(),
+            active: optionNone(),
+            isTechnician: optionNone(),
+            isSalesRep: optionNone(),
+            description: optionNone(),
+            linkedinUrl: optionNone(),
+            attendance: optionNone(),
+            settings: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function employeeFromFormData(formData: FormData): Exit<Employee, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Employee, Array<{ field: string; message: string }>>";
     obj.id = formData.get(`${"id"}`) ?? "";
     obj.imageUrl = formData.get(`${"imageUrl"}`) ?? "";
     obj.name = formData.get(`${"name"}`) ?? "";
@@ -621,191 +1413,8 @@ export function employeeFromFormData(formData: FormData): Exit<Employee, Array<{
         }
         obj.settings = settingsObj;
     }
-    return toExit("employeeDeserialize(obj)");
+    return toExit(employeeDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: Employee;
-    readonly errors: EmployeeErrors;
-    readonly tainted: EmployeeTainted;
-    readonly fields: EmployeeFieldControllers;
-    validate(): Exit<Employee, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<Employee>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function employeeCreateForm(overrides: Partial<Employee>): EmployeeGigaform {}
-let data = $state({
-    ...employeeDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as EmployeeErrors);
-let tainted = $state<$MfPh3>({} as EmployeeTainted);
-const fields = {} as EmployeeFieldControllers;
-fields.id = {
-    label: `${"id"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.imageUrl = {
-    label: `${"imageUrl"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.name = {
-    label: `${"name"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.phones = {
-    label: `${"phones"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.role = {
-    label: `${"role"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.title = {
-    label: `${"title"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.email = {
-    label: `${"email"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.address = {
-    label: `${"address"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.username = {
-    label: `${"username"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.route = {
-    label: `${"route"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.ratePerHour = {
-    label: `${"ratePerHour"}`,
-    type: `${"number"}`,
-    optional: false,
-    array: false
-};
-fields.active = {
-    label: `${"active"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.isTechnician = {
-    label: `${"isTechnician"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.isSalesRep = {
-    label: `${"isSalesRep"}`,
-    type: `${"checkbox"}`,
-    optional: false,
-    array: false
-};
-fields.description = {
-    label: `${"description"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.linkedinUrl = {
-    label: `${"linkedinUrl"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.attendance = {
-    label: `${"attendance"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.settings = {
-    label: `${"settings"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Employee, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("employeeDeserialize(data)");
-    data = {
-        ...employeeDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Employee = {
   defaultValue: employeeDefaultValue,
@@ -816,6 +1425,6 @@ export const Employee = {
   validateFields: employeeValidateFields,
   hasShape: employeeHasShape,
   is: employeeIs,
-  fromFormData: employeeFromFormData,
-  createForm: employeeCreateForm
+  createForm: employeeCreateForm,
+  fromFormData: employeeFromFormData
 } as const;

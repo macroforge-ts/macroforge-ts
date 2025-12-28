@@ -41,12 +41,12 @@ export function colorsSerializeWithContext(value: Colors, ctx: __mf_SerializeCon
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Colors"}`,
+        __type: "Colors",
         __id
     };
-    result[`${"main"}`] = value.main;
-    result[`${"hover"}`] = value.hover;
-    result[`${"active"}`] = value.active;
+    result.main = value.main;
+    result.hover = value.hover;
+    result.active = value.active;
     return result;
 }
 
@@ -110,21 +110,21 @@ export function colorsDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         field: string;
         message: string;
     }> = [];
-    if (!(`${"main"}` in obj)) {
+    if (!("main" in obj)) {
         errors.push({
-            field: `${"main"}`,
+            field: "main",
             message: "missing required field"
         });
     }
-    if (!(`${"hover"}` in obj)) {
+    if (!("hover" in obj)) {
         errors.push({
-            field: `${"hover"}`,
+            field: "hover",
             message: "missing required field"
         });
     }
-    if (!(`${"active"}` in obj)) {
+    if (!("active" in obj)) {
         errors.push({
-            field: `${"active"}`,
+            field: "active",
             message: "missing required field"
         });
     }
@@ -137,7 +137,7 @@ export function colorsDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_main = obj[`${"main"}`] as string;
+        const __raw_main = obj["main"] as string;
         if (__raw_main.trim().length === 0) {
             errors.push({
                 field: "main",
@@ -147,7 +147,7 @@ export function colorsDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         instance.main = __raw_main;
     }
     {
-        const __raw_hover = obj[`${"hover"}`] as string;
+        const __raw_hover = obj["hover"] as string;
         if (__raw_hover.trim().length === 0) {
             errors.push({
                 field: "hover",
@@ -157,7 +157,7 @@ export function colorsDeserializeWithContext(value: any, ctx: __mf_DeserializeCo
         instance.hover = __raw_hover;
     }
     {
-        const __raw_active = obj[`${"active"}`] as string;
+        const __raw_active = obj["active"] as string;
         if (__raw_active.trim().length === 0) {
             errors.push({
                 field: "active",
@@ -179,7 +179,7 @@ export function colorsValidateField<K extends keyof Colors>(_field: K, _value: C
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"main"}`) {
+    if (_field === "main") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -188,7 +188,7 @@ export function colorsValidateField<K extends keyof Colors>(_field: K, _value: C
             });
         }
     }
-    if (_field === `${"hover"}`) {
+    if (_field === "hover") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -197,7 +197,7 @@ export function colorsValidateField<K extends keyof Colors>(_field: K, _value: C
             });
         }
     }
-    if (_field === `${"active"}`) {
+    if (_field === "active") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -216,7 +216,7 @@ export function colorsValidateFields(_partial: Partial<Colors>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"main"}` in _partial && _partial.main !== undefined) {
+    if ("main" in _partial && _partial.main !== undefined) {
         const __val = _partial.main as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -225,7 +225,7 @@ export function colorsValidateFields(_partial: Partial<Colors>): Array<{
             });
         }
     }
-    if (`${"hover"}` in _partial && _partial.hover !== undefined) {
+    if ("hover" in _partial && _partial.hover !== undefined) {
         const __val = _partial.hover as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -234,7 +234,7 @@ export function colorsValidateFields(_partial: Partial<Colors>): Array<{
             });
         }
     }
-    if (`${"active"}` in _partial && _partial.active !== undefined) {
+    if ("active" in _partial && _partial.active !== undefined) {
         const __val = _partial.active as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -260,24 +260,23 @@ export function colorsIs(obj: unknown): obj is Colors {
     return result.success;
 }
 
-export function colorsFromFormData(formData: FormData): Exit<Colors, Array<{
-    field: string;
-    message: string;
-}>> {
-    const obj: Record<string, unknown> = {};
-    obj.main = formData.get(`${"main"}`) ?? "";
-    obj.hover = formData.get(`${"hover"}`) ?? "";
-    obj.active = formData.get(`${"active"}`) ?? "";
-    return toExit("colorsDeserialize(obj)");
-}
-export type $MfPh0 = {
+export type ColorsErrors = {
     _errors: __gf_Option<Array<string>>;
+    main: __gf_Option<Array<string>>;
+    hover: __gf_Option<Array<string>>;
+    active: __gf_Option<Array<string>>;
 };
-export type $MfPh1 = {
+export type ColorsTainted = {
+    main: __gf_Option<boolean>;
+    hover: __gf_Option<boolean>;
+    active: __gf_Option<boolean>;
 };
-export interface $MfPh2 {
+export interface ColorsFieldControllers {
+    readonly main: FieldController<string>;
+    readonly hover: FieldController<string>;
+    readonly active: FieldController<string>;
 }
-export interface $MfPh3 {
+export interface ColorsGigaform {
     readonly data: Colors;
     readonly errors: ColorsErrors;
     readonly tainted: ColorsTainted;
@@ -286,53 +285,173 @@ export interface $MfPh3 {
         field: string;
         message: string;
     }>>;
-    reset(overrides: Partial<Colors>): void;
+    reset(overrides?: Partial<Colors>): void;
 }
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function colorsCreateForm(overrides: Partial<Colors>): ColorsGigaform {}
-let data = $state({
-    ...colorsDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as ColorsErrors);
-let tainted = $state<$MfPh3>({} as ColorsTainted);
-const fields = {} as ColorsFieldControllers;
-fields.main = {
-    label: `${"main"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.hover = {
-    label: `${"hover"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.active = {
-    label: `${"active"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<Colors, Array<{
+export function colorsCreateForm(overrides?: Partial<Colors>): ColorsGigaform {
+    let data = $state({
+        ...colorsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<ColorsErrors>({
+        _errors: optionNone(),
+        main: optionNone(),
+        hover: optionNone(),
+        active: optionNone()
+    } as ColorsErrors);
+    let tainted = $state<ColorsTainted>({
+        main: optionNone(),
+        hover: optionNone(),
+        active: optionNone()
+    } as ColorsTainted);
+    const fields = {
+        main: {
+            path: [
+                "main"
+            ] as const,
+            name: "main",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.main,
+            set: (value: string)=>{
+                data.main = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.main,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.main = value;
+            },
+            getTainted: ()=>tainted.main,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.main = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = colorsValidateField("main", data.main);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        hover: {
+            path: [
+                "hover"
+            ] as const,
+            name: "hover",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.hover,
+            set: (value: string)=>{
+                data.hover = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.hover,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.hover = value;
+            },
+            getTainted: ()=>tainted.hover,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.hover = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = colorsValidateField("hover", data.hover);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        active: {
+            path: [
+                "active"
+            ] as const,
+            name: "active",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.active,
+            set: (value: string)=>{
+                data.active = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.active,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.active = value;
+            },
+            getTainted: ()=>tainted.active,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.active = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = colorsValidateField("active", data.active);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as ColorsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Colors, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(colorsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Colors>): void {
+        data = {
+            ...colorsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            main: optionNone(),
+            hover: optionNone(),
+            active: optionNone()
+        };
+        tainted = {
+            main: optionNone(),
+            hover: optionNone(),
+            active: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function colorsFromFormData(formData: FormData): Exit<Colors, Array<{
     field: string;
     message: string;
 }>> {
-    return toExit("colorsDeserialize(data)");
-    data = {
-        ...colorsDefaultValue(),
-        ...newOverrides
-    };
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Colors, Array<{ field: string; message: string }>>";
+    obj.main = formData.get(`${"main"}`) ?? "";
+    obj.hover = formData.get(`${"hover"}`) ?? "";
+    obj.active = formData.get(`${"active"}`) ?? "";
+    return toExit(colorsDeserialize(obj));
 }
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const Colors = {
   defaultValue: colorsDefaultValue,
@@ -343,6 +462,6 @@ export const Colors = {
   validateFields: colorsValidateFields,
   hasShape: colorsHasShape,
   is: colorsIs,
-  fromFormData: colorsFromFormData,
-  createForm: colorsCreateForm
+  createForm: colorsCreateForm,
+  fromFormData: colorsFromFormData
 } as const;

@@ -18,6 +18,12 @@ import { leadStageDeserializeWithContext } from "./lead-stage.svelte";
 import { nextStepDeserializeWithContext } from "./next-step.svelte";
 import { priorityDeserializeWithContext } from "./priority.svelte";
 import { sectorDeserializeWithContext } from "./sector.svelte";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
+import type { ArrayFieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import type { AccountName } from './account-name.svelte';
@@ -159,45 +165,45 @@ export function leadSerializeWithContext(value: Lead, ctx: __mf_SerializeContext
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Lead"}`,
+        __type: "Lead",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"number"}`] = value.number;
-    result[`${"accepted"}`] = value.accepted;
-    result[`${"probability"}`] = value.probability;
-    result[`${"priority"}`] = prioritySerializeWithContext(value.priority, ctx);
-    result[`${"dueDate"}`] = value.dueDate;
-    result[`${"closeDate"}`] = value.closeDate;
-    result[`${"value"}`] = value.value;
-    result[`${"stage"}`] = leadStageSerializeWithContext(value.stage, ctx);
-    result[`${"status"}`] = value.status;
-    result[`${"description"}`] = value.description;
-    result[`${"nextStep"}`] = nextStepSerializeWithContext(value.nextStep, ctx);
-    result[`${"favorite"}`] = value.favorite;
-    result[`${"dateAdded"}`] = value.dateAdded;
+    result.id = value.id;
+    result.number = value.number;
+    result.accepted = value.accepted;
+    result.probability = value.probability;
+    result.priority = prioritySerializeWithContext(value.priority, ctx);
+    result.dueDate = value.dueDate;
+    result.closeDate = value.closeDate;
+    result.value = value.value;
+    result.stage = leadStageSerializeWithContext(value.stage, ctx);
+    result.status = value.status;
+    result.description = value.description;
+    result.nextStep = nextStepSerializeWithContext(value.nextStep, ctx);
+    result.favorite = value.favorite;
+    result.dateAdded = value.dateAdded;
     if (value.taxRate !== null) {
-        result[`${"taxRate"}`] = value.taxRate;
+        result.taxRate = value.taxRate;
     }
-    result[`${"sector"}`] = sectorSerializeWithContext(value.sector, ctx);
-    result[`${"leadName"}`] = accountNameSerializeWithContext(value.leadName, ctx);
-    result[`${"phones"}`] = value.phones.map((item)=>phoneNumberSerializeWithContext(item, ctx));
-    result[`${"email"}`] = emailSerializeWithContext(value.email, ctx);
-    result[`${"leadSource"}`] = value.leadSource;
-    result[`${"site"}`] = value.site;
-    result[`${"memo"}`] = value.memo;
-    result[`${"needsReview"}`] = value.needsReview;
-    result[`${"hasAlert"}`] = value.hasAlert;
+    result.sector = sectorSerializeWithContext(value.sector, ctx);
+    result.leadName = accountNameSerializeWithContext(value.leadName, ctx);
+    result.phones = value.phones.map((item)=>phoneNumberSerializeWithContext(item, ctx));
+    result.email = emailSerializeWithContext(value.email, ctx);
+    result.leadSource = value.leadSource;
+    result.site = value.site;
+    result.memo = value.memo;
+    result.needsReview = value.needsReview;
+    result.hasAlert = value.hasAlert;
     if (value.salesRep !== null) {
-        result[`${"salesRep"}`] = value.salesRep;
+        result.salesRep = value.salesRep;
     }
-    result[`${"color"}`] = value.color;
-    result[`${"accountType"}`] = value.accountType;
-    result[`${"subtype"}`] = value.subtype;
-    result[`${"isTaxExempt"}`] = value.isTaxExempt;
-    result[`${"paymentTerms"}`] = value.paymentTerms;
-    result[`${"tags"}`] = value.tags;
-    result[`${"customFields"}`] = value.customFields;
+    result.color = value.color;
+    result.accountType = value.accountType;
+    result.subtype = value.subtype;
+    result.isTaxExempt = value.isTaxExempt;
+    result.paymentTerms = value.paymentTerms;
+    result.tags = value.tags;
+    result.customFields = value.customFields;
     return result;
 }
 
@@ -261,195 +267,195 @@ export function leadDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"number"}` in obj)) {
+    if (!("number" in obj)) {
         errors.push({
-            field: `${"number"}`,
+            field: "number",
             message: "missing required field"
         });
     }
-    if (!(`${"accepted"}` in obj)) {
+    if (!("accepted" in obj)) {
         errors.push({
-            field: `${"accepted"}`,
+            field: "accepted",
             message: "missing required field"
         });
     }
-    if (!(`${"probability"}` in obj)) {
+    if (!("probability" in obj)) {
         errors.push({
-            field: `${"probability"}`,
+            field: "probability",
             message: "missing required field"
         });
     }
-    if (!(`${"priority"}` in obj)) {
+    if (!("priority" in obj)) {
         errors.push({
-            field: `${"priority"}`,
+            field: "priority",
             message: "missing required field"
         });
     }
-    if (!(`${"dueDate"}` in obj)) {
+    if (!("dueDate" in obj)) {
         errors.push({
-            field: `${"dueDate"}`,
+            field: "dueDate",
             message: "missing required field"
         });
     }
-    if (!(`${"closeDate"}` in obj)) {
+    if (!("closeDate" in obj)) {
         errors.push({
-            field: `${"closeDate"}`,
+            field: "closeDate",
             message: "missing required field"
         });
     }
-    if (!(`${"value"}` in obj)) {
+    if (!("value" in obj)) {
         errors.push({
-            field: `${"value"}`,
+            field: "value",
             message: "missing required field"
         });
     }
-    if (!(`${"stage"}` in obj)) {
+    if (!("stage" in obj)) {
         errors.push({
-            field: `${"stage"}`,
+            field: "stage",
             message: "missing required field"
         });
     }
-    if (!(`${"status"}` in obj)) {
+    if (!("status" in obj)) {
         errors.push({
-            field: `${"status"}`,
+            field: "status",
             message: "missing required field"
         });
     }
-    if (!(`${"description"}` in obj)) {
+    if (!("description" in obj)) {
         errors.push({
-            field: `${"description"}`,
+            field: "description",
             message: "missing required field"
         });
     }
-    if (!(`${"nextStep"}` in obj)) {
+    if (!("nextStep" in obj)) {
         errors.push({
-            field: `${"nextStep"}`,
+            field: "nextStep",
             message: "missing required field"
         });
     }
-    if (!(`${"favorite"}` in obj)) {
+    if (!("favorite" in obj)) {
         errors.push({
-            field: `${"favorite"}`,
+            field: "favorite",
             message: "missing required field"
         });
     }
-    if (!(`${"dateAdded"}` in obj)) {
+    if (!("dateAdded" in obj)) {
         errors.push({
-            field: `${"dateAdded"}`,
+            field: "dateAdded",
             message: "missing required field"
         });
     }
-    if (!(`${"taxRate"}` in obj)) {
+    if (!("taxRate" in obj)) {
         errors.push({
-            field: `${"taxRate"}`,
+            field: "taxRate",
             message: "missing required field"
         });
     }
-    if (!(`${"sector"}` in obj)) {
+    if (!("sector" in obj)) {
         errors.push({
-            field: `${"sector"}`,
+            field: "sector",
             message: "missing required field"
         });
     }
-    if (!(`${"leadName"}` in obj)) {
+    if (!("leadName" in obj)) {
         errors.push({
-            field: `${"leadName"}`,
+            field: "leadName",
             message: "missing required field"
         });
     }
-    if (!(`${"phones"}` in obj)) {
+    if (!("phones" in obj)) {
         errors.push({
-            field: `${"phones"}`,
+            field: "phones",
             message: "missing required field"
         });
     }
-    if (!(`${"email"}` in obj)) {
+    if (!("email" in obj)) {
         errors.push({
-            field: `${"email"}`,
+            field: "email",
             message: "missing required field"
         });
     }
-    if (!(`${"leadSource"}` in obj)) {
+    if (!("leadSource" in obj)) {
         errors.push({
-            field: `${"leadSource"}`,
+            field: "leadSource",
             message: "missing required field"
         });
     }
-    if (!(`${"site"}` in obj)) {
+    if (!("site" in obj)) {
         errors.push({
-            field: `${"site"}`,
+            field: "site",
             message: "missing required field"
         });
     }
-    if (!(`${"memo"}` in obj)) {
+    if (!("memo" in obj)) {
         errors.push({
-            field: `${"memo"}`,
+            field: "memo",
             message: "missing required field"
         });
     }
-    if (!(`${"needsReview"}` in obj)) {
+    if (!("needsReview" in obj)) {
         errors.push({
-            field: `${"needsReview"}`,
+            field: "needsReview",
             message: "missing required field"
         });
     }
-    if (!(`${"hasAlert"}` in obj)) {
+    if (!("hasAlert" in obj)) {
         errors.push({
-            field: `${"hasAlert"}`,
+            field: "hasAlert",
             message: "missing required field"
         });
     }
-    if (!(`${"salesRep"}` in obj)) {
+    if (!("salesRep" in obj)) {
         errors.push({
-            field: `${"salesRep"}`,
+            field: "salesRep",
             message: "missing required field"
         });
     }
-    if (!(`${"color"}` in obj)) {
+    if (!("color" in obj)) {
         errors.push({
-            field: `${"color"}`,
+            field: "color",
             message: "missing required field"
         });
     }
-    if (!(`${"accountType"}` in obj)) {
+    if (!("accountType" in obj)) {
         errors.push({
-            field: `${"accountType"}`,
+            field: "accountType",
             message: "missing required field"
         });
     }
-    if (!(`${"subtype"}` in obj)) {
+    if (!("subtype" in obj)) {
         errors.push({
-            field: `${"subtype"}`,
+            field: "subtype",
             message: "missing required field"
         });
     }
-    if (!(`${"isTaxExempt"}` in obj)) {
+    if (!("isTaxExempt" in obj)) {
         errors.push({
-            field: `${"isTaxExempt"}`,
+            field: "isTaxExempt",
             message: "missing required field"
         });
     }
-    if (!(`${"paymentTerms"}` in obj)) {
+    if (!("paymentTerms" in obj)) {
         errors.push({
-            field: `${"paymentTerms"}`,
+            field: "paymentTerms",
             message: "missing required field"
         });
     }
-    if (!(`${"tags"}` in obj)) {
+    if (!("tags" in obj)) {
         errors.push({
-            field: `${"tags"}`,
+            field: "tags",
             message: "missing required field"
         });
     }
-    if (!(`${"customFields"}` in obj)) {
+    if (!("customFields" in obj)) {
         errors.push({
-            field: `${"customFields"}`,
+            field: "customFields",
             message: "missing required field"
         });
     }
@@ -462,49 +468,49 @@ export function leadDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_number = obj[`${"number"}`] as number | null;
+        const __raw_number = obj["number"] as number | null;
         instance.number = __raw_number;
     }
     {
-        const __raw_accepted = obj[`${"accepted"}`] as boolean;
+        const __raw_accepted = obj["accepted"] as boolean;
         instance.accepted = __raw_accepted;
     }
     {
-        const __raw_probability = obj[`${"probability"}`] as number;
+        const __raw_probability = obj["probability"] as number;
         instance.probability = __raw_probability;
     }
     {
-        const __raw_priority = obj[`${"priority"}`] as Priority;
+        const __raw_priority = obj["priority"] as Priority;
         {
             const __result = priorityDeserializeWithContext(__raw_priority, ctx);
-            ctx.assignOrDefer(instance, `${"priority"}`, __result);
+            ctx.assignOrDefer(instance, "priority", __result);
         }
     }
     {
-        const __raw_dueDate = obj[`${"dueDate"}`] as string | null;
+        const __raw_dueDate = obj["dueDate"] as string | null;
         instance.dueDate = __raw_dueDate;
     }
     {
-        const __raw_closeDate = obj[`${"closeDate"}`] as string | null;
+        const __raw_closeDate = obj["closeDate"] as string | null;
         instance.closeDate = __raw_closeDate;
     }
     {
-        const __raw_value = obj[`${"value"}`] as number;
+        const __raw_value = obj["value"] as number;
         instance.value = __raw_value;
     }
     {
-        const __raw_stage = obj[`${"stage"}`] as LeadStage;
+        const __raw_stage = obj["stage"] as LeadStage;
         {
             const __result = leadStageDeserializeWithContext(__raw_stage, ctx);
-            ctx.assignOrDefer(instance, `${"stage"}`, __result);
+            ctx.assignOrDefer(instance, "stage", __result);
         }
     }
     {
-        const __raw_status = obj[`${"status"}`] as string;
+        const __raw_status = obj["status"] as string;
         if (__raw_status.trim().length === 0) {
             errors.push({
                 field: "status",
@@ -514,26 +520,26 @@ export function leadDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.status = __raw_status;
     }
     {
-        const __raw_description = obj[`${"description"}`] as string | null;
+        const __raw_description = obj["description"] as string | null;
         instance.description = __raw_description;
     }
     {
-        const __raw_nextStep = obj[`${"nextStep"}`] as NextStep;
+        const __raw_nextStep = obj["nextStep"] as NextStep;
         {
             const __result = nextStepDeserializeWithContext(__raw_nextStep, ctx);
-            ctx.assignOrDefer(instance, `${"nextStep"}`, __result);
+            ctx.assignOrDefer(instance, "nextStep", __result);
         }
     }
     {
-        const __raw_favorite = obj[`${"favorite"}`] as boolean;
+        const __raw_favorite = obj["favorite"] as boolean;
         instance.favorite = __raw_favorite;
     }
     {
-        const __raw_dateAdded = obj[`${"dateAdded"}`] as string | null;
+        const __raw_dateAdded = obj["dateAdded"] as string | null;
         instance.dateAdded = __raw_dateAdded;
     }
     {
-        const __raw_taxRate = obj[`${"taxRate"}`] as (string | TaxRate) | null;
+        const __raw_taxRate = obj["taxRate"] as (string | TaxRate) | null;
         if (__raw_taxRate === null) {
             instance.taxRate = null;
         } else {
@@ -541,42 +547,42 @@ export function leadDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         }
     }
     {
-        const __raw_sector = obj[`${"sector"}`] as Sector;
+        const __raw_sector = obj["sector"] as Sector;
         {
             const __result = sectorDeserializeWithContext(__raw_sector, ctx);
-            ctx.assignOrDefer(instance, `${"sector"}`, __result);
+            ctx.assignOrDefer(instance, "sector", __result);
         }
     }
     {
-        const __raw_leadName = obj[`${"leadName"}`] as AccountName;
+        const __raw_leadName = obj["leadName"] as AccountName;
         {
             const __result = accountNameDeserializeWithContext(__raw_leadName, ctx);
-            ctx.assignOrDefer(instance, `${"leadName"}`, __result);
+            ctx.assignOrDefer(instance, "leadName", __result);
         }
     }
     {
-        const __raw_phones = obj[`${"phones"}`] as Array<PhoneNumber>;
+        const __raw_phones = obj["phones"] as Array<PhoneNumber>;
         if (Array.isArray(__raw_phones)) {
             instance.phones = __raw_phones as PhoneNumber[];
         }
     }
     {
-        const __raw_email = obj[`${"email"}`] as Email;
+        const __raw_email = obj["email"] as Email;
         {
             const __result = emailDeserializeWithContext(__raw_email, ctx);
-            ctx.assignOrDefer(instance, `${"email"}`, __result);
+            ctx.assignOrDefer(instance, "email", __result);
         }
     }
     {
-        const __raw_leadSource = obj[`${"leadSource"}`] as string | null;
+        const __raw_leadSource = obj["leadSource"] as string | null;
         instance.leadSource = __raw_leadSource;
     }
     {
-        const __raw_site = obj[`${"site"}`] as string | Site;
+        const __raw_site = obj["site"] as string | Site;
         instance.site = __raw_site;
     }
     {
-        const __raw_memo = obj[`${"memo"}`] as string;
+        const __raw_memo = obj["memo"] as string;
         if (__raw_memo.trim().length === 0) {
             errors.push({
                 field: "memo",
@@ -586,15 +592,15 @@ export function leadDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.memo = __raw_memo;
     }
     {
-        const __raw_needsReview = obj[`${"needsReview"}`] as boolean;
+        const __raw_needsReview = obj["needsReview"] as boolean;
         instance.needsReview = __raw_needsReview;
     }
     {
-        const __raw_hasAlert = obj[`${"hasAlert"}`] as boolean;
+        const __raw_hasAlert = obj["hasAlert"] as boolean;
         instance.hasAlert = __raw_hasAlert;
     }
     {
-        const __raw_salesRep = obj[`${"salesRep"}`] as Array<Represents> | null;
+        const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;
         if (__raw_salesRep === null) {
             instance.salesRep = null;
         } else {
@@ -602,11 +608,11 @@ export function leadDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         }
     }
     {
-        const __raw_color = obj[`${"color"}`] as string | null;
+        const __raw_color = obj["color"] as string | null;
         instance.color = __raw_color;
     }
     {
-        const __raw_accountType = obj[`${"accountType"}`] as string;
+        const __raw_accountType = obj["accountType"] as string;
         if (__raw_accountType.trim().length === 0) {
             errors.push({
                 field: "accountType",
@@ -616,7 +622,7 @@ export function leadDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.accountType = __raw_accountType;
     }
     {
-        const __raw_subtype = obj[`${"subtype"}`] as string;
+        const __raw_subtype = obj["subtype"] as string;
         if (__raw_subtype.trim().length === 0) {
             errors.push({
                 field: "subtype",
@@ -626,11 +632,11 @@ export function leadDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.subtype = __raw_subtype;
     }
     {
-        const __raw_isTaxExempt = obj[`${"isTaxExempt"}`] as boolean;
+        const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
         instance.isTaxExempt = __raw_isTaxExempt;
     }
     {
-        const __raw_paymentTerms = obj[`${"paymentTerms"}`] as string;
+        const __raw_paymentTerms = obj["paymentTerms"] as string;
         if (__raw_paymentTerms.trim().length === 0) {
             errors.push({
                 field: "paymentTerms",
@@ -640,13 +646,13 @@ export function leadDeserializeWithContext(value: any, ctx: __mf_DeserializeCont
         instance.paymentTerms = __raw_paymentTerms;
     }
     {
-        const __raw_tags = obj[`${"tags"}`] as Array<string>;
+        const __raw_tags = obj["tags"] as Array<string>;
         if (Array.isArray(__raw_tags)) {
             instance.tags = __raw_tags as string[];
         }
     }
     {
-        const __raw_customFields = obj[`${"customFields"}`] as Array<[string, string]>;
+        const __raw_customFields = obj["customFields"] as Array<[string, string]>;
         if (Array.isArray(__raw_customFields)) {
             instance.customFields = __raw_customFields as [string, string][];
         }
@@ -664,7 +670,7 @@ export function leadValidateField<K extends keyof Lead>(_field: K, _value: Lead[
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"status"}`) {
+    if (_field === "status") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -673,7 +679,7 @@ export function leadValidateField<K extends keyof Lead>(_field: K, _value: Lead[
             });
         }
     }
-    if (_field === `${"memo"}`) {
+    if (_field === "memo") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -682,7 +688,7 @@ export function leadValidateField<K extends keyof Lead>(_field: K, _value: Lead[
             });
         }
     }
-    if (_field === `${"accountType"}`) {
+    if (_field === "accountType") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -691,7 +697,7 @@ export function leadValidateField<K extends keyof Lead>(_field: K, _value: Lead[
             });
         }
     }
-    if (_field === `${"subtype"}`) {
+    if (_field === "subtype") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -700,7 +706,7 @@ export function leadValidateField<K extends keyof Lead>(_field: K, _value: Lead[
             });
         }
     }
-    if (_field === `${"paymentTerms"}`) {
+    if (_field === "paymentTerms") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -719,7 +725,7 @@ export function leadValidateFields(_partial: Partial<Lead>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"status"}` in _partial && _partial.status !== undefined) {
+    if ("status" in _partial && _partial.status !== undefined) {
         const __val = _partial.status as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -728,7 +734,7 @@ export function leadValidateFields(_partial: Partial<Lead>): Array<{
             });
         }
     }
-    if (`${"memo"}` in _partial && _partial.memo !== undefined) {
+    if ("memo" in _partial && _partial.memo !== undefined) {
         const __val = _partial.memo as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -737,7 +743,7 @@ export function leadValidateFields(_partial: Partial<Lead>): Array<{
             });
         }
     }
-    if (`${"accountType"}` in _partial && _partial.accountType !== undefined) {
+    if ("accountType" in _partial && _partial.accountType !== undefined) {
         const __val = _partial.accountType as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -746,7 +752,7 @@ export function leadValidateFields(_partial: Partial<Lead>): Array<{
             });
         }
     }
-    if (`${"subtype"}` in _partial && _partial.subtype !== undefined) {
+    if ("subtype" in _partial && _partial.subtype !== undefined) {
         const __val = _partial.subtype as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -755,7 +761,7 @@ export function leadValidateFields(_partial: Partial<Lead>): Array<{
             });
         }
     }
-    if (`${"paymentTerms"}` in _partial && _partial.paymentTerms !== undefined) {
+    if ("paymentTerms" in _partial && _partial.paymentTerms !== undefined) {
         const __val = _partial.paymentTerms as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -781,6 +787,1575 @@ export function leadIs(obj: unknown): obj is Lead {
     return result.success;
 }
 
+export type LeadErrors = {
+    _errors: __gf_Option<Array<string>>;
+    id: __gf_Option<Array<string>>;
+    number: __gf_Option<Array<string>>;
+    accepted: __gf_Option<Array<string>>;
+    probability: __gf_Option<Array<string>>;
+    priority: __gf_Option<Array<string>>;
+    dueDate: __gf_Option<Array<string>>;
+    closeDate: __gf_Option<Array<string>>;
+    value: __gf_Option<Array<string>>;
+    stage: __gf_Option<Array<string>>;
+    status: __gf_Option<Array<string>>;
+    description: __gf_Option<Array<string>>;
+    nextStep: __gf_Option<Array<string>>;
+    favorite: __gf_Option<Array<string>>;
+    dateAdded: __gf_Option<Array<string>>;
+    taxRate: __gf_Option<Array<string>>;
+    sector: __gf_Option<Array<string>>;
+    leadName: __gf_Option<Array<string>>;
+    phones: __gf_Option<Array<string>>;
+    email: __gf_Option<Array<string>>;
+    leadSource: __gf_Option<Array<string>>;
+    site: __gf_Option<Array<string>>;
+    memo: __gf_Option<Array<string>>;
+    needsReview: __gf_Option<Array<string>>;
+    hasAlert: __gf_Option<Array<string>>;
+    salesRep: __gf_Option<Array<string>>;
+    color: __gf_Option<Array<string>>;
+    accountType: __gf_Option<Array<string>>;
+    subtype: __gf_Option<Array<string>>;
+    isTaxExempt: __gf_Option<Array<string>>;
+    paymentTerms: __gf_Option<Array<string>>;
+    tags: __gf_Option<Array<string>>;
+    customFields: __gf_Option<Array<string>>;
+};
+export type LeadTainted = {
+    id: __gf_Option<boolean>;
+    number: __gf_Option<boolean>;
+    accepted: __gf_Option<boolean>;
+    probability: __gf_Option<boolean>;
+    priority: __gf_Option<boolean>;
+    dueDate: __gf_Option<boolean>;
+    closeDate: __gf_Option<boolean>;
+    value: __gf_Option<boolean>;
+    stage: __gf_Option<boolean>;
+    status: __gf_Option<boolean>;
+    description: __gf_Option<boolean>;
+    nextStep: __gf_Option<boolean>;
+    favorite: __gf_Option<boolean>;
+    dateAdded: __gf_Option<boolean>;
+    taxRate: __gf_Option<boolean>;
+    sector: __gf_Option<boolean>;
+    leadName: __gf_Option<boolean>;
+    phones: __gf_Option<boolean>;
+    email: __gf_Option<boolean>;
+    leadSource: __gf_Option<boolean>;
+    site: __gf_Option<boolean>;
+    memo: __gf_Option<boolean>;
+    needsReview: __gf_Option<boolean>;
+    hasAlert: __gf_Option<boolean>;
+    salesRep: __gf_Option<boolean>;
+    color: __gf_Option<boolean>;
+    accountType: __gf_Option<boolean>;
+    subtype: __gf_Option<boolean>;
+    isTaxExempt: __gf_Option<boolean>;
+    paymentTerms: __gf_Option<boolean>;
+    tags: __gf_Option<boolean>;
+    customFields: __gf_Option<boolean>;
+};
+export interface LeadFieldControllers {
+    readonly id: FieldController<string>;
+    readonly number: FieldController<number | null>;
+    readonly accepted: FieldController<boolean>;
+    readonly probability: FieldController<number>;
+    readonly priority: FieldController<Priority>;
+    readonly dueDate: FieldController<string | null>;
+    readonly closeDate: FieldController<string | null>;
+    readonly value: FieldController<number>;
+    readonly stage: FieldController<LeadStage>;
+    readonly status: FieldController<string>;
+    readonly description: FieldController<string | null>;
+    readonly nextStep: FieldController<NextStep>;
+    readonly favorite: FieldController<boolean>;
+    readonly dateAdded: FieldController<string | null>;
+    readonly taxRate: FieldController<(string | TaxRate) | null>;
+    readonly sector: FieldController<Sector>;
+    readonly leadName: FieldController<AccountName>;
+    readonly phones: ArrayFieldController<PhoneNumber>;
+    readonly email: FieldController<Email>;
+    readonly leadSource: FieldController<string | null>;
+    readonly site: FieldController<string | Site>;
+    readonly memo: FieldController<string>;
+    readonly needsReview: FieldController<boolean>;
+    readonly hasAlert: FieldController<boolean>;
+    readonly salesRep: FieldController<Array<Represents> | null>;
+    readonly color: FieldController<string | null>;
+    readonly accountType: FieldController<string>;
+    readonly subtype: FieldController<string>;
+    readonly isTaxExempt: FieldController<boolean>;
+    readonly paymentTerms: FieldController<string>;
+    readonly tags: ArrayFieldController<string>;
+    readonly customFields: ArrayFieldController<[string, string]>;
+}
+export interface LeadGigaform {
+    readonly data: Lead;
+    readonly errors: LeadErrors;
+    readonly tainted: LeadTainted;
+    readonly fields: LeadFieldControllers;
+    validate(): Exit<Lead, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Lead>): void;
+}
+export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
+    let data = $state({
+        ...leadDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<LeadErrors>({
+        _errors: optionNone(),
+        id: optionNone(),
+        number: optionNone(),
+        accepted: optionNone(),
+        probability: optionNone(),
+        priority: optionNone(),
+        dueDate: optionNone(),
+        closeDate: optionNone(),
+        value: optionNone(),
+        stage: optionNone(),
+        status: optionNone(),
+        description: optionNone(),
+        nextStep: optionNone(),
+        favorite: optionNone(),
+        dateAdded: optionNone(),
+        taxRate: optionNone(),
+        sector: optionNone(),
+        leadName: optionNone(),
+        phones: optionNone(),
+        email: optionNone(),
+        leadSource: optionNone(),
+        site: optionNone(),
+        memo: optionNone(),
+        needsReview: optionNone(),
+        hasAlert: optionNone(),
+        salesRep: optionNone(),
+        color: optionNone(),
+        accountType: optionNone(),
+        subtype: optionNone(),
+        isTaxExempt: optionNone(),
+        paymentTerms: optionNone(),
+        tags: optionNone(),
+        customFields: optionNone()
+    } as LeadErrors);
+    let tainted = $state<LeadTainted>({
+        id: optionNone(),
+        number: optionNone(),
+        accepted: optionNone(),
+        probability: optionNone(),
+        priority: optionNone(),
+        dueDate: optionNone(),
+        closeDate: optionNone(),
+        value: optionNone(),
+        stage: optionNone(),
+        status: optionNone(),
+        description: optionNone(),
+        nextStep: optionNone(),
+        favorite: optionNone(),
+        dateAdded: optionNone(),
+        taxRate: optionNone(),
+        sector: optionNone(),
+        leadName: optionNone(),
+        phones: optionNone(),
+        email: optionNone(),
+        leadSource: optionNone(),
+        site: optionNone(),
+        memo: optionNone(),
+        needsReview: optionNone(),
+        hasAlert: optionNone(),
+        salesRep: optionNone(),
+        color: optionNone(),
+        accountType: optionNone(),
+        subtype: optionNone(),
+        isTaxExempt: optionNone(),
+        paymentTerms: optionNone(),
+        tags: optionNone(),
+        customFields: optionNone()
+    } as LeadTainted);
+    const fields = {
+        id: {
+            path: [
+                "id"
+            ] as const,
+            name: "id",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.id,
+            set: (value: string)=>{
+                data.id = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.id,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.id = value;
+            },
+            getTainted: ()=>tainted.id,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.id = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("id", data.id);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        number: {
+            path: [
+                "number"
+            ] as const,
+            name: "number",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.number,
+            set: (value: number | null)=>{
+                data.number = value;
+            },
+            transform: (value: number | null): number | null =>value,
+            getError: ()=>errors.number,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.number = value;
+            },
+            getTainted: ()=>tainted.number,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.number = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("number", data.number);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        accepted: {
+            path: [
+                "accepted"
+            ] as const,
+            name: "accepted",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.accepted,
+            set: (value: boolean)=>{
+                data.accepted = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.accepted,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.accepted = value;
+            },
+            getTainted: ()=>tainted.accepted,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.accepted = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("accepted", data.accepted);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        probability: {
+            path: [
+                "probability"
+            ] as const,
+            name: "probability",
+            constraints: {
+                required: true
+            },
+            label: "Probability",
+            get: ()=>data.probability,
+            set: (value: number)=>{
+                data.probability = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.probability,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.probability = value;
+            },
+            getTainted: ()=>tainted.probability,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.probability = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("probability", data.probability);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        priority: {
+            path: [
+                "priority"
+            ] as const,
+            name: "priority",
+            constraints: {
+                required: true
+            },
+            label: "Priority",
+            get: ()=>data.priority,
+            set: (value: Priority)=>{
+                data.priority = value;
+            },
+            transform: (value: Priority): Priority =>value,
+            getError: ()=>errors.priority,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.priority = value;
+            },
+            getTainted: ()=>tainted.priority,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.priority = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("priority", data.priority);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        dueDate: {
+            path: [
+                "dueDate"
+            ] as const,
+            name: "dueDate",
+            constraints: {
+                required: true
+            },
+            label: "Due Date",
+            get: ()=>data.dueDate,
+            set: (value: string | null)=>{
+                data.dueDate = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.dueDate,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.dueDate = value;
+            },
+            getTainted: ()=>tainted.dueDate,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.dueDate = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("dueDate", data.dueDate);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        closeDate: {
+            path: [
+                "closeDate"
+            ] as const,
+            name: "closeDate",
+            constraints: {
+                required: true
+            },
+            label: "Close Date",
+            get: ()=>data.closeDate,
+            set: (value: string | null)=>{
+                data.closeDate = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.closeDate,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.closeDate = value;
+            },
+            getTainted: ()=>tainted.closeDate,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.closeDate = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("closeDate", data.closeDate);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        value: {
+            path: [
+                "value"
+            ] as const,
+            name: "value",
+            constraints: {
+                required: true
+            },
+            label: "Value",
+            get: ()=>data.value,
+            set: (value: number)=>{
+                data.value = value;
+            },
+            transform: (value: number): number =>value,
+            getError: ()=>errors.value,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.value = value;
+            },
+            getTainted: ()=>tainted.value,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.value = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("value", data.value);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        stage: {
+            path: [
+                "stage"
+            ] as const,
+            name: "stage",
+            constraints: {
+                required: true
+            },
+            label: "Stage",
+            get: ()=>data.stage,
+            set: (value: LeadStage)=>{
+                data.stage = value;
+            },
+            transform: (value: LeadStage): LeadStage =>value,
+            getError: ()=>errors.stage,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.stage = value;
+            },
+            getTainted: ()=>tainted.stage,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.stage = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("stage", data.stage);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        status: {
+            path: [
+                "status"
+            ] as const,
+            name: "status",
+            constraints: {
+                required: true
+            },
+            label: "Status",
+            get: ()=>data.status,
+            set: (value: string)=>{
+                data.status = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.status,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.status = value;
+            },
+            getTainted: ()=>tainted.status,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.status = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("status", data.status);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        description: {
+            path: [
+                "description"
+            ] as const,
+            name: "description",
+            constraints: {
+                required: true
+            },
+            label: "Description",
+            get: ()=>data.description,
+            set: (value: string | null)=>{
+                data.description = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.description,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.description = value;
+            },
+            getTainted: ()=>tainted.description,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.description = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("description", data.description);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        nextStep: {
+            path: [
+                "nextStep"
+            ] as const,
+            name: "nextStep",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.nextStep,
+            set: (value: NextStep)=>{
+                data.nextStep = value;
+            },
+            transform: (value: NextStep): NextStep =>value,
+            getError: ()=>errors.nextStep,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.nextStep = value;
+            },
+            getTainted: ()=>tainted.nextStep,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.nextStep = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("nextStep", data.nextStep);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        favorite: {
+            path: [
+                "favorite"
+            ] as const,
+            name: "favorite",
+            constraints: {
+                required: true
+            },
+            label: "Favorite",
+            get: ()=>data.favorite,
+            set: (value: boolean)=>{
+                data.favorite = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.favorite,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.favorite = value;
+            },
+            getTainted: ()=>tainted.favorite,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.favorite = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("favorite", data.favorite);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        dateAdded: {
+            path: [
+                "dateAdded"
+            ] as const,
+            name: "dateAdded",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.dateAdded,
+            set: (value: string | null)=>{
+                data.dateAdded = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.dateAdded,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.dateAdded = value;
+            },
+            getTainted: ()=>tainted.dateAdded,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.dateAdded = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("dateAdded", data.dateAdded);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        taxRate: {
+            path: [
+                "taxRate"
+            ] as const,
+            name: "taxRate",
+            constraints: {
+                required: true
+            },
+            label: "Tax Rate",
+            get: ()=>data.taxRate,
+            set: (value: (string | TaxRate) | null)=>{
+                data.taxRate = value;
+            },
+            transform: (value: (string | TaxRate) | null): (string | TaxRate) | null =>value,
+            getError: ()=>errors.taxRate,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.taxRate = value;
+            },
+            getTainted: ()=>tainted.taxRate,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.taxRate = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("taxRate", data.taxRate);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        sector: {
+            path: [
+                "sector"
+            ] as const,
+            name: "sector",
+            constraints: {
+                required: true
+            },
+            label: "Sector",
+            get: ()=>data.sector,
+            set: (value: Sector)=>{
+                data.sector = value;
+            },
+            transform: (value: Sector): Sector =>value,
+            getError: ()=>errors.sector,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.sector = value;
+            },
+            getTainted: ()=>tainted.sector,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.sector = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("sector", data.sector);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        leadName: {
+            path: [
+                "leadName"
+            ] as const,
+            name: "leadName",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.leadName,
+            set: (value: AccountName)=>{
+                data.leadName = value;
+            },
+            transform: (value: AccountName): AccountName =>value,
+            getError: ()=>errors.leadName,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.leadName = value;
+            },
+            getTainted: ()=>tainted.leadName,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.leadName = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("leadName", data.leadName);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        phones: {
+            path: [
+                "phones"
+            ] as const,
+            name: "phones",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.phones,
+            set: (value: Array<PhoneNumber>)=>{
+                data.phones = value;
+            },
+            transform: (value: Array<PhoneNumber>): Array<PhoneNumber> =>value,
+            getError: ()=>errors.phones,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.phones = value;
+            },
+            getTainted: ()=>tainted.phones,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.phones = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("phones", data.phones);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "phones",
+                        index
+                    ] as const,
+                    name: "'^phones.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.phones[index]!,
+                    set: (value: PhoneNumber)=>{
+                        data.phones[index] = value;
+                    },
+                    transform: (value: PhoneNumber): PhoneNumber =>value,
+                    getError: ()=>errors.phones,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.phones = value;
+                    },
+                    getTainted: ()=>tainted.phones,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.phones = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: PhoneNumber)=>{
+                data.phones.push(item);
+            },
+            remove: (index: number)=>{
+                data.phones.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.phones[a]!;
+                data.phones[a] = data.phones[b]!;
+                data.phones[b] = tmp;
+            }
+        },
+        email: {
+            path: [
+                "email"
+            ] as const,
+            name: "email",
+            constraints: {
+                required: true
+            },
+            label: "Email",
+            get: ()=>data.email,
+            set: (value: Email)=>{
+                data.email = value;
+            },
+            transform: (value: Email): Email =>value,
+            getError: ()=>errors.email,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.email = value;
+            },
+            getTainted: ()=>tainted.email,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.email = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("email", data.email);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        leadSource: {
+            path: [
+                "leadSource"
+            ] as const,
+            name: "leadSource",
+            constraints: {
+                required: true
+            },
+            label: "Lead Source",
+            get: ()=>data.leadSource,
+            set: (value: string | null)=>{
+                data.leadSource = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.leadSource,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.leadSource = value;
+            },
+            getTainted: ()=>tainted.leadSource,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.leadSource = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("leadSource", data.leadSource);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        site: {
+            path: [
+                "site"
+            ] as const,
+            name: "site",
+            constraints: {
+                required: true
+            },
+            label: "Site",
+            get: ()=>data.site,
+            set: (value: string | Site)=>{
+                data.site = value;
+            },
+            transform: (value: string | Site): string | Site =>value,
+            getError: ()=>errors.site,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.site = value;
+            },
+            getTainted: ()=>tainted.site,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.site = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("site", data.site);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        memo: {
+            path: [
+                "memo"
+            ] as const,
+            name: "memo",
+            constraints: {
+                required: true
+            },
+            label: "Memo",
+            get: ()=>data.memo,
+            set: (value: string)=>{
+                data.memo = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.memo,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.memo = value;
+            },
+            getTainted: ()=>tainted.memo,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.memo = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("memo", data.memo);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        needsReview: {
+            path: [
+                "needsReview"
+            ] as const,
+            name: "needsReview",
+            constraints: {
+                required: true
+            },
+            label: "Needs Review",
+            get: ()=>data.needsReview,
+            set: (value: boolean)=>{
+                data.needsReview = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.needsReview,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.needsReview = value;
+            },
+            getTainted: ()=>tainted.needsReview,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.needsReview = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("needsReview", data.needsReview);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        hasAlert: {
+            path: [
+                "hasAlert"
+            ] as const,
+            name: "hasAlert",
+            constraints: {
+                required: true
+            },
+            label: "Has Alert",
+            get: ()=>data.hasAlert,
+            set: (value: boolean)=>{
+                data.hasAlert = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.hasAlert,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.hasAlert = value;
+            },
+            getTainted: ()=>tainted.hasAlert,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.hasAlert = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("hasAlert", data.hasAlert);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        salesRep: {
+            path: [
+                "salesRep"
+            ] as const,
+            name: "salesRep",
+            constraints: {
+                required: true
+            },
+            label: "Sales Rep",
+            get: ()=>data.salesRep,
+            set: (value: Array<Represents> | null)=>{
+                data.salesRep = value;
+            },
+            transform: (value: Array<Represents> | null): Array<Represents> | null =>value,
+            getError: ()=>errors.salesRep,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.salesRep = value;
+            },
+            getTainted: ()=>tainted.salesRep,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.salesRep = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("salesRep", data.salesRep);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        color: {
+            path: [
+                "color"
+            ] as const,
+            name: "color",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.color,
+            set: (value: string | null)=>{
+                data.color = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.color,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.color = value;
+            },
+            getTainted: ()=>tainted.color,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.color = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("color", data.color);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        accountType: {
+            path: [
+                "accountType"
+            ] as const,
+            name: "accountType",
+            constraints: {
+                required: true
+            },
+            label: "Account Type",
+            get: ()=>data.accountType,
+            set: (value: string)=>{
+                data.accountType = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.accountType,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.accountType = value;
+            },
+            getTainted: ()=>tainted.accountType,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.accountType = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("accountType", data.accountType);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        subtype: {
+            path: [
+                "subtype"
+            ] as const,
+            name: "subtype",
+            constraints: {
+                required: true
+            },
+            label: "Subtype",
+            get: ()=>data.subtype,
+            set: (value: string)=>{
+                data.subtype = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.subtype,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.subtype = value;
+            },
+            getTainted: ()=>tainted.subtype,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.subtype = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("subtype", data.subtype);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        isTaxExempt: {
+            path: [
+                "isTaxExempt"
+            ] as const,
+            name: "isTaxExempt",
+            constraints: {
+                required: true
+            },
+            label: "Tax Exempt",
+            get: ()=>data.isTaxExempt,
+            set: (value: boolean)=>{
+                data.isTaxExempt = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.isTaxExempt,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.isTaxExempt = value;
+            },
+            getTainted: ()=>tainted.isTaxExempt,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.isTaxExempt = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("isTaxExempt", data.isTaxExempt);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        paymentTerms: {
+            path: [
+                "paymentTerms"
+            ] as const,
+            name: "paymentTerms",
+            constraints: {
+                required: true
+            },
+            label: "Payment Terms",
+            get: ()=>data.paymentTerms,
+            set: (value: string)=>{
+                data.paymentTerms = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.paymentTerms,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.paymentTerms = value;
+            },
+            getTainted: ()=>tainted.paymentTerms,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.paymentTerms = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("paymentTerms", data.paymentTerms);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        tags: {
+            path: [
+                "tags"
+            ] as const,
+            name: "tags",
+            constraints: {
+                required: true
+            },
+            label: "Tags",
+            get: ()=>data.tags,
+            set: (value: Array<string>)=>{
+                data.tags = value;
+            },
+            transform: (value: Array<string>): Array<string> =>value,
+            getError: ()=>errors.tags,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.tags = value;
+            },
+            getTainted: ()=>tainted.tags,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.tags = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("tags", data.tags);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "tags",
+                        index
+                    ] as const,
+                    name: "'^tags.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.tags[index]!,
+                    set: (value: string)=>{
+                        data.tags[index] = value;
+                    },
+                    transform: (value: string): string =>value,
+                    getError: ()=>errors.tags,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.tags = value;
+                    },
+                    getTainted: ()=>tainted.tags,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.tags = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: string)=>{
+                data.tags.push(item);
+            },
+            remove: (index: number)=>{
+                data.tags.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.tags[a]!;
+                data.tags[a] = data.tags[b]!;
+                data.tags[b] = tmp;
+            }
+        },
+        customFields: {
+            path: [
+                "customFields"
+            ] as const,
+            name: "customFields",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.customFields,
+            set: (value: Array<[string, string]>)=>{
+                data.customFields = value;
+            },
+            transform: (value: Array<[string, string]>): Array<[string, string]> =>value,
+            getError: ()=>errors.customFields,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.customFields = value;
+            },
+            getTainted: ()=>tainted.customFields,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.customFields = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = leadValidateField("customFields", data.customFields);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "customFields",
+                        index
+                    ] as const,
+                    name: "'^customFields.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.customFields[index]!,
+                    set: (value: [string, string])=>{
+                        data.customFields[index] = value;
+                    },
+                    transform: (value: [string, string]): [string, string] =>value,
+                    getError: ()=>errors.customFields,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.customFields = value;
+                    },
+                    getTainted: ()=>tainted.customFields,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.customFields = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: [string, string])=>{
+                data.customFields.push(item);
+            },
+            remove: (index: number)=>{
+                data.customFields.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.customFields[a]!;
+                data.customFields[a] = data.customFields[b]!;
+                data.customFields[b] = tmp;
+            }
+        }
+    } as LeadFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Lead, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(leadDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Lead>): void {
+        data = {
+            ...leadDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            id: optionNone(),
+            number: optionNone(),
+            accepted: optionNone(),
+            probability: optionNone(),
+            priority: optionNone(),
+            dueDate: optionNone(),
+            closeDate: optionNone(),
+            value: optionNone(),
+            stage: optionNone(),
+            status: optionNone(),
+            description: optionNone(),
+            nextStep: optionNone(),
+            favorite: optionNone(),
+            dateAdded: optionNone(),
+            taxRate: optionNone(),
+            sector: optionNone(),
+            leadName: optionNone(),
+            phones: optionNone(),
+            email: optionNone(),
+            leadSource: optionNone(),
+            site: optionNone(),
+            memo: optionNone(),
+            needsReview: optionNone(),
+            hasAlert: optionNone(),
+            salesRep: optionNone(),
+            color: optionNone(),
+            accountType: optionNone(),
+            subtype: optionNone(),
+            isTaxExempt: optionNone(),
+            paymentTerms: optionNone(),
+            tags: optionNone(),
+            customFields: optionNone()
+        };
+        tainted = {
+            id: optionNone(),
+            number: optionNone(),
+            accepted: optionNone(),
+            probability: optionNone(),
+            priority: optionNone(),
+            dueDate: optionNone(),
+            closeDate: optionNone(),
+            value: optionNone(),
+            stage: optionNone(),
+            status: optionNone(),
+            description: optionNone(),
+            nextStep: optionNone(),
+            favorite: optionNone(),
+            dateAdded: optionNone(),
+            taxRate: optionNone(),
+            sector: optionNone(),
+            leadName: optionNone(),
+            phones: optionNone(),
+            email: optionNone(),
+            leadSource: optionNone(),
+            site: optionNone(),
+            memo: optionNone(),
+            needsReview: optionNone(),
+            hasAlert: optionNone(),
+            salesRep: optionNone(),
+            color: optionNone(),
+            accountType: optionNone(),
+            subtype: optionNone(),
+            isTaxExempt: optionNone(),
+            paymentTerms: optionNone(),
+            tags: optionNone(),
+            customFields: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function leadFromFormData(formData: FormData): Exit<Lead, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Lead, Array<{ field: string; message: string }>>";
+    obj.id = formData.get(`${"id"}`) ?? "";
+    {
+        const numberStr = formData.get(`${"number"}`);
+        obj.number = numberStr ? parseFloat(numberStr as string) : $MfPh5;
+        if (obj.number !== undefined && isNaN(obj.number as number)) obj.number = "0";
+    }
+    {
+        const acceptedVal = formData.get(`${"accepted"}`);
+        obj.accepted = acceptedVal === "true" || acceptedVal === "on" || acceptedVal === "1";
+    }
+    {
+        const probabilityStr = formData.get(`${"probability"}`);
+        obj.probability = probabilityStr ? parseFloat(probabilityStr as string) : $MfPh5;
+        if (obj.probability !== undefined && isNaN(obj.probability as number)) obj.probability = "0";
+    }
+    {
+        const priorityObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())){
+            if (key.startsWith(`${"priority"}.`)) {
+                const fieldName = key.slice(`${"priority"}.`.length);
+                const parts = fieldName.split(".");
+                let current = priorityObj;
+                for(let i = 0; i < parts.length - 1; i++){
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.priority = priorityObj;
+    }
+    obj.dueDate = formData.get(`${"dueDate"}`) ?? "";
+    obj.closeDate = formData.get(`${"closeDate"}`) ?? "";
+    {
+        const valueStr = formData.get(`${"value"}`);
+        obj.value = valueStr ? parseFloat(valueStr as string) : $MfPh5;
+        if (obj.value !== undefined && isNaN(obj.value as number)) obj.value = "0";
+    }
+    {
+        const stageObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())){
+            if (key.startsWith(`${"stage"}.`)) {
+                const fieldName = key.slice(`${"stage"}.`.length);
+                const parts = fieldName.split(".");
+                let current = stageObj;
+                for(let i = 0; i < parts.length - 1; i++){
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.stage = stageObj;
+    }
+    obj.status = formData.get(`${"status"}`) ?? "";
+    obj.description = formData.get(`${"description"}`) ?? "";
+    {
+        const nextStepObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())){
+            if (key.startsWith(`${"nextStep"}.`)) {
+                const fieldName = key.slice(`${"nextStep"}.`.length);
+                const parts = fieldName.split(".");
+                let current = nextStepObj;
+                for(let i = 0; i < parts.length - 1; i++){
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.nextStep = nextStepObj;
+    }
+    {
+        const favoriteVal = formData.get(`${"favorite"}`);
+        obj.favorite = favoriteVal === "true" || favoriteVal === "on" || favoriteVal === "1";
+    }
+    obj.dateAdded = formData.get(`${"dateAdded"}`) ?? "";
+    obj.taxRate = formData.get(`${"taxRate"}`) ?? "";
+    {
+        const sectorObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())){
+            if (key.startsWith(`${"sector"}.`)) {
+                const fieldName = key.slice(`${"sector"}.`.length);
+                const parts = fieldName.split(".");
+                let current = sectorObj;
+                for(let i = 0; i < parts.length - 1; i++){
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.sector = sectorObj;
+    }
+    {
+        const leadNameObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())){
+            if (key.startsWith(`${"leadName"}.`)) {
+                const fieldName = key.slice(`${"leadName"}.`.length);
+                const parts = fieldName.split(".");
+                let current = leadNameObj;
+                for(let i = 0; i < parts.length - 1; i++){
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.leadName = leadNameObj;
+    }
+    {
+        const phonesItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while(formData.has(`${"phones"}.` + idx + ".") || idx === 0){
+            const hasAny = Array.from(formData.keys()).some((k)=>k.startsWith(`${"phones"}.` + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())){
+                    if (key.startsWith(`${"phones"}.` + idx + ".")) {
+                        const fieldName = key.slice(`${"phones"}.`.length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                phonesItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.phones = phonesItems;
+    }
+    {
+        const emailObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())){
+            if (key.startsWith(`${"email"}.`)) {
+                const fieldName = key.slice(`${"email"}.`.length);
+                const parts = fieldName.split(".");
+                let current = emailObj;
+                for(let i = 0; i < parts.length - 1; i++){
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.email = emailObj;
+    }
+    obj.leadSource = formData.get(`${"leadSource"}`) ?? "";
+    obj.site = formData.get(`${"site"}`) ?? "";
+    obj.memo = formData.get(`${"memo"}`) ?? "";
+    {
+        const needsReviewVal = formData.get(`${"needsReview"}`);
+        obj.needsReview = needsReviewVal === "true" || needsReviewVal === "on" || needsReviewVal === "1";
+    }
+    {
+        const hasAlertVal = formData.get(`${"hasAlert"}`);
+        obj.hasAlert = hasAlertVal === "true" || hasAlertVal === "on" || hasAlertVal === "1";
+    }
+    obj.salesRep = formData.get(`${"salesRep"}`) ?? "";
+    obj.color = formData.get(`${"color"}`) ?? "";
+    obj.accountType = formData.get(`${"accountType"}`) ?? "";
+    obj.subtype = formData.get(`${"subtype"}`) ?? "";
+    {
+        const isTaxExemptVal = formData.get(`${"isTaxExempt"}`);
+        obj.isTaxExempt = isTaxExemptVal === "true" || isTaxExemptVal === "on" || isTaxExemptVal === "1";
+    }
+    obj.paymentTerms = formData.get(`${"paymentTerms"}`) ?? "";
+    obj.tags = formData.getAll(`${"tags"}`) as Array<string>;
+    {
+        const customFieldsItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while(formData.has(`${"customFields"}.` + idx + ".") || idx === 0){
+            const hasAny = Array.from(formData.keys()).some((k)=>k.startsWith(`${"customFields"}.` + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())){
+                    if (key.startsWith(`${"customFields"}.` + idx + ".")) {
+                        const fieldName = key.slice(`${"customFields"}.`.length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                customFieldsItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.customFields = customFieldsItems;
+    }
+    return toExit(leadDeserialize(obj));
+}
+
 export const Lead = {
   defaultValue: leadDefaultValue,
   serialize: leadSerialize,
@@ -789,5 +2364,7 @@ export const Lead = {
   deserializeWithContext: leadDeserializeWithContext,
   validateFields: leadValidateFields,
   hasShape: leadHasShape,
-  is: leadIs
+  is: leadIs,
+  createForm: leadCreateForm,
+  fromFormData: leadFromFormData
 } as const;

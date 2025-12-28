@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -30,10 +35,10 @@ export function firstNameSerializeWithContext(value: FirstName, ctx: __mf_Serial
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"FirstName"}`,
+        __type: "FirstName",
         __id
     };
-    result[`${"name"}`] = value.name;
+    result.name = value.name;
     return result;
 }
 
@@ -97,9 +102,9 @@ export function firstNameDeserializeWithContext(value: any, ctx: __mf_Deserializ
         field: string;
         message: string;
     }> = [];
-    if (!(`${"name"}` in obj)) {
+    if (!("name" in obj)) {
         errors.push({
-            field: `${"name"}`,
+            field: "name",
             message: "missing required field"
         });
     }
@@ -112,7 +117,7 @@ export function firstNameDeserializeWithContext(value: any, ctx: __mf_Deserializ
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_name = obj[`${"name"}`] as string;
+        const __raw_name = obj["name"] as string;
         if (__raw_name.trim().length === 0) {
             errors.push({
                 field: "name",
@@ -134,7 +139,7 @@ export function firstNameValidateField<K extends keyof FirstName>(_field: K, _va
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"name"}`) {
+    if (_field === "name") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -153,7 +158,7 @@ export function firstNameValidateFields(_partial: Partial<FirstName>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"name"}` in _partial && _partial.name !== undefined) {
+    if ("name" in _partial && _partial.name !== undefined) {
         const __val = _partial.name as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -179,6 +184,125 @@ export function firstNameIs(obj: unknown): obj is FirstName {
     return result.success;
 }
 
+export type FirstNameErrors = {
+    _errors: __gf_Option<Array<string>>;
+    name: __gf_Option<Array<string>>;
+};
+export type FirstNameTainted = {
+    name: __gf_Option<boolean>;
+};
+export interface FirstNameFieldControllers {
+    readonly name: FieldController<string>;
+}
+export interface FirstNameGigaform {
+    readonly data: FirstName;
+    readonly errors: FirstNameErrors;
+    readonly tainted: FirstNameTainted;
+    readonly fields: FirstNameFieldControllers;
+    validate(): Exit<FirstName, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<FirstName>): void;
+}
+export function firstNameCreateForm(overrides?: Partial<FirstName>): FirstNameGigaform {
+    let data = $state({
+        ...firstNameDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<FirstNameErrors>({
+        _errors: optionNone(),
+        name: optionNone()
+    } as FirstNameErrors);
+    let tainted = $state<FirstNameTainted>({
+        name: optionNone()
+    } as FirstNameTainted);
+    const fields = {
+        name: {
+            path: [
+                "name"
+            ] as const,
+            name: "name",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.name,
+            set: (value: string)=>{
+                data.name = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.name,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.name = value;
+            },
+            getTainted: ()=>tainted.name,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.name = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = firstNameValidateField("name", data.name);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as FirstNameFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<FirstName, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(firstNameDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<FirstName>): void {
+        data = {
+            ...firstNameDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            name: optionNone()
+        };
+        tainted = {
+            name: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function firstNameFromFormData(formData: FormData): Exit<FirstName, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<FirstName, Array<{ field: string; message: string }>>";
+    obj.name = formData.get(`${"name"}`) ?? "";
+    return toExit(firstNameDeserialize(obj));
+}
+
 export const FirstName = {
   defaultValue: firstNameDefaultValue,
   serialize: firstNameSerialize,
@@ -187,5 +311,7 @@ export const FirstName = {
   deserializeWithContext: firstNameDeserializeWithContext,
   validateFields: firstNameValidateFields,
   hasShape: firstNameHasShape,
-  is: firstNameIs
+  is: firstNameIs,
+  createForm: firstNameCreateForm,
+  fromFormData: firstNameFromFormData
 } as const;

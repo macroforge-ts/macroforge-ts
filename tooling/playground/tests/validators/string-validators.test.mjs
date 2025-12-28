@@ -312,17 +312,17 @@ describe('String Validators', () => {
 
         test('rejects lowercase letters', () => {
             const result = mod.PatternValidator.deserialize(JSON.stringify({ code: 'abc' }));
-            assertValidationError(result, 'code', 'must match the required pattern');
+            assertValidationError(result, 'code', 'must match pattern');
         });
 
         test('rejects wrong length', () => {
             const result = mod.PatternValidator.deserialize(JSON.stringify({ code: 'ABCD' }));
-            assertValidationError(result, 'code', 'must match the required pattern');
+            assertValidationError(result, 'code', 'must match pattern');
         });
 
         test('rejects numbers', () => {
             const result = mod.PatternValidator.deserialize(JSON.stringify({ code: '123' }));
-            assertValidationError(result, 'code', 'must match the required pattern');
+            assertValidationError(result, 'code', 'must match pattern');
         });
     });
 
@@ -340,9 +340,9 @@ describe('String Validators', () => {
             assertValidationSuccess(result, 'required');
         });
 
-        test('accepts whitespace only (nonEmpty only checks length)', () => {
+        test('rejects whitespace only (nonEmpty trims before checking)', () => {
             const result = mod.NonEmptyValidator.deserialize(JSON.stringify({ required: '   ' }));
-            assertValidationSuccess(result, 'required');
+            assertValidationError(result, 'required', 'must not be empty');
         });
 
         test('rejects empty string', () => {
@@ -461,9 +461,9 @@ describe('String Validators', () => {
             assertValidationSuccess(result, 'cap');
         });
 
-        test('accepts all uppercase', () => {
+        test('rejects all uppercase (capitalized means first upper, rest lower)', () => {
             const result = mod.CapitalizedValidator.deserialize(JSON.stringify({ cap: 'HELLO' }));
-            assertValidationSuccess(result, 'cap');
+            assertValidationError(result, 'cap', 'must be capitalized');
         });
 
         test('rejects lowercase first letter', () => {
@@ -500,14 +500,14 @@ describe('String Validators', () => {
             const result = mod.UncapitalizedValidator.deserialize(
                 JSON.stringify({ uncap: 'Hello' })
             );
-            assertValidationError(result, 'uncap', 'must not be capitalized');
+            assertValidationError(result, 'uncap', 'must be uncapitalized');
         });
 
         test('rejects all uppercase', () => {
             const result = mod.UncapitalizedValidator.deserialize(
                 JSON.stringify({ uncap: 'HELLO' })
             );
-            assertValidationError(result, 'uncap', 'must not be capitalized');
+            assertValidationError(result, 'uncap', 'must be uncapitalized');
         });
     });
 

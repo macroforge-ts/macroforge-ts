@@ -144,7 +144,8 @@ describe('Serialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('"user_id"'), 'Should use renamed key in output');
+        // Direct property access: result.user_id instead of result["user_id"]
+        assert.ok(result.code.includes('result.user_id'), 'Should use renamed key in output');
     });
 
     test('handles @serde(skip) decorator', () => {
@@ -158,8 +159,9 @@ describe('Serialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('"username"'), 'Should include non-skipped fields');
-        assert.ok(!result.code.includes('"password"'), 'Should skip fields with skip: true');
+        // Direct property access: result.username instead of result["username"]
+        assert.ok(result.code.includes('result.username'), 'Should include non-skipped fields');
+        assert.ok(!result.code.includes('result.password'), 'Should skip fields with skip: true');
     });
 
     test('handles @serde(flatten) decorator', () => {
@@ -749,8 +751,9 @@ describe('renameAll container option', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('"userName"'), 'Should convert to camelCase');
-        assert.ok(result.code.includes('"createdAt"'), 'Should convert to camelCase');
+        // Direct property access: result.userName instead of result["userName"]
+        assert.ok(result.code.includes('result.userName'), 'Should convert to camelCase');
+        assert.ok(result.code.includes('result.createdAt'), 'Should convert to camelCase');
     });
 
     test('snake_case rename', () => {
@@ -766,7 +769,8 @@ describe('renameAll container option', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('"user_name"'), 'Should convert to snake_case');
-        assert.ok(result.code.includes('"created_at"'), 'Should convert to snake_case');
+        // Direct property access: result.user_name instead of result["user_name"]
+        assert.ok(result.code.includes('result.user_name'), 'Should convert to snake_case');
+        assert.ok(result.code.includes('result.created_at'), 'Should convert to snake_case');
     });
 });

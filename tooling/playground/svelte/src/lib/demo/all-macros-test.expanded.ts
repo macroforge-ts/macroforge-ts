@@ -58,15 +58,15 @@ export function svelteAllMacrosTestSerializeWithContext(value: SvelteAllMacrosTe
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"SvelteAllMacrosTest"}`,
+        __type: "SvelteAllMacrosTest",
         __id
     };
-    result[`${"id"}`] = value.id;
-    result[`${"title"}`] = value.title;
-    result[`${"content"}`] = value.content;
-    result[`${"apiKey"}`] = value.apiKey;
-    result[`${"count"}`] = value.count;
-    result[`${"enabled"}`] = value.enabled;
+    result.id = value.id;
+    result.title = value.title;
+    result.content = value.content;
+    result.apiKey = value.apiKey;
+    result.count = value.count;
+    result.enabled = value.enabled;
     return result;
 }
 
@@ -130,39 +130,39 @@ export function svelteAllMacrosTestDeserializeWithContext(value: any, ctx: __mf_
         field: string;
         message: string;
     }> = [];
-    if (!(`${"id"}` in obj)) {
+    if (!("id" in obj)) {
         errors.push({
-            field: `${"id"}`,
+            field: "id",
             message: "missing required field"
         });
     }
-    if (!(`${"title"}` in obj)) {
+    if (!("title" in obj)) {
         errors.push({
-            field: `${"title"}`,
+            field: "title",
             message: "missing required field"
         });
     }
-    if (!(`${"content"}` in obj)) {
+    if (!("content" in obj)) {
         errors.push({
-            field: `${"content"}`,
+            field: "content",
             message: "missing required field"
         });
     }
-    if (!(`${"apiKey"}` in obj)) {
+    if (!("apiKey" in obj)) {
         errors.push({
-            field: `${"apiKey"}`,
+            field: "apiKey",
             message: "missing required field"
         });
     }
-    if (!(`${"count"}` in obj)) {
+    if (!("count" in obj)) {
         errors.push({
-            field: `${"count"}`,
+            field: "count",
             message: "missing required field"
         });
     }
-    if (!(`${"enabled"}` in obj)) {
+    if (!("enabled" in obj)) {
         errors.push({
-            field: `${"enabled"}`,
+            field: "enabled",
             message: "missing required field"
         });
     }
@@ -175,27 +175,27 @@ export function svelteAllMacrosTestDeserializeWithContext(value: any, ctx: __mf_
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj[`${"id"}`] as string;
+        const __raw_id = obj["id"] as string;
         instance.id = __raw_id;
     }
     {
-        const __raw_title = obj[`${"title"}`] as string;
+        const __raw_title = obj["title"] as string;
         instance.title = __raw_title;
     }
     {
-        const __raw_content = obj[`${"content"}`] as string;
+        const __raw_content = obj["content"] as string;
         instance.content = __raw_content;
     }
     {
-        const __raw_apiKey = obj[`${"apiKey"}`] as string;
+        const __raw_apiKey = obj["apiKey"] as string;
         instance.apiKey = __raw_apiKey;
     }
     {
-        const __raw_count = obj[`${"count"}`] as number;
+        const __raw_count = obj["count"] as number;
         instance.count = __raw_count;
     }
     {
-        const __raw_enabled = obj[`${"enabled"}`] as boolean;
+        const __raw_enabled = obj["enabled"] as boolean;
         instance.enabled = __raw_enabled;
     }
     if (errors.length > 0) {

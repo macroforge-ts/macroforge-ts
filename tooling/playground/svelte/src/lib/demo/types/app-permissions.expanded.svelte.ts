@@ -46,12 +46,12 @@ export function appPermissionsSerializeWithContext(value: AppPermissions, ctx: _
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"AppPermissions"}`,
+        __type: "AppPermissions",
         __id
     };
-    result[`${"applications"}`] = value.applications.map((item)=>applicationsSerializeWithContext(item, ctx));
-    result[`${"pages"}`] = value.pages.map((item)=>pageSerializeWithContext(item, ctx));
-    result[`${"data"}`] = value.data.map((item)=>tableSerializeWithContext(item, ctx));
+    result.applications = value.applications.map((item)=>applicationsSerializeWithContext(item, ctx));
+    result.pages = value.pages.map((item)=>pageSerializeWithContext(item, ctx));
+    result.data = value.data.map((item)=>tableSerializeWithContext(item, ctx));
     return result;
 }
 
@@ -115,21 +115,21 @@ export function appPermissionsDeserializeWithContext(value: any, ctx: __mf_Deser
         field: string;
         message: string;
     }> = [];
-    if (!(`${"applications"}` in obj)) {
+    if (!("applications" in obj)) {
         errors.push({
-            field: `${"applications"}`,
+            field: "applications",
             message: "missing required field"
         });
     }
-    if (!(`${"pages"}` in obj)) {
+    if (!("pages" in obj)) {
         errors.push({
-            field: `${"pages"}`,
+            field: "pages",
             message: "missing required field"
         });
     }
-    if (!(`${"data"}` in obj)) {
+    if (!("data" in obj)) {
         errors.push({
-            field: `${"data"}`,
+            field: "data",
             message: "missing required field"
         });
     }
@@ -142,19 +142,19 @@ export function appPermissionsDeserializeWithContext(value: any, ctx: __mf_Deser
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_applications = obj[`${"applications"}`] as Array<Applications>;
+        const __raw_applications = obj["applications"] as Array<Applications>;
         if (Array.isArray(__raw_applications)) {
             instance.applications = __raw_applications as Applications[];
         }
     }
     {
-        const __raw_pages = obj[`${"pages"}`] as Array<Page>;
+        const __raw_pages = obj["pages"] as Array<Page>;
         if (Array.isArray(__raw_pages)) {
             instance.pages = __raw_pages as Page[];
         }
     }
     {
-        const __raw_data = obj[`${"data"}`] as Array<Table>;
+        const __raw_data = obj["data"] as Array<Table>;
         if (Array.isArray(__raw_data)) {
             instance.data = __raw_data as Table[];
         }
@@ -191,11 +191,298 @@ export function appPermissionsIs(obj: unknown): obj is AppPermissions {
     return result.success;
 }
 
+export type AppPermissionsErrors = {
+    _errors: __gf_Option<Array<string>>;
+    applications: __gf_Option<Array<string>>;
+    pages: __gf_Option<Array<string>>;
+    data: __gf_Option<Array<string>>;
+};
+export type AppPermissionsTainted = {
+    applications: __gf_Option<boolean>;
+    pages: __gf_Option<boolean>;
+    data: __gf_Option<boolean>;
+};
+export interface AppPermissionsFieldControllers {
+    readonly applications: ArrayFieldController<Applications>;
+    readonly pages: ArrayFieldController<Page>;
+    readonly data: ArrayFieldController<Table>;
+}
+export interface AppPermissionsGigaform {
+    readonly data: AppPermissions;
+    readonly errors: AppPermissionsErrors;
+    readonly tainted: AppPermissionsTainted;
+    readonly fields: AppPermissionsFieldControllers;
+    validate(): Exit<AppPermissions, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<AppPermissions>): void;
+}
+export function appPermissionsCreateForm(overrides?: Partial<AppPermissions>): AppPermissionsGigaform {
+    let data = $state({
+        ...appPermissionsDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<AppPermissionsErrors>({
+        _errors: optionNone(),
+        applications: optionNone(),
+        pages: optionNone(),
+        data: optionNone()
+    } as AppPermissionsErrors);
+    let tainted = $state<AppPermissionsTainted>({
+        applications: optionNone(),
+        pages: optionNone(),
+        data: optionNone()
+    } as AppPermissionsTainted);
+    const fields = {
+        applications: {
+            path: [
+                "applications"
+            ] as const,
+            name: "applications",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.applications,
+            set: (value: Array<Applications>)=>{
+                data.applications = value;
+            },
+            transform: (value: Array<Applications>): Array<Applications> =>value,
+            getError: ()=>errors.applications,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.applications = value;
+            },
+            getTainted: ()=>tainted.applications,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.applications = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appPermissionsValidateField("applications", data.applications);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "applications",
+                        index
+                    ] as const,
+                    name: "'^applications.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.applications[index]!,
+                    set: (value: Applications)=>{
+                        data.applications[index] = value;
+                    },
+                    transform: (value: Applications): Applications =>value,
+                    getError: ()=>errors.applications,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.applications = value;
+                    },
+                    getTainted: ()=>tainted.applications,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.applications = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: Applications)=>{
+                data.applications.push(item);
+            },
+            remove: (index: number)=>{
+                data.applications.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.applications[a]!;
+                data.applications[a] = data.applications[b]!;
+                data.applications[b] = tmp;
+            }
+        },
+        pages: {
+            path: [
+                "pages"
+            ] as const,
+            name: "pages",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.pages,
+            set: (value: Array<Page>)=>{
+                data.pages = value;
+            },
+            transform: (value: Array<Page>): Array<Page> =>value,
+            getError: ()=>errors.pages,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.pages = value;
+            },
+            getTainted: ()=>tainted.pages,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.pages = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appPermissionsValidateField("pages", data.pages);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "pages",
+                        index
+                    ] as const,
+                    name: "'^pages.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.pages[index]!,
+                    set: (value: Page)=>{
+                        data.pages[index] = value;
+                    },
+                    transform: (value: Page): Page =>value,
+                    getError: ()=>errors.pages,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.pages = value;
+                    },
+                    getTainted: ()=>tainted.pages,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.pages = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: Page)=>{
+                data.pages.push(item);
+            },
+            remove: (index: number)=>{
+                data.pages.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.pages[a]!;
+                data.pages[a] = data.pages[b]!;
+                data.pages[b] = tmp;
+            }
+        },
+        data: {
+            path: [
+                "data"
+            ] as const,
+            name: "data",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.data,
+            set: (value: Array<Table>)=>{
+                data.data = value;
+            },
+            transform: (value: Array<Table>): Array<Table> =>value,
+            getError: ()=>errors.data,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.data = value;
+            },
+            getTainted: ()=>tainted.data,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.data = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = appPermissionsValidateField("data", data.data);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "data",
+                        index
+                    ] as const,
+                    name: "'^data.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.data[index]!,
+                    set: (value: Table)=>{
+                        data.data[index] = value;
+                    },
+                    transform: (value: Table): Table =>value,
+                    getError: ()=>errors.data,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.data = value;
+                    },
+                    getTainted: ()=>tainted.data,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.data = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: Table)=>{
+                data.data.push(item);
+            },
+            remove: (index: number)=>{
+                data.data.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.data[a]!;
+                data.data[a] = data.data[b]!;
+                data.data[b] = tmp;
+            }
+        }
+    } as AppPermissionsFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<AppPermissions, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(appPermissionsDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<AppPermissions>): void {
+        data = {
+            ...appPermissionsDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            applications: optionNone(),
+            pages: optionNone(),
+            data: optionNone()
+        };
+        tainted = {
+            applications: optionNone(),
+            pages: optionNone(),
+            data: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function appPermissionsFromFormData(formData: FormData): Exit<AppPermissions, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<AppPermissions, Array<{ field: string; message: string }>>";
     {
         const applicationsItems: Array<Record<string, unknown>> = [];
         let idx = 0;
@@ -259,71 +546,8 @@ export function appPermissionsFromFormData(formData: FormData): Exit<AppPermissi
         }
         obj.data = dataItems;
     }
-    return toExit("appPermissionsDeserialize(obj)");
+    return toExit(appPermissionsDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: AppPermissions;
-    readonly errors: AppPermissionsErrors;
-    readonly tainted: AppPermissionsTainted;
-    readonly fields: AppPermissionsFieldControllers;
-    validate(): Exit<AppPermissions, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<AppPermissions>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function appPermissionsCreateForm(overrides: Partial<AppPermissions>): AppPermissionsGigaform {}
-let data = $state({
-    ...appPermissionsDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as AppPermissionsErrors);
-let tainted = $state<$MfPh3>({} as AppPermissionsTainted);
-const fields = {} as AppPermissionsFieldControllers;
-fields.applications = {
-    label: `${"applications"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.pages = {
-    label: `${"pages"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-fields.data = {
-    label: `${"data"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: true
-};
-function validate(): Exit<AppPermissions, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("appPermissionsDeserialize(data)");
-    data = {
-        ...appPermissionsDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const AppPermissions = {
   defaultValue: appPermissionsDefaultValue,
@@ -334,6 +558,6 @@ export const AppPermissions = {
   validateFields: appPermissionsValidateFields,
   hasShape: appPermissionsHasShape,
   is: appPermissionsIs,
-  fromFormData: appPermissionsFromFormData,
-  createForm: appPermissionsCreateForm
+  createForm: appPermissionsCreateForm,
+  fromFormData: appPermissionsFromFormData
 } as const;

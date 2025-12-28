@@ -3,6 +3,11 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -35,11 +40,11 @@ export function personNameSerializeWithContext(value: PersonName, ctx: __mf_Seri
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"PersonName"}`,
+        __type: "PersonName",
         __id
     };
-    result[`${"firstName"}`] = value.firstName;
-    result[`${"lastName"}`] = value.lastName;
+    result.firstName = value.firstName;
+    result.lastName = value.lastName;
     return result;
 }
 
@@ -103,15 +108,15 @@ export function personNameDeserializeWithContext(value: any, ctx: __mf_Deseriali
         field: string;
         message: string;
     }> = [];
-    if (!(`${"firstName"}` in obj)) {
+    if (!("firstName" in obj)) {
         errors.push({
-            field: `${"firstName"}`,
+            field: "firstName",
             message: "missing required field"
         });
     }
-    if (!(`${"lastName"}` in obj)) {
+    if (!("lastName" in obj)) {
         errors.push({
-            field: `${"lastName"}`,
+            field: "lastName",
             message: "missing required field"
         });
     }
@@ -124,7 +129,7 @@ export function personNameDeserializeWithContext(value: any, ctx: __mf_Deseriali
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_firstName = obj[`${"firstName"}`] as string;
+        const __raw_firstName = obj["firstName"] as string;
         if (__raw_firstName.trim().length === 0) {
             errors.push({
                 field: "firstName",
@@ -134,7 +139,7 @@ export function personNameDeserializeWithContext(value: any, ctx: __mf_Deseriali
         instance.firstName = __raw_firstName;
     }
     {
-        const __raw_lastName = obj[`${"lastName"}`] as string;
+        const __raw_lastName = obj["lastName"] as string;
         if (__raw_lastName.trim().length === 0) {
             errors.push({
                 field: "lastName",
@@ -156,7 +161,7 @@ export function personNameValidateField<K extends keyof PersonName>(_field: K, _
         field: string;
         message: string;
     }> = [];
-    if (_field === `${"firstName"}`) {
+    if (_field === "firstName") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -165,7 +170,7 @@ export function personNameValidateField<K extends keyof PersonName>(_field: K, _
             });
         }
     }
-    if (_field === `${"lastName"}`) {
+    if (_field === "lastName") {
         const __val = _value as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -184,7 +189,7 @@ export function personNameValidateFields(_partial: Partial<PersonName>): Array<{
         field: string;
         message: string;
     }> = [];
-    if (`${"firstName"}` in _partial && _partial.firstName !== undefined) {
+    if ("firstName" in _partial && _partial.firstName !== undefined) {
         const __val = _partial.firstName as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -193,7 +198,7 @@ export function personNameValidateFields(_partial: Partial<PersonName>): Array<{
             });
         }
     }
-    if (`${"lastName"}` in _partial && _partial.lastName !== undefined) {
+    if ("lastName" in _partial && _partial.lastName !== undefined) {
         const __val = _partial.lastName as string;
         if (__val.trim().length === 0) {
             errors.push({
@@ -219,6 +224,164 @@ export function personNameIs(obj: unknown): obj is PersonName {
     return result.success;
 }
 
+export type PersonNameErrors = {
+    _errors: __gf_Option<Array<string>>;
+    firstName: __gf_Option<Array<string>>;
+    lastName: __gf_Option<Array<string>>;
+};
+export type PersonNameTainted = {
+    firstName: __gf_Option<boolean>;
+    lastName: __gf_Option<boolean>;
+};
+export interface PersonNameFieldControllers {
+    readonly firstName: FieldController<string>;
+    readonly lastName: FieldController<string>;
+}
+export interface PersonNameGigaform {
+    readonly data: PersonName;
+    readonly errors: PersonNameErrors;
+    readonly tainted: PersonNameTainted;
+    readonly fields: PersonNameFieldControllers;
+    validate(): Exit<PersonName, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<PersonName>): void;
+}
+export function personNameCreateForm(overrides?: Partial<PersonName>): PersonNameGigaform {
+    let data = $state({
+        ...personNameDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<PersonNameErrors>({
+        _errors: optionNone(),
+        firstName: optionNone(),
+        lastName: optionNone()
+    } as PersonNameErrors);
+    let tainted = $state<PersonNameTainted>({
+        firstName: optionNone(),
+        lastName: optionNone()
+    } as PersonNameTainted);
+    const fields = {
+        firstName: {
+            path: [
+                "firstName"
+            ] as const,
+            name: "firstName",
+            constraints: {
+                required: true
+            },
+            label: "First Name",
+            get: ()=>data.firstName,
+            set: (value: string)=>{
+                data.firstName = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.firstName,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.firstName = value;
+            },
+            getTainted: ()=>tainted.firstName,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.firstName = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = personNameValidateField("firstName", data.firstName);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        lastName: {
+            path: [
+                "lastName"
+            ] as const,
+            name: "lastName",
+            constraints: {
+                required: true
+            },
+            label: "Last Name",
+            get: ()=>data.lastName,
+            set: (value: string)=>{
+                data.lastName = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.lastName,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.lastName = value;
+            },
+            getTainted: ()=>tainted.lastName,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.lastName = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = personNameValidateField("lastName", data.lastName);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as PersonNameFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<PersonName, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(personNameDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<PersonName>): void {
+        data = {
+            ...personNameDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            firstName: optionNone(),
+            lastName: optionNone()
+        };
+        tainted = {
+            firstName: optionNone(),
+            lastName: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function personNameFromFormData(formData: FormData): Exit<PersonName, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<PersonName, Array<{ field: string; message: string }>>";
+    obj.firstName = formData.get(`${"firstName"}`) ?? "";
+    obj.lastName = formData.get(`${"lastName"}`) ?? "";
+    return toExit(personNameDeserialize(obj));
+}
+
 export const PersonName = {
   defaultValue: personNameDefaultValue,
   serialize: personNameSerialize,
@@ -227,5 +390,7 @@ export const PersonName = {
   deserializeWithContext: personNameDeserializeWithContext,
   validateFields: personNameValidateFields,
   hasShape: personNameHasShape,
-  is: personNameIs
+  is: personNameIs,
+  createForm: personNameCreateForm,
+  fromFormData: personNameFromFormData
 } as const;

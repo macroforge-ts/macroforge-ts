@@ -3,6 +3,12 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import type { Exit } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { Option as __gf_Option } from "@playground/macro/gigaform";
+import { optionNone } from "@playground/macro/gigaform";
+import type { FieldController } from "@playground/macro/gigaform";
+import type { ArrayFieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 
@@ -35,13 +41,13 @@ export function metadataSerializeWithContext(value: Metadata, ctx: __mf_Serializ
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"Metadata"}`,
+        __type: "Metadata",
         __id
     };
-    result[`${"createdAt"}`] = value.createdAt;
-    result[`${"lastLogin"}`] = value.lastLogin;
-    result[`${"isActive"}`] = value.isActive;
-    result[`${"roles"}`] = value.roles;
+    result.createdAt = value.createdAt;
+    result.lastLogin = value.lastLogin;
+    result.isActive = value.isActive;
+    result.roles = value.roles;
     return result;
 }
 
@@ -105,27 +111,27 @@ export function metadataDeserializeWithContext(value: any, ctx: __mf_Deserialize
         field: string;
         message: string;
     }> = [];
-    if (!(`${"createdAt"}` in obj)) {
+    if (!("createdAt" in obj)) {
         errors.push({
-            field: `${"createdAt"}`,
+            field: "createdAt",
             message: "missing required field"
         });
     }
-    if (!(`${"lastLogin"}` in obj)) {
+    if (!("lastLogin" in obj)) {
         errors.push({
-            field: `${"lastLogin"}`,
+            field: "lastLogin",
             message: "missing required field"
         });
     }
-    if (!(`${"isActive"}` in obj)) {
+    if (!("isActive" in obj)) {
         errors.push({
-            field: `${"isActive"}`,
+            field: "isActive",
             message: "missing required field"
         });
     }
-    if (!(`${"roles"}` in obj)) {
+    if (!("roles" in obj)) {
         errors.push({
-            field: `${"roles"}`,
+            field: "roles",
             message: "missing required field"
         });
     }
@@ -138,19 +144,19 @@ export function metadataDeserializeWithContext(value: any, ctx: __mf_Deserialize
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_createdAt = obj[`${"createdAt"}`] as string;
+        const __raw_createdAt = obj["createdAt"] as string;
         instance.createdAt = __raw_createdAt;
     }
     {
-        const __raw_lastLogin = obj[`${"lastLogin"}`] as string | null;
+        const __raw_lastLogin = obj["lastLogin"] as string | null;
         instance.lastLogin = __raw_lastLogin;
     }
     {
-        const __raw_isActive = obj[`${"isActive"}`] as boolean;
+        const __raw_isActive = obj["isActive"] as boolean;
         instance.isActive = __raw_isActive;
     }
     {
-        const __raw_roles = obj[`${"roles"}`] as Array<string>;
+        const __raw_roles = obj["roles"] as Array<string>;
         if (Array.isArray(__raw_roles)) {
             instance.roles = __raw_roles as string[];
         }
@@ -187,6 +193,274 @@ export function metadataIs(obj: unknown): obj is Metadata {
     return result.success;
 }
 
+export type MetadataErrors = {
+    _errors: __gf_Option<Array<string>>;
+    createdAt: __gf_Option<Array<string>>;
+    lastLogin: __gf_Option<Array<string>>;
+    isActive: __gf_Option<Array<string>>;
+    roles: __gf_Option<Array<string>>;
+};
+export type MetadataTainted = {
+    createdAt: __gf_Option<boolean>;
+    lastLogin: __gf_Option<boolean>;
+    isActive: __gf_Option<boolean>;
+    roles: __gf_Option<boolean>;
+};
+export interface MetadataFieldControllers {
+    readonly createdAt: FieldController<string>;
+    readonly lastLogin: FieldController<string | null>;
+    readonly isActive: FieldController<boolean>;
+    readonly roles: ArrayFieldController<string>;
+}
+export interface MetadataGigaform {
+    readonly data: Metadata;
+    readonly errors: MetadataErrors;
+    readonly tainted: MetadataTainted;
+    readonly fields: MetadataFieldControllers;
+    validate(): Exit<Metadata, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<Metadata>): void;
+}
+export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaform {
+    let data = $state({
+        ...metadataDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<MetadataErrors>({
+        _errors: optionNone(),
+        createdAt: optionNone(),
+        lastLogin: optionNone(),
+        isActive: optionNone(),
+        roles: optionNone()
+    } as MetadataErrors);
+    let tainted = $state<MetadataTainted>({
+        createdAt: optionNone(),
+        lastLogin: optionNone(),
+        isActive: optionNone(),
+        roles: optionNone()
+    } as MetadataTainted);
+    const fields = {
+        createdAt: {
+            path: [
+                "createdAt"
+            ] as const,
+            name: "createdAt",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.createdAt,
+            set: (value: string)=>{
+                data.createdAt = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.createdAt,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.createdAt = value;
+            },
+            getTainted: ()=>tainted.createdAt,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.createdAt = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = metadataValidateField("createdAt", data.createdAt);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        lastLogin: {
+            path: [
+                "lastLogin"
+            ] as const,
+            name: "lastLogin",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.lastLogin,
+            set: (value: string | null)=>{
+                data.lastLogin = value;
+            },
+            transform: (value: string | null): string | null =>value,
+            getError: ()=>errors.lastLogin,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.lastLogin = value;
+            },
+            getTainted: ()=>tainted.lastLogin,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.lastLogin = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = metadataValidateField("lastLogin", data.lastLogin);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        isActive: {
+            path: [
+                "isActive"
+            ] as const,
+            name: "isActive",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.isActive,
+            set: (value: boolean)=>{
+                data.isActive = value;
+            },
+            transform: (value: boolean): boolean =>value,
+            getError: ()=>errors.isActive,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.isActive = value;
+            },
+            getTainted: ()=>tainted.isActive,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.isActive = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = metadataValidateField("isActive", data.isActive);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        roles: {
+            path: [
+                "roles"
+            ] as const,
+            name: "roles",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.roles,
+            set: (value: Array<string>)=>{
+                data.roles = value;
+            },
+            transform: (value: Array<string>): Array<string> =>value,
+            getError: ()=>errors.roles,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.roles = value;
+            },
+            getTainted: ()=>tainted.roles,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.roles = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = metadataValidateField("roles", data.roles);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            },
+            at: (index: number)=>({
+                    path: [
+                        "roles",
+                        index
+                    ] as const,
+                    name: "'^roles.${index}^'",
+                    constraints: {
+                        required: true
+                    },
+                    get: ()=>data.roles[index]!,
+                    set: (value: string)=>{
+                        data.roles[index] = value;
+                    },
+                    transform: (value: string): string =>value,
+                    getError: ()=>errors.roles,
+                    setError: (value: __gf_Option<Array<string>>)=>{
+                        errors.roles = value;
+                    },
+                    getTainted: ()=>tainted.roles,
+                    setTainted: (value: __gf_Option<boolean>)=>{
+                        tainted.roles = value;
+                    },
+                    validate: (): Array<string> =>[]
+                }),
+            push: (item: string)=>{
+                data.roles.push(item);
+            },
+            remove: (index: number)=>{
+                data.roles.splice(index, 1);
+            },
+            swap: (a: number, b: number)=>{
+                const tmp = data.roles[a]!;
+                data.roles[a] = data.roles[b]!;
+                data.roles[b] = tmp;
+            }
+        }
+    } as MetadataFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<Metadata, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(metadataDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<Metadata>): void {
+        data = {
+            ...metadataDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            createdAt: optionNone(),
+            lastLogin: optionNone(),
+            isActive: optionNone(),
+            roles: optionNone()
+        };
+        tainted = {
+            createdAt: optionNone(),
+            lastLogin: optionNone(),
+            isActive: optionNone(),
+            roles: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
+export function metadataFromFormData(formData: FormData): Exit<Metadata, Array<{
+    field: string;
+    message: string;
+}>> {
+    const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<Metadata, Array<{ field: string; message: string }>>";
+    obj.createdAt = formData.get(`${"createdAt"}`) ?? "";
+    obj.lastLogin = formData.get(`${"lastLogin"}`) ?? "";
+    {
+        const isActiveVal = formData.get(`${"isActive"}`);
+        obj.isActive = isActiveVal === "true" || isActiveVal === "on" || isActiveVal === "1";
+    }
+    obj.roles = formData.getAll(`${"roles"}`) as Array<string>;
+    return toExit(metadataDeserialize(obj));
+}
+
 export const Metadata = {
   defaultValue: metadataDefaultValue,
   serialize: metadataSerialize,
@@ -195,5 +469,7 @@ export const Metadata = {
   deserializeWithContext: metadataDeserializeWithContext,
   validateFields: metadataValidateFields,
   hasShape: metadataHasShape,
-  is: metadataIs
+  is: metadataIs,
+  createForm: metadataCreateForm,
+  fromFormData: metadataFromFormData
 } as const;

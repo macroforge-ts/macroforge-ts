@@ -50,19 +50,19 @@ export function recurrenceRuleSerializeWithContext(value: RecurrenceRule, ctx: _
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = {
-        __type: `${"RecurrenceRule"}`,
+        __type: "RecurrenceRule",
         __id
     };
-    result[`${"interval"}`] = intervalSerializeWithContext(value.interval, ctx);
-    result[`${"recurrenceBegins"}`] = value.recurrenceBegins;
+    result.interval = intervalSerializeWithContext(value.interval, ctx);
+    result.recurrenceBegins = value.recurrenceBegins;
     if (value.recurrenceEnds !== null) {
-        result[`${"recurrenceEnds"}`] = recurrenceEndSerializeWithContext(value.recurrenceEnds, ctx);
+        result.recurrenceEnds = recurrenceEndSerializeWithContext(value.recurrenceEnds, ctx);
     }
     if (value.cancelledInstances !== null) {
-        result[`${"cancelledInstances"}`] = value.cancelledInstances;
+        result.cancelledInstances = value.cancelledInstances;
     }
     if (value.additionalInstances !== null) {
-        result[`${"additionalInstances"}`] = value.additionalInstances;
+        result.additionalInstances = value.additionalInstances;
     }
     return result;
 }
@@ -127,33 +127,33 @@ export function recurrenceRuleDeserializeWithContext(value: any, ctx: __mf_Deser
         field: string;
         message: string;
     }> = [];
-    if (!(`${"interval"}` in obj)) {
+    if (!("interval" in obj)) {
         errors.push({
-            field: `${"interval"}`,
+            field: "interval",
             message: "missing required field"
         });
     }
-    if (!(`${"recurrenceBegins"}` in obj)) {
+    if (!("recurrenceBegins" in obj)) {
         errors.push({
-            field: `${"recurrenceBegins"}`,
+            field: "recurrenceBegins",
             message: "missing required field"
         });
     }
-    if (!(`${"recurrenceEnds"}` in obj)) {
+    if (!("recurrenceEnds" in obj)) {
         errors.push({
-            field: `${"recurrenceEnds"}`,
+            field: "recurrenceEnds",
             message: "missing required field"
         });
     }
-    if (!(`${"cancelledInstances"}` in obj)) {
+    if (!("cancelledInstances" in obj)) {
         errors.push({
-            field: `${"cancelledInstances"}`,
+            field: "cancelledInstances",
             message: "missing required field"
         });
     }
-    if (!(`${"additionalInstances"}` in obj)) {
+    if (!("additionalInstances" in obj)) {
         errors.push({
-            field: `${"additionalInstances"}`,
+            field: "additionalInstances",
             message: "missing required field"
         });
     }
@@ -166,27 +166,27 @@ export function recurrenceRuleDeserializeWithContext(value: any, ctx: __mf_Deser
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_interval = obj[`${"interval"}`] as Interval;
+        const __raw_interval = obj["interval"] as Interval;
         {
             const __result = intervalDeserializeWithContext(__raw_interval, ctx);
-            ctx.assignOrDefer(instance, `${"interval"}`, __result);
+            ctx.assignOrDefer(instance, "interval", __result);
         }
     }
     {
-        const __raw_recurrenceBegins = obj[`${"recurrenceBegins"}`] as string;
+        const __raw_recurrenceBegins = obj["recurrenceBegins"] as string;
         instance.recurrenceBegins = __raw_recurrenceBegins;
     }
     {
-        const __raw_recurrenceEnds = obj[`${"recurrenceEnds"}`] as RecurrenceEnd | null;
+        const __raw_recurrenceEnds = obj["recurrenceEnds"] as RecurrenceEnd | null;
         if (__raw_recurrenceEnds === null) {
             instance.recurrenceEnds = null;
         } else {
             const __result = recurrenceEndDeserializeWithContext(__raw_recurrenceEnds, ctx);
-            ctx.assignOrDefer(instance, `${"recurrenceEnds"}`, __result);
+            ctx.assignOrDefer(instance, "recurrenceEnds", __result);
         }
     }
     {
-        const __raw_cancelledInstances = obj[`${"cancelledInstances"}`] as Array<string> | null;
+        const __raw_cancelledInstances = obj["cancelledInstances"] as Array<string> | null;
         if (__raw_cancelledInstances === null) {
             instance.cancelledInstances = null;
         } else {
@@ -194,7 +194,7 @@ export function recurrenceRuleDeserializeWithContext(value: any, ctx: __mf_Deser
         }
     }
     {
-        const __raw_additionalInstances = obj[`${"additionalInstances"}`] as Array<string> | null;
+        const __raw_additionalInstances = obj["additionalInstances"] as Array<string> | null;
         if (__raw_additionalInstances === null) {
             instance.additionalInstances = null;
         } else {
@@ -233,11 +233,265 @@ export function recurrenceRuleIs(obj: unknown): obj is RecurrenceRule {
     return result.success;
 }
 
+export type RecurrenceRuleErrors = {
+    _errors: __gf_Option<Array<string>>;
+    interval: __gf_Option<Array<string>>;
+    recurrenceBegins: __gf_Option<Array<string>>;
+    recurrenceEnds: __gf_Option<Array<string>>;
+    cancelledInstances: __gf_Option<Array<string>>;
+    additionalInstances: __gf_Option<Array<string>>;
+};
+export type RecurrenceRuleTainted = {
+    interval: __gf_Option<boolean>;
+    recurrenceBegins: __gf_Option<boolean>;
+    recurrenceEnds: __gf_Option<boolean>;
+    cancelledInstances: __gf_Option<boolean>;
+    additionalInstances: __gf_Option<boolean>;
+};
+export interface RecurrenceRuleFieldControllers {
+    readonly interval: FieldController<Interval>;
+    readonly recurrenceBegins: FieldController<string>;
+    readonly recurrenceEnds: FieldController<RecurrenceEnd | null>;
+    readonly cancelledInstances: FieldController<Array<string> | null>;
+    readonly additionalInstances: FieldController<Array<string> | null>;
+}
+export interface RecurrenceRuleGigaform {
+    readonly data: RecurrenceRule;
+    readonly errors: RecurrenceRuleErrors;
+    readonly tainted: RecurrenceRuleTainted;
+    readonly fields: RecurrenceRuleFieldControllers;
+    validate(): Exit<RecurrenceRule, Array<{
+        field: string;
+        message: string;
+    }>>;
+    reset(overrides?: Partial<RecurrenceRule>): void;
+}
+export function recurrenceRuleCreateForm(overrides?: Partial<RecurrenceRule>): RecurrenceRuleGigaform {
+    let data = $state({
+        ...recurrenceRuleDefaultValue(),
+        ...overrides
+    });
+    let errors = $state<RecurrenceRuleErrors>({
+        _errors: optionNone(),
+        interval: optionNone(),
+        recurrenceBegins: optionNone(),
+        recurrenceEnds: optionNone(),
+        cancelledInstances: optionNone(),
+        additionalInstances: optionNone()
+    } as RecurrenceRuleErrors);
+    let tainted = $state<RecurrenceRuleTainted>({
+        interval: optionNone(),
+        recurrenceBegins: optionNone(),
+        recurrenceEnds: optionNone(),
+        cancelledInstances: optionNone(),
+        additionalInstances: optionNone()
+    } as RecurrenceRuleTainted);
+    const fields = {
+        interval: {
+            path: [
+                "interval"
+            ] as const,
+            name: "interval",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.interval,
+            set: (value: Interval)=>{
+                data.interval = value;
+            },
+            transform: (value: Interval): Interval =>value,
+            getError: ()=>errors.interval,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.interval = value;
+            },
+            getTainted: ()=>tainted.interval,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.interval = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = recurrenceRuleValidateField("interval", data.interval);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        recurrenceBegins: {
+            path: [
+                "recurrenceBegins"
+            ] as const,
+            name: "recurrenceBegins",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.recurrenceBegins,
+            set: (value: string)=>{
+                data.recurrenceBegins = value;
+            },
+            transform: (value: string): string =>value,
+            getError: ()=>errors.recurrenceBegins,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.recurrenceBegins = value;
+            },
+            getTainted: ()=>tainted.recurrenceBegins,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.recurrenceBegins = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = recurrenceRuleValidateField("recurrenceBegins", data.recurrenceBegins);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        recurrenceEnds: {
+            path: [
+                "recurrenceEnds"
+            ] as const,
+            name: "recurrenceEnds",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.recurrenceEnds,
+            set: (value: RecurrenceEnd | null)=>{
+                data.recurrenceEnds = value;
+            },
+            transform: (value: RecurrenceEnd | null): RecurrenceEnd | null =>value,
+            getError: ()=>errors.recurrenceEnds,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.recurrenceEnds = value;
+            },
+            getTainted: ()=>tainted.recurrenceEnds,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.recurrenceEnds = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = recurrenceRuleValidateField("recurrenceEnds", data.recurrenceEnds);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        cancelledInstances: {
+            path: [
+                "cancelledInstances"
+            ] as const,
+            name: "cancelledInstances",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.cancelledInstances,
+            set: (value: Array<string> | null)=>{
+                data.cancelledInstances = value;
+            },
+            transform: (value: Array<string> | null): Array<string> | null =>value,
+            getError: ()=>errors.cancelledInstances,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.cancelledInstances = value;
+            },
+            getTainted: ()=>tainted.cancelledInstances,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.cancelledInstances = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = recurrenceRuleValidateField("cancelledInstances", data.cancelledInstances);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        },
+        additionalInstances: {
+            path: [
+                "additionalInstances"
+            ] as const,
+            name: "additionalInstances",
+            constraints: {
+                required: true
+            },
+            get: ()=>data.additionalInstances,
+            set: (value: Array<string> | null)=>{
+                data.additionalInstances = value;
+            },
+            transform: (value: Array<string> | null): Array<string> | null =>value,
+            getError: ()=>errors.additionalInstances,
+            setError: (value: __gf_Option<Array<string>>)=>{
+                errors.additionalInstances = value;
+            },
+            getTainted: ()=>tainted.additionalInstances,
+            setTainted: (value: __gf_Option<boolean>)=>{
+                tainted.additionalInstances = value;
+            },
+            validate: (): Array<string> =>{
+                const fieldErrors = recurrenceRuleValidateField("additionalInstances", data.additionalInstances);
+                return fieldErrors.map((e: {
+                    field: string;
+                    message: string;
+                })=>e.message);
+            }
+        }
+    } as RecurrenceRuleFieldControllers;
+    const __gf_getter_hint = "get data() set data(v) get errors() set errors(v) get tainted() set tainted(v)";
+    const __gf_validate_hint = ".map((e: { field: string; message: string }) => e.message)";
+    function validate(): Exit<RecurrenceRule, Array<{
+        field: string;
+        message: string;
+    }>> {
+        return toExit(recurrenceRuleDeserialize(data));
+    }
+    function reset(newOverrides?: Partial<RecurrenceRule>): void {
+        data = {
+            ...recurrenceRuleDefaultValue(),
+            ...newOverrides
+        };
+        errors = {
+            _errors: optionNone(),
+            interval: optionNone(),
+            recurrenceBegins: optionNone(),
+            recurrenceEnds: optionNone(),
+            cancelledInstances: optionNone(),
+            additionalInstances: optionNone()
+        };
+        tainted = {
+            interval: optionNone(),
+            recurrenceBegins: optionNone(),
+            recurrenceEnds: optionNone(),
+            cancelledInstances: optionNone(),
+            additionalInstances: optionNone()
+        };
+    }
+    return {
+        get data () {
+            return data;
+        },
+        set data (v){
+            data = v;
+        },
+        get errors () {
+            return errors;
+        },
+        set errors (v){
+            errors = v;
+        },
+        get tainted () {
+            return tainted;
+        },
+        set tainted (v){
+            tainted = v;
+        },
+        fields,
+        validate,
+        reset
+    };
+}
 export function recurrenceRuleFromFormData(formData: FormData): Exit<RecurrenceRule, Array<{
     field: string;
     message: string;
 }>> {
     const obj: Record<string, unknown> = {};
+    const __gf_exit_hint = "Exit<RecurrenceRule, Array<{ field: string; message: string }>>";
     {
         const intervalObj: Record<string, unknown> = {};
         for (const [key, value] of Array.from(formData.entries())){
@@ -261,87 +515,8 @@ export function recurrenceRuleFromFormData(formData: FormData): Exit<RecurrenceR
     obj.recurrenceEnds = formData.get(`${"recurrenceEnds"}`) ?? "";
     obj.cancelledInstances = formData.get(`${"cancelledInstances"}`) ?? "";
     obj.additionalInstances = formData.get(`${"additionalInstances"}`) ?? "";
-    return toExit("recurrenceRuleDeserialize(obj)");
+    return toExit(recurrenceRuleDeserialize(obj));
 }
-export type $MfPh0 = {
-    _errors: __gf_Option<Array<string>>;
-};
-export type $MfPh1 = {
-};
-export interface $MfPh2 {
-}
-export interface $MfPh3 {
-    readonly data: RecurrenceRule;
-    readonly errors: RecurrenceRuleErrors;
-    readonly tainted: RecurrenceRuleTainted;
-    readonly fields: RecurrenceRuleFieldControllers;
-    validate(): Exit<RecurrenceRule, Array<{
-        field: string;
-        message: string;
-    }>>;
-    reset(overrides: Partial<RecurrenceRule>): void;
-}
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
-$MfPh0: __gf_Option<Array<string>>;
- }; $MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
-$MfPh0: __gf_Option<boolean>;
- }; export function recurrenceRuleCreateForm(overrides: Partial<RecurrenceRule>): RecurrenceRuleGigaform {}
-let data = $state({
-    ...recurrenceRuleDefaultValue(),
-    ...overrides
-});
-let errors = $state<$MfPh1>({
-    _errors: optionNone()
-} as RecurrenceRuleErrors);
-let tainted = $state<$MfPh3>({} as RecurrenceRuleTainted);
-const fields = {} as RecurrenceRuleFieldControllers;
-fields.interval = {
-    label: `${"interval"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.recurrenceBegins = {
-    label: `${"recurrenceBegins"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.recurrenceEnds = {
-    label: `${"recurrenceEnds"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.cancelledInstances = {
-    label: `${"cancelledInstances"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-fields.additionalInstances = {
-    label: `${"additionalInstances"}`,
-    type: `${"text"}`,
-    optional: false,
-    array: false
-};
-function validate(): Exit<RecurrenceRule, Array<{
-    field: string;
-    message: string;
-}>> {
-    return toExit("recurrenceRuleDeserialize(data)");
-    data = {
-        ...recurrenceRuleDefaultValue(),
-        ...newOverrides
-    };
-}
- return     {         get data() { return data; }, set data(v) { data = v; }, get errors()         { return errors; }, set errors(v) { errors = v; }, get tainted()         { return tainted; }, set tainted(v) { tainted = v; }, fields,         validate, reset,     }; }
 
 export const RecurrenceRule = {
   defaultValue: recurrenceRuleDefaultValue,
@@ -352,6 +527,6 @@ export const RecurrenceRule = {
   validateFields: recurrenceRuleValidateFields,
   hasShape: recurrenceRuleHasShape,
   is: recurrenceRuleIs,
-  fromFormData: recurrenceRuleFromFormData,
-  createForm: recurrenceRuleCreateForm
+  createForm: recurrenceRuleCreateForm,
+  fromFormData: recurrenceRuleFromFormData
 } as const;
