@@ -236,15 +236,6 @@ pub mod git {
         Ok(())
     }
 
-    /// Create a tag
-    pub fn tag(cwd: &Path, tag_name: &str) -> Result<()> {
-        Shell::new("git")
-            .args(&["tag", tag_name])
-            .dir(cwd)
-            .run_checked()?;
-        Ok(())
-    }
-
     /// Create or overwrite a tag (force)
     pub fn tag_force(cwd: &Path, tag_name: &str) -> Result<()> {
         Shell::new("git")
@@ -264,15 +255,6 @@ pub mod git {
     pub fn push_tags(cwd: &Path) -> Result<()> {
         Shell::new("git")
             .args(&["push", "--tags"])
-            .dir(cwd)
-            .run_checked()?;
-        Ok(())
-    }
-
-    /// Delete a tag from remote
-    pub fn delete_remote_tag(cwd: &Path, tag_name: &str) -> Result<()> {
-        Shell::new("git")
-            .args(&["push", "origin", "--delete", tag_name])
             .dir(cwd)
             .run_checked()?;
         Ok(())
