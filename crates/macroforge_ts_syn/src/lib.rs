@@ -1919,11 +1919,9 @@ pub mod __internal {
                                 return;
                             }
                         }
-                        ClassMember::Constructor(Constructor { body, .. }) => {
-                            if let Some(body) = body {
-                                body.stmts.extend(stmts);
-                                return;
-                            }
+                        ClassMember::Constructor(Constructor { body: Some(body), .. }) => {
+                            body.stmts.extend(stmts);
+                            return;
                         }
                         _ => {}
                     }
@@ -1940,11 +1938,9 @@ pub mod __internal {
                                 return;
                             }
                         }
-                        ClassMember::Constructor(Constructor { body, .. }) => {
-                            if let Some(body) = body {
-                                body.stmts.extend(stmts);
-                                return;
-                            }
+                        ClassMember::Constructor(Constructor { body: Some(body), .. }) => {
+                            body.stmts.extend(stmts);
+                            return;
                         }
                         _ => {}
                     }
