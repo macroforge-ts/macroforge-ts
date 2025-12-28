@@ -147,10 +147,10 @@ impl<'a> Shell<'a> {
 pub mod cargo {
     use super::*;
 
-    /// Run cargo fmt --check
+    /// Run cargo fmt to fix formatting
     pub fn fmt_check(cwd: &Path) -> Result<CommandResult> {
         Shell::new("cargo")
-            .args(&["fmt", "--", "--check"])
+            .args(&["fmt"])
             .dir(cwd)
             .run_checked()
     }
@@ -193,10 +193,10 @@ pub mod npm {
 pub mod npx {
     use super::*;
 
-    /// Run biome check
+    /// Run biome check with auto-fix (including unsafe fixes)
     pub fn biome_check(cwd: &Path) -> Result<CommandResult> {
         Shell::new("npx")
-            .args(&["@biomejs/biome", "check", "."])
+            .args(&["@biomejs/biome", "check", "--write", "--unsafe", "."])
             .dir(cwd)
             .run_checked()
     }
@@ -245,6 +245,15 @@ pub mod git {
         Ok(())
     }
 
+    /// Create or overwrite a tag (force)
+    pub fn tag_force(cwd: &Path, tag_name: &str) -> Result<()> {
+        Shell::new("git")
+            .args(&["tag", "-f", tag_name])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(())
+    }
+
     /// Push to remote
     pub fn push(cwd: &Path) -> Result<()> {
         Shell::new("git").arg("push").dir(cwd).run_checked()?;
@@ -255,6 +264,24 @@ pub mod git {
     pub fn push_tags(cwd: &Path) -> Result<()> {
         Shell::new("git")
             .args(&["push", "--tags"])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(())
+    }
+
+    /// Delete a tag from remote
+    pub fn delete_remote_tag(cwd: &Path, tag_name: &str) -> Result<()> {
+        Shell::new("git")
+            .args(&["push", "origin", "--delete", tag_name])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(())
+    }
+
+    /// Push a single tag to remote (with force to overwrite)
+    pub fn push_tag_force(cwd: &Path, tag_name: &str) -> Result<()> {
+        Shell::new("git")
+            .args(&["push", "origin", "--force", tag_name])
             .dir(cwd)
             .run_checked()?;
         Ok(())

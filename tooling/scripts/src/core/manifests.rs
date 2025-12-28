@@ -24,7 +24,8 @@ pub fn swap_local(root: &Path) -> Result<()> {
         .map(|line| {
             for (crate_name, _, local_path) in INTERNAL_CRATES {
                 if line.trim().starts_with(&format!("{} = \"", crate_name)) {
-                    return format!("{} = {{ path = \"{}\" }}", crate_name, local_path);
+                    // Use compact format without space after { for consistency
+                    return format!("{} = {{path = \"{}\"}}", crate_name, local_path);
                 }
             }
             line.to_string()
@@ -47,10 +48,10 @@ pub fn swap_registry(root: &Path, versions: &VersionsCache) -> Result<()> {
         .lines()
         .map(|line| {
             for (crate_name, repo_name, local_path) in INTERNAL_CRATES {
-                if line
-                    .trim()
-                    .starts_with(&format!("{} = {{ path = \"{}\"", crate_name, local_path))
-                {
+                // Handle both formats: `{ path = "..."` and `{path = "..."`
+                let with_space = format!("{} = {{ path = \"{}\"", crate_name, local_path);
+                let no_space = format!("{} = {{path = \"{}\"", crate_name, local_path);
+                if line.trim().starts_with(&with_space) || line.trim().starts_with(&no_space) {
                     let v = versions
                         .get_local(repo_name)
                         .map(|s| s.to_string())

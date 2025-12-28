@@ -1,7 +1,9 @@
-import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
-import { PendingRef as __mf_PendingRef } from "macroforge/serde";
-import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
+import {
+    DeserializeContext as __mf_DeserializeContext,
+    DeserializeError as __mf_DeserializeError,
+    PendingRef as __mf_PendingRef
+} from 'macroforge/serde';
 /**
  * Array validator test classes for comprehensive deserializer validation testing.
  */
@@ -9,188 +11,207 @@ import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 // MaxItems validator
 
 export class MaxItemsValidator {
-    
     items: Array<string>;
 
-    constructor(props: Record<string, unknown>){
-    this.items = props.items;
-}
+    constructor(props: Record<string, unknown>) {
+        this.items = props.items;
+    }
 
-    static deserialize(input: unknown, opts: __mf_DeserializeOptions): {
-    success: true;
-    value: MaxItemsValidator;
-} | {
-    success: false;
-    errors: Array<{
-        field: string;
-        message: string;
-    }>;
-} {
-    try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
-        const resultOrRef = MaxItemsValidator.deserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
+    static deserialize(
+        input: unknown,
+        opts: __mf_DeserializeOptions
+    ):
+        | {
+              success: true;
+              value: MaxItemsValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
+        try {
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const ctx = __mf_DeserializeContext.create();
+            const resultOrRef = MaxItemsValidator.deserializeWithContext(data, ctx);
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'MaxItemsValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
+            }
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+            return {
+                success: true,
+                value: resultOrRef
+            };
+        } catch (e) {
+            if (e instanceof __mf_DeserializeError) {
+                return {
+                    success: false,
+                    errors: e.errors
+                };
+            }
+            const message = e instanceof Error ? e.message : String(e);
             return {
                 success: false,
                 errors: [
                     {
-                        field: "_root",
-                        message: "MaxItemsValidator.deserialize: root cannot be a forward reference"
+                        field: '_root',
+                        message
                     }
                 ]
             };
         }
-        ctx.applyPatches();
-        if (opts?.freeze) {
-            ctx.freezeAll();
-        }
-        return {
-            success: true,
-            value: resultOrRef
-        };
-    } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return {
-                success: false,
-                errors: e.errors
-            };
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return {
-            success: false,
-            errors: [
-                {
-                    field: "_root",
-                    message
-                }
-            ]
-        };
     }
-}
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MaxItemsValidator | __mf_PendingRef {
-    if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref);
-    }
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
-            {
-                field: "_root",
-                message: `${"MaxItemsValidator"}.deserializeWithContext: expected an object`
+    static deserializeWithContext(
+        value: any,
+        ctx: __mf_DeserializeContext
+    ): MaxItemsValidator | __mf_PendingRef {
+        if (value?.__ref !== undefined) {
+            return ctx.getOrDefer(value.__ref);
+        }
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new __mf_DeserializeError([
+                {
+                    field: '_root',
+                    message: `${'MaxItemsValidator'}.deserializeWithContext: expected an object`
+                }
+            ]);
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if (!('items' in obj)) {
+            errors.push({
+                field: 'items',
+                message: 'missing required field'
+            });
+        }
+        if (errors.length > 0) {
+            throw new __mf_DeserializeError(errors);
+        }
+        const instance = Object.create(MaxItemsValidator.prototype) as MaxItemsValidator;
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+        ctx.trackForFreeze(instance);
+        {
+            const __raw_items = obj.items as Array<string>;
+            if (Array.isArray(__raw_items)) {
+                if (__raw_items.length > 5) {
+                    errors.push({
+                        field: 'items',
+                        message: 'MaxItemsValidator.items must have at most 5 items'
+                    });
+                }
+                instance.items = __raw_items as Array<string>;
             }
-        ]);
+        }
+        if (errors.length > 0) {
+            throw new __mf_DeserializeError(errors);
+        }
+        return instance;
     }
-    const obj = value as Record<string, unknown>;
-    const errors: Array<{
+
+    static validateField<K extends keyof MaxItemsValidator>(
+        _field: K,
+        _value: MaxItemsValidator[K]
+    ): Array<{
         field: string;
         message: string;
-    }> = [];
-    if (!("items" in obj)) {
-        errors.push({
-            field: "items",
-            message: "missing required field"
-        });
-    }
-    if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
-    }
-    const instance = Object.create(MaxItemsValidator.prototype) as MaxItemsValidator;
-    if (obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
-    }
-    ctx.trackForFreeze(instance);
-    {
-        const __raw_items = obj["items"] as Array<string>;
-        if (Array.isArray(__raw_items)) {
-            if (__raw_items.length > 5) {
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if (_field === 'items') {
+            const __val = _value as Array<string>;
+            if (__val.length > 5) {
                 errors.push({
-                    field: "items",
-                    message: "MaxItemsValidator.items must have at most 5 items"
+                    field: 'items',
+                    message: 'MaxItemsValidator.items must have at most 5 items'
                 });
             }
-            instance.items = __raw_items as string[];
         }
+        return errors;
     }
-    if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
-    }
-    return instance;
-}
-
-    static validateField<K extends keyof MaxItemsValidator>(_field: K, _value: MaxItemsValidator[K]): Array<{
-    field: string;
-    message: string;
-}> {
-    const errors: Array<{
-        field: string;
-        message: string;
-    }> = [];
-    if (_field === "items") {
-        const __val = _value as Array<string>;
-        if (__val.length > 5) {
-            errors.push({
-                field: "items",
-                message: "MaxItemsValidator.items must have at most 5 items"
-            });
-        }
-    }
-    return errors;
-}
 
     static validateFields(_partial: Partial<MaxItemsValidator>): Array<{
-    field: string;
-    message: string;
-}> {
-    const errors: Array<{
         field: string;
         message: string;
-    }> = [];
-    if ("items" in _partial && _partial.items !== undefined) {
-        const __val = _partial.items as Array<string>;
-        if (__val.length > 5) {
-            errors.push({
-                field: "items",
-                message: "MaxItemsValidator.items must have at most 5 items"
-            });
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if ('items' in _partial && _partial.items !== undefined) {
+            const __val = _partial.items as Array<string>;
+            if (__val.length > 5) {
+                errors.push({
+                    field: 'items',
+                    message: 'MaxItemsValidator.items must have at most 5 items'
+                });
+            }
         }
+        return errors;
     }
-    return errors;
-}
 
     static hasShape(obj: unknown): boolean {
-    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-        return false;
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const _o = obj as Record<string, unknown>;
+        return '"items" in o';
     }
-    const o = obj as Record<string, unknown>;
-    return '"items" in o';
-}
 
     static is(obj: unknown): obj is MaxItemsValidator {
-    if (obj instanceof MaxItemsValidator) {
-        return true;
+        if (obj instanceof MaxItemsValidator) {
+            return true;
+        }
+        if (!MaxItemsValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = MaxItemsValidator.deserialize(obj);
+        return result.success;
     }
-    if (!MaxItemsValidator.hasShape(obj)) {
-        return false;
-    }
-    const result = MaxItemsValidator.deserialize(obj);
-    return result.success;
-}
 }
 
-export function maxItemsValidatorDeserialize(input: unknown, opts: __mf_DeserializeOptions): {
-    success: true;
-    value: MaxItemsValidator;
-} | {
-    success: false;
-    errors: Array<{
-        field: string;
-        message: string;
-    }>;
-} {
+export function maxItemsValidatorDeserialize(
+    input: unknown,
+    opts: __mf_DeserializeOptions
+):
+    | {
+          success: true;
+          value: MaxItemsValidator;
+      }
+    | {
+          success: false;
+          errors: Array<{
+              field: string;
+              message: string;
+          }>;
+      } {
     return MaxItemsValidator.deserialize(input, opts);
 }
-export function maxItemsValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MaxItemsValidator | __mf_PendingRef {
+export function maxItemsValidatorDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): MaxItemsValidator | __mf_PendingRef {
     return MaxItemsValidator.deserializeWithContext(value, ctx);
 }
 export function maxItemsValidatorIs(value: unknown): value is MaxItemsValidator {
@@ -200,188 +221,207 @@ export function maxItemsValidatorIs(value: unknown): value is MaxItemsValidator 
 // MinItems validator
 
 export class MinItemsValidator {
-    
     items: Array<string>;
 
-    constructor(props: Record<string, unknown>){
-    this.items = props.items;
-}
+    constructor(props: Record<string, unknown>) {
+        this.items = props.items;
+    }
 
-    static deserialize(input: unknown, opts: __mf_DeserializeOptions): {
-    success: true;
-    value: MinItemsValidator;
-} | {
-    success: false;
-    errors: Array<{
-        field: string;
-        message: string;
-    }>;
-} {
-    try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
-        const resultOrRef = MinItemsValidator.deserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
+    static deserialize(
+        input: unknown,
+        opts: __mf_DeserializeOptions
+    ):
+        | {
+              success: true;
+              value: MinItemsValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
+        try {
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const ctx = __mf_DeserializeContext.create();
+            const resultOrRef = MinItemsValidator.deserializeWithContext(data, ctx);
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'MinItemsValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
+            }
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+            return {
+                success: true,
+                value: resultOrRef
+            };
+        } catch (e) {
+            if (e instanceof __mf_DeserializeError) {
+                return {
+                    success: false,
+                    errors: e.errors
+                };
+            }
+            const message = e instanceof Error ? e.message : String(e);
             return {
                 success: false,
                 errors: [
                     {
-                        field: "_root",
-                        message: "MinItemsValidator.deserialize: root cannot be a forward reference"
+                        field: '_root',
+                        message
                     }
                 ]
             };
         }
-        ctx.applyPatches();
-        if (opts?.freeze) {
-            ctx.freezeAll();
-        }
-        return {
-            success: true,
-            value: resultOrRef
-        };
-    } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return {
-                success: false,
-                errors: e.errors
-            };
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return {
-            success: false,
-            errors: [
-                {
-                    field: "_root",
-                    message
-                }
-            ]
-        };
     }
-}
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MinItemsValidator | __mf_PendingRef {
-    if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref);
-    }
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
-            {
-                field: "_root",
-                message: `${"MinItemsValidator"}.deserializeWithContext: expected an object`
+    static deserializeWithContext(
+        value: any,
+        ctx: __mf_DeserializeContext
+    ): MinItemsValidator | __mf_PendingRef {
+        if (value?.__ref !== undefined) {
+            return ctx.getOrDefer(value.__ref);
+        }
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new __mf_DeserializeError([
+                {
+                    field: '_root',
+                    message: `${'MinItemsValidator'}.deserializeWithContext: expected an object`
+                }
+            ]);
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if (!('items' in obj)) {
+            errors.push({
+                field: 'items',
+                message: 'missing required field'
+            });
+        }
+        if (errors.length > 0) {
+            throw new __mf_DeserializeError(errors);
+        }
+        const instance = Object.create(MinItemsValidator.prototype) as MinItemsValidator;
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+        ctx.trackForFreeze(instance);
+        {
+            const __raw_items = obj.items as Array<string>;
+            if (Array.isArray(__raw_items)) {
+                if (__raw_items.length < 2) {
+                    errors.push({
+                        field: 'items',
+                        message: 'MinItemsValidator.items must have at least 2 items'
+                    });
+                }
+                instance.items = __raw_items as Array<string>;
             }
-        ]);
+        }
+        if (errors.length > 0) {
+            throw new __mf_DeserializeError(errors);
+        }
+        return instance;
     }
-    const obj = value as Record<string, unknown>;
-    const errors: Array<{
+
+    static validateField<K extends keyof MinItemsValidator>(
+        _field: K,
+        _value: MinItemsValidator[K]
+    ): Array<{
         field: string;
         message: string;
-    }> = [];
-    if (!("items" in obj)) {
-        errors.push({
-            field: "items",
-            message: "missing required field"
-        });
-    }
-    if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
-    }
-    const instance = Object.create(MinItemsValidator.prototype) as MinItemsValidator;
-    if (obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
-    }
-    ctx.trackForFreeze(instance);
-    {
-        const __raw_items = obj["items"] as Array<string>;
-        if (Array.isArray(__raw_items)) {
-            if (__raw_items.length < 2) {
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if (_field === 'items') {
+            const __val = _value as Array<string>;
+            if (__val.length < 2) {
                 errors.push({
-                    field: "items",
-                    message: "MinItemsValidator.items must have at least 2 items"
+                    field: 'items',
+                    message: 'MinItemsValidator.items must have at least 2 items'
                 });
             }
-            instance.items = __raw_items as string[];
         }
+        return errors;
     }
-    if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
-    }
-    return instance;
-}
-
-    static validateField<K extends keyof MinItemsValidator>(_field: K, _value: MinItemsValidator[K]): Array<{
-    field: string;
-    message: string;
-}> {
-    const errors: Array<{
-        field: string;
-        message: string;
-    }> = [];
-    if (_field === "items") {
-        const __val = _value as Array<string>;
-        if (__val.length < 2) {
-            errors.push({
-                field: "items",
-                message: "MinItemsValidator.items must have at least 2 items"
-            });
-        }
-    }
-    return errors;
-}
 
     static validateFields(_partial: Partial<MinItemsValidator>): Array<{
-    field: string;
-    message: string;
-}> {
-    const errors: Array<{
         field: string;
         message: string;
-    }> = [];
-    if ("items" in _partial && _partial.items !== undefined) {
-        const __val = _partial.items as Array<string>;
-        if (__val.length < 2) {
-            errors.push({
-                field: "items",
-                message: "MinItemsValidator.items must have at least 2 items"
-            });
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if ('items' in _partial && _partial.items !== undefined) {
+            const __val = _partial.items as Array<string>;
+            if (__val.length < 2) {
+                errors.push({
+                    field: 'items',
+                    message: 'MinItemsValidator.items must have at least 2 items'
+                });
+            }
         }
+        return errors;
     }
-    return errors;
-}
 
     static hasShape(obj: unknown): boolean {
-    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-        return false;
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const _o = obj as Record<string, unknown>;
+        return '"items" in o';
     }
-    const o = obj as Record<string, unknown>;
-    return '"items" in o';
-}
 
     static is(obj: unknown): obj is MinItemsValidator {
-    if (obj instanceof MinItemsValidator) {
-        return true;
+        if (obj instanceof MinItemsValidator) {
+            return true;
+        }
+        if (!MinItemsValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = MinItemsValidator.deserialize(obj);
+        return result.success;
     }
-    if (!MinItemsValidator.hasShape(obj)) {
-        return false;
-    }
-    const result = MinItemsValidator.deserialize(obj);
-    return result.success;
-}
 }
 
-export function minItemsValidatorDeserialize(input: unknown, opts: __mf_DeserializeOptions): {
-    success: true;
-    value: MinItemsValidator;
-} | {
-    success: false;
-    errors: Array<{
-        field: string;
-        message: string;
-    }>;
-} {
+export function minItemsValidatorDeserialize(
+    input: unknown,
+    opts: __mf_DeserializeOptions
+):
+    | {
+          success: true;
+          value: MinItemsValidator;
+      }
+    | {
+          success: false;
+          errors: Array<{
+              field: string;
+              message: string;
+          }>;
+      } {
     return MinItemsValidator.deserialize(input, opts);
 }
-export function minItemsValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MinItemsValidator | __mf_PendingRef {
+export function minItemsValidatorDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): MinItemsValidator | __mf_PendingRef {
     return MinItemsValidator.deserializeWithContext(value, ctx);
 }
 export function minItemsValidatorIs(value: unknown): value is MinItemsValidator {
@@ -391,188 +431,207 @@ export function minItemsValidatorIs(value: unknown): value is MinItemsValidator 
 // ItemsCount validator
 
 export class ItemsCountValidator {
-    
     items: Array<string>;
 
-    constructor(props: Record<string, unknown>){
-    this.items = props.items;
-}
+    constructor(props: Record<string, unknown>) {
+        this.items = props.items;
+    }
 
-    static deserialize(input: unknown, opts: __mf_DeserializeOptions): {
-    success: true;
-    value: ItemsCountValidator;
-} | {
-    success: false;
-    errors: Array<{
-        field: string;
-        message: string;
-    }>;
-} {
-    try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-        const ctx = __mf_DeserializeContext.create();
-        const resultOrRef = ItemsCountValidator.deserializeWithContext(data, ctx);
-        if (__mf_PendingRef.is(resultOrRef)) {
+    static deserialize(
+        input: unknown,
+        opts: __mf_DeserializeOptions
+    ):
+        | {
+              success: true;
+              value: ItemsCountValidator;
+          }
+        | {
+              success: false;
+              errors: Array<{
+                  field: string;
+                  message: string;
+              }>;
+          } {
+        try {
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const ctx = __mf_DeserializeContext.create();
+            const resultOrRef = ItemsCountValidator.deserializeWithContext(data, ctx);
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return {
+                    success: false,
+                    errors: [
+                        {
+                            field: '_root',
+                            message:
+                                'ItemsCountValidator.deserialize: root cannot be a forward reference'
+                        }
+                    ]
+                };
+            }
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+            return {
+                success: true,
+                value: resultOrRef
+            };
+        } catch (e) {
+            if (e instanceof __mf_DeserializeError) {
+                return {
+                    success: false,
+                    errors: e.errors
+                };
+            }
+            const message = e instanceof Error ? e.message : String(e);
             return {
                 success: false,
                 errors: [
                     {
-                        field: "_root",
-                        message: "ItemsCountValidator.deserialize: root cannot be a forward reference"
+                        field: '_root',
+                        message
                     }
                 ]
             };
         }
-        ctx.applyPatches();
-        if (opts?.freeze) {
-            ctx.freezeAll();
-        }
-        return {
-            success: true,
-            value: resultOrRef
-        };
-    } catch (e) {
-        if (e instanceof __mf_DeserializeError) {
-            return {
-                success: false,
-                errors: e.errors
-            };
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return {
-            success: false,
-            errors: [
-                {
-                    field: "_root",
-                    message
-                }
-            ]
-        };
     }
-}
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): ItemsCountValidator | __mf_PendingRef {
-    if (value?.__ref !== undefined) {
-        return ctx.getOrDefer(value.__ref);
-    }
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new __mf_DeserializeError([
-            {
-                field: "_root",
-                message: `${"ItemsCountValidator"}.deserializeWithContext: expected an object`
+    static deserializeWithContext(
+        value: any,
+        ctx: __mf_DeserializeContext
+    ): ItemsCountValidator | __mf_PendingRef {
+        if (value?.__ref !== undefined) {
+            return ctx.getOrDefer(value.__ref);
+        }
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new __mf_DeserializeError([
+                {
+                    field: '_root',
+                    message: `${'ItemsCountValidator'}.deserializeWithContext: expected an object`
+                }
+            ]);
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if (!('items' in obj)) {
+            errors.push({
+                field: 'items',
+                message: 'missing required field'
+            });
+        }
+        if (errors.length > 0) {
+            throw new __mf_DeserializeError(errors);
+        }
+        const instance = Object.create(ItemsCountValidator.prototype) as ItemsCountValidator;
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+        ctx.trackForFreeze(instance);
+        {
+            const __raw_items = obj.items as Array<string>;
+            if (Array.isArray(__raw_items)) {
+                if (__raw_items.length !== 3) {
+                    errors.push({
+                        field: 'items',
+                        message: 'ItemsCountValidator.items must have exactly 3 items'
+                    });
+                }
+                instance.items = __raw_items as Array<string>;
             }
-        ]);
+        }
+        if (errors.length > 0) {
+            throw new __mf_DeserializeError(errors);
+        }
+        return instance;
     }
-    const obj = value as Record<string, unknown>;
-    const errors: Array<{
+
+    static validateField<K extends keyof ItemsCountValidator>(
+        _field: K,
+        _value: ItemsCountValidator[K]
+    ): Array<{
         field: string;
         message: string;
-    }> = [];
-    if (!("items" in obj)) {
-        errors.push({
-            field: "items",
-            message: "missing required field"
-        });
-    }
-    if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
-    }
-    const instance = Object.create(ItemsCountValidator.prototype) as ItemsCountValidator;
-    if (obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
-    }
-    ctx.trackForFreeze(instance);
-    {
-        const __raw_items = obj["items"] as Array<string>;
-        if (Array.isArray(__raw_items)) {
-            if (__raw_items.length !== 3) {
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if (_field === 'items') {
+            const __val = _value as Array<string>;
+            if (__val.length !== 3) {
                 errors.push({
-                    field: "items",
-                    message: "ItemsCountValidator.items must have exactly 3 items"
+                    field: 'items',
+                    message: 'ItemsCountValidator.items must have exactly 3 items'
                 });
             }
-            instance.items = __raw_items as string[];
         }
+        return errors;
     }
-    if (errors.length > 0) {
-        throw new __mf_DeserializeError(errors);
-    }
-    return instance;
-}
-
-    static validateField<K extends keyof ItemsCountValidator>(_field: K, _value: ItemsCountValidator[K]): Array<{
-    field: string;
-    message: string;
-}> {
-    const errors: Array<{
-        field: string;
-        message: string;
-    }> = [];
-    if (_field === "items") {
-        const __val = _value as Array<string>;
-        if (__val.length !== 3) {
-            errors.push({
-                field: "items",
-                message: "ItemsCountValidator.items must have exactly 3 items"
-            });
-        }
-    }
-    return errors;
-}
 
     static validateFields(_partial: Partial<ItemsCountValidator>): Array<{
-    field: string;
-    message: string;
-}> {
-    const errors: Array<{
         field: string;
         message: string;
-    }> = [];
-    if ("items" in _partial && _partial.items !== undefined) {
-        const __val = _partial.items as Array<string>;
-        if (__val.length !== 3) {
-            errors.push({
-                field: "items",
-                message: "ItemsCountValidator.items must have exactly 3 items"
-            });
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if ('items' in _partial && _partial.items !== undefined) {
+            const __val = _partial.items as Array<string>;
+            if (__val.length !== 3) {
+                errors.push({
+                    field: 'items',
+                    message: 'ItemsCountValidator.items must have exactly 3 items'
+                });
+            }
         }
+        return errors;
     }
-    return errors;
-}
 
     static hasShape(obj: unknown): boolean {
-    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-        return false;
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const _o = obj as Record<string, unknown>;
+        return '"items" in o';
     }
-    const o = obj as Record<string, unknown>;
-    return '"items" in o';
-}
 
     static is(obj: unknown): obj is ItemsCountValidator {
-    if (obj instanceof ItemsCountValidator) {
-        return true;
+        if (obj instanceof ItemsCountValidator) {
+            return true;
+        }
+        if (!ItemsCountValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = ItemsCountValidator.deserialize(obj);
+        return result.success;
     }
-    if (!ItemsCountValidator.hasShape(obj)) {
-        return false;
-    }
-    const result = ItemsCountValidator.deserialize(obj);
-    return result.success;
-}
 }
 
-export function itemsCountValidatorDeserialize(input: unknown, opts: __mf_DeserializeOptions): {
-    success: true;
-    value: ItemsCountValidator;
-} | {
-    success: false;
-    errors: Array<{
-        field: string;
-        message: string;
-    }>;
-} {
+export function itemsCountValidatorDeserialize(
+    input: unknown,
+    opts: __mf_DeserializeOptions
+):
+    | {
+          success: true;
+          value: ItemsCountValidator;
+      }
+    | {
+          success: false;
+          errors: Array<{
+              field: string;
+              message: string;
+          }>;
+      } {
     return ItemsCountValidator.deserialize(input, opts);
 }
-export function itemsCountValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ItemsCountValidator | __mf_PendingRef {
+export function itemsCountValidatorDeserializeWithContext(
+    value: any,
+    ctx: __mf_DeserializeContext
+): ItemsCountValidator | __mf_PendingRef {
     return ItemsCountValidator.deserializeWithContext(value, ctx);
 }
 export function itemsCountValidatorIs(value: unknown): value is ItemsCountValidator {
