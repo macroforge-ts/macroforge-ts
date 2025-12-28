@@ -35,6 +35,9 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::cell::Cell;
 
+/// A placeholder entry: (name, kind, rust_expr)
+type PlaceholderEntry = (String, PlaceholderKind, String);
+
 /// Debug logging for template transformations.
 /// Writes .ts files to the logs directory showing both original and transformed templates.
 #[cfg(debug_assertions)]
@@ -1155,9 +1158,8 @@ impl Codegen {
 
     fn starts_with_class_member_token(text: &str) -> bool {
         let text = text.trim_start();
-        if text.starts_with("async") {
-            let rest = text["async".len()..].trim_start();
-            if rest.starts_with("function") {
+        if let Some(rest) = text.strip_prefix("async") {
+            if rest.trim_start().starts_with("function") {
                 return false;
             }
         }
@@ -1176,9 +1178,9 @@ impl Codegen {
         ];
 
         for kw in keywords {
-            if text.starts_with(kw) {
-                let next = text[kw.len()..].as_bytes().first().copied();
-                if next.map_or(true, |b| !Self::is_ident_char(b)) {
+            if let Some(rest) = text.strip_prefix(kw) {
+                let next = rest.as_bytes().first().copied();
+                if next.is_none_or(|b| !Self::is_ident_char(b)) {
                     return true;
                 }
             }
@@ -1373,9 +1375,9 @@ impl Codegen {
     fn split_placeholders_by_pos(
         &self,
         template: &str,
-        placeholders: &[(String, PlaceholderKind, String)],
+        placeholders: &[PlaceholderEntry],
         split_pos: usize,
-    ) -> (Vec<(String, PlaceholderKind, String)>, Vec<(String, PlaceholderKind, String)>) {
+    ) -> (Vec<PlaceholderEntry>, Vec<PlaceholderEntry>) {
         let mut left = Vec::new();
         let mut right = Vec::new();
 
@@ -1401,12 +1403,8 @@ impl Codegen {
         while let Some(pos) = remaining.find(marker) {
             let absolute = offset + pos;
             let after_idx = absolute + marker.len();
-            let after = text
-                .as_bytes()
-                .get(after_idx)
-                .copied()
-                .map(|b| b as u8);
-            if after.map_or(true, |b| !Self::is_ident_char(b)) {
+            let after = text.as_bytes().get(after_idx).copied();
+            if after.is_none_or(|b| !Self::is_ident_char(b)) {
                 return Some(absolute);
             }
             offset = after_idx;
@@ -1575,7 +1573,7 @@ impl Codegen {
                     || else_if_branches.iter().any(|(_, body)| {
                         self.nodes_need_outer_opener_stack(body, body_context)
                     })
-                    || else_body.as_ref().map_or(false, |body| {
+                    || else_body.as_ref().is_some_and(|body| {
                         self.nodes_need_outer_opener_stack(body, body_context)
                     })
             }
@@ -1747,7 +1745,7 @@ impl Codegen {
                                 let ph_name = self.next_placeholder_name();
                                 // Use a special marker that creates a string literal from the expression
                                 // We'll use Expr kind and wrap the expression to produce a string literal
-                                current_template.push_str("$");
+                                current_template.push('$');
                                 current_template.push_str(&ph_name);
                                 // Push as Expr placeholder - the expression should evaluate to a string
                                 // and ToTsExpr for String creates Lit::Str
@@ -1909,35 +1907,36 @@ impl Codegen {
             return quote! {};
         }
 
-        if parse_context == ParseContext::Module && _brace_balance.unclosed_opens > 0 {
-            if let Some(split_pos) = Self::find_module_level_opener_split(template) {
-                if split_pos > 0 && split_pos < template.len() {
-                    let (left_placeholders, right_placeholders) =
-                        self.split_placeholders_by_pos(template, placeholders, split_pos);
-                    let left = &template[..split_pos];
-                    let right = &template[split_pos..];
-                    let left_balance = BraceBalance::analyze(left);
-                    let right_balance = BraceBalance::analyze(right);
+        if parse_context == ParseContext::Module
+            && _brace_balance.unclosed_opens > 0
+            && let Some(split_pos) = Self::find_module_level_opener_split(template)
+            && split_pos > 0
+            && split_pos < template.len()
+        {
+            let (left_placeholders, right_placeholders) =
+                self.split_placeholders_by_pos(template, placeholders, split_pos);
+            let left = &template[..split_pos];
+            let right = &template[split_pos..];
+            let left_balance = BraceBalance::analyze(left);
+            let right_balance = BraceBalance::analyze(right);
 
-                    let left_code = self.generate_parseable_chunk(
-                        left,
-                        &left_placeholders,
-                        left_balance,
-                        parse_context,
-                    );
-                    let right_code = self.generate_parseable_chunk(
-                        right,
-                        &right_placeholders,
-                        right_balance,
-                        parse_context,
-                    );
+            let left_code = self.generate_parseable_chunk(
+                left,
+                &left_placeholders,
+                left_balance,
+                parse_context,
+            );
+            let right_code = self.generate_parseable_chunk(
+                right,
+                &right_placeholders,
+                right_balance,
+                parse_context,
+            );
 
-                    return quote! {
-                        #left_code
-                        #right_code
-                    };
-                }
-            }
+            return quote! {
+                #left_code
+                #right_code
+            };
         }
 
         // STEP 1: Use ContextStack to scan and split at module-level transitions

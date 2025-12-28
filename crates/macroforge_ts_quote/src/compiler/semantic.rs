@@ -388,16 +388,16 @@ impl Analyzer {
             return true;
         }
 
-        if prev == b'{' || prev == b',' {
-            if let Some((next_idx, next)) = self.next_non_whitespace_byte(end) {
-                if next == b':' {
-                    return true;
-                }
-                if next == b'?' {
-                    if let Some((_, after_q)) = self.next_non_whitespace_byte(next_idx + 1) {
-                        return after_q == b':';
-                    }
-                }
+        if (prev == b'{' || prev == b',')
+            && let Some((next_idx, next)) = self.next_non_whitespace_byte(end)
+        {
+            if next == b':' {
+                return true;
+            }
+            if next == b'?'
+                && let Some((_, after_q)) = self.next_non_whitespace_byte(next_idx + 1)
+            {
+                return after_q == b':';
             }
         }
 
@@ -410,20 +410,18 @@ impl Analyzer {
         }
 
         let start: usize = node.text_range().start().into();
-        if let Some(token) = self.prev_ident_token(start) {
-            if token == "keyof" {
-                return true;
-            }
+        if let Some(token) = self.prev_ident_token(start)
+            && token == "keyof"
+        {
+            return true;
         }
 
-        if let Some((prev_idx, prev)) = self.prev_non_whitespace_with_idx(start) {
-            if prev == b':' {
-                if let Some((_, before_colon)) = self.prev_non_whitespace_with_idx(prev_idx) {
-                    if matches!(before_colon, b')' | b']' | b'>') {
-                        return true;
-                    }
-                }
-            }
+        if let Some((prev_idx, prev)) = self.prev_non_whitespace_with_idx(start)
+            && prev == b':'
+            && let Some((_, before_colon)) = self.prev_non_whitespace_with_idx(prev_idx)
+            && matches!(before_colon, b')' | b']' | b'>')
+        {
+            return true;
         }
 
         false

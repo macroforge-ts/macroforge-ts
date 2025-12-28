@@ -537,11 +537,11 @@ pub(crate) fn strip_doc_comments(input: &str) -> String {
     let mut i = 0;
 
     while i < bytes.len() {
-        if bytes[i..].starts_with(b"/**") {
-            if let Some(end) = input[i + 3..].find("*/") {
-                i += 3 + end + 2;
-                continue;
-            }
+        if bytes[i..].starts_with(b"/**")
+            && let Some(end) = input[i + 3..].find("*/")
+        {
+            i += 3 + end + 2;
+            continue;
         }
 
         if bytes[i..].starts_with(b"///") {
