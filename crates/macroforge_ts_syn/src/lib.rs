@@ -1910,13 +1910,22 @@ pub mod __internal {
                 decl: Decl::Class(ClassDecl { class, .. }),
                 ..
             })) => {
-                // Find the last method and extend its body
+                // Find the last method or constructor and extend its body
                 for member in class.body.iter_mut().rev() {
-                    if let ClassMember::Method(ClassMethod { function, .. }) = member
-                        && let Some(ref mut body) = function.body
-                    {
-                        body.stmts.extend(stmts);
-                        return;
+                    match member {
+                        ClassMember::Method(ClassMethod { function, .. }) => {
+                            if let Some(ref mut body) = function.body {
+                                body.stmts.extend(stmts);
+                                return;
+                            }
+                        }
+                        ClassMember::Constructor(Constructor { body, .. }) => {
+                            if let Some(body) = body {
+                                body.stmts.extend(stmts);
+                                return;
+                            }
+                        }
+                        _ => {}
                     }
                 }
             }
@@ -1924,11 +1933,20 @@ pub mod __internal {
             // class Foo { ... }
             ModuleItem::Stmt(Stmt::Decl(Decl::Class(ClassDecl { class, .. }))) => {
                 for member in class.body.iter_mut().rev() {
-                    if let ClassMember::Method(ClassMethod { function, .. }) = member
-                        && let Some(ref mut body) = function.body
-                    {
-                        body.stmts.extend(stmts);
-                        return;
+                    match member {
+                        ClassMember::Method(ClassMethod { function, .. }) => {
+                            if let Some(ref mut body) = function.body {
+                                body.stmts.extend(stmts);
+                                return;
+                            }
+                        }
+                        ClassMember::Constructor(Constructor { body, .. }) => {
+                            if let Some(body) = body {
+                                body.stmts.extend(stmts);
+                                return;
+                            }
+                        }
+                        _ => {}
                     }
                 }
             }
