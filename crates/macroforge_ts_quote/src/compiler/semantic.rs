@@ -116,9 +116,9 @@ impl Analyzer {
             }
             Context::Identifier => PlaceholderKind::Ident,
             Context::Statement => PlaceholderKind::Stmt,
-            Context::Expression
-            | Context::Parameters
-            | Context::ObjectLiteral => PlaceholderKind::Expr,
+            Context::Expression | Context::Parameters | Context::ObjectLiteral => {
+                PlaceholderKind::Expr
+            }
         }
     }
 
@@ -168,8 +168,8 @@ impl Analyzer {
 
             // Object literals / brace blocks
             SyntaxKind::TsObject | SyntaxKind::BraceBlock => {
-                let is_object_literal = node.kind() == SyntaxKind::TsObject
-                    || self.is_object_literal_brace(node);
+                let is_object_literal =
+                    node.kind() == SyntaxKind::TsObject || self.is_object_literal_brace(node);
                 if is_object_literal {
                     self.push_context(Context::ObjectLiteral);
                 } else {
@@ -368,7 +368,8 @@ impl Analyzer {
         let id = self.placeholder_id;
         self.placeholder_id += 1;
 
-        self.placeholders.insert(id, PlaceholderInfo { kind, tokens });
+        self.placeholders
+            .insert(id, PlaceholderInfo { kind, tokens });
     }
 
     fn should_force_ident(&self, node: &SyntaxNode) -> bool {
@@ -662,26 +663,42 @@ mod tests {
         // Should have one placeholder for function name (Ident)
         // and the type annotation `:` shouldn't affect function name context
         let placeholder = result.placeholders.values().next().unwrap();
-        assert_eq!(placeholder.kind, PlaceholderKind::Ident, "Function name should be Ident, got {:?}", placeholder.kind);
+        assert_eq!(
+            placeholder.kind,
+            PlaceholderKind::Ident,
+            "Function name should be Ident, got {:?}",
+            placeholder.kind
+        );
     }
 
     #[test]
     fn test_function_name_with_doc_comment() {
-        let result = analyze_template("/** Documentation */ export function @{fn_name}(x: number): void {}");
+        let result =
+            analyze_template("/** Documentation */ export function @{fn_name}(x: number): void {}");
         // Function name should still be Ident even with doc comment before
         let placeholder = result.placeholders.values().next().unwrap();
-        assert_eq!(placeholder.kind, PlaceholderKind::Ident, "Function name after doc comment should be Ident, got {:?}", placeholder.kind);
+        assert_eq!(
+            placeholder.kind,
+            PlaceholderKind::Ident,
+            "Function name after doc comment should be Ident, got {:?}",
+            placeholder.kind
+        );
     }
 
     #[test]
     fn test_multi_placeholder_function() {
         // This matches a real template pattern from derive_serialize.rs
-        let result = analyze_template("export function @{fn_serialize_ident}(value: @{interface_ident}): string { const ctx = @{serialize_context_expr}.create(); }");
+        let result = analyze_template(
+            "export function @{fn_serialize_ident}(value: @{interface_ident}): string { const ctx = @{serialize_context_expr}.create(); }",
+        );
         assert_eq!(result.placeholders.len(), 3, "Expected 3 placeholders");
 
         // Print all placeholders for debugging
         for (id, info) in &result.placeholders {
-            eprintln!("Placeholder {}: kind={:?}, tokens={}", id, info.kind, info.tokens);
+            eprintln!(
+                "Placeholder {}: kind={:?}, tokens={}",
+                id, info.kind, info.tokens
+            );
         }
 
         // Check each placeholder's kind
@@ -689,11 +706,23 @@ mod tests {
         placeholders.sort_by_key(|(id, _)| *id);
 
         // First placeholder (fn_serialize_ident) should be Ident (after function keyword)
-        assert_eq!(placeholders[0].1.kind, PlaceholderKind::Ident, "Function name should be Ident");
+        assert_eq!(
+            placeholders[0].1.kind,
+            PlaceholderKind::Ident,
+            "Function name should be Ident"
+        );
         // Second placeholder (interface_ident) should be Type (after :)
-        assert_eq!(placeholders[1].1.kind, PlaceholderKind::Type, "Parameter type should be Type");
+        assert_eq!(
+            placeholders[1].1.kind,
+            PlaceholderKind::Type,
+            "Parameter type should be Type"
+        );
         // Third placeholder (serialize_context_expr) should be Expr (after =)
-        assert_eq!(placeholders[2].1.kind, PlaceholderKind::Expr, "Expression should be Expr");
+        assert_eq!(
+            placeholders[2].1.kind,
+            PlaceholderKind::Expr,
+            "Expression should be Expr"
+        );
     }
 
     #[test]
@@ -747,7 +776,7 @@ mod tests {
         // /** Doc */ becomes # [doc = "Doc"]
         // The = in the attribute should NOT trigger Expression context
         let result = analyze_template(
-            r#"# [doc = "Doc comment"] export function @{fn_name}(value: @{type_param}): string { return @{body_expr}; }"#
+            r#"# [doc = "Doc comment"] export function @{fn_name}(value: @{type_param}): string { return @{body_expr}; }"#,
         );
 
         assert_eq!(result.placeholders.len(), 3, "Expected 3 placeholders");
@@ -756,23 +785,32 @@ mod tests {
         let mut placeholders: Vec<_> = result.placeholders.iter().collect();
         placeholders.sort_by_key(|(id, _)| *id);
         for (id, info) in &placeholders {
-            eprintln!("TokenStream format - Placeholder {}: kind={:?}, tokens={}", id, info.kind, info.tokens);
+            eprintln!(
+                "TokenStream format - Placeholder {}: kind={:?}, tokens={}",
+                id, info.kind, info.tokens
+            );
         }
 
         // First placeholder (fn_name) should be Ident (after function keyword)
         assert_eq!(
-            placeholders[0].1.kind, PlaceholderKind::Ident,
-            "Function name should be Ident, got {:?}", placeholders[0].1.kind
+            placeholders[0].1.kind,
+            PlaceholderKind::Ident,
+            "Function name should be Ident, got {:?}",
+            placeholders[0].1.kind
         );
         // Second placeholder (type_param) should be Type (after :)
         assert_eq!(
-            placeholders[1].1.kind, PlaceholderKind::Type,
-            "Parameter type should be Type, got {:?}", placeholders[1].1.kind
+            placeholders[1].1.kind,
+            PlaceholderKind::Type,
+            "Parameter type should be Type, got {:?}",
+            placeholders[1].1.kind
         );
         // Third placeholder (body_expr) should be Expr (after =)
         assert_eq!(
-            placeholders[2].1.kind, PlaceholderKind::Expr,
-            "Body expression should be Expr, got {:?}", placeholders[2].1.kind
+            placeholders[2].1.kind,
+            PlaceholderKind::Expr,
+            "Body expression should be Expr, got {:?}",
+            placeholders[2].1.kind
         );
     }
 }

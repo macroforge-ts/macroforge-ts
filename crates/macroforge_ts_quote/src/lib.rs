@@ -35,12 +35,12 @@
 use std::iter::once;
 
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use syn::{Block, ExprBlock};
 
 use self::{
     ast::ToCode,
-    ctxt::{prepare_vars, Ctx},
+    ctxt::{Ctx, prepare_vars},
     input::QuoteInput,
     ret_type::parse_input_type,
     template::parse_template,

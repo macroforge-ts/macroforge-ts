@@ -1,7 +1,7 @@
 use proc_macro2::Span;
 use swc_core::atoms::{Atom, Wtf8Atom};
 use swc_core::ecma::ast::*;
-use syn::{parse_quote, ExprLit, LitBool, LitByteStr, LitFloat};
+use syn::{ExprLit, LitBool, LitByteStr, LitFloat, parse_quote};
 
 use super::ToCode;
 use crate::{builder::Builder, ctxt::Ctx};

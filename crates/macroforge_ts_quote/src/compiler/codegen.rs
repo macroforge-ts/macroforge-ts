@@ -67,9 +67,15 @@ mod debug_log {
         let filename = format!("{}/transform_{:04}_{}.ts", logs_dir, count, transform_type);
 
         if let Ok(mut file) = std::fs::File::create(&filename) {
-            let _ = writeln!(file, "// ============================================================");
+            let _ = writeln!(
+                file,
+                "// ============================================================"
+            );
             let _ = writeln!(file, "// TEMPLATE TRANSFORMATION LOG #{}", count);
-            let _ = writeln!(file, "// ============================================================");
+            let _ = writeln!(
+                file,
+                "// ============================================================"
+            );
             let _ = writeln!(file, "// Transform Type: {}", transform_type);
             let _ = writeln!(file, "// Parse Context: {}", parse_context);
             let _ = writeln!(file, "// Brace Balance: {}", brace_balance);
@@ -78,7 +84,10 @@ mod debug_log {
             for (name, kind, expr) in placeholders {
                 let _ = writeln!(file, "//   ${}: {:?} = {}", name, kind, expr);
             }
-            let _ = writeln!(file, "// ============================================================");
+            let _ = writeln!(
+                file,
+                "// ============================================================"
+            );
             let _ = writeln!(file);
             let _ = writeln!(file, "// ORIGINAL TEMPLATE:");
             let _ = writeln!(file, "// -------------------");
@@ -240,7 +249,10 @@ impl ContextStack {
             stack.push(starting_context);
         }
         let starting_depth = stack.len();
-        Self { stack, starting_depth }
+        Self {
+            stack,
+            starting_depth,
+        }
     }
 
     /// Get the current (innermost) context.
@@ -451,9 +463,7 @@ impl ContextStack {
         }
 
         // Function body: `function`, `) {`, `=> {` (arrow already handled above for objects)
-        if trimmed.ends_with(')')
-            || trimmed.contains("function ")
-            || trimmed.contains("function(")
+        if trimmed.ends_with(')') || trimmed.contains("function ") || trimmed.contains("function(")
         {
             return ParseContext::FunctionBody;
         }
@@ -803,7 +813,10 @@ impl ContextAnalysis {
         let words: Vec<&str> = trimmed.split_whitespace().collect();
         if words.len() >= 2 {
             let second_last = words.get(words.len().saturating_sub(2));
-            if second_last == Some(&"class") || second_last == Some(&"extends") || second_last == Some(&"implements") {
+            if second_last == Some(&"class")
+                || second_last == Some(&"extends")
+                || second_last == Some(&"implements")
+            {
                 return ParseContext::ClassBody;
             }
         }
@@ -1158,10 +1171,10 @@ impl Codegen {
 
     fn starts_with_class_member_token(text: &str) -> bool {
         let text = text.trim_start();
-        if let Some(rest) = text.strip_prefix("async") {
-            if rest.trim_start().starts_with("function") {
-                return false;
-            }
+        if let Some(rest) = text.strip_prefix("async")
+            && rest.trim_start().starts_with("function")
+        {
+            return false;
         }
 
         let keywords = [
@@ -1365,11 +1378,7 @@ impl Codegen {
             i += 1;
         }
 
-        if depth > 0 {
-            last_pos
-        } else {
-            None
-        }
+        if depth > 0 { last_pos } else { None }
     }
 
     fn split_placeholders_by_pos(
@@ -1513,12 +1522,19 @@ impl Codegen {
 
         // Check if any opener has non-statement inner context (needs context collector)
         let needs_context_collector = chunks.iter().any(|c| match c {
-            Chunk::Parseable { brace_balance, inner_context, .. } => {
-                brace_balance.unclosed_opens > 0 && matches!(
-                    inner_context,
-                    ParseContext::ObjectLiteral | ParseContext::ArrayLiteral |
-                    ParseContext::ClassBody | ParseContext::TypeObjectLiteral
-                )
+            Chunk::Parseable {
+                brace_balance,
+                inner_context,
+                ..
+            } => {
+                brace_balance.unclosed_opens > 0
+                    && matches!(
+                        inner_context,
+                        ParseContext::ObjectLiteral
+                            | ParseContext::ArrayLiteral
+                            | ParseContext::ClassBody
+                            | ParseContext::TypeObjectLiteral
+                    )
             }
             _ => false,
         });
@@ -1570,28 +1586,24 @@ impl Codegen {
                 ..
             } => {
                 self.nodes_need_outer_opener_stack(then_body, body_context)
-                    || else_if_branches.iter().any(|(_, body)| {
-                        self.nodes_need_outer_opener_stack(body, body_context)
-                    })
-                    || else_body.as_ref().is_some_and(|body| {
-                        self.nodes_need_outer_opener_stack(body, body_context)
-                    })
+                    || else_if_branches
+                        .iter()
+                        .any(|(_, body)| self.nodes_need_outer_opener_stack(body, body_context))
+                    || else_body
+                        .as_ref()
+                        .is_some_and(|body| self.nodes_need_outer_opener_stack(body, body_context))
             }
             IrNode::For { body, .. } | IrNode::While { body, .. } => {
                 self.nodes_need_outer_opener_stack(body, body_context)
             }
-            IrNode::Match { arms, .. } => arms.iter().any(|(_, _, body)| {
-                self.nodes_need_outer_opener_stack(body, body_context)
-            }),
+            IrNode::Match { arms, .. } => arms
+                .iter()
+                .any(|(_, _, body)| self.nodes_need_outer_opener_stack(body, body_context)),
             _ => false,
         }
     }
 
-    fn nodes_need_outer_opener_stack(
-        &self,
-        nodes: &[IrNode],
-        context: ParseContext,
-    ) -> bool {
+    fn nodes_need_outer_opener_stack(&self, nodes: &[IrNode], context: ParseContext) -> bool {
         let saved_counter = self.placeholder_counter.get();
         let chunks = self.chunk_nodes_with_context(nodes, context);
         self.placeholder_counter.set(saved_counter);
@@ -1721,22 +1733,20 @@ impl Codegen {
 
                     // Generate the Rust expression that builds the identifier
                     let ident_builder = self.generate_ident_builder_expr(parts);
-                    current_placeholders.push((
-                        ph_name,
-                        PlaceholderKind::Ident,
-                        ident_builder,
-                    ));
+                    current_placeholders.push((ph_name, PlaceholderKind::Ident, ident_builder));
                 }
 
                 IrNode::StringInterp { quote: q, parts } => {
                     // Check if this string actually contains interpolations
-                    let has_interpolations = parts.iter().any(|p| matches!(p, IrNode::Placeholder { .. }));
+                    let has_interpolations = parts
+                        .iter()
+                        .any(|p| matches!(p, IrNode::Placeholder { .. }));
 
                     if has_interpolations {
                         // Check if this is a simple string with just one placeholder and no other text
                         // e.g., "@{class_name}" should become a string literal, not a template literal
-                        let is_simple_placeholder = parts.len() == 1
-                            && matches!(&parts[0], IrNode::Placeholder { .. });
+                        let is_simple_placeholder =
+                            parts.len() == 1 && matches!(&parts[0], IrNode::Placeholder { .. });
 
                         if is_simple_placeholder {
                             // Single placeholder - use Expr placeholder which will be converted to string literal
@@ -1749,7 +1759,11 @@ impl Codegen {
                                 current_template.push_str(&ph_name);
                                 // Push as Expr placeholder - the expression should evaluate to a string
                                 // and ToTsExpr for String creates Lit::Str
-                                current_placeholders.push((ph_name, PlaceholderKind::Expr, rust_expr.clone()));
+                                current_placeholders.push((
+                                    ph_name,
+                                    PlaceholderKind::Expr,
+                                    rust_expr.clone(),
+                                ));
                             }
                         } else {
                             // Multiple parts - convert to inline template literal with placeholders
@@ -1760,7 +1774,8 @@ impl Codegen {
                                 match part {
                                     IrNode::Text(text) => {
                                         // Escape backticks and ${} in static parts
-                                        let escaped = text.replace('`', "\\`").replace("${", "\\${");
+                                        let escaped =
+                                            text.replace('`', "\\`").replace("${", "\\${");
                                         current_template.push_str(&escaped);
                                     }
                                     IrNode::Placeholder { kind, rust_expr } => {
@@ -1769,7 +1784,11 @@ impl Codegen {
                                         current_template.push_str("${$");
                                         current_template.push_str(&ph_name);
                                         current_template.push('}');
-                                        current_placeholders.push((ph_name, *kind, rust_expr.clone()));
+                                        current_placeholders.push((
+                                            ph_name,
+                                            *kind,
+                                            rust_expr.clone(),
+                                        ));
                                     }
                                     _ => {}
                                 }
@@ -1799,9 +1818,7 @@ impl Codegen {
                     current_context = inner_ctx;
 
                     // Add a comment chunk
-                    chunks.push(Chunk::Comment {
-                        text: text.clone(),
-                    });
+                    chunks.push(Chunk::Comment { text: text.clone() });
                 }
             }
         }
@@ -1858,7 +1875,12 @@ impl Codegen {
                 brace_balance,
                 parse_context,
                 inner_context: _,
-            } => self.generate_parseable_chunk(template, placeholders, *brace_balance, *parse_context),
+            } => self.generate_parseable_chunk(
+                template,
+                placeholders,
+                *brace_balance,
+                *parse_context,
+            ),
 
             Chunk::ControlFlow { node, body_context } => {
                 self.generate_control_flow_with_context(node, *body_context)
@@ -1969,13 +1991,21 @@ impl Codegen {
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
             eprintln!(
                 "[MF_DEBUG_CODEGEN] Context-first scan: {} spans from template (context={:?})",
-                spans.len(), parse_context
+                spans.len(),
+                parse_context
             );
             for (i, span) in spans.iter().enumerate() {
                 eprintln!(
                     "[MF_DEBUG_CODEGEN]   Span {}: context={:?}, depth={}→{}, text={:?}",
-                    i, span.context, span.start_depth, span.end_depth,
-                    if span.text.len() > 60 { format!("{}...", &span.text[..60]) } else { span.text.clone() }
+                    i,
+                    span.context,
+                    span.start_depth,
+                    span.end_depth,
+                    if span.text.len() > 60 {
+                        format!("{}...", &span.text[..60])
+                    } else {
+                        span.text.clone()
+                    }
                 );
             }
         }
@@ -2024,8 +2054,10 @@ impl Codegen {
         // Generate placeholder bindings
         let (binding_stmts, quote_bindings) = self.generate_placeholder_bindings(placeholders);
 
-        if matches!(span.context, ParseContext::Module | ParseContext::FunctionBody)
-            && span.is_balanced()
+        if matches!(
+            span.context,
+            ParseContext::Module | ParseContext::FunctionBody
+        ) && span.is_balanced()
             && let Some(stmt_name) = self.is_standalone_stmt_placeholder(&span.text, placeholders)
         {
             let output_var = format_ident!("{}", self.config.output_var);
@@ -2042,7 +2074,12 @@ impl Codegen {
         match span.context {
             ParseContext::Module => {
                 if Self::starts_with_class_member_token(span.text.trim_start()) {
-                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    self.generate_class_middle_span(
+                        &span.text,
+                        &binding_stmts,
+                        &quote_bindings,
+                        span,
+                    )
                 } else if span.is_balanced() {
                     // Module-level content - inject as raw source stream
                     // This handles multiple declarations correctly
@@ -2067,7 +2104,12 @@ impl Codegen {
                 let multi_level_closer = span.is_closer() && span.actual_excess_closes() > 1;
                 if Self::contains_class_member_syntax(&span.text) {
                     // Class member transitions like `} static foo() {` need special handling
-                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    self.generate_class_middle_span(
+                        &span.text,
+                        &binding_stmts,
+                        &quote_bindings,
+                        span,
+                    )
                 } else if multi_level_closer {
                     if let Some(split_at) = Self::find_first_actual_closing_brace(&span.text) {
                         let (before, after) = span.text.split_at(split_at + 1);
@@ -2092,7 +2134,12 @@ impl Codegen {
                             }
                         }
                     } else {
-                        self.generate_raw_source_span(&span.text, &binding_stmts, &quote_bindings, span)
+                        self.generate_raw_source_span(
+                            &span.text,
+                            &binding_stmts,
+                            &quote_bindings,
+                            span,
+                        )
                     }
                 } else if span.is_balanced() {
                     // Balanced: same depth at start and end (includes regular middle spans like `} else {`)
@@ -2128,13 +2175,23 @@ impl Codegen {
                 } else if Self::contains_class_member_syntax(&span.text) {
                     // Content contains class member transitions (e.g., `} static foo() { ... }`)
                     // Use generate_class_middle_span which handles stack updates properly
-                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    self.generate_class_middle_span(
+                        &span.text,
+                        &binding_stmts,
+                        &quote_bindings,
+                        span,
+                    )
                 } else if span.is_closer() {
                     // Closer in class body context
                     self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
                 } else {
                     // Opener in class body context: treat as class member start
-                    self.generate_class_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    self.generate_class_middle_span(
+                        &span.text,
+                        &binding_stmts,
+                        &quote_bindings,
+                        span,
+                    )
                 }
             }
 
@@ -2197,7 +2254,10 @@ impl Codegen {
 
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-            eprintln!("[MF_DEBUG_CODEGEN] Opener span: {:?} (actual_opens={})", completed, actual_opens);
+            eprintln!(
+                "[MF_DEBUG_CODEGEN] Opener span: {:?} (actual_opens={})",
+                completed, actual_opens
+            );
         }
 
         let quote_call = if quote_bindings.is_empty() {
@@ -2229,8 +2289,7 @@ impl Codegen {
         span: &ContextSpan,
     ) -> TokenStream {
         let actual_closes = span.actual_excess_closes() as usize;
-        let closer_code =
-            self.generate_closer_span_with_count(text, quote_bindings, actual_closes);
+        let closer_code = self.generate_closer_span_with_count(text, quote_bindings, actual_closes);
         quote! {
             {
                 #(#binding_stmts)*
@@ -2348,12 +2407,18 @@ impl Codegen {
 
         let virtual_opens = "{".repeat(actual_closes);
         let virtual_closes = "}".repeat(actual_opens);
-        let completed = format!("function __mf_virtual() {{ {}{}{} }}", virtual_opens, text, virtual_closes);
+        let completed = format!(
+            "function __mf_virtual() {{ {}{}{} }}",
+            virtual_opens, text, virtual_closes
+        );
         let completed_lit = syn::LitStr::new(&completed, proc_macro2::Span::call_site());
 
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-            eprintln!("[MF_DEBUG_CODEGEN] Middle span: {:?} (opens={}, closes={})", completed, actual_opens, actual_closes);
+            eprintln!(
+                "[MF_DEBUG_CODEGEN] Middle span: {:?} (opens={}, closes={})",
+                completed, actual_opens, actual_closes
+            );
         }
 
         let quote_call = if quote_bindings.is_empty() {
@@ -2525,7 +2590,11 @@ impl Codegen {
                 "[MF_DEBUG_CODEGEN] Class middle span: closes={} opens={}, after={:?}",
                 span.middle_closes_count(),
                 span.middle_opens_count(),
-                if after_trimmed.len() > 60 { format!("{}...", &after_trimmed[..60]) } else { after_trimmed.to_string() }
+                if after_trimmed.len() > 60 {
+                    format!("{}...", &after_trimmed[..60])
+                } else {
+                    after_trimmed.to_string()
+                }
             );
         }
 
@@ -2534,7 +2603,10 @@ impl Codegen {
                 return quote! { #(#binding_stmts)* };
             }
 
-            let wrapped = format!("class __MF_DUMMY__ {{ {}{} }}", after_trimmed, virtual_closes);
+            let wrapped = format!(
+                "class __MF_DUMMY__ {{ {}{} }}",
+                after_trimmed, virtual_closes
+            );
             let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
 
             let quote_call = if quote_bindings.is_empty() {
@@ -2641,7 +2713,10 @@ impl Codegen {
             };
         }
 
-        let wrapped = format!("class __MF_DUMMY__ {{ {}{} }}", after_trimmed, virtual_closes);
+        let wrapped = format!(
+            "class __MF_DUMMY__ {{ {}{} }}",
+            after_trimmed, virtual_closes
+        );
         let wrapped_lit = syn::LitStr::new(&wrapped, proc_macro2::Span::call_site());
 
         let quote_call = if !clone_bindings.is_empty() {
@@ -2710,11 +2785,7 @@ impl Codegen {
         }
     }
 
-    fn build_raw_source_emit(
-        &self,
-        text: &str,
-        quote_bindings: &[TokenStream],
-    ) -> TokenStream {
+    fn build_raw_source_emit(&self, text: &str, quote_bindings: &[TokenStream]) -> TokenStream {
         let mut format_str = text.to_string();
         let mut format_args: Vec<TokenStream> = Vec::new();
         let mut tokens: Vec<String> = Vec::new();
@@ -2927,7 +2998,10 @@ impl Codegen {
                     } else {
                         String::new()
                     };
-                    format!("function __mf_virtual() {{ {}return {{ __mf_dummy: 0 {}", extra_opens, template)
+                    format!(
+                        "function __mf_virtual() {{ {}return {{ __mf_dummy: 0 {}",
+                        extra_opens, template
+                    )
                 }
                 ParseContext::ArrayLiteral => {
                     // First close is an array literal
@@ -2936,11 +3010,15 @@ impl Codegen {
                     } else {
                         String::new()
                     };
-                    format!("function __mf_virtual() {{ {}return [ 0 {}", extra_opens, template)
+                    format!(
+                        "function __mf_virtual() {{ {}return [ 0 {}",
+                        extra_opens, template
+                    )
                 }
                 _ => {
                     // Standard block context
-                    let extra_opens = "{".repeat((brace_balance.unmatched_closes - 1).max(0) as usize);
+                    let extra_opens =
+                        "{".repeat((brace_balance.unmatched_closes - 1).max(0) as usize);
                     format!("function __mf_virtual() {{ {}{}", extra_opens, template)
                 }
             };
@@ -3185,7 +3263,9 @@ impl Codegen {
                 self.generate_while_with_context(condition, body, body_context)
             }
 
-            IrNode::Match { expr, arms } => self.generate_match_with_context(expr, arms, body_context),
+            IrNode::Match { expr, arms } => {
+                self.generate_match_with_context(expr, arms, body_context)
+            }
 
             _ => quote! {},
         }
@@ -3201,9 +3281,7 @@ impl Codegen {
                 value,
             } => self.generate_let(name, *mutable, type_hint.as_deref(), value),
             IrNode::Do { code } => self.generate_do(code),
-            IrNode::TypeScript { stream } => {
-                self.generate_typescript_with_context(stream, context)
-            }
+            IrNode::TypeScript { stream } => self.generate_typescript_with_context(stream, context),
             _ => quote! {},
         }
     }
@@ -3245,8 +3323,9 @@ impl Codegen {
     /// Generates code for a for loop.
     fn generate_for(&self, pattern: &str, iterator: &str, body: &[IrNode]) -> TokenStream {
         let pat: TokenStream = pattern.parse().unwrap_or_else(|_| quote! { _ });
-        let iter: TokenStream =
-            iterator.parse().unwrap_or_else(|_| quote! { std::iter::empty::<()>() });
+        let iter: TokenStream = iterator
+            .parse()
+            .unwrap_or_else(|_| quote! { std::iter::empty::<()>() });
         let body_code = self.generate_nodes(body);
 
         quote! {
@@ -3269,7 +3348,11 @@ impl Codegen {
     }
 
     /// Generates code for a match expression.
-    fn generate_match(&self, expr: &str, arms: &[(String, Option<String>, Vec<IrNode>)]) -> TokenStream {
+    fn generate_match(
+        &self,
+        expr: &str,
+        arms: &[(String, Option<String>, Vec<IrNode>)],
+    ) -> TokenStream {
         self.generate_match_with_context(expr, arms, ParseContext::Module)
     }
 
@@ -3317,8 +3400,9 @@ impl Codegen {
         body_context: ParseContext,
     ) -> TokenStream {
         let pat: TokenStream = pattern.parse().unwrap_or_else(|_| quote! { _ });
-        let iter: TokenStream =
-            iterator.parse().unwrap_or_else(|_| quote! { std::iter::empty::<()>() });
+        let iter: TokenStream = iterator
+            .parse()
+            .unwrap_or_else(|_| quote! { std::iter::empty::<()>() });
         let body_code = self.generate_nodes_with_context(body, body_context);
 
         quote! {
@@ -3388,12 +3472,19 @@ impl Codegen {
 
         // Check if any opener has non-statement inner context (needs context collector)
         let needs_context_collector = chunks.iter().any(|c| match c {
-            Chunk::Parseable { brace_balance, inner_context, .. } => {
-                brace_balance.unclosed_opens > 0 && matches!(
-                    inner_context,
-                    ParseContext::ObjectLiteral | ParseContext::ArrayLiteral |
-                    ParseContext::ClassBody | ParseContext::TypeObjectLiteral
-                )
+            Chunk::Parseable {
+                brace_balance,
+                inner_context,
+                ..
+            } => {
+                brace_balance.unclosed_opens > 0
+                    && matches!(
+                        inner_context,
+                        ParseContext::ObjectLiteral
+                            | ParseContext::ArrayLiteral
+                            | ParseContext::ClassBody
+                            | ParseContext::TypeObjectLiteral
+                    )
             }
             _ => false,
         });
@@ -3461,7 +3552,11 @@ impl Codegen {
         // Generate expression that concatenates all parts and creates an Ident
         format!(
             "{{ let mut __s = String::new(); {} macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(__s.into(), macroforge_ts::swc_core::common::DUMMY_SP) }}",
-            expr_parts.iter().map(|p| format!("__s.push_str(&{});", p)).collect::<Vec<_>>().join(" ")
+            expr_parts
+                .iter()
+                .map(|p| format!("__s.push_str(&{});", p))
+                .collect::<Vec<_>>()
+                .join(" ")
         )
     }
 
@@ -3583,7 +3678,11 @@ impl Codegen {
         let ident = format_ident!("{}", name);
         let val: TokenStream = value.parse().unwrap_or_else(|_| quote! { () });
 
-        let mut_token = if mutable { quote! { mut } } else { quote! {} };
+        let mut_token = if mutable {
+            quote! { mut }
+        } else {
+            quote! {}
+        };
 
         let type_annotation = if let Some(ty) = type_hint {
             let ty_tokens: TokenStream = ty.parse().unwrap_or_else(|_| quote! { _ });
@@ -3606,11 +3705,7 @@ impl Codegen {
     }
 
     /// Generates code for a typescript directive with context awareness.
-    fn generate_typescript_with_context(
-        &self,
-        stream: &str,
-        context: ParseContext,
-    ) -> TokenStream {
+    fn generate_typescript_with_context(&self, stream: &str, context: ParseContext) -> TokenStream {
         let output_var = format_ident!("{}", self.config.output_var);
         let s: TokenStream = stream.parse().unwrap_or_else(|_| quote! { () });
 
@@ -3773,7 +3868,7 @@ mod tests {
         // This is how doc comments appear after going through Rust's TokenStream:
         // /** Doc */ becomes # [doc = "Doc"]
         let code = compile_template(
-            r#"# [doc = "Doc comment"] export function @{fn_name}(value: @{type_param}): string { return @{body_expr}; }"#
+            r#"# [doc = "Doc comment"] export function @{fn_name}(value: @{type_param}): string { return @{body_expr}; }"#,
         );
         let code_str = code.to_string();
         eprintln!("Generated code:\n{}", code_str);
@@ -3781,19 +3876,22 @@ mod tests {
         // fn_name should be treated as Ident (ToTsIdent)
         assert!(
             code_str.contains("to_ts_ident"),
-            "fn_name should use ToTsIdent. Generated code:\n{}", code_str
+            "fn_name should use ToTsIdent. Generated code:\n{}",
+            code_str
         );
 
         // type_param should be treated as Type (ToTsType)
         assert!(
             code_str.contains("to_ts_type"),
-            "type_param should use ToTsType. Generated code:\n{}", code_str
+            "type_param should use ToTsType. Generated code:\n{}",
+            code_str
         );
 
         // body_expr should be treated as Expr (ToTsExpr)
         assert!(
             code_str.contains("to_ts_expr"),
-            "body_expr should use ToTsExpr. Generated code:\n{}", code_str
+            "body_expr should use ToTsExpr. Generated code:\n{}",
+            code_str
         );
     }
 }

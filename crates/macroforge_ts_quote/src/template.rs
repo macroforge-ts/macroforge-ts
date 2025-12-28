@@ -48,7 +48,10 @@ pub(crate) fn convert_doc_attributes_to_jsdoc(input: &str) -> String {
             #[cfg(debug_assertions)]
             if debug {
                 let context: String = chars[i..std::cmp::min(i + 20, len)].iter().collect();
-                eprintln!("[MF_DEBUG_DOC] Found # at pos {}, context: {:?}", i, context);
+                eprintln!(
+                    "[MF_DEBUG_DOC] Found # at pos {}, context: {:?}",
+                    i, context
+                );
             }
             // Skip whitespace after #
             let mut j = i + 1;
@@ -65,11 +68,7 @@ pub(crate) fn convert_doc_attributes_to_jsdoc(input: &str) -> String {
                 }
 
                 // Check for "doc"
-                if j + 3 <= len
-                    && chars[j] == 'd'
-                    && chars[j + 1] == 'o'
-                    && chars[j + 2] == 'c'
-                {
+                if j + 3 <= len && chars[j] == 'd' && chars[j + 1] == 'o' && chars[j + 2] == 'c' {
                     j += 3;
                     // Skip whitespace
                     while j < len && chars[j].is_whitespace() {
@@ -336,7 +335,13 @@ pub(crate) fn normalize_template_spacing(input: &str) -> String {
                 i += 1;
             }
             // Check if this is a control flow or ident block
-            if i < len && (chars[i] == '#' || chars[i] == '/' || chars[i] == ':' || chars[i] == '$' || chars[i] == '|') {
+            if i < len
+                && (chars[i] == '#'
+                    || chars[i] == '/'
+                    || chars[i] == ':'
+                    || chars[i] == '$'
+                    || chars[i] == '|')
+            {
                 result.push('{');
                 // The next char will be handled in the next iteration
                 continue;
@@ -369,8 +374,7 @@ pub(crate) fn normalize_template_spacing(input: &str) -> String {
                 }
                 continue;
             }
-        }
-        else {
+        } else {
             result.push(c);
             i += 1;
         }
@@ -489,7 +493,11 @@ pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     // Debug: print the raw tokenized string (only in debug builds during tests)
     #[cfg(debug_assertions)]
     if std::env::var("MF_DEBUG_TEMPLATE").is_ok() {
-        eprintln!("[MF_DEBUG] Raw tokenized ({} chars): {:?}", template_str.len(), template_str);
+        eprintln!(
+            "[MF_DEBUG] Raw tokenized ({} chars): {:?}",
+            template_str.len(),
+            template_str
+        );
     }
 
     // Convert doc attributes back to JSDoc comments
@@ -498,7 +506,11 @@ pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
 
     #[cfg(debug_assertions)]
     if std::env::var("MF_DEBUG_TEMPLATE").is_ok() {
-        eprintln!("[MF_DEBUG] After doc conversion ({} chars): {:?}", template_str.len(), template_str);
+        eprintln!(
+            "[MF_DEBUG] After doc conversion ({} chars): {:?}",
+            template_str.len(),
+            template_str
+        );
     }
 
     // Normalize spacing: Rust tokenizer adds spaces around punctuation,
@@ -509,7 +521,11 @@ pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
 
     #[cfg(debug_assertions)]
     if std::env::var("MF_DEBUG_TEMPLATE").is_ok() {
-        eprintln!("[MF_DEBUG] After normalization ({} chars): {:?}", template_str.len(), template_str);
+        eprintln!(
+            "[MF_DEBUG] After normalization ({} chars): {:?}",
+            template_str.len(),
+            template_str
+        );
     }
 
     // Compile using the Rowan-based compiler

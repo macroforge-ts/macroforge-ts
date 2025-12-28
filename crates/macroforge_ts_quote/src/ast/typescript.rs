@@ -1,8 +1,8 @@
 use swc_core::ecma::ast::*;
 use syn::parse_quote;
 
-use crate::ctxt::{Ctx, VarPos};
 use crate::ast::ToCode;
+use crate::ctxt::{Ctx, VarPos};
 
 // Helper to check if a TsEntityName is a $variable reference
 fn get_type_var_name(name: &TsEntityName) -> Option<&str> {
@@ -152,12 +152,18 @@ impl_struct!(TsThisType, [span]);
 // Function and constructor types
 impl_enum!(TsFnOrConstructorType, [TsFnType, TsConstructorType]);
 impl_struct!(TsFnType, [span, type_params, params, type_ann]);
-impl_struct!(TsConstructorType, [span, type_params, params, type_ann, is_abstract]);
+impl_struct!(
+    TsConstructorType,
+    [span, type_params, params, type_ann, is_abstract]
+);
 
 // Type parameters
 impl_struct!(TsTypeParamInstantiation, [span, params]);
 impl_struct!(TsTypeParamDecl, [span, params]);
-impl_struct!(TsTypeParam, [span, name, is_in, is_out, is_const, constraint, default]);
+impl_struct!(
+    TsTypeParam,
+    [span, name, is_in, is_out, is_const, constraint, default]
+);
 
 // Function parameter
 impl_enum!(TsFnParam, [Ident, Array, Rest, Object]);
@@ -188,7 +194,10 @@ impl_struct!(TsUnionType, [span, types]);
 impl_struct!(TsIntersectionType, [span, types]);
 
 // Conditional type
-impl_struct!(TsConditionalType, [span, check_type, extends_type, true_type, false_type]);
+impl_struct!(
+    TsConditionalType,
+    [span, check_type, extends_type, true_type, false_type]
+);
 
 // Infer type
 impl_struct!(TsInferType, [span, type_param]);
@@ -215,7 +224,10 @@ impl ToCode for TsTypeOperatorOp {
 impl_struct!(TsIndexedAccessType, [span, readonly, obj_type, index_type]);
 
 // Mapped type
-impl_struct!(TsMappedType, [span, readonly, type_param, name_type, optional, type_ann]);
+impl_struct!(
+    TsMappedType,
+    [span, readonly, type_param, name_type, optional, type_ann]
+);
 
 impl ToCode for TruePlusMinus {
     fn to_code(&self, _: &Ctx) -> syn::Expr {
@@ -243,17 +255,43 @@ impl_struct!(TsImportCallOptions, [span, with]);
 impl_struct!(TsImportType, [span, arg, qualifier, type_args, attributes]);
 
 // Type elements (for interfaces and type literals)
-impl_enum!(TsTypeElement, [TsCallSignatureDecl, TsConstructSignatureDecl, TsPropertySignature, TsGetterSignature, TsSetterSignature, TsMethodSignature, TsIndexSignature]);
+impl_enum!(
+    TsTypeElement,
+    [
+        TsCallSignatureDecl,
+        TsConstructSignatureDecl,
+        TsPropertySignature,
+        TsGetterSignature,
+        TsSetterSignature,
+        TsMethodSignature,
+        TsIndexSignature
+    ]
+);
 impl_struct!(TsCallSignatureDecl, [span, params, type_ann, type_params]);
-impl_struct!(TsConstructSignatureDecl, [span, params, type_ann, type_params]);
-impl_struct!(TsPropertySignature, [span, readonly, key, computed, optional, type_ann]);
+impl_struct!(
+    TsConstructSignatureDecl,
+    [span, params, type_ann, type_params]
+);
+impl_struct!(
+    TsPropertySignature,
+    [span, readonly, key, computed, optional, type_ann]
+);
 impl_struct!(TsGetterSignature, [span, key, computed, type_ann]);
 impl_struct!(TsSetterSignature, [span, key, computed, param]);
-impl_struct!(TsMethodSignature, [span, key, computed, optional, params, type_ann, type_params]);
-impl_struct!(TsIndexSignature, [span, params, type_ann, readonly, is_static]);
+impl_struct!(
+    TsMethodSignature,
+    [span, key, computed, optional, params, type_ann, type_params]
+);
+impl_struct!(
+    TsIndexSignature,
+    [span, params, type_ann, readonly, is_static]
+);
 
 // Declarations
-impl_struct!(TsInterfaceDecl, [span, id, declare, type_params, extends, body]);
+impl_struct!(
+    TsInterfaceDecl,
+    [span, id, declare, type_params, extends, body]
+);
 impl_struct!(TsInterfaceBody, [span, body]);
 impl_struct!(TsExprWithTypeArgs, [span, expr, type_args]);
 
@@ -268,7 +306,10 @@ impl_enum!(TsNamespaceBody, [TsModuleBlock, TsNamespaceDecl]);
 impl_struct!(TsModuleBlock, [span, body]);
 impl_struct!(TsNamespaceDecl, [span, declare, global, id, body]);
 
-impl_struct!(TsImportEqualsDecl, [span, is_export, is_type_only, id, module_ref]);
+impl_struct!(
+    TsImportEqualsDecl,
+    [span, is_export, is_type_only, id, module_ref]
+);
 impl_enum!(TsModuleRef, [TsEntityName, TsExternalModuleRef]);
 impl_struct!(TsExternalModuleRef, [span, expr]);
 
@@ -284,7 +325,17 @@ impl_struct!(TsInstantiation, [span, expr, type_args]);
 impl_struct!(TsSatisfiesExpr, [span, expr, type_ann]);
 
 // Param prop
-impl_struct!(TsParamProp, [span, decorators, accessibility, is_override, readonly, param]);
+impl_struct!(
+    TsParamProp,
+    [
+        span,
+        decorators,
+        accessibility,
+        is_override,
+        readonly,
+        param
+    ]
+);
 impl_enum!(TsParamPropParam, [Ident, Assign]);
 
 // Accessibility is implemented in enums.rs via impl_simple_enum!

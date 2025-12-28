@@ -1,9 +1,9 @@
 use std::any::type_name;
 
-use anyhow::{anyhow, bail, Context, Error};
-use swc_core::common::{sync::Lrc, FileName, SourceMap};
+use anyhow::{Context, Error, anyhow, bail};
+use swc_core::common::{FileName, SourceMap, sync::Lrc};
 use swc_core::ecma::ast::{AssignTarget, Decl, EsVersion, ModuleDecl, ModuleItem, Stmt};
-use swc_core::ecma::parser::{lexer::Lexer, PResult, Parser, StringInput, Syntax, TsSyntax};
+use swc_core::ecma::parser::{PResult, Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 use syn::{GenericArgument, PathArguments, Type};
 
 use super::{ast::ToCode, ctxt::Ctx};
@@ -152,14 +152,15 @@ fn parse_ts_type(input_str: &str) -> Result<BoxWrapper, Error> {
 
     // Extract the type from: type __T = <type>;
     let ts_type = match module_item {
-        ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(type_alias))) => {
-            *type_alias.type_ann
-        }
+        ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(type_alias))) => *type_alias.type_ann,
         ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export_decl)) => {
             if let Decl::TsTypeAlias(type_alias) = export_decl.decl {
                 *type_alias.type_ann
             } else {
-                bail!("Expected type alias declaration, got: {:?}", export_decl.decl);
+                bail!(
+                    "Expected type alias declaration, got: {:?}",
+                    export_decl.decl
+                );
             }
         }
         other => bail!("Expected type alias declaration, got: {:?}", other),
@@ -193,11 +194,11 @@ fn parse_prop_or_spread(input_str: &str) -> Result<BoxWrapper, Error> {
     // Extract the property from: ({ prop })
     let prop = match *expr {
         swc_core::ecma::ast::Expr::Paren(paren) => match *paren.expr {
-            swc_core::ecma::ast::Expr::Object(obj) => {
-                obj.props.into_iter().next().ok_or_else(|| {
-                    anyhow!("expected at least one property in object literal")
-                })?
-            }
+            swc_core::ecma::ast::Expr::Object(obj) => obj
+                .props
+                .into_iter()
+                .next()
+                .ok_or_else(|| anyhow!("expected at least one property in object literal"))?,
             other => bail!("Expected object literal, got: {:?}", other),
         },
         other => bail!("Expected parenthesized expression, got: {:?}", other),

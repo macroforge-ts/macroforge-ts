@@ -49,15 +49,17 @@ fn test_ident_block_binding() {
 
 #[test]
 fn test_if_expression_in_statement() {
-    let input = TokenStream2::from_str(
-        "const status = {#if cond} \"a\" {:else} \"b\" {/if}",
-    )
-    .unwrap();
+    let input =
+        TokenStream2::from_str("const status = {#if cond} \"a\" {:else} \"b\" {/if}").unwrap();
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
     // New compiler generates Rust if statements for control flow
-    assert!(s.contains("if cond"), "Expected Rust if for expression control. Got: {}", s);
+    assert!(
+        s.contains("if cond"),
+        "Expected Rust if for expression control. Got: {}",
+        s
+    );
 }
 
 #[test]
@@ -76,7 +78,8 @@ fn test_string_literal_interpolation() {
 
 #[test]
 fn test_backtick_template_literal_syntax() {
-    let input = TokenStream2::from_str("const html = \"'^<@{tag}>${content}</@{tag}>^'\";").unwrap();
+    let input =
+        TokenStream2::from_str("const html = \"'^<@{tag}>${content}</@{tag}>^'\";").unwrap();
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
@@ -128,8 +131,10 @@ fn test_function_name_interpolation_is_ident() {
 
     // New compiler uses ToTsIdent or ToTsExpr for identifier placeholders
     assert!(
-        s.contains("to_ts_ident") || s.contains("ToTsIdent") ||
-        s.contains("to_ts_expr") || s.contains("ToTsExpr"),
+        s.contains("to_ts_ident")
+            || s.contains("ToTsIdent")
+            || s.contains("to_ts_expr")
+            || s.contains("ToTsExpr"),
         "Expected identifier/expression handling for function name. Got: {}",
         s
     );
@@ -137,12 +142,17 @@ fn test_function_name_interpolation_is_ident() {
 
 #[test]
 fn test_dynamic_function_body() {
-    let input = TokenStream2::from_str("function test() { {#if true} console.log(\"hi\"); {/if} }").unwrap();
+    let input = TokenStream2::from_str("function test() { {#if true} console.log(\"hi\"); {/if} }")
+        .unwrap();
     let output = parse_template(input).unwrap();
     let s = output.to_string();
 
     // New compiler generates if statements for control flow
-    assert!(s.contains("if true"), "Expected Rust if statement. Got: {}", s);
+    assert!(
+        s.contains("if true"),
+        "Expected Rust if statement. Got: {}",
+        s
+    );
 }
 
 #[test]
@@ -163,7 +173,8 @@ fn test_debug_doc_comment_tokenstream() {
     // The key difference: doc comments become #[doc = "..."] in TokenStream
     assert!(
         template_str.contains("doc =") || template_str.contains("Doc comment"),
-        "TokenStream should preserve doc comment somehow. Got: {}", template_str
+        "TokenStream should preserve doc comment somehow. Got: {}",
+        template_str
     );
 }
 
@@ -184,19 +195,22 @@ fn test_function_with_doc_comment_uses_ident() {
     // fn_name after "function" keyword should use ToTsIdent
     assert!(
         s.contains("to_ts_ident"),
-        "fn_name should use ToTsIdent for function name. Generated:\n{}", s
+        "fn_name should use ToTsIdent for function name. Generated:\n{}",
+        s
     );
 
     // type_param after ":" should use ToTsType
     assert!(
         s.contains("to_ts_type"),
-        "type_param should use ToTsType for parameter type. Generated:\n{}", s
+        "type_param should use ToTsType for parameter type. Generated:\n{}",
+        s
     );
 
     // body_expr in function body should use ToTsExpr
     assert!(
         s.contains("to_ts_expr"),
-        "body_expr should use ToTsExpr for expression. Generated:\n{}", s
+        "body_expr should use ToTsExpr for expression. Generated:\n{}",
+        s
     );
 }
 
@@ -223,20 +237,23 @@ fn test_multiple_functions_with_doc_comments() {
     let ident_count = s.matches("to_ts_ident").count();
     assert_eq!(
         ident_count, 2,
-        "Expected 2 function names to use ToTsIdent, found {}. Generated:\n{}", ident_count, s
+        "Expected 2 function names to use ToTsIdent, found {}. Generated:\n{}",
+        ident_count, s
     );
 
     // Count occurrences of to_ts_type - should be 2 (one for each parameter type)
     let type_count = s.matches("to_ts_type").count();
     assert_eq!(
         type_count, 2,
-        "Expected 2 parameter types to use ToTsType, found {}. Generated:\n{}", type_count, s
+        "Expected 2 parameter types to use ToTsType, found {}. Generated:\n{}",
+        type_count, s
     );
 
     // Count occurrences of to_ts_expr - should be 2 (one for each body expression)
     let expr_count = s.matches("to_ts_expr").count();
     assert_eq!(
         expr_count, 2,
-        "Expected 2 body expressions to use ToTsExpr, found {}. Generated:\n{}", expr_count, s
+        "Expected 2 body expressions to use ToTsExpr, found {}. Generated:\n{}",
+        expr_count, s
     );
 }

@@ -593,7 +593,8 @@ impl Parser {
             // Content until newline
             while !self.at_eof() {
                 if let Some(token) = self.current_token()
-                    && token.text.contains('\n') {
+                    && token.text.contains('\n')
+                {
                     self.bump();
                     break;
                 }
@@ -777,8 +778,8 @@ impl Parser {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::syntax::SyntaxNode;
+    use super::*;
 
     fn parse(input: &str) -> SyntaxNode {
         let parser = Parser::new(input);

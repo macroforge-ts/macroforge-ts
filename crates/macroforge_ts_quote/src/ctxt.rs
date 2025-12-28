@@ -4,7 +4,7 @@ use std::cell::RefCell;
 
 use rustc_hash::FxHashMap;
 use swc_macros_common::call_site;
-use syn::{parse_quote, punctuated::Punctuated, ExprPath, ExprReference, Ident, Token};
+use syn::{ExprPath, ExprReference, Ident, Token, parse_quote, punctuated::Punctuated};
 
 use super::{ast::ToCode, input::QuoteVar};
 

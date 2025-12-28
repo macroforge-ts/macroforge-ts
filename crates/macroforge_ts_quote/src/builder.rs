@@ -1,5 +1,5 @@
 use proc_macro2::Span;
-use syn::{punctuated::Punctuated, Expr, ExprStruct, FieldValue, Ident, Member, Token};
+use syn::{Expr, ExprStruct, FieldValue, Ident, Member, Token, punctuated::Punctuated};
 
 pub(crate) struct Builder {
     type_name: syn::Ident,

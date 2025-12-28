@@ -151,7 +151,6 @@ pub enum SyntaxKind {
     // ============================================
     // Composite nodes - Built by the parser
     // ============================================
-
     /// Root node of the template
     Root,
 
@@ -269,12 +268,7 @@ impl SyntaxKind {
     pub fn is_control_keyword(self) -> bool {
         matches!(
             self,
-            Self::IfKw
-                | Self::ElseKw
-                | Self::ForKw
-                | Self::WhileKw
-                | Self::MatchKw
-                | Self::CaseKw
+            Self::IfKw | Self::ElseKw | Self::ForKw | Self::WhileKw | Self::MatchKw | Self::CaseKw
         )
     }
 

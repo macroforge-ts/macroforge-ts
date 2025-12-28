@@ -1,7 +1,7 @@
 use syn::{
+    Token,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
-    Token,
 };
 
 pub(super) struct QuoteInput {

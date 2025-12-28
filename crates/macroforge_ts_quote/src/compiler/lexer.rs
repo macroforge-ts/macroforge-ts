@@ -340,7 +340,10 @@ impl<'a> Lexer<'a> {
             if remaining.starts_with(kw) {
                 // Check for word boundary
                 let next_char = remaining.chars().nth(kw.len());
-                if next_char.map(|c| !c.is_alphanumeric() && c != '_').unwrap_or(true) {
+                if next_char
+                    .map(|c| !c.is_alphanumeric() && c != '_')
+                    .unwrap_or(true)
+                {
                     self.advance(kw.len());
                     return Some(kind);
                 }
@@ -354,8 +357,8 @@ impl<'a> Lexer<'a> {
     fn consume_text_until_special(&mut self) {
         while let Some(c) = self.peek() {
             match c {
-                '@' | '{' | '}' | '"' | '\'' | '`' | ':' | ';' | '(' | ')'
-                | '[' | ']' | '<' | '>' | ',' | '=' | '?' | '.' => break,
+                '@' | '{' | '}' | '"' | '\'' | '`' | ':' | ';' | '(' | ')' | '[' | ']' | '<'
+                | '>' | ',' | '=' | '?' | '.' => break,
                 _ if c.is_whitespace() => break,
                 _ if c.is_alphabetic() || c == '_' => break,
                 _ => self.advance(c.len_utf8()),
@@ -368,7 +371,9 @@ impl<'a> Lexer<'a> {
         let remaining = self.remaining();
 
         // Skip whitespace
-        if let Some(c) = self.peek() && c.is_whitespace() {
+        if let Some(c) = self.peek()
+            && c.is_whitespace()
+        {
             self.consume_while(|c| c.is_whitespace());
             return SyntaxKind::Whitespace;
         }
@@ -395,7 +400,10 @@ impl<'a> Lexer<'a> {
         for (kw, kind) in keywords {
             if remaining.starts_with(kw) {
                 let next_char = remaining.chars().nth(kw.len());
-                if next_char.map(|c| !c.is_alphanumeric() && c != '_').unwrap_or(true) {
+                if next_char
+                    .map(|c| !c.is_alphanumeric() && c != '_')
+                    .unwrap_or(true)
+                {
                     self.advance(kw.len());
                     return kind;
                 }
@@ -412,9 +420,9 @@ impl<'a> Lexer<'a> {
             } else {
                 // Single character operators/punctuation
                 match c {
-                    '(' | ')' | '[' | ']' | '{' | ',' | '.' | ':' | ';'
-                    | '+' | '-' | '*' | '/' | '%' | '&' | '|' | '^' | '!'
-                    | '=' | '<' | '>' | '?' | '@' | '#' | '$' | '~' => {
+                    '(' | ')' | '[' | ']' | '{' | ',' | '.' | ':' | ';' | '+' | '-' | '*' | '/'
+                    | '%' | '&' | '|' | '^' | '!' | '=' | '<' | '>' | '?' | '@' | '#' | '$'
+                    | '~' => {
                         self.advance(1);
                         SyntaxKind::Text
                     }
@@ -469,7 +477,9 @@ impl<'a> Lexer<'a> {
         let remaining = self.remaining();
 
         // Skip whitespace
-        if let Some(c) = self.peek() && c.is_whitespace() {
+        if let Some(c) = self.peek()
+            && c.is_whitespace()
+        {
             self.consume_while(|c| c.is_whitespace());
             return SyntaxKind::Whitespace;
         }
@@ -492,7 +502,10 @@ impl<'a> Lexer<'a> {
         if let Some(kind) = keywords.iter().find_map(|(kw, kind)| {
             if remaining.starts_with(kw) {
                 let next_char = remaining.chars().nth(kw.len());
-                if next_char.map(|c| !c.is_alphanumeric() && c != '_').unwrap_or(true) {
+                if next_char
+                    .map(|c| !c.is_alphanumeric() && c != '_')
+                    .unwrap_or(true)
+                {
                     self.advance(kw.len());
                     return Some(*kind);
                 }
@@ -654,7 +667,11 @@ impl<'a> Lexer<'a> {
         let start = self.pos;
         while self.pos < self.input.len() {
             let r = self.remaining();
-            if r.starts_with("`") || r.starts_with("${") || r.starts_with("@{") || r.starts_with("\\") {
+            if r.starts_with("`")
+                || r.starts_with("${")
+                || r.starts_with("@{")
+                || r.starts_with("\\")
+            {
                 break;
             }
             if let Some(c) = self.peek() {
@@ -728,7 +745,10 @@ mod tests {
 
     fn lex(input: &str) -> Vec<(SyntaxKind, &str)> {
         let tokens = Lexer::new(input).tokenize();
-        tokens.iter().map(|t| (t.kind, input[t.start..t.start + t.text.len()].as_ref())).collect()
+        tokens
+            .iter()
+            .map(|t| (t.kind, input[t.start..t.start + t.text.len()].as_ref()))
+            .collect()
     }
 
     #[test]

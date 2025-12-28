@@ -164,47 +164,27 @@ impl IrLowering {
 
             SyntaxKind::StringInterp => {
                 let parts = self.lower_children(node);
-                vec![IrNode::StringInterp {
-                    quote: '"',
-                    parts,
-                }]
+                vec![IrNode::StringInterp { quote: '"', parts }]
             }
 
             SyntaxKind::TemplateLiteral => {
                 let parts = self.lower_children(node);
-                vec![IrNode::StringInterp {
-                    quote: '`',
-                    parts,
-                }]
+                vec![IrNode::StringInterp { quote: '`', parts }]
             }
 
-            SyntaxKind::IfBlock | SyntaxKind::IfLetBlock => {
-                self.lower_if_block(node)
-            }
+            SyntaxKind::IfBlock | SyntaxKind::IfLetBlock => self.lower_if_block(node),
 
-            SyntaxKind::ForBlock => {
-                self.lower_for_block(node)
-            }
+            SyntaxKind::ForBlock => self.lower_for_block(node),
 
-            SyntaxKind::WhileBlock | SyntaxKind::WhileLetBlock => {
-                self.lower_while_block(node)
-            }
+            SyntaxKind::WhileBlock | SyntaxKind::WhileLetBlock => self.lower_while_block(node),
 
-            SyntaxKind::MatchBlock => {
-                self.lower_match_block(node)
-            }
+            SyntaxKind::MatchBlock => self.lower_match_block(node),
 
-            SyntaxKind::LetDirective => {
-                self.lower_let_directive(node)
-            }
+            SyntaxKind::LetDirective => self.lower_let_directive(node),
 
-            SyntaxKind::DoDirective => {
-                self.lower_do_directive(node)
-            }
+            SyntaxKind::DoDirective => self.lower_do_directive(node),
 
-            SyntaxKind::TypeScriptDirective => {
-                self.lower_typescript_directive(node)
-            }
+            SyntaxKind::TypeScriptDirective => self.lower_typescript_directive(node),
 
             SyntaxKind::LineComment | SyntaxKind::BlockComment => {
                 let text = self.extract_comment_text(node);
@@ -632,20 +612,18 @@ impl IrLowering {
 
         for child in node.children_with_tokens() {
             match child {
-                rowan::NodeOrToken::Token(token) => {
-                    match token.kind() {
-                        SyntaxKind::MatchKw if phase == 0 => {
-                            phase = 1;
-                        }
-                        SyntaxKind::RBrace if phase == 1 => {
-                            phase = 2;
-                        }
-                        _ if phase == 1 => {
-                            expr.push_str(token.text());
-                        }
-                        _ => {}
+                rowan::NodeOrToken::Token(token) => match token.kind() {
+                    SyntaxKind::MatchKw if phase == 0 => {
+                        phase = 1;
                     }
-                }
+                    SyntaxKind::RBrace if phase == 1 => {
+                        phase = 2;
+                    }
+                    _ if phase == 1 => {
+                        expr.push_str(token.text());
+                    }
+                    _ => {}
+                },
                 rowan::NodeOrToken::Node(child_node) => {
                     match child_node.kind() {
                         SyntaxKind::Interpolation if phase == 1 => {
@@ -801,10 +779,7 @@ impl IrLowering {
             .or_else(|| text.strip_prefix(alt_prefix.as_str()))
             .unwrap_or(text);
 
-        stripped
-            .strip_suffix('}')
-            .unwrap_or(stripped)
-            .to_string()
+        stripped.strip_suffix('}').unwrap_or(stripped).to_string()
     }
 }
 
@@ -853,7 +828,10 @@ mod tests {
         let ir = lower_template("const x = @{value}");
         // Should have text and placeholder
         let has_text = ir.nodes.iter().any(|n| matches!(n, IrNode::Text(_)));
-        let has_placeholder = ir.nodes.iter().any(|n| matches!(n, IrNode::Placeholder { .. }));
+        let has_placeholder = ir
+            .nodes
+            .iter()
+            .any(|n| matches!(n, IrNode::Placeholder { .. }));
         assert!(has_text);
         assert!(has_placeholder);
     }
@@ -863,7 +841,10 @@ mod tests {
         let ir = lower_template("const x: @{MyType} = 1");
         // Find the placeholder
         let placeholder = ir.nodes.iter().find_map(|n| {
-            if let IrNode::Placeholder { kind, rust_expr, .. } = n {
+            if let IrNode::Placeholder {
+                kind, rust_expr, ..
+            } = n
+            {
                 Some((kind, rust_expr))
             } else {
                 None
@@ -880,7 +861,11 @@ mod tests {
         let ir = lower_template("{#for item in items}@{item}{/for}");
         assert_eq!(ir.nodes.len(), 1);
         match &ir.nodes[0] {
-            IrNode::For { pattern, iterator, body } => {
+            IrNode::For {
+                pattern,
+                iterator,
+                body,
+            } => {
                 assert_eq!(pattern, "item");
                 assert_eq!(iterator, "items");
                 assert!(!body.is_empty());
@@ -894,7 +879,12 @@ mod tests {
         let ir = lower_template("{#if cond}yes{/if}");
         assert_eq!(ir.nodes.len(), 1);
         match &ir.nodes[0] {
-            IrNode::If { condition, then_body, else_body, .. } => {
+            IrNode::If {
+                condition,
+                then_body,
+                else_body,
+                ..
+            } => {
                 assert_eq!(condition, "cond");
                 assert!(!then_body.is_empty());
                 assert!(else_body.is_none());
@@ -908,7 +898,12 @@ mod tests {
         let ir = lower_template("{#if cond}yes{:else}no{/if}");
         assert_eq!(ir.nodes.len(), 1);
         match &ir.nodes[0] {
-            IrNode::If { condition, then_body, else_body, .. } => {
+            IrNode::If {
+                condition,
+                then_body,
+                else_body,
+                ..
+            } => {
                 assert_eq!(condition, "cond");
                 assert!(!then_body.is_empty());
                 assert!(else_body.is_some());
@@ -921,7 +916,11 @@ mod tests {
     fn test_placeholder_info_preserved() {
         let ir = lower_template("const x: @{T} = @{v}");
         // Should have 2 placeholders in nodes
-        let placeholder_count = ir.nodes.iter().filter(|n| matches!(n, IrNode::Placeholder { .. })).count();
+        let placeholder_count = ir
+            .nodes
+            .iter()
+            .filter(|n| matches!(n, IrNode::Placeholder { .. }))
+            .count();
         assert_eq!(placeholder_count, 2);
     }
 }
