@@ -2,6 +2,7 @@
 
 use crate::cli::VersionsArgs;
 use crate::core::config::{self, Config};
+use crate::core::manifests;
 use crate::core::registry;
 use crate::utils::format;
 use anyhow::Result;
@@ -135,6 +136,9 @@ pub fn run(args: VersionsArgs) -> Result<()> {
             // Save versions
             versions.save(&config.root)?;
             format::success("versions.json updated");
+
+            // Update zed extension version constants
+            manifests::update_zed_extensions(&config.root, &versions)?;
         }
     }
 
