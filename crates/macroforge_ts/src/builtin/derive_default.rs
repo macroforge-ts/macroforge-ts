@@ -468,7 +468,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let return_stmt_stream = TsStream::from_string(return_stmt);
 
                     Ok(ts_template! {
-                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident.clone()} {
+                        export function @{fn_name_ident}@{generic_decl_ident}(): @{full_type_ident.clone()} {
                             {$typescript return_stmt_stream}
                         }
                     })
@@ -477,7 +477,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let return_stmt_stream = TsStream::from_string(return_stmt);
 
                     Ok(ts_template! {
-                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident.clone()} {
+                        export function @{fn_name_ident}@{generic_decl_ident}(): @{full_type_ident.clone()} {
                             {$typescript return_stmt_stream}
                         }
                     })
@@ -577,7 +577,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         )
                     })?;
                     Ok(ts_template! {
-                        export function {|@{fn_name_ident}@{generic_params_ident}|}(): @{return_type_ident} {
+                        export function @{fn_name_ident}@{generic_params_ident}(): @{return_type_ident} {
                             return @{return_expr};
                         }
                     })
@@ -613,7 +613,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         )
                     })?;
                     Ok(ts_template! {
-                        export function {|@{fn_name_ident}@{generic_decl_ident}|}(): @{full_type_ident.clone()} {
+                        export function @{fn_name_ident}@{generic_decl_ident}(): @{full_type_ident.clone()} {
                             return @{return_expr};
                         }
                     })

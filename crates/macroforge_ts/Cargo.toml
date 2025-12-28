@@ -34,9 +34,9 @@ swc_core = { version = "52.0.0", features = [
 ] }
 
 # Macroforge crates (from crates.io)
-macroforge_ts_syn = "0.1.62"
-macroforge_ts_quote = "0.1.62"
-macroforge_ts_macros = "0.1.62"
+macroforge_ts_syn = {path = "../macroforge_ts_syn"}
+macroforge_ts_quote = {path = "../macroforge_ts_quote"}
+macroforge_ts_macros = {path = "../macroforge_ts_macros"}
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
