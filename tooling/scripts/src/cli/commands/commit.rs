@@ -64,10 +64,19 @@ enum WorkerStatus {
     Failed(usize, String),
     /// Worker is waiting for dependencies
     WaitingForDeps(usize, String),
-    /// Waiting for package on registry
-    WaitingForRegistry(usize, String, String), // index, package, registry
     /// Worker finished all work
     Done,
+}
+
+/// Shared context for worker thread operations
+struct WorkerContext {
+    queue: Vec<CommitItem>,
+    versions: crate::core::versions::VersionsCache,
+    npm_names: HashMap<String, String>,
+    crate_names: HashMap<String, String>,
+    interrupted: Arc<AtomicBool>,
+    committed_packages: Arc<Mutex<HashMap<String, String>>>,
+    registry_ready: Arc<Mutex<std::collections::HashSet<String>>>,
 }
 
 pub fn run(args: CommitArgs) -> Result<()> {
@@ -79,15 +88,15 @@ pub fn run(args: CommitArgs) -> Result<()> {
     let npm_names = config::npm_package_names();
     let crate_names = config::crate_package_names();
     for repo in &repos {
-        if let Some(npm_name) = npm_names.get(repo.name.as_str()) {
-            if let Ok(Some(v)) = registry::npm_version(npm_name) {
-                versions.set_registry(&repo.name, &v);
-            }
+        if let Some(npm_name) = npm_names.get(repo.name.as_str())
+            && let Ok(Some(v)) = registry::npm_version(npm_name)
+        {
+            versions.set_registry(&repo.name, &v);
         }
-        if let Some(crate_name) = crate_names.get(repo.name.as_str()) {
-            if let Ok(Some(v)) = registry::crates_version(crate_name) {
-                versions.set_registry(&repo.name, &v);
-            }
+        if let Some(crate_name) = crate_names.get(repo.name.as_str())
+            && let Ok(Some(v)) = registry::crates_version(crate_name)
+        {
+            versions.set_registry(&repo.name, &v);
         }
     }
 
@@ -281,13 +290,15 @@ pub fn run(args: CommitArgs) -> Result<()> {
     let messages_done = Arc::new(AtomicBool::new(false));
 
     // Clone for worker thread
-    let queue_clone = queue.clone();
-    let versions_clone = versions.clone();
-    let npm_names_clone: HashMap<String, String> = npm_names.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect();
-    let crate_names_clone: HashMap<String, String> = crate_names.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect();
-    let interrupted_clone = Arc::clone(&interrupted);
-    let committed_packages_clone = Arc::clone(&committed_packages);
-    let registry_ready_clone = Arc::clone(&registry_ready);
+    let ctx = WorkerContext {
+        queue: queue.clone(),
+        versions: versions.clone(),
+        npm_names: npm_names.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect(),
+        crate_names: crate_names.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect(),
+        interrupted: Arc::clone(&interrupted),
+        committed_packages: Arc::clone(&committed_packages),
+        registry_ready: Arc::clone(&registry_ready),
+    };
     let current_processing_clone = Arc::clone(&current_processing);
     let messages_done_clone = Arc::clone(&messages_done);
 
@@ -296,13 +307,7 @@ pub fn run(args: CommitArgs) -> Result<()> {
         worker_thread(
             rx_from_main,
             tx_to_main,
-            queue_clone,
-            versions_clone,
-            npm_names_clone,
-            crate_names_clone,
-            interrupted_clone,
-            committed_packages_clone,
-            registry_ready_clone,
+            ctx,
             current_processing_clone,
             messages_done_clone,
         )
@@ -419,10 +424,6 @@ pub fn run(args: CommitArgs) -> Result<()> {
                 let item = &queue[idx];
                 println!("  {} {} waiting for {} to be committed...", "⏳".yellow(), item.name, dep.cyan());
             }
-            Ok(WorkerStatus::WaitingForRegistry(idx, pkg, registry)) => {
-                let item = &queue[idx];
-                println!("  {} {} waiting for {} on {}...", "⏳".yellow(), item.name, pkg.cyan(), registry);
-            }
             Ok(WorkerStatus::Done) => {
                 break;
             }
@@ -458,24 +459,18 @@ pub fn run(args: CommitArgs) -> Result<()> {
 fn worker_thread(
     rx: Receiver<WorkerMessage>,
     tx: Sender<WorkerStatus>,
-    queue: Vec<CommitItem>,
-    versions: crate::core::versions::VersionsCache,
-    npm_names: HashMap<String, String>,
-    crate_names: HashMap<String, String>,
-    interrupted: Arc<AtomicBool>,
-    committed_packages: Arc<Mutex<HashMap<String, String>>>,
-    registry_ready: Arc<Mutex<std::collections::HashSet<String>>>,
+    ctx: WorkerContext,
     current_processing: Arc<AtomicUsize>,
     messages_done: Arc<AtomicBool>,
 ) {
     let mut pending_items: HashMap<usize, String> = HashMap::new();
-    let mut processed: Vec<bool> = vec![false; queue.len()];
+    let mut processed: Vec<bool> = vec![false; ctx.queue.len()];
     let mut skipped_names: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut failed_names: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut all_messages_collected = false;
 
     loop {
-        if interrupted.load(Ordering::SeqCst) {
+        if ctx.interrupted.load(Ordering::SeqCst) {
             break;
         }
 
@@ -494,7 +489,7 @@ fn worker_thread(
                 // Mark skipped items as processed so we don't wait for them
                 processed[index] = true;
                 // Track skipped item names for dependency resolution
-                skipped_names.insert(queue[index].name.clone());
+                skipped_names.insert(ctx.queue[index].name.clone());
             }
             Ok(WorkerMessage::Retag { index }) => {
                 // Queue retag operation (treated like a process but no commit)
@@ -515,7 +510,7 @@ fn worker_thread(
         }
 
         // Process items in order (respecting dependencies)
-        for i in 0..queue.len() {
+        for (i, item) in ctx.queue.iter().enumerate() {
             if processed[i] {
                 continue;
             }
@@ -525,8 +520,6 @@ fn worker_thread(
                 Some(msg) => msg.clone(),
                 None => continue,
             };
-
-            let item = &queue[i];
 
             // Check if any dependency failed - if so, fail this item too
             let failed_dep = item.dependencies.iter().find(|dep| failed_names.contains(*dep));
@@ -543,14 +536,14 @@ fn worker_thread(
 
             // Check if dependencies are satisfied
             let deps_satisfied = {
-                let committed = committed_packages.lock().unwrap();
+                let committed = ctx.committed_packages.lock().unwrap();
                 item.dependencies.iter().all(|dep| {
                     // Dependency is satisfied if:
                     // 1. We've committed it in this session, OR
                     // 2. It's not in our queue (already published), OR
                     // 3. It was skipped (no changes to commit)
                     committed.contains_key(dep)
-                        || !queue.iter().any(|q| q.name == *dep)
+                        || !ctx.queue.iter().any(|q| q.name == *dep)
                         || skipped_names.contains(dep)
                 })
             };
@@ -559,10 +552,10 @@ fn worker_thread(
                 // Wait for dependencies - but only report if messages are done
                 if messages_done.load(Ordering::SeqCst) {
                     for dep in &item.dependencies {
-                        let committed = committed_packages.lock().unwrap();
+                        let committed = ctx.committed_packages.lock().unwrap();
                         // Only report waiting if dep is in queue, not committed, and not skipped
                         if !committed.contains_key(dep)
-                            && queue.iter().any(|q| q.name == *dep)
+                            && ctx.queue.iter().any(|q| q.name == *dep)
                             && !skipped_names.contains(dep)
                         {
                             let _ = tx.send(WorkerStatus::WaitingForDeps(i, dep.clone()));
@@ -580,8 +573,8 @@ fn worker_thread(
             let deps_info = if item.dependencies.is_empty() || !messages_done.load(Ordering::SeqCst) {
                 String::new()
             } else {
-                let committed = committed_packages.lock().unwrap();
-                let ready = registry_ready.lock().unwrap();
+                let committed = ctx.committed_packages.lock().unwrap();
+                let ready = ctx.registry_ready.lock().unwrap();
                 let dep_status: Vec<String> = item.dependencies.iter().map(|dep| {
                     if ready.contains(dep) {
                         format!("{} ✓", dep)
@@ -604,27 +597,18 @@ fn worker_thread(
             let result = if message.is_empty() {
                 retag_item(item)
             } else {
-                process_item(
-                    item,
-                    &message,
-                    &versions,
-                    &npm_names,
-                    &crate_names,
-                    &committed_packages,
-                    &registry_ready,
-                    &interrupted,
-                )
+                process_item(item, &message, &ctx)
             };
 
             match result {
                 Ok(()) => {
                     // Mark as committed and registry-ready (package is available after push)
                     {
-                        let mut committed = committed_packages.lock().unwrap();
+                        let mut committed = ctx.committed_packages.lock().unwrap();
                         committed.insert(item.name.clone(), item.version.clone());
                     }
                     {
-                        let mut ready = registry_ready.lock().unwrap();
+                        let mut ready = ctx.registry_ready.lock().unwrap();
                         ready.insert(item.name.clone());
                     }
                     processed[i] = true;
@@ -667,23 +651,18 @@ fn worker_thread(
 fn process_item(
     item: &CommitItem,
     message: &str,
-    versions: &crate::core::versions::VersionsCache,
-    npm_names: &HashMap<String, String>,
-    crate_names: &HashMap<String, String>,
-    committed_packages: &Arc<Mutex<HashMap<String, String>>>,
-    registry_ready: &Arc<Mutex<std::collections::HashSet<String>>>,
-    interrupted: &Arc<AtomicBool>,
+    ctx: &WorkerContext,
 ) -> Result<()> {
     // Wait for dependencies to appear on registries
     for dep_name in &item.dependencies {
-        let committed = committed_packages.lock().unwrap();
+        let committed = ctx.committed_packages.lock().unwrap();
         if let Some(dep_version) = committed.get(dep_name) {
             let dep_version = dep_version.clone();
             drop(committed); // Release lock before waiting
 
             // Check if already verified on registry
             {
-                let ready = registry_ready.lock().unwrap();
+                let ready = ctx.registry_ready.lock().unwrap();
                 if ready.contains(dep_name) {
                     continue; // Already verified
                 }
@@ -692,14 +671,14 @@ fn process_item(
             wait_for_package(
                 dep_name,
                 &dep_version,
-                npm_names,
-                crate_names,
-                interrupted,
+                &ctx.npm_names,
+                &ctx.crate_names,
+                &ctx.interrupted,
             )?;
 
             // Mark dependency as registry-ready after successful wait
             {
-                let mut ready = registry_ready.lock().unwrap();
+                let mut ready = ctx.registry_ready.lock().unwrap();
                 ready.insert(dep_name.clone());
             }
         }
@@ -707,14 +686,14 @@ fn process_item(
 
     // Sync lockfile for npm packages
     if item.path.join("package-lock.json").exists() {
-        let committed = committed_packages.lock().unwrap();
-        sync_lockfile(item, &item.dependencies, versions, &committed, npm_names)?;
+        let committed = ctx.committed_packages.lock().unwrap();
+        sync_lockfile(item, &item.dependencies, &ctx.versions, &committed, &ctx.npm_names)?;
     }
 
     // Sync Cargo.lock for Rust crates
     if item.path.join("Cargo.toml").exists() {
-        let committed = committed_packages.lock().unwrap();
-        sync_cargo_lock(item, &item.dependencies, &committed, crate_names)?;
+        let committed = ctx.committed_packages.lock().unwrap();
+        sync_cargo_lock(item, &item.dependencies, &committed, &ctx.crate_names)?;
     }
 
     // Check for changes
@@ -736,7 +715,7 @@ fn process_item(
     }
 
     // Create tag if needed (force to overwrite local tag if it exists)
-    if should_create_tag(item, interrupted)? {
+    if should_create_tag(item, &ctx.interrupted)? {
         let tag = format!("v{}", item.version);
         shell::git::tag_force(&item.path, &tag)?;
         if debug {
@@ -763,32 +742,30 @@ fn process_item(
 /// Check if retagging makes sense (version not on registry)
 fn can_retag_item(item: &CommitItem) -> bool {
     // If version is already on npm, no point retagging
-    if let Some(ref npm_name) = item.npm_name {
-        if let Ok(Some(v)) = registry::npm_version(npm_name) {
-            if v == item.version {
-                return false;
-            }
-        }
+    if let Some(ref npm_name) = item.npm_name
+        && let Ok(Some(v)) = registry::npm_version(npm_name)
+        && v == item.version
+    {
+        return false;
     }
 
     // If version is already on crates.io, no point retagging
-    if let Some(ref crate_name) = item.crate_name {
-        if let Ok(Some(v)) = registry::crates_version(crate_name) {
-            if v == item.version {
-                return false;
-            }
-        }
+    if let Some(ref crate_name) = item.crate_name
+        && let Ok(Some(v)) = registry::crates_version(crate_name)
+        && v == item.version
+    {
+        return false;
     }
 
     // For core package, also check platform binary packages
     if item.name == "core" {
         for platform in config::PLATFORMS {
             let bin_pkg = format!("@macroforge/bin-{}", platform);
-            if let Ok(Some(v)) = registry::npm_version(&bin_pkg) {
-                if v == item.version {
-                    // At least one platform package is already published
-                    return false;
-                }
+            if let Ok(Some(v)) = registry::npm_version(&bin_pkg)
+                && v == item.version
+            {
+                // At least one platform package is already published
+                return false;
             }
         }
     }

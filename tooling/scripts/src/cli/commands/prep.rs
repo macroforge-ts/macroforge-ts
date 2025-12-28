@@ -87,47 +87,16 @@ fn cascade_to_dependents(
 
 
 /// Build a single repository
-fn build_repo(
-    config: &Config,
-    repo: &Repo,
-    built_repos: &[&str],
-    deps_map: &HashMap<String, Vec<String>>,
-    versions_cache: &crate::core::versions::VersionsCache,
-    verbose: bool,
-) -> Result<()> {
+/// Note: npm dependencies are globally swapped to local paths before this is called
+fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
     match repo.repo_type {
         RepoType::Rust => {
             if repo.name == "core" {
-                shell::run("npm run cleanbuild", &repo.abs_path, verbose)?;
+                // Set NAPI_BUILD_SKIP_WATCHER to prevent build.rs from spawning another napi build
+                shell::run("NAPI_BUILD_SKIP_WATCHER=1 npm run cleanbuild", &repo.abs_path, verbose)?;
             }
         }
         RepoType::Ts => {
-            // Get local deps that need linking
-            let deps = deps_map.get(&repo.name).cloned().unwrap_or_default();
-            let local_deps: Vec<String> = deps
-                .iter()
-                .filter(|d| {
-                    if !built_repos.contains(&d.as_str()) {
-                        return false;
-                    }
-                    if let Some(local) = versions_cache.get_local(d)
-                        && let Some(registry) = versions_cache.get_registry(d)
-                    {
-                        return local != registry;
-                    }
-                    false
-                })
-                .cloned()
-                .collect();
-
-            // Link local deps
-            if !local_deps.is_empty() {
-                if verbose {
-                    println!("    Using local deps: {}", local_deps.join(", ").dimmed());
-                }
-                manifests::link_local_deps(config, &repo.name, &local_deps)?;
-            }
-
             // Check if package has build script
             let has_build_script = repo
                 .package_json
@@ -144,12 +113,7 @@ fn build_repo(
                 "rm -rf node_modules && npm install"
             };
 
-            let result = shell::run(build_cmd, &repo.abs_path, verbose);
-
-            // Restore repo
-            manifests::restore_repo(config, versions_cache, &repo.name)?;
-
-            result?;
+            shell::run(build_cmd, &repo.abs_path, verbose)?;
         }
         RepoType::Website => {
             shell::git::pull(&repo.abs_path, "origin")?;
@@ -189,6 +153,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         }
         // Swap back to registry deps
         let _ = manifests::swap_registry(&config_clone.root, &original_versions_for_handler);
+        let _ = manifests::swap_npm_registry(&config_clone, &original_versions_for_handler);
         eprintln!("{} Rollback complete. Exiting.", "✓".green());
         std::process::exit(130);
     })
@@ -303,6 +268,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         }
         // Swap back to registry deps
         let _ = manifests::swap_registry(&config.root, original);
+        let _ = manifests::swap_npm_registry(config, original);
         eprintln!("{} Rollback complete", "✓".green());
     };
 
@@ -366,13 +332,11 @@ pub fn run(args: PrepArgs) -> Result<()> {
                     if let Some(local) = versions_cache.get_local(dep).map(|s| s.to_string()) {
                         versions_cache.set_registry(dep, &local);
                     }
-                } else {
+                } else if let Some(npm_name) = npm_names.get(dep)
+                    && let Ok(Some(v)) = registry::npm_version(npm_name)
+                {
                     // Dep is not being prepped - fetch current version from npm
-                    if let Some(npm_name) = npm_names.get(dep) {
-                        if let Ok(Some(v)) = registry::npm_version(npm_name) {
-                            versions_cache.set_registry(dep, &v);
-                        }
-                    }
+                    versions_cache.set_registry(dep, &v);
                 }
             }
             let _ = manifests::update_zed_extensions(&config.root, &versions_cache);
@@ -412,8 +376,9 @@ pub fn run(args: PrepArgs) -> Result<()> {
         // Swap to local path dependencies
         println!("  {} Swapping to local path dependencies...", "→".blue());
         manifests::swap_local(&config.root)?;
+        let repo_names_slice: Vec<&str> = repos.iter().map(|r| r.name.as_str()).collect();
+        manifests::swap_npm_local(&config, &repo_names_slice)?;
 
-        let mut built: Vec<&str> = Vec::new();
         for repo in &repos {
             if interrupted.load(Ordering::SeqCst) {
                 break;
@@ -422,17 +387,9 @@ pub fn run(args: PrepArgs) -> Result<()> {
             print!("  {} {}... ", "Building:".bold(), repo.name.cyan());
             io::stdout().flush()?;
 
-            match build_repo(
-                &config,
-                repo,
-                &built,
-                &config.deps,
-                &versions_cache,
-                verbose,
-            ) {
+            match build_repo(repo, verbose) {
                 Ok(_) => {
                     println!("{}", "done".green());
-                    built.push(&repo.name);
                 }
                 Err(e) => {
                     println!("{}", "failed".red());
@@ -538,6 +495,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         // Restore registry dependencies
         println!("  {} Restoring registry dependencies...", "→".blue());
         manifests::swap_registry(&config.root, &versions_cache)?;
+        manifests::swap_npm_registry(&config, &versions_cache)?;
     }
 
     // [7/9] Rebuild docs book

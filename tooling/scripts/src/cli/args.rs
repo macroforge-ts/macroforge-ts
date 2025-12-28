@@ -59,12 +59,13 @@ pub enum Commands {
 
 #[derive(clap::Args)]
 pub struct PrepArgs {
-    /// Version string (e.g., 0.1.4). Auto-increments if not provided
-    pub version: Option<String>,
-
     /// Repos to update (comma-separated, or 'all', 'rust', 'ts')
-    #[arg(short, long, default_value = "all")]
+    #[arg(default_value = "all")]
     pub repos: String,
+
+    /// Version string (e.g., 0.1.4). Auto-increments if not provided
+    #[arg(long)]
+    pub version: Option<String>,
 
     /// Dry run - show what would be done
     #[arg(long)]

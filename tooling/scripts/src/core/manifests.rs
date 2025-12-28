@@ -67,6 +67,119 @@ pub fn swap_registry(root: &Path, versions: &VersionsCache) -> Result<()> {
     Ok(())
 }
 
+/// Swap npm internal dependencies to local file: paths for repos being built
+/// Only swaps deps that are themselves in the build list
+pub fn swap_npm_local(config: &Config, repos_to_build: &[&str]) -> Result<()> {
+    let npm_names = config::npm_package_names();
+    let build_set: std::collections::HashSet<&str> = repos_to_build.iter().copied().collect();
+
+    for repo in config.repos.values() {
+        let Some(pkg_path) = &repo.package_json else {
+            continue;
+        };
+
+        let full_path = config.root.join(pkg_path);
+        if !full_path.exists() {
+            continue;
+        }
+
+        let content = fs::read_to_string(&full_path)?;
+        let mut pkg: Value = serde_json::from_str(&content)?;
+        let pkg_dir = full_path.parent().unwrap();
+        let mut modified = false;
+
+        // Only swap deps that are in the build list
+        for (dep_repo_name, npm_name) in &npm_names {
+            // Only link if this dep is being built
+            if !build_set.contains(*dep_repo_name) {
+                continue;
+            }
+
+            if let Some(dep_repo) = config.repos.get(*dep_repo_name) {
+                let relative = pathdiff_relative(pkg_dir, &dep_repo.abs_path);
+                let file_ref = json!(format!("file:{}", relative));
+
+                // Update dependencies
+                if let Some(deps) = pkg.get_mut("dependencies").and_then(|v| v.as_object_mut())
+                    && deps.contains_key(*npm_name)
+                    && !deps[*npm_name].as_str().is_some_and(|s| s.starts_with("file:"))
+                {
+                    deps[*npm_name] = file_ref.clone();
+                    modified = true;
+                }
+
+                // Update peerDependencies
+                if let Some(deps) = pkg.get_mut("peerDependencies").and_then(|v| v.as_object_mut())
+                    && deps.contains_key(*npm_name)
+                    && !deps[*npm_name].as_str().is_some_and(|s| s.starts_with("file:"))
+                {
+                    deps[*npm_name] = file_ref.clone();
+                    modified = true;
+                }
+            }
+        }
+
+        if modified {
+            fs::write(&full_path, serde_json::to_string_pretty(&pkg)? + "\n")?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Swap all npm internal dependencies back to registry versions
+pub fn swap_npm_registry(config: &Config, versions: &VersionsCache) -> Result<()> {
+    let npm_names = config::npm_package_names();
+
+    for repo in config.repos.values() {
+        let Some(pkg_path) = &repo.package_json else {
+            continue;
+        };
+
+        let full_path = config.root.join(pkg_path);
+        if !full_path.exists() {
+            continue;
+        }
+
+        let content = fs::read_to_string(&full_path)?;
+        let mut pkg: Value = serde_json::from_str(&content)?;
+        let mut modified = false;
+
+        // Check each internal npm package as a potential dependency
+        for (dep_repo_name, npm_name) in &npm_names {
+            let version = versions
+                .get_local(dep_repo_name)
+                .map(|s| format!("^{}", s))
+                .unwrap_or_else(|| "^0.1.0".to_string());
+            let version_ref = json!(version);
+
+            // Update dependencies
+            if let Some(deps) = pkg.get_mut("dependencies").and_then(|v| v.as_object_mut())
+                && deps.contains_key(*npm_name)
+                && deps[*npm_name].as_str().is_some_and(|s| s.starts_with("file:"))
+            {
+                deps[*npm_name] = version_ref.clone();
+                modified = true;
+            }
+
+            // Update peerDependencies
+            if let Some(deps) = pkg.get_mut("peerDependencies").and_then(|v| v.as_object_mut())
+                && deps.contains_key(*npm_name)
+                && deps[*npm_name].as_str().is_some_and(|s| s.starts_with("file:"))
+            {
+                deps[*npm_name] = version_ref.clone();
+                modified = true;
+            }
+        }
+
+        if modified {
+            fs::write(&full_path, serde_json::to_string_pretty(&pkg)? + "\n")?;
+        }
+    }
+
+    Ok(())
+}
+
 /// Link npm dependencies to local file: paths
 pub fn link_local_deps(config: &Config, repo: &str, deps: &[String]) -> Result<()> {
     let r = config

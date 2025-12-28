@@ -1,8 +1,6 @@
 //! Dependency graph management
 
 use anyhow::{Context, Result};
-use petgraph::graph::DiGraph;
-use petgraph::algo::toposort;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::Path;
@@ -49,42 +47,130 @@ pub fn load_deps(root: &Path) -> Result<HashMap<String, Vec<String>>> {
     Ok(deps)
 }
 
-/// Build a petgraph dependency graph
-pub fn build_graph(deps: &HashMap<String, Vec<String>>) -> DiGraph<String, ()> {
-    let mut graph = DiGraph::new();
-    let mut node_indices = HashMap::new();
+/// Get topologically sorted order for building
+/// Uses Kahn's algorithm with priority queue to prefer packages with fewer dependencies
+pub fn topo_order(deps: &HashMap<String, Vec<String>>) -> Result<Vec<String>> {
+    use std::collections::{BinaryHeap, HashSet};
+    use std::cmp::Reverse;
 
-    // Add all nodes
+    // Build in-degree map and adjacency list
+    let mut in_degree: HashMap<String, usize> = HashMap::new();
+    let mut dependents: HashMap<String, Vec<String>> = HashMap::new();
+
+    // Initialize all nodes with 0 in-degree
     for name in deps.keys() {
-        let idx = graph.add_node(name.clone());
-        node_indices.insert(name.clone(), idx);
+        in_degree.insert(name.clone(), 0);
+        dependents.insert(name.clone(), Vec::new());
     }
 
-    // Add edges (dependency -> dependent)
+    // Calculate in-degrees and build dependents map
     for (name, dependencies) in deps {
-        if let Some(&dependent_idx) = node_indices.get(name) {
-            for dep in dependencies {
-                if let Some(&dep_idx) = node_indices.get(dep) {
-                    graph.add_edge(dep_idx, dependent_idx, ());
+        for dep in dependencies {
+            // Only count edges to nodes that exist in our graph
+            if deps.contains_key(dep) {
+                *in_degree.get_mut(name).unwrap() += 1;
+                dependents.get_mut(dep).unwrap().push(name.clone());
+            }
+        }
+    }
+
+    // Calculate transitive dependency count for priority ordering
+    // Packages with fewer transitive deps should be processed first
+    let trans_dep_count = calculate_transitive_deps(deps);
+
+    // Priority queue: (Reverse(transitive_deps), name)
+    // Reverse because BinaryHeap is a max-heap
+    let mut ready: BinaryHeap<(Reverse<usize>, String)> = BinaryHeap::new();
+
+    // Add all nodes with 0 in-degree to ready queue
+    for (name, &deg) in &in_degree {
+        if deg == 0 {
+            let trans_count = trans_dep_count.get(name).copied().unwrap_or(0);
+            ready.push((Reverse(trans_count), name.clone()));
+        }
+    }
+
+    let mut result = Vec::new();
+    let mut visited: HashSet<String> = HashSet::new();
+
+    while let Some((_, name)) = ready.pop() {
+        if visited.contains(&name) {
+            continue;
+        }
+        visited.insert(name.clone());
+        result.push(name.clone());
+
+        // Process dependents
+        if let Some(deps_list) = dependents.get(&name) {
+            for dependent in deps_list {
+                if let Some(deg) = in_degree.get_mut(dependent) {
+                    *deg = deg.saturating_sub(1);
+                    if *deg == 0 && !visited.contains(dependent) {
+                        let trans_count = trans_dep_count.get(dependent).copied().unwrap_or(0);
+                        ready.push((Reverse(trans_count), dependent.clone()));
+                    }
                 }
             }
         }
     }
 
-    graph
+    // Check for cycles
+    if result.len() != deps.len() {
+        let remaining: Vec<_> = deps.keys()
+            .filter(|k| !visited.contains(*k))
+            .collect();
+        anyhow::bail!("Dependency cycle detected involving: {:?}", remaining);
+    }
+
+    Ok(result)
 }
 
-/// Get topologically sorted order for building
-pub fn topo_order(deps: &HashMap<String, Vec<String>>) -> Result<Vec<String>> {
-    let graph = build_graph(deps);
+/// Calculate transitive dependency count for each package
+fn calculate_transitive_deps(deps: &HashMap<String, Vec<String>>) -> HashMap<String, usize> {
+    use std::collections::HashSet;
 
-    match toposort(&graph, None) {
-        Ok(order) => Ok(order.into_iter().map(|idx| graph[idx].clone()).collect()),
-        Err(cycle) => {
-            let node = &graph[cycle.node_id()];
-            anyhow::bail!("Dependency cycle detected involving: {}", node)
+    fn get_all_transitive(
+        name: &str,
+        deps: &HashMap<String, Vec<String>>,
+        cache: &mut HashMap<String, HashSet<String>>,
+        visiting: &mut HashSet<String>,
+    ) -> HashSet<String> {
+        if let Some(cached) = cache.get(name) {
+            return cached.clone();
         }
+
+        // Detect cycles
+        if visiting.contains(name) {
+            return HashSet::new();
+        }
+        visiting.insert(name.to_string());
+
+        let direct_deps = deps.get(name).cloned().unwrap_or_default();
+        let mut all_deps: HashSet<String> = HashSet::new();
+
+        for dep in &direct_deps {
+            if deps.contains_key(dep) {
+                all_deps.insert(dep.clone());
+                // Add all transitive deps from this dependency
+                let transitive = get_all_transitive(dep, deps, cache, visiting);
+                all_deps.extend(transitive);
+            }
+        }
+
+        visiting.remove(name);
+        cache.insert(name.to_string(), all_deps.clone());
+        all_deps
     }
+
+    let mut cache: HashMap<String, HashSet<String>> = HashMap::new();
+    let mut result: HashMap<String, usize> = HashMap::new();
+
+    for name in deps.keys() {
+        let mut visiting = HashSet::new();
+        let all_deps = get_all_transitive(name, deps, &mut cache, &mut visiting);
+        result.insert(name.clone(), all_deps.len());
+    }
+    result
 }
 
 /// Get all dependents of a package (packages that depend on it)
@@ -101,77 +187,6 @@ mod tests {
     use std::collections::HashMap;
     use std::io::Write;
     use tempfile::NamedTempFile;
-
-    #[test]
-    fn test_build_graph_empty() {
-        let deps: HashMap<String, Vec<String>> = HashMap::new();
-        let graph = build_graph(&deps);
-        assert_eq!(graph.node_count(), 0);
-        assert_eq!(graph.edge_count(), 0);
-    }
-
-    #[test]
-    fn test_build_graph_single_node_no_deps() {
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-
-        let graph = build_graph(&deps);
-        assert_eq!(graph.node_count(), 1);
-        assert_eq!(graph.edge_count(), 0);
-
-        // Verify the node exists with correct name
-        let node = graph.node_indices().next().unwrap();
-        assert_eq!(&graph[node], "package-a");
-    }
-
-    #[test]
-    fn test_build_graph_simple_dependency() {
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec!["package-a".to_string()]);
-
-        let graph = build_graph(&deps);
-        assert_eq!(graph.node_count(), 2);
-        assert_eq!(graph.edge_count(), 1);
-    }
-
-    #[test]
-    fn test_build_graph_multiple_dependencies() {
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec![]);
-        deps.insert("package-c".to_string(), vec!["package-a".to_string(), "package-b".to_string()]);
-
-        let graph = build_graph(&deps);
-        assert_eq!(graph.node_count(), 3);
-        assert_eq!(graph.edge_count(), 2);
-    }
-
-    #[test]
-    fn test_build_graph_chain_of_dependencies() {
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec!["package-a".to_string()]);
-        deps.insert("package-c".to_string(), vec!["package-b".to_string()]);
-        deps.insert("package-d".to_string(), vec!["package-c".to_string()]);
-
-        let graph = build_graph(&deps);
-        assert_eq!(graph.node_count(), 4);
-        assert_eq!(graph.edge_count(), 3);
-    }
-
-    #[test]
-    fn test_build_graph_missing_dependency() {
-        // Test that missing dependencies don't create edges
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec!["package-a".to_string(), "package-missing".to_string()]);
-
-        let graph = build_graph(&deps);
-        assert_eq!(graph.node_count(), 2);
-        // Only one edge should be created (package-a -> package-b)
-        assert_eq!(graph.edge_count(), 1);
-    }
 
     #[test]
     fn test_topo_order_empty() {
@@ -555,7 +570,7 @@ package-d = ["package-b"]
         let toml_content = r#"
 [crates]
 syn = []
-template = ["syn"]
+template = []
 macros = ["syn", "template"]
 
 [packages]
@@ -575,7 +590,7 @@ website = ["core"]
 
         // Check crates section
         assert_eq!(result.get("syn").unwrap().len(), 0);
-        assert_eq!(result.get("template").unwrap(), &vec!["syn".to_string()]);
+        assert_eq!(result.get("template").unwrap().len(), 0);
         assert_eq!(result.get("macros").unwrap(), &vec!["syn".to_string(), "template".to_string()]);
 
         // Check packages section
@@ -586,5 +601,36 @@ website = ["core"]
         assert_eq!(result.get("website").unwrap(), &vec!["core".to_string()]);
 
         Ok(())
+    }
+
+    #[test]
+    fn test_topo_order_priority_by_dependency_count() {
+        // Packages with fewer deps should come first when both are ready
+        let mut deps = HashMap::new();
+        deps.insert("core".to_string(), vec![]);
+        deps.insert("mcp-server".to_string(), vec!["core".to_string()]);       // 1 dep
+        deps.insert("shared".to_string(), vec!["core".to_string()]);           // 1 dep
+        deps.insert("vite-plugin".to_string(), vec!["core".to_string(), "shared".to_string()]); // 2 deps
+        deps.insert("tooling".to_string(), vec!["core".to_string(), "vite-plugin".to_string()]); // 2 deps (transitive: 3)
+
+        let result = topo_order(&deps).unwrap();
+
+        // core must be first (no deps)
+        assert_eq!(result[0], "core");
+
+        // mcp-server and shared should come before vite-plugin and tooling
+        let mcp_pos = result.iter().position(|x| x == "mcp-server").unwrap();
+        let shared_pos = result.iter().position(|x| x == "shared").unwrap();
+        let vite_pos = result.iter().position(|x| x == "vite-plugin").unwrap();
+        let tooling_pos = result.iter().position(|x| x == "tooling").unwrap();
+
+        // shared must come before vite-plugin (dependency)
+        assert!(shared_pos < vite_pos, "shared should come before vite-plugin");
+
+        // vite-plugin must come before tooling (dependency)
+        assert!(vite_pos < tooling_pos, "vite-plugin should come before tooling");
+
+        // mcp-server should come before tooling (mcp-server has 1 transitive dep, tooling has 3)
+        assert!(mcp_pos < tooling_pos, "mcp-server should come before tooling due to fewer transitive deps");
     }
 }
