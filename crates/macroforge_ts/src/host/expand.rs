@@ -693,9 +693,15 @@ impl MacroExpander {
 
                 if std::env::var("MF_DEBUG_EXPAND").is_ok() {
                     eprintln!("[DEBUG] Macro '{}' result:", ctx.macro_name);
-                    eprintln!("[DEBUG]   runtime_patches: {}", result.runtime_patches.len());
+                    eprintln!(
+                        "[DEBUG]   runtime_patches: {}",
+                        result.runtime_patches.len()
+                    );
                     eprintln!("[DEBUG]   type_patches: {}", result.type_patches.len());
-                    eprintln!("[DEBUG]   tokens: {:?}", result.tokens.as_ref().map(|t| t.len()));
+                    eprintln!(
+                        "[DEBUG]   tokens: {:?}",
+                        result.tokens.as_ref().map(|t| t.len())
+                    );
                     if let Some(tokens) = &result.tokens {
                         eprintln!(
                             "[DEBUG]   tokens content (first 500 chars): {:?}",
@@ -2421,7 +2427,10 @@ fn insert_pos_to_location(pos: crate::ts_syn::InsertPos) -> &'static str {
     }
 }
 
-fn split_by_markers(source: &str, default_pos: crate::ts_syn::InsertPos) -> Vec<(&'static str, String)> {
+fn split_by_markers(
+    source: &str,
+    default_pos: crate::ts_syn::InsertPos,
+) -> Vec<(&'static str, String)> {
     let markers = [
         ("top", "/* @macroforge:top */"),
         ("above", "/* @macroforge:above */"),

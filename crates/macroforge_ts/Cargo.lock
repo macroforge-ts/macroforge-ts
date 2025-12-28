@@ -288,15 +288,6 @@ dependencies = [
 
 [[package]]
 name = "convert_case"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
-dependencies = [
- "unicode-segmentation",
-]
-
-[[package]]
-name = "convert_case"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "633458d4ef8c78b72454de2d54fd6ab2e60f9e02be22f3c6104cdc8a4e0fceb9"
@@ -916,11 +907,11 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.61"
+version = "0.1.62"
 dependencies = [
  "anyhow",
  "clap",
- "convert_case 0.10.0",
+ "convert_case",
  "dashmap",
  "ignore",
  "inventory",
@@ -940,11 +931,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.61"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a0576088217d354ee8ae842183c91c85b541663113c42977721f7ea6a4b8681"
+version = "0.1.62"
 dependencies = [
- "convert_case 0.6.0",
+ "convert_case",
  "proc-macro2",
  "quote",
  "syn",
@@ -952,10 +941,10 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.61"
+version = "0.1.62"
 dependencies = [
  "anyhow",
- "convert_case 0.10.0",
+ "convert_case",
  "proc-macro2",
  "quote",
  "rowan",
@@ -967,7 +956,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.61"
+version = "0.1.62"
 dependencies = [
  "serde",
  "swc_core",
@@ -1007,7 +996,7 @@ version = "3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47cffa09ea668c4cc5d7b1198780882e28780ed1804a903b80680725426223d9"
 dependencies = [
- "convert_case 0.10.0",
+ "convert_case",
  "ctor",
  "napi-derive-backend",
  "proc-macro2",
@@ -1021,7 +1010,7 @@ version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e186227ec22f4675267a176d98dffecb27e6cc88926cbb7efb5427268565c0f"
 dependencies = [
- "convert_case 0.10.0",
+ "convert_case",
  "proc-macro2",
  "quote",
  "semver",
