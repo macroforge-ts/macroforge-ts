@@ -147,18 +147,46 @@ jobs:
         run: |
           for dir in npm/*/; do
             if [ -d "$dir" ]; then
-              echo "Publishing $dir"
-              npm publish "$dir" --access public --provenance
+              PKG_NAME=$(node -p "require('./${dir}package.json').name")
+              PKG_VERSION=$(node -p "require('./${dir}package.json').version")
+              echo "Checking $PKG_NAME@$PKG_VERSION..."
+              if npm view "$PKG_NAME@$PKG_VERSION" version 2>/dev/null; then
+                echo "  Already published, skipping"
+              else
+                echo "  Publishing $dir"
+                npm publish "$dir" --access public --provenance
+              fi
             fi
           done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish macroforge
-        run: npm publish --access public --provenance
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          echo "Checking $PKG_NAME@$PKG_VERSION..."
+          if npm view "$PKG_NAME@$PKG_VERSION" version 2>/dev/null; then
+            echo "  Already published, skipping"
+          else
+            echo "  Publishing macroforge"
+            npm publish --access public --provenance
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: Publish to crates.io
-        run: cargo publish --allow-dirty || true
+        run: |
+          CRATE_VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "Checking macroforge_ts@$CRATE_VERSION on crates.io..."
+          if cargo search macroforge_ts --limit 1 | grep -q "macroforge_ts = \"$CRATE_VERSION\""; then
+            echo "  Already published, skipping"
+          else
+            echo "  Publishing to crates.io"
+            cargo publish --allow-dirty
+          fi
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
