@@ -183,13 +183,11 @@ impl ToTsExpr for &swc_core::ecma::ast::Ident {
 #[cfg(feature = "swc")]
 impl ToTsExpr for String {
     fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
-        swc_core::ecma::ast::Expr::Lit(swc_core::ecma::ast::Lit::Str(
-            swc_core::ecma::ast::Str {
-                span: swc_core::common::DUMMY_SP,
-                value: self.into(),
-                raw: None,
-            },
-        ))
+        swc_core::ecma::ast::Expr::Lit(swc_core::ecma::ast::Lit::Str(swc_core::ecma::ast::Str {
+            span: swc_core::common::DUMMY_SP,
+            value: self.into(),
+            raw: None,
+        }))
     }
 }
 
@@ -203,25 +201,21 @@ impl ToTsExpr for &String {
 #[cfg(feature = "swc")]
 impl ToTsExpr for &str {
     fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
-        swc_core::ecma::ast::Expr::Lit(swc_core::ecma::ast::Lit::Str(
-            swc_core::ecma::ast::Str {
-                span: swc_core::common::DUMMY_SP,
-                value: self.into(),
-                raw: None,
-            },
-        ))
+        swc_core::ecma::ast::Expr::Lit(swc_core::ecma::ast::Lit::Str(swc_core::ecma::ast::Str {
+            span: swc_core::common::DUMMY_SP,
+            value: self.into(),
+            raw: None,
+        }))
     }
 }
 
 #[cfg(feature = "swc")]
 impl ToTsExpr for bool {
     fn to_ts_expr(self) -> swc_core::ecma::ast::Expr {
-        swc_core::ecma::ast::Expr::Lit(swc_core::ecma::ast::Lit::Bool(
-            swc_core::ecma::ast::Bool {
-                span: swc_core::common::DUMMY_SP,
-                value: self,
-            },
-        ))
+        swc_core::ecma::ast::Expr::Lit(swc_core::ecma::ast::Lit::Bool(swc_core::ecma::ast::Bool {
+            span: swc_core::common::DUMMY_SP,
+            value: self,
+        }))
     }
 }
 
@@ -274,7 +268,10 @@ impl ToTsType for String {
         swc_core::ecma::ast::TsType::TsTypeRef(swc_core::ecma::ast::TsTypeRef {
             span: swc_core::common::DUMMY_SP,
             type_name: swc_core::ecma::ast::TsEntityName::Ident(
-                swc_core::ecma::ast::Ident::new_no_ctxt(self.clone().into(), swc_core::common::DUMMY_SP),
+                swc_core::ecma::ast::Ident::new_no_ctxt(
+                    self.clone().into(),
+                    swc_core::common::DUMMY_SP,
+                ),
             ),
             type_params: None,
         })
@@ -355,10 +352,12 @@ impl ToTsType for swc_core::ecma::ast::Expr {
             other => swc_core::ecma::ast::TsType::TsTypeQuery(swc_core::ecma::ast::TsTypeQuery {
                 span: swc_core::common::DUMMY_SP,
                 expr_name: swc_core::ecma::ast::TsTypeQueryExpr::TsEntityName(
-                    swc_core::ecma::ast::TsEntityName::Ident(swc_core::ecma::ast::Ident::new_no_ctxt(
-                        format!("{:?}", other).into(),
-                        swc_core::common::DUMMY_SP,
-                    )),
+                    swc_core::ecma::ast::TsEntityName::Ident(
+                        swc_core::ecma::ast::Ident::new_no_ctxt(
+                            format!("{:?}", other).into(),
+                            swc_core::common::DUMMY_SP,
+                        ),
+                    ),
                 ),
                 type_args: None,
             }),
@@ -1198,8 +1197,8 @@ macro_rules! fn_assign {
 #[cfg(feature = "swc")]
 pub fn expr_to_string(expr: &swc_core::ecma::ast::Expr) -> String {
     use swc_core::common::sync::Lrc;
-    use swc_core::ecma::ast::{Module, ModuleItem, Stmt, ExprStmt};
-    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+    use swc_core::ecma::ast::{ExprStmt, Module, ModuleItem, Stmt};
+    use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
 
     // Wrap expression in a module as expression statement
     let module = Module {
@@ -1232,7 +1231,7 @@ pub fn expr_to_string(expr: &swc_core::ecma::ast::Expr) -> String {
 pub fn type_to_string(ty: &swc_core::ecma::ast::TsType) -> String {
     use swc_core::common::sync::Lrc;
     use swc_core::ecma::ast::*;
-    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+    use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
 
     // Wrap type in a type alias declaration: type __T = <type>;
     let module = Module {
@@ -1301,7 +1300,7 @@ pub fn emit_module_items(
 ) -> String {
     use swc_core::common::sync::Lrc;
     use swc_core::ecma::ast::Module;
-    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+    use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
 
     let module = Module {
         span: swc_core::common::DUMMY_SP,
@@ -1328,10 +1327,10 @@ pub fn emit_module_items(
 /// Used by `ts_template!` when injecting expressions into raw source strings.
 #[cfg(feature = "swc")]
 pub fn emit_expr(expr: &swc_core::ecma::ast::Expr) -> String {
-    use swc_core::common::sync::Lrc;
-    use swc_core::ecma::ast::{Module, ModuleItem, Stmt, ExprStmt};
-    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
     use swc_core::common::comments::SingleThreadedComments;
+    use swc_core::common::sync::Lrc;
+    use swc_core::ecma::ast::{ExprStmt, Module, ModuleItem, Stmt};
+    use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
 
     // Wrap expression in a minimal module for emission
     let module = Module {
@@ -1365,21 +1364,23 @@ pub fn emit_expr(expr: &swc_core::ecma::ast::Expr) -> String {
 /// Used by `ts_template!` when injecting types into raw source strings.
 #[cfg(feature = "swc")]
 pub fn emit_ts_type(ty: &swc_core::ecma::ast::TsType) -> String {
-    use swc_core::common::sync::Lrc;
-    use swc_core::ecma::ast::{Module, ModuleItem, Stmt, Decl, TsTypeAliasDecl, Ident};
-    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
     use swc_core::common::comments::SingleThreadedComments;
+    use swc_core::common::sync::Lrc;
+    use swc_core::ecma::ast::{Decl, Ident, Module, ModuleItem, Stmt, TsTypeAliasDecl};
+    use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
 
     // Wrap type in a type alias for emission: `type __T = <type>;`
     let module = Module {
         span: swc_core::common::DUMMY_SP,
-        body: vec![ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(Box::new(TsTypeAliasDecl {
-            span: swc_core::common::DUMMY_SP,
-            declare: false,
-            id: Ident::new("__T".into(), swc_core::common::DUMMY_SP, Default::default()),
-            type_params: None,
-            type_ann: Box::new(ty.clone()),
-        }))))],
+        body: vec![ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(Box::new(
+            TsTypeAliasDecl {
+                span: swc_core::common::DUMMY_SP,
+                declare: false,
+                id: Ident::new("__T".into(), swc_core::common::DUMMY_SP, Default::default()),
+                type_params: None,
+                type_ann: Box::new(ty.clone()),
+            },
+        ))))],
         shebang: None,
     };
 
@@ -1410,10 +1411,10 @@ pub fn emit_ts_type(ty: &swc_core::ecma::ast::TsType) -> String {
 /// Used by `ts_template!` when injecting statements into raw source strings.
 #[cfg(feature = "swc")]
 pub fn emit_stmt(stmt: &swc_core::ecma::ast::Stmt) -> String {
+    use swc_core::common::comments::SingleThreadedComments;
     use swc_core::common::sync::Lrc;
     use swc_core::ecma::ast::{Module, ModuleItem};
-    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
-    use swc_core::common::comments::SingleThreadedComments;
+    use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
 
     let module = Module {
         span: swc_core::common::DUMMY_SP,
@@ -1612,25 +1613,33 @@ pub mod __internal {
     /// Finds the object literal in the opener (typically inside a return statement)
     /// and adds the collected properties to it, removing any dummy properties.
     pub fn merge_object_props(item: &mut ModuleItem, props: Vec<PropOrSpread>) {
-        let mut merger = ObjectPropMerger { props_to_add: props };
+        let mut merger = ObjectPropMerger {
+            props_to_add: props,
+        };
         item.visit_mut_with(&mut merger);
     }
 
     /// Merges collected array elements into an opener's array literal.
     pub fn merge_array_elems(item: &mut ModuleItem, elems: Vec<ExprOrSpread>) {
-        let mut merger = ArrayElemMerger { elems_to_add: elems };
+        let mut merger = ArrayElemMerger {
+            elems_to_add: elems,
+        };
         item.visit_mut_with(&mut merger);
     }
 
     /// Merges collected class members into an opener's class body.
     pub fn merge_class_members(item: &mut ModuleItem, members: Vec<ClassMember>) {
-        let mut merger = ClassMemberMerger { members_to_add: members };
+        let mut merger = ClassMemberMerger {
+            members_to_add: members,
+        };
         item.visit_mut_with(&mut merger);
     }
 
     /// Merges collected type properties into an opener's type literal.
     pub fn merge_type_props(item: &mut ModuleItem, props: Vec<TsTypeElement>) {
-        let mut merger = TypePropMerger { props_to_add: props };
+        let mut merger = TypePropMerger {
+            props_to_add: props,
+        };
         item.visit_mut_with(&mut merger);
     }
 
@@ -1790,11 +1799,7 @@ pub mod __internal {
     /// * `output` - The accumulator Vec<ModuleItem>
     /// * `opener_idx` - The index of the opener item (from push_opener)
     /// * `_depth` - Number of virtual opening braces that were added
-    pub fn finalize_closer(
-        item: ModuleItem,
-        output: &mut Vec<ModuleItem>,
-        opener_idx: usize,
-    ) {
+    pub fn finalize_closer(item: ModuleItem, output: &mut Vec<ModuleItem>, opener_idx: usize) {
         // Extract statements from the virtual wrapper (function __mf_virtual() { ... })
         let closer_stmts = extract_function_body_statements(&item);
 
@@ -1812,8 +1817,7 @@ pub mod __internal {
 
         // Extend the opener's body with intermediate + closer statements
         if let Some(opener) = output.get_mut(opener_idx) {
-            let all_stmts: Vec<Stmt> =
-                intermediate_stmts.into_iter().chain(closer_stmts).collect();
+            let all_stmts: Vec<Stmt> = intermediate_stmts.into_iter().chain(closer_stmts).collect();
             extend_item_body(opener, all_stmts);
         }
     }
@@ -1919,7 +1923,9 @@ pub mod __internal {
                                 return;
                             }
                         }
-                        ClassMember::Constructor(Constructor { body: Some(body), .. }) => {
+                        ClassMember::Constructor(Constructor {
+                            body: Some(body), ..
+                        }) => {
                             body.stmts.extend(stmts);
                             return;
                         }
@@ -1938,7 +1944,9 @@ pub mod __internal {
                                 return;
                             }
                         }
-                        ClassMember::Constructor(Constructor { body: Some(body), .. }) => {
+                        ClassMember::Constructor(Constructor {
+                            body: Some(body), ..
+                        }) => {
                             body.stmts.extend(stmts);
                             return;
                         }
@@ -2009,7 +2017,7 @@ pub mod __internal {
 pub fn stmt_to_string(stmt: &swc_core::ecma::ast::Stmt) -> String {
     use swc_core::common::sync::Lrc;
     use swc_core::ecma::ast::{Module, ModuleItem};
-    use swc_core::ecma::codegen::{text_writer::JsWriter, Config, Emitter};
+    use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
 
     let module = Module {
         span: swc_core::common::DUMMY_SP,
@@ -2028,7 +2036,10 @@ pub fn stmt_to_string(stmt: &swc_core::ecma::ast::Stmt) -> String {
         };
         let _ = emitter.emit_module(&module);
     }
-    String::from_utf8(buf).unwrap_or_default().trim().to_string()
+    String::from_utf8(buf)
+        .unwrap_or_default()
+        .trim()
+        .to_string()
 }
 
 /// Parses a TypeScript string into a Vec of ModuleItems.
