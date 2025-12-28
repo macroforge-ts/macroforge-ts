@@ -309,59 +309,57 @@ impl IrLowering {
 
         while i < nodes.len() {
             // Check for pattern: Text ending with "ident_char + space" followed by Ident placeholder
-            if let IrNode::Text(text) = &nodes[i] {
-                if i + 1 < nodes.len() {
-                    if let IrNode::Placeholder {
-                        kind: PlaceholderKind::Ident,
-                        ..
-                    } = &nodes[i + 1]
-                    {
-                        // Check if text ends with "identifier_char + single_space"
-                        if text.ends_with(' ') && text.len() >= 2 {
-                            let chars: Vec<char> = text.chars().collect();
-                            let char_before_space = chars[chars.len() - 2];
-                            // Only trigger for identifier characters (letters, digits, underscore)
-                            // NOT for keywords - we check that the preceding "word" is not a keyword
-                            if char_before_space.is_alphanumeric() || char_before_space == '_' {
-                                // Extract the last "word" to check if it's a keyword
-                                let trimmed = text.trim_end();
-                                let last_word = trimmed
-                                    .rsplit(|c: char| !c.is_alphanumeric() && c != '_')
-                                    .next()
-                                    .unwrap_or("");
+            if let IrNode::Text(text) = &nodes[i]
+                && i + 1 < nodes.len()
+                && let IrNode::Placeholder {
+                    kind: PlaceholderKind::Ident,
+                    ..
+                } = &nodes[i + 1]
+                // Check if text ends with "identifier_char + single_space"
+                && text.ends_with(' ')
+                && text.len() >= 2
+            {
+                let chars: Vec<char> = text.chars().collect();
+                let char_before_space = chars[chars.len() - 2];
+                // Only trigger for identifier characters (letters, digits, underscore)
+                // NOT for keywords - we check that the preceding "word" is not a keyword
+                if char_before_space.is_alphanumeric() || char_before_space == '_' {
+                    // Extract the last "word" to check if it's a keyword
+                    let trimmed = text.trim_end();
+                    let last_word = trimmed
+                        .rsplit(|c: char| !c.is_alphanumeric() && c != '_')
+                        .next()
+                        .unwrap_or("");
 
-                                // Don't treat as concatenation after keywords
-                                if !Self::is_ts_keyword(last_word) {
-                                    // This is implicit concatenation - wrap in IdentBlock
-                                    // Strip trailing space from text and combine with placeholder
-                                    let text_without_space = &text[..text.len() - 1];
-                                    let mut parts = Vec::new();
-                                    if !text_without_space.is_empty() {
-                                        parts.push(IrNode::Text(text_without_space.to_string()));
-                                    }
-                                    parts.push(nodes[i + 1].clone());
+                    // Don't treat as concatenation after keywords
+                    if !Self::is_ts_keyword(last_word) {
+                        // This is implicit concatenation - wrap in IdentBlock
+                        // Strip trailing space from text and combine with placeholder
+                        let text_without_space = &text[..text.len() - 1];
+                        let mut parts = Vec::new();
+                        if !text_without_space.is_empty() {
+                            parts.push(IrNode::Text(text_without_space.to_string()));
+                        }
+                        parts.push(nodes[i + 1].clone());
 
-                                    // Check for more consecutive Ident placeholders
-                                    let mut j = i + 2;
-                                    while j < nodes.len() {
-                                        if let IrNode::Placeholder {
-                                            kind: PlaceholderKind::Ident,
-                                            ..
-                                        } = &nodes[j]
-                                        {
-                                            parts.push(nodes[j].clone());
-                                            j += 1;
-                                        } else {
-                                            break;
-                                        }
-                                    }
-
-                                    result.push(IrNode::IdentBlock { parts });
-                                    i = j;
-                                    continue;
-                                }
+                        // Check for more consecutive Ident placeholders
+                        let mut j = i + 2;
+                        while j < nodes.len() {
+                            if let IrNode::Placeholder {
+                                kind: PlaceholderKind::Ident,
+                                ..
+                            } = &nodes[j]
+                            {
+                                parts.push(nodes[j].clone());
+                                j += 1;
+                            } else {
+                                break;
                             }
                         }
+
+                        result.push(IrNode::IdentBlock { parts });
+                        i = j;
+                        continue;
                     }
                 }
             }

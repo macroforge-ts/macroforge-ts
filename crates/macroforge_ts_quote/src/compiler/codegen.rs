@@ -1668,42 +1668,41 @@ impl Codegen {
         let mut pending_ident_exprs: Vec<String> = Vec::new();
 
         // Helper to flush pending ident expressions into a single placeholder
-        let flush_pending_idents =
-            |template: &mut String,
-             placeholders: &mut Vec<(String, PlaceholderKind, String)>,
-             pending: &mut Vec<String>,
-             counter: &Cell<usize>| {
-                if pending.is_empty() {
-                    return;
-                }
-                let ph_name = {
-                    let n = counter.get();
-                    counter.set(n + 1);
-                    format!("MfPh{}", n)
-                };
-                template.push('$');
-                template.push_str(&ph_name);
+        let flush_pending_idents = |template: &mut String,
+                                    placeholders: &mut Vec<(String, PlaceholderKind, String)>,
+                                    pending: &mut Vec<String>,
+                                    counter: &Cell<usize>| {
+            if pending.is_empty() {
+                return;
+            }
+            let ph_name = {
+                let n = counter.get();
+                counter.set(n + 1);
+                format!("MfPh{}", n)
+            };
+            template.push('$');
+            template.push_str(&ph_name);
 
-                // Generate ident concatenation expression
-                let ident_expr = if pending.len() == 1 {
-                    // Single ident - just use it directly
-                    pending[0].clone()
-                } else {
-                    // Multiple idents - concatenate their symbols and create a new Ident
-                    // Build: { let mut __s = String::new(); __s.push_str(&a.sym); __s.push_str(&b.sym); Ident::new_no_ctxt(__s.into(), DUMMY_SP) }
-                    let push_stmts = pending
+            // Generate ident concatenation expression
+            let ident_expr = if pending.len() == 1 {
+                // Single ident - just use it directly
+                pending[0].clone()
+            } else {
+                // Multiple idents - concatenate their symbols and create a new Ident
+                // Build: { let mut __s = String::new(); __s.push_str(&a.sym); __s.push_str(&b.sym); Ident::new_no_ctxt(__s.into(), DUMMY_SP) }
+                let push_stmts = pending
                         .iter()
                         .map(|e| format!("__mf_s.push_str(macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(&{}).sym.as_ref());", e))
                         .collect::<Vec<_>>()
                         .join(" ");
-                    format!(
-                        "{{ let mut __mf_s = String::new(); {} macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(__mf_s.into(), macroforge_ts::swc_core::common::DUMMY_SP) }}",
-                        push_stmts
-                    )
-                };
-                placeholders.push((ph_name, PlaceholderKind::Ident, ident_expr));
-                pending.clear();
+                format!(
+                    "{{ let mut __mf_s = String::new(); {} macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(__mf_s.into(), macroforge_ts::swc_core::common::DUMMY_SP) }}",
+                    push_stmts
+                )
             };
+            placeholders.push((ph_name, PlaceholderKind::Ident, ident_expr));
+            pending.clear();
+        };
 
         for node in nodes {
             match node {
