@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@macroforge/shared": "^0.1.61",
-    "macroforge": "^0.1.61"
+    "@macroforge/shared": "^0.1.63",
+    "macroforge": "^0.1.63"
   },
   "devDependencies": {
     "@types/node": "^22.0.0"
@@ -29,5 +29,5 @@
   },
   "type": "module",
   "types": "src/index.d.ts",
-  "version": "0.1.43"
+  "version": "0.1.45"
 }
