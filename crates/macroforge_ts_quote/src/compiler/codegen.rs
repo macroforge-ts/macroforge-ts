@@ -1735,29 +1735,49 @@ impl Codegen {
                     let has_interpolations = parts.iter().any(|p| matches!(p, IrNode::Placeholder { .. }));
 
                     if has_interpolations {
-                        // Convert to inline template literal with placeholders
-                        // This keeps the string inline in the template rather than splitting
-                        // the expression into separate chunks
-                        current_template.push('`');
-                        for part in parts {
-                            match part {
-                                IrNode::Text(text) => {
-                                    // Escape backticks and ${} in static parts
-                                    let escaped = text.replace('`', "\\`").replace("${", "\\${");
-                                    current_template.push_str(&escaped);
-                                }
-                                IrNode::Placeholder { kind, rust_expr } => {
-                                    // Add placeholder inline using template literal syntax
-                                    let ph_name = self.next_placeholder_name();
-                                    current_template.push_str("${$");
-                                    current_template.push_str(&ph_name);
-                                    current_template.push('}');
-                                    current_placeholders.push((ph_name, *kind, rust_expr.clone()));
-                                }
-                                _ => {}
+                        // Check if this is a simple string with just one placeholder and no other text
+                        // e.g., "@{class_name}" should become a string literal, not a template literal
+                        let is_simple_placeholder = parts.len() == 1
+                            && matches!(&parts[0], IrNode::Placeholder { .. });
+
+                        if is_simple_placeholder {
+                            // Single placeholder - use Expr placeholder which will be converted to string literal
+                            // The placeholder value should be a string that becomes a Lit::Str
+                            if let IrNode::Placeholder { kind: _, rust_expr } = &parts[0] {
+                                let ph_name = self.next_placeholder_name();
+                                // Use a special marker that creates a string literal from the expression
+                                // We'll use Expr kind and wrap the expression to produce a string literal
+                                current_template.push_str("$");
+                                current_template.push_str(&ph_name);
+                                // Push as Expr placeholder - the expression should evaluate to a string
+                                // and ToTsExpr for String creates Lit::Str
+                                current_placeholders.push((ph_name, PlaceholderKind::Expr, rust_expr.clone()));
                             }
+                        } else {
+                            // Multiple parts - convert to inline template literal with placeholders
+                            // This keeps the string inline in the template rather than splitting
+                            // the expression into separate chunks
+                            current_template.push('`');
+                            for part in parts {
+                                match part {
+                                    IrNode::Text(text) => {
+                                        // Escape backticks and ${} in static parts
+                                        let escaped = text.replace('`', "\\`").replace("${", "\\${");
+                                        current_template.push_str(&escaped);
+                                    }
+                                    IrNode::Placeholder { kind, rust_expr } => {
+                                        // Add placeholder inline using template literal syntax
+                                        let ph_name = self.next_placeholder_name();
+                                        current_template.push_str("${$");
+                                        current_template.push_str(&ph_name);
+                                        current_template.push('}');
+                                        current_placeholders.push((ph_name, *kind, rust_expr.clone()));
+                                    }
+                                    _ => {}
+                                }
+                            }
+                            current_template.push('`');
                         }
-                        current_template.push('`');
                     } else {
                         // No interpolations - just append as static text with quotes
                         current_template.push(*q);

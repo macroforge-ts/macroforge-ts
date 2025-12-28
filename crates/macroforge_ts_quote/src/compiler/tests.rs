@@ -597,3 +597,23 @@ export function @{fn_deserialize_ident}(input: unknown, opts?: @{opts_type}): @{
 }"#,
     );
 }
+
+// ==================== Debug: Constructor with for loop ====================
+#[test]
+fn test_debug_constructor_for_loop() {
+    // This mimics the pattern from derive_deserialize.rs that generates empty constructor
+    test_template(
+        "debug_constructor_for_loop",
+        r#"class __MF_DUMMY__ {
+    constructor(props: Record<string, unknown>) {
+        {#for field in &all_fields}
+            {#if field.optional}
+                this.@{field._field_ident} = props.@{field._field_ident} as @{field.ts_type};
+            {:else}
+                this.@{field._field_ident} = props.@{field._field_ident};
+            {/if}
+        {/for}
+    }
+}"#,
+    );
+}
