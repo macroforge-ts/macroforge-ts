@@ -72,8 +72,24 @@ enum WorkerStatus {
 
 pub fn run(args: CommitArgs) -> Result<()> {
     let config = Config::load()?;
-    let versions = config.versions.clone();
+    let mut versions = config.versions.clone();
     let mut repos = config.filter_repos(&args.repos);
+
+    // Refresh registry versions for repos we're processing to avoid stale cache issues
+    let npm_names = config::npm_package_names();
+    let crate_names = config::crate_package_names();
+    for repo in &repos {
+        if let Some(npm_name) = npm_names.get(repo.name.as_str()) {
+            if let Ok(Some(v)) = registry::npm_version(npm_name) {
+                versions.set_registry(&repo.name, &v);
+            }
+        }
+        if let Some(crate_name) = crate_names.get(repo.name.as_str()) {
+            if let Ok(Some(v)) = registry::crates_version(crate_name) {
+                versions.set_registry(&repo.name, &v);
+            }
+        }
+    }
 
     // Set up Ctrl+C handler
     let interrupted = Arc::new(AtomicBool::new(false));
@@ -114,8 +130,6 @@ pub fn run(args: CommitArgs) -> Result<()> {
 
     // Build commit queue in dependency order
     let order = deps::topo_order(&config.deps).unwrap_or_default();
-    let npm_names = config::npm_package_names();
-    let crate_names = config::crate_package_names();
 
     let mut queue: Vec<CommitItem> = Vec::new();
 
@@ -797,13 +811,12 @@ fn retag_item(item: &CommitItem) -> Result<()> {
 }
 
 /// Check if a repo has been prepped (local version differs from registry)
+/// For repos without version tracking, returns true (always include)
 fn is_prepped(versions: &crate::core::versions::VersionsCache, name: &str) -> bool {
-    versions
-        .versions
-        .get(name)
-        .and_then(|v| v.as_ref())
-        .map(|v| v.local != v.registry)
-        .unwrap_or(false)
+    match versions.versions.get(name).and_then(|v| v.as_ref()) {
+        Some(v) => v.local != v.registry,
+        None => true, // No version tracking = always include (e.g., zed-extensions)
+    }
 }
 
 /// Check if a repo has a publishable package
@@ -864,45 +877,53 @@ fn cascade_to_dependents(deps: &HashMap<String, Vec<String>>, initial: &[String]
 
 
 /// Determine if we should create a tag for this repo/version
-/// Only tag if: version is NOT on registry AND tag doesn't exist on remote
+/// Tag if version is NOT on registry (even if tag exists - retag to retry CI)
 fn should_create_tag(item: &CommitItem, _interrupted: &Arc<AtomicBool>) -> Result<bool> {
     let tag = format!("v{}", item.version);
     let debug = std::env::var("DEBUG_COMMIT").is_ok();
 
-    // Check if tag already exists on remote - if so, skip tagging
-    if shell::git::tag_exists_remote(&item.path, &tag) {
-        if debug {
-            eprintln!("  [debug] {} tag {} exists on remote, skipping", item.name, tag);
+    // Check if version exists on registries - if so, no need to tag
+    let on_npm = if let Some(ref npm_name) = item.npm_name {
+        match registry::npm_version(npm_name) {
+            Ok(Some(v)) if v == item.version => {
+                if debug {
+                    eprintln!("  [debug] {} version {} already on npm, skipping tag", item.name, item.version);
+                }
+                true
+            }
+            _ => false,
         }
+    } else {
+        true // No npm package, consider "satisfied"
+    };
+
+    let on_crates = if let Some(ref crate_name) = item.crate_name {
+        match registry::crates_version(crate_name) {
+            Ok(Some(v)) if v == item.version => {
+                if debug {
+                    eprintln!("  [debug] {} version {} already on crates.io, skipping tag", item.name, item.version);
+                }
+                true
+            }
+            _ => false,
+        }
+    } else {
+        true // No crate, consider "satisfied"
+    };
+
+    // If both registries are satisfied (or N/A), don't tag
+    if on_npm && on_crates {
         return Ok(false);
     }
 
-    // Check if version exists on registries
-    if let Some(ref npm_name) = item.npm_name
-        && let Ok(Some(v)) = registry::npm_version(npm_name)
-        && v == item.version
-    {
-        // Already on npm, don't tag
-        if debug {
-            eprintln!("  [debug] {} version {} already on npm, skipping tag", item.name, item.version);
-        }
-        return Ok(false);
-    }
-
-    if let Some(ref crate_name) = item.crate_name
-        && let Ok(Some(v)) = registry::crates_version(crate_name)
-        && v == item.version
-    {
-        // Already on crates.io, don't tag
-        if debug {
-            eprintln!("  [debug] {} version {} already on crates.io, skipping tag", item.name, item.version);
-        }
-        return Ok(false);
-    }
-
-    // Tag if not on registry and tag doesn't exist on remote
+    // Version not on registry - need to tag (even if tag exists, to retry CI)
+    let tag_exists = shell::git::tag_exists_remote(&item.path, &tag);
     if debug {
-        eprintln!("  [debug] {} will create tag {}", item.name, tag);
+        if tag_exists {
+            eprintln!("  [debug] {} tag {} exists but not on registry, will retag", item.name, tag);
+        } else {
+            eprintln!("  [debug] {} will create tag {}", item.name, tag);
+        }
     }
     Ok(true)
 }

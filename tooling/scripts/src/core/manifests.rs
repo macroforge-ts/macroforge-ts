@@ -150,15 +150,17 @@ pub fn set_version(
 }
 
 /// Update Zed extension files with version constants
+/// Uses registry versions since extensions download from npm
 pub fn update_zed_extensions(root: &Path, versions: &VersionsCache) -> Result<()> {
     // Vtsls extension
     let vtsls_lib = root.join("crates/extensions/vtsls-macroforge/src/lib.rs");
     if vtsls_lib.exists() {
         let mut content = fs::read_to_string(&vtsls_lib)?;
-        if let Some(v) = versions.get_local("typescript-plugin") {
+        // Use registry version (what's published) since extensions download from npm
+        if let Some(v) = versions.get_registry("typescript-plugin") {
             content = replace_const(&content, "TS_PLUGIN_VERSION", v);
         }
-        if let Some(v) = versions.get_local("core") {
+        if let Some(v) = versions.get_registry("core") {
             content = replace_const(&content, "MACROFORGE_VERSION", v);
         }
         fs::write(&vtsls_lib, content)?;
@@ -169,7 +171,7 @@ pub fn update_zed_extensions(root: &Path, versions: &VersionsCache) -> Result<()
     let svelte_lib = root.join("crates/extensions/svelte-macroforge/src/lib.rs");
     if svelte_lib.exists() {
         let mut content = fs::read_to_string(&svelte_lib)?;
-        if let Some(v) = versions.get_local("svelte-language-server") {
+        if let Some(v) = versions.get_registry("svelte-language-server") {
             content = replace_const(&content, "SVELTE_LS_VERSION", v);
         }
         fs::write(&svelte_lib, content)?;

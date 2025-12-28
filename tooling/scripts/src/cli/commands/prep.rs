@@ -4,9 +4,10 @@
 
 use crate::cli::commands::docs::{build_book, extract_rust, extract_ts};
 use crate::cli::PrepArgs;
-use crate::core::config::Config;
+use crate::core::config::{self, Config};
 use crate::core::deps;
 use crate::core::manifests;
+use crate::core::registry;
 use crate::core::repos::{Repo, RepoType};
 use crate::core::shell;
 use crate::core::versions;
@@ -354,8 +355,26 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // Update zed extensions if processing all repos
-        if args.repos == "all" {
+        // Update zed extensions if processing all repos or zed-extensions specifically
+        if args.repos == "all" || repo_names.iter().any(|n| n == "zed-extensions") {
+            // For zed extension deps: use local version if being prepped, else fetch from npm
+            let zed_deps = ["typescript-plugin", "core", "svelte-language-server"];
+            let npm_names = config::npm_package_names();
+            for dep in zed_deps {
+                if repo_names.contains(&dep.to_string()) {
+                    // Dep is being prepped - use local version (will be published)
+                    if let Some(local) = versions_cache.get_local(dep).map(|s| s.to_string()) {
+                        versions_cache.set_registry(dep, &local);
+                    }
+                } else {
+                    // Dep is not being prepped - fetch current version from npm
+                    if let Some(npm_name) = npm_names.get(dep) {
+                        if let Ok(Some(v)) = registry::npm_version(npm_name) {
+                            versions_cache.set_registry(dep, &v);
+                        }
+                    }
+                }
+            }
             let _ = manifests::update_zed_extensions(&config.root, &versions_cache);
         }
 
