@@ -1608,6 +1608,19 @@ pub mod __internal {
         vec![]
     }
 
+    /// Extracts type elements from a wrapped type alias `type __MF_WRAPPER__ = { prop: Type }`.
+    ///
+    /// This is used when parsing type literal members in a for-loop body.
+    pub fn extract_type_elements_from_wrapped(item: &ModuleItem) -> Vec<TsTypeElement> {
+        // Expected structure: ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(TsTypeAliasDecl { type_ann: TsType::TsTypeLit(TsTypeLit { members }) })))
+        if let ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(type_alias))) = item
+            && let TsType::TsTypeLit(type_lit) = type_alias.type_ann.as_ref()
+        {
+            return type_lit.members.clone();
+        }
+        vec![]
+    }
+
     /// Merges collected object properties into an opener's object literal.
     ///
     /// Finds the object literal in the opener (typically inside a return statement)
