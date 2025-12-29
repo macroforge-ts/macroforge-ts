@@ -44,10 +44,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v4
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
         with:
-          node-version: 24
+          deno-version: v2.x
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -65,11 +65,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu
 
-      - name: Install napi-cli
-        run: npm install -g @napi-rs/cli
-
       - name: Build native module
-        run: napi build --platform --release --target ${{ matrix.settings.target }}
+        run: deno run -A npm:@napi-rs/cli build --platform --release --target ${{ matrix.settings.target }}
         env:
           CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
           CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
@@ -119,14 +116,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup node
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-
-      - name: Install napi-cli
-        run: npm install -g @napi-rs/cli
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -138,7 +137,7 @@ jobs:
         run: find artifacts -name "*.node" -type f
 
       - name: Move artifacts to npm packages
-        run: napi artifacts --npm-dir npm --build-output-dir artifacts
+        run: deno run -A npm:@napi-rs/cli artifacts --npm-dir npm --build-output-dir artifacts
 
       - name: List packages
         run: ls -laR npm/
