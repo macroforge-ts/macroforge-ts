@@ -117,7 +117,7 @@ const tagPossibilities: Array<{ tag: SvelteTag | ':else'; values: string[] }> = 
 ];
 
 const tagRegexp = new RegExp(
-    `[\\s\\S]*{\\s*(${flatten(tagPossibilities.map((p) => p.values)).join('|')})(\\s|})`
+    `[\\s\\S]*{\\s*(${flatten(tagPossibilities.map((p) => p.values)).join('|')})(\\s)`
 );
 function getEventModifierHoverInfo(
     attributeContext: AttributeContext,
