@@ -269,6 +269,15 @@ pub mod git {
         Ok(())
     }
 
+    /// Delete a remote tag (used to force GitHub to re-trigger CI on retag)
+    pub fn delete_remote_tag(cwd: &Path, tag_name: &str) -> Result<()> {
+        Shell::new("git")
+            .args(&["push", "origin", "--delete", tag_name])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(())
+    }
+
     /// Push with upstream tracking
     pub fn push_with_upstream(cwd: &Path, branch: &str) -> Result<()> {
         Shell::new("git")
