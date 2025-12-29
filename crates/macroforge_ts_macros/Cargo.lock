@@ -13,7 +13,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.63"
+version = "0.1.64"
 dependencies = [
  "convert_case",
  "proc-macro2",
