@@ -31,7 +31,7 @@
   "private": true,
   "scripts": {
     "build": "vite build",
-    "build:clean": "rm -rf node_modules && rm -rf .svelte-kit build && npm install && vite build",
+    "build:clean": "rm -rf node_modules && rm -rf .svelte-kit build && deno install --node-modules-dir && vite build",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "dev": "vite dev",
