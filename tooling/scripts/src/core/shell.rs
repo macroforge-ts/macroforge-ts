@@ -1,6 +1,6 @@
 //! Shell command abstractions
 //!
-//! Provides a clean API for running external tools (cargo, npm, git, npx).
+//! Provides a clean API for running external tools (cargo, deno, git).
 
 use anyhow::{Context, Result};
 use colored::Colorize;
@@ -171,32 +171,32 @@ pub mod cargo {
 }
 
 // ============================================================================
-// npm commands
+// deno commands
 // ============================================================================
 
-pub mod npm {
+pub mod deno {
     use super::*;
 
-    /// Run npm run <script>
-    pub fn run_script(cwd: &Path, script: &str) -> Result<CommandResult> {
-        Shell::new("npm")
-            .args(&["run", script])
+    /// Run deno install --node-modules-dir
+    pub fn install(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("deno")
+            .args(&["install", "--node-modules-dir"])
             .dir(cwd)
             .run_checked()
     }
-}
 
-// ============================================================================
-// npx commands
-// ============================================================================
-
-pub mod npx {
-    use super::*;
+    /// Run deno task <task>
+    pub fn task(cwd: &Path, task_name: &str) -> Result<CommandResult> {
+        Shell::new("deno")
+            .args(&["task", task_name])
+            .dir(cwd)
+            .run_checked()
+    }
 
     /// Run biome check with auto-fix (including unsafe fixes)
     pub fn biome_check(cwd: &Path) -> Result<CommandResult> {
-        Shell::new("npx")
-            .args(&["@biomejs/biome", "check", "--write", "--unsafe", "."])
+        Shell::new("deno")
+            .args(&["run", "-A", "npm:@biomejs/biome", "check", "--write", "--unsafe", "."])
             .dir(cwd)
             .run_checked()
     }

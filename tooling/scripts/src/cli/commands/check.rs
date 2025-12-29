@@ -33,8 +33,8 @@ pub fn run(args: CheckArgs) -> Result<()> {
     println!();
 
     // Run TypeScript check using macroforge tsc
-    let output = Command::new("npx")
-        .args(["macroforge", "tsc", "-p", &tsconfig.to_string_lossy()])
+    let output = Command::new("deno")
+        .args(["run", "-A", "npm:macroforge", "tsc", "-p", &tsconfig.to_string_lossy()])
         .current_dir(&config.root)
         .output()
         .context("Failed to run macroforge tsc")?;

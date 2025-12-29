@@ -10,13 +10,13 @@
     },
     "files": ["index.d.ts", "index.js"],
     "scripts": {
-        "build": "npx -y -p @napi-rs/cli napi build --platform --release --package playground-macros",
-        "prepare": "npm run build",
+        "build": "deno run -A npm:@napi-rs/cli build --platform --release --package playground-macros",
+        "prepare": "deno task build",
         "clean": "rm -rf *.node target node_modules",
-        "cleanbuild": "npm run clean && npm install && npm run build"
+        "cleanbuild": "deno task clean && deno install --node-modules-dir && deno task build"
     },
     "dependencies": {
-        "macroforge": "file:../../crates/macroforge_ts"
+        "macroforge": "file:../../../crates/macroforge_ts"
     },
     "peerDependencies": {
         "effect": "^3.0.0"

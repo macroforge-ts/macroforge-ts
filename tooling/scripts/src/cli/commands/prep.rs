@@ -93,7 +93,7 @@ fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
         RepoType::Rust => {
             if repo.name == "core" {
                 // Set NAPI_BUILD_SKIP_WATCHER to prevent build.rs from spawning another napi build
-                shell::run("NAPI_BUILD_SKIP_WATCHER=1 npm run cleanbuild", &repo.abs_path, verbose)?;
+                shell::run("NAPI_BUILD_SKIP_WATCHER=1 deno task cleanbuild", &repo.abs_path, verbose)?;
             }
         }
         RepoType::Ts => {
@@ -107,21 +107,18 @@ fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
                 .and_then(|pkg| pkg.get("scripts")?.get("build").cloned())
                 .is_some();
 
-            let build_cmd = if has_build_script {
-                "rm -rf node_modules dist && npm install && npm run build"
-            } else {
-                "rm -rf node_modules && npm install"
-            };
-
-            shell::run(build_cmd, &repo.abs_path, verbose)?;
+            // Use deno for dependency installation and build
+            shell::run("rm -rf node_modules dist", &repo.abs_path, verbose)?;
+            shell::deno::install(&repo.abs_path)?;
+            if has_build_script {
+                shell::deno::task(&repo.abs_path, "build")?;
+            }
         }
         RepoType::Website => {
             shell::git::pull(&repo.abs_path, "origin")?;
-            shell::run(
-                "rm -rf node_modules .svelte-kit && npm install && npm run build",
-                &repo.abs_path,
-                verbose,
-            )?;
+            shell::run("rm -rf node_modules .svelte-kit", &repo.abs_path, verbose)?;
+            shell::deno::install(&repo.abs_path)?;
+            shell::deno::task(&repo.abs_path, "build")?;
         }
         _ => {}
     }
@@ -474,25 +471,55 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // [6.5/9] Run biome checks
+        // [6.5/9] Run tooling checks (fmt, clippy, biome)
         let step = Step {
             number: 6.5,
             total: 9,
-            label: "Running biome checks".to_string(),
+            label: "Running tooling checks".to_string(),
         };
         step.print();
 
         let tooling_path = config.root.join("tooling");
-        match shell::npx::biome_check(&tooling_path) {
-            Ok(_) => println!("  {}", "ok".green()),
+        let tooling_scripts_path = config.root.join("tooling/scripts");
+
+        // Cargo fmt for tooling/scripts
+        print!("  {} cargo fmt... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::cargo::fmt_check(&tooling_scripts_path) {
+            Ok(_) => println!("{}", "ok".green()),
             Err(e) => {
+                println!("{}", "failed".red());
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
+        // Cargo clippy for tooling/scripts
+        print!("  {} cargo clippy... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::cargo::clippy(&tooling_scripts_path) {
+            Ok(_) => println!("{}", "ok".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
+        // Biome check for tooling
+        print!("  {} biome check... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::deno::biome_check(&tooling_path) {
+            Ok(_) => println!("{}", "ok".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
                 format::error(&format!("Biome check failed: {}", e));
                 rollback(&config, &original_versions_cache);
                 return Err(e);
             }
         }
 
-        // [6.6/9] Run npm tests for TypeScript packages
+        // [6.6/9] Run tests for TypeScript packages (using deno)
         let ts_repos_with_tests: Vec<_> = repos
             .iter()
             .filter(|r| r.repo_type == RepoType::Ts)
@@ -511,14 +538,14 @@ pub fn run(args: PrepArgs) -> Result<()> {
             let step = Step {
                 number: 6.6,
                 total: 9,
-                label: "Running npm tests".to_string(),
+                label: "Running deno tests".to_string(),
             };
             step.print();
 
             for repo in &ts_repos_with_tests {
                 print!("  {} {}... ", "→".blue(), repo.name);
                 io::stdout().flush()?;
-                match shell::npm::run_script(&repo.abs_path, "test") {
+                match shell::deno::task(&repo.abs_path, "test") {
                     Ok(_) => println!("{}", "passed".green()),
                     Err(e) => {
                         println!("{}", "failed".red());
@@ -560,7 +587,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         step.print();
 
         let mcp_path = config.root.join("packages/mcp-server");
-        let _ = shell::npm::run_script(&mcp_path, "build:docs");
+        let _ = shell::deno::task(&mcp_path, "build:docs");
     } else {
         println!("\n{} Skipping MCP docs", "[8/9]".dimmed());
     }

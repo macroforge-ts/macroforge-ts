@@ -15,8 +15,8 @@ pub fn run(root: &Path, tsconfig_paths: &[&Path]) -> Result<Vec<UnifiedDiagnosti
         .context("Failed to compile error regex")?;
 
     for tsconfig in tsconfig_paths {
-        let output = Command::new("npx")
-            .args(["macroforge", "tsc", "-p", &tsconfig.to_string_lossy()])
+        let output = Command::new("deno")
+            .args(["run", "-A", "npm:macroforge", "tsc", "-p", &tsconfig.to_string_lossy()])
             .current_dir(root)
             .output()
             .context("Failed to run macroforge tsc")?;

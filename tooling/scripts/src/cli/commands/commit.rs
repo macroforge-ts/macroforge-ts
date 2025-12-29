@@ -1196,17 +1196,13 @@ where
     }
 }
 
-/// Sync npm lockfile with retry logic for CDN propagation delay
+/// Sync deno lockfile with retry logic for CDN propagation delay
 fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
-    // Delete node_modules and package-lock.json to force fresh resolution
+    // Delete node_modules and deno.lock to force fresh resolution
     let node_modules = item.path.join("node_modules");
-    let lockfile = item.path.join("package-lock.json");
+    let deno_lock = item.path.join("deno.lock");
 
     ctx.log(&format!("      {} Path: {}", "📁".dimmed(), item.path.display()));
-
-    // Always clear npm cache first to avoid stale resolutions
-    ctx.log(&format!("      {} Clearing npm cache...", "🗑".dimmed()));
-    let _ = shell::run("npm cache clean --force", &item.path, false);
 
     if node_modules.exists() {
         ctx.log(&format!("      {} Removing node_modules...", "🗑".dimmed()));
@@ -1214,14 +1210,14 @@ fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
             ctx.log(&format!("      {} Failed to remove node_modules: {}", "⚠".yellow(), e));
         }
     }
-    if lockfile.exists() {
-        ctx.log(&format!("      {} Removing package-lock.json...", "🗑".dimmed()));
-        if let Err(e) = std::fs::remove_file(&lockfile) {
-            ctx.log(&format!("      {} Failed to remove lockfile: {}", "⚠".yellow(), e));
+    if deno_lock.exists() {
+        ctx.log(&format!("      {} Removing deno.lock...", "🗑".dimmed()));
+        if let Err(e) = std::fs::remove_file(&deno_lock) {
+            ctx.log(&format!("      {} Failed to remove deno.lock: {}", "⚠".yellow(), e));
         }
     }
 
-    // Retry npm install with exponential backoff (CDN propagation can take time)
+    // Retry deno install with exponential backoff (CDN propagation can take time)
     let max_retries = 5;
     let mut attempt = 0;
     let mut last_error = None;
@@ -1237,22 +1233,22 @@ fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
             thread::sleep(Duration::from_secs(wait_secs as u64));
         }
 
-        ctx.log(&format!("      {} Running npm install (attempt {})...", "📦".cyan(), attempt));
-        match shell::run("npm install --no-audit", &item.path, false) {
+        ctx.log(&format!("      {} Running deno install (attempt {})...", "📦".cyan(), attempt));
+        match shell::deno::install(&item.path) {
             Ok(_) => {
                 // Verify lockfile was created
-                if lockfile.exists() {
-                    ctx.log(&format!("      {} Lockfile regenerated successfully", "✓".green()));
+                if deno_lock.exists() {
+                    ctx.log(&format!("      {} deno.lock regenerated successfully", "✓".green()));
                 } else {
-                    ctx.log(&format!("      {} Warning: lockfile not created!", "⚠".yellow()));
+                    ctx.log(&format!("      {} Warning: deno.lock not created!", "⚠".yellow()));
                 }
                 return Ok(());
             }
             Err(e) => {
                 let err_str = e.to_string();
-                ctx.log(&format!("      {} npm install failed: {}", "✗".red(), err_str));
+                ctx.log(&format!("      {} deno install failed: {}", "✗".red(), err_str));
                 // Only retry on "notarget" errors (package not found yet)
-                if err_str.contains("ETARGET") || err_str.contains("notarget") || err_str.contains("No matching version") {
+                if err_str.contains("ETARGET") || err_str.contains("notarget") || err_str.contains("No matching version") || err_str.contains("Could not find npm package") {
                     last_error = Some(e);
                     continue;
                 }
@@ -1262,7 +1258,7 @@ fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
         }
     }
 
-    Err(last_error.unwrap_or_else(|| anyhow::anyhow!("npm install failed after {} retries", max_retries)))
+    Err(last_error.unwrap_or_else(|| anyhow::anyhow!("deno install failed after {} retries", max_retries)))
 }
 
 /// Sync Cargo.lock after dependencies are published to crates.io

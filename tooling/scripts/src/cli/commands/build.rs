@@ -46,7 +46,7 @@ pub fn run(args: BuildArgs) -> Result<()> {
     if repo_names.contains(&"core") {
         steps.push(BuildStep {
             label: "Cleanbuild core (macroforge)".to_string(),
-            cmd: Some(vec!["npm".to_string(), "run".to_string(), "cleanbuild".to_string()]),
+            cmd: Some(vec!["deno".to_string(), "task".to_string(), "cleanbuild".to_string()]),
             cwd: Some(config.root.join("crates/macroforge_ts")),
             func: None,
         });
@@ -62,7 +62,7 @@ pub fn run(args: BuildArgs) -> Result<()> {
                 cmd: Some(vec![
                     "sh".to_string(),
                     "-c".to_string(),
-                    "rm -rf node_modules dist && npm install && npm run build".to_string(),
+                    "rm -rf node_modules dist && deno install --node-modules-dir && deno task build".to_string(),
                 ]),
                 cwd: Some(pkg_dir),
                 func: None,
@@ -78,7 +78,7 @@ pub fn run(args: BuildArgs) -> Result<()> {
             if pg_dir.exists() {
                 steps.push(BuildStep {
                     label: format!("Cleanbuild playground/{}", pg),
-                    cmd: Some(vec!["npm".to_string(), "run".to_string(), "cleanbuild".to_string()]),
+                    cmd: Some(vec!["deno".to_string(), "task".to_string(), "cleanbuild".to_string()]),
                     cwd: Some(pg_dir),
                     func: None,
                 });
@@ -102,7 +102,7 @@ pub fn run(args: BuildArgs) -> Result<()> {
             cmd: Some(vec![
                 "sh".to_string(),
                 "-c".to_string(),
-                "rm -rf node_modules .svelte-kit && npm install".to_string(),
+                "rm -rf node_modules .svelte-kit && deno install --node-modules-dir".to_string(),
             ]),
             cwd: Some(website_dir.clone()),
             func: None,
@@ -120,7 +120,7 @@ pub fn run(args: BuildArgs) -> Result<()> {
 
         steps.push(BuildStep {
             label: "Build website".to_string(),
-            cmd: Some(vec!["npm".to_string(), "run".to_string(), "build".to_string()]),
+            cmd: Some(vec!["deno".to_string(), "task".to_string(), "build".to_string()]),
             cwd: Some(website_dir.clone()),
             func: None,
         });
