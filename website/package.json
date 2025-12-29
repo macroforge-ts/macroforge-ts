@@ -16,7 +16,7 @@
     "@tailwindcss/vite": "^4.1.17",
     "@types/node": "^24.10.2",
     "autoprefixer": "^10.4.22",
-    "macroforge": "^0.1.63",
+    "macroforge": "^0.1.64",
     "mdsvex": "^0.12.6",
     "postcss": "^8.5.6",
     "remark-gfm": "^4.0.1",
