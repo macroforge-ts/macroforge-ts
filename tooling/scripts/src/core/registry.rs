@@ -6,12 +6,13 @@ use anyhow::Result;
 use serde::Deserialize;
 use std::time::Duration;
 
-/// Create a ureq agent with reasonable timeouts
+/// Create a ureq agent with reasonable timeouts to prevent hanging
 fn agent() -> ureq::Agent {
-    ureq::AgentBuilder::new()
-        .timeout_connect(Duration::from_secs(10))
-        .timeout(Duration::from_secs(30))
-        .build()
+    let config = ureq::Agent::config_builder()
+        .timeout_global(Some(Duration::from_secs(30)))
+        .timeout_connect(Some(Duration::from_secs(10)))
+        .build();
+    ureq::Agent::new_with_config(config)
 }
 
 /// npm registry response for package metadata
@@ -55,7 +56,7 @@ pub fn crates_version(crate_name: &str) -> Result<Option<String>> {
 
     match agent()
         .get(&url)
-        .header("User-Agent", "mf-cli (github.com/anthropics/macroforge)")
+        .header("User-Agent", "mf-cli")
         .call()
     {
         Ok(resp) => {

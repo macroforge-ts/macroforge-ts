@@ -63,6 +63,8 @@ enum WorkerStatus {
     Completed(usize),
     /// Item failed
     Failed(usize, String),
+    /// Log message from worker
+    Log(String),
     /// Worker finished all work
     Done,
 }
@@ -79,27 +81,14 @@ struct WorkerContext {
     failed_packages: Arc<Mutex<HashMap<String, String>>>,
     processing_name: Arc<Mutex<Option<String>>>,
     messages_done: Arc<AtomicBool>,
-    /// Buffer for output messages during input collection phase
-    output_buffer: Arc<Mutex<Vec<String>>>,
+    /// Channel to send log messages to main thread
+    tx: Sender<WorkerStatus>,
 }
 
 impl WorkerContext {
-    /// Log a message - buffers if messages not done, prints immediately otherwise
+    /// Log a message - sends to main thread via channel
     fn log(&self, msg: &str) {
-        if self.messages_done.load(Ordering::SeqCst) {
-            println!("{}", msg);
-        } else {
-            let mut buffer = self.output_buffer.lock().unwrap();
-            buffer.push(msg.to_string());
-        }
-    }
-
-    /// Flush buffered messages to stdout
-    fn flush_buffer(&self) {
-        let mut buffer = self.output_buffer.lock().unwrap();
-        for msg in buffer.drain(..) {
-            println!("{}", msg);
-        }
+        let _ = self.tx.send(WorkerStatus::Log(msg.to_string()));
     }
 }
 
@@ -320,8 +309,7 @@ pub fn run(args: CommitArgs) -> Result<()> {
     let failed_for_display = Arc::clone(&failed_packages);
     let processing_for_display = Arc::clone(&processing_name);
 
-    // Clone for worker thread
-    let output_buffer: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+    // Create worker context with channel for logging
     let ctx = WorkerContext {
         queue: queue.clone(),
         versions: versions.clone(),
@@ -333,7 +321,7 @@ pub fn run(args: CommitArgs) -> Result<()> {
         failed_packages: Arc::clone(&failed_packages),
         processing_name: Arc::clone(&processing_name),
         messages_done: Arc::clone(&messages_done),
-        output_buffer,
+        tx: tx_to_main.clone(),
     };
     let current_processing_clone = Arc::clone(&current_processing);
 
@@ -478,7 +466,7 @@ pub fn run(args: CommitArgs) -> Result<()> {
         let _ = tx_to_worker.send(WorkerMessage::Process { index: i, message });
     }
 
-    // Signal that all messages have been collected (worker will set messages_done after flushing buffer)
+    // Signal that all messages have been collected
     let _ = tx_to_worker.send(WorkerMessage::AllMessagesCollected);
 
     println!();
@@ -524,6 +512,9 @@ pub fn run(args: CommitArgs) -> Result<()> {
                 let item = &queue[idx];
                 println!("  {} {} failed: {}", "✗".red(), item.name.bold(), err);
                 failed_count += 1;
+            }
+            Ok(WorkerStatus::Log(msg)) => {
+                println!("{}", msg);
             }
             Ok(WorkerStatus::Done) => {
                 break;
@@ -610,10 +601,7 @@ fn worker_thread(
             }
             Ok(WorkerMessage::AllMessagesCollected) => {
                 all_messages_collected = true;
-                // Set messages_done BEFORE flushing so in-progress items don't add to buffer
                 ctx.messages_done.store(true, Ordering::SeqCst);
-                // Flush any buffered output now that input collection is done
-                ctx.flush_buffer();
             }
             Ok(WorkerMessage::Shutdown) => {
                 break;
@@ -898,10 +886,17 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
 
     // Check if lockfile sync created changes - if so, commit them
     let status = shell::git::status(&item.path)?;
+    ctx.log(&format!("    {} Git status: {}", "📋".dimmed(),
+        if status.trim().is_empty() { "no changes".dimmed().to_string() } else { format!("{} files changed", status.lines().count()) }));
+
     if !status.trim().is_empty() {
         ctx.log(&format!("    {} Committing lockfile changes", "📝".cyan()));
+        for line in status.lines().take(5) {
+            ctx.log(&format!("      {}", line.dimmed()));
+        }
         shell::git::add_all(&item.path)?;
         shell::git::commit(&item.path, &format!("Update lockfile for v{}", item.version))?;
+        ctx.log(&format!("    {} Committed", "✓".green()));
     }
 
     let tag = format!("v{}", item.version);
@@ -920,7 +915,9 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
         shell::git::push(&item.path)?;
     }
 
-    // Force push the tag to remote (overwrites existing remote tag)
+    // Delete remote tag first, then push - this ensures GitHub sees it as new and re-triggers CI
+    ctx.log(&format!("    {} Deleting remote tag to force re-trigger...", "🗑".cyan()));
+    let _ = shell::git::delete_remote_tag(&item.path, &tag); // Ignore error if tag doesn't exist
     shell::git::push_tag_force(&item.path, &tag)?;
     ctx.log(&format!("    {} Done", "✓".green()));
 
@@ -1204,11 +1201,24 @@ fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
     // Delete node_modules and package-lock.json to force fresh resolution
     let node_modules = item.path.join("node_modules");
     let lockfile = item.path.join("package-lock.json");
+
+    ctx.log(&format!("      {} Path: {}", "📁".dimmed(), item.path.display()));
+
+    // Always clear npm cache first to avoid stale resolutions
+    ctx.log(&format!("      {} Clearing npm cache...", "🗑".dimmed()));
+    let _ = shell::run("npm cache clean --force", &item.path, false);
+
     if node_modules.exists() {
-        let _ = std::fs::remove_dir_all(&node_modules);
+        ctx.log(&format!("      {} Removing node_modules...", "🗑".dimmed()));
+        if let Err(e) = std::fs::remove_dir_all(&node_modules) {
+            ctx.log(&format!("      {} Failed to remove node_modules: {}", "⚠".yellow(), e));
+        }
     }
     if lockfile.exists() {
-        let _ = std::fs::remove_file(&lockfile);
+        ctx.log(&format!("      {} Removing package-lock.json...", "🗑".dimmed()));
+        if let Err(e) = std::fs::remove_file(&lockfile) {
+            ctx.log(&format!("      {} Failed to remove lockfile: {}", "⚠".yellow(), e));
+        }
     }
 
     // Retry npm install with exponential backoff (CDN propagation can take time)
@@ -1219,19 +1229,28 @@ fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
     while attempt < max_retries {
         attempt += 1;
 
-        // Clear npm cache before retry to avoid stale data
+        // Wait before retry (not on first attempt)
         if attempt > 1 {
             let wait_secs = 10 * attempt;
             ctx.log(&format!("      {} Retry {}/{} in {}s (waiting for npm CDN)...",
                 "⏳".yellow(), attempt, max_retries, wait_secs));
             thread::sleep(Duration::from_secs(wait_secs as u64));
-            let _ = shell::run("npm cache clean --force", &item.path, false);
         }
 
+        ctx.log(&format!("      {} Running npm install (attempt {})...", "📦".cyan(), attempt));
         match shell::run("npm install --no-audit", &item.path, false) {
-            Ok(_) => return Ok(()),
+            Ok(_) => {
+                // Verify lockfile was created
+                if lockfile.exists() {
+                    ctx.log(&format!("      {} Lockfile regenerated successfully", "✓".green()));
+                } else {
+                    ctx.log(&format!("      {} Warning: lockfile not created!", "⚠".yellow()));
+                }
+                return Ok(());
+            }
             Err(e) => {
                 let err_str = e.to_string();
+                ctx.log(&format!("      {} npm install failed: {}", "✗".red(), err_str));
                 // Only retry on "notarget" errors (package not found yet)
                 if err_str.contains("ETARGET") || err_str.contains("notarget") || err_str.contains("No matching version") {
                     last_error = Some(e);
