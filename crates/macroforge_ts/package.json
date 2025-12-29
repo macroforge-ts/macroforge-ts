@@ -76,12 +76,12 @@
   },
   "scripts": {
     "artifacts": "napi artifacts --npm-dir npm",
-    "build": "npm install && npm run build:js && bun x napi build --platform --release",
-    "build:js": "npm run build:serde && npm run build:traits",
-    "build:serde": "bun build js/serde/index.ts --outfile js/serde/index.mjs && bun x tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
-    "build:traits": "bun build js/traits/index.ts --outfile js/traits/index.mjs && bun x tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
+    "build": "deno install --node-modules-dir && deno task build:js && deno run -A npm:@napi-rs/cli build --platform --release",
+    "build:js": "deno task build:serde && deno task build:traits",
+    "build:serde": "deno run -A npm:esbuild js/serde/index.ts --bundle --outfile=js/serde/index.mjs --format=esm && deno run -A npm:typescript/tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
+    "build:traits": "deno run -A npm:esbuild js/traits/index.ts --bundle --outfile=js/traits/index.mjs --format=esm && deno run -A npm:typescript/tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
     "clean": "rm -f macroforge.*.node pkg/*.node && rm -rf node_modules",
-    "cleanbuild": "npm run clean && npm run build"
+    "cleanbuild": "deno task clean && deno task build"
   },
   "types": "index.d.ts",
   "version": "0.1.65"
