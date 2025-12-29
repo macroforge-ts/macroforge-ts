@@ -1,0 +1,163 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:macroforge@~0.1.65": "0.1.65",
+    "npm:svelte@^5.43.8": "5.46.1_acorn@8.15.0",
+    "npm:typescript@^5.9.3": "5.9.3"
+  },
+  "npm": {
+    "@jridgewell/gen-mapping@0.3.13": {
+      "integrity": "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==",
+      "dependencies": [
+        "@jridgewell/sourcemap-codec",
+        "@jridgewell/trace-mapping"
+      ]
+    },
+    "@jridgewell/remapping@2.3.5": {
+      "integrity": "sha512-LI9u/+laYG4Ds1TDKSJW2YPrIlcVYOwi2fUC6xB43lueCjgxV4lffOCZCtYFiH6TNOX+tQKXx97T4IKHbhyHEQ==",
+      "dependencies": [
+        "@jridgewell/gen-mapping",
+        "@jridgewell/trace-mapping"
+      ]
+    },
+    "@jridgewell/resolve-uri@3.1.2": {
+      "integrity": "sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw=="
+    },
+    "@jridgewell/sourcemap-codec@1.5.5": {
+      "integrity": "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og=="
+    },
+    "@jridgewell/trace-mapping@0.3.31": {
+      "integrity": "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==",
+      "dependencies": [
+        "@jridgewell/resolve-uri",
+        "@jridgewell/sourcemap-codec"
+      ]
+    },
+    "@macroforge/bin-darwin-arm64@0.1.65": {
+      "integrity": "sha512-xLcPjRVvvomGcXS2jpqhKf6RRvzmAu+VNxrMoOCKKr4mrsvVlFExfXKVqcSHrt9pFZlZk1qNi2rJDf1EWT0SRg==",
+      "os": ["darwin"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-darwin-x64@0.1.65": {
+      "integrity": "sha512-y6IF2FM/Q/Fro9E6/xqXbH1sNAA61PhKPSRV4VdP6zCZc/06THAwfL4ie0EIT2xy7FpdKoklLolfGs5PA2HAnQ==",
+      "os": ["darwin"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/bin-linux-arm64-gnu@0.1.65": {
+      "integrity": "sha512-CEJFQRd4j6e1KHp1AQn1pNyxqW8rZEmer/4NfZIJv8n84pFsMsuLHkOxBBSEmsXixDsriRpRjp/5uisvkhviEw==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-linux-x64-gnu@0.1.65": {
+      "integrity": "sha512-S3mSE8h33n8uKKTYowhZEwL92M7p6r1srQBOQPzY155WcgtV5ors9eCNietUJAuzC7kM/zRNPajD/CdberpEWQ==",
+      "os": ["linux"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/bin-win32-arm64-msvc@0.1.65": {
+      "integrity": "sha512-Iri3RwNJD3t02jGx0z/jTYmJ20TEMXGyyFX3HbM5Ug03+rhD8XhQOJQYq5hHn1jxWBbWztE78sZ7W7rwJd15Tw==",
+      "os": ["win32"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-win32-x64-msvc@0.1.65": {
+      "integrity": "sha512-xaptynlKiku3ba+q9hKdxPr5RzqcvY+HnXVqecoQIezblnA4y1T8QWjk9uGyxacGph/3Jnxi9SOg7rrQb5CZ0w==",
+      "os": ["win32"],
+      "cpu": ["x64"]
+    },
+    "@sveltejs/acorn-typescript@1.0.8_acorn@8.15.0": {
+      "integrity": "sha512-esgN+54+q0NjB0Y/4BomT9samII7jGwNy/2a3wNZbT2A2RpmXsXwUt24LvLhx6jUq2gVk4cWEvcRO6MFQbOfNA==",
+      "dependencies": [
+        "acorn"
+      ]
+    },
+    "@types/estree@1.0.8": {
+      "integrity": "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="
+    },
+    "acorn@8.15.0": {
+      "integrity": "sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==",
+      "bin": true
+    },
+    "aria-query@5.3.2": {
+      "integrity": "sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw=="
+    },
+    "axobject-query@4.1.0": {
+      "integrity": "sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ=="
+    },
+    "clsx@2.1.1": {
+      "integrity": "sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA=="
+    },
+    "devalue@5.6.1": {
+      "integrity": "sha512-jDwizj+IlEZBunHcOuuFVBnIMPAEHvTsJj0BcIp94xYguLRVBcXO853px/MyIJvbVzWdsGvrRweIUWJw8hBP7A=="
+    },
+    "esm-env@1.2.2": {
+      "integrity": "sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA=="
+    },
+    "esrap@2.2.1": {
+      "integrity": "sha512-GiYWG34AN/4CUyaWAgunGt0Rxvr1PTMlGC0vvEov/uOQYWne2bpN03Um+k8jT+q3op33mKouP2zeJ6OlM+qeUg==",
+      "dependencies": [
+        "@jridgewell/sourcemap-codec"
+      ]
+    },
+    "is-reference@3.0.3": {
+      "integrity": "sha512-ixkJoqQvAP88E6wLydLGGqCJsrFUnqoH6HnaczB8XmDH1oaWU+xxdptvikTgaEhtZ53Ky6YXiBuUI2WXLMCwjw==",
+      "dependencies": [
+        "@types/estree"
+      ]
+    },
+    "locate-character@3.0.0": {
+      "integrity": "sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA=="
+    },
+    "macroforge@0.1.65": {
+      "integrity": "sha512-glsFLuIZR1QMVkV8bwdseuwQ/3THwwZaNY73qfXpDlx52ddXb16VEkOK6/K7P+NikI8JDSoLgBk1YB6s40xfaw==",
+      "optionalDependencies": [
+        "@macroforge/bin-darwin-arm64",
+        "@macroforge/bin-darwin-x64",
+        "@macroforge/bin-linux-arm64-gnu",
+        "@macroforge/bin-linux-x64-gnu",
+        "@macroforge/bin-win32-arm64-msvc",
+        "@macroforge/bin-win32-x64-msvc"
+      ]
+    },
+    "magic-string@0.30.21": {
+      "integrity": "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==",
+      "dependencies": [
+        "@jridgewell/sourcemap-codec"
+      ]
+    },
+    "svelte@5.46.1_acorn@8.15.0": {
+      "integrity": "sha512-ynjfCHD3nP2el70kN5Pmg37sSi0EjOm9FgHYQdC4giWG/hzO3AatzXXJJgP305uIhGQxSufJLuYWtkY8uK/8RA==",
+      "dependencies": [
+        "@jridgewell/remapping",
+        "@jridgewell/sourcemap-codec",
+        "@sveltejs/acorn-typescript",
+        "@types/estree",
+        "acorn",
+        "aria-query",
+        "axobject-query",
+        "clsx",
+        "devalue",
+        "esm-env",
+        "esrap",
+        "is-reference",
+        "locate-character",
+        "magic-string",
+        "zimmerframe"
+      ]
+    },
+    "typescript@5.9.3": {
+      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+      "bin": true
+    },
+    "zimmerframe@1.1.4": {
+      "integrity": "sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ=="
+    }
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:macroforge@~0.1.65",
+        "npm:svelte@^5.43.8",
+        "npm:typescript@^5.9.3"
+      ]
+    }
+  }
+}
