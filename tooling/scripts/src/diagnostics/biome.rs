@@ -43,8 +43,8 @@ struct BiomeSpan {
 
 /// Run biome check and collect diagnostics
 pub fn run(root: &Path) -> Result<Vec<UnifiedDiagnostic>> {
-    let output = Command::new("npx")
-        .args(["@biomejs/biome", "check", ".", "--reporter=json"])
+    let output = Command::new("deno")
+        .args(["run", "-A", "npm:@biomejs/biome", "check", ".", "--reporter=json"])
         .current_dir(root)
         .output()
         .context("Failed to run biome check")?;

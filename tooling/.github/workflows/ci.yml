@@ -12,15 +12,104 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
         with:
-          node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: 'scripts/package-lock.json'
-
-      - name: Install script dependencies
-        run: cd scripts && npm ci --if-present
+          deno-version: v2.x
 
       - name: Lint with Biome
-        run: npx @biomejs/biome check .
+        run: deno run -A npm:@biomejs/biome check .
+
+  playground-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: crates/macroforge_ts
+
+      - name: Build macroforge native module
+        working-directory: crates/macroforge_ts
+        run: deno run -A npm:@napi-rs/cli build --platform --release
+
+      - name: Build macroforge JS modules
+        working-directory: crates/macroforge_ts
+        run: |
+          deno run -A npm:esbuild js/serde/index.ts --bundle --outfile=js/serde/index.mjs --format=esm
+          deno run -A npm:typescript/tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck
+          deno run -A npm:esbuild js/traits/index.ts --bundle --outfile=js/traits/index.mjs --format=esm
+          deno run -A npm:typescript/tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck
+
+      - name: Install shared package dependencies
+        working-directory: packages/shared
+        run: deno install --node-modules-dir
+
+      - name: Build shared package
+        working-directory: packages/shared
+        run: deno task build
+
+      - name: Install vite-plugin dependencies
+        working-directory: packages/vite-plugin
+        run: deno install --node-modules-dir
+
+      - name: Install typescript-plugin dependencies
+        working-directory: packages/typescript-plugin
+        run: deno install --node-modules-dir
+
+      - name: Build typescript-plugin
+        working-directory: packages/typescript-plugin
+        run: deno task build
+
+      - name: Install svelte-preprocessor dependencies
+        working-directory: packages/svelte-preprocessor
+        run: deno install --node-modules-dir
+
+      - name: Build svelte-preprocessor
+        working-directory: packages/svelte-preprocessor
+        run: deno task build
+
+      - name: Build playground macro
+        working-directory: tooling/playground/macro
+        run: deno run -A npm:@napi-rs/cli build --platform --release -p playground-macros
+
+      - name: Install vanilla playground dependencies
+        working-directory: tooling/playground/vanilla
+        run: deno install --node-modules-dir
+
+      - name: Build vanilla playground
+        working-directory: tooling/playground/vanilla
+        run: deno task build
+
+      - name: Install svelte playground dependencies
+        working-directory: tooling/playground/svelte
+        run: deno install --node-modules-dir
+
+      - name: Build svelte playground
+        working-directory: tooling/playground/svelte
+        run: deno task build
+
+      - name: Run svelte playground tests
+        working-directory: tooling/playground/svelte
+        run: deno task test
+
+      - name: Install e2e test dependencies
+        working-directory: tooling/playground/tests
+        run: deno install --node-modules-dir
+
+      - name: Install Playwright browsers
+        working-directory: tooling/playground/tests
+        run: deno run -A npm:playwright install chromium
+
+      - name: Run e2e tests
+        working-directory: tooling/playground/tests
+        run: deno task test:e2e

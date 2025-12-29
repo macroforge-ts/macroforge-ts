@@ -15,8 +15,8 @@ pub fn run(_root: &Path, project_dirs: &[&Path]) -> Result<Vec<UnifiedDiagnostic
         .context("Failed to compile error regex")?;
 
     for project_dir in project_dirs {
-        let output = Command::new("npx")
-            .args(["svelte-check", "--tsconfig", "./tsconfig.json"])
+        let output = Command::new("deno")
+            .args(["run", "-A", "npm:svelte-check", "--tsconfig", "./tsconfig.json"])
             .current_dir(project_dir)
             .output()
             .context("Failed to run svelte-check")?;

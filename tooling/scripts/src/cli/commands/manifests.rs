@@ -43,8 +43,8 @@ pub fn run(args: ManifestArgs) -> Result<()> {
             }
             versions.save(&config.root)?;
             // Format versions.json with biome
-            let _ = Command::new("npx")
-                .args(["@biomejs/biome", "format", "--write", "tooling/versions.json"])
+            let _ = Command::new("deno")
+                .args(["run", "-A", "npm:@biomejs/biome", "format", "--write", "tooling/versions.json"])
                 .current_dir(&config.root)
                 .output();
         }

@@ -148,8 +148,8 @@ pub fn run(args: ExpandArgs) -> Result<()> {
             .and_then(|n| n.to_str())
             .unwrap_or("unknown");
 
-        let result = Command::new("npx")
-            .args(["biome", "format", "--write", "src"])
+        let result = Command::new("deno")
+            .args(["run", "-A", "npm:@biomejs/biome", "format", "--write", "src"])
             .current_dir(playground_root)
             .output();
 
