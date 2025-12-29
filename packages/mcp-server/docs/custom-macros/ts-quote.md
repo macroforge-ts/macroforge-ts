@@ -11,27 +11,27 @@ The `macroforge_ts_quote` crate provides template-based code generation for Type
 
 ## Quick Reference
 
-| Syntax                                                         | Description                                                                   |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `@{expr}`                                                      | Interpolate a Rust expression (adds space after)                              |
+| Syntax                                                         | Description                                                                             |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `@{expr}`                                                      | Interpolate a Rust expression (adds space after)                                        |
 | `{&#124; content &#124;}`                                      | Ident block: concatenates without spaces (e.g., `{&#124;get@{name}&#124;}` → `getUser`) |
-| `{> "comment" <}`                                              | Block comment: outputs `/* comment */` (string preserves whitespace)          |
-| `{>> "doc" <<}`                                                | Doc comment: outputs `/** doc */` (string preserves whitespace)               |
-| `@@{`                                                          | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)                        |
-| `"text @{expr}"`                                               | String interpolation (auto-detected)                                          |
-| `"'^template ${js}^'"`                                         | JS backtick template literal (outputs `` `template ${js}` ``)                 |
-| `{#if cond}...{/if}`                                           | Conditional block                                                             |
-| `{#if cond}...{:else}...{/if}`                                 | Conditional with else                                                         |
-| `{#if a}...{:else if                     b}...{:else}...{/if}` | Full if/else-if/else chain                                                    |
-| `{#if let pattern = expr}...{/if}`                             | Pattern matching if-let                                                       |
-| `{#match expr}{:case                     pattern}...{/match}`  | Match expression with case arms                                               |
-| `{#for item in list}...{/for}`                                 | Iterate over a collection                                                     |
-| `{#while cond}...{/while}`                                     | While loop                                                                    |
-| `{#while let pattern = expr}...{/while}`                       | While-let pattern matching loop                                               |
-| `{$let name = expr}`                                           | Define a local constant                                                       |
-| `{$let mut name = expr}`                                       | Define a mutable local variable                                               |
-| `{$do expr}`                                                   | Execute a side-effectful expression                                           |
-| `{$typescript stream}`                                         | Inject a TsStream, preserving its source and runtime\_patches (imports)       |
+| `{> "comment" <}`                                              | Block comment: outputs `/* comment */` (string preserves whitespace)                    |
+| `{>> "doc" <<}`                                                | Doc comment: outputs `/** doc */` (string preserves whitespace)                         |
+| `@@{`                                                          | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)                                  |
+| `"text @{expr}"`                                               | String interpolation (auto-detected)                                                    |
+| `"'^template ${js}^'"`                                         | JS backtick template literal (outputs `` `template ${js}` ``)                           |
+| `{#if cond}...{/if}`                                           | Conditional block                                                                       |
+| `{#if cond}...{:else}...{/if}`                                 | Conditional with else                                                                   |
+| `{#if a}...{:else if                     b}...{:else}...{/if}` | Full if/else-if/else chain                                                              |
+| `{#if let pattern = expr}...{/if}`                             | Pattern matching if-let                                                                 |
+| `{#match expr}{:case                     pattern}...{/match}`  | Match expression with case arms                                                         |
+| `{#for item in list}...{/for}`                                 | Iterate over a collection                                                               |
+| `{#while cond}...{/while}`                                     | While loop                                                                              |
+| `{#while let pattern = expr}...{/while}`                       | While-let pattern matching loop                                                         |
+| `{$let name = expr}`                                           | Define a local constant                                                                 |
+| `{$let mut name = expr}`                                       | Define a mutable local variable                                                         |
+| `{$do expr}`                                                   | Execute a side-effectful expression                                                     |
+| `{$typescript stream}`                                         | Inject a TsStream, preserving its source and runtime_patches (imports)                  |
 
 **Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works as expected).
 
@@ -62,9 +62,9 @@ User.prototype.toString = function () {
 };
 ```
 
-## Identifier Concatenation: `{| content |}`
+## Identifier Concatenation: ` content `
 
-When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `{| |}` is concatenated without spaces:
+When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside ` ` is concatenated without spaces:
 
 Rust
 
@@ -72,7 +72,7 @@ Rust
 let field_name = "User";
 
 let code = ts_template! {
-    function {|get@{field_name}|}() {
+    function get@{field_name}() {
         return this.@{field_name.to_lowercase()};
     }
 };
@@ -88,7 +88,7 @@ function getUser() {
 }
 ```
 
-Without ident blocks, `@{}` always adds a space after for readability. Use `{| |}` when you explicitly want concatenation:
+Without ident blocks, `@{}` always adds a space after for readability. Use ` ` when you explicitly want concatenation:
 
 Rust
 
@@ -99,7 +99,7 @@ let name = "Status";
 ts_template! { namespace @{name} }  // → "namespace Status"
 
 // Without space (ident block)
-ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"
+ts_template! { namespace@{name} }  // → "namespaceStatus"
 ```
 
 Multiple interpolations can be combined:
@@ -110,7 +110,7 @@ Rust
 let entity = "user";
 let action = "create";
 
-ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
+ts_template! { @{entity}_@{action} }  // → "user_create"
 ```
 
 ## Comments: `{> "..." <}` and `{>> "..." <<}`
@@ -613,10 +613,10 @@ let code = ts_template! {
 
 Common uses for `{$do}`:
 
-*   Incrementing counters: `{$do i += 1}`
-*   Building collections: `{$do vec.push(item)}`
-*   Setting flags: `{$do found = true}`
-*   Any mutating operation
+- Incrementing counters: `{$do i += 1}`
+- Building collections: `{$do vec.push(item)}`
+- Setting flags: `{$do found = true}`
+- Any mutating operation
 
 ## TsStream Injection: `{$typescript}`
 
@@ -727,7 +727,7 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 }
 ```
 
-### After (With ts\_template!)
+### After (With ts_template!)
 
 Rust
 
@@ -782,8 +782,8 @@ This shows you exactly what was generated, making debugging easy!
 
 You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
 
-*   **Template tags** if they start with `#`, `$`, `:`, or `/`
-*   **Regular TypeScript blocks** otherwise
+- **Template tags** if they start with `#`, `$`, `:`, or `/`
+- **Regular TypeScript blocks** otherwise
 
 Rust
 

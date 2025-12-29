@@ -25,7 +25,7 @@
   "main": "dist/index.js",
   "name": "@macroforge/mcp-server",
   "peerDependencies": {
-    "macroforge": "0.1.63"
+    "macroforge": "^0.1.64"
   },
   "peerDependenciesMeta": {
     "macroforge": {
@@ -46,5 +46,5 @@
     "test": "node --test tests/**/*.test.js"
   },
   "type": "module",
-  "version": "0.1.63"
+  "version": "0.1.64"
 }

@@ -17,7 +17,7 @@ let code = ts_template! {
 
 ```typescript
 User.prototype.toString = function () {
-  return "User instance";
+    return "User instance";
 };
 ```
 
@@ -31,7 +31,7 @@ When you need to build identifiers dynamically (like `getUser`, `setName`), use 
 let field_name = "User";
 
 let code = ts_template! {
-    function {|get@{field_name}|}() {
+    function get@{field_name}() {
         return this.@{field_name.to_lowercase()};
     }
 };
@@ -41,7 +41,7 @@ let code = ts_template! {
 
 ```typescript
 function getUser() {
-  return this.user;
+    return this.user;
 }
 ```
 
@@ -54,7 +54,7 @@ let name = "Status";
 ts_template! { namespace @{name} }  // → "namespace Status"
 
 // Without space (ident block)
-ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"
+ts_template! { namespace@{name} }  // → "namespaceStatus"
 ```
 
 Multiple interpolations can be combined:
@@ -63,7 +63,7 @@ Multiple interpolations can be combined:
 let entity = "user";
 let action = "create";
 
-ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
+ts_template! { @{entity}_@{action} }  // → "user_create"
 ```
 
 <h2 id="comments">
