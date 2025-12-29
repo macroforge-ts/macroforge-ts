@@ -492,6 +492,43 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
+        // [6.6/9] Run npm tests for TypeScript packages
+        let ts_repos_with_tests: Vec<_> = repos
+            .iter()
+            .filter(|r| r.repo_type == RepoType::Ts)
+            .filter(|r| {
+                r.package_json
+                    .as_ref()
+                    .filter(|p| p.exists())
+                    .and_then(|p| std::fs::read_to_string(p).ok())
+                    .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
+                    .and_then(|pkg| pkg.get("scripts")?.get("test").cloned())
+                    .is_some()
+            })
+            .collect();
+
+        if !ts_repos_with_tests.is_empty() {
+            let step = Step {
+                number: 6.6,
+                total: 9,
+                label: "Running npm tests".to_string(),
+            };
+            step.print();
+
+            for repo in &ts_repos_with_tests {
+                print!("  {} {}... ", "→".blue(), repo.name);
+                io::stdout().flush()?;
+                match shell::npm::run_script(&repo.abs_path, "test") {
+                    Ok(_) => println!("{}", "passed".green()),
+                    Err(e) => {
+                        println!("{}", "failed".red());
+                        rollback(&config, &original_versions_cache);
+                        return Err(e);
+                    }
+                }
+            }
+        }
+
         // Restore registry dependencies
         println!("  {} Restoring registry dependencies...", "→".blue());
         manifests::swap_registry(&config.root, &versions_cache)?;
