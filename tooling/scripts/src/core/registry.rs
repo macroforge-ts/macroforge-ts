@@ -4,6 +4,15 @@
 
 use anyhow::Result;
 use serde::Deserialize;
+use std::time::Duration;
+
+/// Create a ureq agent with reasonable timeouts
+fn agent() -> ureq::Agent {
+    ureq::AgentBuilder::new()
+        .timeout_connect(Duration::from_secs(10))
+        .timeout(Duration::from_secs(30))
+        .build()
+}
 
 /// npm registry response for package metadata
 #[derive(Deserialize)]
@@ -27,7 +36,7 @@ struct CrateInfo {
 pub fn npm_version(package_name: &str) -> Result<Option<String>> {
     let url = format!("https://registry.npmjs.org/{}/latest", package_name);
 
-    match ureq::get(&url).call() {
+    match agent().get(&url).call() {
         Ok(resp) => {
             if resp.status() == 404 {
                 return Ok(None);
@@ -44,7 +53,8 @@ pub fn npm_version(package_name: &str) -> Result<Option<String>> {
 pub fn crates_version(crate_name: &str) -> Result<Option<String>> {
     let url = format!("https://crates.io/api/v1/crates/{}", crate_name);
 
-    match ureq::get(&url)
+    match agent()
+        .get(&url)
         .header("User-Agent", "mf-cli (github.com/anthropics/macroforge)")
         .call()
     {
