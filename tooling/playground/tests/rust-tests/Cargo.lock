@@ -889,8 +889,8 @@ dependencies = [
  "inventory",
  "libc",
  "macroforge_ts_macros",
- "macroforge_ts_quote 0.1.62 (registry+https://github.com/rust-lang/crates.io-index)",
- "macroforge_ts_syn 0.1.62 (registry+https://github.com/rust-lang/crates.io-index)",
+ "macroforge_ts_quote 0.1.63 (registry+https://github.com/rust-lang/crates.io-index)",
+ "macroforge_ts_syn 0.1.63 (registry+https://github.com/rust-lang/crates.io-index)",
  "napi",
  "napi-build",
  "napi-derive",
@@ -902,9 +902,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.62"
+version = "0.1.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9256816edc220c463cf5f22dc97743bc92b24ff6e05096d7ad71f801d1e99c1c"
+checksum = "6088b11ceb2523e8c8a122d6989f3f0e248c24301671a27f697ca9a7ea219e0b"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -914,7 +914,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.62"
+version = "0.1.63"
 dependencies = [
  "anyhow",
  "convert_case",
@@ -929,9 +929,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.62"
+version = "0.1.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "736efb4143ce8d72aeddb46669e50895eb86d4a4214671d3b73821b3a1b2856e"
+checksum = "1eeaa4c3ac965d5d575debce2587c341b7bdb64119a4c7280b67abea9bf1bdd6"
 dependencies = [
  "anyhow",
  "convert_case",
@@ -946,7 +946,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.62"
+version = "0.1.63"
 dependencies = [
  "serde",
  "swc_core",
@@ -955,9 +955,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.62"
+version = "0.1.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38728db456ab5dd4e98bc146e40b13ee14e074ad83293ddb43f9e49c88c83d74"
+checksum = "f6f54b44efcd6ca8173a4869935d24833ad482976d42a7ccb2395214821e94b7"
 dependencies = [
  "serde",
  "swc_core",
@@ -1281,8 +1281,8 @@ name = "rust-tests"
 version = "0.0.0"
 dependencies = [
  "macroforge_ts",
- "macroforge_ts_quote 0.1.62",
- "macroforge_ts_syn 0.1.62",
+ "macroforge_ts_quote 0.1.63",
+ "macroforge_ts_syn 0.1.63",
  "swc_core",
  "trybuild",
 ]
