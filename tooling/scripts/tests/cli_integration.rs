@@ -7,11 +7,8 @@ use assert_cmd::Command;
 use predicates::prelude::*;
 
 /// Helper to create a command for the mf binary
-///
-/// Note: Uses `cargo_bin` which is marked deprecated but still functional.
-/// The alternative `cargo_bin!` macro has different ergonomics.
 fn mf_cmd() -> Command {
-    Command::cargo_bin("mf").unwrap()
+    Command::new(env!("CARGO_BIN_EXE_mf"))
 }
 
 #[test]
