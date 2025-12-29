@@ -259,6 +259,16 @@ impl Analyzer {
                 self.push_context(Context::Identifier);
             }
 
+            // `type` keyword - next identifier is a type alias name
+            SyntaxKind::TypeKw => {
+                self.push_context(Context::Identifier);
+            }
+
+            // `interface` keyword - next identifier is an interface name
+            SyntaxKind::InterfaceKw => {
+                self.push_context(Context::Identifier);
+            }
+
             // `const`, `let` keywords - next identifier is a variable name
             SyntaxKind::ConstKw | SyntaxKind::LetKw => {
                 self.push_context(Context::Identifier);
@@ -860,6 +870,42 @@ mod tests {
             PlaceholderKind::Expr,
             "Return expression should be Expr, got {:?}",
             placeholders[3].1.kind
+        );
+    }
+
+    #[test]
+    fn test_let_ident_and_expr() {
+        // First check that const works
+        let const_result = analyze_template("const @{name} = @{value}");
+        let mut const_placeholders: Vec<_> = const_result.placeholders.iter().collect();
+        const_placeholders.sort_by_key(|(id, _)| *id);
+        assert_eq!(
+            const_placeholders[0].1.kind,
+            PlaceholderKind::Ident,
+            "const: Variable name should be Ident, got {:?}",
+            const_placeholders[0].1.kind
+        );
+
+        // Now check let
+        let result = analyze_template("let @{name} = @{value}");
+        assert_eq!(result.placeholders.len(), 2);
+
+        let mut placeholders: Vec<_> = result.placeholders.iter().collect();
+        placeholders.sort_by_key(|(id, _)| *id);
+
+        // First placeholder (name) should be Ident (after let keyword)
+        assert_eq!(
+            placeholders[0].1.kind,
+            PlaceholderKind::Ident,
+            "Variable name after let should be Ident, got {:?}",
+            placeholders[0].1.kind
+        );
+        // Second placeholder (value) should be Expr (after =)
+        assert_eq!(
+            placeholders[1].1.kind,
+            PlaceholderKind::Expr,
+            "Value after = should be Expr, got {:?}",
+            placeholders[1].1.kind
         );
     }
 }

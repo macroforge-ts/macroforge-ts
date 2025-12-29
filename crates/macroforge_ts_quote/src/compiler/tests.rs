@@ -648,3 +648,15 @@ fn test_for_only_with_let_binding() {
         r#"{#for v in &config.variants}{$let variant_name = to_pascal_case(&v.value)}export type @{type_name}@{variant_name}Tainted = {};{/for}"#,
     );
 }
+
+// ==================== Optional parameter preservation ====================
+#[test]
+fn test_optional_parameter_preserved() {
+    // Tests that optional parameter markers (?) are preserved in codegen
+    test_template(
+        "optional_parameter",
+        r#"interface FormStore {
+    reset(overrides?: Partial<@{type_name}>): void;
+}"#,
+    );
+}

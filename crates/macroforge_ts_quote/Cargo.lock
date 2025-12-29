@@ -451,7 +451,7 @@ checksum = "6373607a59f0be73a39b6fe456b8192fcc3585f602af20751600e974dd455e77"
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.63"
+version = "0.1.64"
 dependencies = [
  "anyhow",
  "convert_case",

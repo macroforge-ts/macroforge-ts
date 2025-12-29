@@ -437,6 +437,21 @@ impl ContextStack {
         let before: String = chars[..brace_pos].iter().collect();
         let trimmed = before.trim_end();
 
+        // Type object literal: `type X = {`, `export type X = {`
+        // Must check BEFORE ObjectLiteral since both match `ends_with('=')`
+        if trimmed.ends_with('=') && trimmed.contains("type ") {
+            return ParseContext::TypeObjectLiteral;
+        }
+
+        // Interface body: `interface X {`, `export interface X {`
+        if trimmed.contains("interface ") {
+            // Check that we're not inside nested braces of the interface
+            let after_interface = trimmed.rsplit("interface ").next().unwrap_or("");
+            if !after_interface.contains('{') {
+                return ParseContext::TypeObjectLiteral;
+            }
+        }
+
         // Object literal patterns: `= {`, `return {`, `: {`, `( {`, `[ {`, `, {`
         if trimmed.ends_with('=')
             || trimmed.ends_with("return")
@@ -447,11 +462,6 @@ impl ContextStack {
             || trimmed.ends_with("=>")
         {
             return ParseContext::ObjectLiteral;
-        }
-
-        // Type object: `type X = {`, `interface X {`
-        if trimmed.contains("type ") && trimmed.ends_with('=') {
-            return ParseContext::TypeObjectLiteral;
         }
 
         // Class body: `class X {`, `class X extends Y {`
@@ -777,6 +787,7 @@ impl ContextAnalysis {
     /// Classifies what context an opening brace `{` introduces.
     ///
     /// Looks at preceding tokens to determine:
+    /// - TypeObjectLiteral: after `type X =` or `interface X`
     /// - ObjectLiteral: after `return`, `=`, `(`, `:`, `,`
     /// - FunctionBody: after `)` with function signature, or `=>`
     /// - ClassBody: after `class Name` or `extends Name`
@@ -784,6 +795,20 @@ impl ContextAnalysis {
         // Look backwards to find what precedes the brace
         let before: String = chars[..brace_pos].iter().collect();
         let trimmed = before.trim_end();
+
+        // Check for type literal: `type X = {` or `export type X = {`
+        // Must check BEFORE ObjectLiteral since both match ends_with('=')
+        if trimmed.ends_with('=') && trimmed.contains("type ") {
+            return ParseContext::TypeObjectLiteral;
+        }
+
+        // Check for interface: `interface X {` or `export interface X {`
+        if trimmed.contains("interface ") {
+            let after_interface = trimmed.rsplit("interface ").next().unwrap_or("");
+            if !after_interface.contains('{') {
+                return ParseContext::TypeObjectLiteral;
+            }
+        }
 
         // Check for arrow function: `=> {`
         if trimmed.ends_with("=>") {
@@ -1204,6 +1229,72 @@ impl Codegen {
 
     fn is_ident_char(b: u8) -> bool {
         b.is_ascii_alphanumeric() || b == b'_' || b == b'$'
+    }
+
+    /// Checks if an opener text is for a type literal (type alias or interface).
+    ///
+    /// Patterns:
+    /// - `export type X = {` or `type X = {` (with optional content after `{`)
+    /// - `export interface X {` or `interface X {` (with optional content after `{`)
+    fn is_type_literal_opener(text: &str) -> bool {
+        // Find the first `{` in the text
+        let chars: Vec<char> = text.chars().collect();
+        let mut first_open_brace = None;
+        let mut in_string = false;
+        let mut string_char = '"';
+        let mut escape_next = false;
+
+        for (i, &ch) in chars.iter().enumerate() {
+            if escape_next {
+                escape_next = false;
+                continue;
+            }
+            if ch == '\\' {
+                escape_next = true;
+                continue;
+            }
+            if in_string {
+                if ch == string_char {
+                    in_string = false;
+                }
+                continue;
+            }
+            match ch {
+                '"' | '\'' | '`' => {
+                    in_string = true;
+                    string_char = ch;
+                }
+                '{' => {
+                    first_open_brace = Some(i);
+                    break;
+                }
+                _ => {}
+            }
+        }
+
+        let Some(brace_pos) = first_open_brace else {
+            return false;
+        };
+
+        // Check what precedes the first `{`
+        let before_brace: String = chars[..brace_pos].iter().collect();
+        let trimmed = before_brace.trim_end();
+
+        // Type alias: `type X =` or `export type X =`
+        if trimmed.ends_with('=') && trimmed.contains("type ") {
+            return true;
+        }
+
+        // Interface: `interface X` or `export interface X`
+        if trimmed.contains("interface ") {
+            // Make sure we're not inside a nested interface
+            let after_interface = trimmed.rsplit("interface ").next().unwrap_or("");
+            if !after_interface.contains('{') {
+                return true;
+            }
+        }
+
+        false
     }
 
     /// Count actual `{` and `}` braces in a string, ignoring strings/escapes.
@@ -2198,7 +2289,19 @@ impl Codegen {
                 } else if span.is_closer() {
                     self.generate_closer_span(&span.text, &binding_stmts, &quote_bindings, span)
                 } else if span.is_opener() {
-                    self.generate_opener_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    // Check if this opener is for a type literal (type X = { or interface X {)
+                    // Type literals with control flow need raw source emission to maintain
+                    // proper ordering with for-loop content
+                    if Self::is_type_literal_opener(&span.text) {
+                        self.generate_raw_source_span(
+                            &span.text,
+                            &binding_stmts,
+                            &quote_bindings,
+                            span,
+                        )
+                    } else {
+                        self.generate_opener_span(&span.text, &binding_stmts, &quote_bindings, span)
+                    }
                 } else {
                     self.generate_middle_span(&span.text, &binding_stmts, &quote_bindings, span)
                 }
@@ -2307,8 +2410,8 @@ impl Codegen {
             }
 
             ParseContext::TypeObjectLiteral => {
-                // Type object literal
-                self.generate_object_span(&span.text, &binding_stmts, &quote_bindings, span)
+                // Type object literal - uses type-specific handling
+                self.generate_type_object_span(&span.text, &binding_stmts, &quote_bindings, span)
             }
         }
     }
@@ -2626,6 +2729,27 @@ impl Codegen {
         } else {
             self.generate_opener_span(text, binding_stmts, quote_bindings, span)
         }
+    }
+
+    /// Generate code for a type object literal span (type literal members).
+    ///
+    /// Unlike object literals, type literals have property signatures with type annotations
+    /// like `{ name: string; age: number }`.
+    ///
+    /// For type literals, we use raw source emission to properly handle control flow
+    /// (for-loops, if-blocks) inside the type body. The AST-based collector approach
+    /// doesn't integrate well with the opener/closer virtual completion system.
+    fn generate_type_object_span(
+        &self,
+        text: &str,
+        binding_stmts: &[TokenStream],
+        quote_bindings: &[TokenStream],
+        span: &ContextSpan,
+    ) -> TokenStream {
+        // Always use raw source emission for type literals.
+        // This allows control flow (for-loops) inside type bodies to work correctly
+        // by directly emitting source text that flows naturally with opener/closer.
+        self.generate_raw_source_span(text, binding_stmts, quote_bindings, span)
     }
 
     /// Generate code for a class body span.

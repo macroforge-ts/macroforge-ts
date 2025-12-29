@@ -13,10 +13,13 @@ impl ToCode for swc_core::ecma::ast::Ident {
         }
 
         let sym_value = self.sym.to_code(cx);
-        parse_quote!(macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
-            #sym_value,
-            macroforge_ts::swc_core::common::DUMMY_SP,
-        ))
+        let optional_value = self.optional.to_code(cx);
+        parse_quote!(macroforge_ts::swc_core::ecma::ast::Ident {
+            span: macroforge_ts::swc_core::common::DUMMY_SP,
+            ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+            sym: #sym_value,
+            optional: #optional_value,
+        })
     }
 }
 

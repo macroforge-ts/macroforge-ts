@@ -3,16 +3,12 @@ name = "compile_time_parser_external_tester"
 version = "0.1.0"
 edition = "2024"
 
-[[bin]]
-name = "expand_closure"
-path = "expand_closure.rs"
-
 [dependencies]
 macroforge_ts_quote = { path = ".." }
 macroforge_ts_syn = { path = "../../macroforge_ts_syn" }
 macroforge_ts = { path = "../../macroforge_ts" }
 proc-macro2 = "1"
-swc_core = { version = "51.0.0", default-features = false, features = [
+swc_core = { version = "52.0.0", default-features = false, features = [
   "common",
   "ecma_ast",
   "ecma_codegen",

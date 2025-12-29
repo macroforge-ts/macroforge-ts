@@ -326,6 +326,7 @@ impl<'a> Lexer<'a> {
         let keywords = [
             ("function", SyntaxKind::FunctionKw),
             ("const", SyntaxKind::ConstKw),
+            ("let", SyntaxKind::LetKw),
             ("class", SyntaxKind::ClassKw),
             ("interface", SyntaxKind::InterfaceKw),
             ("type", SyntaxKind::TypeKw),
