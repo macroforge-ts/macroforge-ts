@@ -43,6 +43,8 @@ struct CommitItem {
 enum WorkerMessage {
     /// Process this item with the given commit message
     Process { index: usize, message: String },
+    /// Push unpushed commits without creating a new commit
+    PushOnly { index: usize },
     /// Skip this item (no changes to commit)
     Skip { index: usize },
     /// Retag this item (no changes, but user wants to recreate tag)
@@ -62,8 +64,6 @@ enum WorkerStatus {
     Completed(usize),
     /// Item failed
     Failed(usize, String),
-    /// Worker is waiting for dependencies
-    WaitingForDeps(usize, String),
     /// Worker finished all work
     Done,
 }
@@ -77,6 +77,31 @@ struct WorkerContext {
     interrupted: Arc<AtomicBool>,
     committed_packages: Arc<Mutex<HashMap<String, String>>>,
     registry_ready: Arc<Mutex<std::collections::HashSet<String>>>,
+    failed_packages: Arc<Mutex<HashMap<String, String>>>,
+    processing_name: Arc<Mutex<Option<String>>>,
+    messages_done: Arc<AtomicBool>,
+    /// Buffer for output messages during input collection phase
+    output_buffer: Arc<Mutex<Vec<String>>>,
+}
+
+impl WorkerContext {
+    /// Log a message - buffers if messages not done, prints immediately otherwise
+    fn log(&self, msg: &str) {
+        if self.messages_done.load(Ordering::SeqCst) {
+            println!("{}", msg);
+        } else {
+            let mut buffer = self.output_buffer.lock().unwrap();
+            buffer.push(msg.to_string());
+        }
+    }
+
+    /// Flush buffered messages to stdout
+    fn flush_buffer(&self) {
+        let mut buffer = self.output_buffer.lock().unwrap();
+        for msg in buffer.drain(..) {
+            println!("{}", msg);
+        }
+    }
 }
 
 pub fn run(args: CommitArgs) -> Result<()> {
@@ -288,8 +313,16 @@ pub fn run(args: CommitArgs) -> Result<()> {
     let registry_ready: Arc<Mutex<std::collections::HashSet<String>>> = Arc::new(Mutex::new(std::collections::HashSet::new()));
     let current_processing: Arc<AtomicUsize> = Arc::new(AtomicUsize::new(usize::MAX));
     let messages_done = Arc::new(AtomicBool::new(false));
+    let failed_packages: Arc<Mutex<HashMap<String, String>>> = Arc::new(Mutex::new(HashMap::new()));
+    let processing_name: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+
+    // Clones for status display in main thread
+    let committed_for_display = Arc::clone(&committed_packages);
+    let failed_for_display = Arc::clone(&failed_packages);
+    let processing_for_display = Arc::clone(&processing_name);
 
     // Clone for worker thread
+    let output_buffer: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     let ctx = WorkerContext {
         queue: queue.clone(),
         versions: versions.clone(),
@@ -298,9 +331,12 @@ pub fn run(args: CommitArgs) -> Result<()> {
         interrupted: Arc::clone(&interrupted),
         committed_packages: Arc::clone(&committed_packages),
         registry_ready: Arc::clone(&registry_ready),
+        failed_packages: Arc::clone(&failed_packages),
+        processing_name: Arc::clone(&processing_name),
+        messages_done: Arc::clone(&messages_done),
+        output_buffer,
     };
     let current_processing_clone = Arc::clone(&current_processing);
-    let messages_done_clone = Arc::clone(&messages_done);
 
     // Spawn worker thread
     let worker_handle = thread::spawn(move || {
@@ -309,9 +345,37 @@ pub fn run(args: CommitArgs) -> Result<()> {
             tx_to_main,
             ctx,
             current_processing_clone,
-            messages_done_clone,
         )
     });
+
+    // Helper to display background status
+    let display_background_status = |committed: &Arc<Mutex<HashMap<String, String>>>,
+                                      failed: &Arc<Mutex<HashMap<String, String>>>,
+                                      processing: &Arc<Mutex<Option<String>>>| {
+        let committed = committed.lock().unwrap();
+        let failed = failed.lock().unwrap();
+        let processing = processing.lock().unwrap();
+
+        if committed.is_empty() && failed.is_empty() && processing.is_none() {
+            return;
+        }
+
+        println!("{}", "─".repeat(50).dimmed());
+        print!("  {} ", "background:".dimmed());
+
+        let mut parts: Vec<String> = Vec::new();
+        if !committed.is_empty() {
+            parts.push(format!("{} {}", committed.len().to_string().green(), "done".green()));
+        }
+        if let Some(ref name) = *processing {
+            parts.push(format!("{} {}", "→".yellow(), name.yellow()));
+        }
+        if !failed.is_empty() {
+            parts.push(format!("{} {}", failed.len().to_string().red(), "failed".red()));
+        }
+        println!("{}", parts.join(" │ "));
+        println!("{}", "─".repeat(50).dimmed());
+    };
 
     // Main thread: collect all commit messages
     for (i, item) in queue.iter().enumerate() {
@@ -331,21 +395,49 @@ pub fn run(args: CommitArgs) -> Result<()> {
         let status = shell::git::status(&item.path)?;
         let has_changes = !status.trim().is_empty();
         let unpushed_count = shell::git::unpushed_count(&item.path);
+        let changed_files: Vec<&str> = status.lines().collect();
+
+        // Display background status
+        display_background_status(&committed_for_display, &failed_for_display, &processing_for_display);
+
+        // Display verbose info for this repo
+        println!();
+        println!("{}", format!("[{}/{}] {}", i + 1, queue.len(), item.name.cyan().bold()));
+        println!("  {} {}", "version:".dimmed(), item.version.green());
+        if let Some(ref npm) = item.npm_name {
+            println!("  {} {}", "npm:".dimmed(), npm);
+        }
+        if let Some(ref crate_name) = item.crate_name {
+            println!("  {} {}", "crate:".dimmed(), crate_name);
+        }
+        if !item.dependencies.is_empty() {
+            println!("  {} {}", "deps:".dimmed(), item.dependencies.join(", "));
+        }
+        println!("  {} {}, {} unpushed",
+            "status:".dimmed(),
+            if has_changes { format!("{} changed", changed_files.len()).yellow() } else { "clean".green() },
+            if unpushed_count > 0 { unpushed_count.to_string().yellow() } else { "0".green() }
+        );
+        if has_changes && changed_files.len() <= 5 {
+            for file in &changed_files {
+                println!("    {}", file.dimmed());
+            }
+        }
 
         if !has_changes && unpushed_count == 0 {
-            // No changes - check if retagging makes sense
+            // No changes, no unpushed - check if retagging makes sense
             let tag = format!("v{}", item.version);
             let can_retag = can_retag_item(item);
 
             if can_retag && Confirm::new()
-                .with_prompt(format!("  {} {} - no changes. Retag {}?", "→".dimmed(), item.name, tag.cyan()))
+                .with_prompt(format!("  No changes. Retag {}?", tag.cyan()))
                 .default(false)
                 .interact()?
             {
                 let _ = tx_to_worker.send(WorkerMessage::Retag { index: i });
             } else {
                 if !can_retag {
-                    println!("  {} {} - no changes, version already published", "→".dimmed(), item.name.dimmed());
+                    println!("  {} version already published", "→".dimmed());
                 }
                 skip_items[i] = true;
                 let _ = tx_to_worker.send(WorkerMessage::Skip { index: i });
@@ -353,14 +445,30 @@ pub fn run(args: CommitArgs) -> Result<()> {
             continue;
         }
 
-        // Collect commit message
+        if !has_changes && unpushed_count > 0 {
+            // No uncommitted changes, but has unpushed commits - just confirm push
+            let tag = format!("v{}", item.version);
+            if args.yes || Confirm::new()
+                .with_prompt(format!("  Push {} commits and tag {}?", unpushed_count, tag.cyan()))
+                .default(true)
+                .interact()?
+            {
+                let _ = tx_to_worker.send(WorkerMessage::PushOnly { index: i });
+            } else {
+                skip_items[i] = true;
+                let _ = tx_to_worker.send(WorkerMessage::Skip { index: i });
+            }
+            continue;
+        }
+
+        // Has uncommitted changes - collect commit message
         let message = if let Some(ref msg) = args.message {
             msg.clone()
         } else {
             // Interactive prompt
             let default_msg = default_commit_message(&item.name, &item.version, &status, has_package(item));
             Input::new()
-                .with_prompt(format!("[{}/{}] {}", i + 1, queue.len(), item.name.cyan()))
+                .with_prompt("  commit message")
                 .default(default_msg)
                 .interact_text()?
         };
@@ -418,11 +526,6 @@ pub fn run(args: CommitArgs) -> Result<()> {
                 let item = &queue[idx];
                 println!("  {} {} failed: {}", "✗".red(), item.name.bold(), err);
                 failed_count += 1;
-                // Continue with other items
-            }
-            Ok(WorkerStatus::WaitingForDeps(idx, dep)) => {
-                let item = &queue[idx];
-                println!("  {} {} waiting for {} to be committed...", "⏳".yellow(), item.name, dep.cyan());
             }
             Ok(WorkerStatus::Done) => {
                 break;
@@ -455,15 +558,25 @@ pub fn run(args: CommitArgs) -> Result<()> {
     Ok(())
 }
 
+/// Pending operation type for worker thread
+#[derive(Debug, Clone)]
+enum PendingOp {
+    /// Commit with message, tag, push
+    Commit(String),
+    /// Push existing commits, tag, push (no new commit)
+    PushOnly,
+    /// Just retag and push tag
+    Retag,
+}
+
 /// Worker thread that processes items in order
 fn worker_thread(
     rx: Receiver<WorkerMessage>,
     tx: Sender<WorkerStatus>,
     ctx: WorkerContext,
     current_processing: Arc<AtomicUsize>,
-    messages_done: Arc<AtomicBool>,
 ) {
-    let mut pending_items: HashMap<usize, String> = HashMap::new();
+    let mut pending_items: HashMap<usize, PendingOp> = HashMap::new();
     let mut processed: Vec<bool> = vec![false; ctx.queue.len()];
     let mut skipped_names: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut failed_names: std::collections::HashSet<String> = std::collections::HashSet::new();
@@ -483,7 +596,10 @@ fn worker_thread(
 
         match rx.recv_timeout(timeout) {
             Ok(WorkerMessage::Process { index, message }) => {
-                pending_items.insert(index, message);
+                pending_items.insert(index, PendingOp::Commit(message));
+            }
+            Ok(WorkerMessage::PushOnly { index }) => {
+                pending_items.insert(index, PendingOp::PushOnly);
             }
             Ok(WorkerMessage::Skip { index }) => {
                 // Mark skipped items as processed so we don't wait for them
@@ -492,11 +608,12 @@ fn worker_thread(
                 skipped_names.insert(ctx.queue[index].name.clone());
             }
             Ok(WorkerMessage::Retag { index }) => {
-                // Queue retag operation (treated like a process but no commit)
-                pending_items.insert(index, String::new()); // Empty message signals retag-only
+                pending_items.insert(index, PendingOp::Retag);
             }
             Ok(WorkerMessage::AllMessagesCollected) => {
                 all_messages_collected = true;
+                // Flush any buffered output now that input collection is done
+                ctx.flush_buffer();
             }
             Ok(WorkerMessage::Shutdown) => {
                 break;
@@ -509,16 +626,16 @@ fn worker_thread(
             }
         }
 
-        // Process items in order (respecting dependencies)
-        for (i, item) in ctx.queue.iter().enumerate() {
-            if processed[i] {
-                continue;
-            }
+        // Process items STRICTLY in queue order - find the next unprocessed item
+        let next_to_process = processed.iter().position(|&p| !p);
 
-            // Check if we have a message for this item
-            let message = match pending_items.get(&i) {
-                Some(msg) => msg.clone(),
-                None => continue,
+        if let Some(i) = next_to_process {
+            let item = &ctx.queue[i];
+
+            // Check if we have an operation pending for this item (user provided input)
+            let op = match pending_items.get(&i) {
+                Some(op) => op.clone(),
+                None => continue, // Not ready yet, wait for user input
             };
 
             // Check if any dependency failed - if so, fail this item too
@@ -527,6 +644,10 @@ fn worker_thread(
                 processed[i] = true;
                 pending_items.remove(&i);
                 failed_names.insert(item.name.clone());
+                {
+                    let mut failed = ctx.failed_packages.lock().unwrap();
+                    failed.insert(item.name.clone(), format!("dependency '{}' failed", dep));
+                }
                 let _ = tx.send(WorkerStatus::Failed(
                     i,
                     format!("dependency '{}' failed", dep),
@@ -534,43 +655,11 @@ fn worker_thread(
                 continue;
             }
 
-            // Check if dependencies are satisfied
-            let deps_satisfied = {
-                let committed = ctx.committed_packages.lock().unwrap();
-                item.dependencies.iter().all(|dep| {
-                    // Dependency is satisfied if:
-                    // 1. We've committed it in this session, OR
-                    // 2. It's not in our queue (already published), OR
-                    // 3. It was skipped (no changes to commit)
-                    committed.contains_key(dep)
-                        || !ctx.queue.iter().any(|q| q.name == *dep)
-                        || skipped_names.contains(dep)
-                })
-            };
-
-            if !deps_satisfied {
-                // Wait for dependencies - but only report if messages are done
-                if messages_done.load(Ordering::SeqCst) {
-                    for dep in &item.dependencies {
-                        let committed = ctx.committed_packages.lock().unwrap();
-                        // Only report waiting if dep is in queue, not committed, and not skipped
-                        if !committed.contains_key(dep)
-                            && ctx.queue.iter().any(|q| q.name == *dep)
-                            && !skipped_names.contains(dep)
-                        {
-                            let _ = tx.send(WorkerStatus::WaitingForDeps(i, dep.clone()));
-                            break;
-                        }
-                    }
-                }
-                continue;
-            }
-
-            // Process this item
+            // It's this item's turn - process it now
             current_processing.store(i, Ordering::SeqCst);
 
             // Build deps info for display (only show when messages are done)
-            let deps_info = if item.dependencies.is_empty() || !messages_done.load(Ordering::SeqCst) {
+            let deps_info = if item.dependencies.is_empty() || !ctx.messages_done.load(Ordering::SeqCst) {
                 String::new()
             } else {
                 let committed = ctx.committed_packages.lock().unwrap();
@@ -589,32 +678,40 @@ fn worker_thread(
                 format!("deps: {}", dep_status.join(", "))
             };
             // Only send Started status when messages are done (avoid interrupting user input)
-            if messages_done.load(Ordering::SeqCst) {
+            if ctx.messages_done.load(Ordering::SeqCst) {
                 let _ = tx.send(WorkerStatus::Started(i, deps_info));
             }
 
-            // Empty message means retag-only mode
-            let result = if message.is_empty() {
-                retag_item(item)
-            } else {
-                process_item(item, &message, &ctx)
+            // Set processing name for live status display
+            {
+                let mut proc = ctx.processing_name.lock().unwrap();
+                *proc = Some(item.name.clone());
+            }
+
+            // Execute based on operation type
+            let result = match op {
+                PendingOp::Commit(ref message) => process_item(item, message, &ctx),
+                PendingOp::PushOnly => push_only_item(item, &ctx),
+                PendingOp::Retag => retag_item(item, &ctx),
             };
+
+            // Clear processing name
+            {
+                let mut proc = ctx.processing_name.lock().unwrap();
+                *proc = None;
+            }
 
             match result {
                 Ok(()) => {
-                    // Mark as committed and registry-ready (package is available after push)
+                    // Mark as committed (but NOT registry-ready - that's only set after actual verification)
                     {
                         let mut committed = ctx.committed_packages.lock().unwrap();
                         committed.insert(item.name.clone(), item.version.clone());
                     }
-                    {
-                        let mut ready = ctx.registry_ready.lock().unwrap();
-                        ready.insert(item.name.clone());
-                    }
                     processed[i] = true;
                     pending_items.remove(&i);
                     // Only send Completed status when messages are done
-                    if messages_done.load(Ordering::SeqCst) {
+                    if ctx.messages_done.load(Ordering::SeqCst) {
                         let _ = tx.send(WorkerStatus::Completed(i));
                     }
                 }
@@ -622,8 +719,13 @@ fn worker_thread(
                     processed[i] = true;
                     pending_items.remove(&i);
                     failed_names.insert(item.name.clone());
+                    // Track failed packages for live status display
+                    {
+                        let mut failed = ctx.failed_packages.lock().unwrap();
+                        failed.insert(item.name.clone(), e.to_string());
+                    }
                     // Only send Failed status when messages are done
-                    if messages_done.load(Ordering::SeqCst) {
+                    if ctx.messages_done.load(Ordering::SeqCst) {
                         let _ = tx.send(WorkerStatus::Failed(i, e.to_string()));
                     }
                 }
@@ -647,83 +749,92 @@ fn worker_thread(
     let _ = tx.send(WorkerStatus::Done);
 }
 
+/// Wait for dependencies and sync lockfiles - shared logic for all item processing
+fn wait_and_sync(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
+    // Wait for ALL dependencies to appear on registries at expected versions
+    if !item.dependencies.is_empty() {
+        ctx.log(&format!("    {} Waiting for {} dependencies...", "⏳".yellow(), item.dependencies.len()));
+    }
+
+    for dep_name in &item.dependencies {
+        // Skip if already verified
+        {
+            let ready = ctx.registry_ready.lock().unwrap();
+            if ready.contains(dep_name) {
+                ctx.log(&format!("    {} {} already verified", "✓".green(), dep_name));
+                continue;
+            }
+        }
+
+        // Get expected version for this dependency
+        let dep_version = ctx.versions.get_local(dep_name)
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| "latest".to_string());
+
+        wait_for_package(
+            dep_name,
+            &dep_version,
+            &ctx.npm_names,
+            &ctx.crate_names,
+            &ctx.interrupted,
+            ctx,
+        )?;
+
+        // Mark as verified
+        {
+            let mut ready = ctx.registry_ready.lock().unwrap();
+            ready.insert(dep_name.clone());
+        }
+    }
+
+    // Sync lockfile for npm packages (check for package.json, not lockfile)
+    if item.path.join("package.json").exists() {
+        ctx.log(&format!("    {} Syncing npm lockfile...", "📦".cyan()));
+        sync_lockfile(item, ctx)?;
+    }
+
+    // Sync Cargo.lock for Rust crates
+    if item.path.join("Cargo.toml").exists() {
+        ctx.log(&format!("    {} Syncing Cargo.lock...", "🦀".cyan()));
+        sync_cargo_lock(item)?;
+    }
+
+    Ok(())
+}
+
 /// Process a single commit item
 fn process_item(
     item: &CommitItem,
     message: &str,
     ctx: &WorkerContext,
 ) -> Result<()> {
-    // Wait for dependencies to appear on registries
-    for dep_name in &item.dependencies {
-        let committed = ctx.committed_packages.lock().unwrap();
-        if let Some(dep_version) = committed.get(dep_name) {
-            let dep_version = dep_version.clone();
-            drop(committed); // Release lock before waiting
+    ctx.log(&format!("  {} Processing {}", "→".blue(), item.name.bold()));
 
-            // Check if already verified on registry
-            {
-                let ready = ctx.registry_ready.lock().unwrap();
-                if ready.contains(dep_name) {
-                    continue; // Already verified
-                }
-            }
-
-            wait_for_package(
-                dep_name,
-                &dep_version,
-                &ctx.npm_names,
-                &ctx.crate_names,
-                &ctx.interrupted,
-            )?;
-
-            // Mark dependency as registry-ready after successful wait
-            {
-                let mut ready = ctx.registry_ready.lock().unwrap();
-                ready.insert(dep_name.clone());
-            }
-        }
-    }
-
-    // Sync lockfile for npm packages
-    if item.path.join("package-lock.json").exists() {
-        let committed = ctx.committed_packages.lock().unwrap();
-        sync_lockfile(item, &item.dependencies, &ctx.versions, &committed, &ctx.npm_names)?;
-    }
-
-    // Sync Cargo.lock for Rust crates
-    if item.path.join("Cargo.toml").exists() {
-        let committed = ctx.committed_packages.lock().unwrap();
-        sync_cargo_lock(item, &item.dependencies, &committed, &ctx.crate_names)?;
-    }
+    // Wait for deps and sync lockfiles
+    wait_and_sync(item, ctx)?;
 
     // Check for changes
     let status = shell::git::status(&item.path)?;
     let has_changes = !status.trim().is_empty();
-    let debug = std::env::var("DEBUG_COMMIT").is_ok();
-
-    if debug {
-        eprintln!("  [debug] {} has_changes={}, status={:?}", item.name, has_changes, status.trim());
-    }
 
     // Stage and commit changes (only if there are changes)
     if has_changes {
+        ctx.log(&format!("    {} Committing: {}", "📝".cyan(), message.dimmed()));
         shell::git::add_all(&item.path)?;
         shell::git::commit(&item.path, message)?;
-        if debug {
-            eprintln!("  [debug] {} committed", item.name);
-        }
+    } else {
+        ctx.log(&format!("    {} No changes to commit", "─".dimmed()));
     }
 
     // Create tag if needed (force to overwrite local tag if it exists)
     if should_create_tag(item, &ctx.interrupted)? {
         let tag = format!("v{}", item.version);
+        ctx.log(&format!("    {} Creating tag {}", "🏷".cyan(), tag.cyan()));
         shell::git::tag_force(&item.path, &tag)?;
-        if debug {
-            eprintln!("  [debug] {} created tag {}", item.name, tag);
-        }
     }
 
     // Push
+    ctx.log(&format!("    {} Pushing to remote...", "🚀".cyan()));
     if shell::git::has_upstream(&item.path) {
         shell::git::push(&item.path)?;
     } else if let Some(branch) = shell::git::current_branch(&item.path) {
@@ -732,15 +843,18 @@ fn process_item(
         shell::git::push(&item.path)?;
     }
     shell::git::push_tags(&item.path)?;
-    if debug {
-        eprintln!("  [debug] {} pushed", item.name);
-    }
+    ctx.log(&format!("    {} Done", "✓".green()));
 
     Ok(())
 }
 
 /// Check if retagging makes sense (version not on registry)
 fn can_retag_item(item: &CommitItem) -> bool {
+    // Non-published items (website, zed-extensions, tooling) should never be retagged
+    if item.npm_name.is_none() && item.crate_name.is_none() {
+        return false;
+    }
+
     // If version is already on npm, no point retagging
     if let Some(ref npm_name) = item.npm_name
         && let Ok(Some(v)) = registry::npm_version(npm_name)
@@ -775,14 +889,77 @@ fn can_retag_item(item: &CommitItem) -> bool {
 }
 
 /// Retag an item (force recreate tag and push)
-fn retag_item(item: &CommitItem) -> Result<()> {
+/// Also syncs lockfiles in case that's why CI failed
+fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
+    ctx.log(&format!("  {} Processing {} (retag)", "→".blue(), item.name.bold()));
+
+    // Wait for deps and sync lockfiles
+    wait_and_sync(item, ctx)?;
+
+    // Check if lockfile sync created changes - if so, commit them
+    let status = shell::git::status(&item.path)?;
+    if !status.trim().is_empty() {
+        ctx.log(&format!("    {} Committing lockfile changes", "📝".cyan()));
+        shell::git::add_all(&item.path)?;
+        shell::git::commit(&item.path, &format!("Update lockfile for v{}", item.version))?;
+    }
+
     let tag = format!("v{}", item.version);
 
     // Create/overwrite local tag
+    ctx.log(&format!("    {} Creating tag {}", "🏷".cyan(), tag.cyan()));
     shell::git::tag_force(&item.path, &tag)?;
+
+    // Push commits if any were made
+    ctx.log(&format!("    {} Pushing to remote...", "🚀".cyan()));
+    if shell::git::has_upstream(&item.path) {
+        shell::git::push(&item.path)?;
+    } else if let Some(branch) = shell::git::current_branch(&item.path) {
+        shell::git::push_with_upstream(&item.path, &branch)?;
+    } else {
+        shell::git::push(&item.path)?;
+    }
 
     // Force push the tag to remote (overwrites existing remote tag)
     shell::git::push_tag_force(&item.path, &tag)?;
+    ctx.log(&format!("    {} Done", "✓".green()));
+
+    Ok(())
+}
+
+/// Push existing unpushed commits, tag, and push (no new commit)
+fn push_only_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
+    ctx.log(&format!("  {} Processing {} (push only)", "→".blue(), item.name.bold()));
+
+    // Wait for deps and sync lockfiles
+    wait_and_sync(item, ctx)?;
+
+    // Check if lockfile sync created changes - if so, commit them
+    let status = shell::git::status(&item.path)?;
+    if !status.trim().is_empty() {
+        ctx.log(&format!("    {} Committing lockfile changes", "📝".cyan()));
+        shell::git::add_all(&item.path)?;
+        shell::git::commit(&item.path, &format!("Update lockfile for v{}", item.version))?;
+    }
+
+    // Create tag if needed
+    if should_create_tag(item, &ctx.interrupted)? {
+        let tag = format!("v{}", item.version);
+        ctx.log(&format!("    {} Creating tag {}", "🏷".cyan(), tag.cyan()));
+        shell::git::tag_force(&item.path, &tag)?;
+    }
+
+    // Push
+    ctx.log(&format!("    {} Pushing to remote...", "🚀".cyan()));
+    if shell::git::has_upstream(&item.path) {
+        shell::git::push(&item.path)?;
+    } else if let Some(branch) = shell::git::current_branch(&item.path) {
+        shell::git::push_with_upstream(&item.path, &branch)?;
+    } else {
+        shell::git::push(&item.path)?;
+    }
+    shell::git::push_tags(&item.path)?;
+    ctx.log(&format!("    {} Done", "✓".green()));
 
     Ok(())
 }
@@ -912,6 +1089,7 @@ fn wait_for_package(
     npm_names: &HashMap<String, String>,
     crate_names: &HashMap<String, String>,
     interrupted: &Arc<AtomicBool>,
+    ctx: &WorkerContext,
 ) -> Result<()> {
     let npm_name = npm_names.get(repo_name);
     let crate_name = crate_names.get(repo_name);
@@ -931,6 +1109,7 @@ fn wait_for_package(
             Duration::from_secs(600),
             Duration::from_secs(10),
             interrupted,
+            ctx,
         )?;
     }
 
@@ -944,6 +1123,7 @@ fn wait_for_package(
             Duration::from_secs(600),
             Duration::from_secs(10),
             interrupted,
+            ctx,
         )?;
     }
 
@@ -959,35 +1139,56 @@ fn wait_for_registry<F>(
     timeout: Duration,
     poll_interval: Duration,
     interrupted: &Arc<AtomicBool>,
+    ctx: &WorkerContext,
 ) -> Result<()>
 where
     F: Fn() -> bool,
 {
-    print!(
-        "  {} Waiting for {}@{} on {}... ",
+    let start = std::time::Instant::now();
+
+    // Check if already available
+    if check_fn() {
+        ctx.log(&format!(
+            "    {} {}@{} on {} {}",
+            "✓".green(),
+            package_name.cyan(),
+            version.cyan(),
+            registry,
+            "available".green()
+        ));
+        return Ok(());
+    }
+
+    ctx.log(&format!(
+        "    {} Waiting for {}@{} on {}...",
         "⏳".yellow(),
         package_name.cyan(),
         version.cyan(),
         registry
-    );
-    io::stdout().flush()?;
-
-    let start = std::time::Instant::now();
-    let mut dots = 0;
+    ));
 
     loop {
         if interrupted.load(Ordering::SeqCst) {
-            println!("{}", "interrupted".yellow());
+            ctx.log(&format!("    {} Interrupted", "✗".red()));
             anyhow::bail!("Interrupted by user");
         }
 
+        std::thread::sleep(poll_interval);
+
         if check_fn() {
-            println!("{}{}", ".".repeat(dots), "available!".green());
+            ctx.log(&format!(
+                "    {} {}@{} {} ({}s)",
+                "✓".green(),
+                package_name.cyan(),
+                version.cyan(),
+                "available".green(),
+                start.elapsed().as_secs()
+            ));
             return Ok(());
         }
 
         if start.elapsed() > timeout {
-            println!("{}{}", ".".repeat(dots), "timeout".red());
+            ctx.log(&format!("    {} Timeout waiting for {}@{}", "✗".red(), package_name, version));
             anyhow::bail!(
                 "Timeout waiting for {}@{} on {}",
                 package_name,
@@ -995,67 +1196,63 @@ where
                 registry
             );
         }
-
-        dots += 1;
-        print!(".");
-        io::stdout().flush()?;
-        std::thread::sleep(poll_interval);
     }
 }
 
-/// Sync npm lockfile after dependencies are available
-fn sync_lockfile(
-    item: &CommitItem,
-    dependencies: &[String],
-    versions: &crate::core::versions::VersionsCache,
-    committed_packages: &HashMap<String, String>,
-    npm_names: &HashMap<String, String>,
-) -> Result<()> {
-    let mut packages: Vec<String> = Vec::new();
+/// Sync npm lockfile with retry logic for CDN propagation delay
+fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
+    // Delete node_modules and package-lock.json to force fresh resolution
+    let node_modules = item.path.join("node_modules");
+    let lockfile = item.path.join("package-lock.json");
+    if node_modules.exists() {
+        let _ = std::fs::remove_dir_all(&node_modules);
+    }
+    if lockfile.exists() {
+        let _ = std::fs::remove_file(&lockfile);
+    }
 
-    // Force install registry versions of ALL dependencies to break local links
-    for dep_repo in dependencies {
-        if let Some(pkg_name) = npm_names.get(dep_repo) {
-            // If we just committed it, use local (new) version
-            // Otherwise, use registry (stable) version
-            let target_ver = if committed_packages.contains_key(dep_repo) {
-                versions.get_local(dep_repo).unwrap_or("latest")
-            } else {
-                versions.get_registry(dep_repo).unwrap_or("latest")
-            };
-            packages.push(format!("{}@{}", pkg_name, target_ver));
+    // Retry npm install with exponential backoff (CDN propagation can take time)
+    let max_retries = 5;
+    let mut attempt = 0;
+    let mut last_error = None;
+
+    while attempt < max_retries {
+        attempt += 1;
+
+        // Clear npm cache before retry to avoid stale data
+        if attempt > 1 {
+            let wait_secs = 10 * attempt;
+            ctx.log(&format!("      {} Retry {}/{} in {}s (waiting for npm CDN)...",
+                "⏳".yellow(), attempt, max_retries, wait_secs));
+            thread::sleep(Duration::from_secs(wait_secs as u64));
+            let _ = shell::run("npm cache clean --force", &item.path, false);
         }
-    }
 
-    let cmd = if packages.is_empty() {
-        "npm install --ignore-scripts --no-audit".to_string()
-    } else {
-        format!("npm install --ignore-scripts --no-audit {}", packages.join(" "))
-    };
-
-    shell::run(&cmd, &item.path, false)?;
-    Ok(())
-}
-
-/// Sync Cargo.lock after dependencies are published to crates.io
-fn sync_cargo_lock(
-    item: &CommitItem,
-    dependencies: &[String],
-    committed_packages: &HashMap<String, String>,
-    crate_names: &HashMap<String, String>,
-) -> Result<()> {
-    for dep_repo in dependencies {
-        if let Some(crate_name) = crate_names.get(dep_repo) {
-            // Only update if this dependency was just committed (published)
-            if committed_packages.contains_key(dep_repo) {
-                // Update Cargo.lock to fetch the newly published version from crates.io
-                shell::run(
-                    &format!("cargo update -p {}", crate_name),
-                    &item.path,
-                    false,
-                )?;
+        match shell::run("npm install --no-audit", &item.path, false) {
+            Ok(_) => return Ok(()),
+            Err(e) => {
+                let err_str = e.to_string();
+                // Only retry on "notarget" errors (package not found yet)
+                if err_str.contains("ETARGET") || err_str.contains("notarget") || err_str.contains("No matching version") {
+                    last_error = Some(e);
+                    continue;
+                }
+                // Other errors, fail immediately
+                return Err(e);
             }
         }
     }
+
+    Err(last_error.unwrap_or_else(|| anyhow::anyhow!("npm install failed after {} retries", max_retries)))
+}
+
+/// Sync Cargo.lock after dependencies are published to crates.io
+fn sync_cargo_lock(item: &CommitItem) -> Result<()> {
+    // Delete Cargo.lock and regenerate fresh
+    let lockfile = item.path.join("Cargo.lock");
+    if lockfile.exists() {
+        let _ = std::fs::remove_file(&lockfile);
+    }
+    shell::run("cargo generate-lockfile", &item.path, false)?;
     Ok(())
 }
