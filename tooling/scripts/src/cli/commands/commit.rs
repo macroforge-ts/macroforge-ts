@@ -18,7 +18,6 @@ use anyhow::Result;
 use colored::Colorize;
 use dialoguer::{Confirm, Input};
 use std::collections::HashMap;
-use std::io::{self, Write};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender};
@@ -479,8 +478,7 @@ pub fn run(args: CommitArgs) -> Result<()> {
         let _ = tx_to_worker.send(WorkerMessage::Process { index: i, message });
     }
 
-    // Signal that all messages have been collected
-    messages_done.store(true, Ordering::SeqCst);
+    // Signal that all messages have been collected (worker will set messages_done after flushing buffer)
     let _ = tx_to_worker.send(WorkerMessage::AllMessagesCollected);
 
     println!();
@@ -612,6 +610,8 @@ fn worker_thread(
             }
             Ok(WorkerMessage::AllMessagesCollected) => {
                 all_messages_collected = true;
+                // Set messages_done BEFORE flushing so in-progress items don't add to buffer
+                ctx.messages_done.store(true, Ordering::SeqCst);
                 // Flush any buffered output now that input collection is done
                 ctx.flush_buffer();
             }
@@ -1173,8 +1173,6 @@ where
             anyhow::bail!("Interrupted by user");
         }
 
-        std::thread::sleep(poll_interval);
-
         if check_fn() {
             ctx.log(&format!(
                 "    {} {}@{} {} ({}s)",
@@ -1196,6 +1194,8 @@ where
                 registry
             );
         }
+
+        std::thread::sleep(poll_interval);
     }
 }
 
