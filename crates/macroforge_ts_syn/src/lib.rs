@@ -629,50 +629,50 @@ impl ToTsTypeName for &str {
 /// Simple identifier:
 ///
 /// ```rust,no_run
-/// use macroforge_ts_syn::ident;
+/// use macroforge_ts_syn::ts_ident;
 ///
-/// let id = ident!("myVariable");
+/// let id = ts_ident!("myVariable");
 /// assert_eq!(id.sym.as_str(), "myVariable");
 /// ```
 ///
 /// Formatted identifier:
 ///
 /// ```rust,no_run
-/// use macroforge_ts_syn::ident;
+/// use macroforge_ts_syn::ts_ident;
 ///
 /// let field_name = "age";
-/// let getter = ident!("get{}", field_name.to_uppercase());
+/// let getter = ts_ident!("get{}", field_name.to_uppercase());
 /// assert_eq!(getter.sym.as_str(), "getAGE");
 /// ```
 ///
 /// Using in code generation:
 ///
 /// ```rust,no_run
-/// use macroforge_ts_syn::{ident, quote};
+/// use macroforge_ts_syn::{ts_ident, quote};
 ///
-/// let class_name = ident!("MyClass");
+/// let class_name = ts_ident!("MyClass");
 /// let code = quote!("class $class_name {}" as Stmt, class_name: Ident = class_name);
 /// ```
 #[cfg(feature = "swc")]
 #[macro_export]
-macro_rules! ident {
+macro_rules! ts_ident {
     // Single argument - direct string
     // Use AsRef<str> to handle String, &String, &str, etc.
     ($name:expr) => {
-        swc_core::ecma::ast::Ident::new_no_ctxt(
+        $crate::swc_core::ecma::ast::Ident::new_no_ctxt(
             AsRef::<str>::as_ref(&$name).into(),
-            swc_core::common::DUMMY_SP,
+            $crate::swc_core::common::DUMMY_SP,
         )
     };
     // Format string with arguments
     ($fmt:expr, $($args:expr),+ $(,)?) => {
-        swc_core::ecma::ast::Ident::new_no_ctxt(format!($fmt, $($args),+).into(), swc_core::common::DUMMY_SP)
+        $crate::swc_core::ecma::ast::Ident::new_no_ctxt(format!($fmt, $($args),+).into(), $crate::swc_core::common::DUMMY_SP)
     };
 }
 
 /// Creates a private (marked) SWC [`Ident`](swc_core::ecma::ast::Ident).
 ///
-/// Unlike [`ident!`], this macro creates an identifier with a fresh hygiene mark,
+/// Unlike [`ts_ident!`], this macro creates an identifier with a fresh hygiene mark,
 /// making it unique and preventing name collisions with user code. Use this when
 /// generating temporary variables or internal identifiers that shouldn't conflict
 /// with existing names in scope.
@@ -682,32 +682,32 @@ macro_rules! ident {
 /// Creating a unique temporary variable:
 ///
 /// ```rust,no_run
-/// use macroforge_ts_syn::private_ident;
+/// use macroforge_ts_syn::ts_private_ident;
 ///
 /// // Each call creates a unique identifier that won't clash
-/// let temp1 = private_ident!("temp");
-/// let temp2 = private_ident!("temp");
+/// let temp1 = ts_private_ident!("temp");
+/// let temp2 = ts_private_ident!("temp");
 /// // temp1 and temp2 have different syntax contexts
 /// ```
 ///
 /// Generating internal helper code:
 ///
 /// ```rust,no_run
-/// use macroforge_ts_syn::{private_ident, quote};
+/// use macroforge_ts_syn::{ts_private_ident, quote};
 ///
-/// let internal_var = private_ident!("__internal");
+/// let internal_var = ts_private_ident!("__internal");
 /// // This won't conflict with any user-defined __internal variable
 /// let code = quote!("let $var = {};" as Stmt, var: Ident = internal_var);
 /// ```
 #[cfg(feature = "swc")]
 #[macro_export]
-macro_rules! private_ident {
+macro_rules! ts_private_ident {
     ($name:expr) => {{
-        let mark = swc_core::common::Mark::fresh(swc_core::common::Mark::root());
-        swc_core::ecma::ast::Ident::new(
+        let mark = $crate::swc_core::common::Mark::fresh($crate::swc_core::common::Mark::root());
+        $crate::swc_core::ecma::ast::Ident::new(
             $name.into(),
-            swc_core::common::DUMMY_SP,
-            swc_core::common::SyntaxContext::empty().apply_mark(mark),
+            $crate::swc_core::common::DUMMY_SP,
+            $crate::swc_core::common::SyntaxContext::empty().apply_mark(mark),
         )
     }};
 }
@@ -747,9 +747,9 @@ macro_rules! private_ident {
 #[macro_export]
 macro_rules! stmt_block {
     ($stmts:expr) => {
-        swc_core::ecma::ast::Stmt::Block(swc_core::ecma::ast::BlockStmt {
-            span: swc_core::common::DUMMY_SP,
-            ctxt: swc_core::common::SyntaxContext::empty(),
+        $crate::swc_core::ecma::ast::Stmt::Block($crate::swc_core::ecma::ast::BlockStmt {
+            span: $crate::swc_core::common::DUMMY_SP,
+            ctxt: $crate::swc_core::common::SyntaxContext::empty(),
             stmts: $stmts,
         })
     };
@@ -830,9 +830,9 @@ macro_rules! stmt_vec {
 #[macro_export]
 macro_rules! stmt_block_from_vec {
     ($stmts:expr) => {
-        swc_core::ecma::ast::Stmt::Block(swc_core::ecma::ast::BlockStmt {
-            span: swc_core::common::DUMMY_SP,
-            ctxt: swc_core::common::SyntaxContext::empty(),
+        $crate::swc_core::ecma::ast::Stmt::Block($crate::swc_core::ecma::ast::BlockStmt {
+            span: $crate::swc_core::common::DUMMY_SP,
+            ctxt: $crate::swc_core::common::SyntaxContext::empty(),
             stmts: $stmts,
         })
     };
@@ -887,16 +887,16 @@ macro_rules! stmt_block_from_vec {
 #[macro_export]
 macro_rules! fn_expr {
     ($body_stmts:expr) => {
-        swc_core::ecma::ast::Expr::Fn(swc_core::ecma::ast::FnExpr {
+        $crate::swc_core::ecma::ast::Expr::Fn($crate::swc_core::ecma::ast::FnExpr {
             ident: None,
-            function: Box::new(swc_core::ecma::ast::Function {
+            function: Box::new($crate::swc_core::ecma::ast::Function {
                 params: vec![],
                 decorators: vec![],
-                span: swc_core::common::DUMMY_SP,
-                ctxt: swc_core::common::SyntaxContext::empty(),
-                body: Some(swc_core::ecma::ast::BlockStmt {
-                    span: swc_core::common::DUMMY_SP,
-                    ctxt: swc_core::common::SyntaxContext::empty(),
+                span: $crate::swc_core::common::DUMMY_SP,
+                ctxt: $crate::swc_core::common::SyntaxContext::empty(),
+                body: Some($crate::swc_core::ecma::ast::BlockStmt {
+                    span: $crate::swc_core::common::DUMMY_SP,
+                    ctxt: $crate::swc_core::common::SyntaxContext::empty(),
                     stmts: $body_stmts,
                 }),
                 is_generator: false,
@@ -907,16 +907,16 @@ macro_rules! fn_expr {
         })
     };
     ($params:expr, $body_stmts:expr) => {
-        swc_core::ecma::ast::Expr::Fn(swc_core::ecma::ast::FnExpr {
+        $crate::swc_core::ecma::ast::Expr::Fn($crate::swc_core::ecma::ast::FnExpr {
             ident: None,
-            function: Box::new(swc_core::ecma::ast::Function {
+            function: Box::new($crate::swc_core::ecma::ast::Function {
                 params: $params,
                 decorators: vec![],
-                span: swc_core::common::DUMMY_SP,
-                ctxt: swc_core::common::SyntaxContext::empty(),
-                body: Some(swc_core::ecma::ast::BlockStmt {
-                    span: swc_core::common::DUMMY_SP,
-                    ctxt: swc_core::common::SyntaxContext::empty(),
+                span: $crate::swc_core::common::DUMMY_SP,
+                ctxt: $crate::swc_core::common::SyntaxContext::empty(),
+                body: Some($crate::swc_core::ecma::ast::BlockStmt {
+                    span: $crate::swc_core::common::DUMMY_SP,
+                    ctxt: $crate::swc_core::common::SyntaxContext::empty(),
                     stmts: $body_stmts,
                 }),
                 is_generator: false,
@@ -977,11 +977,11 @@ macro_rules! fn_expr {
 #[macro_export]
 macro_rules! member_expr {
     ($obj:expr, $prop:expr) => {
-        swc_core::ecma::ast::Expr::Member(swc_core::ecma::ast::MemberExpr {
-            span: swc_core::common::DUMMY_SP,
+        $crate::swc_core::ecma::ast::Expr::Member($crate::swc_core::ecma::ast::MemberExpr {
+            span: $crate::swc_core::common::DUMMY_SP,
             obj: Box::new($obj),
-            prop: swc_core::ecma::ast::MemberProp::Ident(swc_core::ecma::ast::IdentName {
-                span: swc_core::common::DUMMY_SP,
+            prop: $crate::swc_core::ecma::ast::MemberProp::Ident($crate::swc_core::ecma::ast::IdentName {
+                span: $crate::swc_core::common::DUMMY_SP,
                 sym: $prop.into(),
             }),
         })
@@ -1034,12 +1034,12 @@ macro_rules! member_expr {
 #[macro_export]
 macro_rules! assign_stmt {
     ($lhs:expr, $rhs:expr) => {
-        swc_core::ecma::ast::Stmt::Expr(swc_core::ecma::ast::ExprStmt {
-            span: swc_core::common::DUMMY_SP,
-            expr: Box::new(swc_core::ecma::ast::Expr::Assign(
-                swc_core::ecma::ast::AssignExpr {
-                    span: swc_core::common::DUMMY_SP,
-                    op: swc_core::ecma::ast::AssignOp::Assign,
+        $crate::swc_core::ecma::ast::Stmt::Expr($crate::swc_core::ecma::ast::ExprStmt {
+            span: $crate::swc_core::common::DUMMY_SP,
+            expr: Box::new($crate::swc_core::ecma::ast::Expr::Assign(
+                $crate::swc_core::ecma::ast::AssignExpr {
+                    span: $crate::swc_core::common::DUMMY_SP,
+                    op: $crate::swc_core::ecma::ast::AssignOp::Assign,
                     left: $lhs,
                     right: Box::new($rhs),
                 },
@@ -1109,8 +1109,8 @@ macro_rules! assign_stmt {
 #[macro_export]
 macro_rules! fn_assign {
     ($obj:expr, $prop:expr, $body_stmts:expr) => {{
-        use swc_core::common::{DUMMY_SP, SyntaxContext};
-        use swc_core::ecma::ast::*;
+        use $crate::swc_core::common::{DUMMY_SP, SyntaxContext};
+        use $crate::swc_core::ecma::ast::*;
 
         Stmt::Expr(ExprStmt {
             span: DUMMY_SP,
@@ -1147,8 +1147,8 @@ macro_rules! fn_assign {
         })
     }};
     ($obj:expr, $prop:expr, $params:expr, $body_stmts:expr) => {{
-        use swc_core::common::{DUMMY_SP, SyntaxContext};
-        use swc_core::ecma::ast::*;
+        use $crate::swc_core::common::{DUMMY_SP, SyntaxContext};
+        use $crate::swc_core::ecma::ast::*;
 
         Stmt::Expr(ExprStmt {
             span: DUMMY_SP,
