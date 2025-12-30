@@ -626,7 +626,7 @@ impl Codegen {
                 }
             }
 
-            IrNode::Do { code } => Some(quote! { #code }),
+            IrNode::Do { code } => Some(quote! { #code; }),
 
             IrNode::TypeScript { stream } => {
                 Some(quote! {
@@ -1406,6 +1406,78 @@ impl Codegen {
         quote! { vec![#(#params_code),*] }
     }
 
+    /// Generate params as `Vec<TsFnParam>` for interface method signatures.
+    fn generate_ts_fn_params(&self, params: &[IrNode]) -> TokenStream {
+        let params_code: Vec<TokenStream> = params.iter().map(|p| self.generate_ts_fn_param(p)).collect();
+        quote! { vec![#(#params_code),*] }
+    }
+
+    /// Generate a single `TsFnParam` for interface method signatures.
+    fn generate_ts_fn_param(&self, node: &IrNode) -> TokenStream {
+        match node {
+            IrNode::BindingIdent {
+                name,
+                type_ann,
+                optional: _,
+            } => {
+                let name_code = self.generate_ident(name);
+                let type_ann_code = type_ann
+                    .as_ref()
+                    .map(|t| {
+                        let tc = self.generate_type_ann(t);
+                        quote! { Some(Box::new(#tc)) }
+                    })
+                    .unwrap_or(quote! { None });
+
+                quote! {
+                    macroforge_ts::swc_core::ecma::ast::TsFnParam::Ident(
+                        macroforge_ts::swc_core::ecma::ast::BindingIdent {
+                            id: #name_code,
+                            type_ann: #type_ann_code,
+                        }
+                    )
+                }
+            }
+            IrNode::Param { pat, .. } => {
+                // Recurse to the pattern
+                self.generate_ts_fn_param(pat)
+            }
+            IrNode::RestPat { arg, type_ann } => {
+                let arg_code = self.generate_pat(arg);
+                let type_ann_code = type_ann
+                    .as_ref()
+                    .map(|t| {
+                        let tc = self.generate_type_ann(t);
+                        quote! { Some(Box::new(#tc)) }
+                    })
+                    .unwrap_or(quote! { None });
+
+                quote! {
+                    macroforge_ts::swc_core::ecma::ast::TsFnParam::Rest(
+                        macroforge_ts::swc_core::ecma::ast::RestPat {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            dot3_token: macroforge_ts::swc_core::common::DUMMY_SP,
+                            arg: Box::new(#arg_code),
+                            type_ann: #type_ann_code,
+                        }
+                    )
+                }
+            }
+            // Fallback: treat as identifier
+            _ => {
+                let ident_code = self.generate_ident(node);
+                quote! {
+                    macroforge_ts::swc_core::ecma::ast::TsFnParam::Ident(
+                        macroforge_ts::swc_core::ecma::ast::BindingIdent {
+                            id: #ident_code,
+                            type_ann: None,
+                        }
+                    )
+                }
+            }
+        }
+    }
+
     fn generate_param(&self, node: &IrNode) -> TokenStream {
         match node {
             IrNode::Param { decorators: _, pat } => {
@@ -1774,7 +1846,7 @@ impl Codegen {
                     Some(quote! { let #mutability #pattern = #value; })
                 }
             }
-            IrNode::Do { code } => Some(quote! { #code }),
+            IrNode::Do { code } => Some(quote! { #code; }),
             _ => {
                 // Regular statement - push to __body_stmts
                 if let Some(stmt_code) = self.generate_stmt(node) {
@@ -2318,7 +2390,7 @@ impl Codegen {
                     Some(quote! { let #mutability #pattern = #value; })
                 }
             }
-            IrNode::Do { code } => Some(quote! { #code }),
+            IrNode::Do { code } => Some(quote! { #code; }),
             _ => {
                 // Regular class member - push to __class_members
                 if let Some(member_code) = self.generate_class_member(node) {
@@ -2595,6 +2667,24 @@ impl Codegen {
                     __members.push(#member_code);
                 })
             }
+            IrNode::Let {
+                pattern,
+                mutable,
+                type_hint,
+                value,
+            } => {
+                let mutability = if *mutable {
+                    quote! { mut }
+                } else {
+                    quote! {}
+                };
+
+                if let Some(ty) = type_hint {
+                    Some(quote! { let #mutability #pattern: #ty = #value; })
+                } else {
+                    Some(quote! { let #mutability #pattern = #value; })
+                }
+            }
             IrNode::Raw(_) => None, // Skip whitespace/raw text
             _ => None,
         }
@@ -2644,7 +2734,8 @@ impl Codegen {
             let tpc = self.generate_type_params(tp);
             quote! { Some(Box::new(#tpc)) }
         }).unwrap_or(quote! { None });
-        let params_code = self.generate_params(params);
+        // TsMethodSignature expects Vec<TsFnParam>, not Vec<Param>
+        let params_code = self.generate_ts_fn_params(params);
         let return_type_code = return_type.map(|rt| {
             let rtc = self.generate_type(rt);
             quote! {
