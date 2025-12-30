@@ -38,9 +38,9 @@
  * @packageDocumentation
  */
 
-import { createRequire } from "module";
-import * as fs from "fs";
-import * as path from "path";
+import { createRequire } from "node:module";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { collectExternalDecoratorModules, loadMacroConfig } from "@macroforge/shared";
 
 
@@ -74,7 +74,7 @@ async function ensureRequire() {
   }
 
   if (!cachedRequire) {
-    const { createRequire } = await import("module");
+    const { createRequire } = await import("node:module");
     cachedRequire = /** @type {NodeJS.Require} */ (createRequire(process.cwd() + "/"));
     // @ts-ignore - Expose on globalThis so native runtime loaders can use it
     globalThis.require = cachedRequire;
