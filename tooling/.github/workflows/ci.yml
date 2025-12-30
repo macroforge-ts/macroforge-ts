@@ -40,7 +40,7 @@ jobs:
 
       - name: Build macroforge native module
         working-directory: crates/macroforge_ts
-        run: deno run -A npm:@napi-rs/cli build --platform --release
+        run: deno run -A npm:@napi-rs/cli/napi build --platform --release
 
       - name: Build macroforge JS modules
         working-directory: crates/macroforge_ts
@@ -80,7 +80,7 @@ jobs:
 
       - name: Build playground macro
         working-directory: tooling/playground/macro
-        run: deno run -A npm:@napi-rs/cli build --platform --release -p playground-macros
+        run: deno run -A npm:@napi-rs/cli/napi build --platform --release -p playground-macros
 
       - name: Install vanilla playground dependencies
         working-directory: tooling/playground/vanilla

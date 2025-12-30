@@ -269,10 +269,10 @@ pub fn run(args: PrepArgs) -> Result<()> {
         eprintln!("{} Rollback complete", "✓".green());
     };
 
-    // [1/9] Bump versions
+    // [1/10] Bump versions
     let step = Step {
         number: 1.0,
-        total: 9,
+        total: 10,
         label: "Bumping versions".to_string(),
     };
     step.print();
@@ -343,11 +343,11 @@ pub fn run(args: PrepArgs) -> Result<()> {
         versions_cache.save(&config.root)?;
     }
 
-    // [2/9] Extract API documentation
+    // [2/10] Extract API documentation
     if !args.skip_docs && !args.bump_only {
         let step = Step {
             number: 2.0,
-            total: 9,
+            total: 10,
             label: "Extracting API documentation".to_string(),
         };
         step.print();
@@ -356,16 +356,16 @@ pub fn run(args: PrepArgs) -> Result<()> {
         let _ = extract_rust::run(&docs_output);
         let _ = extract_ts::run(&docs_output);
     } else {
-        println!("\n{} Skipping API extraction", "[2/9]".dimmed());
+        println!("\n{} Skipping API extraction", "[2/10]".dimmed());
     }
 
-    // [3/9] Clean building packages
+    // [3/10] Clean building packages
     if args.skip_build || args.bump_only || args.dry_run {
-        println!("\n{} Skipping build/fmt/clippy/test...", "[3/9]".dimmed());
+        println!("\n{} Skipping build/fmt/clippy/test...", "[3/10]".dimmed());
     } else {
         let step = Step {
             number: 3.0,
-            total: 9,
+            total: 10,
             label: "Clean building packages".to_string(),
         };
         step.print();
@@ -397,7 +397,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // [4/9] Check formatting
+        // [4/10] Check formatting
         let rust_repos: Vec<_> = repos
             .iter()
             .filter(|r| r.repo_type == RepoType::Rust)
@@ -406,7 +406,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         if !rust_repos.is_empty() {
             let step = Step {
                 number: 4.0,
-                total: 9,
+                total: 10,
                 label: "Checking formatting".to_string(),
             };
             step.print();
@@ -425,11 +425,11 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // [5/9] Run clippy
+        // [5/10] Run clippy
         if !rust_repos.is_empty() {
             let step = Step {
                 number: 5.0,
-                total: 9,
+                total: 10,
                 label: "Running clippy".to_string(),
             };
             step.print();
@@ -448,11 +448,11 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // [6/9] Run tests
+        // [6/10] Run tests
         if !rust_repos.is_empty() {
             let step = Step {
                 number: 6.0,
-                total: 9,
+                total: 10,
                 label: "Running tests".to_string(),
             };
             step.print();
@@ -471,10 +471,10 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // [6.5/9] Run tooling checks (fmt, clippy, biome)
+        // [6.5/10] Run tooling checks (fmt, clippy, biome)
         let step = Step {
             number: 6.5,
-            total: 9,
+            total: 10,
             label: "Running tooling checks".to_string(),
         };
         step.print();
@@ -519,7 +519,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // [6.6/9] Run tests for TypeScript packages (using deno)
+        // [6.6/10] Run tests for TypeScript packages (using deno)
         let ts_repos_with_tests: Vec<_> = repos
             .iter()
             .filter(|r| r.repo_type == RepoType::Ts)
@@ -537,7 +537,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         if !ts_repos_with_tests.is_empty() {
             let step = Step {
                 number: 6.6,
-                total: 9,
+                total: 10,
                 label: "Running deno tests".to_string(),
             };
             step.print();
@@ -556,17 +556,91 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
+        // [6.7/10] Run playground e2e tests
+        let step = Step {
+            number: 6.7,
+            total: 10,
+            label: "Running playground e2e tests".to_string(),
+        };
+        step.print();
+
+        let playground_tests = config.root.join("tooling/playground/tests");
+        let rust_tests = playground_tests.join("rust-tests");
+
+        // Expand macros
+        print!("  {} Expanding macros... ", "→".blue());
+        io::stdout().flush()?;
+        match super::expand::run(crate::cli::ExpandArgs {
+            use_cli: false,
+            path: None,
+        }) {
+            Ok(_) => println!("{}", "done".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
+        // Deno tests
+        print!("  {} Deno tests... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::deno::task(&playground_tests, "test") {
+            Ok(_) => println!("{}", "passed".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
+        // Validator tests
+        print!("  {} Validator tests... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::deno::task(&playground_tests, "test:validators") {
+            Ok(_) => println!("{}", "passed".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
+        // Rust playground tests
+        print!("  {} Rust tests... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::cargo::test(&rust_tests) {
+            Ok(_) => println!("{}", "passed".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
+        // E2E tests
+        print!("  {} E2E tests... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::deno::task(&playground_tests, "test:e2e") {
+            Ok(_) => println!("{}", "passed".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
         // Restore registry dependencies
         println!("  {} Restoring registry dependencies...", "→".blue());
         manifests::swap_registry(&config.root, &versions_cache)?;
         manifests::swap_npm_registry(&config, &versions_cache)?;
     }
 
-    // [7/9] Rebuild docs book
+    // [8/10] Rebuild docs book
     if !args.skip_docs && !args.bump_only {
         let step = Step {
-            number: 7.0,
-            total: 9,
+            number: 8.0,
+            total: 10,
             label: "Rebuilding docs book".to_string(),
         };
         step.print();
@@ -574,14 +648,14 @@ pub fn run(args: PrepArgs) -> Result<()> {
         let book_output = config.root.join("docs/book.md");
         let _ = build_book::run(&book_output);
     } else {
-        println!("\n{} Skipping docs book", "[7/9]".dimmed());
+        println!("\n{} Skipping docs book", "[8/10]".dimmed());
     }
 
-    // [8/9] Sync MCP server docs
+    // [9/10] Sync MCP server docs
     if !args.skip_docs && !args.bump_only {
         let step = Step {
-            number: 8.0,
-            total: 9,
+            number: 9.0,
+            total: 10,
             label: "Syncing MCP server docs".to_string(),
         };
         step.print();
@@ -589,13 +663,13 @@ pub fn run(args: PrepArgs) -> Result<()> {
         let mcp_path = config.root.join("packages/mcp-server");
         let _ = shell::deno::task(&mcp_path, "build:docs");
     } else {
-        println!("\n{} Skipping MCP docs", "[8/9]".dimmed());
+        println!("\n{} Skipping MCP docs", "[9/10]".dimmed());
     }
 
-    // [9/9] Done
+    // [10/10] Done
     let step = Step {
-        number: 9.0,
-        total: 9,
+        number: 10.0,
+        total: 10,
         label: "Done!".to_string(),
     };
     step.print();

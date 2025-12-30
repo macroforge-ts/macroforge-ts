@@ -41,3 +41,6 @@ temp/
 # Generated types
 .macroforge/
 .svelte-kit/
+
+# Expanded macro output files
+*.expanded.*

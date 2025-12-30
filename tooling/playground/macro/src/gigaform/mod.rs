@@ -20,8 +20,8 @@ pub mod naming;
 pub mod parser;
 pub mod types;
 
-use macroforge_ts::macros::{ts_macro_derive, ts_template};
-use macroforge_ts::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+use macroforge_ts::macros::ts_macro_derive;
+use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Generates Gigaform helpers (prefixed exports) with types, fromFormData, and field controllers.
 pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
@@ -109,23 +109,17 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
         field_descriptors::generate_factory_with_generics(type_name, &fields, &options, &generics);
 
     // Combine into plain, prefixed exports (no namespace merging)
-    let mut output = ts_template! {
-        {$typescript type_defs}
-        {$typescript factory_fn}
-        {$typescript form_data_fn}
-    };
+    let mut output = type_defs.merge(factory_fn).merge(form_data_fn);
 
-    // Add required imports from @playground/macro/gigaform (Effect types)
-    // Exit for deserialize return type
-    output.add_type_import("Exit", "@playground/macro/gigaform");
-    // toExit helper to convert vanilla result to Exit
-    output.add_import("toExit", "@playground/macro/gigaform");
-    // Option for field controller state (aliased to avoid conflict with user imports)
-    output.add_type_import_as("Option", "__gf_Option", "@playground/macro/gigaform");
-    output.add_import("optionNone", "@playground/macro/gigaform");
+    // Add required imports from effect
+    output.add_type_import("Exit", "effect");
+    output.add_type_import("Option", "effect");
+    // Import Option helpers
+    output.add_import_as("Option", "__gigaform_reexport_Option", "effect");
 
-    // Import FieldController from the canonical location
+    // Import FieldController and toExit from the macros gigaform module
     output.add_type_import("FieldController", "@playground/macro/gigaform");
+    output.add_import("toExit", "@playground/macro/gigaform");
 
     // Add ArrayFieldController import if any fields are arrays
     if fields.iter().any(|f| f.is_array) {
@@ -222,23 +216,17 @@ fn generate_union_form(
     );
     let form_data_fn = form_data::generate_union_with_generics(type_name, union_config, generics);
 
-    let mut output = ts_template! {
-        {$typescript type_defs}
-        {$typescript factory_fn}
-        {$typescript form_data_fn}
-    };
+    let mut output = type_defs.merge(factory_fn).merge(form_data_fn);
 
-    // Add required imports from @playground/macro/gigaform (Effect types)
-    // Exit for deserialize return type
-    output.add_type_import("Exit", "@playground/macro/gigaform");
-    // toExit helper to convert vanilla result to Exit
-    output.add_import("toExit", "@playground/macro/gigaform");
-    // Option for field controller state (aliased to avoid conflict with user imports)
-    output.add_type_import_as("Option", "__gf_Option", "@playground/macro/gigaform");
-    output.add_import("optionNone", "@playground/macro/gigaform");
+    // Add required imports from effect
+    output.add_type_import("Exit", "effect");
+    output.add_type_import("Option", "effect");
+    // Import Option helpers
+    output.add_import_as("Option", "__gigaform_reexport_Option", "effect");
 
-    // Import FieldController from the canonical location
+    // Import FieldController and toExit from the macros gigaform module
     output.add_type_import("FieldController", "@playground/macro/gigaform");
+    output.add_import("toExit", "@playground/macro/gigaform");
 
     // Add ArrayFieldController import if any variant has array fields
     if union_config
@@ -246,7 +234,7 @@ fn generate_union_form(
         .iter()
         .any(|v| v.fields.iter().any(|f| f.is_array))
     {
-        output.add_type_import("ArrayFieldController", "@dealdraft/macros/gigaform");
+        output.add_type_import("ArrayFieldController", "@playground/macro/gigaform");
     }
 
     // Add i18n import if used
@@ -269,11 +257,7 @@ fn generate_enum_form(
 ) -> Result<TsStream, MacroforgeError> {
     let type_defs = types::generate_enum(enum_name, enum_config);
     let factory_fn = field_descriptors::generate_enum_factory(enum_name, enum_config);
-
-    let output = ts_template! {
-        {$typescript type_defs}
-        {$typescript factory_fn}
-    };
+    let output = type_defs.merge(factory_fn);
 
     Ok(output)
 }

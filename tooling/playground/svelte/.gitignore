@@ -27,3 +27,6 @@ src/lib/types
 src/lib/traits
 
 .macroforge
+
+# Expanded macro output files
+*.expanded.*

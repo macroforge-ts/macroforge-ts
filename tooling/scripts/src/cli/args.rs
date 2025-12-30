@@ -55,6 +55,9 @@ pub enum Commands {
 
     /// Get diagnostics for a single file
     Check(CheckArgs),
+
+    /// Run tests for packages
+    Test(TestArgs),
 }
 
 #[derive(clap::Args)]
@@ -248,4 +251,15 @@ pub struct ExpandArgs {
 pub struct CheckArgs {
     /// File to check for diagnostics
     pub file: PathBuf,
+}
+
+#[derive(clap::Args)]
+pub struct TestArgs {
+    /// Test suite to run: 'rust', 'packages', 'playground', or 'all'
+    #[arg(default_value = "all")]
+    pub suite: String,
+
+    /// Run tests for specific repos (comma-separated). Only applies to 'rust' suite.
+    #[arg(long)]
+    pub repos: Option<String>,
 }

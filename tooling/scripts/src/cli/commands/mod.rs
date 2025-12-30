@@ -8,4 +8,5 @@ pub mod docs;
 pub mod expand;
 pub mod manifests;
 pub mod prep;
+pub mod test;
 pub mod versions;

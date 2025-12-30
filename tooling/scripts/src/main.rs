@@ -97,6 +97,9 @@ fn run_cli(cli: Cli) -> Result<()> {
         Some(Commands::Check(args)) => {
             cli::commands::check::run(args)
         }
+        Some(Commands::Test(args)) => {
+            cli::commands::test::run(args)
+        }
         None => {
             // No command: show help
             use clap::CommandFactory;
