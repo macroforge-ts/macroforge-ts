@@ -13,7 +13,7 @@ fn test_template(name: &str, template: &str) {
     eprintln!("Template length: {} chars", template.len());
 
     let start = Instant::now();
-    let result = compile_template(template, "__stmts");
+    let result = compile_template(template, None);
     let elapsed = start.elapsed();
 
     if elapsed > TIMEOUT {

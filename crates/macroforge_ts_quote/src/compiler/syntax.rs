@@ -71,6 +71,8 @@ pub enum SyntaxKind {
     JsDocOpen,
     /// `*/` - jsdoc block close
     JsDocClose,
+    /// `#[doc = "..."]` - Rust doc attribute (converted from `/** ... */` by Rust tokenizer)
+    RustDocAttr,
     /// `:` - colon (for type annotations, object properties)
     Colon,
     /// `;` - semicolon

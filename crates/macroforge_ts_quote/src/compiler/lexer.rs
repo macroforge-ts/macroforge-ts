@@ -6,6 +6,75 @@
 
 use super::syntax::SyntaxKind;
 
+/// Normalizes template spacing that Rust's tokenizer introduces.
+///
+/// Rust's proc_macro tokenizer adds spaces around punctuation, so:
+/// - `@{expr}` becomes `@ { expr }`
+/// - `{#if cond}` becomes `{ # if cond }`
+///
+/// This function collapses these back to the expected format.
+pub fn normalize_template(input: &str) -> String {
+    let mut result = String::with_capacity(input.len());
+    let chars: Vec<char> = input.chars().collect();
+    let len = chars.len();
+    let mut i = 0;
+
+    while i < len {
+        let c = chars[i];
+
+        // `@ {` → `@{` (with optional whitespace)
+        if c == '@' && i + 1 < len {
+            let mut j = i + 1;
+            while j < len && chars[j].is_whitespace() {
+                j += 1;
+            }
+            if j < len && chars[j] == '{' {
+                result.push('@');
+                result.push('{');
+                i = j + 1;
+                continue;
+            }
+        }
+
+        // `{ #` → `{#`, `{ /` → `{/`, `{ :` → `{:`, `{ $` → `{$`, `{ |` → `{|`
+        if c == '{' && i + 1 < len {
+            let mut j = i + 1;
+            while j < len && chars[j].is_whitespace() {
+                j += 1;
+            }
+            if j < len && matches!(chars[j], '#' | '/' | ':' | '$' | '|') {
+                result.push('{');
+                result.push(chars[j]);
+                i = j + 1;
+                // Also skip whitespace after the control char
+                while i < len && chars[i].is_whitespace() {
+                    i += 1;
+                }
+                continue;
+            }
+        }
+
+        // `| }` → `|}`
+        if c == '|' && i + 1 < len {
+            let mut j = i + 1;
+            while j < len && chars[j].is_whitespace() {
+                j += 1;
+            }
+            if j < len && chars[j] == '}' {
+                result.push('|');
+                result.push('}');
+                i = j + 1;
+                continue;
+            }
+        }
+
+        result.push(c);
+        i += 1;
+    }
+
+    result
+}
+
 /// A token produced by the lexer.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Token {
@@ -37,9 +106,9 @@ enum LexerMode {
 }
 
 /// The lexer for template input.
-pub struct Lexer<'a> {
-    /// The input text.
-    input: &'a str,
+pub struct Lexer {
+    /// The normalized input text.
+    input: String,
     /// Current byte position in the input.
     pos: usize,
     /// Stack of lexer modes for nested contexts.
@@ -48,11 +117,12 @@ pub struct Lexer<'a> {
     brace_depth: usize,
 }
 
-impl<'a> Lexer<'a> {
+impl Lexer {
     /// Creates a new lexer for the given input.
-    pub fn new(input: &'a str) -> Self {
+    /// The input is normalized to collapse Rust tokenizer spacing.
+    pub fn new(input: &str) -> Self {
         Self {
-            input,
+            input: normalize_template(input),
             pos: 0,
             mode_stack: vec![LexerMode::Normal],
             brace_depth: 0,
@@ -77,7 +147,7 @@ impl<'a> Lexer<'a> {
     }
 
     /// Returns the remaining input from the current position.
-    fn remaining(&self) -> &'a str {
+    fn remaining(&self) -> &str {
         &self.input[self.pos..]
     }
 
@@ -92,8 +162,7 @@ impl<'a> Lexer<'a> {
     }
 
     /// Consumes characters while the predicate is true.
-    fn consume_while<F: Fn(char) -> bool>(&mut self, pred: F) -> &'a str {
-        let start = self.pos;
+    fn consume_while<F: Fn(char) -> bool>(&mut self, pred: F) {
         while let Some(c) = self.peek() {
             if pred(c) {
                 self.advance(c.len_utf8());
@@ -101,7 +170,6 @@ impl<'a> Lexer<'a> {
                 break;
             }
         }
-        &self.input[start..self.pos]
     }
 
     /// Tokenizes the entire input.
@@ -122,6 +190,17 @@ impl<'a> Lexer<'a> {
         }
 
         let start = self.pos;
+
+        // Check for Rust doc attr first (needs special text handling)
+        if let Some((len, content)) = self.try_match_rust_doc_attr() {
+            self.advance(len);
+            return Some(Token {
+                kind: SyntaxKind::RustDocAttr,
+                text: content,
+                start,
+            });
+        }
+
         let kind = match self.mode() {
             LexerMode::Normal => self.lex_normal(),
             LexerMode::ControlBlock => self.lex_control_block(),
@@ -318,6 +397,96 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    /// Tries to match a Rust doc attribute pattern: `# [ doc = "..." ]`
+    /// Returns (total_length, content) if matched, None otherwise.
+    fn try_match_rust_doc_attr(&self) -> Option<(usize, String)> {
+        let remaining = self.remaining();
+        let bytes = remaining.as_bytes();
+        let mut i = 0;
+
+        // Match `#`
+        if bytes.get(i) != Some(&b'#') {
+            return None;
+        }
+        i += 1;
+
+        // Skip whitespace
+        while bytes.get(i).map(|b| b.is_ascii_whitespace()).unwrap_or(false) {
+            i += 1;
+        }
+
+        // Match `[`
+        if bytes.get(i) != Some(&b'[') {
+            return None;
+        }
+        i += 1;
+
+        // Skip whitespace
+        while bytes.get(i).map(|b| b.is_ascii_whitespace()).unwrap_or(false) {
+            i += 1;
+        }
+
+        // Match `doc`
+        if !remaining[i..].starts_with("doc") {
+            return None;
+        }
+        i += 3;
+
+        // Skip whitespace
+        while bytes.get(i).map(|b| b.is_ascii_whitespace()).unwrap_or(false) {
+            i += 1;
+        }
+
+        // Match `=`
+        if bytes.get(i) != Some(&b'=') {
+            return None;
+        }
+        i += 1;
+
+        // Skip whitespace
+        while bytes.get(i).map(|b| b.is_ascii_whitespace()).unwrap_or(false) {
+            i += 1;
+        }
+
+        // Match `"` and consume string content
+        if bytes.get(i) != Some(&b'"') {
+            return None;
+        }
+        i += 1;
+        let content_start = i;
+
+        // Consume until closing `"`
+        while i < bytes.len() {
+            if bytes[i] == b'\\' && i + 1 < bytes.len() {
+                i += 2; // Skip escape sequence
+            } else if bytes[i] == b'"' {
+                break;
+            } else {
+                i += 1;
+            }
+        }
+        let content_end = i;
+        let content = remaining[content_start..content_end].to_string();
+
+        // Skip closing quote
+        if bytes.get(i) == Some(&b'"') {
+            i += 1;
+        }
+
+        // Skip whitespace
+        while bytes.get(i).map(|b| b.is_ascii_whitespace()).unwrap_or(false) {
+            i += 1;
+        }
+
+        // Match `]`
+        if bytes.get(i) != Some(&b']') {
+            return None;
+        }
+        i += 1;
+
+        Some((i, content))
+    }
+
     /// Tries to lex a TypeScript keyword.
     fn try_lex_ts_keyword(&mut self) -> Option<SyntaxKind> {
         let remaining = self.remaining();
@@ -504,8 +673,6 @@ impl<'a> Lexer<'a> {
 
     /// Lexes inside a directive `{$...}`.
     fn lex_directive(&mut self) -> SyntaxKind {
-        let remaining = self.remaining();
-
         // Skip whitespace
         if let Some(c) = self.peek()
             && c.is_whitespace()
@@ -515,7 +682,7 @@ impl<'a> Lexer<'a> {
         }
 
         // Check for closing brace
-        if remaining.starts_with("}") {
+        if self.remaining().starts_with("}") {
             self.advance(1);
             self.pop_mode();
             return SyntaxKind::RBrace;
@@ -529,25 +696,22 @@ impl<'a> Lexer<'a> {
             ("typescript", SyntaxKind::TypeScriptKw),
         ];
 
-        if let Some(kind) = keywords.iter().find_map(|(kw, kind)| {
-            if remaining.starts_with(kw) {
-                let next_char = remaining.chars().nth(kw.len());
+        for (kw, kind) in keywords {
+            if self.remaining().starts_with(kw) {
+                let next_char = self.remaining().chars().nth(kw.len());
                 if next_char
                     .map(|c| !c.is_alphanumeric() && c != '_')
                     .unwrap_or(true)
                 {
                     self.advance(kw.len());
-                    return Some(*kind);
+                    return kind;
                 }
             }
-            None
-        }) {
-            kind
-        } else {
-            // Everything else is Rust tokens
-            self.consume_rust_tokens();
-            SyntaxKind::RustTokens
         }
+
+        // Everything else is Rust tokens
+        self.consume_rust_tokens();
+        SyntaxKind::RustTokens
     }
 
     /// Lexes inside an interpolation `@{...}`.
@@ -773,12 +937,9 @@ impl<'a> Lexer<'a> {
 mod tests {
     use super::*;
 
-    fn lex(input: &str) -> Vec<(SyntaxKind, &str)> {
+    fn lex(input: &str) -> Vec<(SyntaxKind, String)> {
         let tokens = Lexer::new(input).tokenize();
-        tokens
-            .iter()
-            .map(|t| (t.kind, input[t.start..t.start + t.text.len()].as_ref()))
-            .collect()
+        tokens.iter().map(|t| (t.kind, t.text.clone())).collect()
     }
 
     #[test]
@@ -786,6 +947,20 @@ mod tests {
         let tokens = lex("hello world");
         assert_eq!(tokens[0].0, SyntaxKind::Ident);
         assert_eq!(tokens[0].1, "hello");
+    }
+
+    #[test]
+    fn test_normalize_spaced_interpolation() {
+        // Rust tokenizer produces `@ { expr }` from `@{expr}`
+        // We collapse `@ {` to `@{` but preserve internal whitespace
+        let normalized = normalize_template("@ { expr }");
+        assert_eq!(normalized, "@{ expr }");
+    }
+
+    #[test]
+    fn test_normalize_spaced_control_block() {
+        let normalized = normalize_template("{ # if cond }");
+        assert_eq!(normalized, "{#if cond }");
     }
 
     #[test]
