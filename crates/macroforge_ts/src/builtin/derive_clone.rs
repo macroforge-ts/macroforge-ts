@@ -67,7 +67,7 @@ use convert_case::{Case, Casing};
 
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_macro_input};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
 
 /// Generates a `clone()` method for creating copies of objects.
 ///
@@ -101,17 +101,17 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
     match &input.data {
         Data::Class(class) => {
             let class_name = class.inner.name.clone();
-            let class_ident = ident!(class_name.clone());
+            let class_ident = ts_ident!(class_name.clone());
 
             // Generate identifier for function name (Ident for declaration, Expr for call)
-            let fn_name_ident = ident!("{}Clone", class_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Clone", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
                 export function @{fn_name_ident}(value: @{class_ident}): @{class_ident} {
                     const cloned = Object.create(Object.getPrototypeOf(value));
-                    {#for field in class.field_names().map(|f| ident!(f))}
+                    {#for field in class.field_names().map(|f| ts_ident!(f))}
                         cloned.@{field.clone()} = value.@{field};
                     {/for}
                     return cloned;
@@ -137,22 +137,22 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         Data::Enum(_) => {
             // Enums are primitive values, cloning is just returning the value
             let enum_name = input.name();
-            let fn_name_ident = ident!("{}Clone", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Clone", enum_name.to_case(Case::Camel));
             Ok(ts_template! {
-                export function @{fn_name_ident}(value: @{ident!(enum_name)}): @{ident!(enum_name)} {
+                export function @{fn_name_ident}(value: @{ts_ident!(enum_name)}): @{ts_ident!(enum_name)} {
                     return value;
                 }
             })
         }
         Data::Interface(interface) => {
-            let interface_ident = ident!(interface.inner.name.clone());
+            let interface_ident = ts_ident!(interface.inner.name.clone());
             let fn_name_ident =
-                ident!("{}Clone", interface.inner.name.clone().to_case(Case::Camel));
+                ts_ident!("{}Clone", interface.inner.name.clone().to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{interface_ident}): @{interface_ident} {
                     const result = {} as any;
-                    {#for field in interface.field_names().map(|f| ident!(f))}
+                    {#for field in interface.field_names().map(|f| ts_ident!(f))}
                         result.@{field.clone()} = value.@{field};
                     {/for}
                     return result as @{interface_ident};
@@ -161,25 +161,25 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
-            let fn_name_ident = ident!("{}Clone", type_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Clone", type_name.to_case(Case::Camel));
 
             if type_alias.is_object() {
                 // Object type: spread copy
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{ident!(type_name)}): @{ident!(type_name)} {
+                    export function @{fn_name_ident}(value: @{ts_ident!(type_name)}): @{ts_ident!(type_name)} {
                         const result = {} as any;
-                        {#for field in type_alias.as_object().unwrap().iter().map(|f| ident!(f.name.as_str()))}
+                        {#for field in type_alias.as_object().unwrap().iter().map(|f| ts_ident!(f.name.as_str()))}
                             result.@{field.clone()} = value.@{field};
                         {/for}
-                        return result as @{ident!(type_name)};
+                        return result as @{ts_ident!(type_name)};
                     }
                 })
             } else {
                 // Union, tuple, or simple alias: use spread for objects, or return as-is
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{ident!(type_name)}): @{ident!(type_name)} {
+                    export function @{fn_name_ident}(value: @{ts_ident!(type_name)}): @{ts_ident!(type_name)} {
                         if (typeof value === "object" && value !== null) {
-                            return { ...value } as @{ident!(type_name)};
+                            return { ...value } as @{ts_ident!(type_name)};
                         }
                         return value;
                     }

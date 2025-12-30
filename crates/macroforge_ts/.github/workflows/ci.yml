@@ -66,7 +66,7 @@ jobs:
           sudo apt-get install -y gcc-aarch64-linux-gnu
 
       - name: Build native module
-        run: deno run -A npm:@napi-rs/cli build --platform --release --target ${{ matrix.settings.target }}
+        run: deno run -A npm:@napi-rs/cli/napi build --platform --release --target ${{ matrix.settings.target }}
         env:
           CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
           CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
@@ -137,7 +137,7 @@ jobs:
         run: find artifacts -name "*.node" -type f
 
       - name: Move artifacts to npm packages
-        run: deno run -A npm:@napi-rs/cli artifacts --npm-dir npm --build-output-dir artifacts
+        run: deno run -A npm:@napi-rs/cli/napi artifacts --npm-dir npm --build-output-dir artifacts
 
       - name: List packages
         run: ls -laR npm/

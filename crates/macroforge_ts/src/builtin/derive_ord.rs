@@ -98,7 +98,7 @@ use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_pri
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_expr, parse_ts_macro_input,
+    Data, DeriveInput, MacroforgeError, TsStream, ts_ident, parse_ts_expr, parse_ts_macro_input,
 };
 
 /// Contains field information needed for ordering comparison generation.
@@ -213,7 +213,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let class_ident = ident!(class_name);
+            let class_ident = ts_ident!(class_name);
 
             // Collect fields for comparison
             let ord_fields: Vec<OrdField> = class
@@ -232,7 +232,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 .collect();
 
             // Generate function name (always prefix style)
-            let fn_name_ident = ident!("{}Compare", class_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Compare", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate standalone function with two parameters
@@ -241,7 +241,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     .iter()
                     .enumerate()
                     .map(|(i, f)| {
-                        let cmp_ident = ident!(format!("cmp{}", i));
+                        let cmp_ident = ts_ident!(format!("cmp{}", i));
                         let expr_src = generate_field_compare_for_interface(f, "a", "b");
                         let expr = parse_ts_expr(&expr_src).map_err(|err| {
                             MacroforgeError::new(
@@ -291,10 +291,10 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let fn_name_ident = ident!("{}Compare", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Compare", enum_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name_ident}(a: @{ident!(enum_name)}, b: @{ident!(enum_name)}): number {
+                export function @{fn_name_ident}(a: @{ts_ident!(enum_name)}, b: @{ts_ident!(enum_name)}): number {
                     // For enums, compare by value (numeric enums) or string
                     if (typeof a === "number" && typeof b === "number") {
                         return a < b ? -1 : a > b ? 1 : 0;
@@ -309,7 +309,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
-            let interface_ident = ident!(interface_name);
+            let interface_ident = ts_ident!(interface_name);
 
             let ord_fields: Vec<OrdField> = interface
                 .fields()
@@ -326,14 +326,14 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 })
                 .collect();
 
-            let fn_name_ident = ident!("{}Compare", interface_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Compare", interface_name.to_case(Case::Camel));
 
             if !ord_fields.is_empty() {
                 let compare_steps: Vec<(Ident, Expr)> = ord_fields
                     .iter()
                     .enumerate()
                     .map(|(i, f)| {
-                        let cmp_ident = ident!(format!("cmp{}", i));
+                        let cmp_ident = ts_ident!(format!("cmp{}", i));
                         let expr_src = generate_field_compare_for_interface(f, "a", "b");
                         let expr = parse_ts_expr(&expr_src).map_err(|err| {
                             MacroforgeError::new(
@@ -372,7 +372,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
-            let type_ident = ident!(type_name);
+            let type_ident = ts_ident!(type_name);
 
             if type_alias.is_object() {
                 let ord_fields: Vec<OrdField> = type_alias
@@ -391,14 +391,14 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     })
                     .collect();
 
-                let fn_name_ident = ident!("{}Compare", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}Compare", type_name.to_case(Case::Camel));
 
                 if !ord_fields.is_empty() {
                     let compare_steps: Vec<(Ident, Expr)> = ord_fields
                         .iter()
                         .enumerate()
                         .map(|(i, f)| {
-                            let cmp_ident = ident!(format!("cmp{}", i));
+                            let cmp_ident = ts_ident!(format!("cmp{}", i));
                             let expr_src = generate_field_compare_for_interface(f, "a", "b");
                             let expr = parse_ts_expr(&expr_src).map_err(|err| {
                                 MacroforgeError::new(
@@ -436,7 +436,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 }
             } else {
                 // Union, tuple, or simple alias: basic comparison
-                let fn_name_ident = ident!("{}Compare", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}Compare", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): number {
@@ -464,7 +464,7 @@ mod tests {
     #[test]
     fn test_ord_macro_output() {
         let class_name = "User";
-        let class_ident = ident!(class_name);
+        let class_ident = ts_ident!(class_name);
         let ord_fields: Vec<OrdField> = vec![OrdField {
             name: "id".to_string(),
             ts_type: "number".to_string(),
@@ -474,7 +474,7 @@ mod tests {
             .iter()
             .enumerate()
             .map(|(i, f)| {
-                let cmp_ident = ident!(format!("cmp{}", i));
+                let cmp_ident = ts_ident!(format!("cmp{}", i));
                 let expr_src = generate_field_compare_for_interface(f, "a", "b");
                 let expr = parse_ts_expr(&expr_src).expect("compare expr should parse");
                 (cmp_ident, *expr)

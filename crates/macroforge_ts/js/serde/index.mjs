@@ -1,8 +1,8 @@
 // js/serde/index.ts
 var SerializeContext;
-((SerializeContext) => {
+((SerializeContext2) => {
   function create() {
-    const ids = new WeakMap;
+    const ids = /* @__PURE__ */ new WeakMap();
     let nextId = 0;
     return {
       getId: (obj) => ids.get(obj),
@@ -13,12 +13,12 @@ var SerializeContext;
       }
     };
   }
-  SerializeContext.create = create;
-})(SerializeContext ||= {});
+  SerializeContext2.create = create;
+})(SerializeContext || (SerializeContext = {}));
 var DeserializeContext;
-((DeserializeContext) => {
+((DeserializeContext2) => {
   function create() {
-    const registry = new Map;
+    const registry = /* @__PURE__ */ new Map();
     const patches = [];
     const toFreeze = [];
     return {
@@ -60,32 +60,38 @@ var DeserializeContext;
       }
     };
   }
-  DeserializeContext.create = create;
-})(DeserializeContext ||= {});
+  DeserializeContext2.create = create;
+})(DeserializeContext || (DeserializeContext = {}));
 var PendingRef;
-((PendingRef) => {
+((PendingRef2) => {
   function create(id) {
     return { __pendingRef: true, id };
   }
-  PendingRef.create = create;
+  PendingRef2.create = create;
   function is(value) {
     return value !== null && typeof value === "object" && value.__pendingRef === true && typeof value.id === "number";
   }
-  PendingRef.is = is;
-})(PendingRef ||= {});
-
-class DeserializeError extends Error {
+  PendingRef2.is = is;
+})(PendingRef || (PendingRef = {}));
+var DeserializeError = class extends Error {
+  /**
+   * Array of field-level validation errors.
+   */
   errors;
+  /**
+   * Creates a new deserialization error.
+   * @param errors - Array of field validation errors
+   */
   constructor(errors) {
     const message = errors.map((e) => `${e.field}: ${e.message}`).join("; ");
     super(message);
     this.name = "DeserializeError";
     this.errors = errors;
   }
-}
+};
 export {
-  SerializeContext,
-  PendingRef,
+  DeserializeContext,
   DeserializeError,
-  DeserializeContext
+  PendingRef,
+  SerializeContext
 };

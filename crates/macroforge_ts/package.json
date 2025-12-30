@@ -76,11 +76,11 @@
   },
   "scripts": {
     "artifacts": "napi artifacts --npm-dir npm",
-    "build": "deno install --node-modules-dir && deno task build:js && deno run -A npm:@napi-rs/cli build --platform --release",
+    "build": "deno install --node-modules-dir && deno task build:js && deno run -A npm:@napi-rs/cli/napi build --platform --release",
     "build:js": "deno task build:serde && deno task build:traits",
     "build:serde": "deno run -A npm:esbuild js/serde/index.ts --bundle --outfile=js/serde/index.mjs --format=esm && deno run -A npm:typescript/tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
     "build:traits": "deno run -A npm:esbuild js/traits/index.ts --bundle --outfile=js/traits/index.mjs --format=esm && deno run -A npm:typescript/tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
-    "clean": "rm -f macroforge.*.node pkg/*.node && rm -rf node_modules",
+    "clean": "rm -f macroforge.*.node || true; rm -f pkg/*.node || true; rm -rf node_modules",
     "cleanbuild": "deno task clean && deno task build"
   },
   "types": "index.d.ts",
