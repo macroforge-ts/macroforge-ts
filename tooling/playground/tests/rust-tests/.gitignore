@@ -18,3 +18,6 @@ pkg/
 .env
 
 *.zip
+
+# Expanded macro output files
+*.expanded.*

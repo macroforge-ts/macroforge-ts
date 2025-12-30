@@ -163,11 +163,27 @@ pub mod cargo {
             .run_checked()
     }
 
-    /// Run cargo test
+    /// Run cargo test, automatically detecting workspace
     pub fn test(cwd: &Path) -> Result<CommandResult> {
-        Shell::new("cargo").arg("test").dir(cwd).run_checked()
+        if has_workspace(cwd) {
+            Shell::new("cargo")
+                .args(&["test", "--workspace"])
+                .dir(cwd)
+                .run_checked()
+        } else {
+            Shell::new("cargo").arg("test").dir(cwd).run_checked()
+        }
     }
 
+    /// Check if a directory has a Cargo.toml with a [workspace] section
+    fn has_workspace(cwd: &Path) -> bool {
+        let cargo_toml = cwd.join("Cargo.toml");
+        if let Ok(content) = std::fs::read_to_string(&cargo_toml) {
+            content.contains("[workspace]")
+        } else {
+            false
+        }
+    }
 }
 
 // ============================================================================

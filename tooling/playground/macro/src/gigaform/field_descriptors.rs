@@ -10,9 +10,7 @@ use crate::gigaform::naming::{
     call_default_value, call_default_value_for_type_ref, call_deserialize, fn_name,
     type_name_prefixed,
 };
-use crate::gigaform::parser::{
-    GigaformOptions, ParsedField, UnionConfig, UnionMode,
-};
+use crate::gigaform::parser::{GigaformOptions, ParsedField, UnionConfig, UnionMode};
 
 /// Generates the createForm factory function that returns a Gigaform instance.
 pub fn generate_factory(
@@ -33,12 +31,13 @@ pub fn generate_factory(
     let tainted_state_reset = generate_tainted_state_reset(fields);
 
     // Generate field controllers object
-    let field_controllers_obj = generate_field_controllers_object(fields, options, interface_name, &field_controllers_name);
+    let field_controllers_obj =
+        generate_field_controllers_object(fields, options, interface_name, &field_controllers_name);
 
     let validate_call = call_deserialize(interface_name, "", "data");
 
     ts_template! {
-        {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
+        /** Creates a new Gigaform instance with reactive state and field controllers. */
         export function @{create_fn_name}(overrides?: Partial<@{interface_name}>): @{gigaform_name} {
             {$typescript data_state}
             {$typescript field_controllers_obj}
@@ -84,24 +83,43 @@ pub fn generate_factory_with_generics(
     let generic_decl = generics.decl();
     let generic_args = generics.args();
     let create_fn_name = fn_name("createForm", interface_name, &generic_decl);
-    let errors_name = format!("{}{}", type_name_prefixed(interface_name, "Errors"), generic_args);
-    let tainted_name = format!("{}{}", type_name_prefixed(interface_name, "Tainted"), generic_args);
-    let field_controllers_name = format!("{}{}", type_name_prefixed(interface_name, "FieldControllers"), generic_args);
+    let errors_name = format!(
+        "{}{}",
+        type_name_prefixed(interface_name, "Errors"),
+        generic_args
+    );
+    let tainted_name = format!(
+        "{}{}",
+        type_name_prefixed(interface_name, "Tainted"),
+        generic_args
+    );
+    let field_controllers_name = format!(
+        "{}{}",
+        type_name_prefixed(interface_name, "FieldControllers"),
+        generic_args
+    );
     let gigaform_name = type_name_prefixed(interface_name, "Gigaform");
 
     // Generate complete statements for state declarations
-    let data_state = generate_data_state(interface_name, options, &generic_args, &errors_name, &tainted_name);
+    let data_state = generate_data_state(
+        interface_name,
+        options,
+        &generic_args,
+        &errors_name,
+        &tainted_name,
+    );
     let data_state_reset = generate_data_state_reset(interface_name, options, &generic_args);
     let errors_state_reset = generate_errors_state_reset(fields);
     let tainted_state_reset = generate_tainted_state_reset(fields);
 
     // Generate field controllers object
-    let field_controllers_obj = generate_field_controllers_object(fields, options, interface_name, &field_controllers_name);
+    let field_controllers_obj =
+        generate_field_controllers_object(fields, options, interface_name, &field_controllers_name);
 
     let validate_call = call_deserialize(interface_name, &generic_args, "data");
 
     ts_template! {
-        {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
+        /** Creates a new Gigaform instance with reactive state and field controllers. */
         export function @{create_fn_name}(overrides?: Partial<@{interface_name}@{generic_args}>): @{gigaform_name}@{generic_args} {
             {$typescript data_state}
             {$typescript field_controllers_obj}
@@ -182,7 +200,8 @@ pub fn generate_union_factory(
     let _default_init = generate_default_init_expr(type_name, options, "");
 
     // Generate per-variant field controllers
-    let variant_controllers_obj = generate_union_variant_controllers_object(config, options, type_name, &variant_fields_name);
+    let variant_controllers_obj =
+        generate_union_variant_controllers_object(config, options, type_name, &variant_fields_name);
 
     // Generate getDefaultForVariant function
     let default_for_variant = generate_default_for_variant(
@@ -218,10 +237,10 @@ pub fn generate_union_factory(
     let validate_call = call_deserialize(type_name, "", "data");
 
     ts_template! {
-        {>> "Gets default value for a specific variant" <<}
+        /** Gets default value for a specific variant */
         {$typescript default_for_variant}
 
-        {>> "Creates a new discriminated union Gigaform with variant switching" <<}
+        /** Creates a new discriminated union Gigaform with variant switching */
         export function @{create_fn_name}(initial?: @{type_name}): @{gigaform_name} {
             // Detect initial variant from discriminant
             const initialVariant: @{variant_literals} = @{initial_variant_expr};
@@ -302,7 +321,11 @@ fn generate_default_for_variant(
         .collect();
 
     // Default fallback uses first variant
-    let first_value = config.variants.first().map(|v| v.discriminant_value.as_str()).unwrap_or("unknown");
+    let first_value = config
+        .variants
+        .first()
+        .map(|v| v.discriminant_value.as_str())
+        .unwrap_or("unknown");
     let default_return = if is_literal_union {
         ts_template! { return "@{first_value}" as @{type_name}; }
     } else if is_type_ref_union {
@@ -344,7 +367,11 @@ fn generate_union_variant_controllers_object(
 }
 
 /// Generates field assignment statements for a variant.
-fn generate_variant_field_assignments(fields: &[ParsedField], type_name: &str, variant_key: &str) -> TsStream {
+fn generate_variant_field_assignments(
+    fields: &[ParsedField],
+    type_name: &str,
+    variant_key: &str,
+) -> TsStream {
     ts_template! {
         {#for field in fields}
             {$let assignment = generate_field_controller_assignment(field, type_name, variant_key)}
@@ -354,7 +381,11 @@ fn generate_variant_field_assignments(fields: &[ParsedField], type_name: &str, v
 }
 
 /// Generates a single field controller assignment statement.
-fn generate_field_controller_assignment(field: &ParsedField, interface_name: &str, variant_key: &str) -> TsStream {
+fn generate_field_controller_assignment(
+    field: &ParsedField,
+    interface_name: &str,
+    variant_key: &str,
+) -> TsStream {
     let name = &field.name;
     let label = name.as_str(); // Use field name as label
     let optional = field.optional;
@@ -477,13 +508,13 @@ fn generate_data_state(
     if let Some(override_fn) = &options.default_override {
         ts_template! {
             let data = $state({ ...@{default_expr}, ...@{override_fn}(), ...overrides });
-            let errors = $state<@{errors_name}>({ _errors: optionNone() } as @{errors_name});
+            let errors = $state<@{errors_name}>({ _errors: __gigaform_reexport_Option.none() } as @{errors_name});
             let tainted = $state<@{tainted_name}>({} as @{tainted_name});
         }
     } else {
         ts_template! {
             let data = $state({ ...@{default_expr}, ...overrides });
-            let errors = $state<@{errors_name}>({ _errors: optionNone() } as @{errors_name});
+            let errors = $state<@{errors_name}>({ _errors: __gigaform_reexport_Option.none() } as @{errors_name});
             let tainted = $state<@{tainted_name}>({} as @{tainted_name});
         }
     }
@@ -511,9 +542,9 @@ fn generate_data_state_reset(
 fn generate_errors_state_reset(fields: &[ParsedField]) -> TsStream {
     ts_template! {
         errors = {
-            _errors: optionNone(),
+            _errors: __gigaform_reexport_Option.none(),
             {#for field in fields}
-                @{&field.name}: optionNone(),
+                @{&field.name}: __gigaform_reexport_Option.none(),
             {/for}
         };
     }
@@ -524,7 +555,7 @@ fn generate_tainted_state_reset(fields: &[ParsedField]) -> TsStream {
     ts_template! {
         tainted = {
             {#for field in fields}
-                @{&field.name}: optionNone(),
+                @{&field.name}: __gigaform_reexport_Option.none(),
             {/for}
         };
     }
@@ -603,7 +634,7 @@ pub fn generate_enum_factory(enum_name: &str, config: &EnumFormConfig) -> TsStre
         .unwrap_or("0");
 
     ts_template! {
-        {>> "Creates a new enum step form with navigation controls" <<}
+        /** Creates a new enum step form with navigation controls */
         export function @{create_fn_name}(initialStep?: @{enum_name}): @{gigaform_name} {
             let currentStep = $state<@{enum_name}>(initialStep ?? @{first_variant});
 

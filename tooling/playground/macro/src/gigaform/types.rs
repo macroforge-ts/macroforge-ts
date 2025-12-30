@@ -17,28 +17,35 @@ pub fn generate(type_name: &str, fields: &[ParsedField]) -> TsStream {
     let field_controllers_name = prefixed(type_name, "FieldControllers");
     let gigaform_name = prefixed(type_name, "Gigaform");
 
-    let errors_fields = generate_errors_fields(fields);
-    let tainted_fields = generate_tainted_fields(fields);
-    let field_controller_types = generate_field_controller_types(fields);
-
     ts_template! {
-        {>> "Nested error structure matching the data shape" <<}
+        /** Nested error structure matching the data shape */
         export type @{errors_name} = {
-            _errors: __gf_Option<Array<string>>;
-            {$typescript errors_fields}
+            _errors: __gigaform_reexport_Option<Array<string>>;
+            {#for field in fields}
+                @{&field.name}: __gigaform_reexport_Option<Array<string>>;
+            {/for}
         };
 
-        {>> "Nested boolean structure for tracking touched/dirty fields" <<}
+        /** Nested boolean structure for tracking touched/dirty fields */
         export type @{tainted_name} = {
-            {$typescript tainted_fields}
+            {#for field in fields}
+                @{&field.name}: __gigaform_reexport_Option<boolean>;
+            {/for}
         };
 
-        {>> "Type-safe field controllers for this form" <<}
+        /** Type-safe field controllers for this form */
         export interface @{field_controllers_name} {
-            {$typescript field_controller_types}
+            {#for field in fields}
+                {#if field.is_array}
+                    {$let element_type = field.array_element_type.as_deref().unwrap_or("unknown")}
+                    readonly @{&field.name}: ArrayFieldController<@{element_type}>;
+                {:else}
+                    readonly @{&field.name}: FieldController<@{&field.ts_type}>;
+                {/if}
+            {/for}
         }
 
-        {>> "Gigaform instance containing reactive state and field controllers" <<}
+        /** Gigaform instance containing reactive state and field controllers */
         export interface @{gigaform_name} {
             readonly data: @{type_name};
             readonly errors: @{errors_name};
@@ -60,77 +67,46 @@ pub fn generate_with_generics(
         return generate(type_name, fields);
     }
 
-    let errors_name = prefixed(type_name, "Errors");
-    let tainted_name = prefixed(type_name, "Tainted");
-    let field_controllers_name = prefixed(type_name, "FieldControllers");
-    let gigaform_name = prefixed(type_name, "Gigaform");
-
-    let errors_fields = generate_errors_fields(fields);
-    let tainted_fields = generate_tainted_fields(fields);
-    let field_controller_types = generate_field_controller_types(fields);
     let generic_decl = generics.decl();
     let generic_args = generics.args();
 
     ts_template! {
-        {>> "Nested error structure matching the data shape" <<}
-        export type @{errors_name}@{generic_decl} = {
-            _errors: __gf_Option<Array<string>>;
-            {$typescript errors_fields}
+        /** Nested error structure matching the data shape */
+        export interface @{type_name}Errors@{generic_decl}{
+            _errors: __gigaform_reexport_Option<Array<string>>;
+            {#for field in fields}
+                @{&field.name}: __gigaform_reexport_Option<Array<string>>;
+            {/for}
         };
 
-        {>> "Nested boolean structure for tracking touched/dirty fields" <<}
-        export type @{tainted_name}@{generic_decl} = {
-            {$typescript tainted_fields}
+        /** Nested boolean structure for tracking touched/dirty fields */
+        export interface @{type_name}Tainted@{generic_decl}{
+            {#for field in fields}
+                @{&field.name}: __gigaform_reexport_Option<boolean>;
+            {/for}
         };
 
-        {>> "Type-safe field controllers for this form" <<}
-        export interface @{field_controllers_name}@{generic_decl} {
-            {$typescript field_controller_types}
+        /** Type-safe field controllers for this form */
+        export interface @{type_name}FieldControllers@{generic_decl} {
+            {#for field in fields}
+                {#if field.is_array}
+                    {$let element_type = field.array_element_type.as_deref().unwrap_or("unknown")}
+                    readonly @{&field.name}: ArrayFieldController<@{element_type}>;
+                {:else}
+                    readonly @{&field.name}: FieldController<@{&field.ts_type}>;
+                {/if}
+            {/for}
         }
 
-        {>> "Gigaform instance containing reactive state and field controllers" <<}
-        export interface @{gigaform_name}@{generic_decl} {
+        /** Gigaform instance containing reactive state and field controllers */
+        export interface @{type_name}Gigaform@{generic_decl} {
             readonly data: @{type_name}@{generic_args};
-            readonly errors: @{errors_name}@{generic_args};
-            readonly tainted: @{tainted_name}@{generic_args};
-            readonly fields: @{field_controllers_name}@{generic_args};
+            readonly errors: @{type_name}Errors@{generic_args};
+            readonly tainted: @{type_name}Tainted@{generic_args};
+            readonly fields: @{type_name}FieldControllers@{generic_args};
             validate(): Exit<@{type_name}@{generic_args}, Array<{ field: string; message: string }>>;
             reset(overrides?: Partial<@{type_name}@{generic_args}>): void;
         }
-    }
-}
-
-/// Generates the FieldControllers type entries.
-fn generate_field_controller_types(fields: &[ParsedField]) -> TsStream {
-    ts_template! {
-        {#for field in fields}
-            {#if field.is_array}
-                {$let element_type = field.array_element_type.as_deref().unwrap_or("unknown")}
-                readonly @{&field.name}: ArrayFieldController<@{element_type}>;
-            {:else}
-                readonly @{&field.name}: FieldController<@{&field.ts_type}>;
-            {/if}
-        {/for}
-    }
-}
-
-/// Generates the Errors type fields.
-/// All fields use __gf_Option<Array<string>> for consistency with FieldController interface.
-fn generate_errors_fields(fields: &[ParsedField]) -> TsStream {
-    ts_template! {
-        {#for field in fields}
-            @{&field.name}: __gf_Option<Array<string>>;
-        {/for}
-    }
-}
-
-/// Generates the Tainted type fields.
-/// All fields use __gf_Option<boolean> for consistency with FieldController interface.
-fn generate_tainted_fields(fields: &[ParsedField]) -> TsStream {
-    ts_template! {
-        {#for field in fields}
-            @{&field.name}: __gf_Option<boolean>;
-        {/for}
     }
 }
 
@@ -164,31 +140,23 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
     let variant_field_controllers = generate_variant_field_controllers(type_name, config);
     let variant_union_literal = generate_variant_literal_union(config);
 
-    // Get discriminant field name
-    let discriminant_field = match &config.mode {
-        UnionMode::Tagged { field } => field.as_str(),
-        UnionMode::Untagged => "_variant", // synthetic field for untagged
-    };
-
-    let variant_fields_interface = generate_variant_fields_interface(type_name, config, discriminant_field);
-
     ts_template! {
-        {>> "Per-variant error types" <<}
+        /** Per-variant error types */
         {$typescript variant_errors}
 
-        {>> "Per-variant tainted types" <<}
+        /** Per-variant tainted types */
         {$typescript variant_tainted}
 
-        {>> "Union error type" <<}
+        /** Union error type */
         export type @{errors_name} = @{variant_union_errors};
 
-        {>> "Union tainted type" <<}
+        /** Union tainted type */
         export type @{tainted_name} = @{variant_union_tainted};
 
-        {>> "Per-variant field controller types" <<}
+        /** Per-variant field controller types */
         {$typescript variant_field_controllers}
 
-        {>> "Union Gigaform interface with variant switching" <<}
+        /** Union Gigaform interface with variant switching */
         export interface @{gigaform_name} {
             readonly currentVariant: @{variant_union_literal};
             readonly data: @{type_name};
@@ -200,9 +168,14 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
             reset(overrides?: Partial<@{type_name}>): void;
         }
 
-        {>> "Variant fields container" <<}
+        /** Variant fields container */
         export interface @{variant_fields_name} {
-            {$typescript variant_fields_interface}
+            {#for variant in &config.variants}
+                {$let value = &variant.discriminant_value}
+                {$let variant_name = to_pascal_case(&variant.discriminant_value)}
+                {$let prop_key = if needs_quoting(value) { format!("\"{}\"", value) } else { value.clone() }}
+                readonly @{prop_key}: { readonly fields: @{type_name}@{variant_name}FieldControllers };
+            {/for}
         }
     }
 }
@@ -212,10 +185,11 @@ fn generate_variant_errors(type_name: &str, config: &UnionConfig) -> TsStream {
     ts_template! {
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
-            {$let errors_fields = generate_errors_fields(&variant.fields)}
             export type @{type_name}@{variant_name}Errors = {
-                _errors: __gf_Option<Array<string>>;
-                {$typescript errors_fields}
+                _errors: __gigaform_reexport_Option<Array<string>>;
+                {#for field in &variant.fields}
+                    @{&field.name}: __gigaform_reexport_Option<Array<string>>;
+                {/for}
             };
         {/for}
     }
@@ -226,9 +200,10 @@ fn generate_variant_tainted(type_name: &str, config: &UnionConfig) -> TsStream {
     ts_template! {
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
-            {$let tainted_fields = generate_tainted_fields(&variant.fields)}
             export type @{type_name}@{variant_name}Tainted = {
-                {$typescript tainted_fields}
+                {#for field in &variant.fields}
+                    @{&field.name}: __gigaform_reexport_Option<boolean>;
+                {/for}
             };
         {/for}
     }
@@ -260,9 +235,15 @@ fn generate_variant_field_controllers(type_name: &str, config: &UnionConfig) -> 
     ts_template! {
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
-            {$let field_types = generate_field_controller_types(&variant.fields)}
             export interface @{type_name}@{variant_name}FieldControllers {
-                {$typescript field_types}
+                {#for field in &variant.fields}
+                    {#if field.is_array}
+                        {$let element_type = field.array_element_type.as_deref().unwrap_or("unknown")}
+                        readonly @{&field.name}: ArrayFieldController<@{element_type}>;
+                    {:else}
+                        readonly @{&field.name}: FieldController<@{&field.ts_type}>;
+                    {/if}
+                {/for}
             }
         {/for}
     }
@@ -276,22 +257,6 @@ fn generate_variant_literal_union(config: &UnionConfig) -> String {
         .map(|v| format!("\"{}\"", v.discriminant_value))
         .collect::<Vec<_>>()
         .join(" | ")
-}
-
-/// Generates the VariantFields interface content.
-fn generate_variant_fields_interface(
-    type_name: &str,
-    config: &UnionConfig,
-    _discriminant_field: &str,
-) -> TsStream {
-    ts_template! {
-        {#for variant in &config.variants}
-            {$let value = &variant.discriminant_value}
-            {$let variant_name = to_pascal_case(&variant.discriminant_value)}
-            {$let prop_key = if needs_quoting(value) { format!("\"{}\"", value) } else { value.clone() }}
-            readonly @{prop_key}: { readonly fields: @{type_name}@{variant_name}FieldControllers };
-        {/for}
-    }
 }
 
 /// Returns true if a string needs to be quoted when used as an object property key.
@@ -367,12 +332,12 @@ pub fn generate_enum(enum_name: &str, config: &EnumFormConfig) -> TsStream {
 
     ts_template! {
         /** Variant metadata for step navigation */
-        const @{variants_name}_arr: Array<{ value: @{enum_name}; label: string; description?: string }> = [];
+        const @{variants_name}A: Array<{ value: @{enum_name}; label: string; description?: string }> = [];
         {#for variant in &config.variants}
             {$let entry = generate_variant_entry(variant, enum_name)}
             {$typescript entry}
         {/for}
-        export const @{variants_name} = @{variants_name}_arr as const;
+        export const @{variants_name} = @{variants_name}Arr as const;
 
         /** Type for a single variant entry */
         export type @{variant_entry_name} = typeof @{variants_name}[number];
@@ -389,18 +354,21 @@ pub fn generate_enum(enum_name: &str, config: &EnumFormConfig) -> TsStream {
 }
 
 /// Generates a single variant entry push statement.
-fn generate_variant_entry(variant: &crate::gigaform::parser::EnumVariantFormConfig, enum_name: &str) -> TsStream {
+fn generate_variant_entry(
+    variant: &crate::gigaform::parser::EnumVariantFormConfig,
+    enum_name: &str,
+) -> TsStream {
     let value_expr = &variant.value_expr;
     let label = &variant.label;
     let variants_name = prefixed(enum_name, "Variants");
 
     if let Some(desc) = &variant.description {
         ts_template! {
-            @{variants_name}_arr.push({ value: @{value_expr}, label: "@{label}", description: "@{desc}" });
+            @{variants_name}Arr.push({ value: @{value_expr}, label: "@{label}", description: "@{desc}" });
         }
     } else {
         ts_template! {
-            @{variants_name}_arr.push({ value: @{value_expr}, label: "@{label}" });
+            @{variants_name}Arr.push({ value: @{value_expr}, label: "@{label}" });
         }
     }
 }

@@ -10,9 +10,9 @@
     },
     "files": ["index.d.ts", "index.js"],
     "scripts": {
-        "build": "deno run -A npm:@napi-rs/cli build --platform --release --package playground-macros",
+        "build": "deno run -A npm:@napi-rs/cli/napi build --platform --release --package playground-macros",
         "prepare": "deno task build",
-        "clean": "rm -rf *.node target node_modules",
+        "clean": "rm -f *.node || true; rm -rf target node_modules",
         "cleanbuild": "deno task clean && deno install --node-modules-dir && deno task build"
     },
     "dependencies": {

@@ -3,10 +3,11 @@
     "type": "module",
     "private": true,
     "scripts": {
+        "test": "deno test --allow-all --no-check *.test.mjs",
+        "test:validators": "deno test --allow-all --no-check validators/*.test.mjs",
         "test:e2e": "playwright test",
         "test:e2e:vanilla": "playwright test --config=playwright.config.ts",
         "test:e2e:svelte": "playwright test --config=playwright.svelte.config.ts",
-        "test:validators": "node --test validators/*.test.mjs",
         "playwright:install": "playwright install chromium"
     },
     "devDependencies": {
