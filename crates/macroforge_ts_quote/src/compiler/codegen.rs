@@ -42,22 +42,149 @@ impl Codegen {
         let output_var = format_ident!("{}", self.config.output_var);
         let body = self.generate_module_items(&ir.nodes);
 
-        quote! {
+        let result = quote! {
             {
                 let mut #output_var: Vec<macroforge_ts::swc_core::ecma::ast::ModuleItem> = Vec::new();
                 #body
                 #output_var
             }
+        };
+
+        #[cfg(debug_assertions)]
+        if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+            eprintln!("[MF_DEBUG_CODEGEN] Generated code:\n{}", result);
         }
+
+        result
     }
 
     /// Generate code for a list of module-level items.
+    /// Groups adjacent fragment nodes (Raw, Placeholder, etc.) together and parses them as a combined string.
     fn generate_module_items(&self, nodes: &[IrNode]) -> TokenStream {
-        let stmts: Vec<TokenStream> = nodes
+        let mut pushes = Vec::new();
+        let mut pending_fragments: Vec<&IrNode> = Vec::new();
+
+        for node in nodes {
+            if self.is_fragment_node(node) {
+                pending_fragments.push(node);
+            } else {
+                // Flush pending fragments as combined module item
+                if !pending_fragments.is_empty() {
+                    if let Some(stmt) = self.generate_combined_module_item(&pending_fragments) {
+                        pushes.push(stmt);
+                    }
+                    pending_fragments.clear();
+                }
+                // Generate structured node directly
+                if let Some(push) = self.generate_module_item(node) {
+                    pushes.push(push);
+                }
+            }
+        }
+
+        // Flush remaining pending fragments
+        if !pending_fragments.is_empty() {
+            if let Some(stmt) = self.generate_combined_module_item(&pending_fragments) {
+                pushes.push(stmt);
+            }
+        }
+
+        quote! { #(#pushes)* }
+    }
+
+    /// Check if a node is a fragment that should be grouped with adjacent fragments.
+    fn is_fragment_node(&self, node: &IrNode) -> bool {
+        matches!(
+            node,
+            IrNode::Raw(_)
+                | IrNode::Ident(_)
+                | IrNode::StrLit(_)
+                | IrNode::IdentBlock { .. }
+                | IrNode::StringInterp { .. }
+                | IrNode::Placeholder { .. }
+        )
+    }
+
+    /// Generate code for combined fragment nodes at module level.
+    fn generate_combined_module_item(&self, nodes: &[&IrNode]) -> Option<TokenStream> {
+        if nodes.is_empty() {
+            return None;
+        }
+
+        let output_var = format_ident!("{}", self.config.output_var);
+
+        // Check if all nodes are whitespace-only Raw nodes
+        let all_whitespace = nodes
             .iter()
-            .filter_map(|n| self.generate_module_item(n))
+            .all(|n| matches!(n, IrNode::Raw(text) if text.trim().is_empty()));
+        if all_whitespace {
+            return None;
+        }
+
+        // Generate code that builds a module item string and parses it
+        let part_exprs: Vec<TokenStream> = nodes
+            .iter()
+            .map(|n| self.generate_module_item_string_part(n))
             .collect();
-        quote! { #(#stmts)* }
+
+        Some(quote! {
+            {
+                let mut __module_str = String::new();
+                #(#part_exprs)*
+                if !__module_str.trim().is_empty() {
+                    if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_module(&__module_str) {
+                        #output_var.extend(__parsed.body);
+                    }
+                }
+            }
+        })
+    }
+
+    /// Generate code to append a fragment node to the module string.
+    fn generate_module_item_string_part(&self, node: &IrNode) -> TokenStream {
+        match node {
+            IrNode::Raw(text) => quote! { __module_str.push_str(#text); },
+            IrNode::StrLit(text) => quote! { __module_str.push_str(#text); },
+            IrNode::Ident(name) => quote! { __module_str.push_str(#name); },
+            IrNode::Placeholder { kind, expr } => match kind {
+                PlaceholderKind::Expr => {
+                    quote! {
+                        let __expr = macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
+                        __module_str.push_str(&macroforge_ts::ts_syn::emit_expr(&__expr));
+                    }
+                }
+                PlaceholderKind::Ident => {
+                    quote! {
+                        __module_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
+                    }
+                }
+                PlaceholderKind::Type => {
+                    quote! {
+                        let __ty = macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone());
+                        __module_str.push_str(&macroforge_ts::ts_syn::emit_ts_type(&__ty));
+                    }
+                }
+                PlaceholderKind::Stmt => {
+                    // Statements don't make sense in string context, skip
+                    quote! {}
+                }
+            },
+            IrNode::IdentBlock { parts } => {
+                let part_exprs: Vec<TokenStream> = parts
+                    .iter()
+                    .map(|p| self.generate_module_item_string_part(p))
+                    .collect();
+                quote! { #(#part_exprs)* }
+            }
+            IrNode::StringInterp { parts, .. } => {
+                let part_exprs: Vec<TokenStream> = parts
+                    .iter()
+                    .map(|p| self.generate_module_item_string_part(p))
+                    .collect();
+                quote! { #(#part_exprs)* }
+            }
+            _ => quote! {},
+        }
     }
 
     /// Generate code for a single module-level item.
@@ -521,14 +648,14 @@ impl Codegen {
                         macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
                             macroforge_ts::swc_core::ecma::ast::ExprStmt {
                                 span: macroforge_ts::swc_core::common::DUMMY_SP,
-                                expr: Box::new(macroforge_ts::macroforge_ts_syn::ToTsExpr::to_ts_expr(#expr)),
+                                expr: Box::new(macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone())),
                             }
                         )
                     ));
                 }),
                 PlaceholderKind::Stmt => Some(quote! {
                     #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
-                        macroforge_ts::macroforge_ts_syn::ToTsStmt::to_ts_stmt(#expr)
+                        macroforge_ts::ts_syn::ToTsStmt::to_ts_stmt(#expr)
                     ));
                 }),
                 PlaceholderKind::Ident => Some(quote! {
@@ -537,7 +664,7 @@ impl Codegen {
                             macroforge_ts::swc_core::ecma::ast::ExprStmt {
                                 span: macroforge_ts::swc_core::common::DUMMY_SP,
                                 expr: Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Ident(
-                                    macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr)
+                                    macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
                                 )),
                             }
                         )
@@ -560,7 +687,7 @@ impl Codegen {
                                                     macroforge_ts::swc_core::common::DUMMY_SP,
                                                 )
                                             )),
-                                            type_ann: Box::new(macroforge_ts::macroforge_ts_syn::ToTsType::to_ts_type(#expr)),
+                                            type_ann: Box::new(macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone())),
                                         }
                                     )),
                                 }
@@ -603,7 +730,7 @@ impl Codegen {
                         IrNode::Ident(text) => Some(quote! { __ident.push_str(#text); }),
                         IrNode::Placeholder { expr, .. } => {
                             Some(quote! {
-                                __ident.push_str(&macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr).sym.to_string());
+                                __ident.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
                             })
                         }
                         _ => None,
@@ -650,7 +777,7 @@ impl Codegen {
                                 }
                             });
                             expr_parts.push(quote! {
-                                Box::new(macroforge_ts::macroforge_ts_syn::ToTsExpr::to_ts_expr(#expr))
+                                Box::new(macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone()))
                             });
                         }
                         _ => {}
@@ -685,15 +812,21 @@ impl Codegen {
                 })
             }
 
-            // Raw text - use ts_quote! as fallback
+            // Raw text - parse at runtime since it might be a fragment
             IrNode::Raw(text) => {
                 if text.trim().is_empty() {
                     return None;
                 }
+                // Use runtime parsing with parse_ts_module, falling back to storing raw text
+                // if it can't be parsed (e.g., partial fragments that will be combined with placeholders)
                 Some(quote! {
-                    #output_var.extend(
-                        macroforge_ts::macroforge_ts_quote::ts_quote!(#text as Module).body
-                    );
+                    {
+                        let __raw_text = #text;
+                        if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_module(__raw_text) {
+                            #output_var.extend(__parsed.body);
+                        }
+                        // If parsing fails, it's likely a fragment - skip it as placeholders will handle interpolation
+                    }
                 })
             }
 
@@ -737,7 +870,11 @@ impl Codegen {
             | IrNode::CondExpr { .. }
             | IrNode::ArrowExpr { .. }
             | IrNode::NewExpr { .. }
-            | IrNode::TplLit { .. } => Some(self.generate_expr(node)),
+            | IrNode::TplLit { .. }
+            | IrNode::Raw(_)
+            | IrNode::Placeholder { .. }
+            | IrNode::IdentBlock { .. }
+            | IrNode::StringInterp { .. } => Some(self.generate_expr(node)),
             _ => None,
         }
     }
@@ -1079,7 +1216,7 @@ impl Codegen {
                         IrNode::Placeholder { expr, .. } => {
                             quasis.push(std::mem::take(&mut current_text));
                             exprs.push(quote! {
-                                Box::new(macroforge_ts::macroforge_ts_syn::ToTsExpr::to_ts_expr(#expr))
+                                Box::new(macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone()))
                             });
                         }
                         _ => {}
@@ -1117,12 +1254,12 @@ impl Codegen {
 
             IrNode::Placeholder { kind, expr } => match kind {
                 PlaceholderKind::Expr => {
-                    quote! { macroforge_ts::macroforge_ts_syn::ToTsExpr::to_ts_expr(#expr) }
+                    quote! { macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone()) }
                 }
                 PlaceholderKind::Ident => {
                     quote! {
                         macroforge_ts::swc_core::ecma::ast::Expr::Ident(
-                            macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr)
+                            macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
                         )
                     }
                 }
@@ -1130,16 +1267,17 @@ impl Codegen {
             },
 
             // Raw text - parse as expression at runtime
+            // Note: parse_ts_expr returns Result<Box<Expr>, _>, so we dereference to get Expr
             IrNode::Raw(text) => {
                 quote! {
                     {
                         let __source = #text;
-                        macroforge_ts::ts_syn::parse_ts_expr(__source)
-                            .unwrap_or_else(|_| macroforge_ts::swc_core::ecma::ast::Expr::Invalid(
+                        *macroforge_ts::ts_syn::parse_ts_expr(__source)
+                            .unwrap_or_else(|_| Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Invalid(
                                 macroforge_ts::swc_core::ecma::ast::Invalid {
                                     span: macroforge_ts::swc_core::common::DUMMY_SP,
                                 }
-                            ))
+                            )))
                     }
                 }
             }
@@ -1157,13 +1295,13 @@ impl Codegen {
                                 PlaceholderKind::Expr => {
                                     // For expressions, emit as TypeScript literal
                                     quote! {
-                                        let __expr = macroforge_ts::macroforge_ts_syn::ToTsExpr::to_ts_expr(#expr);
+                                        let __expr = macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
                                         __expr_str.push_str(&macroforge_ts::ts_syn::emit_expr(&__expr));
                                     }
                                 }
                                 PlaceholderKind::Ident => {
                                     quote! {
-                                        __expr_str.push_str(&macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr).sym.to_string());
+                                        __expr_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
                                     }
                                 }
                                 _ => quote! { /* placeholder kind not supported in expr context */ },
@@ -1173,16 +1311,17 @@ impl Codegen {
                     })
                     .collect();
 
+                // Note: parse_ts_expr returns Result<Box<Expr>, _>, so we dereference to get Expr
                 quote! {
                     {
                         let mut __expr_str = String::new();
                         #(#part_exprs)*
-                        macroforge_ts::ts_syn::parse_ts_expr(&__expr_str)
-                            .unwrap_or_else(|_| macroforge_ts::swc_core::ecma::ast::Expr::Invalid(
+                        *macroforge_ts::ts_syn::parse_ts_expr(&__expr_str)
+                            .unwrap_or_else(|_| Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Invalid(
                                 macroforge_ts::swc_core::ecma::ast::Invalid {
                                     span: macroforge_ts::swc_core::common::DUMMY_SP,
                                 }
-                            ))
+                            )))
                     }
                 }
             }
@@ -1218,7 +1357,7 @@ impl Codegen {
                 kind: PlaceholderKind::Ident,
                 expr,
             } => {
-                quote! { macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr) }
+                quote! { macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()) }
             }
             _ => quote! {
                 macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
@@ -1245,7 +1384,7 @@ impl Codegen {
             } => {
                 quote! {
                     {
-                        let __ident = macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr);
+                        let __ident = macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone());
                         macroforge_ts::swc_core::ecma::ast::IdentName::new(
                             __ident.sym,
                             __ident.span,
@@ -1370,7 +1509,7 @@ impl Codegen {
                 quote! {
                     macroforge_ts::swc_core::ecma::ast::Pat::Ident(
                         macroforge_ts::swc_core::ecma::ast::BindingIdent {
-                            id: macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr),
+                            id: macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()),
                             type_ann: None,
                         }
                     )
@@ -1460,11 +1599,119 @@ impl Codegen {
     }
 
     fn generate_stmt_pushes(&self, nodes: &[IrNode]) -> TokenStream {
-        let pushes: Vec<TokenStream> = nodes
-            .iter()
-            .filter_map(|n| self.generate_stmt_push(n))
-            .collect();
+        // Group adjacent non-control-flow nodes into combined statements
+        let mut pushes = Vec::new();
+        let mut pending_nodes: Vec<&IrNode> = Vec::new();
+
+        for node in nodes {
+            if self.is_control_flow_node(node) || self.is_structured_stmt(node) {
+                // Flush pending nodes as combined statement
+                if !pending_nodes.is_empty() {
+                    if let Some(stmt) = self.generate_combined_stmt(&pending_nodes) {
+                        pushes.push(stmt);
+                    }
+                    pending_nodes.clear();
+                }
+                // Generate control flow / structured statement directly
+                if let Some(push) = self.generate_stmt_push(node) {
+                    pushes.push(push);
+                }
+            } else {
+                pending_nodes.push(node);
+            }
+        }
+
+        // Flush remaining pending nodes
+        if !pending_nodes.is_empty() {
+            if let Some(stmt) = self.generate_combined_stmt(&pending_nodes) {
+                pushes.push(stmt);
+            }
+        }
+
         quote! { #(#pushes)* }
+    }
+
+    fn is_control_flow_node(&self, node: &IrNode) -> bool {
+        matches!(
+            node,
+            IrNode::For { .. }
+                | IrNode::If { .. }
+                | IrNode::While { .. }
+                | IrNode::Match { .. }
+                | IrNode::Let { .. }
+                | IrNode::Do { .. }
+        )
+    }
+
+    fn is_structured_stmt(&self, node: &IrNode) -> bool {
+        matches!(
+            node,
+            IrNode::VarDecl { .. }
+                | IrNode::ReturnStmt { .. }
+                | IrNode::BlockStmt { .. }
+                | IrNode::ExprStmt { .. }
+        )
+    }
+
+    fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> Option<TokenStream> {
+        if nodes.is_empty() {
+            return None;
+        }
+
+        // Check if all nodes are whitespace-only Raw nodes
+        let all_whitespace = nodes.iter().all(|n| {
+            matches!(n, IrNode::Raw(text) if text.trim().is_empty())
+        });
+        if all_whitespace {
+            return None;
+        }
+
+        // Generate code that builds a statement string and parses it
+        let part_exprs: Vec<TokenStream> = nodes
+            .iter()
+            .map(|n| self.generate_stmt_string_part(n))
+            .collect();
+
+        Some(quote! {
+            {
+                let mut __stmt_str = String::new();
+                #(#part_exprs)*
+                if !__stmt_str.trim().is_empty() {
+                    if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str) {
+                        __body_stmts.push(__parsed);
+                    }
+                }
+            }
+        })
+    }
+
+    fn generate_stmt_string_part(&self, node: &IrNode) -> TokenStream {
+        match node {
+            IrNode::Raw(text) => quote! { __stmt_str.push_str(#text); },
+            IrNode::StrLit(text) => quote! { __stmt_str.push_str(#text); },
+            IrNode::Ident(name) => quote! { __stmt_str.push_str(#name); },
+            IrNode::Placeholder { kind, expr } => match kind {
+                PlaceholderKind::Expr => {
+                    quote! {
+                        let __expr = macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
+                        __stmt_str.push_str(&macroforge_ts::ts_syn::emit_expr(&__expr));
+                    }
+                }
+                PlaceholderKind::Ident => {
+                    quote! {
+                        __stmt_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
+                    }
+                }
+                PlaceholderKind::Type => {
+                    quote! {
+                        let __ty = macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone());
+                        __stmt_str.push_str(&macroforge_ts::ts_syn::emit_ts_type(&__ty));
+                    }
+                }
+                _ => quote! {},
+            },
+            _ => quote! {},
+        }
     }
 
     fn generate_stmt_push(&self, node: &IrNode) -> Option<TokenStream> {
@@ -1771,7 +2018,7 @@ impl Codegen {
                 kind: PlaceholderKind::Type,
                 expr,
             } => {
-                quote! { macroforge_ts::macroforge_ts_syn::ToTsType::to_ts_type(#expr) }
+                quote! { macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone()) }
             }
 
             IrNode::Ident(name) => {
@@ -1819,13 +2066,13 @@ impl Codegen {
                             match kind {
                                 PlaceholderKind::Type => {
                                     quote! {
-                                        let __ty = macroforge_ts::macroforge_ts_syn::ToTsType::to_ts_type(#expr);
+                                        let __ty = macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone());
                                         __type_str.push_str(&macroforge_ts::ts_syn::emit_ts_type(&__ty));
                                     }
                                 }
                                 PlaceholderKind::Ident => {
                                     quote! {
-                                        __type_str.push_str(&macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr).sym.to_string());
+                                        __type_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
                                     }
                                 }
                                 _ => quote! { /* placeholder kind not supported in type context */ },
@@ -1886,7 +2133,7 @@ impl Codegen {
             } => {
                 quote! {
                     macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
-                        macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr)
+                        macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
                     )
                 }
             }
@@ -1901,12 +2148,68 @@ impl Codegen {
         }
     }
 
-    fn generate_type_params(&self, _node: &IrNode) -> TokenStream {
-        // Simplified - full implementation would parse TypeParams node
-        quote! {
-            macroforge_ts::swc_core::ecma::ast::TsTypeParamDecl {
-                span: macroforge_ts::swc_core::common::DUMMY_SP,
-                params: vec![],
+    fn generate_type_params(&self, node: &IrNode) -> TokenStream {
+        match node {
+            IrNode::TypeParams { params } => {
+                // Generate each type param
+                let params_code: Vec<TokenStream> = params
+                    .iter()
+                    .filter_map(|p| {
+                        match p {
+                            IrNode::Raw(text) => {
+                                let name = text.trim();
+                                if name.is_empty() {
+                                    None
+                                } else {
+                                    Some(quote! {
+                                        macroforge_ts::swc_core::ecma::ast::TsTypeParam {
+                                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                            name: macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
+                                                #name.into(),
+                                                macroforge_ts::swc_core::common::DUMMY_SP,
+                                            ),
+                                            is_in: false,
+                                            is_out: false,
+                                            is_const: false,
+                                            constraint: None,
+                                            default: None,
+                                        }
+                                    })
+                                }
+                            }
+                            IrNode::Placeholder { expr, .. } => {
+                                Some(quote! {
+                                    macroforge_ts::swc_core::ecma::ast::TsTypeParam {
+                                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                        name: macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()),
+                                        is_in: false,
+                                        is_out: false,
+                                        is_const: false,
+                                        constraint: None,
+                                        default: None,
+                                    }
+                                })
+                            }
+                            _ => None,
+                        }
+                    })
+                    .collect();
+
+                quote! {
+                    macroforge_ts::swc_core::ecma::ast::TsTypeParamDecl {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        params: vec![#(#params_code),*],
+                    }
+                }
+            }
+            _ => {
+                // Fallback - empty type params
+                quote! {
+                    macroforge_ts::swc_core::ecma::ast::TsTypeParamDecl {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        params: vec![],
+                    }
+                }
             }
         }
     }
@@ -2461,7 +2764,7 @@ impl Codegen {
             } => {
                 quote! {
                     macroforge_ts::swc_core::ecma::ast::PropName::Ident({
-                        let __ident = macroforge_ts::macroforge_ts_syn::ToTsIdent::to_ts_ident(#expr);
+                        let __ident = macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone());
                         macroforge_ts::swc_core::ecma::ast::IdentName::new(
                             __ident.sym,
                             __ident.span,

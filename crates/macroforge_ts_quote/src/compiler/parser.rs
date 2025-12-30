@@ -636,6 +636,9 @@ impl Parser {
 
         let mut arms = Vec::new();
 
+        // Skip whitespace after the match expression before looking for cases
+        self.skip_whitespace();
+
         // Parse cases
         while self.at(SyntaxKind::ColonOpen) {
             self.consume(); // {:
