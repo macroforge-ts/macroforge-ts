@@ -40,8 +40,8 @@
     "build": "tsc && chmod +x dist/index.js",
     "build:docs": "rust-script scripts/extract-docs.rs",
     "clean": "rm -rf dist",
-    "cleanbuild": "npm run clean && npm run build",
-    "dev": "npx @modelcontextprotocol/inspector dist/index.js",
+    "cleanbuild": "deno task clean && deno task build",
+    "dev": "deno run -A npm:@modelcontextprotocol/inspector dist/index.js",
     "start": "node dist/index.js",
     "test": "node --test tests/**/*.test.js"
   },
