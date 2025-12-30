@@ -69,13 +69,13 @@
     "url": "git+https://github.com/macroforge-ts/svelte-language-server.git"
   },
   "scripts": {
-    "build": "npm run clean && tsc",
+    "build": "deno task clean && tsc",
     "clean": "rm -rf dist",
-    "cleanbuild": "npm run clean && npm run build",
+    "cleanbuild": "deno task clean && deno task build",
     "pretest": "node test/setup-fixtures.js",
     "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --require ts-node/register \"test/**/*.test.ts\" --no-experimental-strip-types",
     "watch": "tsc -w"
   },
   "typings": "dist/src/index",
-  "version": "0.1.54"
+  "version": "0.1.52"
 }
