@@ -140,7 +140,7 @@ use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ident, parse_ts_expr,
+    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts_ident, parse_ts_expr,
     parse_ts_macro_input,
 };
 
@@ -317,15 +317,15 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let class_ident = ident!(class_name);
-            let serialize_context_ident = ident!(SERIALIZE_CONTEXT);
+            let class_ident = ts_ident!(class_name);
+            let serialize_context_ident = ts_ident!(SERIALIZE_CONTEXT);
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
             // Generate function names (always prefix style)
-            let fn_serialize_ident = ident!("{}Serialize", class_name.to_case(Case::Camel));
+            let fn_serialize_ident = ts_ident!("{}Serialize", class_name.to_case(Case::Camel));
             let fn_serialize_expr: Expr = fn_serialize_ident.clone().into();
             let fn_serialize_internal_ident =
-                ident!("{}SerializeWithContext", class_name.to_case(Case::Camel));
+                ts_ident!("{}SerializeWithContext", class_name.to_case(Case::Camel));
 
             // Create Expr version of SERIALIZE_CONTEXT for expression positions
             let serialize_context_expr: Expr = serialize_context_ident.clone().into();
@@ -451,10 +451,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     });
 
                     Some(SerializeField {
-                        _json_key_ident: ident!(&_json_key),
+                        _json_key_ident: ts_ident!(&_json_key),
                         _json_key,
                         _field_name: field.name.clone(),
-                        _field_ident: ident!(field.name.as_str()),
+                        _field_ident: ts_ident!(field.name.as_str()),
                         _type_cat,
                         _optional: field.optional,
                         flatten: opts.flatten,
@@ -560,7 +560,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result.@{field._json_key_ident} = value.@{field._field_ident}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field._array_elem_serializable_type}
-                                                        {$let serialize_with_context_elem: Expr = ident!(nested_serialize_fn_name(elem_type)).into()}
+                                                        {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
                                                         result.@{field._json_key_ident} = value.@{field._field_ident}.map(
                                                             (item) => @{serialize_with_context_elem}(item, ctx)
                                                         );
@@ -579,7 +579,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result.@{field._json_key_ident} = value.@{field._field_ident}.map((item: Date | null) => item === null ? null : item.toISOString());
                                             {:case _}
                                                 {#if let Some(elem_type) = &field._array_elem_serializable_type}
-                                                    {$let serialize_with_context_elem: Expr = ident!(nested_serialize_fn_name(elem_type)).into()}
+                                                    {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
                                                     result.@{field._json_key_ident} = value.@{field._field_ident}.map(
                                                         (item) => @{serialize_with_context_elem}(item, ctx)
                                                     );
@@ -609,7 +609,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     );
                                                 {:case _}
                                                     {#if let Some(value_type) = &field._map_value_serializable_type}
-                                                        {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                        {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                         result.@{field._json_key_ident} = Object.fromEntries(
                                                             Array.from(value.@{field._field_ident}.entries()).map(
                                                                 ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
@@ -638,7 +638,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 );
                                             {:case _}
                                                 {#if let Some(value_type) = &field._map_value_serializable_type}
-                                                    {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                    {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                     result.@{field._json_key_ident} = Object.fromEntries(
                                                         Array.from(value.@{field._field_ident}.entries()).map(
                                                             ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
@@ -662,7 +662,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result.@{field._json_key_ident} = Array.from(value.@{field._field_ident}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field._set_elem_serializable_type}
-                                                        {$let serialize_with_context_elem: Expr = ident!(nested_serialize_fn_name(elem_type)).into()}
+                                                        {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
                                                         result.@{field._json_key_ident} = Array.from(value.@{field._field_ident}).map(
                                                             (item) => @{serialize_with_context_elem}(item, ctx)
                                                         );
@@ -681,7 +681,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result.@{field._json_key_ident} = Array.from(value.@{field._field_ident}).map((item: Date | null) => item === null ? null : item.toISOString());
                                             {:case _}
                                                 {#if let Some(elem_type) = &field._set_elem_serializable_type}
-                                                    {$let serialize_with_context_elem: Expr = ident!(nested_serialize_fn_name(elem_type)).into()}
+                                                    {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
                                                     result.@{field._json_key_ident} = Array.from(value.@{field._field_ident}).map(
                                                         (item) => @{serialize_with_context_elem}(item, ctx)
                                                     );
@@ -700,7 +700,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result.@{field._json_key_ident} = (value.@{field._field_ident} as Date).toISOString();
                                             {:case _}
                                                 {#if let Some(inner_type) = &field._optional_serializable_type}
-                                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                 {:else}
                                                     result.@{field._json_key_ident} = value.@{field._field_ident};
@@ -719,7 +719,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         {:case _}
                                             if (value.@{field._field_ident} !== null) {
                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                 {:else}
                                                     result.@{field._json_key_ident} = value.@{field._field_ident};
@@ -730,7 +730,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {/match}
 
                                 {:case TypeCategory::Serializable(type_name)}
-                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(type_name)).into()}
+                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(type_name)).into()}
                                     {#if field._optional}
                                         if (value.@{field._field_ident} !== undefined) {
                                             result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
@@ -755,7 +755,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     );
                                                 {:case _}
                                                     {#if let Some(value_type) = &field._record_value_serializable_type}
-                                                        {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                        {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                         result.@{field._json_key_ident} = Object.fromEntries(
                                                             Object.entries(value.@{field._field_ident}).map(([k, v]) => [k, @{serialize_with_context_value}(v, ctx)])
                                                         );
@@ -778,7 +778,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 );
                                             {:case _}
                                                 {#if let Some(value_type) = &field._record_value_serializable_type}
-                                                    {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                    {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                     result.@{field._json_key_ident} = Object.fromEntries(
                                                         Object.entries(value.@{field._field_ident}).map(([k, v]) => [k, @{serialize_with_context_value}(v, ctx)])
                                                     );
@@ -798,7 +798,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result.@{field._json_key_ident} = (value.@{field._field_ident} as Date).toISOString();
                                                 {:case _}
                                                     {#if let Some(inner_type) = &field._wrapper_serializable_type}
-                                                        {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                        {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                         result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                     {:else}
                                                         result.@{field._json_key_ident} = value.@{field._field_ident};
@@ -813,7 +813,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result.@{field._json_key_ident} = (value.@{field._field_ident} as Date).toISOString();
                                             {:case _}
                                                 {#if let Some(inner_type) = &field._wrapper_serializable_type}
-                                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                 {:else}
                                                     result.@{field._json_key_ident} = value.@{field._field_ident};
@@ -838,7 +838,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         {#for field in flatten_fields}
                             {#match &field._type_cat}
                                 {:case TypeCategory::Serializable(type_name)}
-                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(type_name)).into()}
+                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(type_name)).into()}
                                     {#if field._optional}
                                         if (value.@{field._field_ident} !== undefined) {
                                             const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
@@ -870,7 +870,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     ));
                                                 {:case _}
                                                     {#if let Some(value_type) = &field._record_value_serializable_type}
-                                                        {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                        {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                         Object.assign(result, Object.fromEntries(
                                                             Object.entries(value.@{field._field_ident}).map(([k, v]) => [k, @{serialize_with_context_value}(v, ctx)])
                                                         ));
@@ -893,7 +893,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 ));
                                             {:case _}
                                                 {#if let Some(value_type) = &field._record_value_serializable_type}
-                                                    {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                    {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                     Object.assign(result, Object.fromEntries(
                                                         Object.entries(value.@{field._field_ident}).map(([k, v]) => [k, @{serialize_with_context_value}(v, ctx)])
                                                     ));
@@ -948,11 +948,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
         Data::Enum(_) => {
             // Enums: return the underlying value directly
             let enum_name = input.name();
-            let enum_ident = ident!(enum_name);
+            let enum_ident = ts_ident!(enum_name);
 
-            let fn_name_ident = ident!("{}Serialize", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Serialize", enum_name.to_case(Case::Camel));
             let fn_name_internal_ident =
-                ident!("{}SerializeWithContext", enum_name.to_case(Case::Camel));
+                ts_ident!("{}SerializeWithContext", enum_name.to_case(Case::Camel));
             Ok(ts_template! {
                 /** Serializes this enum value to a JSON string. */
                 export function @{fn_name_ident}(value: @{enum_ident}): string {
@@ -960,15 +960,15 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 }
 
                 /** Serializes with an existing context for nested/cyclic object graphs. */
-                export function @{fn_name_internal_ident}(value: @{enum_ident}, _ctx: @{ident!(SERIALIZE_CONTEXT)}): string | number {
+                export function @{fn_name_internal_ident}(value: @{enum_ident}, _ctx: @{ts_ident!(SERIALIZE_CONTEXT)}): string | number {
                     return value;
                 }
             })
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
-            let interface_ident = ident!(interface_name);
-            let serialize_context_ident = ident!(SERIALIZE_CONTEXT);
+            let interface_ident = ts_ident!(interface_name);
+            let serialize_context_ident = ts_ident!(SERIALIZE_CONTEXT);
             let container_opts =
                 SerdeContainerOptions::from_decorators(&interface.inner.decorators);
 
@@ -1093,10 +1093,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     });
 
                     Some(SerializeField {
-                        _json_key_ident: ident!(&_json_key),
+                        _json_key_ident: ts_ident!(&_json_key),
                         _json_key,
                         _field_name: field.name.clone(),
-                        _field_ident: ident!(field.name.as_str()),
+                        _field_ident: ts_ident!(field.name.as_str()),
                         _type_cat,
                         _optional: field.optional,
                         flatten: opts.flatten,
@@ -1132,8 +1132,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let has_flatten = !flatten_fields.is_empty();
 
             // Generate function names based on naming style
-            let fn_serialize_ident = ident!("{}Serialize", interface_name.to_case(Case::Camel));
-            let fn_serialize_internal_ident = ident!(
+            let fn_serialize_ident = ts_ident!("{}Serialize", interface_name.to_case(Case::Camel));
+            let fn_serialize_internal_ident = ts_ident!(
                 "{}SerializeWithContext",
                 interface_name.to_case(Case::Camel)
             );
@@ -1208,7 +1208,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result.@{field._json_key_ident} = value.@{field._field_ident}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field._array_elem_serializable_type}
-                                                        {$let serialize_with_context_elem: Expr = ident!(nested_serialize_fn_name(elem_type)).into()}
+                                                        {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
                                                         result.@{field._json_key_ident} = value.@{field._field_ident}.map(
                                                             (item) => @{serialize_with_context_elem}(item, ctx)
                                                         );
@@ -1227,7 +1227,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result.@{field._json_key_ident} = value.@{field._field_ident}.map((item: Date | null) => item === null ? null : item.toISOString());
                                             {:case _}
                                                 {#if let Some(elem_type) = &field._array_elem_serializable_type}
-                                                    {$let serialize_with_context_elem: Expr = ident!(nested_serialize_fn_name(elem_type)).into()}
+                                                    {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
                                                     result.@{field._json_key_ident} = value.@{field._field_ident}.map(
                                                         (item) => @{serialize_with_context_elem}(item, ctx)
                                                     );
@@ -1257,7 +1257,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     );
                                                 {:case _}
                                                     {#if let Some(value_type) = &field._map_value_serializable_type}
-                                                        {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                        {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                         result.@{field._json_key_ident} = Object.fromEntries(
                                                             Array.from(value.@{field._field_ident}.entries()).map(
                                                                 ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
@@ -1286,7 +1286,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 );
                                             {:case _}
                                                 {#if let Some(value_type) = &field._map_value_serializable_type}
-                                                    {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                    {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                     result.@{field._json_key_ident} = Object.fromEntries(
                                                         Array.from(value.@{field._field_ident}.entries()).map(
                                                             ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
@@ -1310,7 +1310,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result.@{field._json_key_ident} = Array.from(value.@{field._field_ident}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field._set_elem_serializable_type}
-                                                        {$let serialize_with_context_elem: Expr = ident!(nested_serialize_fn_name(elem_type)).into()}
+                                                        {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
                                                         result.@{field._json_key_ident} = Array.from(value.@{field._field_ident}).map(
                                                             (item) => @{serialize_with_context_elem}(item, ctx)
                                                         );
@@ -1329,7 +1329,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result.@{field._json_key_ident} = Array.from(value.@{field._field_ident}).map((item: Date | null) => item === null ? null : item.toISOString());
                                             {:case _}
                                                 {#if let Some(elem_type) = &field._set_elem_serializable_type}
-                                                    {$let serialize_with_context_elem: Expr = ident!(nested_serialize_fn_name(elem_type)).into()}
+                                                    {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
                                                     result.@{field._json_key_ident} = Array.from(value.@{field._field_ident}).map(
                                                         (item) => @{serialize_with_context_elem}(item, ctx)
                                                     );
@@ -1348,7 +1348,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result.@{field._json_key_ident} = (value.@{field._field_ident} as Date).toISOString();
                                             {:case _}
                                                 {#if let Some(inner_type) = &field._optional_serializable_type}
-                                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                 {:else}
                                                     result.@{field._json_key_ident} = value.@{field._field_ident};
@@ -1367,7 +1367,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         {:case _}
                                             if (value.@{field._field_ident} !== null) {
                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                 {:else}
                                                     result.@{field._json_key_ident} = value.@{field._field_ident};
@@ -1378,7 +1378,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {/match}
 
                                 {:case TypeCategory::Serializable(type_name)}
-                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(type_name)).into()}
+                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(type_name)).into()}
                                     {#if field._optional}
                                         if (value.@{field._field_ident} !== undefined) {
                                             result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
@@ -1403,7 +1403,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     );
                                                 {:case _}
                                                     {#if let Some(value_type) = &field._record_value_serializable_type}
-                                                        {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                        {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                         result.@{field._json_key_ident} = Object.fromEntries(
                                                             Object.entries(value.@{field._field_ident}).map(([k, v]) => [k, @{serialize_with_context_value}(v, ctx)])
                                                         );
@@ -1426,7 +1426,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 );
                                             {:case _}
                                                 {#if let Some(value_type) = &field._record_value_serializable_type}
-                                                    {$let serialize_with_context_value: Expr = ident!(nested_serialize_fn_name(value_type)).into()}
+                                                    {$let serialize_with_context_value: Expr = ts_ident!(nested_serialize_fn_name(value_type)).into()}
                                                     result.@{field._json_key_ident} = Object.fromEntries(
                                                         Object.entries(value.@{field._field_ident}).map(([k, v]) => [k, @{serialize_with_context_value}(v, ctx)])
                                                     );
@@ -1446,7 +1446,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result.@{field._json_key_ident} = (value.@{field._field_ident} as Date).toISOString();
                                                 {:case _}
                                                     {#if let Some(inner_type) = &field._wrapper_serializable_type}
-                                                        {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                        {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                         result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                     {:else}
                                                         result.@{field._json_key_ident} = value.@{field._field_ident};
@@ -1461,7 +1461,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result.@{field._json_key_ident} = (value.@{field._field_ident} as Date).toISOString();
                                             {:case _}
                                                 {#if let Some(inner_type) = &field._wrapper_serializable_type}
-                                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     result.@{field._json_key_ident} = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                 {:else}
                                                     result.@{field._json_key_ident} = value.@{field._field_ident};
@@ -1486,7 +1486,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         {#for field in flatten_fields}
                             {#match &field._type_cat}
                                 {:case TypeCategory::Serializable(type_name)}
-                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(type_name)).into()}
+                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(type_name)).into()}
                                     {#if field._optional}
                                         if (value.@{field._field_ident} !== undefined) {
                                             const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
@@ -1504,7 +1504,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {#if field._optional}
                                         if (value.@{field._field_ident} !== undefined) {
                                             {#if let Some(inner_type) = &field._optional_serializable_type}
-                                                {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                 const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                 const { __type: _, __id: __, ...rest } = __flattened as any;
                                                 Object.assign(result, rest);
@@ -1517,7 +1517,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {:else}
                                         {
                                             {#if let Some(inner_type) = &field._optional_serializable_type}
-                                                {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                 const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                 const { __type: _, __id: __, ...rest } = __flattened as any;
                                                 Object.assign(result, rest);
@@ -1533,7 +1533,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         if (value.@{field._field_ident} !== undefined) {
                                             if (value.@{field._field_ident} !== null) {
                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                     const { __type: _, __id: __, ...rest } = __flattened as any;
                                                     Object.assign(result, rest);
@@ -1548,7 +1548,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         {
                                             if (value.@{field._field_ident} !== null) {
                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                    {$let serialize_with_context_fn: Expr = ident!(nested_serialize_fn_name(inner_type)).into()}
+                                                    {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
                                                     const { __type: _, __id: __, ...rest } = __flattened as any;
                                                     Object.assign(result, rest);
@@ -1591,23 +1591,23 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let type_params = type_alias.type_params();
             let has_generics = !type_params.is_empty();
             let type_params_ident: Option<Ident> = if has_generics {
-                Some(ident!("{}", type_params.join(", ")))
+                Some(ts_ident!("{}", type_params.join(", ")))
             } else {
                 None
             };
             let full_type_ident = if has_generics {
-                ident!("{}<{}>", type_name, type_params.join(", "))
+                ts_ident!("{}<{}>", type_name, type_params.join(", "))
             } else {
-                ident!(type_name)
+                ts_ident!(type_name)
             };
 
             // Generate function names based on naming style
-            let fn_serialize_ident = ident!("{}Serialize", type_name.to_case(Case::Camel));
+            let fn_serialize_ident = ts_ident!("{}Serialize", type_name.to_case(Case::Camel));
             let fn_serialize_internal_ident =
-                ident!("{}SerializeWithContext", type_name.to_case(Case::Camel));
+                ts_ident!("{}SerializeWithContext", type_name.to_case(Case::Camel));
 
             // Create Expr version of SERIALIZE_CONTEXT for expression positions
-            let serialize_context_ident = ident!(SERIALIZE_CONTEXT);
+            let serialize_context_ident = ts_ident!(SERIALIZE_CONTEXT);
             let serialize_context_expr: Expr = serialize_context_ident.clone().into();
 
             if type_alias.is_object() {
@@ -1716,10 +1716,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         });
 
                         Some(SerializeField {
-                            _json_key_ident: ident!(&_json_key),
+                            _json_key_ident: ts_ident!(&_json_key),
                             _json_key,
                             _field_name: field.name.clone(),
-                            _field_ident: ident!(field.name.as_str()),
+                            _field_ident: ts_ident!(field.name.as_str()),
                             _type_cat,
                             _optional: field.optional,
                             flatten: opts.flatten,
@@ -1900,9 +1900,9 @@ mod tests {
     fn test_serialize_field_struct() {
         let field = SerializeField {
             _json_key: "name".into(),
-            _json_key_ident: ident!("name"),
+            _json_key_ident: ts_ident!("name"),
             _field_name: "name".into(),
-            _field_ident: ident!("name"),
+            _field_ident: ts_ident!("name"),
             _type_cat: TypeCategory::Primitive,
             _optional: false,
             flatten: false,

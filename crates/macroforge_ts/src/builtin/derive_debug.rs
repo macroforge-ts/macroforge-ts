@@ -66,7 +66,8 @@ use convert_case::{Case, Casing};
 
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_macro_input};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::ts_ident;
 
 /// Options parsed from @Debug decorator on fields
 #[derive(Default)]
@@ -178,7 +179,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let class_ident = ident!(class_name);
+            let class_ident = ts_ident!(class_name);
 
             // Collect fields that should be included in debug output
             let _debug_fields: Vec<DebugField> = class
@@ -195,7 +196,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 .collect();
 
             // Generate function name (always prefix style)
-            let fn_name_ident = ident!("{}ToString", class_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}ToString", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate standalone function with value parameter
@@ -230,14 +231,14 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
-            let enum_ident = ident!(enum_name);
+            let enum_ident = ts_ident!(enum_name);
             let _variants: Vec<String> = enum_data
                 .variants()
                 .iter()
                 .map(|v| v.name.clone())
                 .collect();
 
-            let fn_name_ident = ident!("{}ToString", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}ToString", enum_name.to_case(Case::Camel));
             // Convert ident to expression for array access
             let enum_expr: Expr = enum_ident.clone().into();
             Ok(ts_template! {
@@ -256,7 +257,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
-            let interface_ident = ident!(interface_name);
+            let interface_ident = ts_ident!(interface_name);
 
             // Collect fields that should be included in debug output
             let _debug_fields: Vec<DebugField> = interface
@@ -272,7 +273,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
                 .collect();
 
-            let fn_name_ident = ident!("{}ToString", interface_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}ToString", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
@@ -290,7 +291,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
-            let type_ident = ident!(type_name);
+            let type_ident = ts_ident!(type_name);
 
             // Generate different output based on type body
             if type_alias.is_object() {
@@ -309,7 +310,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     })
                     .collect();
 
-                let fn_name_ident = ident!("{}ToString", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}ToString", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
@@ -326,7 +327,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
             } else {
                 // Union, intersection, tuple, or simple alias: use JSON.stringify
-                let fn_name_ident = ident!("{}ToString", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}ToString", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{type_ident.clone()}): string {

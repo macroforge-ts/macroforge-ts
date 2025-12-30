@@ -319,7 +319,7 @@ use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, TsSynError, ident,
+    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, TsSynError, ts_ident,
     parse_ts_expr, parse_ts_macro_input,
 };
 
@@ -664,21 +664,21 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let class_ident = ident!(class_name);
+            let class_ident = ts_ident!(class_name);
             let class_expr: Expr = class_ident.clone().into();
-            let deserialize_context_ident = ident!(DESERIALIZE_CONTEXT);
+            let deserialize_context_ident = ts_ident!(DESERIALIZE_CONTEXT);
             let deserialize_context_expr: Expr = deserialize_context_ident.clone().into();
-            let deserialize_error_expr: Expr = ident!(DESERIALIZE_ERROR).into();
-            let pending_ref_ident = ident!(PENDING_REF);
+            let deserialize_error_expr: Expr = ts_ident!(DESERIALIZE_ERROR).into();
+            let pending_ref_ident = ts_ident!(PENDING_REF);
             let pending_ref_expr: Expr = pending_ref_ident.clone().into();
-            let deserialize_options_ident = ident!(DESERIALIZE_OPTIONS);
+            let deserialize_options_ident = ts_ident!(DESERIALIZE_OPTIONS);
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
             // Generate function names (always prefix style)
-            let fn_deserialize_ident = ident!("{}Deserialize", class_name.to_case(Case::Camel));
+            let fn_deserialize_ident = ts_ident!("{}Deserialize", class_name.to_case(Case::Camel));
             let fn_deserialize_internal_ident =
-                ident!("{}DeserializeWithContext", class_name.to_case(Case::Camel));
-            let fn_is_ident = ident!("{}Is", class_name.to_case(Case::Camel));
+                ts_ident!("{}DeserializeWithContext", class_name.to_case(Case::Camel));
+            let fn_is_ident = ts_ident!("{}Is", class_name.to_case(Case::Camel));
 
             // Check for user-defined constructor with parameters
             if let Some(ctor) = class.method("constructor")
@@ -789,7 +789,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     Some(DeserializeField {
                         json_key,
                         _field_name: field.name.clone(),
-                        _field_ident: ident!(field.name.as_str()),
+                        _field_ident: ts_ident!(field.name.as_str()),
                         ts_type: field.ts_type.clone(),
                         _type_cat: type_cat,
                         optional: field.optional || opts.default || opts.default_expr.is_some(),
@@ -848,7 +848,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             // Compute return type and wrappers
             let return_type = deserialize_return_type(class_name);
-            let return_type_ident = ident!(return_type.as_str());
+            let return_type_ident = ts_ident!(return_type.as_str());
             let success_result = wrap_success("resultOrRef");
             let success_result_expr =
                 parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
@@ -957,7 +957,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     {#if !all_fields.is_empty()}
                         {#for field in all_fields}
                             {$let raw_var_name = format!("__raw_{}", field._field_name)}
-                            {$let raw_var_ident: Ident = ident!(raw_var_name)}
+                            {$let raw_var_ident: Ident = ts_ident!(raw_var_name)}
                             {$let has_validators = field.has_validators()}
                             {#if let Some(fn_expr) = &field._deserialize_with}
                                 // Custom deserialization function (deserializeWith)
@@ -1063,7 +1063,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             instance.@{field._field_ident} = @{raw_var_ident} as any;
 
                                         {:case TypeCategory::Serializable(type_name)}
-                                            {$let type_expr: Expr = ident!(type_name).into()}
+                                            {$let type_expr: Expr = ts_ident!(type_name).into()}
                                             {
                                                 const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1086,7 +1086,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         instance.@{field._field_ident} = null;
                                                     } else {
                                                         {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                            {$let inner_type_expr: Expr = ident!(inner_type).into()}
+                                                            {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
                                                             const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                             ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                         {:else}
@@ -1175,7 +1175,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             instance.@{field._field_ident} = new Set(@{raw_var_ident} as @{inner}[]);
 
                                         {:case TypeCategory::Serializable(type_name)}
-                                            {$let type_expr: Expr = ident!(type_name).into()}
+                                            {$let type_expr: Expr = ts_ident!(type_name).into()}
                                             {
                                                 const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1198,7 +1198,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         instance.@{field._field_ident} = null;
                                                     } else {
                                                         {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                            {$let inner_type_expr: Expr = ident!(inner_type).into()}
+                                                            {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
                                                             const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                             ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                         {:else}
@@ -1220,7 +1220,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {#for field in flatten_fields}
                             {#match &field._type_cat}
                                 {:case TypeCategory::Serializable(type_name)}
-                                    {$let type_expr: Expr = ident!(type_name).into()}
+                                    {$let type_expr: Expr = ts_ident!(type_name).into()}
                                     {
                                         const __result = @{type_expr}.deserializeWithContext(obj, ctx);
                                         ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1331,13 +1331,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let enum_ident = ident!(enum_name);
+            let enum_ident = ts_ident!(enum_name);
             let enum_expr: Expr = enum_ident.clone().into();
-            let fn_deserialize_ident = ident!("{}Deserialize", enum_name.to_case(Case::Camel));
+            let fn_deserialize_ident = ts_ident!("{}Deserialize", enum_name.to_case(Case::Camel));
             let fn_deserialize_internal_ident =
-                ident!("{}DeserializeWithContext", enum_name.to_case(Case::Camel));
+                ts_ident!("{}DeserializeWithContext", enum_name.to_case(Case::Camel));
             let fn_deserialize_internal_expr: Expr = fn_deserialize_internal_ident.clone().into();
-            let fn_is_ident = ident!("{}Is", enum_name.to_case(Case::Camel));
+            let fn_is_ident = ts_ident!("{}Is", enum_name.to_case(Case::Camel));
             let mut result = ts_template! {
                 /** Deserializes input to an enum value. Automatically detects whether input is a JSON string or value. @param input - JSON string or value to deserialize @returns The enum value @throws Error if the value is not a valid enum member */
                 export function @{fn_deserialize_ident}(input: unknown): @{&enum_ident} {
@@ -1373,14 +1373,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         Data::Interface(interface) => {
             let interface_name = input.name();
             let _type_name = interface_name; // Alias for template consistency
-            let interface_ident = ident!(interface_name);
+            let interface_ident = ts_ident!(interface_name);
             let _type_ident = interface_ident.clone(); // Alias for template consistency
-            let deserialize_context_ident = ident!(DESERIALIZE_CONTEXT);
+            let deserialize_context_ident = ts_ident!(DESERIALIZE_CONTEXT);
             let deserialize_context_expr: Expr = deserialize_context_ident.clone().into();
-            let deserialize_error_expr: Expr = ident!(DESERIALIZE_ERROR).into();
-            let pending_ref_ident = ident!(PENDING_REF);
+            let deserialize_error_expr: Expr = ts_ident!(DESERIALIZE_ERROR).into();
+            let pending_ref_ident = ts_ident!(PENDING_REF);
             let pending_ref_expr: Expr = pending_ref_ident.clone().into();
-            let deserialize_options_ident = ident!(DESERIALIZE_OPTIONS);
+            let deserialize_options_ident = ts_ident!(DESERIALIZE_OPTIONS);
             let container_opts =
                 SerdeContainerOptions::from_decorators(&interface.inner.decorators);
 
@@ -1479,7 +1479,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     Some(DeserializeField {
                         json_key,
                         _field_name: field.name.clone(),
-                        _field_ident: ident!(field.name.as_str()),
+                        _field_ident: ts_ident!(field.name.as_str()),
                         ts_type: field.ts_type.clone(),
                         _type_cat: type_cat,
                         optional: field.optional || opts.default || opts.default_expr.is_some(),
@@ -1531,32 +1531,32 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     .join(" && ")
             };
 
-            let fn_deserialize_ident = ident!(format!(
+            let fn_deserialize_ident = ts_ident!(format!(
                 "{}Deserialize",
                 interface_name.to_case(Case::Camel)
             ));
-            let fn_deserialize_internal_ident = ident!(format!(
+            let fn_deserialize_internal_ident = ts_ident!(format!(
                 "{}DeserializeWithContext",
                 interface_name.to_case(Case::Camel)
             ));
             let fn_deserialize_expr: Expr = fn_deserialize_ident.clone().into();
             let fn_deserialize_internal_expr: Expr = fn_deserialize_internal_ident.clone().into();
-            let fn_validate_field_ident = ident!(format!(
+            let fn_validate_field_ident = ts_ident!(format!(
                 "{}ValidateField",
                 interface_name.to_case(Case::Camel)
             ));
-            let fn_validate_fields_ident = ident!(format!(
+            let fn_validate_fields_ident = ts_ident!(format!(
                 "{}ValidateFields",
                 interface_name.to_case(Case::Camel)
             ));
-            let fn_is_ident = ident!(format!("{}Is", interface_name.to_case(Case::Camel)));
+            let fn_is_ident = ts_ident!(format!("{}Is", interface_name.to_case(Case::Camel)));
             let fn_has_shape_ident =
-                ident!(format!("{}HasShape", interface_name.to_case(Case::Camel)));
+                ts_ident!(format!("{}HasShape", interface_name.to_case(Case::Camel)));
             let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
 
             // Compute return type and wrappers
             let return_type = deserialize_return_type(interface_name);
-            let return_type_ident = ident!(return_type.as_str());
+            let return_type_ident = ts_ident!(return_type.as_str());
             let success_result = wrap_success("resultOrRef");
             let success_result_expr =
                 parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
@@ -1651,7 +1651,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {#if !all_fields.is_empty()}
                             {#for field in all_fields}
                                 {$let raw_var_name = format!("__raw_{}", field._field_name)}
-                                {$let raw_var_ident: Ident = ident!(raw_var_name)}
+                                {$let raw_var_ident: Ident = ts_ident!(raw_var_name)}
                                 {$let has_validators = field.has_validators()}
                                 {#if let Some(fn_expr) = &field._deserialize_with}
                                     // Custom deserialization function (deserializeWith)
@@ -1709,7 +1709,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 }
 
                                             {:case TypeCategory::Serializable(type_name)}
-                                                {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(type_name)).into()}
+                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(type_name)).into()}
                                                 {
                                                     const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1732,7 +1732,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                             instance.@{field._field_ident} = null;
                                                         } else {
                                                             {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                                {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(inner_type)).into()}
+                                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(inner_type)).into()}
                                                                 const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                             {:else}
@@ -1796,7 +1796,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 }
 
                                             {:case TypeCategory::Serializable(type_name)}
-                                                {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(type_name)).into()}
+                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(type_name)).into()}
                                                 {
                                                     const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1819,7 +1819,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                             instance.@{field._field_ident} = null;
                                                         } else {
                                                             {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                                {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(inner_type)).into()}
+                                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(inner_type)).into()}
                                                                 const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                             {:else}
@@ -1909,13 +1909,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
-            let type_ident = ident!(type_name);
-            let deserialize_context_ident = ident!(DESERIALIZE_CONTEXT);
+            let type_ident = ts_ident!(type_name);
+            let deserialize_context_ident = ts_ident!(DESERIALIZE_CONTEXT);
             let deserialize_context_expr: Expr = deserialize_context_ident.clone().into();
-            let deserialize_error_expr: Expr = ident!(DESERIALIZE_ERROR).into();
-            let pending_ref_ident = ident!(PENDING_REF);
+            let deserialize_error_expr: Expr = ts_ident!(DESERIALIZE_ERROR).into();
+            let pending_ref_ident = ts_ident!(PENDING_REF);
             let pending_ref_expr: Expr = pending_ref_ident.clone().into();
-            let deserialize_options_ident = ident!(DESERIALIZE_OPTIONS);
+            let deserialize_options_ident = ts_ident!(DESERIALIZE_OPTIONS);
 
             // Build generic type signature if type has type params
             let type_params = type_alias.type_params();
@@ -1926,7 +1926,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 (format!("<{}>", params), format!("<{}>", params))
             };
             let full_type_name = format!("{}{}", type_name, generic_args);
-            let full_type_ident = ident!(full_type_name.as_str());
+            let full_type_ident = ts_ident!(full_type_name.as_str());
 
             // Create combined generic declarations for validateField that include K
             let validate_field_generic_decl = if type_params.is_empty() {
@@ -2013,7 +2013,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         Some(DeserializeField {
                             json_key,
                             _field_name: field.name.clone(),
-                            _field_ident: ident!(field.name.as_str()),
+                            _field_ident: ts_ident!(field.name.as_str()),
                             ts_type: field.ts_type.clone(),
                             _type_cat: type_cat,
                             optional: field.optional || opts.default || opts.default_expr.is_some(),
@@ -2064,25 +2064,25 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         .join(" && ")
                 };
 
-                let fn_deserialize_ident = ident!(format!(
+                let fn_deserialize_ident = ts_ident!(format!(
                     "{}Deserialize{}",
                     type_name.to_case(Case::Camel),
                     generic_decl
                 ));
-                let fn_deserialize_internal_ident = ident!(format!(
+                let fn_deserialize_internal_ident = ts_ident!(format!(
                     "{}DeserializeWithContext",
                     type_name.to_case(Case::Camel)
                 ));
                 let fn_deserialize_internal_expr: Expr =
                     fn_deserialize_internal_ident.clone().into();
-                let fn_validate_field_ident = ident!(format!(
+                let fn_validate_field_ident = ts_ident!(format!(
                     "{}ValidateField{}",
                     type_name.to_case(Case::Camel),
                     validate_field_generic_decl
                 ));
                 let fn_validate_fields_ident =
-                    ident!(format!("{}ValidateFields", type_name.to_case(Case::Camel)));
-                let fn_is_ident = ident!(format!(
+                    ts_ident!(format!("{}ValidateFields", type_name.to_case(Case::Camel)));
+                let fn_is_ident = ts_ident!(format!(
                     "{}Is{}",
                     type_name.to_case(Case::Camel),
                     generic_decl
@@ -2090,7 +2090,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                 // Compute return type and wrappers
                 let return_type = deserialize_return_type(&full_type_name);
-                let return_type_ident = ident!(return_type.as_str());
+                let return_type_ident = ts_ident!(return_type.as_str());
                 let success_result = wrap_success("resultOrRef");
                 let success_result_expr = parse_ts_expr(&success_result)
                     .expect("deserialize success wrapper should parse");
@@ -2189,7 +2189,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {#if !all_fields.is_empty()}
                                 {#for field in all_fields}
                                     {$let raw_var_name = format!("__raw_{}", field._field_name)}
-                                    {$let raw_var_ident: Ident = ident!(raw_var_name)}
+                                    {$let raw_var_ident: Ident = ts_ident!(raw_var_name)}
                                     {$let has_validators = field.has_validators()}
                                     {#if let Some(fn_expr) = &field._deserialize_with}
                                         // Custom deserialization function (deserializeWith)
@@ -2247,7 +2247,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     }
 
                                                 {:case TypeCategory::Serializable(inner_type_name)}
-                                                    {$let inner_type_expr: Expr = ident!(inner_type_name).into()}
+                                                    {$let inner_type_expr: Expr = ts_ident!(inner_type_name).into()}
                                                     {
                                                         const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                         ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -2270,7 +2270,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                                 instance.@{field._field_ident} = null;
                                                             } else {
                                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                                    {$let inner_type_expr: Expr = ident!(inner_type).into()}
+                                                                    {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
                                                                     const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                                 {:else}
@@ -2334,7 +2334,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     }
 
                                                 {:case TypeCategory::Serializable(inner_type_name)}
-                                                    {$let inner_type_expr: Expr = ident!(inner_type_name).into()}
+                                                    {$let inner_type_expr: Expr = ts_ident!(inner_type_name).into()}
                                                     {
                                                         const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                         ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -2357,7 +2357,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                                 instance.@{field._field_ident} = null;
                                                             } else {
                                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
-                                                                    {$let inner_type_expr: Expr = ident!(inner_type).into()}
+                                                                    {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
                                                                     const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
                                                                 {:else}
@@ -2549,24 +2549,24 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         .join(" || ")
                 };
 
-                let fn_deserialize_ident = ident!(
+                let fn_deserialize_ident = ts_ident!(
                     "{}Deserialize{}",
                     type_name.to_case(Case::Camel),
                     generic_decl
                 );
-                let fn_deserialize_internal_ident = ident!(
+                let fn_deserialize_internal_ident = ts_ident!(
                     "{}DeserializeWithContext{}",
                     type_name.to_case(Case::Camel),
                     generic_decl
                 );
                 let fn_deserialize_internal_expr: Expr =
                     fn_deserialize_internal_ident.clone().into();
-                let fn_is_ident = ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
+                let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
 
                 // Compute return type and wrappers
                 let return_type = deserialize_return_type(&full_type_name);
-                let return_type_ident = ident!(return_type.as_str());
-                let full_type_ident = ident!(full_type_name.as_str());
+                let return_type_ident = ts_ident!(return_type.as_str());
+                let full_type_ident = ts_ident!(full_type_name.as_str());
                 let success_result = wrap_success("resultOrRef");
                 let success_result_expr = parse_ts_expr(&success_result)
                     .expect("deserialize success wrapper should parse");
@@ -2654,7 +2654,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         }
 
                                         {#for type_ref in &serializable_types}
-                                            {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                            {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
                                             if (__typeName === "@{type_ref.full_type}") {
                                                 return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
                                             }
@@ -2697,7 +2697,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 const __typeName = (value as any).__type;
                                                 if (typeof __typeName === "string") {
                                                     {#for type_ref in &serializable_types}
-                                                        {$let deserialize_with_context_fn: Expr = ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                        {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
                                                         if (__typeName === "@{type_ref.full_type}") {
                                                             return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
                                                         }
@@ -2763,30 +2763,30 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 Ok(result)
             } else {
                 // Fallback for other type alias forms (simple alias, tuple, etc.)
-                let fn_deserialize_ident = ident!(
+                let fn_deserialize_ident = ts_ident!(
                     "{}Deserialize{}",
                     type_name.to_case(Case::Camel),
                     generic_decl
                 );
-                let fn_deserialize_internal_ident = ident!(
+                let fn_deserialize_internal_ident = ts_ident!(
                     "{}DeserializeWithContext{}",
                     type_name.to_case(Case::Camel),
                     generic_args
                 );
                 let fn_deserialize_internal_expr: Expr =
                     fn_deserialize_internal_ident.clone().into();
-                let fn_validate_field_ident = ident!(
+                let fn_validate_field_ident = ts_ident!(
                     "{}ValidateField{}",
                     type_name.to_case(Case::Camel),
                     validate_field_generic_decl
                 );
                 let fn_validate_fields_ident =
-                    ident!("{}ValidateFields", type_name.to_case(Case::Camel));
-                let fn_is_ident = ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
+                    ts_ident!("{}ValidateFields", type_name.to_case(Case::Camel));
+                let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
 
                 // Compute return type and wrappers
                 let return_type = deserialize_return_type(&full_type_name);
-                let return_type_ident = ident!(return_type.as_str());
+                let return_type_ident = ts_ident!(return_type.as_str());
                 let success_result = wrap_success("result");
                 let success_result_expr = parse_ts_expr(&success_result)
                     .expect("deserialize success wrapper should parse");
@@ -3111,7 +3111,7 @@ mod tests {
         let field = DeserializeField {
             json_key: "email".into(),
             _field_name: "email".into(),
-            _field_ident: ident!("email"),
+            _field_ident: ts_ident!("email"),
             ts_type: "string".into(),
             _type_cat: TypeCategory::Primitive,
             optional: false,

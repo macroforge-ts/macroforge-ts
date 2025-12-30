@@ -109,7 +109,8 @@ use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_pri
 use crate::builtin::return_types::{is_none_check, partial_ord_return_type, unwrap_option_or_null};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_macro_input};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::ts_ident;
 
 /// Contains field information needed for partial ordering comparison generation.
 ///
@@ -239,7 +240,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let class_ident = ident!(class_name);
+            let class_ident = ts_ident!(class_name);
 
             // Collect fields for comparison
             let ord_fields: Vec<OrdField> = class
@@ -260,12 +261,12 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let has_fields = !ord_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name_ident = ident!("{}PartialCompare", class_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}PartialCompare", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Get return type
             let return_type = partial_ord_return_type();
-            let return_type_ident = ident!(return_type);
+            let return_type_ident = ts_ident!(return_type);
 
             // Generate standalone function with two parameters
             let standalone = if has_fields {
@@ -309,14 +310,14 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let fn_name_ident = ident!("{}PartialCompare", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}PartialCompare", enum_name.to_case(Case::Camel));
 
             // Get return type
             let return_type = partial_ord_return_type();
-            let return_type_ident = ident!(return_type);
+            let return_type_ident = ts_ident!(return_type);
 
             let result = ts_template! {
-                export function @{fn_name_ident}(a: @{ident!(enum_name)}, b: @{ident!(enum_name)}): @{return_type_ident} {
+                export function @{fn_name_ident}(a: @{ts_ident!(enum_name)}, b: @{ts_ident!(enum_name)}): @{return_type_ident} {
                     // For enums, compare by value (numeric enums) or string
                     if (typeof a === "number" && typeof b === "number") {
                         return a < b ? -1 : a > b ? 1 : 0;
@@ -332,7 +333,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
-            let interface_ident = ident!(interface_name);
+            let interface_ident = ts_ident!(interface_name);
 
             let ord_fields: Vec<OrdField> = interface
                 .fields()
@@ -353,9 +354,9 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             // Get return type
             let return_type = partial_ord_return_type();
-            let return_type_ident = ident!(return_type);
+            let return_type_ident = ts_ident!(return_type);
 
-            let fn_name_ident = ident!("{}PartialCompare", interface_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}PartialCompare", interface_name.to_case(Case::Camel));
 
             let result = if has_fields {
                 // Build comparison steps for each field
@@ -389,11 +390,11 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
-            let type_ident = ident!(type_name);
+            let type_ident = ts_ident!(type_name);
 
             // Get return type
             let return_type = partial_ord_return_type();
-            let return_type_ident = ident!(return_type);
+            let return_type_ident = ts_ident!(return_type);
 
             if type_alias.is_object() {
                 let ord_fields: Vec<OrdField> = type_alias
@@ -414,7 +415,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                 let has_fields = !ord_fields.is_empty();
 
-                let fn_name_ident = ident!("{}PartialCompare", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}PartialCompare", type_name.to_case(Case::Camel));
 
                 let result = if has_fields {
                     // Build comparison steps for each field
@@ -447,7 +448,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 Ok(result)
             } else {
                 // Union, tuple, or simple alias: limited comparison
-                let fn_name_ident = ident!("{}PartialCompare", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}PartialCompare", type_name.to_case(Case::Camel));
 
                 let result = ts_template! {
                     export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
@@ -492,7 +493,7 @@ mod tests {
         }
 
         let return_type = partial_ord_return_type();
-        let _return_type_ident = ident!(return_type);
+        let _return_type_ident = ts_ident!(return_type);
         let output = ts_template!(Within {
             compareTo(other: unknown): @{_return_type_ident} {
                 if (a === b) return 0;

@@ -113,7 +113,7 @@ use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_expr, parse_ts_macro_input,
+    Data, DeriveInput, MacroforgeError, TsStream, ts_ident, parse_ts_expr, parse_ts_macro_input,
 };
 
 /// Contains field information needed for hash code generation.
@@ -250,7 +250,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let class_ident = ident!(class_name);
+            let class_ident = ts_ident!(class_name);
 
             // Collect fields that should be included in hash
             let hash_fields: Vec<HashField> = class
@@ -272,7 +272,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             let _has_fields = !hash_fields.is_empty();
 
             // Generate function name (always prefix style)
-            let fn_name_ident = ident!("{}HashCode", class_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}HashCode", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             // Generate hash expressions for each field
@@ -323,7 +323,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
-            let fn_name_ident = ident!("{}HashCode", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}HashCode", enum_name.to_case(Case::Camel));
 
             // Check if all variants are string values
             let is_string_enum = enum_data.variants().iter().all(|v| v.value.is_string());
@@ -331,7 +331,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             if is_string_enum {
                 // String enum: hash the string value
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{ident!(enum_name)}): number {
+                    export function @{fn_name_ident}(value: @{ts_ident!(enum_name)}): number {
                         let hash = 0;
                         for (let i = 0; i < value.length; i++) {
                             hash = (hash * 31 + value.charCodeAt(i)) | 0;
@@ -342,7 +342,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             } else {
                 // Numeric enum: use the number value directly
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{ident!(enum_name)}): number {
+                    export function @{fn_name_ident}(value: @{ts_ident!(enum_name)}): number {
                         return value as number;
                     }
                 })
@@ -388,10 +388,10 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 })
                 .collect::<Result<_, MacroforgeError>>()?;
 
-            let fn_name_ident = ident!("{}HashCode", interface_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}HashCode", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name_ident}(value: @{ident!(interface_name)}): number {
+                export function @{fn_name_ident}(value: @{ts_ident!(interface_name)}): number {
                     let hash = 17;
                     {#if _has_fields}
                         {#for hash_expr in _hash_exprs}
@@ -444,10 +444,10 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                     })
                     .collect::<Result<_, MacroforgeError>>()?;
 
-                let fn_name_ident = ident!("{}HashCode", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}HashCode", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{ident!(type_name)}): number {
+                    export function @{fn_name_ident}(value: @{ts_ident!(type_name)}): number {
                         let hash = 17;
                         {#if _has_fields}
                             {#for hash_expr in _hash_exprs}
@@ -459,10 +459,10 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 })
             } else {
                 // Union, tuple, or simple alias: use JSON hash
-                let fn_name_ident = ident!("{}HashCode", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}HashCode", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{ident!(type_name)}): number {
+                    export function @{fn_name_ident}(value: @{ts_ident!(type_name)}): number {
                         const str = JSON.stringify(value);
                         let hash = 0;
                         for (let i = 0; i < str.length; i++) {

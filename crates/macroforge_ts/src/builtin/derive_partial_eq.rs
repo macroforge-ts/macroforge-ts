@@ -161,7 +161,7 @@ use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, ident, parse_ts_expr, parse_ts_macro_input,
+    Data, DeriveInput, MacroforgeError, TsStream, ts_ident, parse_ts_expr, parse_ts_macro_input,
 };
 
 /// Contains field information needed for equality comparison generation.
@@ -277,7 +277,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let class_ident = ident!(class_name);
+            let class_ident = ts_ident!(class_name);
 
             // Collect fields that should be included in equality comparison
             let eq_fields: Vec<EqField> = class
@@ -296,7 +296,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 .collect();
 
             // Generate function name (always prefix style)
-            let fn_name_ident = ident!("{}Equals", class_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Equals", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
             let comparison_src = if eq_fields.is_empty() {
@@ -337,17 +337,17 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
         Data::Enum(_) => {
             // Enums: direct comparison with ===
             let enum_name = input.name();
-            let fn_name_ident = ident!("{}Equals", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Equals", enum_name.to_case(Case::Camel));
 
             Ok(ts_template! {
-                export function @{fn_name_ident}(a: @{ident!(enum_name)}, b: @{ident!(enum_name)}): boolean {
+                export function @{fn_name_ident}(a: @{ts_ident!(enum_name)}, b: @{ts_ident!(enum_name)}): boolean {
                     return a === b;
                 }
             })
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
-            let interface_ident = ident!(interface_name);
+            let interface_ident = ts_ident!(interface_name);
 
             // Collect fields for comparison
             let eq_fields: Vec<EqField> = interface
@@ -381,7 +381,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 )
             })?;
 
-            let fn_name_ident = ident!("{}Equals", interface_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Equals", interface_name.to_case(Case::Camel));
 
             Ok(ts_template! {
                 export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): boolean {
@@ -392,7 +392,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
-            let type_ident = ident!(type_name);
+            let type_ident = ts_ident!(type_name);
 
             if type_alias.is_object() {
                 // Object type: field-by-field comparison
@@ -429,7 +429,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     )
                 })?;
 
-                let fn_name_ident = ident!("{}Equals", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}Equals", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): boolean {
@@ -439,7 +439,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 })
             } else {
                 // Union, tuple, or simple alias: use strict equality and JSON fallback
-                let fn_name_ident = ident!("{}Equals", type_name.to_case(Case::Camel));
+                let fn_name_ident = ts_ident!("{}Equals", type_name.to_case(Case::Camel));
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): boolean {

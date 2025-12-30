@@ -94,6 +94,57 @@ pub mod macros {
     pub use macroforge_ts_quote::{ts_quote, ts_template};
 }
 
+// ============================================================================
+// Wrapper macros for proper $crate resolution
+// ============================================================================
+// These wrapper macros ensure that $crate resolves to macroforge_ts (this crate)
+// rather than macroforge_ts_syn, allowing users to only depend on macroforge_ts.
+
+/// Creates an SWC [`Ident`](swc_core::ecma::ast::Ident) from a string or format expression.
+///
+/// This is a re-export wrapper that ensures `$crate` resolves correctly when
+/// used from crates that only depend on `macroforge_ts`.
+///
+/// # Examples
+///
+/// ```rust,ignore
+/// use macroforge_ts::ident;
+///
+/// let simple = ident!("foo");
+/// let formatted = ident!("{}Bar", "foo");
+/// ```
+#[macro_export]
+macro_rules! ident {
+    ($name:expr) => {
+        $crate::swc_core::ecma::ast::Ident::new_no_ctxt(
+            AsRef::<str>::as_ref(&$name).into(),
+            $crate::swc_core::common::DUMMY_SP,
+        )
+    };
+    ($fmt:expr, $($args:expr),+ $(,)?) => {
+        $crate::swc_core::ecma::ast::Ident::new_no_ctxt(
+            format!($fmt, $($args),+).into(),
+            $crate::swc_core::common::DUMMY_SP,
+        )
+    };
+}
+
+/// Creates a private (marked) SWC [`Ident`](swc_core::ecma::ast::Ident).
+///
+/// Unlike [`ident!`], this macro creates an identifier with a fresh hygiene mark,
+/// making it unique and preventing name collisions with user code.
+#[macro_export]
+macro_rules! private_ident {
+    ($name:expr) => {{
+        let mark = $crate::swc_core::common::Mark::fresh($crate::swc_core::common::Mark::root());
+        $crate::swc_core::ecma::ast::Ident::new(
+            $name.into(),
+            $crate::swc_core::common::DUMMY_SP,
+            $crate::swc_core::common::SyntaxContext::empty().apply_mark(mark),
+        )
+    }};
+}
+
 // Re-export swc_core and common modules (via ts_syn for version consistency)
 pub use macroforge_ts_syn::swc_common;
 pub use macroforge_ts_syn::swc_core;
