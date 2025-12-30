@@ -259,3 +259,242 @@ fn test_multiple_functions_with_doc_comments() {
         expr_count, s
     );
 }
+
+// =============================================================================
+// Bug reproduction tests for placeholder and __MF_DUMMY__ issues
+// =============================================================================
+
+#[test]
+fn test_for_loop_field_interpolation_in_interface() {
+    // This test reproduces the bug where field names in for loops become $MfPh placeholders
+    // instead of actual field names when generating interface members
+    let input = TokenStream2::from_str(
+        r#"export interface FieldControllers {
+            {#for field in fields}
+                readonly @{field.name}: FieldController<@{field.ts_type}>;
+            {/for}
+        }"#,
+    )
+    .unwrap();
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+
+    eprintln!("Generated code for interface with for loop:\n{}", s);
+
+    // The generated code should reference field.name and field.ts_type
+    // NOT generate $MfPh placeholders that never get substituted
+    assert!(
+        s.contains("field . name") || s.contains("field.name"),
+        "Expected field.name reference in generated code. Got:\n{}",
+        s
+    );
+    assert!(
+        s.contains("field . ts_type") || s.contains("field.ts_type"),
+        "Expected field.ts_type reference in generated code. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_for_loop_generates_runtime_iteration() {
+    // Test that for loops generate proper runtime iteration code
+    let input = TokenStream2::from_str(
+        r#"{#for item in items}
+            const @{item.name} = @{item.value};
+        {/for}"#,
+    )
+    .unwrap();
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+
+    eprintln!("Generated code for for loop:\n{}", s);
+
+    // Should generate a Rust for loop
+    assert!(
+        s.contains("for item in items"),
+        "Expected Rust for loop in generated code. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_for_loop_with_string_field_name() {
+    // Test for loop with simple string field access
+    let input = TokenStream2::from_str(
+        r#"{#for field in fields}
+            @{&field.name}: __gf_Option<Array<string>>;
+        {/for}"#,
+    )
+    .unwrap();
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+
+    eprintln!("Generated code for field name interpolation:\n{}", s);
+
+    // Should reference field.name in the generated code
+    assert!(
+        s.contains("field") && s.contains("name"),
+        "Expected field.name reference in generated code. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_within_position_extracts_body_correctly() {
+    // Test that ts_template!(Within { ... }) properly extracts class body
+    // without leaking __MF_DUMMY__ wrapper
+    use crate::template::parse_template_str;
+
+    // Simulate what happens with Within position
+    let wrapped = "class __MF_DUMMY__ { readonly foo: string; readonly bar: number; }";
+    let output = parse_template_str(wrapped).unwrap();
+    let s = output.to_string();
+
+    eprintln!("Generated code for Within body:\n{}", s);
+
+    // The generated code should handle the wrapper extraction
+    // Look for the body extraction logic
+    assert!(
+        s.contains("__stmts") || s.contains("ModuleItem"),
+        "Expected statement building in generated code. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_interpolation_in_object_property_position() {
+    // Test that @{expr} in object property position generates correct ident handling
+    let input = TokenStream2::from_str(r#"const obj = { @{field_name}: @{field_value} };"#).unwrap();
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+
+    eprintln!("Generated code for object property interpolation:\n{}", s);
+
+    // field_name should use ident handling, field_value should use expr handling
+    assert!(
+        s.contains("field_name"),
+        "Expected field_name in generated code. Got:\n{}",
+        s
+    );
+    assert!(
+        s.contains("field_value"),
+        "Expected field_value in generated code. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_multiple_interpolations_same_variable() {
+    // Test that using the same variable multiple times doesn't create different placeholders
+    let input = TokenStream2::from_str(
+        r#"const @{name}Obj = {};
+           let current = @{name}Obj;
+           obj.@{name} = @{name}Obj;"#,
+    )
+    .unwrap();
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+
+    eprintln!("Generated code for multiple same-variable interpolations:\n{}", s);
+
+    // Count occurrences of "name" - should appear multiple times with consistent handling
+    let name_count = s.matches("name").count();
+    assert!(
+        name_count >= 4,
+        "Expected 'name' to appear at least 4 times (for each @{{name}}). Found {}. Got:\n{}",
+        name_count,
+        s
+    );
+}
+
+#[test]
+fn test_conditional_in_interface_member() {
+    // Test that conditionals inside interface member position work correctly
+    let input = TokenStream2::from_str(
+        r#"export interface Test {
+            {#if is_array}
+                readonly items: ArrayFieldController<@{element_type}>;
+            {:else}
+                readonly value: FieldController<@{value_type}>;
+            {/if}
+        }"#,
+    )
+    .unwrap();
+    let output = parse_template(input).unwrap();
+    let s = output.to_string();
+
+    eprintln!("Generated code for conditional in interface:\n{}", s);
+
+    // Should generate Rust if/else
+    assert!(
+        s.contains("if is_array"),
+        "Expected Rust if statement. Got:\n{}",
+        s
+    );
+    assert!(
+        s.contains("else"),
+        "Expected else branch. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_debug_tokenstream_normalization() {
+    use crate::template::{normalize_template_spacing, collapse_template_newlines};
+
+    // Test what happens when we tokenize a for loop template
+    let raw_str = r#"{#for field in fields}
+        readonly @{field.name}: FieldController<@{field.ts_type}>;
+    {/for}"#;
+
+    // Convert to TokenStream and back to string (simulating what the macro does)
+    let tokens = TokenStream2::from_str(raw_str).unwrap();
+    let tokenized_str = tokens.to_string();
+
+    eprintln!("=== Debug Tokenization ===");
+    eprintln!("Original: {:?}", raw_str);
+    eprintln!("Tokenized: {:?}", tokenized_str);
+
+    // Apply normalization
+    let normalized = normalize_template_spacing(&tokenized_str);
+    eprintln!("Normalized: {:?}", normalized);
+
+    let collapsed = collapse_template_newlines(&normalized);
+    eprintln!("Collapsed: {:?}", collapsed);
+
+    // The issue: after tokenization, {#for becomes { # for with spaces
+    // The normalize function should fix this, but let's verify
+    assert!(
+        collapsed.contains("{#for"),
+        "Expected {{#for}} to be preserved after normalization. Got: {:?}",
+        collapsed
+    );
+}
+
+#[test]
+fn test_control_block_pattern_recognition() {
+    use crate::template::normalize_template_spacing;
+
+    // Test the specific pattern that should be normalized
+    // The normalize function should convert space-separated control blocks
+    // back to their compact form
+    let patterns = [
+        ("{ # for }", "{#for"),
+        ("{ # if }", "{#if"),
+        ("{ / for }", "{/for"),
+        ("{ / if }", "{/if"),
+        ("{ : else }", "{:else"),
+        ("{ $ let }", "{$let"),
+    ];
+
+    for (input, expected_contains) in patterns {
+        let result = normalize_template_spacing(input);
+        eprintln!("Input: {:?} -> Result: {:?}", input, result);
+        assert!(
+            result.contains(expected_contains),
+            "Expected output to contain {}. Got: {:?}",
+            expected_contains,
+            result
+        );
+    }
+}

@@ -347,7 +347,13 @@ pub(crate) fn normalize_template_spacing(input: &str) -> String {
                     || chars[i] == '|')
             {
                 result.push('{');
-                // The next char will be handled in the next iteration
+                // Push the control character (#, /, :, $, |)
+                result.push(chars[i]);
+                i += 1;
+                // Also skip whitespace after the control character (e.g., "{ # for" -> "{#for")
+                while i < len && chars[i].is_whitespace() {
+                    i += 1;
+                }
                 continue;
             } else {
                 // Not a special construct, output as-is

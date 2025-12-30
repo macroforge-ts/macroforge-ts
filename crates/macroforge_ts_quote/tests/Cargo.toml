@@ -2,6 +2,7 @@
 name = "compile_time_parser_external_tester"
 version = "0.1.0"
 edition = "2024"
+publish = false
 
 [dependencies]
 macroforge_ts_quote = { path = ".." }

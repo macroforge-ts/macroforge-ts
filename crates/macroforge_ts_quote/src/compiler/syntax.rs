@@ -127,6 +127,8 @@ pub enum SyntaxKind {
     FunctionKw,
     /// `const` keyword
     ConstKw,
+    /// `var` keyword
+    VarKw,
     /// `class` keyword
     ClassKw,
     /// `interface` keyword
@@ -141,6 +143,58 @@ pub enum SyntaxKind {
     ReturnKw,
     /// `new` keyword
     NewKw,
+    /// `keyof` keyword (type operator)
+    KeyofKw,
+    /// `typeof` keyword (type operator)
+    TypeofKw,
+    /// `extends` keyword
+    ExtendsKw,
+    /// `implements` keyword
+    ImplementsKw,
+    /// `readonly` keyword
+    ReadonlyKw,
+    /// `private` keyword
+    PrivateKw,
+    /// `public` keyword
+    PublicKw,
+    /// `protected` keyword
+    ProtectedKw,
+    /// `static` keyword
+    StaticKw,
+    /// `abstract` keyword
+    AbstractKw,
+    /// `declare` keyword
+    DeclareKw,
+    /// `async` keyword
+    AsyncKw,
+    /// `await` keyword
+    AwaitKw,
+    /// `yield` keyword
+    YieldKw,
+    /// `throw` keyword
+    ThrowKw,
+    /// `try` keyword
+    TryKw,
+    /// `catch` keyword
+    CatchKw,
+    /// `finally` keyword
+    FinallyKw,
+    /// `default` keyword
+    DefaultKw,
+    /// `from` keyword
+    FromKw,
+    /// `of` keyword
+    OfKw,
+    /// `get` keyword
+    GetKw,
+    /// `set` keyword
+    SetKw,
+    /// `satisfies` keyword
+    SatisfiesKw,
+    /// `infer` keyword
+    InferKw,
+    /// `is` keyword (type guard)
+    IsKw,
 
     // Identifiers and expressions
     /// An identifier (variable name, type name, etc.)
@@ -287,12 +341,82 @@ impl SyntaxKind {
             Self::AsKw
                 | Self::FunctionKw
                 | Self::ConstKw
+                | Self::VarKw
                 | Self::ClassKw
                 | Self::InterfaceKw
                 | Self::TypeKw
                 | Self::ExportKw
                 | Self::ImportKw
                 | Self::ReturnKw
+                | Self::NewKw
+                | Self::KeyofKw
+                | Self::TypeofKw
+                | Self::ExtendsKw
+                | Self::ImplementsKw
+                | Self::ReadonlyKw
+                | Self::PrivateKw
+                | Self::PublicKw
+                | Self::ProtectedKw
+                | Self::StaticKw
+                | Self::AbstractKw
+                | Self::DeclareKw
+                | Self::AsyncKw
+                | Self::AwaitKw
+                | Self::YieldKw
+                | Self::ThrowKw
+                | Self::TryKw
+                | Self::CatchKw
+                | Self::FinallyKw
+                | Self::DefaultKw
+                | Self::FromKw
+                | Self::OfKw
+                | Self::GetKw
+                | Self::SetKw
+                | Self::SatisfiesKw
+                | Self::InferKw
+                | Self::IsKw
+        )
+    }
+
+    /// Returns true if this keyword introduces an identifier context.
+    /// After these keywords, the next token is typically an identifier being declared.
+    pub fn starts_identifier_context(self) -> bool {
+        matches!(
+            self,
+            Self::FunctionKw
+                | Self::ClassKw
+                | Self::InterfaceKw
+                | Self::TypeKw
+                | Self::ConstKw
+                | Self::LetKw
+                | Self::VarKw
+        )
+    }
+
+    /// Returns true if this keyword introduces a type context.
+    /// After these keywords, the following tokens are types.
+    pub fn starts_type_context(self) -> bool {
+        matches!(
+            self,
+            Self::AsKw
+                | Self::KeyofKw
+                | Self::TypeofKw
+                | Self::ExtendsKw
+                | Self::ImplementsKw
+                | Self::SatisfiesKw
+                | Self::InferKw
+                | Self::IsKw
+        )
+    }
+
+    /// Returns true if this keyword introduces an expression context.
+    pub fn starts_expression_context(self) -> bool {
+        matches!(
+            self,
+            Self::ReturnKw
+                | Self::ThrowKw
+                | Self::YieldKw
+                | Self::AwaitKw
                 | Self::NewKw
         )
     }

@@ -1,3 +1,6 @@
+[workspace]
+members = ["tests"]
+
 [package]
 name = "macroforge_ts_quote"
 description = "Quote macro for generating TypeScript code at compile time"

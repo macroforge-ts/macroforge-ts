@@ -323,18 +323,47 @@ impl<'a> Lexer<'a> {
         let remaining = self.remaining();
 
         // Check each keyword with word boundary
+        // Ordered longest-first to avoid prefix matching issues (e.g., "typeof" before "type")
         let keywords = [
+            // Declaration keywords
             ("function", SyntaxKind::FunctionKw),
-            ("const", SyntaxKind::ConstKw),
-            ("let", SyntaxKind::LetKw),
-            ("class", SyntaxKind::ClassKw),
             ("interface", SyntaxKind::InterfaceKw),
-            ("type", SyntaxKind::TypeKw),
+            ("implements", SyntaxKind::ImplementsKw),
+            ("protected", SyntaxKind::ProtectedKw),
+            ("satisfies", SyntaxKind::SatisfiesKw),
+            ("abstract", SyntaxKind::AbstractKw),
+            ("readonly", SyntaxKind::ReadonlyKw),
+            ("private", SyntaxKind::PrivateKw),
+            ("declare", SyntaxKind::DeclareKw),
+            ("extends", SyntaxKind::ExtendsKw),
+            ("finally", SyntaxKind::FinallyKw),
+            ("default", SyntaxKind::DefaultKw),
+            ("public", SyntaxKind::PublicKw),
+            ("static", SyntaxKind::StaticKw),
+            ("return", SyntaxKind::ReturnKw),
+            ("typeof", SyntaxKind::TypeofKw), // Must come before "type"
             ("export", SyntaxKind::ExportKw),
             ("import", SyntaxKind::ImportKw),
-            ("return", SyntaxKind::ReturnKw),
+            ("keyof", SyntaxKind::KeyofKw),
+            ("infer", SyntaxKind::InferKw),
+            ("const", SyntaxKind::ConstKw),
+            ("async", SyntaxKind::AsyncKw),
+            ("await", SyntaxKind::AwaitKw),
+            ("yield", SyntaxKind::YieldKw),
+            ("throw", SyntaxKind::ThrowKw),
+            ("catch", SyntaxKind::CatchKw),
+            ("class", SyntaxKind::ClassKw),
+            ("from", SyntaxKind::FromKw),
+            ("type", SyntaxKind::TypeKw),
+            ("let", SyntaxKind::LetKw),
+            ("var", SyntaxKind::VarKw),
             ("new", SyntaxKind::NewKw),
+            ("try", SyntaxKind::TryKw),
+            ("get", SyntaxKind::GetKw),
+            ("set", SyntaxKind::SetKw),
             ("as", SyntaxKind::AsKw),
+            ("is", SyntaxKind::IsKw),
+            ("of", SyntaxKind::OfKw),
         ];
 
         for (kw, kind) in keywords {
