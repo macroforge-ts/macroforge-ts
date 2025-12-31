@@ -1,0 +1,855 @@
+use super::*;
+
+impl Codegen {
+    /// Generate code for a list of module-level items.
+    /// Groups adjacent fragment nodes (Raw, Placeholder, etc.) together and parses them as a combined string.
+    pub(in super::super) fn generate_module_items(&self, nodes: &[IrNode]) -> TokenStream {
+    let mut pushes = Vec::new();
+    let mut pending_fragments: Vec<&IrNode> = Vec::new();
+
+    for node in nodes {
+        if self.is_fragment_node(node) {
+            pending_fragments.push(node);
+        } else {
+            // Flush pending fragments as combined module item
+            if !pending_fragments.is_empty() {
+                if let Some(stmt) = self.generate_combined_module_item(&pending_fragments) {
+                    pushes.push(stmt);
+                }
+                pending_fragments.clear();
+            }
+            // Generate structured node directly
+            if let Some(push) = self.generate_module_item(node) {
+                pushes.push(push);
+            }
+        }
+    }
+
+    // Flush remaining pending fragments
+    if !pending_fragments.is_empty() {
+        if let Some(stmt) = self.generate_combined_module_item(&pending_fragments) {
+            pushes.push(stmt);
+        }
+    }
+
+    quote! { #(#pushes)* }
+}
+
+/// Generate code for combined fragment nodes at module level.
+    pub(in super::super) fn generate_combined_module_item(&self, nodes: &[&IrNode]) -> Option<TokenStream> {
+    if nodes.is_empty() {
+        return None;
+    }
+
+    let output_var = format_ident!("{}", self.config.output_var);
+
+    // Check if all nodes are whitespace-only Raw nodes
+    let all_whitespace = nodes
+        .iter()
+        .all(|n| matches!(n, IrNode::Raw(text) if text.trim().is_empty()));
+    if all_whitespace {
+        return None;
+    }
+
+    // Generate code that builds a module item string and parses it
+    let part_exprs: Vec<TokenStream> = nodes
+        .iter()
+        .map(|n| self.generate_module_item_string_part(n))
+        .collect();
+
+    Some(quote! {
+        {
+            let mut __module_str = String::new();
+            #(#part_exprs)*
+            if !__module_str.trim().is_empty() {
+                if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_module(&__module_str) {
+                    #output_var.extend(__parsed.body);
+                }
+            }
+        }
+    })
+}
+
+/// Generate code to append a fragment node to the module string.
+    pub(in super::super) fn generate_module_item_string_part(&self, node: &IrNode) -> TokenStream {
+    match node {
+        IrNode::Raw(text) => quote! { __module_str.push_str(#text); },
+        IrNode::StrLit(text) => quote! { __module_str.push_str(#text); },
+        IrNode::Ident(name) => quote! { __module_str.push_str(#name); },
+        IrNode::Placeholder { kind, expr } => match kind {
+            PlaceholderKind::Expr => {
+                quote! {
+                    let __expr = macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
+                    __module_str.push_str(&macroforge_ts::ts_syn::emit_expr(&__expr));
+                }
+            }
+            PlaceholderKind::Ident => {
+                quote! {
+                    __module_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
+                }
+            }
+            PlaceholderKind::Type => {
+                quote! {
+                    let __ty = macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone());
+                    __module_str.push_str(&macroforge_ts::ts_syn::emit_ts_type(&__ty));
+                }
+            }
+            PlaceholderKind::Stmt => {
+                // Statements don't make sense in string context, skip
+                quote! {}
+            }
+        },
+        IrNode::IdentBlock { parts } => {
+            let part_exprs: Vec<TokenStream> = parts
+                .iter()
+                .map(|p| self.generate_module_item_string_part(p))
+                .collect();
+            quote! { #(#part_exprs)* }
+        }
+        IrNode::StringInterp { parts, .. } => {
+            let part_exprs: Vec<TokenStream> = parts
+                .iter()
+                .map(|p| self.generate_module_item_string_part(p))
+                .collect();
+            quote! { #(#part_exprs)* }
+        }
+        _ => quote! {},
+    }
+}
+
+/// Generate code for a single module-level item.
+    pub(in super::super) fn generate_module_item(&self, node: &IrNode) -> Option<TokenStream> {
+    let output_var = format_ident!("{}", self.config.output_var);
+
+    match node {
+        // =================================================================
+        // Declarations
+        // =================================================================
+        IrNode::FnDecl {
+            exported,
+            declare,
+            async_,
+            generator,
+            name,
+            type_params,
+            params,
+            return_type,
+            body,
+        } => {
+            let name_code = self.generate_ident(name);
+            let params_code = self.generate_params(params);
+            let body_code = body
+                .as_ref()
+                .map(|b| self.generate_block_stmt_opt(b))
+                .unwrap_or(quote! { None });
+            let return_type_code = return_type
+                .as_ref()
+                .map(|t| {
+                    let tc = self.generate_type_ann(t);
+                    quote! { Some(Box::new(#tc)) }
+                })
+                .unwrap_or(quote! { None });
+            let type_params_code = type_params
+                .as_ref()
+                .map(|tp| {
+                    let tpc = self.generate_type_params(tp);
+                    quote! { Some(Box::new(#tpc)) }
+                })
+                .unwrap_or(quote! { None });
+
+            let fn_decl = quote! {
+                macroforge_ts::swc_core::ecma::ast::FnDecl {
+                    ident: #name_code,
+                    declare: #declare,
+                    function: Box::new(macroforge_ts::swc_core::ecma::ast::Function {
+                        params: #params_code,
+                        decorators: vec![],
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                        body: #body_code,
+                        is_generator: #generator,
+                        is_async: #async_,
+                        type_params: #type_params_code,
+                        return_type: #return_type_code,
+                    }),
+                }
+            };
+
+            if *exported {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                        macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportDecl(
+                            macroforge_ts::swc_core::ecma::ast::ExportDecl {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                decl: macroforge_ts::swc_core::ecma::ast::Decl::Fn(#fn_decl),
+                            }
+                        )
+                    ));
+                })
+            } else {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Decl(
+                            macroforge_ts::swc_core::ecma::ast::Decl::Fn(#fn_decl)
+                        )
+                    ));
+                })
+            }
+        }
+
+        IrNode::ClassDecl {
+            exported,
+            declare,
+            abstract_,
+            name,
+            type_params,
+            extends,
+            implements,
+            body,
+        } => {
+            let name_code = self.generate_ident(name);
+            let body_code = self.generate_class_members(body);
+            let extends_code = extends
+                .as_ref()
+                .map(|e| {
+                    let ec = self.generate_expr(e);
+                    quote! {
+                        Some(Box::new(macroforge_ts::swc_core::ecma::ast::ExtendsClause {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            super_class: Box::new(#ec),
+                            type_args: None,
+                        }))
+                    }
+                })
+                .unwrap_or(quote! { None });
+            let type_params_code = type_params
+                .as_ref()
+                .map(|tp| {
+                    let tpc = self.generate_type_params(tp);
+                    quote! { Some(Box::new(#tpc)) }
+                })
+                .unwrap_or(quote! { None });
+            let implements_code = self.generate_implements(implements);
+
+            let class_decl = quote! {
+                macroforge_ts::swc_core::ecma::ast::ClassDecl {
+                    ident: #name_code,
+                    declare: #declare,
+                    class: Box::new(macroforge_ts::swc_core::ecma::ast::Class {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                        decorators: vec![],
+                        body: #body_code,
+                        super_class: #extends_code,
+                        is_abstract: #abstract_,
+                        type_params: #type_params_code,
+                        super_type_params: None,
+                        implements: #implements_code,
+                    }),
+                }
+            };
+
+            if *exported {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                        macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportDecl(
+                            macroforge_ts::swc_core::ecma::ast::ExportDecl {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                decl: macroforge_ts::swc_core::ecma::ast::Decl::Class(#class_decl),
+                            }
+                        )
+                    ));
+                })
+            } else {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Decl(
+                            macroforge_ts::swc_core::ecma::ast::Decl::Class(#class_decl)
+                        )
+                    ));
+                })
+            }
+        }
+
+        IrNode::InterfaceDecl {
+            exported,
+            declare,
+            name,
+            type_params,
+            extends,
+            body,
+        } => {
+            let name_code = self.generate_ident(name);
+            let body_code = self.generate_ts_interface_body(body);
+            let type_params_code = type_params
+                .as_ref()
+                .map(|tp| {
+                    let tpc = self.generate_type_params(tp);
+                    quote! { Some(Box::new(#tpc)) }
+                })
+                .unwrap_or(quote! { None });
+            let extends_code = self.generate_ts_expr_with_type_args(extends);
+
+            let interface_decl = quote! {
+                macroforge_ts::swc_core::ecma::ast::TsInterfaceDecl {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    id: #name_code,
+                    declare: #declare,
+                    type_params: #type_params_code,
+                    extends: #extends_code,
+                    body: #body_code,
+                }
+            };
+
+            if *exported {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                        macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportDecl(
+                            macroforge_ts::swc_core::ecma::ast::ExportDecl {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                decl: macroforge_ts::swc_core::ecma::ast::Decl::TsInterface(Box::new(#interface_decl)),
+                            }
+                        )
+                    ));
+                })
+            } else {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Decl(
+                            macroforge_ts::swc_core::ecma::ast::Decl::TsInterface(Box::new(#interface_decl))
+                        )
+                    ));
+                })
+            }
+        }
+
+        IrNode::TypeAliasDecl {
+            exported,
+            declare,
+            name,
+            type_params,
+            type_ann,
+        } => {
+            let name_code = self.generate_ident(name);
+            let type_ann_code = self.generate_type(type_ann);
+            let type_params_code = type_params
+                .as_ref()
+                .map(|tp| {
+                    let tpc = self.generate_type_params(tp);
+                    quote! { Some(Box::new(#tpc)) }
+                })
+                .unwrap_or(quote! { None });
+
+            let type_alias = quote! {
+                macroforge_ts::swc_core::ecma::ast::TsTypeAliasDecl {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    id: #name_code,
+                    declare: #declare,
+                    type_params: #type_params_code,
+                    type_ann: Box::new(#type_ann_code),
+                }
+            };
+
+            if *exported {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                        macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportDecl(
+                            macroforge_ts::swc_core::ecma::ast::ExportDecl {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                decl: macroforge_ts::swc_core::ecma::ast::Decl::TsTypeAlias(Box::new(#type_alias)),
+                            }
+                        )
+                    ));
+                })
+            } else {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Decl(
+                            macroforge_ts::swc_core::ecma::ast::Decl::TsTypeAlias(Box::new(#type_alias))
+                        )
+                    ));
+                })
+            }
+        }
+
+        IrNode::VarDecl {
+            exported,
+            declare,
+            kind,
+            decls,
+        } => {
+            let kind_code = match kind {
+                VarKind::Const => {
+                    quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Const }
+                }
+                VarKind::Let => quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Let },
+                VarKind::Var => quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Var },
+            };
+            let decls_code = self.generate_var_declarators(decls);
+
+            let var_decl = quote! {
+                macroforge_ts::swc_core::ecma::ast::VarDecl {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                    kind: #kind_code,
+                    declare: #declare,
+                    decls: #decls_code,
+                }
+            };
+
+            if *exported {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                        macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportDecl(
+                            macroforge_ts::swc_core::ecma::ast::ExportDecl {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                decl: macroforge_ts::swc_core::ecma::ast::Decl::Var(Box::new(#var_decl)),
+                            }
+                        )
+                    ));
+                })
+            } else {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Decl(
+                            macroforge_ts::swc_core::ecma::ast::Decl::Var(Box::new(#var_decl))
+                        )
+                    ));
+                })
+            }
+        }
+
+        // =================================================================
+        // Statements as module items
+        // =================================================================
+        IrNode::ExprStmt { expr } => {
+            let expr_code = self.generate_expr(expr);
+            Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
+                        macroforge_ts::swc_core::ecma::ast::ExprStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            expr: Box::new(#expr_code),
+                        }
+                    )
+                ));
+            })
+        }
+
+        IrNode::ReturnStmt { arg } => {
+            let arg_code = arg
+                .as_ref()
+                .map(|a| {
+                    let ac = self.generate_expr(a);
+                    quote! { Some(Box::new(#ac)) }
+                })
+                .unwrap_or(quote! { None });
+            Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Return(
+                        macroforge_ts::swc_core::ecma::ast::ReturnStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            arg: #arg_code,
+                        }
+                    )
+                ));
+            })
+        }
+
+        IrNode::BlockStmt { stmts } => {
+            let stmts_code = self.generate_stmts_vec(stmts);
+            Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Block(
+                        macroforge_ts::swc_core::ecma::ast::BlockStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                            stmts: #stmts_code,
+                        }
+                    )
+                ));
+            })
+        }
+
+        // =================================================================
+        // Template Constructs - Control Flow (Rust)
+        // =================================================================
+        IrNode::If {
+            condition,
+            then_body,
+            else_if_branches,
+            else_body,
+        } => {
+            let cond = condition;
+            let then_stmts = self.generate_module_items(then_body);
+
+            let else_ifs: Vec<TokenStream> = else_if_branches
+                .iter()
+                .map(|(c, body)| {
+                    let b = self.generate_module_items(body);
+                    quote! { else if #c { #b } }
+                })
+                .collect();
+
+            let else_part = else_body.as_ref().map(|body| {
+                let b = self.generate_module_items(body);
+                quote! { else { #b } }
+            });
+
+            Some(quote! {
+                if #cond { #then_stmts }
+                #(#else_ifs)*
+                #else_part
+            })
+        }
+
+        IrNode::For {
+            pattern,
+            iterator,
+            body,
+        } => {
+            let body_stmts = self.generate_module_items(body);
+            Some(quote! {
+                for #pattern in #iterator { #body_stmts }
+            })
+        }
+
+        IrNode::While { condition, body } => {
+            let body_stmts = self.generate_module_items(body);
+            Some(quote! {
+                while #condition { #body_stmts }
+            })
+        }
+
+        IrNode::Match { expr, arms } => {
+            let arm_tokens: Vec<TokenStream> = arms
+                .iter()
+                .map(
+                    |MatchArm {
+                         pattern,
+                         guard,
+                         body,
+                     }| {
+                        let b = self.generate_module_items(body);
+                        if let Some(g) = guard {
+                            quote! { #pattern if #g => { #b } }
+                        } else {
+                            quote! { #pattern => { #b } }
+                        }
+                    },
+                )
+                .collect();
+
+            Some(quote! {
+                match #expr { #(#arm_tokens)* }
+            })
+        }
+
+        IrNode::Let {
+            pattern,
+            mutable,
+            type_hint,
+            value,
+        } => {
+            let mutability = if *mutable {
+                quote! { mut }
+            } else {
+                quote! {}
+            };
+
+            if let Some(ty) = type_hint {
+                Some(quote! { let #mutability #pattern: #ty = #value; })
+            } else {
+                Some(quote! { let #mutability #pattern = #value; })
+            }
+        }
+
+        IrNode::Do { code } => Some(quote! { #code; }),
+
+        IrNode::TypeScript { stream } => {
+            // Handle both module-level and class body streams.
+            // Class body streams are marked with /* @macroforge:body */
+            Some(quote! {
+                {
+                    let __ts: macroforge_ts::ts_syn::TsStream = #stream;
+                    let __source = __ts.source();
+                    // Check if this is a class body stream (marked with @macroforge:body)
+                    if __source.starts_with("/* @macroforge:body */") {
+                        // For class body content, strip the marker and wrap in a class to parse
+                        let __content = __source.trim_start_matches("/* @macroforge:body */");
+                        if !__content.trim().is_empty() {
+                            // Wrap content in a dummy class to parse it
+                            let __wrapped = format!("class __MF_CLASS_BODY__ {{ {} }}", __content);
+                            if let Ok(__class_module) = macroforge_ts::ts_syn::parse_ts_module(&__wrapped) {
+                                for item in __class_module.body {
+                                    // Emit the wrapped class (it will be named __MF_CLASS_BODY__)
+                                    #output_var.push(item);
+                                }
+                            }
+                        }
+                    } else {
+                        // Normal module-level stream
+                        let __parsed = macroforge_ts::ts_syn::parse_ts_module(&__source)
+                            .expect("Failed to parse TypeScript stream");
+                        #output_var.extend(__parsed.body);
+                    }
+                }
+            })
+        }
+
+        // =================================================================
+        // Placeholders
+        // =================================================================
+        IrNode::Placeholder { kind, expr } => match kind {
+            PlaceholderKind::Expr => Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
+                        macroforge_ts::swc_core::ecma::ast::ExprStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            expr: Box::new(macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone())),
+                        }
+                    )
+                ));
+            }),
+            PlaceholderKind::Stmt => Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                    macroforge_ts::ts_syn::ToTsStmt::to_ts_stmt(#expr)
+                ));
+            }),
+            PlaceholderKind::Ident => Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
+                        macroforge_ts::swc_core::ecma::ast::ExprStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            expr: Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Ident(
+                                macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
+                            )),
+                        }
+                    )
+                ));
+            }),
+            PlaceholderKind::Type => {
+                // Type placeholders in flat IR need to be emitted as expressions
+                // We use a type assertion (undefined as T) to include the type
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
+                            macroforge_ts::swc_core::ecma::ast::ExprStmt {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                expr: Box::new(macroforge_ts::swc_core::ecma::ast::Expr::TsAs(
+                                    macroforge_ts::swc_core::ecma::ast::TsAsExpr {
+                                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                        expr: Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Ident(
+                                            macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
+                                                "undefined".into(),
+                                                macroforge_ts::swc_core::common::DUMMY_SP,
+                                            )
+                                        )),
+                                        type_ann: Box::new(macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone())),
+                                    }
+                                )),
+                            }
+                        )
+                    ));
+                })
+            }
+        },
+
+        // =================================================================
+        // Comments
+        // =================================================================
+        IrNode::LineComment { text: _ } | IrNode::BlockComment { text: _ } => {
+            // Comments are emitted as empty statements for now
+            // TODO: Use SWC comments API
+            Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
+                        macroforge_ts::swc_core::ecma::ast::EmptyStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        }
+                    )
+                ));
+            })
+        }
+
+        IrNode::DocComment { text: _ } => None,
+
+        IrNode::Documented { doc: _, inner } => self.generate_module_item(inner),
+
+        // =================================================================
+        // Special constructs
+        // =================================================================
+        IrNode::IdentBlock { parts } => {
+            let part_exprs: Vec<TokenStream> = parts
+                .iter()
+                .filter_map(|p| match p {
+                    IrNode::Raw(text) => Some(quote! { __ident.push_str(#text); }),
+                    IrNode::StrLit(text) => Some(quote! { __ident.push_str(#text); }),
+                    IrNode::Ident(text) => Some(quote! { __ident.push_str(#text); }),
+                    IrNode::Placeholder { expr, .. } => {
+                        Some(quote! {
+                            __ident.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
+                        })
+                    }
+                    _ => None,
+                })
+                .collect();
+
+            Some(quote! {
+                {
+                    let mut __ident = String::new();
+                    #(#part_exprs)*
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
+                            macroforge_ts::swc_core::ecma::ast::ExprStmt {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                expr: Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Ident(
+                                    macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
+                                        __ident.into(),
+                                        macroforge_ts::swc_core::common::DUMMY_SP,
+                                    )
+                                )),
+                            }
+                        )
+                    ));
+                }
+            })
+        }
+
+        IrNode::StringInterp { quote: _, parts } => {
+            let mut quasi_parts = Vec::new();
+            let mut expr_parts = Vec::new();
+            let mut current_text = String::new();
+
+            for part in parts {
+                match part {
+                    IrNode::Raw(text) | IrNode::StrLit(text) => current_text.push_str(text),
+                    IrNode::Placeholder { expr, .. } => {
+                        let text = std::mem::take(&mut current_text);
+                        quasi_parts.push(quote! {
+                            macroforge_ts::swc_core::ecma::ast::TplElement {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                tail: false,
+                                cooked: Some(#text.into()),
+                                raw: #text.into(),
+                            }
+                        });
+                        expr_parts.push(quote! {
+                            Box::new(macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone()))
+                        });
+                    }
+                    _ => {}
+                }
+            }
+
+            let final_text = current_text;
+            quasi_parts.push(quote! {
+                macroforge_ts::swc_core::ecma::ast::TplElement {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    tail: true,
+                    cooked: Some(#final_text.into()),
+                    raw: #final_text.into(),
+                }
+            });
+
+            Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
+                        macroforge_ts::swc_core::ecma::ast::ExprStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            expr: Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Tpl(
+                                macroforge_ts::swc_core::ecma::ast::Tpl {
+                                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                    quasis: vec![#(#quasi_parts),*],
+                                    exprs: vec![#(#expr_parts),*],
+                                }
+                            )),
+                        }
+                    )
+                ));
+            })
+        }
+
+        // Raw text - parse at runtime since it might be a fragment
+        IrNode::Raw(text) => {
+            if text.trim().is_empty() {
+                return None;
+            }
+            // Use runtime parsing with parse_ts_module, falling back to storing raw text
+            // if it can't be parsed (e.g., partial fragments that will be combined with placeholders)
+            Some(quote! {
+                {
+                    let __raw_text = #text;
+                    if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_module(__raw_text) {
+                        #output_var.extend(__parsed.body);
+                    }
+                    // If parsing fails, it's likely a fragment - skip it as placeholders will handle interpolation
+                }
+            })
+        }
+
+        // TypeScript if statement at module level
+        IrNode::TsIfStmt { test, cons, alt } => {
+            let test_code = self.generate_expr_string_parts(test);
+            let cons_code = self.generate_stmt_as_string(cons);
+            let alt_code = alt.as_ref().map(|a| {
+                let ac = self.generate_stmt_as_string(a);
+                quote! {
+                    __stmt_str.push_str(" else ");
+                    #ac
+                }
+            });
+            Some(quote! {
+                {
+                    let mut __stmt_str = String::new();
+                    __stmt_str.push_str("if (");
+                    #test_code
+                    __stmt_str.push_str(") ");
+                    #cons_code
+                    #alt_code
+                    if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str) {
+                        #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__parsed));
+                    }
+                }
+            })
+        }
+
+        // TypeScript loop statement at module level
+        IrNode::TsLoopStmt { parts } => {
+            let part_exprs: Vec<TokenStream> = parts
+                .iter()
+                .map(|p| self.generate_stmt_string_part(p))
+                .collect();
+            Some(quote! {
+                {
+                    let mut __stmt_str = String::new();
+                    #(#part_exprs)*
+                    if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str) {
+                        #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__parsed));
+                    }
+                }
+            })
+        }
+
+        // All other node types that don't make sense at module level
+        _ => {
+            // For nodes that should be expressions or statements,
+            // wrap them appropriately
+            if let Some(expr_code) = self.try_generate_as_expr(node) {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
+                            macroforge_ts::swc_core::ecma::ast::ExprStmt {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                expr: Box::new(#expr_code),
+                            }
+                        )
+                    ));
+                })
+            } else {
+                None
+            }
+        }
+    }
+}
+}

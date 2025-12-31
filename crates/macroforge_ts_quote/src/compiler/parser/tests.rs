@@ -1,0 +1,630 @@
+
+     use super::*;
+
+     fn parse(input: &str) -> Ir {
+         Parser::new(input).parse()
+     }
+
+     /// Helper to find all placeholders in the IR (recursively traverses all node types)
+     fn find_placeholders(ir: &Ir) -> Vec<(PlaceholderKind, String)> {
+         fn collect_node(node: &IrNode, result: &mut Vec<(PlaceholderKind, String)>) {
+             match node {
+                 IrNode::Placeholder { kind, expr } => {
+                     result.push((*kind, expr.to_string()));
+                 }
+                 IrNode::If { then_body, else_if_branches, else_body, .. } => {
+                     collect_nodes(then_body, result);
+                     for (_, body) in else_if_branches {
+                         collect_nodes(body, result);
+                     }
+                     if let Some(body) = else_body {
+                         collect_nodes(body, result);
+                     }
+                 }
+                 IrNode::For { body, .. } | IrNode::While { body, .. } => {
+                     collect_nodes(body, result);
+                 }
+                 IrNode::Match { arms, .. } => {
+                     for arm in arms {
+                         collect_nodes(&arm.body, result);
+                     }
+                 }
+                 IrNode::IdentBlock { parts } | IrNode::StringInterp { parts, .. } => {
+                     collect_nodes(parts, result);
+                 }
+                 // Declarations
+                 IrNode::FnDecl { name, type_params, params, return_type, body, .. } => {
+                     collect_node(name, result);
+                     if let Some(tp) = type_params {
+                         collect_node(tp, result);
+                     }
+                     collect_nodes(params, result);
+                     if let Some(rt) = return_type {
+                         collect_node(rt, result);
+                     }
+                     if let Some(b) = body {
+                         collect_node(b, result);
+                     }
+                 }
+                 IrNode::ClassDecl { name, type_params, extends, implements, body, .. } => {
+                     collect_node(name, result);
+                     if let Some(tp) = type_params {
+                         collect_node(tp, result);
+                     }
+                     if let Some(ext) = extends {
+                         collect_node(ext, result);
+                     }
+                     collect_nodes(implements, result);
+                     collect_nodes(body, result);
+                 }
+                 IrNode::InterfaceDecl { name, type_params, extends, body, .. } => {
+                     collect_node(name, result);
+                     if let Some(tp) = type_params {
+                         collect_node(tp, result);
+                     }
+                     collect_nodes(extends, result);
+                     collect_nodes(body, result);
+                 }
+                 IrNode::TypeAliasDecl { name, type_params, type_ann, .. } => {
+                     collect_node(name, result);
+                     if let Some(tp) = type_params {
+                         collect_node(tp, result);
+                     }
+                     collect_node(type_ann, result);
+                 }
+                 IrNode::VarDecl { decls, .. } => {
+                     for decl in decls {
+                         collect_node(&decl.name, result);
+                         if let Some(ta) = &decl.type_ann {
+                             collect_node(ta, result);
+                         }
+                         if let Some(init) = &decl.init {
+                             collect_node(init, result);
+                         }
+                     }
+                 }
+                 // Class members
+                 IrNode::Constructor { params, body, .. } => {
+                     collect_nodes(params, result);
+                     if let Some(b) = body {
+                         collect_node(b, result);
+                     }
+                 }
+                 IrNode::Method { name, type_params, params, return_type, body, .. } => {
+                     collect_node(name, result);
+                     if let Some(tp) = type_params {
+                         collect_node(tp, result);
+                     }
+                     collect_nodes(params, result);
+                     if let Some(rt) = return_type {
+                         collect_node(rt, result);
+                     }
+                     if let Some(b) = body {
+                         collect_node(b, result);
+                     }
+                 }
+                 IrNode::ClassProp { name, type_ann, value, .. } => {
+                     collect_node(name, result);
+                     if let Some(ta) = type_ann {
+                         collect_node(ta, result);
+                     }
+                     if let Some(v) = value {
+                         collect_node(v, result);
+                     }
+                 }
+                 // Statements
+                 IrNode::BlockStmt { stmts } => {
+                     collect_nodes(stmts, result);
+                 }
+                 IrNode::ExprStmt { expr } => {
+                     collect_node(expr, result);
+                 }
+                 IrNode::ReturnStmt { arg } => {
+                     if let Some(a) = arg {
+                         collect_node(a, result);
+                     }
+                 }
+                 IrNode::ThrowStmt { arg } => {
+                     collect_node(arg, result);
+                 }
+                 IrNode::TsIfStmt { test, cons, alt } => {
+                     collect_node(test, result);
+                     collect_node(cons, result);
+                     if let Some(a) = alt {
+                         collect_node(a, result);
+                     }
+                 }
+                 // Parameters
+                 IrNode::Param { decorators, pat } => {
+                     collect_nodes(decorators, result);
+                     collect_node(pat, result);
+                 }
+                 IrNode::BindingIdent { name, type_ann, .. } => {
+                     collect_node(name, result);
+                     if let Some(ta) = type_ann {
+                         collect_node(ta, result);
+                     }
+                 }
+                 IrNode::RestPat { arg, type_ann } => {
+                     collect_node(arg, result);
+                     if let Some(ta) = type_ann {
+                         collect_node(ta, result);
+                     }
+                 }
+                 IrNode::AssignPat { left, right } => {
+                     collect_node(left, result);
+                     collect_node(right, result);
+                 }
+                 // Types
+                 IrNode::TypeAnnotation { type_ann } => {
+                     collect_node(type_ann, result);
+                 }
+                 IrNode::TypeParams { params } => {
+                     collect_nodes(params, result);
+                 }
+                 // Interface members
+                 IrNode::PropSignature { name, type_ann, .. } => {
+                     collect_node(name, result);
+                     if let Some(ta) = type_ann {
+                         collect_node(ta, result);
+                     }
+                 }
+                 IrNode::MethodSignature { name, type_params, params, return_type, .. } => {
+                     collect_node(name, result);
+                     if let Some(tp) = type_params {
+                         collect_node(tp, result);
+                     }
+                     collect_nodes(params, result);
+                     if let Some(rt) = return_type {
+                         collect_node(rt, result);
+                     }
+                 }
+                 // Wrapper
+                 IrNode::Documented { inner, .. } => {
+                     collect_node(inner, result);
+                 }
+                 _ => {}
+             }
+         }
+         fn collect_nodes(nodes: &[IrNode], result: &mut Vec<(PlaceholderKind, String)>) {
+             for node in nodes {
+                 collect_node(node, result);
+             }
+         }
+         let mut result = Vec::new();
+         collect_nodes(&ir.nodes, &mut result);
+         result
+     }
+
+     // =========================================================================
+     // Basic parsing tests
+     // =========================================================================
+
+     #[test]
+     fn test_simple_text() {
+         let ir = parse("hello world");
+         assert_eq!(ir.nodes.len(), 1);
+         match &ir.nodes[0] {
+             IrNode::Raw(text) => assert!(text.contains("hello")),
+             _ => panic!("Expected Raw"),
+         }
+     }
+
+     #[test]
+     fn test_empty_input() {
+         let ir = parse("");
+         assert!(ir.nodes.is_empty());
+     }
+
+     #[test]
+     fn test_whitespace_only() {
+         let ir = parse("   \n\t  ");
+         // Should produce text node(s) with whitespace
+         assert!(!ir.nodes.is_empty());
+     }
+
+     // =========================================================================
+     // Placeholder classification tests
+     // =========================================================================
+
+     #[test]
+     fn test_expr_placeholder_default() {
+         let ir = parse("@{expr}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         assert_eq!(placeholders[0], (PlaceholderKind::Expr, "expr".to_string()));
+     }
+
+     #[test]
+     fn test_expr_placeholder_in_assignment() {
+         let ir = parse("const x = @{value}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Expr);
+     }
+
+     #[test]
+     fn test_type_annotation_const() {
+         let ir = parse("const x: @{T} = 1");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         assert_eq!(placeholders[0], (PlaceholderKind::Type, "T".to_string()));
+     }
+
+     #[test]
+     fn test_type_annotation_let() {
+         let ir = parse("let x: @{MyType} = value");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Type);
+     }
+
+     #[test]
+     fn test_type_annotation_function_param() {
+         let ir = parse("function foo(x: @{T}) {}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Type);
+     }
+
+     #[test]
+     fn test_type_annotation_function_return() {
+         let ir = parse("function foo(): @{ReturnType} {}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Type);
+     }
+
+     #[test]
+     fn test_type_assertion_as() {
+         let ir = parse("x as @{T}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Type);
+     }
+
+     #[test]
+     fn test_type_assertion_satisfies() {
+         let ir = parse("x satisfies @{T}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Type);
+     }
+
+     #[test]
+     fn test_ternary_colon_not_type() {
+         // In ternary, the : is not a type annotation
+         let ir = parse("cond ? @{a} : @{b}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 2);
+         // Both should be Expr, not Type
+         assert_eq!(placeholders[0].0, PlaceholderKind::Expr);
+         assert_eq!(placeholders[1].0, PlaceholderKind::Expr);
+     }
+
+     #[test]
+     fn test_ternary_with_type_before() {
+         // Type annotation followed by ternary
+         let ir = parse("const x: @{T} = cond ? @{a} : @{b}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 3);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Type); // T
+         assert_eq!(placeholders[1].0, PlaceholderKind::Expr); // a
+         assert_eq!(placeholders[2].0, PlaceholderKind::Expr); // b
+     }
+
+     #[test]
+     fn test_multiple_placeholders_mixed() {
+         let ir = parse("const x: @{T} = @{v}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 2);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Type);
+         assert_eq!(placeholders[1].0, PlaceholderKind::Expr);
+     }
+
+     // =========================================================================
+     // Control flow tests
+     // =========================================================================
+
+     #[test]
+     fn test_if_simple() {
+         let ir = parse("{#if cond}body{/if}");
+         assert_eq!(ir.nodes.len(), 1);
+         match &ir.nodes[0] {
+             IrNode::If { condition, then_body, else_if_branches, else_body } => {
+                 assert_eq!(condition.to_string(), "cond");
+                 assert!(!then_body.is_empty());
+                 assert!(else_if_branches.is_empty());
+                 assert!(else_body.is_none());
+             }
+             _ => panic!("Expected If"),
+         }
+     }
+
+     #[test]
+     fn test_if_else() {
+         let ir = parse("{#if cond}yes{:else}no{/if}");
+         match &ir.nodes[0] {
+             IrNode::If { condition, then_body, else_body, .. } => {
+                 assert_eq!(condition.to_string(), "cond");
+                 assert!(!then_body.is_empty());
+                 assert!(else_body.is_some());
+             }
+             _ => panic!("Expected If"),
+         }
+     }
+
+     #[test]
+     fn test_if_else_if_else() {
+         let ir = parse("{#if a}1{:else if b}2{:else if c}3{:else}4{/if}");
+         match &ir.nodes[0] {
+             IrNode::If { condition, else_if_branches, else_body, .. } => {
+                 assert_eq!(condition.to_string(), "a");
+                 assert_eq!(else_if_branches.len(), 2);
+                 assert_eq!(else_if_branches[0].0.to_string(), "b");
+                 assert_eq!(else_if_branches[1].0.to_string(), "c");
+                 assert!(else_body.is_some());
+             }
+             _ => panic!("Expected If"),
+         }
+     }
+
+     #[test]
+     fn test_for_loop() {
+         let ir = parse("{#for item in items}@{item}{/for}");
+         assert_eq!(ir.nodes.len(), 1);
+         match &ir.nodes[0] {
+             IrNode::For { pattern, iterator, body } => {
+                 assert_eq!(pattern.to_string(), "item");
+                 assert_eq!(iterator.to_string(), "items");
+                 assert!(!body.is_empty());
+             }
+             _ => panic!("Expected For"),
+         }
+     }
+
+     #[test]
+     fn test_for_with_tuple_pattern() {
+         let ir = parse("{#for (key, value) in map}@{key}: @{value}{/for}");
+         match &ir.nodes[0] {
+             IrNode::For { pattern, iterator, .. } => {
+                 let pat_str = pattern.to_string();
+                 assert!(pat_str.contains("key"));
+                 assert!(pat_str.contains("value"));
+                 assert_eq!(iterator.to_string(), "map");
+             }
+             _ => panic!("Expected For"),
+         }
+     }
+
+     #[test]
+     fn test_while_loop() {
+         let ir = parse("{#while cond}body{/while}");
+         assert_eq!(ir.nodes.len(), 1);
+         match &ir.nodes[0] {
+             IrNode::While { condition, body } => {
+                 assert_eq!(condition.to_string(), "cond");
+                 assert!(!body.is_empty());
+             }
+             _ => panic!("Expected While"),
+         }
+     }
+
+     #[test]
+     fn test_match_block() {
+         let ir = parse("{#match expr}{:case Some(x)}found{:case None}empty{/match}");
+         assert_eq!(ir.nodes.len(), 1);
+         match &ir.nodes[0] {
+             IrNode::Match { expr, arms } => {
+                 assert_eq!(expr.to_string(), "expr");
+                 assert_eq!(arms.len(), 2);
+                 assert!(arms[0].pattern.to_string().contains("Some"));
+                 assert!(arms[1].pattern.to_string().contains("None"));
+             }
+             _ => panic!("Expected Match"),
+         }
+     }
+
+     #[test]
+     fn test_nested_control_flow() {
+         let ir = parse("{#if outer}{#for x in xs}@{x}{/for}{/if}");
+         match &ir.nodes[0] {
+             IrNode::If { then_body, .. } => {
+                 assert_eq!(then_body.len(), 1);
+                 assert!(matches!(&then_body[0], IrNode::For { .. }));
+             }
+             _ => panic!("Expected If"),
+         }
+     }
+
+     // =========================================================================
+     // Directive tests
+     // =========================================================================
+
+     #[test]
+     fn test_let_directive() {
+         let ir = parse("{$let x = 1}");
+         assert_eq!(ir.nodes.len(), 1);
+         match &ir.nodes[0] {
+             IrNode::Let { pattern, mutable, value, .. } => {
+                 assert_eq!(pattern.to_string(), "x");
+                 assert!(!mutable);
+                 assert_eq!(value.to_string(), "1");
+             }
+             _ => panic!("Expected Let"),
+         }
+     }
+
+     #[test]
+     fn test_let_mut_directive() {
+         let ir = parse("{$let mut count = 0}");
+         match &ir.nodes[0] {
+             IrNode::Let { pattern, mutable, .. } => {
+                 assert_eq!(pattern.to_string(), "count");
+                 assert!(*mutable);
+             }
+             _ => panic!("Expected Let"),
+         }
+     }
+
+     #[test]
+     fn test_do_directive() {
+         let ir = parse("{$do println!(\"test\")}");
+         assert_eq!(ir.nodes.len(), 1);
+         match &ir.nodes[0] {
+             IrNode::Do { code } => {
+                 assert!(code.to_string().contains("println"));
+             }
+             _ => panic!("Expected Do"),
+         }
+     }
+
+     // =========================================================================
+     // Edge cases
+     // =========================================================================
+
+     #[test]
+     fn test_adjacent_placeholders() {
+         let ir = parse("@{a}@{b}@{c}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 3);
+     }
+
+     #[test]
+     fn test_placeholder_in_string() {
+         // String interpolation
+         let ir = parse("`hello @{name}`");
+         assert_eq!(ir.nodes.len(), 1);
+         match &ir.nodes[0] {
+             IrNode::StringInterp { quote, parts } => {
+                 assert_eq!(*quote, '`');
+                 assert!(!parts.is_empty());
+             }
+             _ => panic!("Expected StringInterp, got {:?}", ir.nodes[0]),
+         }
+     }
+
+     #[test]
+     fn test_complex_rust_expr() {
+         let ir = parse("@{vec![1, 2, 3].iter().map(|x| x * 2).collect::<Vec<_>>()}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         // TokenStream.to_string() may format differently, check for key parts
+         let expr_str = &placeholders[0].1;
+         assert!(expr_str.contains("iter"), "Expected 'iter' in: {}", expr_str);
+         assert!(expr_str.contains("map"), "Expected 'map' in: {}", expr_str);
+         assert!(expr_str.contains("collect"), "Expected 'collect' in: {}", expr_str);
+     }
+
+     #[test]
+     fn test_placeholder_with_generics() {
+         let ir = parse("const x: @{HashMap<String, i32>} = map");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 1);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Type);
+     }
+
+     #[test]
+     fn test_semicolon_lexer() {
+         // First verify lexer handles semicolons correctly
+         use crate::compiler::lexer::Lexer;
+         let tokens = Lexer::new("x; y").tokenize();
+         let has_semi = tokens.iter().any(|t| t.kind == SyntaxKind::Semicolon);
+         assert!(has_semi, "Expected Semicolon token, got: {:?}", tokens.iter().map(|t| (t.kind, &t.text)).collect::<Vec<_>>());
+     }
+
+     #[test]
+     fn test_semicolon_simple() {
+         // Simple semicolon test - should not hang
+         let ir = parse("x; y");
+         assert!(!ir.nodes.is_empty());
+     }
+
+     #[test]
+     fn test_semicolon_ends_type_context() {
+         // After semicolon, we should be back in expression context
+         let ir = parse("const x: @{T} = 1; @{expr}");
+         let placeholders = find_placeholders(&ir);
+         assert_eq!(placeholders.len(), 2);
+         assert_eq!(placeholders[0].0, PlaceholderKind::Type);
+         assert_eq!(placeholders[1].0, PlaceholderKind::Expr);
+     }
+
+     // =========================================================================
+     // Lexer integration tests
+     // =========================================================================
+
+     #[test]
+     fn test_lexer_produces_colon() {
+         use crate::compiler::lexer::Lexer;
+         let tokens = Lexer::new("const x: T").tokenize();
+         let has_colon = tokens.iter().any(|t| t.kind == SyntaxKind::Colon);
+         assert!(has_colon, "Expected Colon token");
+     }
+
+     #[test]
+     fn test_lexer_produces_keywords() {
+         use crate::compiler::lexer::Lexer;
+         let tokens = Lexer::new("const let function class interface type").tokenize();
+         let kinds: Vec<_> = tokens.iter().map(|t| t.kind).collect();
+         assert!(kinds.contains(&SyntaxKind::ConstKw));
+         assert!(kinds.contains(&SyntaxKind::LetKw));
+         assert!(kinds.contains(&SyntaxKind::FunctionKw));
+         assert!(kinds.contains(&SyntaxKind::ClassKw));
+         assert!(kinds.contains(&SyntaxKind::InterfaceKw));
+         assert!(kinds.contains(&SyntaxKind::TypeKw));
+     }
+
+     #[test]
+     fn test_debug_parser_output() {
+         // Debug test to see what the parser produces for a template with control flow
+         let input = r#"export function @{fn_name}() {
+             {#for field in fields}
+             console.log(@{field});
+             {/for}
+         }"#;
+         let ir = parse(input);
+
+         eprintln!("=== IR Nodes ===");
+         for (i, node) in ir.nodes.iter().enumerate() {
+             eprintln!("Node {}: {:?}", i, node);
+         }
+
+         // Helper to recursively find For nodes
+         fn has_for_node(node: &IrNode) -> bool {
+             match node {
+                 IrNode::For { .. } => true,
+                 IrNode::FnDecl { body, .. } => body.as_ref().map(|b| has_for_node(b)).unwrap_or(false),
+                 IrNode::BlockStmt { stmts } => stmts.iter().any(has_for_node),
+                 _ => false,
+             }
+         }
+
+         // Verify for loop is parsed correctly (now inside FnDecl.body)
+         let has_for = ir.nodes.iter().any(|n| has_for_node(n));
+         assert!(has_for, "Expected For node in IR (may be nested inside FnDecl)");
+
+         // Verify raw nodes don't contain control flow markers
+         fn check_no_control_flow_in_raw(node: &IrNode) {
+             match node {
+                 IrNode::Raw(text) => {
+                     assert!(!text.contains("{#for"), "Raw node should not contain {{#for: {}", text);
+                     assert!(!text.contains("{/for"), "Raw node should not contain {{/for: {}", text);
+                 }
+                 IrNode::FnDecl { body, .. } => {
+                     if let Some(b) = body {
+                         check_no_control_flow_in_raw(b);
+                     }
+                 }
+                 IrNode::BlockStmt { stmts } => {
+                     for stmt in stmts {
+                         check_no_control_flow_in_raw(stmt);
+                     }
+                 }
+                 _ => {}
+             }
+         }
+         for node in &ir.nodes {
+             check_no_control_flow_in_raw(node);
+         }
+     }

@@ -331,6 +331,11 @@ pub enum IrNode {
         alt: Option<Box<IrNode>>,
     },
 
+    /// TypeScript for/while loop (parsed as raw text with placeholders)
+    TsLoopStmt {
+        parts: Vec<IrNode>,
+    },
+
     /// For-in statement: `for (left in right) body`
     ForInStmt {
         left: Box<IrNode>,
