@@ -1,4 +1,6 @@
+mod enum_decl;
 mod function;
+mod import_export;
 mod interface;
 
 use super::*;
@@ -15,6 +17,7 @@ impl Parser {
 
         // Check what follows
         match self.current_kind() {
+            // Declaration exports
             Some(SyntaxKind::ClassKw) => self.parse_class_decl(true),
             Some(SyntaxKind::FunctionKw) => self.parse_function_decl(true, false),
             Some(SyntaxKind::InterfaceKw) => self.parse_interface_decl(true),
@@ -22,11 +25,15 @@ impl Parser {
                 self.parse_var_decl(true)
             }
             Some(SyntaxKind::AsyncKw) => self.parse_async_decl(true),
-            Some(SyntaxKind::TypeKw) => self.parse_type_alias_decl(true),
-            Some(SyntaxKind::DefaultKw) => {
-                // export default - just emit raw for now
-                Some(IrNode::Raw("export ".to_string()))
-            }
+            Some(SyntaxKind::EnumKw) => self.parse_enum_decl(true, false),
+
+            // Named export, export all, export default, export type
+            Some(SyntaxKind::LBrace)
+            | Some(SyntaxKind::Star)
+            | Some(SyntaxKind::DefaultKw)
+            | Some(SyntaxKind::TypeKw) => self.parse_export_decl_full(),
+
+            // Fallback
             _ => Some(IrNode::Raw("export ".to_string())),
         }
     }
@@ -92,10 +99,14 @@ impl Parser {
         self.skip_whitespace();
         self.expect(SyntaxKind::RBrace);
 
+        // Take pending decorators
+        let decorators = std::mem::take(&mut self.pending_decorators);
+
         Some(IrNode::ClassDecl {
             exported,
             declare: false,
             abstract_: false,
+            decorators,
             name: Box::new(name),
             type_params,
             extends,
@@ -125,6 +136,14 @@ impl Parser {
             // Check for directives
             if self.at(SyntaxKind::DollarOpen) {
                 if let Some(node) = self.parse_directive() {
+                    members.push(node);
+                }
+                continue;
+            }
+
+            // Check for decorators (on class members)
+            if self.at(SyntaxKind::DecoratorAt) {
+                if let Some(node) = self.parse_decorator_raw() {
                     members.push(node);
                 }
                 continue;

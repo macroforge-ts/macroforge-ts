@@ -137,6 +137,16 @@ pub(super) fn generate_interface_member_stmt(&self, node: &IrNode) -> Option<Tok
                 __members.push(#member_code);
             })
         }
+        IrNode::IndexSignature {
+            readonly,
+            params,
+            type_ann,
+        } => {
+            let member_code = self.generate_index_signature(*readonly, params, type_ann);
+            Some(quote! {
+                __members.push(#member_code);
+            })
+        }
         IrNode::Let {
             pattern,
             mutable,
@@ -181,7 +191,35 @@ pub(super) fn generate_interface_member(&self, node: &IrNode) -> Option<TokenStr
             params,
             return_type.as_deref(),
         )),
+        IrNode::IndexSignature {
+            readonly,
+            params,
+            type_ann,
+        } => Some(self.generate_index_signature(*readonly, params, type_ann)),
         _ => None,
+    }
+}
+
+/// Generate an index signature: [key: Type]: Type
+pub(super) fn generate_index_signature(
+    &self,
+    readonly: bool,
+    params: &[IrNode],
+    type_ann: &IrNode,
+) -> TokenStream {
+    let params_code = self.generate_fn_type_params(params);
+    let type_ann_code = self.generate_type_ann(type_ann);
+
+    quote! {
+        macroforge_ts::swc_core::ecma::ast::TsTypeElement::TsIndexSignature(
+            macroforge_ts::swc_core::ecma::ast::TsIndexSignature {
+                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                params: #params_code,
+                type_ann: Some(Box::new(#type_ann_code)),
+                readonly: #readonly,
+                is_static: false,
+            }
+        )
     }
 }
 }

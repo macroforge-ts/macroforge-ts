@@ -1,6 +1,61 @@
 use super::*;
 
 impl Codegen {
+    /// Generate code that builds a decorator string at runtime.
+    /// Handles Raw, IdentBlock with StringInterp, and placeholders.
+    fn generate_decorator_string(&self, node: &IrNode) -> TokenStream {
+        match node {
+            IrNode::Raw(text) => quote! { #text.to_string() },
+            IrNode::IdentBlock { parts } => {
+                let part_exprs: Vec<TokenStream> = parts
+                    .iter()
+                    .map(|p| self.generate_decorator_string_part(p))
+                    .collect();
+                quote! {
+                    {
+                        let mut __s = String::new();
+                        #(#part_exprs)*
+                        __s
+                    }
+                }
+            }
+            _ => quote! { String::new() },
+        }
+    }
+
+    /// Generate code for a single part of a decorator string.
+    fn generate_decorator_string_part(&self, node: &IrNode) -> TokenStream {
+        match node {
+            IrNode::Raw(text) => quote! { __s.push_str(#text); },
+            IrNode::StringInterp { quote: q, parts } => {
+                let quote_char = match q {
+                    '"' => "\"",
+                    '\'' => "'",
+                    _ => "\"",
+                };
+                let part_exprs: Vec<TokenStream> = parts
+                    .iter()
+                    .map(|p| match p {
+                        IrNode::Raw(t) => quote! { __s.push_str(#t); },
+                        IrNode::Placeholder { expr, .. } => {
+                            quote! { __s.push_str(&(#expr).to_string()); }
+                        }
+                        _ => quote! {},
+                    })
+                    .collect();
+                quote! {
+                    __s.push_str(#quote_char);
+                    #(#part_exprs)*
+                    __s.push_str(#quote_char);
+                }
+            }
+            IrNode::Placeholder { expr, .. } => {
+                quote! { __s.push_str(&(#expr).to_string()); }
+            }
+            _ => quote! {},
+        }
+    }
+
     /// Generate code for a list of module-level items.
     /// Groups adjacent fragment nodes (Raw, Placeholder, etc.) together and parses them as a combined string.
     pub(in super::super) fn generate_module_items(&self, nodes: &[IrNode]) -> TokenStream {
@@ -201,6 +256,7 @@ impl Codegen {
             exported,
             declare,
             abstract_,
+            decorators,
             name,
             type_params,
             extends,
@@ -231,6 +287,42 @@ impl Codegen {
                 .unwrap_or(quote! { None });
             let implements_code = self.generate_implements(implements);
 
+            // Generate decorators - build the decorator expression dynamically
+            let decorators_code = if decorators.is_empty() {
+                quote! { vec![] }
+            } else {
+                let decorator_exprs: Vec<TokenStream> = decorators
+                    .iter()
+                    .map(|d| {
+                        // Generate code to build decorator string at runtime
+                        let build_str = self.generate_decorator_string(d);
+
+                        quote! {
+                            {
+                                let __dec_full_str = #build_str;
+                                // Remove leading @ if present
+                                let __dec_expr_str = __dec_full_str.trim_start().strip_prefix('@').unwrap_or(&__dec_full_str);
+                                if let Ok(__dec_expr) = macroforge_ts::ts_syn::parse_ts_expr(__dec_expr_str) {
+                                    Some(macroforge_ts::swc_core::ecma::ast::Decorator {
+                                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                        expr: __dec_expr,
+                                    })
+                                } else {
+                                    None
+                                }
+                            }
+                        }
+                    })
+                    .collect();
+
+                quote! {
+                    {
+                        let __decorators: Vec<Option<macroforge_ts::swc_core::ecma::ast::Decorator>> = vec![#(#decorator_exprs),*];
+                        __decorators.into_iter().flatten().collect::<Vec<_>>()
+                    }
+                }
+            };
+
             let class_decl = quote! {
                 macroforge_ts::swc_core::ecma::ast::ClassDecl {
                     ident: #name_code,
@@ -238,7 +330,7 @@ impl Codegen {
                     class: Box::new(macroforge_ts::swc_core::ecma::ast::Class {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
-                        decorators: vec![],
+                        decorators: #decorators_code,
                         body: #body_code,
                         super_class: #extends_code,
                         is_abstract: #abstract_,
@@ -417,6 +509,243 @@ impl Codegen {
                     ));
                 })
             }
+        }
+
+        // =================================================================
+        // Import/Export Declarations
+        // =================================================================
+        IrNode::ImportDecl {
+            type_only,
+            specifiers,
+            src,
+        } => {
+            let specifiers_code = specifiers.iter().map(|spec| {
+                match spec {
+                    IrNode::NamedImport { local, imported } => {
+                        let local_code = self.generate_ident(local);
+                        let imported_code = imported.as_ref().map(|i| {
+                            let ic = self.generate_ident(i);
+                            quote! { Some(macroforge_ts::swc_core::ecma::ast::ModuleExportName::Ident(#ic)) }
+                        }).unwrap_or(quote! { None });
+                        quote! {
+                            macroforge_ts::swc_core::ecma::ast::ImportSpecifier::Named(
+                                macroforge_ts::swc_core::ecma::ast::ImportNamedSpecifier {
+                                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                    local: #local_code,
+                                    imported: #imported_code,
+                                    is_type_only: false,
+                                }
+                            )
+                        }
+                    }
+                    IrNode::DefaultImport { local } => {
+                        let local_code = self.generate_ident(local);
+                        quote! {
+                            macroforge_ts::swc_core::ecma::ast::ImportSpecifier::Default(
+                                macroforge_ts::swc_core::ecma::ast::ImportDefaultSpecifier {
+                                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                    local: #local_code,
+                                }
+                            )
+                        }
+                    }
+                    IrNode::NamespaceImport { local } => {
+                        let local_code = self.generate_ident(local);
+                        quote! {
+                            macroforge_ts::swc_core::ecma::ast::ImportSpecifier::Namespace(
+                                macroforge_ts::swc_core::ecma::ast::ImportStarAsSpecifier {
+                                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                    local: #local_code,
+                                }
+                            )
+                        }
+                    }
+                    _ => quote! {}
+                }
+            }).collect::<Vec<_>>();
+
+            Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                    macroforge_ts::swc_core::ecma::ast::ModuleDecl::Import(
+                        macroforge_ts::swc_core::ecma::ast::ImportDecl {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            specifiers: vec![#(#specifiers_code),*],
+                            src: Box::new(macroforge_ts::swc_core::ecma::ast::Str {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                value: #src.into(),
+                                raw: None,
+                            }),
+                            type_only: #type_only,
+                            with: None,
+                            phase: macroforge_ts::swc_core::ecma::ast::ImportPhase::Evaluation,
+                        }
+                    )
+                ));
+            })
+        }
+
+        IrNode::NamedExport {
+            specifiers,
+            src,
+            type_only,
+        } => {
+            let specifiers_code = specifiers.iter().map(|spec| {
+                if let IrNode::ExportSpecifier { local, exported } = spec {
+                    let local_code = self.generate_ident(local);
+                    let local_name = quote! { macroforge_ts::swc_core::ecma::ast::ModuleExportName::Ident(#local_code) };
+                    let exported_code = exported.as_ref().map(|e| {
+                        let ec = self.generate_ident(e);
+                        quote! { Some(macroforge_ts::swc_core::ecma::ast::ModuleExportName::Ident(#ec)) }
+                    }).unwrap_or(quote! { None });
+                    quote! {
+                        macroforge_ts::swc_core::ecma::ast::ExportSpecifier::Named(
+                            macroforge_ts::swc_core::ecma::ast::ExportNamedSpecifier {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                orig: #local_name,
+                                exported: #exported_code,
+                                is_type_only: false,
+                            }
+                        )
+                    }
+                } else {
+                    quote! {}
+                }
+            }).collect::<Vec<_>>();
+
+            let src_code = src.as_ref().map(|s| {
+                quote! {
+                    Some(Box::new(macroforge_ts::swc_core::ecma::ast::Str {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        value: #s.into(),
+                        raw: None,
+                    }))
+                }
+            }).unwrap_or(quote! { None });
+
+            Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                    macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportNamed(
+                        macroforge_ts::swc_core::ecma::ast::NamedExport {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            specifiers: vec![#(#specifiers_code),*],
+                            src: #src_code,
+                            type_only: #type_only,
+                            with: None,
+                        }
+                    )
+                ));
+            })
+        }
+
+        IrNode::ExportAll { src, type_only } => {
+            Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                    macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportAll(
+                        macroforge_ts::swc_core::ecma::ast::ExportAll {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            src: Box::new(macroforge_ts::swc_core::ecma::ast::Str {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                value: #src.into(),
+                                raw: None,
+                            }),
+                            type_only: #type_only,
+                            with: None,
+                        }
+                    )
+                ));
+            })
+        }
+
+        IrNode::ExportDefaultExpr { expr } => {
+            let expr_code = self.generate_expr(expr);
+            Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                    macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportDefaultExpr(
+                        macroforge_ts::swc_core::ecma::ast::ExportDefaultExpr {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            expr: Box::new(#expr_code),
+                        }
+                    )
+                ));
+            })
+        }
+
+        // =================================================================
+        // Enum Declaration
+        // =================================================================
+        IrNode::EnumDecl {
+            exported,
+            declare,
+            const_,
+            name,
+            members,
+        } => {
+            let name_code = self.generate_ident(name);
+            let members_code = members.iter().filter_map(|m| {
+                if let IrNode::EnumMember { name, init } = m {
+                    let member_name_code = self.generate_ident(name);
+                    let init_code = init.as_ref().map(|i| {
+                        let ic = self.generate_expr(i);
+                        quote! { Some(Box::new(#ic)) }
+                    }).unwrap_or(quote! { None });
+                    Some(quote! {
+                        macroforge_ts::swc_core::ecma::ast::TsEnumMember {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            id: macroforge_ts::swc_core::ecma::ast::TsEnumMemberId::Ident(#member_name_code),
+                            init: #init_code,
+                        }
+                    })
+                } else {
+                    None
+                }
+            }).collect::<Vec<_>>();
+
+            let enum_decl = quote! {
+                macroforge_ts::swc_core::ecma::ast::TsEnumDecl {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    declare: #declare,
+                    is_const: #const_,
+                    id: #name_code,
+                    members: vec![#(#members_code),*],
+                }
+            };
+
+            if *exported {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                        macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportDecl(
+                            macroforge_ts::swc_core::ecma::ast::ExportDecl {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                decl: macroforge_ts::swc_core::ecma::ast::Decl::TsEnum(Box::new(#enum_decl)),
+                            }
+                        )
+                    ));
+                })
+            } else {
+                Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Decl(
+                            macroforge_ts::swc_core::ecma::ast::Decl::TsEnum(Box::new(#enum_decl))
+                        )
+                    ));
+                })
+            }
+        }
+
+        // =================================================================
+        // Decorator (standalone - attached to next declaration)
+        // =================================================================
+        IrNode::Decorator { expr } => {
+            // Generate the decorator expression - this will be collected and applied
+            // to the next class/method declaration
+            let decorator_expr = self.generate_expr(expr);
+
+            // For module-level decorators, emit a comment for now
+            // Full support would require modifying how we collect decorators
+            // and apply them to subsequent class declarations
+            Some(quote! {
+                // Decorator expression generated: #decorator_expr
+            })
         }
 
         // =================================================================

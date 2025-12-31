@@ -168,6 +168,11 @@ impl Parser {
             false
         };
 
+        // Check for index signature: [key: Type]: Type
+        if self.at(SyntaxKind::LBracket) {
+            return self.parse_index_signature(readonly);
+        }
+
         let name = self.parse_ts_ident_or_placeholder()?;
         self.skip_whitespace();
 
@@ -234,6 +239,72 @@ impl Parser {
             name: Box::new(name),
             optional,
             type_ann,
+        })
+    }
+
+    /// Parse an index signature: [key: Type]: Type
+    fn parse_index_signature(&mut self, readonly: bool) -> Option<IrNode> {
+        self.consume()?; // [
+        self.skip_whitespace();
+
+        // Parse parameter(s) - typically just one: key: Type
+        let mut params = Vec::new();
+
+        while !self.at_eof() && !self.at(SyntaxKind::RBracket) {
+            let param_name = self.parse_ts_ident_or_placeholder()?;
+            self.skip_whitespace();
+
+            // Expect colon and type
+            if !self.at(SyntaxKind::Colon) {
+                break;
+            }
+            self.consume(); // :
+            self.skip_whitespace();
+
+            let param_type = self.parse_type_until(&[SyntaxKind::RBracket, SyntaxKind::Comma])?;
+
+            // Create a Param node with the binding
+            params.push(IrNode::Param {
+                decorators: vec![],
+                pat: Box::new(IrNode::BindingIdent {
+                    name: Box::new(param_name),
+                    type_ann: Some(Box::new(param_type)),
+                    optional: false,
+                }),
+            });
+
+            self.skip_whitespace();
+            if self.at(SyntaxKind::Comma) {
+                self.consume();
+                self.skip_whitespace();
+            }
+        }
+
+        self.expect(SyntaxKind::RBracket);
+        self.skip_whitespace();
+
+        // Expect colon and return type
+        if !self.at(SyntaxKind::Colon) {
+            return None;
+        }
+        self.consume(); // :
+        self.skip_whitespace();
+
+        let type_ann = self.parse_type_until(&[
+            SyntaxKind::Semicolon,
+            SyntaxKind::Comma,
+            SyntaxKind::RBrace,
+        ])?;
+
+        // Consume optional separator
+        if self.at(SyntaxKind::Semicolon) || self.at(SyntaxKind::Comma) {
+            self.consume();
+        }
+
+        Some(IrNode::IndexSignature {
+            readonly,
+            params,
+            type_ann: Box::new(type_ann),
         })
     }
 }

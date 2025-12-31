@@ -33,6 +33,8 @@ pub enum SyntaxKind {
     // Punctuation
     /// `@` - interpolation prefix
     At,
+    /// `@` followed by identifier - TypeScript decorator marker
+    DecoratorAt,
     /// `@@` - escaped @ (produces literal @)
     AtAt,
     /// `{` - left brace
@@ -97,6 +99,22 @@ pub enum SyntaxKind {
     Question,
     /// `.` - dot
     Dot,
+    /// `*` - star/asterisk (for namespace imports, multiplication)
+    Star,
+    /// `#` - hash (for private names like #field)
+    Hash,
+    /// `!` - exclamation mark (for non-null assertions)
+    Exclaim,
+    /// `++` - increment operator
+    PlusPlus,
+    /// `--` - decrement operator
+    MinusMinus,
+    /// `?.` - optional chaining
+    QuestionDot,
+    /// `&` - ampersand (for intersection types)
+    Ampersand,
+    /// `...` - spread/rest operator
+    DotDotDot,
 
     // Keywords (inside control blocks)
     /// `if` keyword
@@ -197,6 +215,8 @@ pub enum SyntaxKind {
     InferKw,
     /// `is` keyword (type guard)
     IsKw,
+    /// `enum` keyword
+    EnumKw,
 
     // Identifiers and expressions
     /// An identifier (variable name, type name, etc.)
@@ -458,6 +478,8 @@ mod tests {
     use super::*;
     use rowan::Language;
 
+    // ==================== is_token Tests ====================
+
     #[test]
     fn test_syntax_kind_is_token() {
         assert!(SyntaxKind::Text.is_token());
@@ -468,6 +490,73 @@ mod tests {
     }
 
     #[test]
+    fn test_all_tokens_are_tokens() {
+        let tokens = [
+            SyntaxKind::Text,
+            SyntaxKind::Whitespace,
+            SyntaxKind::Error,
+            SyntaxKind::At,
+            SyntaxKind::AtAt,
+            SyntaxKind::LBrace,
+            SyntaxKind::RBrace,
+            SyntaxKind::HashOpen,
+            SyntaxKind::SlashOpen,
+            SyntaxKind::ColonOpen,
+            SyntaxKind::DollarOpen,
+            SyntaxKind::Colon,
+            SyntaxKind::Semicolon,
+            SyntaxKind::LParen,
+            SyntaxKind::RParen,
+            SyntaxKind::LBracket,
+            SyntaxKind::RBracket,
+            SyntaxKind::Lt,
+            SyntaxKind::Gt,
+            SyntaxKind::Comma,
+            SyntaxKind::Eq,
+            SyntaxKind::Question,
+            SyntaxKind::Dot,
+            SyntaxKind::IfKw,
+            SyntaxKind::ElseKw,
+            SyntaxKind::ForKw,
+            SyntaxKind::WhileKw,
+            SyntaxKind::MatchKw,
+            SyntaxKind::CaseKw,
+            SyntaxKind::LetKw,
+            SyntaxKind::DoKw,
+            SyntaxKind::Ident,
+            SyntaxKind::RustTokens,
+        ];
+        for token in tokens {
+            assert!(token.is_token(), "{:?} should be a token", token);
+        }
+    }
+
+    #[test]
+    fn test_composite_nodes_are_not_tokens() {
+        let nodes = [
+            SyntaxKind::Root,
+            SyntaxKind::Interpolation,
+            SyntaxKind::IdentBlock,
+            SyntaxKind::StringInterp,
+            SyntaxKind::TemplateLiteral,
+            SyntaxKind::LineComment,
+            SyntaxKind::BlockComment,
+            SyntaxKind::DocComment,
+            SyntaxKind::IfBlock,
+            SyntaxKind::ForBlock,
+            SyntaxKind::WhileBlock,
+            SyntaxKind::MatchBlock,
+            SyntaxKind::LetDirective,
+            SyntaxKind::DoDirective,
+        ];
+        for node in nodes {
+            assert!(!node.is_token(), "{:?} should not be a token", node);
+        }
+    }
+
+    // ==================== Conversion Tests ====================
+
+    #[test]
     fn test_syntax_kind_conversions() {
         let kind = SyntaxKind::Text;
         let raw: rowan::SyntaxKind = kind.into();
@@ -476,10 +565,272 @@ mod tests {
     }
 
     #[test]
+    fn test_syntax_kind_round_trip_all_kinds() {
+        // Test a sampling of kinds at different positions
+        let kinds = [
+            SyntaxKind::Text,
+            SyntaxKind::At,
+            SyntaxKind::IfKw,
+            SyntaxKind::Ident,
+            SyntaxKind::Root,
+            SyntaxKind::IfBlock,
+            SyntaxKind::ExprPlaceholder,
+        ];
+        for kind in kinds {
+            let raw: rowan::SyntaxKind = kind.into();
+            let back = TemplateLanguage::kind_from_raw(raw);
+            assert_eq!(kind, back, "Round trip failed for {:?}", kind);
+        }
+    }
+
+    // ==================== is_control_keyword Tests ====================
+
+    #[test]
     fn test_is_control_keyword() {
         assert!(SyntaxKind::IfKw.is_control_keyword());
         assert!(SyntaxKind::ForKw.is_control_keyword());
         assert!(!SyntaxKind::LetKw.is_control_keyword());
         assert!(!SyntaxKind::Text.is_control_keyword());
+    }
+
+    #[test]
+    fn test_all_control_keywords() {
+        let control_keywords = [
+            SyntaxKind::IfKw,
+            SyntaxKind::ElseKw,
+            SyntaxKind::ForKw,
+            SyntaxKind::WhileKw,
+            SyntaxKind::MatchKw,
+            SyntaxKind::CaseKw,
+        ];
+        for kw in control_keywords {
+            assert!(kw.is_control_keyword(), "{:?} should be a control keyword", kw);
+        }
+    }
+
+    // ==================== is_directive_keyword Tests ====================
+
+    #[test]
+    fn test_is_directive_keyword() {
+        assert!(SyntaxKind::LetKw.is_directive_keyword());
+        assert!(SyntaxKind::DoKw.is_directive_keyword());
+        assert!(SyntaxKind::TypeScriptKw.is_directive_keyword());
+        assert!(SyntaxKind::MutKw.is_directive_keyword());
+        assert!(!SyntaxKind::IfKw.is_directive_keyword());
+        assert!(!SyntaxKind::Text.is_directive_keyword());
+    }
+
+    #[test]
+    fn test_all_directive_keywords() {
+        let directive_keywords = [
+            SyntaxKind::LetKw,
+            SyntaxKind::DoKw,
+            SyntaxKind::TypeScriptKw,
+            SyntaxKind::MutKw,
+        ];
+        for kw in directive_keywords {
+            assert!(kw.is_directive_keyword(), "{:?} should be a directive keyword", kw);
+        }
+    }
+
+    // ==================== is_ts_keyword Tests ====================
+
+    #[test]
+    fn test_is_ts_keyword() {
+        assert!(SyntaxKind::AsKw.is_ts_keyword());
+        assert!(SyntaxKind::FunctionKw.is_ts_keyword());
+        assert!(SyntaxKind::ClassKw.is_ts_keyword());
+        assert!(SyntaxKind::InterfaceKw.is_ts_keyword());
+        assert!(!SyntaxKind::IfKw.is_ts_keyword());
+        assert!(!SyntaxKind::ForKw.is_ts_keyword());
+        assert!(!SyntaxKind::Text.is_ts_keyword());
+    }
+
+    #[test]
+    fn test_ts_keyword_sample() {
+        let ts_keywords = [
+            SyntaxKind::AsKw,
+            SyntaxKind::FunctionKw,
+            SyntaxKind::ConstKw,
+            SyntaxKind::VarKw,
+            SyntaxKind::ClassKw,
+            SyntaxKind::InterfaceKw,
+            SyntaxKind::TypeKw,
+            SyntaxKind::ExportKw,
+            SyntaxKind::ImportKw,
+            SyntaxKind::ReturnKw,
+            SyntaxKind::NewKw,
+            SyntaxKind::AsyncKw,
+            SyntaxKind::AwaitKw,
+        ];
+        for kw in ts_keywords {
+            assert!(kw.is_ts_keyword(), "{:?} should be a TS keyword", kw);
+        }
+    }
+
+    // ==================== is_trivia Tests ====================
+
+    #[test]
+    fn test_is_trivia() {
+        assert!(SyntaxKind::Whitespace.is_trivia());
+        assert!(!SyntaxKind::Text.is_trivia());
+        assert!(!SyntaxKind::Ident.is_trivia());
+    }
+
+    // ==================== starts_identifier_context Tests ====================
+
+    #[test]
+    fn test_starts_identifier_context() {
+        assert!(SyntaxKind::FunctionKw.starts_identifier_context());
+        assert!(SyntaxKind::ClassKw.starts_identifier_context());
+        assert!(SyntaxKind::InterfaceKw.starts_identifier_context());
+        assert!(SyntaxKind::TypeKw.starts_identifier_context());
+        assert!(SyntaxKind::ConstKw.starts_identifier_context());
+        assert!(SyntaxKind::LetKw.starts_identifier_context());
+        assert!(SyntaxKind::VarKw.starts_identifier_context());
+        assert!(!SyntaxKind::ReturnKw.starts_identifier_context());
+        assert!(!SyntaxKind::Text.starts_identifier_context());
+    }
+
+    // ==================== starts_type_context Tests ====================
+
+    #[test]
+    fn test_starts_type_context() {
+        assert!(SyntaxKind::AsKw.starts_type_context());
+        assert!(SyntaxKind::KeyofKw.starts_type_context());
+        assert!(SyntaxKind::TypeofKw.starts_type_context());
+        assert!(SyntaxKind::ExtendsKw.starts_type_context());
+        assert!(SyntaxKind::ImplementsKw.starts_type_context());
+        assert!(SyntaxKind::SatisfiesKw.starts_type_context());
+        assert!(SyntaxKind::InferKw.starts_type_context());
+        assert!(SyntaxKind::IsKw.starts_type_context());
+        assert!(!SyntaxKind::ReturnKw.starts_type_context());
+        assert!(!SyntaxKind::FunctionKw.starts_type_context());
+    }
+
+    // ==================== starts_expression_context Tests ====================
+
+    #[test]
+    fn test_starts_expression_context() {
+        assert!(SyntaxKind::ReturnKw.starts_expression_context());
+        assert!(SyntaxKind::ThrowKw.starts_expression_context());
+        assert!(SyntaxKind::YieldKw.starts_expression_context());
+        assert!(SyntaxKind::AwaitKw.starts_expression_context());
+        assert!(SyntaxKind::NewKw.starts_expression_context());
+        assert!(!SyntaxKind::FunctionKw.starts_expression_context());
+        assert!(!SyntaxKind::ClassKw.starts_expression_context());
+        assert!(!SyntaxKind::AsKw.starts_expression_context());
+    }
+
+    // ==================== Debug and Clone Tests ====================
+
+    #[test]
+    fn test_syntax_kind_debug() {
+        let kind = SyntaxKind::Text;
+        let debug_str = format!("{:?}", kind);
+        assert_eq!(debug_str, "Text");
+    }
+
+    #[test]
+    fn test_syntax_kind_clone() {
+        let kind = SyntaxKind::IfKw;
+        let cloned = kind.clone();
+        assert_eq!(kind, cloned);
+    }
+
+    #[test]
+    fn test_syntax_kind_copy() {
+        let kind = SyntaxKind::ForKw;
+        let copied: SyntaxKind = kind;
+        assert_eq!(kind, copied);
+    }
+
+    // ==================== PartialOrd and Ord Tests ====================
+
+    #[test]
+    fn test_syntax_kind_ordering() {
+        // Text is 0, Whitespace is 1, etc.
+        assert!(SyntaxKind::Text < SyntaxKind::Whitespace);
+        assert!(SyntaxKind::Text < SyntaxKind::Root);
+    }
+
+    // ==================== Hash Tests ====================
+
+    #[test]
+    fn test_syntax_kind_hash() {
+        use std::collections::HashSet;
+        let mut set = HashSet::new();
+        set.insert(SyntaxKind::Text);
+        set.insert(SyntaxKind::At);
+        set.insert(SyntaxKind::IfKw);
+        assert_eq!(set.len(), 3);
+        assert!(set.contains(&SyntaxKind::Text));
+        assert!(!set.contains(&SyntaxKind::ForKw));
+    }
+
+    // ==================== TemplateLanguage Tests ====================
+
+    #[test]
+    fn test_template_language_kind_to_raw() {
+        let kind = SyntaxKind::Interpolation;
+        let raw = TemplateLanguage::kind_to_raw(kind);
+        assert_eq!(raw.0, SyntaxKind::Interpolation as u16);
+    }
+
+    #[test]
+    fn test_template_language_kind_from_raw() {
+        let raw = rowan::SyntaxKind(SyntaxKind::Text as u16);
+        let kind = TemplateLanguage::kind_from_raw(raw);
+        assert_eq!(kind, SyntaxKind::Text);
+    }
+
+    #[test]
+    fn test_template_language_roundtrip() {
+        let original = SyntaxKind::IfKw;
+        let raw = TemplateLanguage::kind_to_raw(original);
+        let recovered = TemplateLanguage::kind_from_raw(raw);
+        assert_eq!(original, recovered);
+    }
+
+    // ==================== Edge Cases ====================
+
+    #[test]
+    fn test_first_token_is_token() {
+        assert!(SyntaxKind::Text.is_token());
+    }
+
+    #[test]
+    fn test_last_token_before_root() {
+        // RustTokens is the last token before composite nodes
+        assert!(SyntaxKind::RustTokens.is_token());
+    }
+
+    #[test]
+    fn test_keyword_categories_are_mutually_exclusive() {
+        // Control keywords should not be directive keywords
+        let control_kws = [
+            SyntaxKind::IfKw,
+            SyntaxKind::ElseKw,
+            SyntaxKind::ForKw,
+            SyntaxKind::WhileKw,
+            SyntaxKind::MatchKw,
+            SyntaxKind::CaseKw,
+        ];
+        for kw in control_kws {
+            assert!(kw.is_control_keyword());
+            assert!(!kw.is_directive_keyword());
+        }
+
+        // Directive keywords should not be control keywords
+        let directive_kws = [
+            SyntaxKind::LetKw,
+            SyntaxKind::DoKw,
+            SyntaxKind::TypeScriptKw,
+            SyntaxKind::MutKw,
+        ];
+        for kw in directive_kws {
+            assert!(kw.is_directive_keyword());
+            assert!(!kw.is_control_keyword());
+        }
     }
 }

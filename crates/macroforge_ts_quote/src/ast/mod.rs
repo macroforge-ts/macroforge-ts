@@ -212,3 +212,247 @@ where
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quote::ToTokens;
+    use rustc_hash::FxHashMap;
+
+    /// Helper to create an empty context for testing
+    fn empty_ctx() -> Ctx {
+        Ctx {
+            vars: FxHashMap::default(),
+        }
+    }
+
+    // ==================== Span Tests ====================
+
+    #[test]
+    fn test_span_to_code() {
+        let cx = empty_ctx();
+        let span = Span::default();
+        let code = span.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("DUMMY_SP"));
+    }
+
+    // ==================== SyntaxContext Tests ====================
+
+    #[test]
+    fn test_syntax_context_to_code() {
+        let cx = empty_ctx();
+        let ctx = SyntaxContext::empty();
+        let code = ctx.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("SyntaxContext"));
+        assert!(code_str.contains("empty"));
+    }
+
+    // ==================== Box<T> Tests ====================
+
+    #[test]
+    fn test_box_to_code() {
+        let cx = empty_ctx();
+        let boxed = Box::new(Span::default());
+        let code = boxed.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        // Token stream adds spaces: "Box :: new"
+        assert!(code_str.contains("Box") && code_str.contains("new"));
+    }
+
+    // ==================== Option<T> Tests ====================
+
+    #[test]
+    fn test_option_some_to_code() {
+        let cx = empty_ctx();
+        let opt = Some(Span::default());
+        let code = opt.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("Some"));
+    }
+
+    #[test]
+    fn test_option_none_to_code() {
+        let cx = empty_ctx();
+        let opt: Option<Span> = None;
+        let code = opt.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert_eq!(code_str.trim(), "None");
+    }
+
+    // ==================== Vec<T> Tests ====================
+
+    #[test]
+    fn test_vec_empty_to_code() {
+        let cx = empty_ctx();
+        let vec: Vec<Span> = vec![];
+        let code = vec.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        // Token stream adds spaces: "Vec :: with_capacity"
+        assert!(code_str.contains("Vec") && code_str.contains("with_capacity"));
+        assert!(code_str.contains("0"));
+    }
+
+    #[test]
+    fn test_vec_single_item_to_code() {
+        let cx = empty_ctx();
+        let vec = vec![Span::default()];
+        let code = vec.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        // Token stream adds spaces: "Vec :: with_capacity"
+        assert!(code_str.contains("Vec") && code_str.contains("with_capacity"));
+        assert!(code_str.contains("push"));
+    }
+
+    #[test]
+    fn test_vec_multiple_items_to_code() {
+        let cx = empty_ctx();
+        let vec = vec![Span::default(), Span::default(), Span::default()];
+        let code = vec.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        // Token stream adds spaces: "Vec :: with_capacity"
+        assert!(code_str.contains("Vec") && code_str.contains("with_capacity"));
+        assert!(code_str.contains("3"));
+    }
+
+    // ==================== Invalid Tests ====================
+
+    #[test]
+    fn test_invalid_to_code() {
+        let cx = empty_ctx();
+        let invalid = Invalid {
+            span: Span::default(),
+        };
+        let code = invalid.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("Invalid"));
+        assert!(code_str.contains("span"));
+    }
+
+    // ==================== ModuleItem Enum Tests ====================
+
+    #[test]
+    fn test_module_item_stmt_to_code() {
+        let cx = empty_ctx();
+        let stmt = Stmt::Empty(EmptyStmt {
+            span: Span::default(),
+        });
+        let module_item = ModuleItem::Stmt(stmt);
+        let code = module_item.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("ModuleItem"));
+        assert!(code_str.contains("Stmt"));
+    }
+
+    // ==================== Lit Enum Tests ====================
+
+    #[test]
+    fn test_lit_bool_to_code() {
+        let cx = empty_ctx();
+        let lit = Lit::Bool(Bool {
+            span: Span::default(),
+            value: true,
+        });
+        let code = lit.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("Lit"));
+        assert!(code_str.contains("Bool"));
+    }
+
+    #[test]
+    fn test_lit_null_to_code() {
+        let cx = empty_ctx();
+        let lit = Lit::Null(Null {
+            span: Span::default(),
+        });
+        let code = lit.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("Lit"));
+        assert!(code_str.contains("Null"));
+    }
+
+    // ==================== Pat Enum Tests ====================
+
+    #[test]
+    fn test_pat_invalid_to_code() {
+        let cx = empty_ctx();
+        let pat = Pat::Invalid(Invalid {
+            span: Span::default(),
+        });
+        let code = pat.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("Pat"));
+        assert!(code_str.contains("Invalid"));
+    }
+
+    // ==================== PropOrSpread Tests ====================
+
+    #[test]
+    fn test_prop_or_spread_spread_to_code() {
+        let cx = empty_ctx();
+        let spread = SpreadElement {
+            dot3_token: Span::default(),
+            expr: Box::new(Expr::Invalid(Invalid {
+                span: Span::default(),
+            })),
+        };
+        let prop = PropOrSpread::Spread(spread);
+        let code = prop.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("PropOrSpread"));
+        assert!(code_str.contains("Spread"));
+    }
+
+    // ==================== BlockStmtOrExpr Tests ====================
+
+    #[test]
+    fn test_block_stmt_or_expr_block_to_code() {
+        let cx = empty_ctx();
+        let block = BlockStmt {
+            span: Span::default(),
+            ctxt: SyntaxContext::empty(),
+            stmts: vec![],
+        };
+        let block_or_expr = BlockStmtOrExpr::BlockStmt(block);
+        let code = block_or_expr.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("BlockStmtOrExpr"));
+        assert!(code_str.contains("BlockStmt"));
+    }
+
+    // ==================== Nested Type Tests ====================
+
+    #[test]
+    fn test_box_option_to_code() {
+        let cx = empty_ctx();
+        let boxed: Box<Option<Span>> = Box::new(Some(Span::default()));
+        let code = boxed.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        // Token stream adds spaces: "Box :: new"
+        assert!(code_str.contains("Box") && code_str.contains("new"));
+        assert!(code_str.contains("Some"));
+    }
+
+    #[test]
+    fn test_option_box_to_code() {
+        let cx = empty_ctx();
+        let opt: Option<Box<Span>> = Some(Box::new(Span::default()));
+        let code = opt.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("Some"));
+        // Token stream adds spaces: "Box :: new"
+        assert!(code_str.contains("Box") && code_str.contains("new"));
+    }
+
+    #[test]
+    fn test_vec_of_options_to_code() {
+        let cx = empty_ctx();
+        let vec: Vec<Option<Span>> = vec![Some(Span::default()), None, Some(Span::default())];
+        let code = vec.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        // Token stream adds spaces: "Vec :: with_capacity"
+        assert!(code_str.contains("Vec") && code_str.contains("with_capacity"));
+        assert!(code_str.contains("3"));
+    }
+}

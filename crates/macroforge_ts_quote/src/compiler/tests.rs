@@ -660,3 +660,250 @@ fn test_optional_parameter_preserved() {
 }"#,
     );
 }
+
+// ==================== Import/Export Tests ====================
+// These tests are designed to find the bug causing slow compilation
+
+#[test]
+fn test_import_named_simple() {
+    test_template(
+        "import_named_simple",
+        r#"import { Component } from "@angular/core";"#,
+    );
+}
+
+#[test]
+fn test_import_named_multiple() {
+    test_template(
+        "import_named_multiple",
+        r#"import { Component, Injectable, OnInit } from "@angular/core";"#,
+    );
+}
+
+#[test]
+fn test_import_default() {
+    test_template(
+        "import_default",
+        r#"import React from "react";"#,
+    );
+}
+
+#[test]
+fn test_import_namespace() {
+    test_template(
+        "import_namespace",
+        r#"import * as fs from "fs";"#,
+    );
+}
+
+#[test]
+fn test_import_default_and_named() {
+    test_template(
+        "import_default_and_named",
+        r#"import React, { useState, useEffect } from "react";"#,
+    );
+}
+
+#[test]
+fn test_import_type_only() {
+    test_template(
+        "import_type_only",
+        r#"import type { User, Config } from "./types";"#,
+    );
+}
+
+#[test]
+fn test_import_with_alias() {
+    test_template(
+        "import_with_alias",
+        r#"import { foo as bar } from "module";"#,
+    );
+}
+
+#[test]
+fn test_import_side_effect() {
+    test_template(
+        "import_side_effect",
+        r#"import "./polyfills";"#,
+    );
+}
+
+#[test]
+fn test_export_named() {
+    test_template(
+        "export_named",
+        r#"export { foo, bar };"#,
+    );
+}
+
+#[test]
+fn test_export_named_with_alias() {
+    test_template(
+        "export_named_with_alias",
+        r#"export { internalName as publicName };"#,
+    );
+}
+
+#[test]
+fn test_export_from() {
+    test_template(
+        "export_from",
+        r#"export { foo, bar } from "./other";"#,
+    );
+}
+
+#[test]
+fn test_export_all() {
+    test_template(
+        "export_all",
+        r#"export * from "./module";"#,
+    );
+}
+
+#[test]
+fn test_export_all_as_namespace() {
+    test_template(
+        "export_all_as_namespace",
+        r#"export * as utils from "./utils";"#,
+    );
+}
+
+#[test]
+fn test_export_default_object() {
+    test_template(
+        "export_default_object",
+        r#"export default { name: "default", value: 42 };"#,
+    );
+}
+
+#[test]
+fn test_export_default_function() {
+    test_template(
+        "export_default_function",
+        r#"export default function handler() { return "handled"; }"#,
+    );
+}
+
+#[test]
+fn test_export_default_class() {
+    test_template(
+        "export_default_class",
+        r#"export default class Component { render() {} }"#,
+    );
+}
+
+#[test]
+fn test_export_type() {
+    test_template(
+        "export_type",
+        r#"export type { User, Config };"#,
+    );
+}
+
+// ==================== Enum Tests ====================
+
+#[test]
+fn test_enum_simple() {
+    test_template(
+        "enum_simple",
+        r#"enum Status { Active, Inactive }"#,
+    );
+}
+
+#[test]
+fn test_enum_with_values() {
+    test_template(
+        "enum_with_values",
+        r#"enum Priority { Low = 0, Medium = 1, High = 2 }"#,
+    );
+}
+
+#[test]
+fn test_enum_string_values() {
+    test_template(
+        "enum_string_values",
+        r#"enum Direction { Up = "UP", Down = "DOWN" }"#,
+    );
+}
+
+#[test]
+fn test_const_enum() {
+    test_template(
+        "const_enum",
+        r#"const enum Color { Red, Green, Blue }"#,
+    );
+}
+
+#[test]
+fn test_exported_enum() {
+    test_template(
+        "exported_enum",
+        r#"export enum Visibility { Public, Private, Protected }"#,
+    );
+}
+
+// ==================== Decorator Tests ====================
+
+#[test]
+fn test_decorator_simple() {
+    test_template(
+        "decorator_simple",
+        r#"@observable
+class Store { value: number; }"#,
+    );
+}
+
+#[test]
+fn test_decorator_with_args() {
+    test_template(
+        "decorator_with_args",
+        r#"@Component({ selector: "app-root" })
+class AppComponent {}"#,
+    );
+}
+
+#[test]
+fn test_decorator_on_method() {
+    test_template(
+        "decorator_on_method",
+        r#"class Controller {
+    @Get("/users")
+    getUsers(): User[] { return []; }
+}"#,
+    );
+}
+
+#[test]
+fn test_decorator_multiple() {
+    test_template(
+        "decorator_multiple",
+        r#"@Injectable()
+@Singleton
+class Service {}"#,
+    );
+}
+
+// ==================== Combined Import/Class Tests ====================
+
+#[test]
+fn test_import_then_class() {
+    test_template(
+        "import_then_class",
+        r#"import { Injectable } from "@angular/core";
+
+@Injectable()
+class UserService {
+    getUsers(): User[] { return []; }
+}"#,
+    );
+}
+
+#[test]
+fn test_multiple_imports() {
+    test_template(
+        "multiple_imports",
+        r#"import { Component } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";"#,
+    );
+}

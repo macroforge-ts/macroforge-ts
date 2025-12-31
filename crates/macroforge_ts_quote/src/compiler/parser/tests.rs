@@ -24,6 +24,11 @@
                  IrNode::For { body, .. } | IrNode::While { body, .. } => {
                      collect_nodes(body, result);
                  }
+                 IrNode::ForInStmt { left, right, body } | IrNode::ForOfStmt { left, right, body, .. } => {
+                     collect_node(left, result);
+                     collect_node(right, result);
+                     collect_node(body, result);
+                 }
                  IrNode::Match { arms, .. } => {
                      for arm in arms {
                          collect_nodes(&arm.body, result);
@@ -628,3 +633,259 @@
              check_no_control_flow_in_raw(node);
          }
      }
+
+    // =========================================================================
+    // For-in / For-of loop tests (Phase 2)
+    // =========================================================================
+
+    #[test]
+    fn test_for_in_stmt() {
+        let ir = parse("for (const key in obj) { console.log(key); }");
+        // For-in should be parsed as ForInStmt
+        let has_for_in = ir.nodes.iter().any(|n| matches!(n, IrNode::ForInStmt { .. }));
+        assert!(has_for_in, "Expected ForInStmt in IR");
+    }
+
+    #[test]
+    fn test_for_of_stmt() {
+        let ir = parse("for (const item of items) { console.log(item); }");
+        // For-of should be parsed as ForOfStmt
+        let has_for_of = ir.nodes.iter().any(|n| matches!(n, IrNode::ForOfStmt { await_: false, .. }));
+        assert!(has_for_of, "Expected ForOfStmt in IR");
+    }
+
+    #[test]
+    fn test_for_await_of_stmt() {
+        let ir = parse("for await (const chunk of stream) { process(chunk); }");
+        // For-await-of should be parsed as ForOfStmt with await_: true
+        let has_for_await_of = ir.nodes.iter().any(|n| matches!(n, IrNode::ForOfStmt { await_: true, .. }));
+        assert!(has_for_await_of, "Expected ForOfStmt with await in IR");
+    }
+
+    #[test]
+    fn test_for_in_with_destructuring() {
+        let ir = parse("for (const [key, value] in obj) { }");
+        let has_for_in = ir.nodes.iter().any(|n| matches!(n, IrNode::ForInStmt { .. }));
+        assert!(has_for_in, "Expected ForInStmt with destructuring in IR");
+    }
+
+    #[test]
+    fn test_for_of_with_placeholder() {
+        let ir = parse("for (const @{name} of @{items}) { @{body} }");
+        let placeholders = find_placeholders(&ir);
+        assert!(placeholders.len() >= 2, "Expected placeholders in for-of loop");
+    }
+
+    // =========================================================================
+    // IndexSignature tests (Phase 9)
+    // =========================================================================
+
+    #[test]
+    fn test_index_signature_basic() {
+        let ir = parse("interface Dict { [key: string]: unknown; }");
+        // Find IndexSignature in interface body
+        fn find_index_signature(node: &IrNode) -> bool {
+            match node {
+                IrNode::InterfaceDecl { body, .. } => {
+                    body.iter().any(|m| matches!(m, IrNode::IndexSignature { .. }))
+                }
+                _ => false,
+            }
+        }
+        let has_index_sig = ir.nodes.iter().any(find_index_signature);
+        assert!(has_index_sig, "Expected IndexSignature in interface");
+    }
+
+    #[test]
+    fn test_index_signature_readonly() {
+        let ir = parse("interface ReadonlyDict { readonly [key: string]: number; }");
+        fn find_readonly_index_signature(node: &IrNode) -> bool {
+            match node {
+                IrNode::InterfaceDecl { body, .. } => {
+                    body.iter().any(|m| matches!(m, IrNode::IndexSignature { readonly: true, .. }))
+                }
+                _ => false,
+            }
+        }
+        let has_readonly = ir.nodes.iter().any(find_readonly_index_signature);
+        assert!(has_readonly, "Expected readonly IndexSignature in interface");
+    }
+
+    #[test]
+    fn test_interface_with_multiple_members() {
+        let ir = parse("interface MyInterface { name: string; [key: string]: unknown; getValue(): number; }");
+        fn count_interface_members(node: &IrNode) -> usize {
+            match node {
+                IrNode::InterfaceDecl { body, .. } => body.len(),
+                _ => 0,
+            }
+        }
+        let member_count: usize = ir.nodes.iter().map(count_interface_members).sum();
+        assert!(member_count >= 3, "Expected at least 3 members in interface, got {}", member_count);
+    }
+
+    // =========================================================================
+    // Destructuring pattern tests (Phase 2/7)
+    // =========================================================================
+
+    #[test]
+    fn test_array_pattern_for_of() {
+        let ir = parse("for (const [a, b] of pairs) { }");
+        // Should parse array destructuring in for-of
+        let has_for_of = ir.nodes.iter().any(|n| matches!(n, IrNode::ForOfStmt { .. }));
+        assert!(has_for_of, "Expected ForOfStmt with array pattern");
+    }
+
+    #[test]
+    fn test_object_pattern_for_of() {
+        let ir = parse("for (const { name, value } of entries) { }");
+        // Should parse object destructuring in for-of
+        let has_for_of = ir.nodes.iter().any(|n| matches!(n, IrNode::ForOfStmt { .. }));
+        assert!(has_for_of, "Expected ForOfStmt with object pattern");
+    }
+
+    #[test]
+    fn test_rest_pattern_in_array() {
+        let ir = parse("for (const [first, ...rest] of arrays) { }");
+        let has_for_of = ir.nodes.iter().any(|n| matches!(n, IrNode::ForOfStmt { .. }));
+        assert!(has_for_of, "Expected ForOfStmt with rest pattern");
+    }
+
+    // =========================================================================
+    // Expression placeholder tests for new expression types
+    // =========================================================================
+
+    #[test]
+    fn test_await_expr_placeholder() {
+        let ir = parse("const result = await @{promise}");
+        let placeholders = find_placeholders(&ir);
+        assert!(!placeholders.is_empty(), "Expected placeholder in await expr");
+    }
+
+    #[test]
+    fn test_as_expr_type_classification() {
+        let ir = parse("const x = value as @{MyType}");
+        let placeholders = find_placeholders(&ir);
+        assert_eq!(placeholders.len(), 1);
+        assert_eq!(placeholders[0].0, PlaceholderKind::Type, "Placeholder after 'as' should be Type");
+    }
+
+    #[test]
+    fn test_satisfies_expr_type_classification() {
+        let ir = parse("const x = value satisfies @{MyType}");
+        let placeholders = find_placeholders(&ir);
+        assert_eq!(placeholders.len(), 1);
+        assert_eq!(placeholders[0].0, PlaceholderKind::Type, "Placeholder after 'satisfies' should be Type");
+    }
+
+    #[test]
+    fn test_non_null_assertion() {
+        // Non-null assertion: value!
+        let ir = parse("const x = value!.prop");
+        assert!(!ir.nodes.is_empty(), "Should parse non-null assertion");
+    }
+
+    // =========================================================================
+    // Type parsing tests (Phase 8)
+    // =========================================================================
+
+    #[test]
+    fn test_intersection_type() {
+        let ir = parse("type Combined = @{A} & @{B}");
+        let placeholders = find_placeholders(&ir);
+        // Should find placeholders in type alias
+        assert!(placeholders.len() >= 2, "Expected at least 2 placeholders, got {}", placeholders.len());
+    }
+
+    #[test]
+    fn test_tuple_type() {
+        let ir = parse("type Pair = [@{First}, @{Second}]");
+        let placeholders = find_placeholders(&ir);
+        assert_eq!(placeholders.len(), 2);
+    }
+
+    #[test]
+    fn test_keyof_type() {
+        let ir = parse("type Keys = keyof @{T}");
+        let placeholders = find_placeholders(&ir);
+        assert_eq!(placeholders.len(), 1);
+        assert_eq!(placeholders[0].0, PlaceholderKind::Type);
+    }
+
+    #[test]
+    fn test_typeof_type() {
+        let ir = parse("type TypeOfX = typeof x");
+        // Should parse typeof as a type
+        assert!(!ir.nodes.is_empty());
+    }
+
+    #[test]
+    fn test_mapped_type() {
+        let ir = parse("type Readonly<T> = { readonly [K in keyof T]: T[K] }");
+        // Should parse mapped type syntax
+        assert!(!ir.nodes.is_empty());
+    }
+
+    // =========================================================================
+    // Object literal property tests (Phase 6)
+    // =========================================================================
+
+    #[test]
+    fn test_getter_in_object() {
+        let ir = parse("const obj = { get @{name}() { return value; } }");
+        let placeholders = find_placeholders(&ir);
+        assert!(!placeholders.is_empty(), "Expected placeholder in getter name");
+    }
+
+    #[test]
+    fn test_setter_in_object() {
+        let ir = parse("const obj = { set @{name}(value) { } }");
+        let placeholders = find_placeholders(&ir);
+        assert!(!placeholders.is_empty(), "Expected placeholder in setter name");
+    }
+
+    #[test]
+    fn test_method_in_object() {
+        let ir = parse("const obj = { @{name}() { return 42; } }");
+        let placeholders = find_placeholders(&ir);
+        assert!(!placeholders.is_empty(), "Expected placeholder in method name");
+    }
+
+    // =========================================================================
+    // Complex expression tests (Phase 5)
+    // =========================================================================
+
+    #[test]
+    fn test_paren_expr() {
+        let ir = parse("const x = (@{a} + @{b})");
+        let placeholders = find_placeholders(&ir);
+        assert_eq!(placeholders.len(), 2);
+    }
+
+    #[test]
+    fn test_seq_expr() {
+        let ir = parse("const x = (@{a}, @{b}, @{c})");
+        let placeholders = find_placeholders(&ir);
+        assert_eq!(placeholders.len(), 3);
+    }
+
+    #[test]
+    fn test_tagged_template() {
+        let ir = parse("const x = @{tag}`hello ${@{name}}`");
+        let placeholders = find_placeholders(&ir);
+        assert!(placeholders.len() >= 2, "Expected placeholders in tagged template");
+    }
+
+    #[test]
+    fn test_class_expression() {
+        let ir = parse("const MyClass = class { constructor() {} }");
+        // Should parse class expression
+        assert!(!ir.nodes.is_empty());
+    }
+
+    #[test]
+    fn test_function_expression() {
+        let ir = parse("const fn = function(@{param}) { return @{result}; }");
+        let placeholders = find_placeholders(&ir);
+        assert!(placeholders.len() >= 2, "Expected placeholders in function expression");
+    }

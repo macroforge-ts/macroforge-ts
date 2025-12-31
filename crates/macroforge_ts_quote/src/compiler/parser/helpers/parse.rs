@@ -113,6 +113,12 @@ impl Parser {
 
             if let Some(param) = self.parse_param() {
                 params.push(param);
+            } else {
+                // If parse_param returns None, advance to prevent infinite loop
+                // This can happen with unexpected tokens like string literals in param position
+                if !self.at(SyntaxKind::RParen) && !self.at(SyntaxKind::Comma) {
+                    self.advance();
+                }
             }
 
             self.skip_whitespace();

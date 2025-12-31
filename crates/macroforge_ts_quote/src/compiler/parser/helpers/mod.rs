@@ -66,6 +66,27 @@ impl Parser {
         )
     }
 
+    /// Check if `const` is followed by `enum` (for `const enum` declarations)
+    pub(super) fn peek_is_enum(&self) -> bool {
+        // We're at `const` - look ahead for `enum`
+        let mut lookahead_pos = self.pos + 1;
+
+        // Skip whitespace
+        while lookahead_pos < self.tokens.len() {
+            if self.tokens[lookahead_pos].kind == SyntaxKind::Whitespace {
+                lookahead_pos += 1;
+            } else {
+                break;
+            }
+        }
+
+        if lookahead_pos >= self.tokens.len() {
+            return false;
+        }
+
+        self.tokens[lookahead_pos].kind == SyntaxKind::EnumKw
+    }
+
     pub(super) fn placeholder_kind(&self) -> PlaceholderKind {
         let ctx = self.current_context();
         let kind = match ctx {

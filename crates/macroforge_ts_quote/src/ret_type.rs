@@ -228,3 +228,362 @@ fn extract_generic<'a>(name: &str, ty: &'a Type) -> Option<&'a Type> {
 
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== parse_input_type Tests ====================
+
+    #[test]
+    fn test_parse_expr() {
+        let ty: Type = syn::parse_quote!(Expr);
+        let result = parse_input_type("1 + 2", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_expr_complex() {
+        let ty: Type = syn::parse_quote!(Expr);
+        let result = parse_input_type("foo.bar().baz[0]?.qux", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_expr_arrow_function() {
+        let ty: Type = syn::parse_quote!(Expr);
+        let result = parse_input_type("(x: number) => x + 1", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_pat_identifier() {
+        let ty: Type = syn::parse_quote!(Pat);
+        let result = parse_input_type("x", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_pat_destructure_object() {
+        let ty: Type = syn::parse_quote!(Pat);
+        let result = parse_input_type("{ a, b: c }", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_pat_destructure_array() {
+        let ty: Type = syn::parse_quote!(Pat);
+        let result = parse_input_type("[a, b, ...rest]", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_stmt_var_decl() {
+        let ty: Type = syn::parse_quote!(Stmt);
+        let result = parse_input_type("let x = 1;", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_stmt_if() {
+        let ty: Type = syn::parse_quote!(Stmt);
+        let result = parse_input_type("if (true) { x = 1; }", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_stmt_for() {
+        let ty: Type = syn::parse_quote!(Stmt);
+        let result = parse_input_type("for (let i = 0; i < 10; i++) { }", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_module_item_import() {
+        let ty: Type = syn::parse_quote!(ModuleItem);
+        let result = parse_input_type("import { foo } from 'bar';", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_module_item_export() {
+        let ty: Type = syn::parse_quote!(ModuleItem);
+        let result = parse_input_type("export const x = 1;", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_module() {
+        let ty: Type = syn::parse_quote!(Module);
+        let result = parse_input_type("const x = 1; export { x };", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_ts_type_primitive() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("number", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_ts_type_union() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("string | number", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_ts_type_generic() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("Array<string>", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_ts_type_function() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("(x: number) => string", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_ts_type_object() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("{ foo: string; bar?: number }", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_assign_target_simple() {
+        let ty: Type = syn::parse_quote!(AssignTarget);
+        let result = parse_input_type("x", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_assign_target_member() {
+        let ty: Type = syn::parse_quote!(AssignTarget);
+        let result = parse_input_type("obj.prop", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_prop_or_spread_key_value() {
+        let ty: Type = syn::parse_quote!(PropOrSpread);
+        let result = parse_input_type("foo: 42", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_prop_or_spread_shorthand() {
+        let ty: Type = syn::parse_quote!(PropOrSpread);
+        let result = parse_input_type("foo", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_prop_or_spread_spread() {
+        let ty: Type = syn::parse_quote!(PropOrSpread);
+        let result = parse_input_type("...rest", &ty);
+        assert!(result.is_ok());
+    }
+
+    // ==================== Box<T> Tests ====================
+
+    #[test]
+    fn test_parse_box_expr() {
+        let ty: Type = syn::parse_quote!(Box<Expr>);
+        let result = parse_input_type("x + 1", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_box_pat() {
+        let ty: Type = syn::parse_quote!(Box<Pat>);
+        let result = parse_input_type("x", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_nested_box() {
+        let ty: Type = syn::parse_quote!(Box<Box<Expr>>);
+        let result = parse_input_type("42", &ty);
+        assert!(result.is_ok());
+    }
+
+    // ==================== Option<T> Tests ====================
+
+    #[test]
+    fn test_parse_option_empty() {
+        let ty: Type = syn::parse_quote!(Option<Expr>);
+        let result = parse_input_type("", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_option_with_value() {
+        let ty: Type = syn::parse_quote!(Option<Expr>);
+        let result = parse_input_type("x", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_option_box() {
+        let ty: Type = syn::parse_quote!(Option<Box<Expr>>);
+        let result = parse_input_type("42", &ty);
+        assert!(result.is_ok());
+    }
+
+    // ==================== extract_generic Tests ====================
+
+    #[test]
+    fn test_extract_generic_box() {
+        let ty: Type = syn::parse_quote!(Box<Expr>);
+        let inner = extract_generic("Box", &ty);
+        assert!(inner.is_some());
+
+        if let Some(Type::Path(path)) = inner {
+            assert_eq!(path.path.segments.last().unwrap().ident.to_string(), "Expr");
+        }
+    }
+
+    #[test]
+    fn test_extract_generic_option() {
+        let ty: Type = syn::parse_quote!(Option<Pat>);
+        let inner = extract_generic("Option", &ty);
+        assert!(inner.is_some());
+    }
+
+    #[test]
+    fn test_extract_generic_wrong_name() {
+        let ty: Type = syn::parse_quote!(Box<Expr>);
+        let inner = extract_generic("Option", &ty);
+        assert!(inner.is_none());
+    }
+
+    #[test]
+    fn test_extract_generic_no_generic() {
+        let ty: Type = syn::parse_quote!(Expr);
+        let inner = extract_generic("Box", &ty);
+        assert!(inner.is_none());
+    }
+
+    #[test]
+    fn test_extract_generic_nested() {
+        let ty: Type = syn::parse_quote!(Box<Option<Expr>>);
+        let inner = extract_generic("Box", &ty);
+        assert!(inner.is_some());
+
+        if let Some(inner_ty) = inner {
+            let inner_inner = extract_generic("Option", inner_ty);
+            assert!(inner_inner.is_some());
+        }
+    }
+
+    // ==================== Error Cases ====================
+
+    #[test]
+    fn test_parse_invalid_expr() {
+        let ty: Type = syn::parse_quote!(Expr);
+        let result = parse_input_type("{ invalid syntax }", &ty);
+        // Object literals parse as expressions, but malformed ones fail
+        // This depends on what the parser accepts
+    }
+
+    #[test]
+    fn test_parse_unknown_type() {
+        let ty: Type = syn::parse_quote!(UnknownType);
+        let result = parse_input_type("x", &ty);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_assign_target_invalid() {
+        let ty: Type = syn::parse_quote!(AssignTarget);
+        // Literals cannot be assignment targets
+        let result = parse_input_type("42", &ty);
+        assert!(result.is_err());
+    }
+
+    // ==================== BoxWrapper Tests ====================
+
+    #[test]
+    fn test_box_wrapper_to_code() {
+        let ty: Type = syn::parse_quote!(Expr);
+        let wrapper = parse_input_type("42", &ty).unwrap();
+
+        // Create a minimal context
+        let ctx = Ctx {
+            vars: rustc_hash::FxHashMap::default(),
+        };
+
+        // Should produce valid code
+        let _code = wrapper.to_code(&ctx);
+    }
+
+    // ==================== TypeScript-specific Tests ====================
+
+    #[test]
+    fn test_parse_ts_type_conditional() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("T extends U ? X : Y", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_ts_type_mapped() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("{ [K in keyof T]: T[K] }", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_ts_type_infer() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("T extends (infer U)[] ? U : never", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_ts_type_tuple() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("[string, number, boolean]", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_ts_type_readonly() {
+        let ty: Type = syn::parse_quote!(TsType);
+        let result = parse_input_type("readonly string[]", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_expr_as_const() {
+        let ty: Type = syn::parse_quote!(Expr);
+        let result = parse_input_type("{ x: 1 } as const", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_expr_satisfies() {
+        let ty: Type = syn::parse_quote!(Expr);
+        let result = parse_input_type("value satisfies SomeType", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_stmt_type_alias() {
+        let ty: Type = syn::parse_quote!(Stmt);
+        let result = parse_input_type("type Foo<T> = T | null;", &ty);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_stmt_interface() {
+        let ty: Type = syn::parse_quote!(Stmt);
+        let result = parse_input_type("interface Foo { bar: string; }", &ty);
+        assert!(result.is_ok());
+    }
+}

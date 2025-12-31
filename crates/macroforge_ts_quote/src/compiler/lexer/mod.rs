@@ -231,6 +231,27 @@ impl Lexer {
             return SyntaxKind::JsDocClose;
         }
 
+        // Check for multi-character operators first (before single-char matching)
+        if remaining.starts_with("...") {
+            self.advance(3);
+            return SyntaxKind::DotDotDot;
+        }
+
+        if remaining.starts_with("?.") {
+            self.advance(2);
+            return SyntaxKind::QuestionDot;
+        }
+
+        if remaining.starts_with("++") {
+            self.advance(2);
+            return SyntaxKind::PlusPlus;
+        }
+
+        if remaining.starts_with("--") {
+            self.advance(2);
+            return SyntaxKind::MinusMinus;
+        }
+
         // Check for TypeScript keywords (for type position detection)
         if let Some(kw) = self.try_lex_ts_keyword() {
             kw
@@ -294,6 +315,22 @@ impl Lexer {
                     self.advance(1);
                     SyntaxKind::Dot
                 }
+                '*' => {
+                    self.advance(1);
+                    SyntaxKind::Star
+                }
+                '#' => {
+                    self.advance(1);
+                    SyntaxKind::Hash
+                }
+                '!' => {
+                    self.advance(1);
+                    SyntaxKind::Exclaim
+                }
+                '&' => {
+                    self.advance(1);
+                    SyntaxKind::Ampersand
+                }
                 '"' => {
                     self.advance(1);
                     self.push_mode(LexerMode::StringLiteral);
@@ -309,9 +346,21 @@ impl Lexer {
                     SyntaxKind::Backtick
                 }
                 '@' => {
-                    // Single @ not followed by { - just text
-                    self.advance(1);
-                    SyntaxKind::Text
+                    // Check what follows @ (note: @{ is handled earlier in this function)
+                    // Look at the character after @
+                    let after_at = self.input.get(self.pos + 1..).and_then(|s| s.chars().next());
+                    match after_at {
+                        Some(c) if c.is_alphabetic() || c == '_' => {
+                            // `@identifier` - TypeScript decorator
+                            self.advance(1);
+                            SyntaxKind::DecoratorAt
+                        }
+                        _ => {
+                            // Single @ not followed by identifier - just text
+                            self.advance(1);
+                            SyntaxKind::Text
+                        }
+                    }
                 }
                 _ if c.is_whitespace() => {
                     self.consume_while(|c| c.is_whitespace());

@@ -189,6 +189,7 @@ pub enum IrNode {
         exported: bool,
         declare: bool,
         abstract_: bool,
+        decorators: Vec<IrNode>,
         name: Box<IrNode>,
         type_params: Option<Box<IrNode>>,
         extends: Option<Box<IrNode>>,
@@ -998,5 +999,705 @@ impl Ir {
 impl Default for Ir {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ==================== PlaceholderKind Tests ====================
+
+    #[test]
+    fn test_placeholder_kind_debug() {
+        let kind = PlaceholderKind::Expr;
+        assert_eq!(format!("{:?}", kind), "Expr");
+    }
+
+    #[test]
+    fn test_placeholder_kind_clone() {
+        let kind = PlaceholderKind::Type;
+        let cloned = kind.clone();
+        assert_eq!(kind, cloned);
+    }
+
+    #[test]
+    fn test_placeholder_kind_equality() {
+        assert_eq!(PlaceholderKind::Expr, PlaceholderKind::Expr);
+        assert_eq!(PlaceholderKind::Type, PlaceholderKind::Type);
+        assert_eq!(PlaceholderKind::Ident, PlaceholderKind::Ident);
+        assert_eq!(PlaceholderKind::Stmt, PlaceholderKind::Stmt);
+        assert_ne!(PlaceholderKind::Expr, PlaceholderKind::Type);
+    }
+
+    #[test]
+    fn test_placeholder_kind_copy() {
+        let kind = PlaceholderKind::Stmt;
+        let copied: PlaceholderKind = kind; // Copy
+        assert_eq!(kind, copied);
+    }
+
+    // ==================== VarKind Tests ====================
+
+    #[test]
+    fn test_var_kind_debug() {
+        assert_eq!(format!("{:?}", VarKind::Const), "Const");
+        assert_eq!(format!("{:?}", VarKind::Let), "Let");
+        assert_eq!(format!("{:?}", VarKind::Var), "Var");
+    }
+
+    #[test]
+    fn test_var_kind_equality() {
+        assert_eq!(VarKind::Const, VarKind::Const);
+        assert_ne!(VarKind::Const, VarKind::Let);
+        assert_ne!(VarKind::Let, VarKind::Var);
+    }
+
+    // ==================== Accessibility Tests ====================
+
+    #[test]
+    fn test_accessibility_debug() {
+        assert_eq!(format!("{:?}", Accessibility::Public), "Public");
+        assert_eq!(format!("{:?}", Accessibility::Private), "Private");
+        assert_eq!(format!("{:?}", Accessibility::Protected), "Protected");
+    }
+
+    #[test]
+    fn test_accessibility_equality() {
+        assert_eq!(Accessibility::Public, Accessibility::Public);
+        assert_ne!(Accessibility::Public, Accessibility::Private);
+    }
+
+    // ==================== MethodKind Tests ====================
+
+    #[test]
+    fn test_method_kind_debug() {
+        assert_eq!(format!("{:?}", MethodKind::Method), "Method");
+        assert_eq!(format!("{:?}", MethodKind::Getter), "Getter");
+        assert_eq!(format!("{:?}", MethodKind::Setter), "Setter");
+    }
+
+    #[test]
+    fn test_method_kind_equality() {
+        assert_eq!(MethodKind::Getter, MethodKind::Getter);
+        assert_ne!(MethodKind::Getter, MethodKind::Setter);
+    }
+
+    // ==================== BinaryOp Tests ====================
+
+    #[test]
+    fn test_binary_op_debug() {
+        assert_eq!(format!("{:?}", BinaryOp::Add), "Add");
+        assert_eq!(format!("{:?}", BinaryOp::Sub), "Sub");
+        assert_eq!(format!("{:?}", BinaryOp::EqEqEq), "EqEqEq");
+    }
+
+    #[test]
+    fn test_binary_op_equality() {
+        assert_eq!(BinaryOp::Add, BinaryOp::Add);
+        assert_ne!(BinaryOp::Add, BinaryOp::Sub);
+    }
+
+    #[test]
+    fn test_binary_op_all_variants() {
+        // Test that all variants exist and are distinct
+        let ops = vec![
+            BinaryOp::Add,
+            BinaryOp::Sub,
+            BinaryOp::Mul,
+            BinaryOp::Div,
+            BinaryOp::Mod,
+            BinaryOp::Exp,
+            BinaryOp::EqEq,
+            BinaryOp::NotEq,
+            BinaryOp::EqEqEq,
+            BinaryOp::NotEqEq,
+            BinaryOp::Lt,
+            BinaryOp::Le,
+            BinaryOp::Gt,
+            BinaryOp::Ge,
+            BinaryOp::And,
+            BinaryOp::Or,
+            BinaryOp::NullishCoalesce,
+            BinaryOp::BitAnd,
+            BinaryOp::BitOr,
+            BinaryOp::BitXor,
+            BinaryOp::Shl,
+            BinaryOp::Shr,
+            BinaryOp::UShr,
+            BinaryOp::In,
+            BinaryOp::InstanceOf,
+        ];
+        assert_eq!(ops.len(), 25);
+    }
+
+    // ==================== AssignOp Tests ====================
+
+    #[test]
+    fn test_assign_op_debug() {
+        assert_eq!(format!("{:?}", AssignOp::Assign), "Assign");
+        assert_eq!(format!("{:?}", AssignOp::AddAssign), "AddAssign");
+    }
+
+    #[test]
+    fn test_assign_op_equality() {
+        assert_eq!(AssignOp::Assign, AssignOp::Assign);
+        assert_ne!(AssignOp::Assign, AssignOp::AddAssign);
+    }
+
+    // ==================== UnaryOp Tests ====================
+
+    #[test]
+    fn test_unary_op_debug() {
+        assert_eq!(format!("{:?}", UnaryOp::Minus), "Minus");
+        assert_eq!(format!("{:?}", UnaryOp::Not), "Not");
+        assert_eq!(format!("{:?}", UnaryOp::TypeOf), "TypeOf");
+    }
+
+    #[test]
+    fn test_unary_op_equality() {
+        assert_eq!(UnaryOp::Minus, UnaryOp::Minus);
+        assert_ne!(UnaryOp::Minus, UnaryOp::Plus);
+    }
+
+    // ==================== UpdateOp Tests ====================
+
+    #[test]
+    fn test_update_op_debug() {
+        assert_eq!(format!("{:?}", UpdateOp::Increment), "Increment");
+        assert_eq!(format!("{:?}", UpdateOp::Decrement), "Decrement");
+    }
+
+    #[test]
+    fn test_update_op_equality() {
+        assert_eq!(UpdateOp::Increment, UpdateOp::Increment);
+        assert_ne!(UpdateOp::Increment, UpdateOp::Decrement);
+    }
+
+    // ==================== TsKeyword Tests ====================
+
+    #[test]
+    fn test_ts_keyword_debug() {
+        assert_eq!(format!("{:?}", TsKeyword::String), "String");
+        assert_eq!(format!("{:?}", TsKeyword::Number), "Number");
+        assert_eq!(format!("{:?}", TsKeyword::Boolean), "Boolean");
+    }
+
+    #[test]
+    fn test_ts_keyword_all_variants() {
+        let keywords = vec![
+            TsKeyword::Any,
+            TsKeyword::Unknown,
+            TsKeyword::String,
+            TsKeyword::Number,
+            TsKeyword::Boolean,
+            TsKeyword::Void,
+            TsKeyword::Null,
+            TsKeyword::Undefined,
+            TsKeyword::Never,
+            TsKeyword::Object,
+            TsKeyword::BigInt,
+            TsKeyword::Symbol,
+        ];
+        assert_eq!(keywords.len(), 12);
+    }
+
+    // ==================== IrNode Tests ====================
+
+    #[test]
+    fn test_ir_node_ident() {
+        let node = IrNode::Ident("foo".to_string());
+        assert!(matches!(node, IrNode::Ident(s) if s == "foo"));
+    }
+
+    #[test]
+    fn test_ir_node_str_lit() {
+        let node = IrNode::StrLit("hello".to_string());
+        assert!(matches!(node, IrNode::StrLit(s) if s == "hello"));
+    }
+
+    #[test]
+    fn test_ir_node_num_lit() {
+        let node = IrNode::NumLit("42".to_string());
+        assert!(matches!(node, IrNode::NumLit(s) if s == "42"));
+    }
+
+    #[test]
+    fn test_ir_node_bool_lit() {
+        let true_node = IrNode::BoolLit(true);
+        let false_node = IrNode::BoolLit(false);
+        assert!(matches!(true_node, IrNode::BoolLit(true)));
+        assert!(matches!(false_node, IrNode::BoolLit(false)));
+    }
+
+    #[test]
+    fn test_ir_node_null_lit() {
+        let node = IrNode::NullLit;
+        assert!(matches!(node, IrNode::NullLit));
+    }
+
+    #[test]
+    fn test_ir_node_this_expr() {
+        let node = IrNode::ThisExpr;
+        assert!(matches!(node, IrNode::ThisExpr));
+    }
+
+    #[test]
+    fn test_ir_node_super_expr() {
+        let node = IrNode::SuperExpr;
+        assert!(matches!(node, IrNode::SuperExpr));
+    }
+
+    #[test]
+    fn test_ir_node_empty_stmt() {
+        let node = IrNode::EmptyStmt;
+        assert!(matches!(node, IrNode::EmptyStmt));
+    }
+
+    #[test]
+    fn test_ir_node_block_stmt() {
+        let node = IrNode::BlockStmt { stmts: vec![] };
+        assert!(matches!(node, IrNode::BlockStmt { stmts } if stmts.is_empty()));
+    }
+
+    #[test]
+    fn test_ir_node_expr_stmt() {
+        let node = IrNode::ExprStmt {
+            expr: Box::new(IrNode::Ident("x".to_string())),
+        };
+        assert!(matches!(node, IrNode::ExprStmt { .. }));
+    }
+
+    #[test]
+    fn test_ir_node_return_stmt_with_arg() {
+        let node = IrNode::ReturnStmt {
+            arg: Some(Box::new(IrNode::NumLit("42".to_string()))),
+        };
+        assert!(matches!(node, IrNode::ReturnStmt { arg: Some(_) }));
+    }
+
+    #[test]
+    fn test_ir_node_return_stmt_without_arg() {
+        let node = IrNode::ReturnStmt { arg: None };
+        assert!(matches!(node, IrNode::ReturnStmt { arg: None }));
+    }
+
+    #[test]
+    fn test_ir_node_throw_stmt() {
+        let node = IrNode::ThrowStmt {
+            arg: Box::new(IrNode::StrLit("error".to_string())),
+        };
+        assert!(matches!(node, IrNode::ThrowStmt { .. }));
+    }
+
+    #[test]
+    fn test_ir_node_bin_expr() {
+        let node = IrNode::BinExpr {
+            left: Box::new(IrNode::NumLit("1".to_string())),
+            op: BinaryOp::Add,
+            right: Box::new(IrNode::NumLit("2".to_string())),
+        };
+        assert!(matches!(node, IrNode::BinExpr { op: BinaryOp::Add, .. }));
+    }
+
+    #[test]
+    fn test_ir_node_unary_expr() {
+        let node = IrNode::UnaryExpr {
+            op: UnaryOp::Minus,
+            arg: Box::new(IrNode::NumLit("5".to_string())),
+        };
+        assert!(matches!(node, IrNode::UnaryExpr { op: UnaryOp::Minus, .. }));
+    }
+
+    #[test]
+    fn test_ir_node_call_expr() {
+        let node = IrNode::CallExpr {
+            callee: Box::new(IrNode::Ident("foo".to_string())),
+            type_args: None,
+            args: vec![IrNode::NumLit("1".to_string())],
+        };
+        assert!(matches!(node, IrNode::CallExpr { .. }));
+    }
+
+    #[test]
+    fn test_ir_node_new_expr() {
+        let node = IrNode::NewExpr {
+            callee: Box::new(IrNode::Ident("MyClass".to_string())),
+            type_args: None,
+            args: vec![],
+        };
+        assert!(matches!(node, IrNode::NewExpr { .. }));
+    }
+
+    #[test]
+    fn test_ir_node_member_expr() {
+        let node = IrNode::MemberExpr {
+            obj: Box::new(IrNode::Ident("obj".to_string())),
+            prop: Box::new(IrNode::Ident("prop".to_string())),
+            computed: false,
+        };
+        assert!(matches!(node, IrNode::MemberExpr { computed: false, .. }));
+    }
+
+    #[test]
+    fn test_ir_node_object_lit() {
+        let node = IrNode::ObjectLit { props: vec![] };
+        assert!(matches!(node, IrNode::ObjectLit { props } if props.is_empty()));
+    }
+
+    #[test]
+    fn test_ir_node_array_lit() {
+        let node = IrNode::ArrayLit {
+            elems: vec![IrNode::NumLit("1".to_string())],
+        };
+        assert!(matches!(node, IrNode::ArrayLit { elems } if elems.len() == 1));
+    }
+
+    #[test]
+    fn test_ir_node_arrow_expr() {
+        let node = IrNode::ArrowExpr {
+            async_: false,
+            type_params: None,
+            params: vec![],
+            return_type: None,
+            body: Box::new(IrNode::NumLit("42".to_string())),
+        };
+        assert!(matches!(node, IrNode::ArrowExpr { async_: false, .. }));
+    }
+
+    #[test]
+    fn test_ir_node_cond_expr() {
+        let node = IrNode::CondExpr {
+            test: Box::new(IrNode::BoolLit(true)),
+            cons: Box::new(IrNode::NumLit("1".to_string())),
+            alt: Box::new(IrNode::NumLit("2".to_string())),
+        };
+        assert!(matches!(node, IrNode::CondExpr { .. }));
+    }
+
+    #[test]
+    fn test_ir_node_keyword_type() {
+        let node = IrNode::KeywordType(TsKeyword::String);
+        assert!(matches!(node, IrNode::KeywordType(TsKeyword::String)));
+    }
+
+    #[test]
+    fn test_ir_node_union_type() {
+        let node = IrNode::UnionType {
+            types: vec![
+                IrNode::KeywordType(TsKeyword::String),
+                IrNode::KeywordType(TsKeyword::Number),
+            ],
+        };
+        assert!(matches!(node, IrNode::UnionType { types } if types.len() == 2));
+    }
+
+    #[test]
+    fn test_ir_node_array_type() {
+        let node = IrNode::ArrayType {
+            elem: Box::new(IrNode::KeywordType(TsKeyword::Number)),
+        };
+        assert!(matches!(node, IrNode::ArrayType { .. }));
+    }
+
+    #[test]
+    fn test_ir_node_var_decl() {
+        let node = IrNode::VarDecl {
+            exported: false,
+            declare: false,
+            kind: VarKind::Const,
+            decls: vec![],
+        };
+        assert!(matches!(node, IrNode::VarDecl { kind: VarKind::Const, .. }));
+    }
+
+    #[test]
+    fn test_ir_node_fn_decl() {
+        let node = IrNode::FnDecl {
+            exported: false,
+            declare: false,
+            async_: true,
+            generator: false,
+            name: Box::new(IrNode::Ident("myFn".to_string())),
+            type_params: None,
+            params: vec![],
+            return_type: None,
+            body: Some(Box::new(IrNode::BlockStmt { stmts: vec![] })),
+        };
+        assert!(matches!(node, IrNode::FnDecl { async_: true, .. }));
+    }
+
+    #[test]
+    fn test_ir_node_class_decl() {
+        let node = IrNode::ClassDecl {
+            exported: false,
+            declare: false,
+            abstract_: false,
+            decorators: vec![],
+            name: Box::new(IrNode::Ident("MyClass".to_string())),
+            type_params: None,
+            extends: None,
+            implements: vec![],
+            body: vec![],
+        };
+        assert!(matches!(node, IrNode::ClassDecl { abstract_: false, .. }));
+    }
+
+    #[test]
+    fn test_ir_node_interface_decl() {
+        let node = IrNode::InterfaceDecl {
+            exported: true,
+            declare: false,
+            name: Box::new(IrNode::Ident("MyInterface".to_string())),
+            type_params: None,
+            extends: vec![],
+            body: vec![],
+        };
+        assert!(matches!(node, IrNode::InterfaceDecl { exported: true, .. }));
+    }
+
+    #[test]
+    fn test_ir_node_type_alias_decl() {
+        let node = IrNode::TypeAliasDecl {
+            exported: false,
+            declare: false,
+            name: Box::new(IrNode::Ident("MyType".to_string())),
+            type_params: None,
+            type_ann: Box::new(IrNode::KeywordType(TsKeyword::String)),
+        };
+        assert!(matches!(node, IrNode::TypeAliasDecl { .. }));
+    }
+
+    #[test]
+    fn test_ir_node_clone() {
+        let node = IrNode::Ident("test".to_string());
+        let cloned = node.clone();
+        assert!(matches!(cloned, IrNode::Ident(s) if s == "test"));
+    }
+
+    // ==================== VarDeclarator Tests ====================
+
+    #[test]
+    fn test_var_declarator_basic() {
+        let decl = VarDeclarator {
+            name: Box::new(IrNode::Ident("x".to_string())),
+            type_ann: None,
+            init: None,
+            definite: false,
+        };
+        assert!(!decl.definite);
+        assert!(decl.init.is_none());
+        assert!(decl.type_ann.is_none());
+    }
+
+    #[test]
+    fn test_var_declarator_with_init() {
+        let decl = VarDeclarator {
+            name: Box::new(IrNode::Ident("x".to_string())),
+            type_ann: None,
+            init: Some(Box::new(IrNode::NumLit("42".to_string()))),
+            definite: false,
+        };
+        assert!(decl.init.is_some());
+    }
+
+    #[test]
+    fn test_var_declarator_with_type() {
+        let decl = VarDeclarator {
+            name: Box::new(IrNode::Ident("x".to_string())),
+            type_ann: Some(Box::new(IrNode::KeywordType(TsKeyword::Number))),
+            init: None,
+            definite: true,
+        };
+        assert!(decl.type_ann.is_some());
+        assert!(decl.definite);
+    }
+
+    #[test]
+    fn test_var_declarator_clone() {
+        let decl = VarDeclarator {
+            name: Box::new(IrNode::Ident("x".to_string())),
+            type_ann: None,
+            init: None,
+            definite: false,
+        };
+        let cloned = decl.clone();
+        assert!(!cloned.definite);
+    }
+
+    // ==================== MatchArm Tests ====================
+
+    #[test]
+    fn test_match_arm_basic() {
+        let arm = MatchArm {
+            pattern: TokenStream::new(),
+            guard: None,
+            body: vec![],
+        };
+        assert!(arm.guard.is_none());
+        assert!(arm.body.is_empty());
+    }
+
+    #[test]
+    fn test_match_arm_with_guard() {
+        let arm = MatchArm {
+            pattern: TokenStream::new(),
+            guard: Some(TokenStream::new()),
+            body: vec![IrNode::ReturnStmt { arg: None }],
+        };
+        assert!(arm.guard.is_some());
+        assert_eq!(arm.body.len(), 1);
+    }
+
+    #[test]
+    fn test_match_arm_clone() {
+        let arm = MatchArm {
+            pattern: TokenStream::new(),
+            guard: None,
+            body: vec![],
+        };
+        let cloned = arm.clone();
+        assert!(cloned.guard.is_none());
+    }
+
+    // ==================== Ir Tests ====================
+
+    #[test]
+    fn test_ir_new() {
+        let ir = Ir::new();
+        assert!(ir.nodes.is_empty());
+    }
+
+    #[test]
+    fn test_ir_default() {
+        let ir = Ir::default();
+        assert!(ir.nodes.is_empty());
+    }
+
+    #[test]
+    fn test_ir_with_nodes() {
+        let nodes = vec![
+            IrNode::Ident("foo".to_string()),
+            IrNode::NumLit("42".to_string()),
+        ];
+        let ir = Ir::with_nodes(nodes);
+        assert_eq!(ir.nodes.len(), 2);
+    }
+
+    #[test]
+    fn test_ir_with_empty_nodes() {
+        let ir = Ir::with_nodes(vec![]);
+        assert!(ir.nodes.is_empty());
+    }
+
+    #[test]
+    fn test_ir_debug() {
+        let ir = Ir::new();
+        let debug_str = format!("{:?}", ir);
+        assert!(debug_str.contains("Ir"));
+        assert!(debug_str.contains("nodes"));
+    }
+
+    // ==================== Complex Node Structure Tests ====================
+
+    #[test]
+    fn test_nested_member_expr() {
+        // obj.foo.bar
+        let node = IrNode::MemberExpr {
+            obj: Box::new(IrNode::MemberExpr {
+                obj: Box::new(IrNode::Ident("obj".to_string())),
+                prop: Box::new(IrNode::Ident("foo".to_string())),
+                computed: false,
+            }),
+            prop: Box::new(IrNode::Ident("bar".to_string())),
+            computed: false,
+        };
+        assert!(matches!(node, IrNode::MemberExpr { .. }));
+    }
+
+    #[test]
+    fn test_call_with_args() {
+        // foo(1, "hello", true)
+        let node = IrNode::CallExpr {
+            callee: Box::new(IrNode::Ident("foo".to_string())),
+            type_args: None,
+            args: vec![
+                IrNode::NumLit("1".to_string()),
+                IrNode::StrLit("hello".to_string()),
+                IrNode::BoolLit(true),
+            ],
+        };
+        if let IrNode::CallExpr { args, .. } = node {
+            assert_eq!(args.len(), 3);
+        } else {
+            panic!("Expected CallExpr");
+        }
+    }
+
+    #[test]
+    fn test_class_with_members() {
+        let node = IrNode::ClassDecl {
+            exported: true,
+            declare: false,
+            abstract_: false,
+            decorators: vec![],
+            name: Box::new(IrNode::Ident("MyClass".to_string())),
+            type_params: None,
+            extends: Some(Box::new(IrNode::Ident("BaseClass".to_string()))),
+            implements: vec![IrNode::Ident("Interface1".to_string())],
+            body: vec![
+                IrNode::Constructor {
+                    accessibility: Some(Accessibility::Public),
+                    params: vec![],
+                    body: Some(Box::new(IrNode::BlockStmt { stmts: vec![] })),
+                },
+                IrNode::ClassProp {
+                    static_: false,
+                    accessibility: Some(Accessibility::Private),
+                    readonly: true,
+                    declare: false,
+                    optional: false,
+                    definite: false,
+                    name: Box::new(IrNode::Ident("value".to_string())),
+                    type_ann: Some(Box::new(IrNode::KeywordType(TsKeyword::Number))),
+                    value: None,
+                },
+            ],
+        };
+        if let IrNode::ClassDecl { body, .. } = node {
+            assert_eq!(body.len(), 2);
+        } else {
+            panic!("Expected ClassDecl");
+        }
+    }
+
+    #[test]
+    fn test_type_ref_with_params() {
+        // Promise<string>
+        let node = IrNode::TypeRef {
+            name: Box::new(IrNode::Ident("Promise".to_string())),
+            type_params: Some(Box::new(IrNode::TypeArgs {
+                args: vec![IrNode::KeywordType(TsKeyword::String)],
+            })),
+        };
+        assert!(matches!(node, IrNode::TypeRef { .. }));
+    }
+
+    #[test]
+    fn test_fn_type() {
+        // (x: number) => string
+        let node = IrNode::FnType {
+            type_params: None,
+            params: vec![IrNode::Param {
+                decorators: vec![],
+                pat: Box::new(IrNode::BindingIdent {
+                    name: Box::new(IrNode::Ident("x".to_string())),
+                    type_ann: Some(Box::new(IrNode::KeywordType(TsKeyword::Number))),
+                    optional: false,
+                }),
+            }],
+            return_type: Box::new(IrNode::KeywordType(TsKeyword::String)),
+        };
+        assert!(matches!(node, IrNode::FnType { .. }));
     }
 }

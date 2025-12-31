@@ -69,6 +69,8 @@ pub struct Parser {
     source: String,
     /// Pending doc comment to attach to next node.
     pending_doc: Option<String>,
+    /// Pending decorators to attach to next class/function.
+    pending_decorators: Vec<IrNode>,
 }
 
 impl Parser {
@@ -81,6 +83,7 @@ impl Parser {
             context_stack: vec![Context::Expression(ExpressionKind::Normal)],
             source: input.to_string(),
             pending_doc: None,
+            pending_decorators: Vec::new(),
         }
     }
 
@@ -149,10 +152,58 @@ impl Parser {
 
     fn parse_nodes(&mut self) -> Vec<IrNode> {
         let mut nodes = Vec::new();
+        let mut iterations = 0usize;
+        const MAX_ITERATIONS: usize = 100_000;
 
         while !self.at_eof() {
+            iterations += 1;
+            let pos_before = self.pos;
+
+            #[cfg(debug_assertions)]
+            if std::env::var("MF_DEBUG_PARSER").is_ok() && iterations % 1000 == 0 {
+                eprintln!(
+                    "[MF_DEBUG_PARSER] parse_nodes iteration {}, pos={}/{}, current={:?}",
+                    iterations,
+                    self.pos,
+                    self.tokens.len(),
+                    self.current().map(|t| (&t.kind, &t.text))
+                );
+            }
+
+            if iterations > MAX_ITERATIONS {
+                #[cfg(debug_assertions)]
+                {
+                    eprintln!(
+                        "[MF_DEBUG_PARSER] ERROR: parse_nodes exceeded {} iterations!",
+                        MAX_ITERATIONS
+                    );
+                    eprintln!(
+                        "[MF_DEBUG_PARSER] pos={}/{}, current={:?}",
+                        self.pos,
+                        self.tokens.len(),
+                        self.current()
+                    );
+                    eprintln!("[MF_DEBUG_PARSER] source snippet: {:?}", &self.source[..self.source.len().min(500)]);
+                }
+                panic!("Parser infinite loop detected: exceeded {} iterations", MAX_ITERATIONS);
+            }
+
             if let Some(node) = self.parse_node() {
                 nodes.push(node);
+            }
+
+            // Safety check: ensure we made progress
+            if self.pos == pos_before && !self.at_eof() {
+                #[cfg(debug_assertions)]
+                {
+                    eprintln!(
+                        "[MF_DEBUG_PARSER] ERROR: No progress at pos={}, token={:?}",
+                        self.pos,
+                        self.current()
+                    );
+                }
+                // Force progress to avoid infinite loop
+                self.advance();
             }
         }
 
@@ -160,19 +211,55 @@ impl Parser {
     }
 
     fn parse_node(&mut self) -> Option<IrNode> {
+        self.parse_node_inner(0)
+    }
+
+    fn parse_node_inner(&mut self, depth: usize) -> Option<IrNode> {
+        const MAX_DEPTH: usize = 100;
+        if depth > MAX_DEPTH {
+            #[cfg(debug_assertions)]
+            eprintln!(
+                "[MF_DEBUG_PARSER] ERROR: parse_node recursion depth {} exceeded at pos={}, token={:?}",
+                depth,
+                self.pos,
+                self.current()
+            );
+            panic!("Parser infinite recursion detected in parse_node");
+        }
+
         // Check for doc comments first - store them for the next node
         match self.current_kind()? {
             SyntaxKind::RustDocAttr => {
+                let pos_before = self.pos;
                 if let Some(IrNode::DocComment { text }) = self.parse_rust_doc_attr() {
                     self.pending_doc = Some(text);
                 }
-                return self.parse_node(); // Parse the next node
+                // Ensure we made progress before recursing
+                if self.pos == pos_before {
+                    #[cfg(debug_assertions)]
+                    eprintln!(
+                        "[MF_DEBUG_PARSER] WARNING: parse_rust_doc_attr didn't advance at pos={}",
+                        self.pos
+                    );
+                    self.advance(); // Force progress
+                }
+                return self.parse_node_inner(depth + 1);
             }
             SyntaxKind::DocCommentPrefix | SyntaxKind::JsDocOpen => {
+                let pos_before = self.pos;
                 if let Some(IrNode::DocComment { text }) = self.parse_doc_comment() {
                     self.pending_doc = Some(text);
                 }
-                return self.parse_node(); // Parse the next node
+                // Ensure we made progress before recursing
+                if self.pos == pos_before {
+                    #[cfg(debug_assertions)]
+                    eprintln!(
+                        "[MF_DEBUG_PARSER] WARNING: parse_doc_comment didn't advance at pos={}",
+                        self.pos
+                    );
+                    self.advance(); // Force progress
+                }
+                return self.parse_node_inner(depth + 1);
             }
             _ => {}
         }
@@ -221,12 +308,30 @@ impl Parser {
             SyntaxKind::CommentBlockOpen => self.parse_block_comment(),
             SyntaxKind::DoubleQuote => self.parse_string_literal(),
             SyntaxKind::Backtick => self.parse_template_literal(),
+            // TypeScript decorator - collect and attach to next class/function
+            SyntaxKind::DecoratorAt => {
+                if let Some(decorator) = self.parse_decorator_raw() {
+                    self.pending_decorators.push(decorator);
+                }
+                // Continue to parse the next node (the decorated class/function)
+                return self.parse_node_inner(depth + 1);
+            }
             // TypeScript declarations
             SyntaxKind::ExportKw => self.parse_export_decl(),
+            SyntaxKind::ImportKw => self.parse_import_decl(),
+            SyntaxKind::EnumKw => self.parse_enum_decl(false, false),
             SyntaxKind::ClassKw => self.parse_class_decl(false),
             SyntaxKind::FunctionKw => self.parse_function_decl(false, false),
             SyntaxKind::InterfaceKw => self.parse_interface_decl(false),
-            SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => {
+            SyntaxKind::ConstKw => {
+                // Check for `const enum`
+                if self.peek_is_enum() {
+                    self.parse_enum_decl(false, true)
+                } else {
+                    self.parse_var_decl(false)
+                }
+            }
+            SyntaxKind::LetKw | SyntaxKind::VarKw => {
                 self.parse_var_decl(false)
             }
             SyntaxKind::AsyncKw => self.parse_async_decl(false),
@@ -251,6 +356,98 @@ impl Parser {
             })
         } else {
             node
+        }
+    }
+
+    /// Parse a TypeScript decorator and pass through as raw text.
+    /// Handles: `@decorator`, `@decorator(args)`, `@decorator.member`, etc.
+    fn parse_decorator_raw(&mut self) -> Option<IrNode> {
+        // The DecoratorAt token is just "@", we need to collect the full decorator
+        self.consume()?; // consume @
+        let mut parts = vec![IrNode::Raw("@".to_string())];
+
+        // Consume the decorator identifier/expression
+        // This could be: identifier, member access (a.b.c), or call (fn(args))
+        let mut paren_depth = 0;
+
+        loop {
+            match self.current_kind() {
+                Some(SyntaxKind::Ident) => {
+                    if let Some(t) = self.consume() {
+                        parts.push(IrNode::Raw(t.text));
+                    }
+                }
+                Some(SyntaxKind::At) => {
+                    // Interpolation inside decorator
+                    if let Some(placeholder) = self.parse_interpolation() {
+                        parts.push(placeholder);
+                    }
+                }
+                Some(SyntaxKind::LParen) => {
+                    paren_depth += 1;
+                    if let Some(t) = self.consume() {
+                        parts.push(IrNode::Raw(t.text));
+                    }
+                }
+                Some(SyntaxKind::RParen) => {
+                    paren_depth -= 1;
+                    if let Some(t) = self.consume() {
+                        parts.push(IrNode::Raw(t.text));
+                    }
+                    if paren_depth <= 0 {
+                        break;
+                    }
+                }
+                Some(SyntaxKind::Dot) | Some(SyntaxKind::Colon) | Some(SyntaxKind::Comma)
+                | Some(SyntaxKind::LBrace) | Some(SyntaxKind::RBrace)
+                | Some(SyntaxKind::LBracket) | Some(SyntaxKind::RBracket)
+                | Some(SyntaxKind::Lt) | Some(SyntaxKind::Gt)
+                | Some(SyntaxKind::DoubleQuote) | Some(SyntaxKind::SingleQuote)
+                | Some(SyntaxKind::Text) | Some(SyntaxKind::Eq) => {
+                    if paren_depth > 0 {
+                        // Inside parens, consume everything
+                        if self.at(SyntaxKind::DoubleQuote) {
+                            if let Some(s) = self.parse_string_literal() {
+                                parts.push(s);
+                            }
+                        } else if let Some(t) = self.consume() {
+                            parts.push(IrNode::Raw(t.text));
+                        }
+                    } else {
+                        // Outside parens, we're done with the decorator
+                        break;
+                    }
+                }
+                Some(SyntaxKind::Whitespace) => {
+                    if paren_depth > 0 {
+                        // Consume whitespace inside parens
+                        if let Some(t) = self.consume() {
+                            parts.push(IrNode::Raw(t.text));
+                        }
+                    } else {
+                        // Whitespace after decorator, we're done
+                        break;
+                    }
+                }
+                _ => {
+                    if paren_depth > 0 {
+                        // Inside parens, consume anything
+                        if let Some(t) = self.consume() {
+                            parts.push(IrNode::Raw(t.text));
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Merge and return
+        let merged = Self::merge_adjacent_text(parts);
+        if merged.len() == 1 {
+            Some(merged.into_iter().next().unwrap())
+        } else {
+            Some(IrNode::IdentBlock { parts: merged })
         }
     }
 

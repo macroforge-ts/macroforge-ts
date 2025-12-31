@@ -339,3 +339,513 @@ impl_struct!(
 impl_enum!(TsParamPropParam, [Ident, Assign]);
 
 // Accessibility is implemented in enums.rs via impl_simple_enum!
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::ToCode;
+    use crate::ctxt::Ctx;
+    use quote::ToTokens;
+    use rustc_hash::FxHashMap;
+    use swc_core::atoms::Atom;
+    use swc_core::common::{Span, SyntaxContext};
+
+    /// Helper to create an empty context for testing
+    fn empty_ctx() -> Ctx {
+        Ctx {
+            vars: FxHashMap::default(),
+        }
+    }
+
+    // ==================== TsType Tests ====================
+
+    #[test]
+    fn test_ts_type_keyword_to_code() {
+        let cx = empty_ctx();
+        let ts_type = TsType::TsKeywordType(TsKeywordType {
+            span: Span::default(),
+            kind: TsKeywordTypeKind::TsStringKeyword,
+        });
+        let code = ts_type.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsType"));
+        assert!(code_str.contains("TsKeywordType"));
+    }
+
+    #[test]
+    fn test_ts_type_this_to_code() {
+        let cx = empty_ctx();
+        let ts_type = TsType::TsThisType(TsThisType {
+            span: Span::default(),
+        });
+        let code = ts_type.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsType"));
+        assert!(code_str.contains("TsThisType"));
+    }
+
+    #[test]
+    fn test_ts_type_array_to_code() {
+        let cx = empty_ctx();
+        let ts_type = TsType::TsArrayType(TsArrayType {
+            span: Span::default(),
+            elem_type: Box::new(TsType::TsKeywordType(TsKeywordType {
+                span: Span::default(),
+                kind: TsKeywordTypeKind::TsNumberKeyword,
+            })),
+        });
+        let code = ts_type.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsType"));
+        assert!(code_str.contains("TsArrayType"));
+    }
+
+    // ==================== TsKeywordTypeKind Tests ====================
+
+    #[test]
+    fn test_ts_keyword_type_kind_string() {
+        let cx = empty_ctx();
+        let kind = TsKeywordTypeKind::TsStringKeyword;
+        let code = kind.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsKeywordTypeKind"));
+        assert!(code_str.contains("TsStringKeyword"));
+    }
+
+    #[test]
+    fn test_ts_keyword_type_kind_number() {
+        let cx = empty_ctx();
+        let kind = TsKeywordTypeKind::TsNumberKeyword;
+        let code = kind.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsNumberKeyword"));
+    }
+
+    #[test]
+    fn test_ts_keyword_type_kind_boolean() {
+        let cx = empty_ctx();
+        let kind = TsKeywordTypeKind::TsBooleanKeyword;
+        let code = kind.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsBooleanKeyword"));
+    }
+
+    #[test]
+    fn test_ts_keyword_type_kind_void() {
+        let cx = empty_ctx();
+        let kind = TsKeywordTypeKind::TsVoidKeyword;
+        let code = kind.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsVoidKeyword"));
+    }
+
+    #[test]
+    fn test_ts_keyword_type_kind_never() {
+        let cx = empty_ctx();
+        let kind = TsKeywordTypeKind::TsNeverKeyword;
+        let code = kind.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsNeverKeyword"));
+    }
+
+    // ==================== TsTypeAnn Tests ====================
+
+    #[test]
+    fn test_ts_type_ann_to_code() {
+        let cx = empty_ctx();
+        let ann = TsTypeAnn {
+            span: Span::default(),
+            type_ann: Box::new(TsType::TsKeywordType(TsKeywordType {
+                span: Span::default(),
+                kind: TsKeywordTypeKind::TsStringKeyword,
+            })),
+        };
+        let code = ann.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsTypeAnn"));
+        assert!(code_str.contains("type_ann"));
+    }
+
+    // ==================== TsTypeRef Tests ====================
+
+    #[test]
+    fn test_ts_type_ref_to_code() {
+        let cx = empty_ctx();
+        let type_ref = TsTypeRef {
+            span: Span::default(),
+            type_name: TsEntityName::Ident(Ident {
+                span: Span::default(),
+                ctxt: SyntaxContext::empty(),
+                sym: Atom::from("MyType"),
+                optional: false,
+            }),
+            type_params: None,
+        };
+        let code = type_ref.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsTypeRef"));
+        assert!(code_str.contains("type_name"));
+    }
+
+    // ==================== TsEntityName Tests ====================
+
+    #[test]
+    fn test_ts_entity_name_ident_to_code() {
+        let cx = empty_ctx();
+        let name = TsEntityName::Ident(Ident {
+            span: Span::default(),
+            ctxt: SyntaxContext::empty(),
+            sym: Atom::from("TypeName"),
+            optional: false,
+        });
+        let code = name.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsEntityName"));
+        assert!(code_str.contains("Ident"));
+    }
+
+    // ==================== TsTypeOperatorOp Tests ====================
+
+    #[test]
+    fn test_ts_type_operator_op_keyof() {
+        let cx = empty_ctx();
+        let op = TsTypeOperatorOp::KeyOf;
+        let code = op.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsTypeOperatorOp"));
+        assert!(code_str.contains("KeyOf"));
+    }
+
+    #[test]
+    fn test_ts_type_operator_op_readonly() {
+        let cx = empty_ctx();
+        let op = TsTypeOperatorOp::ReadOnly;
+        let code = op.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("ReadOnly"));
+    }
+
+    // ==================== TruePlusMinus Tests ====================
+
+    #[test]
+    fn test_true_plus_minus_true() {
+        let cx = empty_ctx();
+        let val = TruePlusMinus::True;
+        let code = val.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TruePlusMinus"));
+        assert!(code_str.contains("True"));
+    }
+
+    #[test]
+    fn test_true_plus_minus_plus() {
+        let cx = empty_ctx();
+        let val = TruePlusMinus::Plus;
+        let code = val.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("Plus"));
+    }
+
+    #[test]
+    fn test_true_plus_minus_minus() {
+        let cx = empty_ctx();
+        let val = TruePlusMinus::Minus;
+        let code = val.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("Minus"));
+    }
+
+    // ==================== TsUnionType Tests ====================
+
+    #[test]
+    fn test_ts_union_type_to_code() {
+        let cx = empty_ctx();
+        let union = TsUnionType {
+            span: Span::default(),
+            types: vec![
+                Box::new(TsType::TsKeywordType(TsKeywordType {
+                    span: Span::default(),
+                    kind: TsKeywordTypeKind::TsStringKeyword,
+                })),
+                Box::new(TsType::TsKeywordType(TsKeywordType {
+                    span: Span::default(),
+                    kind: TsKeywordTypeKind::TsNumberKeyword,
+                })),
+            ],
+        };
+        let code = union.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsUnionType"));
+        assert!(code_str.contains("types"));
+    }
+
+    // ==================== TsIntersectionType Tests ====================
+
+    #[test]
+    fn test_ts_intersection_type_to_code() {
+        let cx = empty_ctx();
+        let intersection = TsIntersectionType {
+            span: Span::default(),
+            types: vec![],
+        };
+        let code = intersection.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsIntersectionType"));
+    }
+
+    // ==================== TsTupleType Tests ====================
+
+    #[test]
+    fn test_ts_tuple_type_to_code() {
+        let cx = empty_ctx();
+        let tuple = TsTupleType {
+            span: Span::default(),
+            elem_types: vec![],
+        };
+        let code = tuple.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsTupleType"));
+        assert!(code_str.contains("elem_types"));
+    }
+
+    // ==================== TsInterfaceDecl Tests ====================
+
+    #[test]
+    fn test_ts_interface_decl_to_code() {
+        let cx = empty_ctx();
+        let decl = TsInterfaceDecl {
+            span: Span::default(),
+            id: Ident {
+                span: Span::default(),
+                ctxt: SyntaxContext::empty(),
+                sym: Atom::from("MyInterface"),
+                optional: false,
+            },
+            declare: false,
+            type_params: None,
+            extends: vec![],
+            body: TsInterfaceBody {
+                span: Span::default(),
+                body: vec![],
+            },
+        };
+        let code = decl.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsInterfaceDecl"));
+        assert!(code_str.contains("id"));
+        assert!(code_str.contains("body"));
+    }
+
+    // ==================== TsTypeAliasDecl Tests ====================
+
+    #[test]
+    fn test_ts_type_alias_decl_to_code() {
+        let cx = empty_ctx();
+        let decl = TsTypeAliasDecl {
+            span: Span::default(),
+            declare: false,
+            id: Ident {
+                span: Span::default(),
+                ctxt: SyntaxContext::empty(),
+                sym: Atom::from("MyAlias"),
+                optional: false,
+            },
+            type_params: None,
+            type_ann: Box::new(TsType::TsKeywordType(TsKeywordType {
+                span: Span::default(),
+                kind: TsKeywordTypeKind::TsStringKeyword,
+            })),
+        };
+        let code = decl.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsTypeAliasDecl"));
+        assert!(code_str.contains("id"));
+        assert!(code_str.contains("type_ann"));
+    }
+
+    // ==================== TsEnumDecl Tests ====================
+
+    #[test]
+    fn test_ts_enum_decl_to_code() {
+        let cx = empty_ctx();
+        let decl = TsEnumDecl {
+            span: Span::default(),
+            declare: false,
+            is_const: false,
+            id: Ident {
+                span: Span::default(),
+                ctxt: SyntaxContext::empty(),
+                sym: Atom::from("MyEnum"),
+                optional: false,
+            },
+            members: vec![],
+        };
+        let code = decl.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsEnumDecl"));
+        assert!(code_str.contains("id"));
+        assert!(code_str.contains("members"));
+    }
+
+    #[test]
+    fn test_ts_enum_decl_const() {
+        let cx = empty_ctx();
+        let decl = TsEnumDecl {
+            span: Span::default(),
+            declare: false,
+            is_const: true,
+            id: Ident {
+                span: Span::default(),
+                ctxt: SyntaxContext::empty(),
+                sym: Atom::from("ConstEnum"),
+                optional: false,
+            },
+            members: vec![],
+        };
+        let code = decl.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsEnumDecl"));
+        assert!(code_str.contains("is_const"));
+    }
+
+    // ==================== TsAsExpr Tests ====================
+
+    #[test]
+    fn test_ts_as_expr_to_code() {
+        let cx = empty_ctx();
+        let expr = TsAsExpr {
+            span: Span::default(),
+            expr: Box::new(Expr::Ident(Ident {
+                span: Span::default(),
+                ctxt: SyntaxContext::empty(),
+                sym: Atom::from("value"),
+                optional: false,
+            })),
+            type_ann: Box::new(TsType::TsKeywordType(TsKeywordType {
+                span: Span::default(),
+                kind: TsKeywordTypeKind::TsStringKeyword,
+            })),
+        };
+        let code = expr.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsAsExpr"));
+        assert!(code_str.contains("expr"));
+        assert!(code_str.contains("type_ann"));
+    }
+
+    // ==================== TsNonNullExpr Tests ====================
+
+    #[test]
+    fn test_ts_non_null_expr_to_code() {
+        let cx = empty_ctx();
+        let expr = TsNonNullExpr {
+            span: Span::default(),
+            expr: Box::new(Expr::Ident(Ident {
+                span: Span::default(),
+                ctxt: SyntaxContext::empty(),
+                sym: Atom::from("value"),
+                optional: false,
+            })),
+        };
+        let code = expr.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsNonNullExpr"));
+        assert!(code_str.contains("expr"));
+    }
+
+    // ==================== TsConstAssertion Tests ====================
+
+    #[test]
+    fn test_ts_const_assertion_to_code() {
+        let cx = empty_ctx();
+        let expr = TsConstAssertion {
+            span: Span::default(),
+            expr: Box::new(Expr::Lit(Lit::Str(Str {
+                span: Span::default(),
+                value: Atom::from("literal").into(),
+                raw: None,
+            }))),
+        };
+        let code = expr.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsConstAssertion"));
+        assert!(code_str.contains("expr"));
+    }
+
+    // ==================== TsParamProp Tests ====================
+
+    #[test]
+    fn test_ts_param_prop_to_code() {
+        let cx = empty_ctx();
+        let prop = TsParamProp {
+            span: Span::default(),
+            decorators: vec![],
+            accessibility: Some(Accessibility::Public),
+            is_override: false,
+            readonly: false,
+            param: TsParamPropParam::Ident(BindingIdent {
+                id: Ident {
+                    span: Span::default(),
+                    ctxt: SyntaxContext::empty(),
+                    sym: Atom::from("name"),
+                    optional: false,
+                },
+                type_ann: None,
+            }),
+        };
+        let code = prop.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsParamProp"));
+        assert!(code_str.contains("accessibility"));
+        assert!(code_str.contains("param"));
+    }
+
+    // ==================== TsFnType Tests ====================
+
+    #[test]
+    fn test_ts_fn_type_to_code() {
+        let cx = empty_ctx();
+        let fn_type = TsFnType {
+            span: Span::default(),
+            type_params: None,
+            params: vec![],
+            type_ann: Box::new(TsTypeAnn {
+                span: Span::default(),
+                type_ann: Box::new(TsType::TsKeywordType(TsKeywordType {
+                    span: Span::default(),
+                    kind: TsKeywordTypeKind::TsVoidKeyword,
+                })),
+            }),
+        };
+        let code = fn_type.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsFnType"));
+        assert!(code_str.contains("params"));
+        assert!(code_str.contains("type_ann"));
+    }
+
+    // ==================== TsTypeParam Tests ====================
+
+    #[test]
+    fn test_ts_type_param_to_code() {
+        let cx = empty_ctx();
+        let param = TsTypeParam {
+            span: Span::default(),
+            name: Ident {
+                span: Span::default(),
+                ctxt: SyntaxContext::empty(),
+                sym: Atom::from("T"),
+                optional: false,
+            },
+            is_in: false,
+            is_out: false,
+            is_const: false,
+            constraint: None,
+            default: None,
+        };
+        let code = param.to_code(&cx);
+        let code_str = code.to_token_stream().to_string();
+        assert!(code_str.contains("TsTypeParam"));
+        assert!(code_str.contains("name"));
+    }
+}

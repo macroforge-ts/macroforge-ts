@@ -3,16 +3,16 @@ use super::*;
 impl Codegen {
     /// Check if a node is a fragment that should be grouped with adjacent fragments.
     pub(super) fn is_fragment_node(&self, node: &IrNode) -> bool {
-    matches!(
-        node,
-        IrNode::Raw(_)
-            | IrNode::Ident(_)
-            | IrNode::StrLit(_)
-            | IrNode::IdentBlock { .. }
-            | IrNode::StringInterp { .. }
-            | IrNode::Placeholder { .. }
-    )
-}
+        matches!(
+            node,
+            IrNode::Raw(_)
+                | IrNode::Ident(_)
+                | IrNode::StrLit(_)
+                | IrNode::IdentBlock { .. }
+                | IrNode::StringInterp { .. }
+                | IrNode::Placeholder { .. }
+        )
+    }
 
 // =========================================================================
 // Expression Generation

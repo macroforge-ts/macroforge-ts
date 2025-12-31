@@ -3,8 +3,9 @@
 //! This test module provides thorough coverage of all macro functionality
 //! including edge cases, complex constructs, and integration scenarios.
 
-// IR Variant Coverage Tests - testing one at a time to find infinite loop
+// IR Variant Coverage Tests
 mod ir_declarations;
+// mod test_single;
 // mod ir_expressions;
 // mod ir_types;
 // mod ir_patterns;

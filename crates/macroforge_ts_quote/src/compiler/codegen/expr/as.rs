@@ -23,7 +23,25 @@ impl Codegen {
         | IrNode::Raw(_)
         | IrNode::Placeholder { .. }
         | IrNode::IdentBlock { .. }
-        | IrNode::StringInterp { .. } => Some(self.generate_expr(node)),
+        | IrNode::StringInterp { .. }
+        // Phase 3: TypeScript expression types
+        | IrNode::TsAsExpr { .. }
+        | IrNode::TsSatisfiesExpr { .. }
+        | IrNode::TsNonNullExpr { .. }
+        | IrNode::TsInstantiation { .. }
+        | IrNode::AwaitExpr { .. }
+        | IrNode::YieldExpr { .. }
+        // Phase 4: Literal/operator expressions
+        | IrNode::PrivateName(_)
+        | IrNode::BigIntLit(_)
+        | IrNode::UpdateExpr { .. }
+        | IrNode::OptChainExpr { .. }
+        // Phase 5: Complex expressions
+        | IrNode::FnExpr { .. }
+        | IrNode::ClassExpr { .. }
+        | IrNode::ParenExpr { .. }
+        | IrNode::SeqExpr { .. }
+        | IrNode::TaggedTpl { .. } => Some(self.generate_expr(node)),
         _ => None,
     }
 }

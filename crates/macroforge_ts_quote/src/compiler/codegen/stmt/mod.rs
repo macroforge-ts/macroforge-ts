@@ -1,6 +1,42 @@
 use super::*;
 
 impl Codegen {
+    /// Generate a BlockStmt from an IrNode (for function bodies)
+    pub(in super::super) fn generate_block_stmt(&self, node: &IrNode) -> TokenStream {
+        match node {
+            IrNode::BlockStmt { stmts } => {
+                let stmts_code = self.generate_stmts_vec(stmts);
+                quote! {
+                    macroforge_ts::swc_core::ecma::ast::BlockStmt {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                        stmts: #stmts_code,
+                    }
+                }
+            }
+            _ => {
+                // Fallback: wrap single statement in a block
+                if let Some(stmt_code) = self.generate_stmt(node) {
+                    quote! {
+                        macroforge_ts::swc_core::ecma::ast::BlockStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                            stmts: vec![#stmt_code],
+                        }
+                    }
+                } else {
+                    quote! {
+                        macroforge_ts::swc_core::ecma::ast::BlockStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                            stmts: vec![],
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     pub(in super::super) fn generate_block_stmt_opt(&self, node: &IrNode) -> TokenStream {
     match node {
         IrNode::BlockStmt { stmts } => {
@@ -113,6 +149,8 @@ pub(in super::super) fn is_structured_stmt(&self, node: &IrNode) -> bool {
             | IrNode::ExprStmt { .. }
             | IrNode::TsIfStmt { .. }
             | IrNode::TsLoopStmt { .. }
+            | IrNode::ForInStmt { .. }
+            | IrNode::ForOfStmt { .. }
     )
 }
 
@@ -669,6 +707,55 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
                 }
             })
         }
+        // Structured for-in statement
+        IrNode::ForInStmt { left, right, body } => {
+            let left_code = self.generate_for_head(left);
+            let right_code = self.generate_expr(right);
+            let body_code = self.generate_stmt(body).unwrap_or_else(|| {
+                quote! {
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
+                        macroforge_ts::swc_core::ecma::ast::EmptyStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        }
+                    )
+                }
+            });
+            Some(quote! {
+                macroforge_ts::swc_core::ecma::ast::Stmt::ForIn(
+                    macroforge_ts::swc_core::ecma::ast::ForInStmt {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        left: #left_code,
+                        right: Box::new(#right_code),
+                        body: Box::new(#body_code),
+                    }
+                )
+            })
+        }
+        // Structured for-of statement
+        IrNode::ForOfStmt { await_, left, right, body } => {
+            let left_code = self.generate_for_head(left);
+            let right_code = self.generate_expr(right);
+            let body_code = self.generate_stmt(body).unwrap_or_else(|| {
+                quote! {
+                    macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
+                        macroforge_ts::swc_core::ecma::ast::EmptyStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        }
+                    )
+                }
+            });
+            Some(quote! {
+                macroforge_ts::swc_core::ecma::ast::Stmt::ForOf(
+                    macroforge_ts::swc_core::ecma::ast::ForOfStmt {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        is_await: #await_,
+                        left: #left_code,
+                        right: Box::new(#right_code),
+                        body: Box::new(#body_code),
+                    }
+                )
+            })
+        }
         // Control flow that generates Rust code
         IrNode::If { .. } | IrNode::For { .. } | IrNode::While { .. } | IrNode::Match { .. } => {
             // These generate Rust control flow, not TS statements
@@ -688,6 +775,41 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
                 })
             } else {
                 None
+            }
+        }
+    }
+}
+
+/// Generate code for the left-hand side of a for-in/for-of loop.
+/// Returns a ForHead which can be either a VarDecl or a Pat.
+pub(in super::super) fn generate_for_head(&self, node: &IrNode) -> TokenStream {
+    match node {
+        IrNode::VarDecl { kind, decls, declare, .. } => {
+            let kind_code = match kind {
+                VarKind::Const => {
+                    quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Const }
+                }
+                VarKind::Let => quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Let },
+                VarKind::Var => quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Var },
+            };
+            let decls_code = self.generate_var_declarators(decls);
+            quote! {
+                macroforge_ts::swc_core::ecma::ast::ForHead::VarDecl(Box::new(
+                    macroforge_ts::swc_core::ecma::ast::VarDecl {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                        kind: #kind_code,
+                        declare: #declare,
+                        decls: #decls_code,
+                    }
+                ))
+            }
+        }
+        // For patterns (destructuring without var/let/const)
+        _ => {
+            let pat_code = self.generate_pat(node);
+            quote! {
+                macroforge_ts::swc_core::ecma::ast::ForHead::Pat(Box::new(#pat_code))
             }
         }
     }

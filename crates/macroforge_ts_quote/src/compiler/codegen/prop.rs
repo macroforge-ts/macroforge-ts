@@ -41,6 +41,68 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> Option<TokenStream> {
                 )
             })
         }
+        // Method property: `name() { }`
+        IrNode::MethodProp { async_, generator, name, type_params: _, params, return_type: _, body } => {
+            let key_code = self.generate_prop_name(name);
+            let params_code = self.generate_params(params);
+            let body_code = self.generate_block_stmt(body);
+            Some(quote! {
+                macroforge_ts::swc_core::ecma::ast::PropOrSpread::Prop(Box::new(
+                    macroforge_ts::swc_core::ecma::ast::Prop::Method(
+                        macroforge_ts::swc_core::ecma::ast::MethodProp {
+                            key: #key_code,
+                            function: Box::new(macroforge_ts::swc_core::ecma::ast::Function {
+                                params: #params_code,
+                                decorators: vec![],
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                                body: Some(#body_code),
+                                is_generator: #generator,
+                                is_async: #async_,
+                                type_params: None,
+                                return_type: None,
+                            }),
+                        }
+                    )
+                ))
+            })
+        }
+        // Getter property: `get name() { }`
+        IrNode::GetterProp { name, type_ann: _, body } => {
+            let key_code = self.generate_prop_name(name);
+            let body_code = self.generate_block_stmt(body);
+            Some(quote! {
+                macroforge_ts::swc_core::ecma::ast::PropOrSpread::Prop(Box::new(
+                    macroforge_ts::swc_core::ecma::ast::Prop::Getter(
+                        macroforge_ts::swc_core::ecma::ast::GetterProp {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            key: #key_code,
+                            type_ann: None,
+                            body: Some(#body_code),
+                        }
+                    )
+                ))
+            })
+        }
+        // Setter property: `set name(param) { }`
+        IrNode::SetterProp { name, param, body } => {
+            let key_code = self.generate_prop_name(name);
+            let param_code = self.generate_param(param);
+            let body_code = self.generate_block_stmt(body);
+            Some(quote! {
+                macroforge_ts::swc_core::ecma::ast::PropOrSpread::Prop(Box::new(
+                    macroforge_ts::swc_core::ecma::ast::Prop::Setter(
+                        macroforge_ts::swc_core::ecma::ast::SetterProp {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            key: #key_code,
+                            this_param: None,
+                            param: #param_code,
+                            body: Some(#body_code),
+                        }
+                    )
+                ))
+            })
+        }
         // For control flow in object literals
         IrNode::If { .. } | IrNode::For { .. } => None, // Handled at higher level
         _ => None,

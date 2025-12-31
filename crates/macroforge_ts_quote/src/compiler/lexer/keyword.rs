@@ -36,6 +36,7 @@ impl Lexer {
             ("throw", SyntaxKind::ThrowKw),
             ("catch", SyntaxKind::CatchKw),
             ("class", SyntaxKind::ClassKw),
+            ("enum", SyntaxKind::EnumKw),
             ("from", SyntaxKind::FromKw),
             ("type", SyntaxKind::TypeKw),
             ("while", SyntaxKind::WhileKw),
