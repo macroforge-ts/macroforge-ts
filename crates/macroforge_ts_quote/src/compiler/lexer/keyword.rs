@@ -8,25 +8,36 @@ impl Lexer {
         // Check each keyword with word boundary
         // Ordered longest-first to avoid prefix matching issues (e.g., "typeof" before "type")
         let keywords = [
-            // Declaration keywords
-            ("function", SyntaxKind::FunctionKw),
-            ("interface", SyntaxKind::InterfaceKw),
+            // 10+ characters
+            ("instanceof", SyntaxKind::InstanceofKw),
             ("implements", SyntaxKind::ImplementsKw),
+            // 9 characters
+            ("undefined", SyntaxKind::UndefinedKw),
             ("protected", SyntaxKind::ProtectedKw),
+            ("interface", SyntaxKind::InterfaceKw),
             ("satisfies", SyntaxKind::SatisfiesKw),
+            ("debugger", SyntaxKind::DebuggerKw),
+            ("continue", SyntaxKind::ContinueKw),
+            ("function", SyntaxKind::FunctionKw),
+            // 8 characters
             ("abstract", SyntaxKind::AbstractKw),
             ("readonly", SyntaxKind::ReadonlyKw),
+            // 7 characters
             ("private", SyntaxKind::PrivateKw),
             ("declare", SyntaxKind::DeclareKw),
             ("extends", SyntaxKind::ExtendsKw),
             ("finally", SyntaxKind::FinallyKw),
             ("default", SyntaxKind::DefaultKw),
+            // 6 characters
             ("public", SyntaxKind::PublicKw),
             ("static", SyntaxKind::StaticKw),
             ("return", SyntaxKind::ReturnKw),
             ("typeof", SyntaxKind::TypeofKw), // Must come before "type"
             ("export", SyntaxKind::ExportKw),
             ("import", SyntaxKind::ImportKw),
+            ("switch", SyntaxKind::SwitchKw),
+            ("delete", SyntaxKind::DeleteKw),
+            // 5 characters
             ("keyof", SyntaxKind::KeyofKw),
             ("infer", SyntaxKind::InferKw),
             ("const", SyntaxKind::ConstKw),
@@ -36,11 +47,21 @@ impl Lexer {
             ("throw", SyntaxKind::ThrowKw),
             ("catch", SyntaxKind::CatchKw),
             ("class", SyntaxKind::ClassKw),
+            ("while", SyntaxKind::WhileKw),
+            ("break", SyntaxKind::BreakKw),
+            ("super", SyntaxKind::SuperKw),
+            ("false", SyntaxKind::FalseKw),
+            // 4 characters
             ("enum", SyntaxKind::EnumKw),
             ("from", SyntaxKind::FromKw),
             ("type", SyntaxKind::TypeKw),
-            ("while", SyntaxKind::WhileKw),
-            ("throw", SyntaxKind::ThrowKw),
+            ("this", SyntaxKind::ThisKw),
+            ("null", SyntaxKind::NullKw),
+            ("true", SyntaxKind::TrueKw),
+            ("void", SyntaxKind::VoidKw),
+            ("with", SyntaxKind::WithKw),
+            ("else", SyntaxKind::ElseKw),
+            // 3 characters
             ("let", SyntaxKind::LetKw),
             ("var", SyntaxKind::VarKw),
             ("new", SyntaxKind::NewKw),
@@ -48,11 +69,13 @@ impl Lexer {
             ("for", SyntaxKind::ForKw),
             ("get", SyntaxKind::GetKw),
             ("set", SyntaxKind::SetKw),
+            // 2 characters
             ("as", SyntaxKind::AsKw),
             ("is", SyntaxKind::IsKw),
             ("of", SyntaxKind::OfKw),
             ("if", SyntaxKind::IfKw),
             ("in", SyntaxKind::InKw),
+            ("do", SyntaxKind::DoKw),
         ];
 
         for (kw, kind) in keywords {

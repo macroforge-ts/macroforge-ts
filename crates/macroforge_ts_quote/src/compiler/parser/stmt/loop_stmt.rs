@@ -4,11 +4,13 @@ impl Parser {
     /// Parse a TypeScript for/while loop.
     /// For-in and for-of loops are parsed structurally as ForInStmt/ForOfStmt.
     /// C-style for loops and while loops are parsed as TsLoopStmt (raw text with placeholders).
-    pub(in super::super) fn parse_ts_loop_stmt(&mut self) -> Option<IrNode> {
+    pub(in super::super) fn parse_ts_loop_stmt(&mut self) -> ParseResult<IrNode> {
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
-        let keyword = self.current()?.text.clone();
+        let keyword = self.current()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "loop statement"))?
+            .text.clone();
 
         #[cfg(debug_assertions)]
         if debug_parser {
@@ -17,8 +19,8 @@ impl Parser {
 
         if keyword == "for" {
             // Try to parse as for-in or for-of first
-            if let Some(structured) = self.try_parse_for_in_of() {
-                return Some(structured);
+            if let Some(structured) = self.try_parse_for_in_of()? {
+                return Ok(structured);
             }
             // Fall back to raw parsing for C-style for loops
             return self.parse_loop_as_raw();
@@ -29,15 +31,15 @@ impl Parser {
     }
 
     /// Try to parse a for-in or for-of loop.
-    /// Returns None if it's a C-style for loop (with semicolons).
-    fn try_parse_for_in_of(&mut self) -> Option<IrNode> {
+    /// Returns Ok(None) if it's a C-style for loop (with semicolons).
+    fn try_parse_for_in_of(&mut self) -> ParseResult<Option<IrNode>> {
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
         // Save position for backtracking
         let start_pos = self.pos;
 
-        self.consume()?; // for
+        self.consume(); // for
         self.skip_whitespace();
 
         // Check for await keyword (for-await-of)
@@ -52,13 +54,19 @@ impl Parser {
         if !self.at(SyntaxKind::LParen) {
             // Restore position and let raw parsing handle it
             self.pos = start_pos;
-            return None;
+            return Ok(None);
         }
         self.consume(); // (
         self.skip_whitespace();
 
         // Parse the left-hand side (variable declaration or expression)
-        let left = self.parse_for_loop_left()?;
+        let left = match self.parse_for_loop_left() {
+            Ok(node) => node,
+            Err(_) => {
+                self.pos = start_pos;
+                return Ok(None);
+            }
+        };
 
         self.skip_whitespace();
 
@@ -69,7 +77,7 @@ impl Parser {
         if !is_for_in && !is_for_of {
             // This is a C-style for loop - restore position
             self.pos = start_pos;
-            return None;
+            return Ok(None);
         }
 
         self.consume(); // in/of
@@ -84,7 +92,8 @@ impl Parser {
         }
 
         // Parse the right-hand side (expression)
-        let right = self.parse_ts_expr_until(&[SyntaxKind::RParen])?;
+        let right = self.parse_ts_expr_until(&[SyntaxKind::RParen])
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop iterable"))?;
 
         self.skip_whitespace();
         self.expect(SyntaxKind::RParen);
@@ -94,32 +103,36 @@ impl Parser {
         let body = if self.at(SyntaxKind::LBrace) {
             self.parse_block_stmt()?
         } else {
-            self.parse_stmt()?
+            self.parse_stmt()
+                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "loop body"))?
         };
 
         if is_for_in {
-            Some(IrNode::ForInStmt {
+            Ok(Some(IrNode::ForInStmt {
                 left: Box::new(left),
                 right: Box::new(right),
                 body: Box::new(body),
-            })
+            }))
         } else {
-            Some(IrNode::ForOfStmt {
+            Ok(Some(IrNode::ForOfStmt {
                 await_: has_await,
                 left: Box::new(left),
                 right: Box::new(right),
                 body: Box::new(body),
-            })
+            }))
         }
     }
 
     /// Parse the left-hand side of a for-in/for-of loop.
     /// This can be a variable declaration (const/let/var x) or an expression.
-    fn parse_for_loop_left(&mut self) -> Option<IrNode> {
-        match self.current_kind()? {
+    fn parse_for_loop_left(&mut self) -> ParseResult<IrNode> {
+        let kind = self.current_kind()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop left-hand side"))?;
+
+        match kind {
             SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => {
                 // Variable declaration
-                let kind = match self.current_kind()? {
+                let var_kind = match kind {
                     SyntaxKind::ConstKw => VarKind::Const,
                     SyntaxKind::LetKw => VarKind::Let,
                     SyntaxKind::VarKw => VarKind::Var,
@@ -128,13 +141,13 @@ impl Parser {
                 self.consume(); // const/let/var
                 self.skip_whitespace();
 
-                // Parse the binding pattern or identifier
-                let name = self.parse_binding_pattern()?;
+                // Parse the binding pattern or identifier using expr/ implementation
+                let name = self.parse_for_loop_binding()?;
 
-                Some(IrNode::VarDecl {
+                Ok(IrNode::VarDecl {
                     exported: false,
                     declare: false,
-                    kind,
+                    kind: var_kind,
                     decls: vec![VarDeclarator {
                         name: Box::new(name),
                         type_ann: None,
@@ -146,45 +159,50 @@ impl Parser {
             SyntaxKind::At => {
                 // Placeholder - could be expression or identifier
                 self.parse_interpolation()
+                    .ok_or_else(|| ParseError::unexpected_eof(self.pos, "placeholder"))
             }
             SyntaxKind::LBracket => {
-                // Array destructuring pattern
-                self.parse_array_pattern()
+                // Array destructuring pattern - use simple collection
+                self.parse_for_loop_array_pattern()
             }
             SyntaxKind::LBrace => {
-                // Object destructuring pattern
-                self.parse_object_pattern()
+                // Object destructuring pattern - use simple collection
+                self.parse_for_loop_object_pattern()
             }
             _ => {
                 // Expression (for reassignment like: for (x in obj))
                 self.parse_ts_expr_until(&[SyntaxKind::InKw, SyntaxKind::OfKw])
+                    .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop expression"))
             }
         }
     }
 
-    /// Parse a binding pattern (identifier, array pattern, or object pattern).
-    fn parse_binding_pattern(&mut self) -> Option<IrNode> {
-        match self.current_kind()? {
-            SyntaxKind::LBracket => self.parse_array_pattern(),
-            SyntaxKind::LBrace => self.parse_object_pattern(),
-            SyntaxKind::At => self.parse_interpolation(),
-            _ => self.parse_ts_ident_or_placeholder(),
+    /// Parse a simple binding for for-loop left-hand side
+    fn parse_for_loop_binding(&mut self) -> ParseResult<IrNode> {
+        let kind = self.current_kind()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "binding"))?;
+
+        match kind {
+            SyntaxKind::LBracket => self.parse_for_loop_array_pattern(),
+            SyntaxKind::LBrace => self.parse_for_loop_object_pattern(),
+            SyntaxKind::At => self.parse_interpolation()
+                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "placeholder")),
+            _ => self.parse_ts_ident_or_placeholder()
+                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)),
         }
     }
 
-    /// Parse an array destructuring pattern: [a, b, ...rest]
-    fn parse_array_pattern(&mut self) -> Option<IrNode> {
-        self.consume()?; // [
+    /// Parse array pattern for for-loop: [a, b, ...rest]
+    fn parse_for_loop_array_pattern(&mut self) -> ParseResult<IrNode> {
+        self.consume(); // [
         self.skip_whitespace();
 
-        let mut elems: Vec<Option<IrNode>> = Vec::new();
+        let mut elems: Vec<IrNode> = Vec::new();
 
         while !self.at_eof() && !self.at(SyntaxKind::RBracket) {
             self.skip_whitespace();
 
             if self.at(SyntaxKind::Comma) {
-                // Hole in array pattern
-                elems.push(None);
                 self.consume();
                 continue;
             }
@@ -197,15 +215,14 @@ impl Parser {
             if self.at(SyntaxKind::DotDotDot) {
                 self.consume();
                 self.skip_whitespace();
-                let arg = self.parse_binding_pattern()?;
-                elems.push(Some(IrNode::RestPat {
+                let arg = self.parse_for_loop_binding()?;
+                elems.push(IrNode::RestPat {
                     arg: Box::new(arg),
                     type_ann: None,
-                }));
+                });
             } else {
-                // Regular element
-                let elem = self.parse_binding_pattern()?;
-                elems.push(Some(elem));
+                let elem = self.parse_for_loop_binding()?;
+                elems.push(elem);
             }
 
             self.skip_whitespace();
@@ -216,16 +233,16 @@ impl Parser {
 
         self.expect(SyntaxKind::RBracket);
 
-        Some(IrNode::ArrayPat {
-            elems,
+        Ok(IrNode::ArrayPat {
+            elems: elems.into_iter().map(Some).collect(),
             type_ann: None,
             optional: false,
         })
     }
 
-    /// Parse an object destructuring pattern: { a, b: c, ...rest }
-    fn parse_object_pattern(&mut self) -> Option<IrNode> {
-        self.consume()?; // {
+    /// Parse object pattern for for-loop: { a, b: c, ...rest }
+    fn parse_for_loop_object_pattern(&mut self) -> ParseResult<IrNode> {
+        self.consume(); // {
         self.skip_whitespace();
 
         let mut props: Vec<IrNode> = Vec::new();
@@ -241,21 +258,22 @@ impl Parser {
             if self.at(SyntaxKind::DotDotDot) {
                 self.consume();
                 self.skip_whitespace();
-                let arg = self.parse_binding_pattern()?;
+                let arg = self.parse_for_loop_binding()?;
                 props.push(IrNode::RestPat {
                     arg: Box::new(arg),
                     type_ann: None,
                 });
             } else {
                 // Regular property
-                let key = self.parse_ts_ident_or_placeholder()?;
+                let key = self.parse_ts_ident_or_placeholder()
+                    .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos))?;
                 self.skip_whitespace();
 
                 if self.at(SyntaxKind::Colon) {
                     // Renamed binding: { a: b }
                     self.consume();
                     self.skip_whitespace();
-                    let value = self.parse_binding_pattern()?;
+                    let value = self.parse_for_loop_binding()?;
                     props.push(IrNode::ObjectPatProp {
                         key: Box::new(key),
                         value: Some(Box::new(value)),
@@ -277,7 +295,7 @@ impl Parser {
 
         self.expect(SyntaxKind::RBrace);
 
-        Some(IrNode::ObjectPat {
+        Ok(IrNode::ObjectPat {
             props,
             type_ann: None,
             optional: false,
@@ -285,11 +303,14 @@ impl Parser {
     }
 
     /// Parse a loop as raw text with placeholders (fallback for C-style for and while loops).
-    fn parse_loop_as_raw(&mut self) -> Option<IrNode> {
+    fn parse_loop_as_raw(&mut self) -> ParseResult<IrNode> {
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
-        let keyword = self.consume()?.text; // for/while
+        let keyword = self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "loop keyword"))?
+            .text;
+
         #[cfg(debug_assertions)]
         if debug_parser {
             eprintln!("[MF_DEBUG] parse_loop_as_raw: keyword={:?}", keyword);
@@ -299,7 +320,9 @@ impl Parser {
         // Helper to add whitespace
         while let Some(t) = self.current() {
             if t.kind == SyntaxKind::Whitespace {
-                parts.push(IrNode::Raw(self.consume()?.text));
+                if let Some(tok) = self.consume() {
+                    parts.push(IrNode::Raw(tok.text));
+                }
             } else {
                 break;
             }
@@ -308,7 +331,7 @@ impl Parser {
         // Parse the loop header in parens
         if !self.at(SyntaxKind::LParen) {
             // Try to recover - just return what we have
-            return Some(IrNode::IdentBlock { parts });
+            return Ok(IrNode::IdentBlock { parts });
         }
 
         let mut paren_depth = 0;
@@ -361,12 +384,14 @@ impl Parser {
                     }
                 }
                 SyntaxKind::DoubleQuote => {
-                    if let Some(node) = self.parse_string_literal() {
+                    // Use the new parse_string_literal from expr/primary.rs
+                    if let Ok(node) = self.parse_string_literal() {
                         parts.push(node);
                     }
                 }
                 SyntaxKind::Backtick => {
-                    if let Some(node) = self.parse_template_literal() {
+                    // Use the new parse_template_literal from expr/primary.rs
+                    if let Ok(node) = self.parse_template_literal() {
                         parts.push(node);
                     }
                 }
@@ -381,7 +406,9 @@ impl Parser {
         // Skip whitespace before body
         while let Some(t) = self.current() {
             if t.kind == SyntaxKind::Whitespace {
-                parts.push(IrNode::Raw(self.consume()?.text));
+                if let Some(tok) = self.consume() {
+                    parts.push(IrNode::Raw(tok.text));
+                }
             } else {
                 break;
             }
@@ -439,12 +466,12 @@ impl Parser {
                         }
                     }
                     SyntaxKind::DoubleQuote => {
-                        if let Some(node) = self.parse_string_literal() {
+                        if let Ok(node) = self.parse_string_literal() {
                             parts.push(node);
                         }
                     }
                     SyntaxKind::Backtick => {
-                        if let Some(node) = self.parse_template_literal() {
+                        if let Ok(node) = self.parse_template_literal() {
                             parts.push(node);
                         }
                     }
@@ -475,6 +502,6 @@ impl Parser {
         }
 
         // Return as TsLoopStmt which will be handled as a structured statement
-        Some(IrNode::TsLoopStmt { parts: merged })
+        Ok(IrNode::TsLoopStmt { parts: merged })
     }
 }

@@ -9,7 +9,7 @@ impl Parser {
             SyntaxKind::ReturnKw => self.parse_return_stmt(),
             SyntaxKind::ThrowKw => self.parse_throw_stmt(),
             SyntaxKind::IfKw => self.parse_ts_if_stmt(),
-            SyntaxKind::ForKw | SyntaxKind::WhileKw => self.parse_ts_loop_stmt(),
+            SyntaxKind::ForKw | SyntaxKind::WhileKw => self.parse_ts_loop_stmt().ok(),
             SyntaxKind::TryKw => self.parse_ts_try_stmt(),
             SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => self.parse_var_decl(false),
             SyntaxKind::At => self.parse_interpolation(), // Statement placeholder
@@ -114,7 +114,7 @@ impl Parser {
 
         // Parse consequent
         let cons = if self.at(SyntaxKind::LBrace) {
-            self.parse_block_stmt()?
+            self.parse_block_stmt().ok()?
         } else {
             // Single statement
             self.parse_stmt()?
@@ -132,7 +132,7 @@ impl Parser {
             self.consume();
             self.skip_whitespace();
             if self.at(SyntaxKind::LBrace) {
-                Some(Box::new(self.parse_block_stmt()?))
+                Some(Box::new(self.parse_block_stmt().ok()?))
             } else if self.at(SyntaxKind::IfKw) {
                 Some(Box::new(self.parse_ts_if_stmt()?))
             } else {
@@ -149,18 +149,7 @@ impl Parser {
         })
     }
 
-    pub(super) fn parse_block_stmt(&mut self) -> Option<IrNode> {
-        // Consume {
-        self.expect(SyntaxKind::LBrace)?;
-        self.skip_whitespace();
-
-        let stmts = self.parse_stmt_list();
-
-        self.skip_whitespace();
-        self.expect(SyntaxKind::RBrace);
-
-        Some(IrNode::BlockStmt { stmts })
-    }
+    // parse_block_stmt is now in expr/mod.rs with proper error handling (ParseResult)
 
     fn parse_stmt_list(&mut self) -> Vec<IrNode> {
         let mut stmts = Vec::new();

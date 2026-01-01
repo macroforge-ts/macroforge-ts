@@ -63,12 +63,12 @@ impl Parser {
                     }
                 }
                 Some(SyntaxKind::DoubleQuote) => {
-                    if let Some(node) = self.parse_string_literal() {
+                    if let Ok(node) = self.parse_string_literal() {
                         parts.push(node);
                     }
                 }
                 Some(SyntaxKind::Backtick) => {
-                    if let Some(node) = self.parse_template_literal() {
+                    if let Ok(node) = self.parse_template_literal() {
                         parts.push(node);
                     }
                 }

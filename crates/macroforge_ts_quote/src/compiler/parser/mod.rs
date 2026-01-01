@@ -12,10 +12,14 @@ mod context;
 mod control_blocks;
 mod decl;
 mod directives;
+pub mod expr;
 mod helpers;
 mod ident;
 mod interpolation;
 mod stmt;
+
+// Re-export error types for use throughout the parser
+pub use expr::errors::{ParseError, ParseErrorKind, ParseResult};
 
 use super::ir::{
     Accessibility, Ir, IrNode, MatchArm, MethodKind, PlaceholderKind, VarDeclarator, VarKind,
@@ -306,8 +310,8 @@ impl Parser {
             SyntaxKind::PipeOpen => self.parse_ident_block(),
             SyntaxKind::CommentLineOpen => self.parse_line_comment(),
             SyntaxKind::CommentBlockOpen => self.parse_block_comment(),
-            SyntaxKind::DoubleQuote => self.parse_string_literal(),
-            SyntaxKind::Backtick => self.parse_template_literal(),
+            SyntaxKind::DoubleQuote => self.parse_string_literal().ok(),
+            SyntaxKind::Backtick => self.parse_template_literal().ok(),
             // TypeScript decorator - collect and attach to next class/function
             SyntaxKind::DecoratorAt => {
                 if let Some(decorator) = self.parse_decorator_raw() {
@@ -338,10 +342,10 @@ impl Parser {
             // Interface/type members (can appear in for-loop bodies inside interfaces)
             SyntaxKind::ReadonlyKw => self.parse_maybe_interface_member(),
             // Block statement at module level - use lookahead to distinguish from object literal
-            SyntaxKind::LBrace if self.looks_like_block_stmt() => self.parse_block_stmt(),
+            SyntaxKind::LBrace if self.looks_like_block_stmt() => self.parse_block_stmt().ok(),
             // TypeScript statements that can appear at module level
             SyntaxKind::IfKw => self.parse_ts_if_stmt(),
-            SyntaxKind::ForKw | SyntaxKind::WhileKw => self.parse_ts_loop_stmt(),
+            SyntaxKind::ForKw | SyntaxKind::WhileKw => self.parse_ts_loop_stmt().ok(),
             SyntaxKind::TryKw => self.parse_ts_try_stmt(),
             SyntaxKind::ReturnKw => self.parse_return_stmt(),
             SyntaxKind::ThrowKw => self.parse_throw_stmt(),
@@ -407,7 +411,7 @@ impl Parser {
                     if paren_depth > 0 {
                         // Inside parens, consume everything
                         if self.at(SyntaxKind::DoubleQuote) {
-                            if let Some(s) = self.parse_string_literal() {
+                            if let Ok(s) = self.parse_string_literal() {
                                 parts.push(s);
                             }
                         } else if let Some(t) = self.consume() {

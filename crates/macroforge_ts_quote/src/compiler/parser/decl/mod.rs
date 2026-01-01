@@ -86,18 +86,13 @@ impl Parser {
             vec![]
         };
 
-        // Parse class body
+        // Parse class body - use the new parse_class_body from expr/mod.rs
         if !self.at(SyntaxKind::LBrace) {
             // No body, return raw
             return Some(IrNode::Raw("class ".to_string()));
         }
-        self.consume(); // consume {
-        self.skip_whitespace();
 
-        let body = self.parse_class_body();
-
-        self.skip_whitespace();
-        self.expect(SyntaxKind::RBrace);
+        let body = self.parse_class_body().ok()?;
 
         // Take pending decorators
         let decorators = std::mem::take(&mut self.pending_decorators);
@@ -115,213 +110,7 @@ impl Parser {
         })
     }
 
-    fn parse_class_body(&mut self) -> Vec<IrNode> {
-        let mut members = Vec::new();
-
-        while !self.at_eof() && !self.at(SyntaxKind::RBrace) {
-            self.skip_whitespace();
-
-            if self.at(SyntaxKind::RBrace) {
-                break;
-            }
-
-            // Check for control flow
-            if self.at(SyntaxKind::HashOpen) {
-                if let Some(node) = self.parse_control_block() {
-                    members.push(node);
-                }
-                continue;
-            }
-
-            // Check for directives
-            if self.at(SyntaxKind::DollarOpen) {
-                if let Some(node) = self.parse_directive() {
-                    members.push(node);
-                }
-                continue;
-            }
-
-            // Check for decorators (on class members)
-            if self.at(SyntaxKind::DecoratorAt) {
-                if let Some(node) = self.parse_decorator_raw() {
-                    members.push(node);
-                }
-                continue;
-            }
-
-            // Parse class member
-            if let Some(member) = self.parse_class_member() {
-                members.push(member);
-            } else {
-                // Consume unknown token
-                self.advance();
-            }
-        }
-
-        members
-    }
-
-    fn parse_class_member(&mut self) -> Option<IrNode> {
-        self.skip_whitespace();
-
-        // Check for doc comment
-        if self.at(SyntaxKind::DocCommentPrefix) || self.at(SyntaxKind::JsDocOpen) {
-            if let Some(IrNode::DocComment { text }) = self.parse_doc_comment() {
-                self.pending_doc = Some(text);
-            }
-            return self.parse_class_member();
-        }
-
-        // Parse modifiers
-        let mut static_ = false;
-        let mut readonly = false;
-        let mut accessibility = None;
-        let mut async_ = false;
-
-        loop {
-            match self.current_kind() {
-                Some(SyntaxKind::StaticKw) => {
-                    static_ = true;
-                    self.consume();
-                    self.skip_whitespace();
-                }
-                Some(SyntaxKind::ReadonlyKw) => {
-                    readonly = true;
-                    self.consume();
-                    self.skip_whitespace();
-                }
-                Some(SyntaxKind::PublicKw) => {
-                    accessibility = Some(Accessibility::Public);
-                    self.consume();
-                    self.skip_whitespace();
-                }
-                Some(SyntaxKind::PrivateKw) => {
-                    accessibility = Some(Accessibility::Private);
-                    self.consume();
-                    self.skip_whitespace();
-                }
-                Some(SyntaxKind::ProtectedKw) => {
-                    accessibility = Some(Accessibility::Protected);
-                    self.consume();
-                    self.skip_whitespace();
-                }
-                Some(SyntaxKind::AsyncKw) => {
-                    async_ = true;
-                    self.consume();
-                    self.skip_whitespace();
-                }
-                _ => break,
-            }
-        }
-
-        // Check for constructor
-        if self.current_text() == Some("constructor") {
-            return self.parse_constructor(accessibility);
-        }
-
-        // Parse member name
-        let name = self.parse_ts_ident_or_placeholder()?;
-        self.skip_whitespace();
-
-        // Check for optional marker
-        let optional = if self.at(SyntaxKind::Question) {
-            self.consume();
-            self.skip_whitespace();
-            true
-        } else {
-            false
-        };
-
-        // Check if this is a method (has parentheses or type params) or property
-        if self.at(SyntaxKind::LParen) || self.at(SyntaxKind::Lt) {
-            // Method
-            let type_params = self.parse_optional_type_params();
-            self.skip_whitespace();
-
-            let params = self.parse_param_list();
-            self.skip_whitespace();
-
-            // Return type
-            let return_type = if self.at(SyntaxKind::Colon) {
-                self.consume();
-                self.skip_whitespace();
-                self.push_context(Context::TypeAnnotation);
-                let ty = self.parse_type_until(&[SyntaxKind::LBrace, SyntaxKind::Semicolon])?;
-                self.pop_context();
-                Some(Box::new(ty))
-            } else {
-                None
-            };
-
-            // Body
-            let body = if self.at(SyntaxKind::LBrace) {
-                Some(Box::new(self.parse_block_stmt()?))
-            } else {
-                self.expect(SyntaxKind::Semicolon);
-                None
-            };
-
-            let node = IrNode::Method {
-                static_,
-                accessibility,
-                readonly,
-                async_,
-                generator: false,
-                kind: MethodKind::Method,
-                name: Box::new(name),
-                optional,
-                type_params,
-                params,
-                return_type,
-                body,
-            };
-
-            return self.wrap_with_doc(node);
-        }
-
-        // Property
-        let type_ann = if self.at(SyntaxKind::Colon) {
-            self.consume();
-            self.skip_whitespace();
-            Some(Box::new(self.parse_type_until(&[
-                SyntaxKind::Eq,
-                SyntaxKind::Semicolon,
-                SyntaxKind::RBrace,
-            ])?))
-        } else {
-            None
-        };
-
-        let value = if self.at(SyntaxKind::Eq) {
-            self.consume();
-            self.skip_whitespace();
-            Some(Box::new(self.parse_ts_expr_until(&[
-                SyntaxKind::Semicolon,
-                SyntaxKind::RBrace,
-            ])?))
-        } else {
-            None
-        };
-
-        // Consume optional semicolon
-        if self.at(SyntaxKind::Semicolon) {
-            self.consume();
-        }
-
-        let node = IrNode::ClassProp {
-            static_,
-            accessibility,
-            readonly,
-            declare: false,
-            optional,
-            definite: false,
-            name: Box::new(name),
-            type_ann,
-            value,
-        };
-
-        self.wrap_with_doc(node)
-    }
+    // parse_class_body and parse_class_member are now in expr/mod.rs with proper error handling
 
     fn parse_constructor(&mut self, accessibility: Option<Accessibility>) -> Option<IrNode> {
         // Consume "constructor"
@@ -332,7 +121,7 @@ impl Parser {
         self.skip_whitespace();
 
         let body = if self.at(SyntaxKind::LBrace) {
-            Some(Box::new(self.parse_block_stmt()?))
+            Some(Box::new(self.parse_block_stmt().ok()?))
         } else {
             None
         };
@@ -343,7 +132,7 @@ impl Parser {
             body,
         };
 
-        self.wrap_with_doc(node)
+        self.wrap_with_doc(node).ok()
     }
 
     pub(super) fn parse_function_decl(&mut self, exported: bool, async_: bool) -> Option<IrNode> {
@@ -386,7 +175,7 @@ impl Parser {
 
         // Parse body
         let body = if self.at(SyntaxKind::LBrace) {
-            Some(Box::new(self.parse_block_stmt()?))
+            Some(Box::new(self.parse_block_stmt().ok()?))
         } else {
             None
         };
@@ -403,7 +192,7 @@ impl Parser {
             body,
         };
 
-        self.wrap_with_doc(node)
+        self.wrap_with_doc(node).ok()
     }
 
     pub(super) fn parse_var_decl(&mut self, exported: bool) -> Option<IrNode> {
@@ -594,6 +383,6 @@ impl Parser {
             type_ann: Box::new(type_ann),
         };
 
-        self.wrap_with_doc(node)
+        self.wrap_with_doc(node).ok()
     }
 }

@@ -8,18 +8,16 @@ use super::*;
 // =========================================================================
 
 impl Parser {
-    pub(super) fn current_text(&self) -> Option<&str> {
-        self.current().map(|t| t.text.as_str())
-    }
+    // current_text is now defined in expr/primary.rs
 
-    pub(super) fn wrap_with_doc(&mut self, node: IrNode) -> Option<IrNode> {
+    pub(super) fn wrap_with_doc(&mut self, node: IrNode) -> ParseResult<IrNode> {
         if let Some(doc) = self.pending_doc.take() {
-            Some(IrNode::Documented {
+            Ok(IrNode::Documented {
                 doc,
                 inner: Box::new(node),
             })
         } else {
-            Some(node)
+            Ok(node)
         }
     }
 

@@ -33,68 +33,7 @@ impl Parser {
         }
     }
 
-    pub(in super::super) fn parse_optional_type_params(&mut self) -> Option<Box<IrNode>> {
-        if !self.at(SyntaxKind::Lt) {
-            return None;
-        }
-
-        self.consume(); // <
-        let mut parts = Vec::new();
-
-        let mut angle_depth = 1;
-        while !self.at_eof() && angle_depth > 0 {
-            let text = self.current().map(|t| t.text.as_str()).unwrap_or("");
-            match self.current_kind() {
-                Some(SyntaxKind::Lt) => {
-                    angle_depth += 1;
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
-                    }
-                }
-                Some(SyntaxKind::Gt) => {
-                    // Handle >> as two >
-                    if text == ">>" {
-                        angle_depth -= 2;
-                    } else {
-                        angle_depth -= 1;
-                    }
-                    if angle_depth >= 0 {
-                        if let Some(t) = self.consume() {
-                            if angle_depth > 0 {
-                                parts.push(IrNode::Raw(t.text));
-                            }
-                        }
-                    }
-                }
-                Some(SyntaxKind::At) => {
-                    if let Some(node) = self.parse_interpolation() {
-                        parts.push(node);
-                    }
-                }
-                _ => {
-                    // Check for >> as text (in case it's not tokenized as Gt)
-                    if text == ">>" {
-                        angle_depth -= 2;
-                        if angle_depth >= 0 {
-                            if let Some(t) = self.consume() {
-                                if angle_depth > 0 {
-                                    parts.push(IrNode::Raw(t.text));
-                                }
-                            }
-                        }
-                    } else {
-                        if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw(t.text));
-                        }
-                    }
-                }
-            }
-        }
-
-        Some(Box::new(IrNode::TypeParams {
-            params: Self::merge_adjacent_text(parts),
-        }))
-    }
+    // parse_optional_type_params is now in expr/mod.rs with proper error handling
 
     pub(in super::super) fn parse_param_list(&mut self) -> Vec<IrNode> {
         if !self.at(SyntaxKind::LParen) {
@@ -447,12 +386,12 @@ impl Parser {
                     }
                 }
                 SyntaxKind::Backtick => {
-                    if let Some(node) = self.parse_template_literal() {
+                    if let Ok(node) = self.parse_template_literal() {
                         parts.push(node);
                     }
                 }
                 SyntaxKind::DoubleQuote => {
-                    if let Some(node) = self.parse_string_literal() {
+                    if let Ok(node) = self.parse_string_literal() {
                         parts.push(node);
                     }
                 }

@@ -218,6 +218,36 @@ pub enum SyntaxKind {
     /// `enum` keyword
     EnumKw,
 
+    // Expression keywords
+    /// `void` keyword (unary operator)
+    VoidKw,
+    /// `delete` keyword (unary operator)
+    DeleteKw,
+    /// `instanceof` keyword (binary operator)
+    InstanceofKw,
+    /// `this` keyword
+    ThisKw,
+    /// `super` keyword
+    SuperKw,
+    /// `null` literal keyword
+    NullKw,
+    /// `true` literal keyword
+    TrueKw,
+    /// `false` literal keyword
+    FalseKw,
+    /// `undefined` keyword
+    UndefinedKw,
+    /// `break` keyword
+    BreakKw,
+    /// `continue` keyword
+    ContinueKw,
+    /// `debugger` keyword
+    DebuggerKw,
+    /// `with` keyword
+    WithKw,
+    /// `switch` keyword
+    SwitchKw,
+
     // Identifiers and expressions
     /// An identifier (variable name, type name, etc.)
     Ident,
@@ -397,6 +427,21 @@ impl SyntaxKind {
                 | Self::SatisfiesKw
                 | Self::InferKw
                 | Self::IsKw
+                | Self::EnumKw
+                | Self::VoidKw
+                | Self::DeleteKw
+                | Self::InstanceofKw
+                | Self::ThisKw
+                | Self::SuperKw
+                | Self::NullKw
+                | Self::TrueKw
+                | Self::FalseKw
+                | Self::UndefinedKw
+                | Self::BreakKw
+                | Self::ContinueKw
+                | Self::DebuggerKw
+                | Self::WithKw
+                | Self::SwitchKw
         )
     }
 

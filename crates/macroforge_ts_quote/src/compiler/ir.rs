@@ -408,8 +408,12 @@ pub enum IrNode {
     },
 
     /// Optional chain expression: `obj?.prop` or `obj?.[prop]` or `fn?.()`
+    /// The `expr` contains the full chained expression (MemberExpr or CallExpr)
     OptChainExpr {
+        /// The base object being accessed
         base: Box<IrNode>,
+        /// The chained expression (MemberExpr or CallExpr with optional access)
+        expr: Box<IrNode>,
     },
 
     /// Object literal: `{ props }`
@@ -478,11 +482,11 @@ pub enum IrNode {
         arg: Box<IrNode>,
     },
 
-    /// Conditional expression: `test ? cons : alt`
+    /// Conditional expression: `test ? consequent : alternate`
     CondExpr {
         test: Box<IrNode>,
-        cons: Box<IrNode>,
-        alt: Box<IrNode>,
+        consequent: Box<IrNode>,
+        alternate: Box<IrNode>,
     },
 
     /// Sequence expression: `a, b, c`
@@ -496,12 +500,14 @@ pub enum IrNode {
         exprs: Vec<IrNode>,
     },
 
-    /// Tagged template: `tag`hello ${expr}``
+    /// Tagged template: `` tag`hello ${expr}` ``
     TaggedTpl {
+        /// The tag function/expression
         tag: Box<IrNode>,
-        type_params: Option<Box<IrNode>>,
-        quasis: Vec<String>,
-        exprs: Vec<IrNode>,
+        /// Optional type arguments for the tag
+        type_args: Option<Box<IrNode>>,
+        /// The template literal (TplLit node)
+        tpl: Box<IrNode>,
     },
 
     /// Parenthesized expression: `(expr)`
@@ -524,6 +530,11 @@ pub enum IrNode {
     TsAsExpr {
         expr: Box<IrNode>,
         type_ann: Box<IrNode>,
+    },
+
+    /// Const assertion: `expr as const`
+    TsConstAssertion {
+        expr: Box<IrNode>,
     },
 
     /// Satisfies expression: `expr satisfies Type`

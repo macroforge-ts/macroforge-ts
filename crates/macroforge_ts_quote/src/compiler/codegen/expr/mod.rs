@@ -216,10 +216,10 @@ impl Codegen {
             }
         }
 
-        IrNode::CondExpr { test, cons, alt } => {
+        IrNode::CondExpr { test, consequent, alternate } => {
             let test_code = self.generate_expr(test);
-            let cons_code = self.generate_expr(cons);
-            let alt_code = self.generate_expr(alt);
+            let cons_code = self.generate_expr(consequent);
+            let alt_code = self.generate_expr(alternate);
 
             quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Cond(
@@ -525,14 +525,79 @@ impl Codegen {
         }
 
         // Optional chaining expression: obj?.prop, fn?.()
-        IrNode::OptChainExpr { base } => {
-            let base_code = self.generate_opt_chain_base(base);
+        IrNode::OptChainExpr { base, expr } => {
+            // `base` is the object being accessed (e.g., `x` in `x?.y`)
+            // `expr` contains the chain operation with a placeholder for the object
+            let base_obj_code = self.generate_expr(base);
+            let chain_base_code = match expr.as_ref() {
+                // x?.y or x?.[y] - member access
+                IrNode::MemberExpr { obj: _, prop, computed } => {
+                    // obj is a placeholder, use base instead
+                    let prop_code = if *computed {
+                        let p = self.generate_expr(prop);
+                        quote! {
+                            macroforge_ts::swc_core::ecma::ast::MemberProp::Computed(
+                                macroforge_ts::swc_core::ecma::ast::ComputedPropName {
+                                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                    expr: Box::new(#p),
+                                }
+                            )
+                        }
+                    } else {
+                        let ident_code = self.generate_ident_name(prop);
+                        quote! {
+                            macroforge_ts::swc_core::ecma::ast::MemberProp::Ident(#ident_code)
+                        }
+                    };
+
+                    quote! {
+                        macroforge_ts::swc_core::ecma::ast::OptChainBase::Member(
+                            macroforge_ts::swc_core::ecma::ast::MemberExpr {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                obj: Box::new(#base_obj_code),
+                                prop: #prop_code,
+                            }
+                        )
+                    }
+                }
+                // x?.() - optional call
+                IrNode::CallExpr { callee: _, args, type_args: _ } => {
+                    // callee is a placeholder, use base instead
+                    let args_code: Vec<TokenStream> = args
+                        .iter()
+                        .map(|a| {
+                            let expr = self.generate_expr(a);
+                            quote! {
+                                macroforge_ts::swc_core::ecma::ast::ExprOrSpread {
+                                    spread: None,
+                                    expr: Box::new(#expr),
+                                }
+                            }
+                        })
+                        .collect();
+
+                    quote! {
+                        macroforge_ts::swc_core::ecma::ast::OptChainBase::Call(
+                            macroforge_ts::swc_core::ecma::ast::OptCall {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                                callee: Box::new(#base_obj_code),
+                                args: vec![#(#args_code),*],
+                                type_args: None,
+                            }
+                        )
+                    }
+                }
+                // Fallback for unexpected expr types
+                _ => self.generate_opt_chain_base(base),
+            };
+
             quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::OptChain(
                     macroforge_ts::swc_core::ecma::ast::OptChainExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         optional: true,
-                        base: Box::new(#base_code),
+                        base: Box::new(#chain_base_code),
                     }
                 )
             }
@@ -641,8 +706,15 @@ impl Codegen {
         }
 
         // Tagged template literal: tag`template`
-        IrNode::TaggedTpl { tag, type_params: _, quasis, exprs } => {
+        IrNode::TaggedTpl { tag, type_args: _, tpl } => {
             let tag_code = self.generate_expr(tag);
+
+            // Extract quasis and exprs from the TplLit node
+            let (quasis, exprs) = match tpl.as_ref() {
+                IrNode::TplLit { quasis, exprs } => (quasis.clone(), exprs.clone()),
+                _ => (vec![], vec![]),
+            };
+
             let quasis_code: Vec<TokenStream> = quasis
                 .iter()
                 .enumerate()

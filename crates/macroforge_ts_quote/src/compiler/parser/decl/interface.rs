@@ -42,7 +42,7 @@ impl Parser {
             body,
         };
 
-        self.wrap_with_doc(node)
+        self.wrap_with_doc(node).ok()
     }
 
     fn parse_interface_body(&mut self) -> Vec<IrNode> {
