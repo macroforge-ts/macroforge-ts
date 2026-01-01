@@ -32,9 +32,9 @@ impl Parser {
         let text = token.text.clone();
 
         match kind {
-            // Placeholder interpolation: @{expr}
+            // Placeholder interpolation: @{expr} or composite like @{a}Middle@{b}
             SyntaxKind::At => self
-                .parse_interpolation()
+                .parse_interpolated_ident()
                 .ok_or_else(|| ParseError::unexpected_eof(self.pos, "placeholder")),
 
             // Update operators as prefix: ++x, --x
@@ -320,7 +320,7 @@ impl Parser {
 
         // Optional name
         let name = if self.at(SyntaxKind::Ident) {
-            let token = self.consume().unwrap();
+            let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "function name"))?;
             Some(Box::new(IrNode::Ident(token.text)))
         } else {
             None
@@ -384,7 +384,7 @@ impl Parser {
 
             // Optional name
             let name = if self.at(SyntaxKind::Ident) {
-                let token = self.consume().unwrap();
+                let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "async function name"))?;
                 Some(Box::new(IrNode::Ident(token.text)))
             } else {
                 None
@@ -469,7 +469,7 @@ impl Parser {
 
         // Optional name
         let name = if self.at(SyntaxKind::Ident) {
-            let token = self.consume().unwrap();
+            let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "class name"))?;
             Some(Box::new(IrNode::Ident(token.text)))
         } else {
             None
@@ -802,13 +802,16 @@ impl Parser {
             });
         }
 
-        // Placeholder as property: @{prop}
+        // Placeholder as property: @{prop}, @{key}: value, or @{name}() {}
         if self.at(SyntaxKind::At) {
-            let placeholder = self.parse_interpolation().ok_or_else(|| {
-                ParseError::unexpected_eof(self.pos, "placeholder in object property")
-            })?;
+            let placeholder = self.parse_interpolation()?;
 
             self.skip_whitespace();
+
+            // Method shorthand: @{name}() {} or @{name}<T>() {}
+            if self.at(SyntaxKind::LParen) || self.at(SyntaxKind::Lt) {
+                return self.parse_method_prop(placeholder, false, false);
+            }
 
             if self.at(SyntaxKind::Colon) {
                 // @{key}: value
@@ -884,7 +887,7 @@ impl Parser {
 
         match token.kind {
             SyntaxKind::Ident => {
-                let t = self.consume().unwrap();
+                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "property name identifier"))?;
                 Ok(IrNode::Ident(t.text))
             }
             SyntaxKind::DoubleQuote | SyntaxKind::SingleQuote => self.parse_string_literal(),
@@ -893,7 +896,7 @@ impl Parser {
             }
             _ if token.kind.is_ts_keyword() => {
                 // Keywords can be property names
-                let t = self.consume().unwrap();
+                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "property name keyword"))?;
                 Ok(IrNode::Ident(t.text))
             }
             _ => Err(ParseError::new(ParseErrorKind::InvalidPropertyName, self.pos)
@@ -1079,8 +1082,8 @@ impl Parser {
                 break;
             }
 
-            // Check for interpolation: ${
-            if self.at_text("${") || (self.at(SyntaxKind::Text) && self.current_text() == Some("${")) {
+            // Check for JS template interpolation: ${
+            if self.at(SyntaxKind::DollarBrace) {
                 quasis.push(std::mem::take(&mut current_text));
                 self.consume(); // ${
 
@@ -1102,9 +1105,7 @@ impl Parser {
             } else if self.at(SyntaxKind::At) {
                 // @{} placeholder inside template
                 quasis.push(std::mem::take(&mut current_text));
-                let placeholder = self.parse_interpolation().ok_or_else(|| {
-                    ParseError::unexpected_eof(self.pos, "placeholder in template")
-                })?;
+                let placeholder = self.parse_interpolation()?;
                 exprs.push(placeholder);
             } else {
                 // Regular text
@@ -1162,9 +1163,7 @@ impl Parser {
                 if !content.is_empty() {
                     parts.push(IrNode::StrLit(std::mem::take(&mut content)));
                 }
-                let placeholder = self.parse_interpolation().ok_or_else(|| {
-                    ParseError::unexpected_eof(self.pos, "placeholder in string")
-                })?;
+                let placeholder = self.parse_interpolation()?;
                 parts.push(placeholder);
             } else {
                 // Regular text

@@ -1,63 +1,59 @@
+use super::error::{GenError, GenErrorKind, GenResult};
 use super::*;
 
 impl Codegen {
     /// Generate a BlockStmt from an IrNode (for function bodies)
-    pub(in super::super) fn generate_block_stmt(&self, node: &IrNode) -> TokenStream {
+    pub(in super::super) fn generate_block_stmt(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
             IrNode::BlockStmt { stmts } => {
                 let stmts_code = self.generate_stmts_vec(stmts);
-                quote! {
+                Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::BlockStmt {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
                         stmts: #stmts_code,
                     }
-                }
+                })
             }
             _ => {
                 // Fallback: wrap single statement in a block
-                if let Some(stmt_code) = self.generate_stmt(node) {
-                    quote! {
-                        macroforge_ts::swc_core::ecma::ast::BlockStmt {
-                            span: macroforge_ts::swc_core::common::DUMMY_SP,
-                            ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
-                            stmts: vec![#stmt_code],
-                        }
+                let stmt_code = self.generate_stmt(node)?;
+                Ok(quote! {
+                    macroforge_ts::swc_core::ecma::ast::BlockStmt {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                        stmts: vec![#stmt_code],
                     }
-                } else {
-                    quote! {
-                        macroforge_ts::swc_core::ecma::ast::BlockStmt {
-                            span: macroforge_ts::swc_core::common::DUMMY_SP,
-                            ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
-                            stmts: vec![],
-                        }
-                    }
-                }
+                })
             }
         }
     }
 
-    pub(in super::super) fn generate_block_stmt_opt(&self, node: &IrNode) -> TokenStream {
+    pub(in super::super) fn generate_block_stmt_opt(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::BlockStmt { stmts } => {
             let stmts_code = self.generate_stmts_vec(stmts);
-            quote! {
+            Ok(quote! {
                 Some(macroforge_ts::swc_core::ecma::ast::BlockStmt {
                     span: macroforge_ts::swc_core::common::DUMMY_SP,
                     ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
                     stmts: #stmts_code,
                 })
-            }
+            })
         }
-        _ => quote! { None },
+        _ => Err(GenError::unexpected_node(
+            "optional block statement",
+            node,
+            &["BlockStmt"],
+        )),
     }
 }
 
-pub(in super::super) fn generate_block_stmt_or_expr(&self, node: &IrNode) -> TokenStream {
+pub(in super::super) fn generate_block_stmt_or_expr(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::BlockStmt { stmts } => {
             let stmts_code = self.generate_stmts_vec(stmts);
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::BlockStmtOrExpr::BlockStmt(
                     macroforge_ts::swc_core::ecma::ast::BlockStmt {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -65,13 +61,13 @@ pub(in super::super) fn generate_block_stmt_or_expr(&self, node: &IrNode) -> Tok
                         stmts: #stmts_code,
                     }
                 )
-            }
+            })
         }
         _ => {
-            let expr_code = self.generate_expr(node);
-            quote! {
+            let expr_code = self.generate_expr(node)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::BlockStmtOrExpr::Expr(Box::new(#expr_code))
-            }
+            })
         }
     }
 }
@@ -102,7 +98,16 @@ pub(in super::super) fn generate_stmts_vec(&self, nodes: &[IrNode]) -> TokenStre
         }
     } else {
         // No control flow - generate literal vec
-        let stmts: Vec<TokenStream> = nodes.iter().filter_map(|n| self.generate_stmt(n)).collect();
+        // Collect results, panicking on errors during code generation
+        let stmts: Vec<TokenStream> = nodes
+            .iter()
+            .filter_map(|n| {
+                match self.generate_stmt(n) {
+                    Ok(ts) => Some(ts),
+                    Err(e) => panic!("Statement generation failed: {}", e.to_message()),
+                }
+            })
+            .collect();
         quote! { vec![#(#stmts),*] }
     }
 }
@@ -116,14 +121,17 @@ pub(in super::super) fn generate_stmt_pushes(&self, nodes: &[IrNode]) -> TokenSt
         if self.is_control_flow_node(node) || self.is_structured_stmt(node) {
             // Flush pending nodes as combined statement
             if !pending_nodes.is_empty() {
-                if let Some(stmt) = self.generate_combined_stmt(&pending_nodes) {
-                    pushes.push(stmt);
+                match self.generate_combined_stmt(&pending_nodes) {
+                    Ok(Some(stmt)) => pushes.push(stmt),
+                    Ok(None) => {}
+                    Err(e) => panic!("Combined statement generation failed: {}", e.to_message()),
                 }
                 pending_nodes.clear();
             }
             // Generate control flow / structured statement directly
-            if let Some(push) = self.generate_stmt_push(node) {
-                pushes.push(push);
+            match self.generate_stmt_push(node) {
+                Ok(push) => pushes.push(push),
+                Err(e) => panic!("Statement push generation failed: {}", e.to_message()),
             }
         } else {
             pending_nodes.push(node);
@@ -132,8 +140,10 @@ pub(in super::super) fn generate_stmt_pushes(&self, nodes: &[IrNode]) -> TokenSt
 
     // Flush remaining pending nodes
     if !pending_nodes.is_empty() {
-        if let Some(stmt) = self.generate_combined_stmt(&pending_nodes) {
-            pushes.push(stmt);
+        match self.generate_combined_stmt(&pending_nodes) {
+            Ok(Some(stmt)) => pushes.push(stmt),
+            Ok(None) => {}
+            Err(e) => panic!("Combined statement generation failed: {}", e.to_message()),
         }
     }
 
@@ -154,9 +164,9 @@ pub(in super::super) fn is_structured_stmt(&self, node: &IrNode) -> bool {
     )
 }
 
-pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> Option<TokenStream> {
+pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> GenResult<Option<TokenStream>> {
     if nodes.is_empty() {
-        return None;
+        return Ok(None);
     }
 
     // Check if all nodes are whitespace-only Raw nodes
@@ -164,7 +174,7 @@ pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> Opti
         .iter()
         .all(|n| matches!(n, IrNode::Raw(text) if text.trim().is_empty()));
     if all_whitespace {
-        return None;
+        return Ok(None);
     }
 
     // Generate code that builds a statement string and parses it
@@ -173,7 +183,7 @@ pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> Opti
         .map(|n| self.generate_stmt_string_part(n))
         .collect();
 
-    Some(quote! {
+    Ok(Some(quote! {
         {
             let mut __stmt_str = String::new();
             #(#part_exprs)*
@@ -183,7 +193,7 @@ pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> Opti
                 }
             }
         }
-    })
+    }))
 }
 
 pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> TokenStream {
@@ -237,7 +247,14 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                     __stmt_str.push_str(&macroforge_ts::ts_syn::emit_ts_type(&__ty));
                 }
             }
-            _ => quote! {},
+            _ => {
+                let err = GenError::invalid_placeholder(
+                    "statement string part",
+                    &format!("{:?}", kind),
+                    &["Expr", "Ident", "Type"],
+                );
+                panic!("{}", err.to_message());
+            }
         },
         // Control flow nodes - generate Rust code that builds the string dynamically
         IrNode::For {
@@ -422,7 +439,378 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 .collect();
             quote! { #(#part_exprs)* }
         }
-        _ => quote! {},
+        // Expression nodes - generate as string representations
+        IrNode::UnaryExpr { op, arg } => {
+            let op_str = match op {
+                UnaryOp::Minus => "-",
+                UnaryOp::Plus => "+",
+                UnaryOp::Not => "!",
+                UnaryOp::BitNot => "~",
+                UnaryOp::TypeOf => "typeof ",
+                UnaryOp::Void => "void ",
+                UnaryOp::Delete => "delete ",
+            };
+            let arg_parts = self.generate_stmt_string_part(arg);
+            quote! {
+                __stmt_str.push_str(#op_str);
+                #arg_parts
+            }
+        }
+        IrNode::BinExpr { left, op, right } => {
+            let op_str = match op {
+                BinaryOp::Add => " + ",
+                BinaryOp::Sub => " - ",
+                BinaryOp::Mul => " * ",
+                BinaryOp::Div => " / ",
+                BinaryOp::Mod => " % ",
+                BinaryOp::Exp => " ** ",
+                BinaryOp::EqEq => " == ",
+                BinaryOp::NotEq => " != ",
+                BinaryOp::EqEqEq => " === ",
+                BinaryOp::NotEqEq => " !== ",
+                BinaryOp::Lt => " < ",
+                BinaryOp::Le => " <= ",
+                BinaryOp::Gt => " > ",
+                BinaryOp::Ge => " >= ",
+                BinaryOp::And => " && ",
+                BinaryOp::Or => " || ",
+                BinaryOp::NullishCoalesce => " ?? ",
+                BinaryOp::BitAnd => " & ",
+                BinaryOp::BitOr => " | ",
+                BinaryOp::BitXor => " ^ ",
+                BinaryOp::Shl => " << ",
+                BinaryOp::Shr => " >> ",
+                BinaryOp::UShr => " >>> ",
+                BinaryOp::In => " in ",
+                BinaryOp::InstanceOf => " instanceof ",
+            };
+            let left_parts = self.generate_stmt_string_part(left);
+            let right_parts = self.generate_stmt_string_part(right);
+            quote! {
+                #left_parts
+                __stmt_str.push_str(#op_str);
+                #right_parts
+            }
+        }
+        IrNode::CondExpr { test, consequent, alternate } => {
+            let test_parts = self.generate_stmt_string_part(test);
+            let cons_parts = self.generate_stmt_string_part(consequent);
+            let alt_parts = self.generate_stmt_string_part(alternate);
+            quote! {
+                #test_parts
+                __stmt_str.push_str(" ? ");
+                #cons_parts
+                __stmt_str.push_str(" : ");
+                #alt_parts
+            }
+        }
+        IrNode::CallExpr { callee, args, .. } => {
+            let callee_parts = self.generate_stmt_string_part(callee);
+            let args_parts: Vec<TokenStream> = args
+                .iter()
+                .enumerate()
+                .map(|(i, a)| {
+                    let arg_part = self.generate_stmt_string_part(a);
+                    if i > 0 {
+                        quote! {
+                            __stmt_str.push_str(", ");
+                            #arg_part
+                        }
+                    } else {
+                        arg_part
+                    }
+                })
+                .collect();
+            quote! {
+                #callee_parts
+                __stmt_str.push_str("(");
+                #(#args_parts)*
+                __stmt_str.push_str(")");
+            }
+        }
+        IrNode::MemberExpr { obj, prop, computed } => {
+            let obj_parts = self.generate_stmt_string_part(obj);
+            let prop_parts = self.generate_stmt_string_part(prop);
+            if *computed {
+                quote! {
+                    #obj_parts
+                    __stmt_str.push_str("[");
+                    #prop_parts
+                    __stmt_str.push_str("]");
+                }
+            } else {
+                quote! {
+                    #obj_parts
+                    __stmt_str.push_str(".");
+                    #prop_parts
+                }
+            }
+        }
+        IrNode::NewExpr { callee, args, .. } => {
+            let callee_parts = self.generate_stmt_string_part(callee);
+            let args_parts: Vec<TokenStream> = args
+                .iter()
+                .enumerate()
+                .map(|(i, a)| {
+                    let arg_part = self.generate_stmt_string_part(a);
+                    if i > 0 {
+                        quote! {
+                            __stmt_str.push_str(", ");
+                            #arg_part
+                        }
+                    } else {
+                        arg_part
+                    }
+                })
+                .collect();
+            quote! {
+                __stmt_str.push_str("new ");
+                #callee_parts
+                __stmt_str.push_str("(");
+                #(#args_parts)*
+                __stmt_str.push_str(")");
+            }
+        }
+        IrNode::ParenExpr { expr } => {
+            let expr_parts = self.generate_stmt_string_part(expr);
+            quote! {
+                __stmt_str.push_str("(");
+                #expr_parts
+                __stmt_str.push_str(")");
+            }
+        }
+        IrNode::ArrayLit { elems } => {
+            let elem_parts: Vec<TokenStream> = elems
+                .iter()
+                .enumerate()
+                .map(|(i, e)| {
+                    let elem_part = self.generate_stmt_string_part(e);
+                    if i > 0 {
+                        quote! {
+                            __stmt_str.push_str(", ");
+                            #elem_part
+                        }
+                    } else {
+                        elem_part
+                    }
+                })
+                .collect();
+            quote! {
+                __stmt_str.push_str("[");
+                #(#elem_parts)*
+                __stmt_str.push_str("]");
+            }
+        }
+        IrNode::ObjectLit { props } => {
+            let prop_parts: Vec<TokenStream> = props
+                .iter()
+                .enumerate()
+                .map(|(i, p)| {
+                    let prop_part = self.generate_stmt_string_part(p);
+                    if i > 0 {
+                        quote! {
+                            __stmt_str.push_str(", ");
+                            #prop_part
+                        }
+                    } else {
+                        prop_part
+                    }
+                })
+                .collect();
+            quote! {
+                __stmt_str.push_str("{ ");
+                #(#prop_parts)*
+                __stmt_str.push_str(" }");
+            }
+        }
+        IrNode::KeyValueProp { key, value } => {
+            let key_parts = self.generate_stmt_string_part(key);
+            let value_parts = self.generate_stmt_string_part(value);
+            quote! {
+                #key_parts
+                __stmt_str.push_str(": ");
+                #value_parts
+            }
+        }
+        IrNode::ShorthandProp { key } => {
+            self.generate_stmt_string_part(key)
+        }
+        IrNode::SpreadElement { expr } => {
+            let expr_parts = self.generate_stmt_string_part(expr);
+            quote! {
+                __stmt_str.push_str("...");
+                #expr_parts
+            }
+        }
+        IrNode::NumLit(value) => {
+            quote! { __stmt_str.push_str(#value); }
+        }
+        IrNode::BoolLit(value) => {
+            let val_str = if *value { "true" } else { "false" };
+            quote! { __stmt_str.push_str(#val_str); }
+        }
+        IrNode::NullLit => {
+            quote! { __stmt_str.push_str("null"); }
+        }
+        IrNode::ThisExpr => {
+            quote! { __stmt_str.push_str("this"); }
+        }
+        IrNode::SuperExpr => {
+            quote! { __stmt_str.push_str("super"); }
+        }
+        IrNode::AssignExpr { left, op, right } => {
+            let op_str = match op {
+                AssignOp::Assign => " = ",
+                AssignOp::AddAssign => " += ",
+                AssignOp::SubAssign => " -= ",
+                AssignOp::MulAssign => " *= ",
+                AssignOp::DivAssign => " /= ",
+                AssignOp::ModAssign => " %= ",
+                AssignOp::ExpAssign => " **= ",
+                AssignOp::ShlAssign => " <<= ",
+                AssignOp::ShrAssign => " >>= ",
+                AssignOp::UShrAssign => " >>>= ",
+                AssignOp::BitAndAssign => " &= ",
+                AssignOp::BitOrAssign => " |= ",
+                AssignOp::BitXorAssign => " ^= ",
+                AssignOp::AndAssign => " &&= ",
+                AssignOp::OrAssign => " ||= ",
+                AssignOp::NullishAssign => " ??= ",
+            };
+            let left_parts = self.generate_stmt_string_part(left);
+            let right_parts = self.generate_stmt_string_part(right);
+            quote! {
+                #left_parts
+                __stmt_str.push_str(#op_str);
+                #right_parts
+            }
+        }
+        IrNode::UpdateExpr { op, prefix, arg } => {
+            let op_str = match op {
+                UpdateOp::Increment => "++",
+                UpdateOp::Decrement => "--",
+            };
+            let arg_parts = self.generate_stmt_string_part(arg);
+            if *prefix {
+                quote! {
+                    __stmt_str.push_str(#op_str);
+                    #arg_parts
+                }
+            } else {
+                quote! {
+                    #arg_parts
+                    __stmt_str.push_str(#op_str);
+                }
+            }
+        }
+        IrNode::AwaitExpr { arg } => {
+            let arg_parts = self.generate_stmt_string_part(arg);
+            quote! {
+                __stmt_str.push_str("await ");
+                #arg_parts
+            }
+        }
+        IrNode::TsAsExpr { expr, type_ann } => {
+            let expr_parts = self.generate_stmt_string_part(expr);
+            let type_parts = self.generate_stmt_string_part(type_ann);
+            quote! {
+                #expr_parts
+                __stmt_str.push_str(" as ");
+                #type_parts
+            }
+        }
+        IrNode::TsNonNullExpr { expr } => {
+            let expr_parts = self.generate_stmt_string_part(expr);
+            quote! {
+                #expr_parts
+                __stmt_str.push_str("!");
+            }
+        }
+        // Type nodes for string representation
+        IrNode::KeywordType(kw) => {
+            let type_str = match kw {
+                TsKeyword::Any => "any",
+                TsKeyword::Unknown => "unknown",
+                TsKeyword::String => "string",
+                TsKeyword::Number => "number",
+                TsKeyword::Boolean => "boolean",
+                TsKeyword::Void => "void",
+                TsKeyword::Null => "null",
+                TsKeyword::Undefined => "undefined",
+                TsKeyword::Never => "never",
+                TsKeyword::Object => "object",
+                TsKeyword::BigInt => "bigint",
+                TsKeyword::Symbol => "symbol",
+            };
+            quote! { __stmt_str.push_str(#type_str); }
+        }
+        IrNode::TypeRef { name, type_params } => {
+            let name_parts = self.generate_stmt_string_part(name);
+            if let Some(params) = type_params {
+                let params_parts = self.generate_stmt_string_part(params);
+                quote! {
+                    #name_parts
+                    #params_parts
+                }
+            } else {
+                name_parts
+            }
+        }
+        IrNode::TypeArgs { args } => {
+            let arg_parts: Vec<TokenStream> = args
+                .iter()
+                .enumerate()
+                .map(|(i, a)| {
+                    let arg_part = self.generate_stmt_string_part(a);
+                    if i > 0 {
+                        quote! {
+                            __stmt_str.push_str(", ");
+                            #arg_part
+                        }
+                    } else {
+                        arg_part
+                    }
+                })
+                .collect();
+            quote! {
+                __stmt_str.push_str("<");
+                #(#arg_parts)*
+                __stmt_str.push_str(">");
+            }
+        }
+        IrNode::UnionType { types } => {
+            let type_parts: Vec<TokenStream> = types
+                .iter()
+                .enumerate()
+                .map(|(i, t)| {
+                    let type_part = self.generate_stmt_string_part(t);
+                    if i > 0 {
+                        quote! {
+                            __stmt_str.push_str(" | ");
+                            #type_part
+                        }
+                    } else {
+                        type_part
+                    }
+                })
+                .collect();
+            quote! { #(#type_parts)* }
+        }
+        IrNode::ArrayType { elem } => {
+            let elem_parts = self.generate_stmt_string_part(elem);
+            quote! {
+                #elem_parts
+                __stmt_str.push_str("[]");
+            }
+        }
+        _ => {
+            let err = GenError::unexpected_node(
+                "statement string part",
+                node,
+                &["Raw", "StrLit", "Ident", "IdentBlock", "StringInterp", "Placeholder", "For", "If", "While", "Let", "Do", "VarDecl", "ExprStmt", "ReturnStmt", "BlockStmt", "TsIfStmt", "TsLoopStmt", "UnaryExpr", "BinExpr", "CallExpr", "MemberExpr", "NewExpr", "ParenExpr", "ArrayLit", "ObjectLit", "NumLit", "BoolLit", "NullLit", "ThisExpr", "etc."],
+            );
+            panic!("{}", err.to_message());
+        }
     }
 }
 /// Generate code that builds a statement string from an IrNode.
@@ -490,7 +878,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
     }
 }
 
-pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> Option<TokenStream> {
+pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::For {
             pattern,
@@ -498,7 +886,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> Option<Token
             body,
         } => {
             let body_pushes = self.generate_stmt_pushes(body);
-            Some(quote! {
+            Ok(quote! {
                 for #pattern in #iterator { #body_pushes }
             })
         }
@@ -525,13 +913,13 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> Option<Token
                 branches
             };
 
-            Some(quote! {
+            Ok(quote! {
                 if #condition { #then_pushes } #else_code
             })
         }
         IrNode::While { condition, body } => {
             let body_pushes = self.generate_stmt_pushes(body);
-            Some(quote! {
+            Ok(quote! {
                 while #condition { #body_pushes }
             })
         }
@@ -553,7 +941,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> Option<Token
                     },
                 )
                 .collect();
-            Some(quote! {
+            Ok(quote! {
                 match #expr { #(#arm_tokens)* }
             })
         }
@@ -569,28 +957,25 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> Option<Token
                 quote! {}
             };
             if let Some(ty) = type_hint {
-                Some(quote! { let #mutability #pattern: #ty = #value; })
+                Ok(quote! { let #mutability #pattern: #ty = #value; })
             } else {
-                Some(quote! { let #mutability #pattern = #value; })
+                Ok(quote! { let #mutability #pattern = #value; })
             }
         }
-        IrNode::Do { code } => Some(quote! { #code; }),
+        IrNode::Do { code } => Ok(quote! { #code; }),
         _ => {
             // Regular statement - push to __body_stmts
-            if let Some(stmt_code) = self.generate_stmt(node) {
-                Some(quote! { __body_stmts.push(#stmt_code); })
-            } else {
-                None
-            }
+            let stmt_code = self.generate_stmt(node)?;
+            Ok(quote! { __body_stmts.push(#stmt_code); })
         }
     }
 }
 
-pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStream> {
+pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::ExprStmt { expr } => {
-            let expr_code = self.generate_expr(expr);
-            Some(quote! {
+            let expr_code = self.generate_expr(expr)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
                     macroforge_ts::swc_core::ecma::ast::ExprStmt {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -600,14 +985,14 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
             })
         }
         IrNode::ReturnStmt { arg } => {
-            let arg_code = arg
-                .as_ref()
-                .map(|a| {
-                    let ac = self.generate_expr(a);
+            let arg_code = match arg.as_ref() {
+                Some(a) => {
+                    let ac = self.generate_expr(a)?;
                     quote! { Some(Box::new(#ac)) }
-                })
-                .unwrap_or(quote! { None });
-            Some(quote! {
+                }
+                None => quote! { None },
+            };
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::Return(
                     macroforge_ts::swc_core::ecma::ast::ReturnStmt {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -616,9 +1001,20 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
                 )
             })
         }
+        IrNode::ThrowStmt { arg } => {
+            let arg_code = self.generate_expr(arg)?;
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::Stmt::Throw(
+                    macroforge_ts::swc_core::ecma::ast::ThrowStmt {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        arg: Box::new(#arg_code),
+                    }
+                )
+            })
+        }
         IrNode::BlockStmt { stmts } => {
             let stmts_code = self.generate_stmts_vec(stmts);
-            Some(quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::Block(
                     macroforge_ts::swc_core::ecma::ast::BlockStmt {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -641,9 +1037,9 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
                 VarKind::Let => quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Let },
                 VarKind::Var => quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Var },
             };
-            let decls_code = self.generate_var_declarators(decls);
+            let decls_code = self.generate_var_declarators(decls)?;
 
-            Some(quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::Decl(
                     macroforge_ts::swc_core::ecma::ast::Decl::Var(Box::new(
                         macroforge_ts::swc_core::ecma::ast::VarDecl {
@@ -669,7 +1065,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
                     #ac
                 }
             });
-            Some(quote! {
+            Ok(quote! {
                 {
                     let mut __stmt_str = String::new();
                     __stmt_str.push_str("if (");
@@ -678,11 +1074,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
                     #cons_code
                     #alt_code
                     macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str)
-                        .unwrap_or_else(|_| macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
-                            macroforge_ts::swc_core::ecma::ast::EmptyStmt {
-                                span: macroforge_ts::swc_core::common::DUMMY_SP,
-                            }
-                        ))
+                        .expect("Failed to parse generated if statement")
                 }
             })
         }
@@ -694,33 +1086,21 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
                 .iter()
                 .map(|p| self.generate_stmt_string_part(p))
                 .collect();
-            Some(quote! {
+            Ok(quote! {
                 {
                     let mut __stmt_str = String::new();
                     #(#part_exprs)*
                     macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str)
-                        .unwrap_or_else(|_| macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
-                            macroforge_ts::swc_core::ecma::ast::EmptyStmt {
-                                span: macroforge_ts::swc_core::common::DUMMY_SP,
-                            }
-                        ))
+                        .expect("Failed to parse generated loop statement")
                 }
             })
         }
         // Structured for-in statement
         IrNode::ForInStmt { left, right, body } => {
-            let left_code = self.generate_for_head(left);
-            let right_code = self.generate_expr(right);
-            let body_code = self.generate_stmt(body).unwrap_or_else(|| {
-                quote! {
-                    macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
-                        macroforge_ts::swc_core::ecma::ast::EmptyStmt {
-                            span: macroforge_ts::swc_core::common::DUMMY_SP,
-                        }
-                    )
-                }
-            });
-            Some(quote! {
+            let left_code = self.generate_for_head(left)?;
+            let right_code = self.generate_expr(right)?;
+            let body_code = self.generate_stmt(body)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::ForIn(
                     macroforge_ts::swc_core::ecma::ast::ForInStmt {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -733,18 +1113,10 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
         }
         // Structured for-of statement
         IrNode::ForOfStmt { await_, left, right, body } => {
-            let left_code = self.generate_for_head(left);
-            let right_code = self.generate_expr(right);
-            let body_code = self.generate_stmt(body).unwrap_or_else(|| {
-                quote! {
-                    macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
-                        macroforge_ts::swc_core::ecma::ast::EmptyStmt {
-                            span: macroforge_ts::swc_core::common::DUMMY_SP,
-                        }
-                    )
-                }
-            });
-            Some(quote! {
+            let left_code = self.generate_for_head(left)?;
+            let right_code = self.generate_expr(right)?;
+            let body_code = self.generate_stmt(body)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::ForOf(
                     macroforge_ts::swc_core::ecma::ast::ForOfStmt {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -756,16 +1128,21 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
                 )
             })
         }
-        // Control flow that generates Rust code
+        // TypeScript injection - the stream is a Rust expression that produces a Stmt
+        IrNode::TypeScript { stream } => {
+            Ok(quote! { #stream })
+        }
+        // Control flow that generates Rust code - these are not TS statements
         IrNode::If { .. } | IrNode::For { .. } | IrNode::While { .. } | IrNode::Match { .. } => {
-            // These generate Rust control flow, not TS statements
-            // Return None to skip them as direct statements
-            None
+            Err(GenError::new(GenErrorKind::UnsupportedControlFlowPosition)
+                .with_context("statement")
+                .with_ir_node(node)
+                .with_help("Rust control flow nodes (If, For, While, Match) cannot be used as direct TypeScript statements. They generate Rust code that produces TS statements."))
         }
         _ => {
             // Try to generate as expression statement
-            if let Some(expr_code) = self.try_generate_as_expr(node) {
-                Some(quote! {
+            if let Some(expr_code) = self.try_generate_as_expr(node)? {
+                Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
                         macroforge_ts::swc_core::ecma::ast::ExprStmt {
                             span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -774,7 +1151,11 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
                     )
                 })
             } else {
-                None
+                Err(GenError::unexpected_node(
+                    "statement",
+                    node,
+                    &["ExprStmt", "ReturnStmt", "BlockStmt", "VarDecl", "TsIfStmt", "TsLoopStmt", "ForInStmt", "ForOfStmt"],
+                ))
             }
         }
     }
@@ -782,7 +1163,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> Option<TokenStrea
 
 /// Generate code for the left-hand side of a for-in/for-of loop.
 /// Returns a ForHead which can be either a VarDecl or a Pat.
-pub(in super::super) fn generate_for_head(&self, node: &IrNode) -> TokenStream {
+pub(in super::super) fn generate_for_head(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::VarDecl { kind, decls, declare, .. } => {
             let kind_code = match kind {
@@ -792,8 +1173,8 @@ pub(in super::super) fn generate_for_head(&self, node: &IrNode) -> TokenStream {
                 VarKind::Let => quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Let },
                 VarKind::Var => quote! { macroforge_ts::swc_core::ecma::ast::VarDeclKind::Var },
             };
-            let decls_code = self.generate_var_declarators(decls);
-            quote! {
+            let decls_code = self.generate_var_declarators(decls)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::ForHead::VarDecl(Box::new(
                     macroforge_ts::swc_core::ecma::ast::VarDecl {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -803,14 +1184,14 @@ pub(in super::super) fn generate_for_head(&self, node: &IrNode) -> TokenStream {
                         decls: #decls_code,
                     }
                 ))
-            }
+            })
         }
         // For patterns (destructuring without var/let/const)
         _ => {
-            let pat_code = self.generate_pat(node);
-            quote! {
+            let pat_code = self.generate_pat(node)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::ForHead::Pat(Box::new(#pat_code))
-            }
+            })
         }
     }
 }

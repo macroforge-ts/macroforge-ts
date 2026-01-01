@@ -1,21 +1,22 @@
+use super::errors::{LexError, LexErrorKind, LexResult};
 use super::*;
 
 impl Lexer {
     /// Lexes inside a directive `{$...}`.
-    pub(super) fn lex_directive(&mut self) -> SyntaxKind {
+    pub(super) fn lex_directive(&mut self) -> LexResult<SyntaxKind> {
         // Skip whitespace
         if let Some(c) = self.peek()
             && c.is_whitespace()
         {
             self.consume_while(|c| c.is_whitespace());
-            return SyntaxKind::Whitespace;
+            return Ok(SyntaxKind::Whitespace);
         }
 
         // Check for closing brace
         if self.remaining().starts_with("}") {
             self.advance(1);
             self.pop_mode();
-            return SyntaxKind::RBrace;
+            return Ok(SyntaxKind::RBrace);
         }
 
         // Check for directive keywords
@@ -34,13 +35,13 @@ impl Lexer {
                     .unwrap_or(true)
                 {
                     self.advance(kw.len());
-                    return kind;
+                    return Ok(kind);
                 }
             }
         }
 
         // Everything else is Rust tokens
         self.consume_rust_tokens();
-        SyntaxKind::RustTokens
+        Ok(SyntaxKind::RustTokens)
     }
 }

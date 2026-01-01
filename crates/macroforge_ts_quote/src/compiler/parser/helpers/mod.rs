@@ -86,21 +86,21 @@ impl Parser {
     }
 
     pub(super) fn placeholder_kind(&self) -> PlaceholderKind {
-        let ctx = self.current_context();
-        let kind = match ctx {
-            Context::TypeAnnotation | Context::TypeAssertion | Context::GenericParams => {
+        let ctx_kind = self.current_context_kind();
+        let kind = match ctx_kind {
+            ContextKind::TypeAnnotation | ContextKind::TypeAssertion | ContextKind::GenericParams => {
                 PlaceholderKind::Type
             }
-            Context::Identifier => PlaceholderKind::Ident,
-            Context::Statement => PlaceholderKind::Stmt,
-            Context::Expression(_) | Context::Parameters => PlaceholderKind::Expr,
+            ContextKind::Identifier => PlaceholderKind::Ident,
+            ContextKind::Statement => PlaceholderKind::Stmt,
+            ContextKind::Expression(_) | ContextKind::Parameters => PlaceholderKind::Expr,
         };
 
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_PARSER").is_ok() {
             eprintln!(
                 "[MF_DEBUG_PARSER] placeholder_kind: ctx={:?}, kind={:?}, stack={:?}",
-                ctx, kind, self.context_stack
+                ctx_kind, kind, self.context_stack
             );
         }
 

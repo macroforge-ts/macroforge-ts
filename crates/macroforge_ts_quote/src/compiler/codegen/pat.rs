@@ -1,33 +1,34 @@
+use super::error::{GenError, GenResult};
 use super::*;
 
 impl Codegen {
-    pub(super) fn generate_pat(&self, node: &IrNode) -> TokenStream {
+    pub(super) fn generate_pat(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::BindingIdent {
             name,
             type_ann,
             optional: _,
         } => {
-            let name_code = self.generate_ident(name);
-            let type_ann_code = type_ann
-                .as_ref()
-                .map(|t| {
-                    let tc = self.generate_type_ann(t);
+            let name_code = self.generate_ident(name)?;
+            let type_ann_code = match type_ann.as_ref() {
+                Some(t) => {
+                    let tc = self.generate_type_ann(t)?;
                     quote! { Some(Box::new(#tc)) }
-                })
-                .unwrap_or(quote! { None });
+                }
+                None => quote! { None },
+            };
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Pat::Ident(
                     macroforge_ts::swc_core::ecma::ast::BindingIdent {
                         id: #name_code,
                         type_ann: #type_ann_code,
                     }
                 )
-            }
+            })
         }
         IrNode::Ident(name) => {
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Pat::Ident(
                     macroforge_ts::swc_core::ecma::ast::BindingIdent {
                         id: macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
@@ -37,35 +38,34 @@ impl Codegen {
                         type_ann: None,
                     }
                 )
-            }
+            })
         }
         IrNode::Placeholder { kind, expr } => {
             match kind {
                 PlaceholderKind::Ident => {
-                    quote! {
+                    Ok(quote! {
                         macroforge_ts::swc_core::ecma::ast::Pat::Ident(
                             macroforge_ts::swc_core::ecma::ast::BindingIdent {
                                 id: macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()),
                                 type_ann: None,
                             }
                         )
-                    }
+                    })
                 }
                 PlaceholderKind::Expr => {
                     // Expressions can be patterns too (like member expressions for assignment)
-                    quote! {
+                    Ok(quote! {
                         macroforge_ts::swc_core::ecma::ast::Pat::Expr(
                             Box::new(macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone()))
                         )
-                    }
+                    })
                 }
                 _ => {
-                    // Fallback: treat as expression pattern
-                    quote! {
-                        macroforge_ts::swc_core::ecma::ast::Pat::Expr(
-                            Box::new(macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone()))
-                        )
-                    }
+                    Err(GenError::invalid_placeholder(
+                        "pattern",
+                        &format!("{:?}", kind),
+                        &["Ident", "Expr"],
+                    ))
                 }
             }
         }
@@ -86,7 +86,7 @@ impl Codegen {
                     })
                     .collect();
 
-            quote! {
+            Ok(quote! {
                 {
                     let mut __ident = String::new();
                     #(#part_exprs)*
@@ -100,23 +100,26 @@ impl Codegen {
                         }
                     )
                 }
-            }
+            })
         }
         IrNode::ArrayPat { elems, type_ann, optional } => {
             let elems_code: Vec<TokenStream> = elems.iter().map(|opt_elem| {
                 match opt_elem {
                     Some(elem) => {
-                        let elem_code = self.generate_pat(elem);
-                        quote! { Some(#elem_code) }
+                        let elem_code = self.generate_pat(elem)?;
+                        Ok(quote! { Some(#elem_code) })
                     }
-                    None => quote! { None },
+                    None => Ok(quote! { None }),
                 }
-            }).collect();
-            let type_ann_code = type_ann.as_ref().map(|t| {
-                let tc = self.generate_type_ann(t);
-                quote! { Some(Box::new(#tc)) }
-            }).unwrap_or(quote! { None });
-            quote! {
+            }).collect::<GenResult<Vec<_>>>()?;
+            let type_ann_code = match type_ann.as_ref() {
+                Some(t) => {
+                    let tc = self.generate_type_ann(t)?;
+                    quote! { Some(Box::new(#tc)) }
+                }
+                None => quote! { None },
+            };
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Pat::Array(
                     macroforge_ts::swc_core::ecma::ast::ArrayPat {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -125,17 +128,20 @@ impl Codegen {
                         type_ann: #type_ann_code,
                     }
                 )
-            }
+            })
         }
         IrNode::ObjectPat { props, type_ann, optional } => {
             let props_code: Vec<TokenStream> = props.iter().map(|prop| {
                 self.generate_object_pat_prop(prop)
-            }).collect();
-            let type_ann_code = type_ann.as_ref().map(|t| {
-                let tc = self.generate_type_ann(t);
-                quote! { Some(Box::new(#tc)) }
-            }).unwrap_or(quote! { None });
-            quote! {
+            }).collect::<GenResult<Vec<_>>>()?;
+            let type_ann_code = match type_ann.as_ref() {
+                Some(t) => {
+                    let tc = self.generate_type_ann(t)?;
+                    quote! { Some(Box::new(#tc)) }
+                }
+                None => quote! { None },
+            };
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Pat::Object(
                     macroforge_ts::swc_core::ecma::ast::ObjectPat {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -144,15 +150,18 @@ impl Codegen {
                         type_ann: #type_ann_code,
                     }
                 )
-            }
+            })
         }
         IrNode::RestPat { arg, type_ann } => {
-            let arg_code = self.generate_pat(arg);
-            let type_ann_code = type_ann.as_ref().map(|t| {
-                let tc = self.generate_type_ann(t);
-                quote! { Some(Box::new(#tc)) }
-            }).unwrap_or(quote! { None });
-            quote! {
+            let arg_code = self.generate_pat(arg)?;
+            let type_ann_code = match type_ann.as_ref() {
+                Some(t) => {
+                    let tc = self.generate_type_ann(t)?;
+                    quote! { Some(Box::new(#tc)) }
+                }
+                None => quote! { None },
+            };
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Pat::Rest(
                     macroforge_ts::swc_core::ecma::ast::RestPat {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -161,27 +170,40 @@ impl Codegen {
                         type_ann: #type_ann_code,
                     }
                 )
-            }
+            })
+        }
+        IrNode::AssignPat { left, right } => {
+            let left_code = self.generate_pat(left)?;
+            let right_code = self.generate_expr(right)?;
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::Pat::Assign(
+                    macroforge_ts::swc_core::ecma::ast::AssignPat {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        left: Box::new(#left_code),
+                        right: Box::new(#right_code),
+                    }
+                )
+            })
         }
         _ => {
-            // Fallback: try to generate as expression and wrap in Pat::Expr
-            let expr_code = self.generate_expr(node);
-            quote! {
-                macroforge_ts::swc_core::ecma::ast::Pat::Expr(Box::new(#expr_code))
-            }
+            Err(GenError::unexpected_node(
+                "pattern",
+                node,
+                &["BindingIdent", "Ident", "Placeholder", "IdentBlock", "ArrayPat", "ObjectPat", "RestPat", "AssignPat"],
+            ))
         }
     }
 }
 
 /// Generate code for an object pattern property.
-pub(super) fn generate_object_pat_prop(&self, node: &IrNode) -> TokenStream {
+pub(super) fn generate_object_pat_prop(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::ObjectPatProp { key, value } => {
-            let key_code = self.generate_ident(key);
+            let key_code = self.generate_ident(key)?;
             match value {
                 Some(val) => {
-                    let val_code = self.generate_pat(val);
-                    quote! {
+                    let val_code = self.generate_pat(val)?;
+                    Ok(quote! {
                         macroforge_ts::swc_core::ecma::ast::ObjectPatProp::KeyValue(
                             macroforge_ts::swc_core::ecma::ast::KeyValuePatProp {
                                 key: macroforge_ts::swc_core::ecma::ast::PropName::Ident(
@@ -193,11 +215,11 @@ pub(super) fn generate_object_pat_prop(&self, node: &IrNode) -> TokenStream {
                                 value: Box::new(#val_code),
                             }
                         )
-                    }
+                    })
                 }
                 None => {
                     // Shorthand: { a } is the same as { a: a }
-                    quote! {
+                    Ok(quote! {
                         macroforge_ts::swc_core::ecma::ast::ObjectPatProp::Assign(
                             macroforge_ts::swc_core::ecma::ast::AssignPatProp {
                                 span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -205,17 +227,20 @@ pub(super) fn generate_object_pat_prop(&self, node: &IrNode) -> TokenStream {
                                 value: None,
                             }
                         )
-                    }
+                    })
                 }
             }
         }
         IrNode::RestPat { arg, type_ann } => {
-            let arg_code = self.generate_pat(arg);
-            let type_ann_code = type_ann.as_ref().map(|t| {
-                let tc = self.generate_type_ann(t);
-                quote! { Some(Box::new(#tc)) }
-            }).unwrap_or(quote! { None });
-            quote! {
+            let arg_code = self.generate_pat(arg)?;
+            let type_ann_code = match type_ann.as_ref() {
+                Some(t) => {
+                    let tc = self.generate_type_ann(t)?;
+                    quote! { Some(Box::new(#tc)) }
+                }
+                None => quote! { None },
+            };
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::ObjectPatProp::Rest(
                     macroforge_ts::swc_core::ecma::ast::RestPat {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -224,26 +249,20 @@ pub(super) fn generate_object_pat_prop(&self, node: &IrNode) -> TokenStream {
                         type_ann: #type_ann_code,
                     }
                 )
-            }
+            })
         }
         _ => {
-            // Fallback: try to create an assign pattern
-            let key_code = self.generate_ident(node);
-            quote! {
-                macroforge_ts::swc_core::ecma::ast::ObjectPatProp::Assign(
-                    macroforge_ts::swc_core::ecma::ast::AssignPatProp {
-                        span: macroforge_ts::swc_core::common::DUMMY_SP,
-                        key: #key_code,
-                        value: None,
-                    }
-                )
-            }
+            Err(GenError::unexpected_node(
+                "object pattern property",
+                node,
+                &["ObjectPatProp", "RestPat"],
+            ))
         }
     }
 }
 
-pub(super) fn generate_pats(&self, nodes: &[IrNode]) -> TokenStream {
-    let pats_code: Vec<TokenStream> = nodes.iter().map(|p| self.generate_pat(p)).collect();
-    quote! { vec![#(#pats_code),*] }
+pub(super) fn generate_pats(&self, nodes: &[IrNode]) -> GenResult<TokenStream> {
+    let pats_code: Vec<TokenStream> = nodes.iter().map(|p| self.generate_pat(p)).collect::<GenResult<Vec<_>>>()?;
+    Ok(quote! { vec![#(#pats_code),*] })
 }
 }

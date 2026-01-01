@@ -133,7 +133,10 @@ fn test_function_name_interpolation_is_ident() {
 fn test_dynamic_function_body() {
     let input = TokenStream2::from_str("function test() { {#if true} console.log(\"hi\"); {/if} }")
         .unwrap();
-    let s = compile(&input.to_string());
+    let input_str = input.to_string();
+    eprintln!("TokenStream string: {}", input_str);
+
+    let s = compile(&input_str);
 
     // New compiler generates if statements for control flow
     assert!(

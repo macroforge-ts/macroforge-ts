@@ -1,3 +1,4 @@
+use super::super::expr::errors::{ParseError, ParseErrorKind, ParseResult};
 use super::super::*;
 
 impl Parser {
@@ -92,8 +93,9 @@ impl Parser {
         }
 
         // Parse the right-hand side (expression)
-        let right = self.parse_ts_expr_until(&[SyntaxKind::RParen])
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop iterable"))?;
+        let right = self
+            .parse_ts_expr_until(&[SyntaxKind::RParen])
+            .map_err(|e| e.with_context("parsing for loop iterable"))?;
 
         self.skip_whitespace();
         self.expect(SyntaxKind::RParen);
@@ -101,10 +103,11 @@ impl Parser {
 
         // Parse the body
         let body = if self.at(SyntaxKind::LBrace) {
-            self.parse_block_stmt()?
+            self.parse_block_stmt()
+                .map_err(|e| e.with_context("parsing for loop body"))?
         } else {
             self.parse_stmt()
-                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "loop body"))?
+                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop body"))?
         };
 
         if is_for_in {
@@ -126,7 +129,8 @@ impl Parser {
     /// Parse the left-hand side of a for-in/for-of loop.
     /// This can be a variable declaration (const/let/var x) or an expression.
     fn parse_for_loop_left(&mut self) -> ParseResult<IrNode> {
-        let kind = self.current_kind()
+        let kind = self
+            .current_kind()
             .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop left-hand side"))?;
 
         match kind {
@@ -142,7 +146,9 @@ impl Parser {
                 self.skip_whitespace();
 
                 // Parse the binding pattern or identifier using expr/ implementation
-                let name = self.parse_for_loop_binding()?;
+                let name = self
+                    .parse_for_loop_binding()
+                    .map_err(|e| e.with_context("parsing for loop variable binding"))?;
 
                 Ok(IrNode::VarDecl {
                     exported: false,
@@ -159,7 +165,6 @@ impl Parser {
             SyntaxKind::At => {
                 // Placeholder - could be expression or identifier
                 self.parse_interpolation()
-                    .ok_or_else(|| ParseError::unexpected_eof(self.pos, "placeholder"))
             }
             SyntaxKind::LBracket => {
                 // Array destructuring pattern - use simple collection
@@ -172,23 +177,29 @@ impl Parser {
             _ => {
                 // Expression (for reassignment like: for (x in obj))
                 self.parse_ts_expr_until(&[SyntaxKind::InKw, SyntaxKind::OfKw])
-                    .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop expression"))
+                    .map_err(|e| e.with_context("parsing for loop left-hand side expression"))
             }
         }
     }
 
     /// Parse a simple binding for for-loop left-hand side
     fn parse_for_loop_binding(&mut self) -> ParseResult<IrNode> {
-        let kind = self.current_kind()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "binding"))?;
+        let kind = self
+            .current_kind()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop binding"))?;
 
         match kind {
-            SyntaxKind::LBracket => self.parse_for_loop_array_pattern(),
-            SyntaxKind::LBrace => self.parse_for_loop_object_pattern(),
-            SyntaxKind::At => self.parse_interpolation()
-                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "placeholder")),
-            _ => self.parse_ts_ident_or_placeholder()
-                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)),
+            SyntaxKind::LBracket => self
+                .parse_for_loop_array_pattern()
+                .map_err(|e| e.with_context("parsing for loop array pattern")),
+            SyntaxKind::LBrace => self
+                .parse_for_loop_object_pattern()
+                .map_err(|e| e.with_context("parsing for loop object pattern")),
+            SyntaxKind::At => self.parse_interpolation(),
+            _ => self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+                ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)
+                    .with_context("parsing for loop binding identifier")
+            }),
         }
     }
 
@@ -215,13 +226,17 @@ impl Parser {
             if self.at(SyntaxKind::DotDotDot) {
                 self.consume();
                 self.skip_whitespace();
-                let arg = self.parse_for_loop_binding()?;
+                let arg = self
+                    .parse_for_loop_binding()
+                    .map_err(|e| e.with_context("parsing rest element in array pattern"))?;
                 elems.push(IrNode::RestPat {
                     arg: Box::new(arg),
                     type_ann: None,
                 });
             } else {
-                let elem = self.parse_for_loop_binding()?;
+                let elem = self
+                    .parse_for_loop_binding()
+                    .map_err(|e| e.with_context("parsing element in array pattern"))?;
                 elems.push(elem);
             }
 
@@ -231,7 +246,10 @@ impl Parser {
             }
         }
 
-        self.expect(SyntaxKind::RBracket);
+        self.expect(SyntaxKind::RBracket).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::MissingClosingBracket, self.pos)
+                .with_context("parsing array pattern")
+        })?;
 
         Ok(IrNode::ArrayPat {
             elems: elems.into_iter().map(Some).collect(),
@@ -258,22 +276,28 @@ impl Parser {
             if self.at(SyntaxKind::DotDotDot) {
                 self.consume();
                 self.skip_whitespace();
-                let arg = self.parse_for_loop_binding()?;
+                let arg = self
+                    .parse_for_loop_binding()
+                    .map_err(|e| e.with_context("parsing rest element in object pattern"))?;
                 props.push(IrNode::RestPat {
                     arg: Box::new(arg),
                     type_ann: None,
                 });
             } else {
                 // Regular property
-                let key = self.parse_ts_ident_or_placeholder()
-                    .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos))?;
+                let key = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+                    ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)
+                        .with_context("parsing object pattern property key")
+                })?;
                 self.skip_whitespace();
 
                 if self.at(SyntaxKind::Colon) {
                     // Renamed binding: { a: b }
                     self.consume();
                     self.skip_whitespace();
-                    let value = self.parse_for_loop_binding()?;
+                    let value = self
+                        .parse_for_loop_binding()
+                        .map_err(|e| e.with_context("parsing object pattern property value"))?;
                     props.push(IrNode::ObjectPatProp {
                         key: Box::new(key),
                         value: Some(Box::new(value)),
@@ -293,7 +317,10 @@ impl Parser {
             }
         }
 
-        self.expect(SyntaxKind::RBrace);
+        self.expect(SyntaxKind::RBrace).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::MissingClosingBrace, self.pos)
+                .with_context("parsing object pattern")
+        })?;
 
         Ok(IrNode::ObjectPat {
             props,
@@ -362,7 +389,7 @@ impl Parser {
                     }
                 }
                 SyntaxKind::At => {
-                    if let Some(placeholder) = self.parse_interpolation() {
+                    if let Ok(placeholder) = self.parse_interpolation() {
                         // Check for identifier suffix
                         if let Some(token) = self.current() {
                             if token.kind == SyntaxKind::Ident {
@@ -444,7 +471,7 @@ impl Parser {
                         }
                     }
                     SyntaxKind::At => {
-                        if let Some(placeholder) = self.parse_interpolation() {
+                        if let Ok(placeholder) = self.parse_interpolation() {
                             // Check for identifier suffix
                             if let Some(token) = self.current() {
                                 if token.kind == SyntaxKind::Ident {

@@ -1,8 +1,12 @@
+use super::super::error::GenResult;
 use super::super::*;
 
 impl Codegen {
     /// Try to generate a node as an expression.
-    pub(in super::super::super) fn try_generate_as_expr(&self, node: &IrNode) -> Option<TokenStream> {
+    /// Returns Ok(None) if the node is not an expression type.
+    /// Returns Ok(Some(code)) if generation succeeds.
+    /// Returns Err(e) if the node is an expression type but generation fails.
+    pub(in super::super::super) fn try_generate_as_expr(&self, node: &IrNode) -> GenResult<Option<TokenStream>> {
     match node {
         IrNode::Ident(_)
         | IrNode::StrLit(_)
@@ -41,8 +45,8 @@ impl Codegen {
         | IrNode::ClassExpr { .. }
         | IrNode::ParenExpr { .. }
         | IrNode::SeqExpr { .. }
-        | IrNode::TaggedTpl { .. } => Some(self.generate_expr(node)),
-        _ => None,
+        | IrNode::TaggedTpl { .. } => Ok(Some(self.generate_expr(node)?)),
+        _ => Ok(None),
     }
 }
 }

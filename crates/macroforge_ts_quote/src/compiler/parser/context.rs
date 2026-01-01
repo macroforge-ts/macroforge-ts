@@ -6,14 +6,17 @@ impl Parser {
             // Question mark in expression context starts ternary
             SyntaxKind::Question => {
                 if self.is_expression_context() && !self.is_ternary() {
-                    self.push_context(Context::Expression(ExpressionKind::Ternary));
+                    self.push_context(Context::expression(
+                        ExpressionKind::Ternary,
+                        [SyntaxKind::Colon],
+                    ));
                 }
             }
 
             // Colon: type annotation, ternary separator, or object property
             SyntaxKind::Colon => {
                 // Pop identifier context first
-                if self.current_context() == Context::Identifier {
+                if self.current_context_kind() == ContextKind::Identifier {
                     self.pop_context();
                 }
 
@@ -21,8 +24,10 @@ impl Parser {
                 // This handles cases like `x ? y as T : z` where TypeAssertion might be on top
                 while self.context_stack.len() > 1
                     && matches!(
-                        self.current_context(),
-                        Context::TypeAnnotation | Context::TypeAssertion | Context::GenericParams
+                        self.current_context_kind(),
+                        ContextKind::TypeAnnotation
+                            | ContextKind::TypeAssertion
+                            | ContextKind::GenericParams
                     )
                 {
                     self.pop_context();
@@ -33,20 +38,39 @@ impl Parser {
                     self.pop_context();
                 } else if !self.is_object_literal() {
                     // Type annotation
-                    self.push_context(Context::TypeAnnotation);
+                    self.push_context(Context::type_annotation([
+                        SyntaxKind::Eq,
+                        SyntaxKind::Comma,
+                        SyntaxKind::Semicolon,
+                        SyntaxKind::RParen,
+                    ]));
                 }
                 // In object literal, `:` is property separator - no context change
             }
 
             // Keywords that start type context
             SyntaxKind::AsKw | SyntaxKind::SatisfiesKw => {
-                self.push_context(Context::TypeAssertion);
+                self.push_context(Context::type_assertion([
+                    SyntaxKind::RParen,
+                    SyntaxKind::Comma,
+                    SyntaxKind::Semicolon,
+                    SyntaxKind::RBrace,
+                ]));
             }
             SyntaxKind::KeyofKw | SyntaxKind::TypeofKw | SyntaxKind::InferKw => {
-                self.push_context(Context::TypeAnnotation);
+                self.push_context(Context::type_annotation([
+                    SyntaxKind::Comma,
+                    SyntaxKind::RParen,
+                    SyntaxKind::RBrace,
+                    SyntaxKind::Gt,
+                ]));
             }
             SyntaxKind::ExtendsKw | SyntaxKind::ImplementsKw => {
-                self.push_context(Context::TypeAnnotation);
+                self.push_context(Context::type_annotation([
+                    SyntaxKind::LBrace,
+                    SyntaxKind::Comma,
+                    SyntaxKind::ImplementsKw,
+                ]));
             }
 
             // Keywords that start identifier context
@@ -57,7 +81,12 @@ impl Parser {
             | SyntaxKind::ConstKw
             | SyntaxKind::LetKw
             | SyntaxKind::VarKw => {
-                self.push_context(Context::Identifier);
+                self.push_context(Context::identifier([
+                    SyntaxKind::LParen,
+                    SyntaxKind::Lt,
+                    SyntaxKind::Colon,
+                    SyntaxKind::Eq,
+                ]));
             }
 
             // Keywords that start expression context
@@ -66,31 +95,39 @@ impl Parser {
             | SyntaxKind::YieldKw
             | SyntaxKind::AwaitKw
             | SyntaxKind::NewKw => {
-                self.push_context(Context::Expression(ExpressionKind::Normal));
+                self.push_context(Context::expression(
+                    ExpressionKind::Normal,
+                    [SyntaxKind::Semicolon],
+                ));
             }
 
             // Dot starts identifier context (member access)
             SyntaxKind::Dot => {
-                self.push_context(Context::Identifier);
+                self.push_context(Context::identifier([
+                    SyntaxKind::LParen,
+                    SyntaxKind::LBracket,
+                    SyntaxKind::Dot,
+                    SyntaxKind::Semicolon,
+                ]));
             }
 
             // Regular identifier consumes identifier context
             SyntaxKind::Ident => {
-                if self.current_context() == Context::Identifier {
+                if self.current_context_kind() == ContextKind::Identifier {
                     self.pop_context();
                 }
             }
 
             // Opening paren ends identifier context
             SyntaxKind::LParen => {
-                if self.current_context() == Context::Identifier {
+                if self.current_context_kind() == ContextKind::Identifier {
                     self.pop_context();
                 }
             }
 
             // Less-than might end identifier context (generics)
             SyntaxKind::Lt => {
-                if self.current_context() == Context::Identifier {
+                if self.current_context_kind() == ContextKind::Identifier {
                     self.pop_context();
                 }
                 // Could push GenericParams context here if needed
@@ -98,24 +135,27 @@ impl Parser {
 
             // Equals ends type annotation and identifier, starts expression
             SyntaxKind::Eq => {
-                if self.current_context() == Context::Identifier {
+                if self.current_context_kind() == ContextKind::Identifier {
                     self.pop_context();
                 }
-                if self.current_context() == Context::TypeAnnotation {
+                if self.current_context_kind() == ContextKind::TypeAnnotation {
                     self.pop_context();
                 }
-                self.push_context(Context::Expression(ExpressionKind::Normal));
+                self.push_context(Context::expression(
+                    ExpressionKind::Normal,
+                    [SyntaxKind::Semicolon, SyntaxKind::Comma],
+                ));
             }
 
             // Semicolon ends expression and type contexts (but keep base context)
             SyntaxKind::Semicolon => {
                 while self.context_stack.len() > 1
                     && matches!(
-                        self.current_context(),
-                        Context::Expression(_)
-                            | Context::TypeAnnotation
-                            | Context::TypeAssertion
-                            | Context::GenericParams
+                        self.current_context_kind(),
+                        ContextKind::Expression(_)
+                            | ContextKind::TypeAnnotation
+                            | ContextKind::TypeAssertion
+                            | ContextKind::GenericParams
                     )
                 {
                     self.pop_context();
@@ -132,8 +172,10 @@ impl Parser {
                 // Pop any remaining type contexts (but keep base context)
                 while self.context_stack.len() > 1
                     && matches!(
-                        self.current_context(),
-                        Context::TypeAnnotation | Context::TypeAssertion | Context::GenericParams
+                        self.current_context_kind(),
+                        ContextKind::TypeAnnotation
+                            | ContextKind::TypeAssertion
+                            | ContextKind::GenericParams
                     )
                 {
                     self.pop_context();
@@ -143,8 +185,8 @@ impl Parser {
             // Comma might end type context
             SyntaxKind::Comma => {
                 if matches!(
-                    self.current_context(),
-                    Context::TypeAnnotation | Context::TypeAssertion
+                    self.current_context_kind(),
+                    ContextKind::TypeAnnotation | ContextKind::TypeAssertion
                 ) {
                     self.pop_context();
                 }
@@ -153,7 +195,10 @@ impl Parser {
             // Opening brace in expression context starts object literal
             SyntaxKind::LBrace => {
                 if self.is_expression_context() {
-                    self.push_context(Context::Expression(ExpressionKind::ObjectLiteral));
+                    self.push_context(Context::expression(
+                        ExpressionKind::ObjectLiteral,
+                        [SyntaxKind::RBrace],
+                    ));
                 }
             }
 
@@ -165,8 +210,18 @@ impl Parser {
     // Context management
     // =========================================================================
 
-    pub(super) fn current_context(&self) -> Context {
-        *self.context_stack.last().unwrap_or(&Context::Statement)
+    /// Returns the kind of the current context (for pattern matching/comparison).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the context stack is empty. This should never happen in normal
+    /// operation since the parser is always initialized with a base context and
+    /// `pop_context` prevents popping the last element.
+    pub(super) fn current_context_kind(&self) -> ContextKind {
+        self.context_stack
+            .last()
+            .map(|c| c.kind)
+            .expect("context stack is empty - this is a parser bug: the stack should always have at least one context")
     }
 
     pub(super) fn push_context(&mut self, ctx: Context) {
@@ -180,21 +235,41 @@ impl Parser {
     }
 
     pub(super) fn is_expression_context(&self) -> bool {
-        matches!(self.current_context(), Context::Expression(_))
+        matches!(self.current_context_kind(), ContextKind::Expression(_))
     }
 
     pub(super) fn is_ternary(&self) -> bool {
         matches!(
-            self.current_context(),
-            Context::Expression(ExpressionKind::Ternary)
+            self.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::Ternary)
         )
     }
 
     pub(super) fn is_object_literal(&self) -> bool {
         matches!(
-            self.current_context(),
-            Context::Expression(ExpressionKind::ObjectLiteral)
+            self.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::ObjectLiteral)
         )
+    }
+
+    /// Check if the current token is a terminator for expression parsing.
+    /// Checks control flow markers first, then context-specific terminators.
+    pub(super) fn at_terminator(&self) -> bool {
+        let Some(token) = self.current() else {
+            return false;
+        };
+
+        // Control flow markers always terminate (template-language constructs)
+        if CONTROL_FLOW_TERMINATORS.contains(&token.kind) {
+            return true;
+        }
+
+        // Check context-specific terminators
+        if let Some(ctx) = self.context_stack.last() {
+            return ctx.terminators.contains(&token.kind);
+        }
+
+        false
     }
 }
 
@@ -202,30 +277,47 @@ impl Parser {
 mod tests {
     use super::*;
 
-    // ==================== Context Enum Tests ====================
+    // ==================== ContextKind Enum Tests ====================
 
     #[test]
-    fn test_context_equality() {
-        assert_eq!(Context::Statement, Context::Statement);
+    fn test_context_kind_equality() {
+        assert_eq!(ContextKind::Statement, ContextKind::Statement);
         assert_eq!(
-            Context::Expression(ExpressionKind::Normal),
-            Context::Expression(ExpressionKind::Normal)
+            ContextKind::Expression(ExpressionKind::Normal),
+            ContextKind::Expression(ExpressionKind::Normal)
         );
-        assert_ne!(Context::Statement, Context::Identifier);
+        assert_ne!(ContextKind::Statement, ContextKind::Identifier);
     }
 
     #[test]
-    fn test_context_clone() {
-        let ctx = Context::TypeAnnotation;
+    fn test_context_kind_clone() {
+        let ctx = ContextKind::TypeAnnotation;
         let cloned = ctx;
         assert_eq!(ctx, cloned);
     }
 
     #[test]
-    fn test_context_debug() {
-        let ctx = Context::Statement;
+    fn test_context_kind_debug() {
+        let ctx = ContextKind::Statement;
         let debug_str = format!("{:?}", ctx);
         assert!(debug_str.contains("Statement"));
+    }
+
+    // ==================== Context Struct Tests ====================
+
+    #[test]
+    fn test_context_constructors() {
+        let expr = Context::expression(ExpressionKind::Normal, [SyntaxKind::Semicolon]);
+        assert_eq!(expr.kind, ContextKind::Expression(ExpressionKind::Normal));
+        assert!(expr.terminators.contains(&SyntaxKind::Semicolon));
+
+        let type_ann = Context::type_annotation([SyntaxKind::Eq, SyntaxKind::Comma]);
+        assert_eq!(type_ann.kind, ContextKind::TypeAnnotation);
+        assert_eq!(type_ann.terminators.len(), 2);
+
+        let ident = Context::identifier([]);
+        assert_eq!(ident.kind, ContextKind::Identifier);
+        assert!(ident.terminators.is_empty());
     }
 
     // ==================== ExpressionKind Tests ====================
@@ -249,8 +341,8 @@ mod tests {
     fn test_parser_initial_context() {
         let parser = Parser::new("");
         assert_eq!(
-            parser.current_context(),
-            Context::Expression(ExpressionKind::Normal)
+            parser.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::Normal)
         );
     }
 
@@ -258,17 +350,17 @@ mod tests {
     fn test_parser_push_pop_context() {
         let mut parser = Parser::new("");
         assert_eq!(
-            parser.current_context(),
-            Context::Expression(ExpressionKind::Normal)
+            parser.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::Normal)
         );
 
-        parser.push_context(Context::TypeAnnotation);
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        parser.push_context(Context::type_annotation([]));
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
 
         parser.pop_context();
         assert_eq!(
-            parser.current_context(),
-            Context::Expression(ExpressionKind::Normal)
+            parser.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::Normal)
         );
     }
 
@@ -276,22 +368,22 @@ mod tests {
     fn test_parser_push_multiple_contexts() {
         let mut parser = Parser::new("");
 
-        parser.push_context(Context::TypeAnnotation);
-        parser.push_context(Context::GenericParams);
-        parser.push_context(Context::Identifier);
+        parser.push_context(Context::type_annotation([]));
+        parser.push_context(Context::generic_params([]));
+        parser.push_context(Context::identifier([]));
 
-        assert_eq!(parser.current_context(), Context::Identifier);
-
-        parser.pop_context();
-        assert_eq!(parser.current_context(), Context::GenericParams);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
 
         parser.pop_context();
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        assert_eq!(parser.current_context_kind(), ContextKind::GenericParams);
+
+        parser.pop_context();
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
 
         parser.pop_context();
         assert_eq!(
-            parser.current_context(),
-            Context::Expression(ExpressionKind::Normal)
+            parser.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::Normal)
         );
     }
 
@@ -302,8 +394,8 @@ mod tests {
         // Pop on initial state should preserve base context
         parser.pop_context();
         assert_eq!(
-            parser.current_context(),
-            Context::Expression(ExpressionKind::Normal)
+            parser.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::Normal)
         );
 
         // Multiple pops should still preserve base
@@ -311,8 +403,8 @@ mod tests {
         parser.pop_context();
         parser.pop_context();
         assert_eq!(
-            parser.current_context(),
-            Context::Expression(ExpressionKind::Normal)
+            parser.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::Normal)
         );
     }
 
@@ -327,29 +419,29 @@ mod tests {
     #[test]
     fn test_is_expression_context_ternary() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Expression(ExpressionKind::Ternary));
+        parser.push_context(Context::expression(ExpressionKind::Ternary, []));
         assert!(parser.is_expression_context());
     }
 
     #[test]
     fn test_is_expression_context_object_literal() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Expression(ExpressionKind::ObjectLiteral));
+        parser.push_context(Context::expression(ExpressionKind::ObjectLiteral, []));
         assert!(parser.is_expression_context());
     }
 
     #[test]
     fn test_is_expression_context_false() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::TypeAnnotation);
+        parser.push_context(Context::type_annotation([]));
         assert!(!parser.is_expression_context());
 
         parser.pop_context();
-        parser.push_context(Context::Statement);
+        parser.push_context(Context::statement());
         assert!(!parser.is_expression_context());
 
         parser.pop_context();
-        parser.push_context(Context::Identifier);
+        parser.push_context(Context::identifier([]));
         assert!(!parser.is_expression_context());
     }
 
@@ -358,7 +450,7 @@ mod tests {
         let mut parser = Parser::new("");
         assert!(!parser.is_ternary());
 
-        parser.push_context(Context::Expression(ExpressionKind::Ternary));
+        parser.push_context(Context::expression(ExpressionKind::Ternary, []));
         assert!(parser.is_ternary());
 
         parser.pop_context();
@@ -376,7 +468,7 @@ mod tests {
         let mut parser = Parser::new("");
         assert!(!parser.is_object_literal());
 
-        parser.push_context(Context::Expression(ExpressionKind::ObjectLiteral));
+        parser.push_context(Context::expression(ExpressionKind::ObjectLiteral, []));
         assert!(parser.is_object_literal());
 
         parser.pop_context();
@@ -396,7 +488,7 @@ mod tests {
     #[test]
     fn test_update_context_question_no_double_ternary() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Expression(ExpressionKind::Ternary));
+        parser.push_context(Context::expression(ExpressionKind::Ternary, []));
         let stack_len_before = parser.context_stack.len();
 
         // Already in ternary, should not push another
@@ -407,7 +499,7 @@ mod tests {
     #[test]
     fn test_update_context_colon_in_ternary() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Expression(ExpressionKind::Ternary));
+        parser.push_context(Context::expression(ExpressionKind::Ternary, []));
         assert!(parser.is_ternary());
 
         // : in ternary should pop ternary context
@@ -419,17 +511,17 @@ mod tests {
     fn test_update_context_colon_type_annotation() {
         let mut parser = Parser::new("");
         // Push identifier context to simulate `const x`
-        parser.push_context(Context::Identifier);
+        parser.push_context(Context::identifier([]));
 
         // : should pop identifier and push type annotation
         parser.update_context(SyntaxKind::Colon, ":");
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
     }
 
     #[test]
     fn test_update_context_colon_in_object_literal() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Expression(ExpressionKind::ObjectLiteral));
+        parser.push_context(Context::expression(ExpressionKind::ObjectLiteral, []));
         let stack_len_before = parser.context_stack.len();
 
         // : in object literal should not push type annotation
@@ -442,69 +534,69 @@ mod tests {
     fn test_update_context_as_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::AsKw, "as");
-        assert_eq!(parser.current_context(), Context::TypeAssertion);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAssertion);
     }
 
     #[test]
     fn test_update_context_satisfies_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::SatisfiesKw, "satisfies");
-        assert_eq!(parser.current_context(), Context::TypeAssertion);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAssertion);
     }
 
     #[test]
     fn test_update_context_keyof_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::KeyofKw, "keyof");
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
     }
 
     #[test]
     fn test_update_context_typeof_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::TypeofKw, "typeof");
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
     }
 
     #[test]
     fn test_update_context_function_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::FunctionKw, "function");
-        assert_eq!(parser.current_context(), Context::Identifier);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
     }
 
     #[test]
     fn test_update_context_class_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::ClassKw, "class");
-        assert_eq!(parser.current_context(), Context::Identifier);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
     }
 
     #[test]
     fn test_update_context_const_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::ConstKw, "const");
-        assert_eq!(parser.current_context(), Context::Identifier);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
     }
 
     #[test]
     fn test_update_context_let_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::LetKw, "let");
-        assert_eq!(parser.current_context(), Context::Identifier);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
     }
 
     #[test]
     fn test_update_context_var_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::VarKw, "var");
-        assert_eq!(parser.current_context(), Context::Identifier);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
     }
 
     #[test]
     fn test_update_context_return_keyword() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Statement);
+        parser.push_context(Context::statement());
         parser.update_context(SyntaxKind::ReturnKw, "return");
         assert!(parser.is_expression_context());
     }
@@ -512,7 +604,7 @@ mod tests {
     #[test]
     fn test_update_context_throw_keyword() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Statement);
+        parser.push_context(Context::statement());
         parser.update_context(SyntaxKind::ThrowKw, "throw");
         assert!(parser.is_expression_context());
     }
@@ -521,14 +613,14 @@ mod tests {
     fn test_update_context_dot_starts_identifier() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::Dot, ".");
-        assert_eq!(parser.current_context(), Context::Identifier);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
     }
 
     #[test]
     fn test_update_context_ident_consumes_identifier() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Identifier);
-        assert_eq!(parser.current_context(), Context::Identifier);
+        parser.push_context(Context::identifier([]));
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
 
         parser.update_context(SyntaxKind::Ident, "foo");
         // Should pop back to expression
@@ -538,7 +630,7 @@ mod tests {
     #[test]
     fn test_update_context_lparen_ends_identifier() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Identifier);
+        parser.push_context(Context::identifier([]));
         parser.update_context(SyntaxKind::LParen, "(");
         // Should pop back to expression
         assert!(parser.is_expression_context());
@@ -547,7 +639,7 @@ mod tests {
     #[test]
     fn test_update_context_lt_ends_identifier() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Identifier);
+        parser.push_context(Context::identifier([]));
         parser.update_context(SyntaxKind::Lt, "<");
         // Should pop back to expression
         assert!(parser.is_expression_context());
@@ -556,8 +648,8 @@ mod tests {
     #[test]
     fn test_update_context_eq_pops_contexts() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Identifier);
-        parser.push_context(Context::TypeAnnotation);
+        parser.push_context(Context::identifier([]));
+        parser.push_context(Context::type_annotation([]));
 
         parser.update_context(SyntaxKind::Eq, "=");
 
@@ -568,23 +660,23 @@ mod tests {
     #[test]
     fn test_update_context_semicolon_ends_contexts() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Expression(ExpressionKind::Normal));
-        parser.push_context(Context::TypeAnnotation);
-        parser.push_context(Context::TypeAssertion);
+        parser.push_context(Context::expression(ExpressionKind::Normal, []));
+        parser.push_context(Context::type_annotation([]));
+        parser.push_context(Context::type_assertion([]));
 
         parser.update_context(SyntaxKind::Semicolon, ";");
 
         // Should pop all expression/type contexts but preserve base
         assert_eq!(
-            parser.current_context(),
-            Context::Expression(ExpressionKind::Normal)
+            parser.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::Normal)
         );
     }
 
     #[test]
     fn test_update_context_rbrace_pops_object_literal() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::Expression(ExpressionKind::ObjectLiteral));
+        parser.push_context(Context::expression(ExpressionKind::ObjectLiteral, []));
         assert!(parser.is_object_literal());
 
         parser.update_context(SyntaxKind::RBrace, "}");
@@ -594,22 +686,22 @@ mod tests {
     #[test]
     fn test_update_context_rbrace_pops_type_contexts() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::TypeAnnotation);
-        parser.push_context(Context::GenericParams);
+        parser.push_context(Context::type_annotation([]));
+        parser.push_context(Context::generic_params([]));
 
         parser.update_context(SyntaxKind::RBrace, "}");
 
         // Should pop type contexts
         assert_eq!(
-            parser.current_context(),
-            Context::Expression(ExpressionKind::Normal)
+            parser.current_context_kind(),
+            ContextKind::Expression(ExpressionKind::Normal)
         );
     }
 
     #[test]
     fn test_update_context_comma_pops_type() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::TypeAnnotation);
+        parser.push_context(Context::type_annotation([]));
 
         parser.update_context(SyntaxKind::Comma, ",");
 
@@ -630,7 +722,7 @@ mod tests {
     #[test]
     fn test_update_context_lbrace_no_object_in_type() {
         let mut parser = Parser::new("");
-        parser.push_context(Context::TypeAnnotation);
+        parser.push_context(Context::type_annotation([]));
 
         parser.update_context(SyntaxKind::LBrace, "{");
 
@@ -642,35 +734,35 @@ mod tests {
     fn test_update_context_extends_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::ExtendsKw, "extends");
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
     }
 
     #[test]
     fn test_update_context_implements_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::ImplementsKw, "implements");
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
     }
 
     #[test]
     fn test_update_context_infer_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::InferKw, "infer");
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
     }
 
     #[test]
     fn test_update_context_interface_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::InterfaceKw, "interface");
-        assert_eq!(parser.current_context(), Context::Identifier);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
     }
 
     #[test]
     fn test_update_context_type_keyword() {
         let mut parser = Parser::new("");
         parser.update_context(SyntaxKind::TypeKw, "type");
-        assert_eq!(parser.current_context(), Context::Identifier);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
     }
 
     #[test]
@@ -702,16 +794,16 @@ mod tests {
 
         // Simulate: const x: T = value
         parser.update_context(SyntaxKind::ConstKw, "const"); // -> Identifier
-        assert_eq!(parser.current_context(), Context::Identifier);
+        assert_eq!(parser.current_context_kind(), ContextKind::Identifier);
 
         parser.update_context(SyntaxKind::Ident, "x"); // -> pops Identifier
         assert!(parser.is_expression_context());
 
         parser.update_context(SyntaxKind::Colon, ":"); // -> TypeAnnotation
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
 
         parser.update_context(SyntaxKind::Ident, "T"); // -> stays in TypeAnnotation
-        assert_eq!(parser.current_context(), Context::TypeAnnotation);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAnnotation);
 
         parser.update_context(SyntaxKind::Eq, "="); // -> pops TypeAnnotation, pushes Expression
         assert!(parser.is_expression_context());
@@ -739,7 +831,7 @@ mod tests {
         assert!(parser.is_ternary());
 
         parser.update_context(SyntaxKind::AsKw, "as"); // -> TypeAssertion on top of Ternary
-        assert_eq!(parser.current_context(), Context::TypeAssertion);
+        assert_eq!(parser.current_context_kind(), ContextKind::TypeAssertion);
 
         // When we hit :, it should pop TypeAssertion and then pop Ternary
         parser.update_context(SyntaxKind::Colon, ":");

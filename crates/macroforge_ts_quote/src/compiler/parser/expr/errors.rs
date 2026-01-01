@@ -89,6 +89,10 @@ pub enum ParseErrorKind {
     InvalidClassExpression,
     /// Reserved word used as identifier.
     ReservedWordAsIdentifier,
+    /// Invalid interpolation syntax (e.g., missing @{ or } delimiters).
+    InvalidInterpolation,
+    /// Invalid Rust expression inside interpolation.
+    InvalidRustExpression,
 }
 
 impl ParseErrorKind {
@@ -135,6 +139,8 @@ impl ParseErrorKind {
             Self::InvalidTaggedTemplate => "invalid tagged template",
             Self::InvalidClassExpression => "invalid class expression",
             Self::ReservedWordAsIdentifier => "reserved word cannot be used as identifier",
+            Self::InvalidInterpolation => "invalid interpolation syntax",
+            Self::InvalidRustExpression => "invalid Rust expression in interpolation",
         }
     }
 }
@@ -421,6 +427,8 @@ mod tests {
             ParseErrorKind::InvalidTaggedTemplate,
             ParseErrorKind::InvalidClassExpression,
             ParseErrorKind::ReservedWordAsIdentifier,
+            ParseErrorKind::InvalidInterpolation,
+            ParseErrorKind::InvalidRustExpression,
         ];
 
         for kind in kinds {

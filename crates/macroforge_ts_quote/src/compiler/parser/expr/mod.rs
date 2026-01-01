@@ -85,6 +85,19 @@ impl Parser {
         self.parse_expression_with_precedence(prec::COMMA.right)
     }
 
+    /// Parses an expression, stopping at any of the given terminators.
+    ///
+    /// This uses the Pratt parser with context-based termination. The terminators
+    /// are pushed onto the context stack and checked in `at_terminator()` during
+    /// the infix parsing loop.
+    pub fn parse_expression_until(&mut self, terminators: &[SyntaxKind]) -> ParseResult<IrNode> {
+        use super::{Context, ExpressionKind};
+        self.with_context(
+            Context::expression_from_slice(ExpressionKind::Normal, terminators),
+            |parser| parser.parse_expression_with_precedence(0),
+        )
+    }
+
     /// Parses arrow function parameters.
     ///
     /// Handles: `(a, b, c)` or `a` (single identifier without parens).
@@ -95,7 +108,7 @@ impl Parser {
             self.parse_function_params()
         } else if self.at(SyntaxKind::Ident) {
             // Single identifier: x => x + 1
-            let token = self.consume().unwrap();
+            let token = self.consume().expect("guarded by at() check");
             Ok(vec![IrNode::Param {
                 decorators: Vec::new(),
                 pat: Box::new(IrNode::BindingIdent {
@@ -176,9 +189,7 @@ impl Parser {
 
         // Handle placeholder
         if self.at(SyntaxKind::At) {
-            let placeholder = self.parse_interpolation().ok_or_else(|| {
-                ParseError::unexpected_eof(self.pos, "placeholder in parameter")
-            })?;
+            let placeholder = self.parse_interpolation()?;
             return Ok(IrNode::Param {
                 decorators,
                 pat: Box::new(placeholder),
@@ -204,7 +215,7 @@ impl Parser {
 
         match token.kind {
             SyntaxKind::Ident => {
-                let name = self.consume().unwrap().text;
+                let name = self.consume().expect("guarded by match arm").text;
                 self.skip_whitespace();
 
                 // Check for optional marker: ?
@@ -406,7 +417,7 @@ impl Parser {
         // Get the key
         let key = match token.kind {
             SyntaxKind::Ident => {
-                let name = self.consume().unwrap().text;
+                let name = self.consume().expect("guarded by match arm").text;
                 IrNode::Ident(name)
             }
             SyntaxKind::DoubleQuote | SyntaxKind::SingleQuote => {
@@ -424,7 +435,7 @@ impl Parser {
                 }
             }
             _ if token.kind.is_ts_keyword() => {
-                let name = self.consume().unwrap().text;
+                let name = self.consume().expect("guarded by match arm").text;
                 IrNode::Ident(name)
             }
             _ => {
@@ -479,9 +490,12 @@ impl Parser {
 
         while self.at(SyntaxKind::At) {
             // Check if this is a placeholder @{} or a decorator @name
-            if self.peek_kind(1) == Some(SyntaxKind::LBrace) {
-                // It's a placeholder, stop
-                break;
+            // The lexer combines "@{" into a single At token, so check the text
+            if let Some(text) = self.current_text() {
+                if text.starts_with("@{") {
+                    // It's a placeholder, stop parsing decorators
+                    break;
+                }
             }
 
             self.consume(); // @
@@ -559,12 +573,10 @@ impl Parser {
 
         // Get the name
         let name = if self.at(SyntaxKind::Ident) {
-            self.consume().unwrap().text
+            self.consume().expect("guarded by at() check").text
         } else if self.at(SyntaxKind::At) {
             // Placeholder as type param name
-            let placeholder = self.parse_interpolation().ok_or_else(|| {
-                ParseError::unexpected_eof(self.pos, "placeholder in type parameter")
-            })?;
+            let placeholder = self.parse_interpolation()?;
             return Ok(placeholder);
         } else {
             return Err(ParseError::new(errors::ParseErrorKind::ExpectedIdentifier, self.pos));
@@ -675,9 +687,7 @@ impl Parser {
 
         // Handle placeholder
         if self.at(SyntaxKind::At) {
-            return self
-                .parse_interpolation()
-                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "placeholder in type"));
+            return self.parse_interpolation();
         }
 
         let Some(token) = self.current() else {
@@ -691,11 +701,11 @@ impl Parser {
                     || token.text == "number"
                     || token.text == "boolean" =>
             {
-                let t = self.consume().unwrap();
-                IrNode::KeywordType(self.text_to_ts_keyword(&t.text))
+                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "expected type keyword"))?;
+                IrNode::KeywordType(self.text_to_ts_keyword(&t.text)?)
             }
             SyntaxKind::Ident => {
-                let name = self.consume().unwrap().text;
+                let name = self.consume().expect("guarded by match arm").text;
 
                 // Check for common type keywords that come as identifiers
                 match name.as_str() {
@@ -933,7 +943,7 @@ impl Parser {
         // Get the key
         let key = match token.kind {
             SyntaxKind::Ident => {
-                let name = self.consume().unwrap().text;
+                let name = self.consume().expect("guarded by match arm").text;
                 IrNode::Ident(name)
             }
             SyntaxKind::LBracket => {
@@ -942,7 +952,7 @@ impl Parser {
                 self.skip_whitespace();
 
                 let param_name = if self.at(SyntaxKind::Ident) {
-                    self.consume().unwrap().text
+                    self.consume().expect("guarded by at() check").text
                 } else {
                     return Err(
                         ParseError::new(errors::ParseErrorKind::ExpectedIdentifier, self.pos)
@@ -976,7 +986,7 @@ impl Parser {
                 });
             }
             _ if token.kind.is_ts_keyword() => {
-                let name = self.consume().unwrap().text;
+                let name = self.consume().expect("guarded by match arm").text;
                 IrNode::Ident(name)
             }
             _ => {
@@ -1029,21 +1039,26 @@ impl Parser {
     }
 
     /// Converts a string to a TypeScript keyword type.
-    fn text_to_ts_keyword(&self, text: &str) -> crate::compiler::ir::TsKeyword {
+    fn text_to_ts_keyword(&self, text: &str) -> ParseResult<crate::compiler::ir::TsKeyword> {
         match text {
-            "string" => crate::compiler::ir::TsKeyword::String,
-            "number" => crate::compiler::ir::TsKeyword::Number,
-            "boolean" => crate::compiler::ir::TsKeyword::Boolean,
-            "any" => crate::compiler::ir::TsKeyword::Any,
-            "unknown" => crate::compiler::ir::TsKeyword::Unknown,
-            "never" => crate::compiler::ir::TsKeyword::Never,
-            "void" => crate::compiler::ir::TsKeyword::Void,
-            "null" => crate::compiler::ir::TsKeyword::Null,
-            "undefined" => crate::compiler::ir::TsKeyword::Undefined,
-            "object" => crate::compiler::ir::TsKeyword::Object,
-            "symbol" => crate::compiler::ir::TsKeyword::Symbol,
-            "bigint" => crate::compiler::ir::TsKeyword::BigInt,
-            _ => crate::compiler::ir::TsKeyword::Any, // fallback
+            "string" => Ok(crate::compiler::ir::TsKeyword::String),
+            "number" => Ok(crate::compiler::ir::TsKeyword::Number),
+            "boolean" => Ok(crate::compiler::ir::TsKeyword::Boolean),
+            "any" => Ok(crate::compiler::ir::TsKeyword::Any),
+            "unknown" => Ok(crate::compiler::ir::TsKeyword::Unknown),
+            "never" => Ok(crate::compiler::ir::TsKeyword::Never),
+            "void" => Ok(crate::compiler::ir::TsKeyword::Void),
+            "null" => Ok(crate::compiler::ir::TsKeyword::Null),
+            "undefined" => Ok(crate::compiler::ir::TsKeyword::Undefined),
+            "object" => Ok(crate::compiler::ir::TsKeyword::Object),
+            "symbol" => Ok(crate::compiler::ir::TsKeyword::Symbol),
+            "bigint" => Ok(crate::compiler::ir::TsKeyword::BigInt),
+            _ => Err(ParseError::new(
+                errors::ParseErrorKind::UnexpectedToken,
+                self.pos,
+            )
+            .with_found(text)
+            .with_expected(&["string", "number", "boolean", "any", "unknown", "never", "void", "null", "undefined", "object", "symbol", "bigint"])),
         }
     }
 
@@ -1078,33 +1093,8 @@ impl Parser {
                 .with_expected(&["{"])
         })?;
 
-        // For now, collect block body as raw content until we have statement parsing
-        // This is a temporary solution - full statement parsing will be added later
-        let mut stmts = Vec::new();
-        let mut depth = 1;
-
-        while !self.at_eof() && depth > 0 {
-            if self.at(SyntaxKind::LBrace) {
-                depth += 1;
-            } else if self.at(SyntaxKind::RBrace) {
-                depth -= 1;
-                if depth == 0 {
-                    break;
-                }
-            }
-
-            // Try to parse expressions/statements
-            // For now, just collect tokens
-            if let Some(token) = self.consume() {
-                if !matches!(
-                    token.kind,
-                    SyntaxKind::Whitespace
-                ) {
-                    // Simple approach: wrap in Raw for now
-                    // This will be replaced with proper statement parsing
-                }
-            }
-        }
+        // Parse statements using the proper statement list parser
+        let stmts = self.parse_block_stmt_list();
 
         if !self.at(SyntaxKind::RBrace) {
             return Err(ParseError::missing_closing(
@@ -1116,6 +1106,48 @@ impl Parser {
         self.consume();
 
         Ok(IrNode::BlockStmt { stmts })
+    }
+
+    /// Parses a list of statements inside a block until `}`
+    fn parse_block_stmt_list(&mut self) -> Vec<IrNode> {
+        let mut stmts = Vec::new();
+
+        while !self.at_eof() && !self.at(SyntaxKind::RBrace) {
+            self.skip_whitespace();
+
+            if self.at(SyntaxKind::RBrace) {
+                break;
+            }
+
+            // Check for control flow - any {#... opening token
+            if self.at_brace_hash_open() {
+                let kind = self.current_kind().unwrap();
+                if let Some(node) = self.parse_control_block(kind) {
+                    stmts.push(node);
+                }
+                continue;
+            }
+
+            // Check for directives
+            if self.at(SyntaxKind::DollarOpen) {
+                if let Some(node) = self.parse_directive() {
+                    stmts.push(node);
+                }
+                continue;
+            }
+
+            // Parse statement
+            if let Some(stmt) = self.parse_stmt() {
+                stmts.push(stmt);
+            } else {
+                // Unknown - consume one token as raw
+                if let Some(token) = self.consume() {
+                    stmts.push(IrNode::Raw(token.text));
+                }
+            }
+        }
+
+        Self::merge_adjacent_text(stmts)
     }
 
     /// Parses a class body: { members }

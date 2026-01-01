@@ -1,10 +1,11 @@
+use super::super::expr::errors::{ParseError, ParseResult};
 use super::super::*;
 
 impl Parser {
     pub(in super::super) fn parse_ts_ident_or_placeholder(&mut self) -> Option<IrNode> {
         if self.at(SyntaxKind::At) {
             // It's a placeholder - parse it
-            let placeholder = self.parse_interpolation()?;
+            let placeholder = self.parse_interpolation().ok()?;
 
             // Check if there's an identifier suffix immediately after (e.g., @{name}Obj)
             if let Some(token) = self.current() {
@@ -35,9 +36,9 @@ impl Parser {
 
     // parse_optional_type_params is now in expr/mod.rs with proper error handling
 
-    pub(in super::super) fn parse_param_list(&mut self) -> Vec<IrNode> {
+    pub(in super::super) fn parse_param_list(&mut self) -> ParseResult<Vec<IrNode>> {
         if !self.at(SyntaxKind::LParen) {
-            return vec![];
+            return Ok(vec![]);
         }
 
         self.consume(); // (
@@ -50,13 +51,16 @@ impl Parser {
                 break;
             }
 
-            if let Some(param) = self.parse_param() {
-                params.push(param);
-            } else {
-                // If parse_param returns None, advance to prevent infinite loop
-                // This can happen with unexpected tokens like string literals in param position
-                if !self.at(SyntaxKind::RParen) && !self.at(SyntaxKind::Comma) {
-                    self.advance();
+            match self.parse_param() {
+                Ok(param) => params.push(param),
+                Err(e) => {
+                    // If parse_param returns an error, check if we should recover
+                    // This can happen with unexpected tokens like string literals in param position
+                    if !self.at(SyntaxKind::RParen) && !self.at(SyntaxKind::Comma) {
+                        // Return the error with context for better debugging
+                        return Err(e.with_context("parsing function parameter list"));
+                    }
+                    // Otherwise we can recover by continuing to the next parameter
                 }
             }
 
@@ -67,10 +71,10 @@ impl Parser {
         }
 
         self.expect(SyntaxKind::RParen);
-        params
+        Ok(params)
     }
 
-    fn parse_param(&mut self) -> Option<IrNode> {
+    fn parse_param(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
 
         // Parse optional modifiers (for constructor parameter properties)
@@ -112,7 +116,9 @@ impl Parser {
             false
         };
 
-        let name = self.parse_ts_ident_or_placeholder()?;
+        let name = self
+            .parse_ts_ident_or_placeholder()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "parameter name"))?;
         self.skip_whitespace();
 
         let optional = if self.at(SyntaxKind::Question) {
@@ -126,8 +132,14 @@ impl Parser {
         let type_ann = if self.at(SyntaxKind::Colon) {
             self.consume();
             self.skip_whitespace();
-            self.push_context(Context::TypeAnnotation);
-            let ty = self.parse_type_until(&[SyntaxKind::Comma, SyntaxKind::RParen, SyntaxKind::Eq])?;
+            self.push_context(Context::type_annotation([
+                SyntaxKind::Comma,
+                SyntaxKind::RParen,
+                SyntaxKind::Eq,
+            ]));
+            let ty = self
+                .parse_type_until(&[SyntaxKind::Comma, SyntaxKind::RParen, SyntaxKind::Eq])
+                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "parameter type annotation"))?;
             self.pop_context();
             Some(Box::new(ty))
         } else {
@@ -137,10 +149,10 @@ impl Parser {
         let default_value = if self.at(SyntaxKind::Eq) {
             self.consume();
             self.skip_whitespace();
-            Some(Box::new(self.parse_ts_expr_until(&[
-                SyntaxKind::Comma,
-                SyntaxKind::RParen,
-            ])?))
+            Some(Box::new(
+                self.parse_ts_expr_until(&[SyntaxKind::Comma, SyntaxKind::RParen])
+                    .map_err(|e| e.with_context("parsing parameter default value"))?,
+            ))
         } else {
             None
         };
@@ -167,7 +179,7 @@ impl Parser {
             Box::new(binding)
         };
 
-        Some(IrNode::Param {
+        Ok(IrNode::Param {
             decorators: vec![],
             pat,
         })
@@ -208,7 +220,7 @@ impl Parser {
                     }
                 }
                 SyntaxKind::At => {
-                    if let Some(placeholder) = self.parse_interpolation() {
+                    if let Ok(placeholder) = self.parse_interpolation() {
                         // Check if there's an identifier suffix immediately after
                         if let Some(token) = self.current() {
                             if token.kind == SyntaxKind::Ident {
@@ -232,14 +244,16 @@ impl Parser {
                     }
                 }
                 // Control flow blocks within types (e.g., {#for ...} inside object types)
-                SyntaxKind::HashOpen => {
+                // Handle any {#... opening token
+                k if k.is_brace_hash_open() => {
                     #[cfg(debug_assertions)]
                     if std::env::var("MF_DEBUG_PARSER").is_ok() {
                         eprintln!(
-                            "[MF_DEBUG_PARSER] parse_type_until: found HashOpen, calling parse_type_control_block"
+                            "[MF_DEBUG_PARSER] parse_type_until: found {:?}, calling parse_type_control_block",
+                            k
                         );
                     }
-                    if let Some(control) = self.parse_type_control_block() {
+                    if let Some(control) = self.parse_type_control_block(k) {
                         #[cfg(debug_assertions)]
                         if std::env::var("MF_DEBUG_PARSER").is_ok() {
                             eprintln!(
@@ -310,120 +324,36 @@ impl Parser {
         types
     }
 
-    pub(in super::super) fn parse_ts_expr_until(&mut self, terminators: &[SyntaxKind]) -> Option<IrNode> {
-        let mut parts = Vec::new();
-        let mut depth = 0;
-
+    pub(in super::super) fn parse_ts_expr_until(
+        &mut self,
+        terminators: &[SyntaxKind],
+    ) -> super::expr::errors::ParseResult<IrNode> {
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
-
-        while !self.at_eof() {
-            let kind = self.current_kind()?;
-
-            #[cfg(debug_assertions)]
-            if debug_parser {
-                if let Some(token) = self.current() {
-                    eprintln!(
-                        "[MF_DEBUG_PARSER] parse_ts_expr_until: kind={:?}, text={:?}, depth={}",
-                        kind, token.text, depth
-                    );
-                }
-            }
-
-            // Only terminate at depth 0
-            if depth == 0 && terminators.contains(&kind) {
-                break;
-            }
-
-            // Don't consume control flow markers
-            if depth == 0
-                && (kind == SyntaxKind::HashOpen
-                    || kind == SyntaxKind::SlashOpen
-                    || kind == SyntaxKind::ColonOpen)
-            {
-                break;
-            }
-
-            match kind {
-                SyntaxKind::LParen | SyntaxKind::LBrace | SyntaxKind::LBracket => {
-                    depth += 1;
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
-                    }
-                }
-                SyntaxKind::RParen | SyntaxKind::RBrace | SyntaxKind::RBracket => {
-                    depth -= 1;
-                    if depth < 0 {
-                        break;
-                    }
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
-                    }
-                }
-                SyntaxKind::At => {
-                    if let Some(placeholder) = self.parse_interpolation() {
-                        // Check if there's an identifier suffix immediately after (e.g., @{name}Obj)
-                        if let Some(token) = self.current() {
-                            if token.kind == SyntaxKind::Ident {
-                                let suffix = token.text.clone();
-                                self.consume();
-                                // Force placeholder to be Ident kind for identifier concatenation
-                                let ident_placeholder = match placeholder {
-                                    IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
-                                        kind: PlaceholderKind::Ident,
-                                        expr,
-                                    },
-                                    other => other,
-                                };
-                                // Create an IdentBlock combining placeholder + suffix
-                                parts.push(IrNode::IdentBlock {
-                                    parts: vec![ident_placeholder, IrNode::Raw(suffix)],
-                                });
-                                continue;
-                            }
-                        }
-                        parts.push(placeholder);
-                    }
-                }
-                SyntaxKind::Backtick => {
-                    if let Ok(node) = self.parse_template_literal() {
-                        parts.push(node);
-                    }
-                }
-                SyntaxKind::DoubleQuote => {
-                    if let Ok(node) = self.parse_string_literal() {
-                        parts.push(node);
-                    }
-                }
-                _ => {
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
-                    }
-                }
-            }
-        }
 
         #[cfg(debug_assertions)]
         if debug_parser {
             eprintln!(
-                "[MF_DEBUG_PARSER] parse_ts_expr_until: collected {} parts",
-                parts.len()
+                "[MF_DEBUG_PARSER] parse_ts_expr_until: terminators={:?}",
+                terminators
             );
-            for (i, p) in parts.iter().enumerate() {
-                eprintln!("[MF_DEBUG_PARSER]   part {}: {:?}", i, p);
+        }
+
+        // Use the structured Pratt parser with termination-aware context
+        let result = self.parse_expression_until(terminators);
+
+        #[cfg(debug_assertions)]
+        if debug_parser {
+            match &result {
+                Ok(node) => {
+                    eprintln!("[MF_DEBUG_PARSER] parse_ts_expr_until: success, node={:?}", node);
+                }
+                Err(err) => {
+                    eprintln!("[MF_DEBUG_PARSER] parse_ts_expr_until: error={:?}", err);
+                }
             }
         }
 
-        if parts.is_empty() {
-            None
-        } else {
-            let merged = Self::merge_adjacent_text(parts);
-            if merged.len() == 1 {
-                Some(merged.into_iter().next().unwrap())
-            } else {
-                // Wrap multiple parts in IdentBlock for complex expressions with placeholders
-                Some(IrNode::IdentBlock { parts: merged })
-            }
-        }
+        result
     }
 }

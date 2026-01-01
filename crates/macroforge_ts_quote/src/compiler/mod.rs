@@ -95,7 +95,9 @@ pub fn compile_template(template: &str, position: Option<&str>) -> syn::Result<T
 
     // Generate code that builds Vec<ModuleItem>
     let config = CodegenConfig::default();
-    let stmts_code = Codegen::with_config(config).generate(&ir);
+    let stmts_code = Codegen::with_config(config)
+        .generate(&ir)
+        .map_err(|e| syn::Error::new(proc_macro2::Span::call_site(), e.to_string()))?;
 
     // Wrap in TsStream construction
     let insert_pos = position_to_tokens(position);

@@ -7,6 +7,7 @@
 mod consume;
 mod control_block;
 mod directive;
+pub mod errors;
 mod ident;
 mod interpolation;
 mod keyword;
@@ -15,9 +16,12 @@ mod normalize;
 #[cfg(test)]
 mod tests;
 
+use errors::LexResult;
 use normalize::normalize_template;
 
 use super::syntax::SyntaxKind;
+
+pub use errors::{LexError, LexErrorKind};
 
 /// A token produced by the lexer.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -39,14 +43,32 @@ enum LexerMode {
     ControlBlock,
     /// Inside a directive `{$...}`
     Directive,
-    /// Inside an interpolation `@{...}`
+    /// Inside an interpolation `@{...}` - collects raw Rust tokens
     Interpolation,
+    /// Inside a JS template expression `${...}` - tokenizes normally
+    TemplateExpr,
     /// Inside an ident block `...`
     IdentBlock,
     /// Inside a string literal
     StringLiteral,
     /// Inside a template literal (backticks)
     TemplateLiteral,
+}
+
+impl LexerMode {
+    /// Returns a human-readable name for this mode.
+    fn as_str(&self) -> &'static str {
+        match self {
+            Self::Normal => "Normal",
+            Self::ControlBlock => "ControlBlock",
+            Self::Directive => "Directive",
+            Self::Interpolation => "Interpolation",
+            Self::TemplateExpr => "TemplateExpr",
+            Self::IdentBlock => "IdentBlock",
+            Self::StringLiteral => "StringLiteral",
+            Self::TemplateLiteral => "TemplateLiteral",
+        }
+    }
 }
 
 /// The lexer for template input.
@@ -57,8 +79,10 @@ pub struct Lexer {
     pos: usize,
     /// Stack of lexer modes for nested contexts.
     mode_stack: Vec<LexerMode>,
-    /// Brace depth for tracking nested braces in interpolations.
+    /// Brace depth for tracking nested braces in current interpolation context.
     brace_depth: usize,
+    /// Stack of brace depths to save/restore when entering nested interpolations.
+    brace_depth_stack: Vec<usize>,
 }
 
 impl Lexer {
@@ -70,6 +94,7 @@ impl Lexer {
             pos: 0,
             mode_stack: vec![LexerMode::Normal],
             brace_depth: 0,
+            brace_depth_stack: Vec::new(),
         }
     }
 
@@ -78,15 +103,27 @@ impl Lexer {
         *self.mode_stack.last().unwrap_or(&LexerMode::Normal)
     }
 
-    /// Pushes a new lexer mode onto the stack.
+    /// Pushes a new lexer mode onto the stack, saving brace depth if entering an interpolation context.
     fn push_mode(&mut self, mode: LexerMode) {
+        // Save current brace depth when entering interpolation modes
+        if matches!(mode, LexerMode::Interpolation | LexerMode::TemplateExpr) {
+            self.brace_depth_stack.push(self.brace_depth);
+        }
         self.mode_stack.push(mode);
     }
 
-    /// Pops the current lexer mode from the stack.
+    /// Pops the current lexer mode from the stack, restoring brace depth if leaving an interpolation context.
     fn pop_mode(&mut self) {
         if self.mode_stack.len() > 1 {
-            self.mode_stack.pop();
+            let popped = self.mode_stack.pop();
+            // Restore brace depth when leaving interpolation modes
+            if matches!(
+                popped,
+                Some(LexerMode::Interpolation | LexerMode::TemplateExpr)
+            ) && let Some(saved) = self.brace_depth_stack.pop()
+            {
+                self.brace_depth = saved;
+            }
         }
     }
 
@@ -106,20 +143,42 @@ impl Lexer {
     }
 
     /// Tokenizes the entire input.
-    pub fn tokenize(mut self) -> Vec<Token> {
+    /// Returns all tokens on success, or stops at the first error.
+    pub fn tokenize(mut self) -> LexResult<Vec<Token>> {
         let mut tokens = Vec::new();
         while self.pos < self.input.len() {
-            if let Some(token) = self.next_token() {
-                tokens.push(token);
+            match self.next_token() {
+                Ok(Some(token)) => tokens.push(token),
+                Ok(None) => break,
+                Err(e) => return Err(e),
             }
         }
-        tokens
+        Ok(tokens)
+    }
+
+    /// Tokenizes the entire input, collecting errors instead of stopping.
+    /// Returns all successfully lexed tokens and any errors encountered.
+    pub fn tokenize_with_errors(mut self) -> (Vec<Token>, Vec<LexError>) {
+        let mut tokens = Vec::new();
+        let mut errors = Vec::new();
+        while self.pos < self.input.len() {
+            match self.next_token() {
+                Ok(Some(token)) => tokens.push(token),
+                Ok(None) => break,
+                Err(e) => {
+                    errors.push(e);
+                    // Skip one character to try to recover
+                    self.advance(1);
+                }
+            }
+        }
+        (tokens, errors)
     }
 
     /// Returns the next token, or None if at EOF.
-    fn next_token(&mut self) -> Option<Token> {
+    fn next_token(&mut self) -> LexResult<Option<Token>> {
         if self.pos >= self.input.len() {
-            return None;
+            return Ok(None);
         }
 
         let start = self.pos;
@@ -127,25 +186,26 @@ impl Lexer {
         // Check for Rust doc attr first (needs special text handling)
         if let Some((len, content)) = self.try_match_rust_doc_attr() {
             self.advance(len);
-            return Some(Token {
+            return Ok(Some(Token {
                 kind: SyntaxKind::RustDocAttr,
                 text: content,
                 start,
-            });
+            }));
         }
 
         let kind = match self.mode() {
-            LexerMode::Normal => self.lex_normal(),
-            LexerMode::ControlBlock => self.lex_control_block(),
-            LexerMode::Directive => self.lex_directive(),
-            LexerMode::Interpolation => self.lex_interpolation(),
-            LexerMode::IdentBlock => self.lex_ident_block(),
-            LexerMode::StringLiteral => self.lex_string_literal(),
-            LexerMode::TemplateLiteral => self.lex_template_literal(),
+            LexerMode::Normal => self.lex_normal(), // Normal mode is infallible
+            LexerMode::ControlBlock => self.lex_control_block()?,
+            LexerMode::Directive => self.lex_directive()?,
+            LexerMode::Interpolation => self.lex_interpolation()?,
+            LexerMode::TemplateExpr => self.lex_template_expr()?,
+            LexerMode::IdentBlock => self.lex_ident_block()?,
+            LexerMode::StringLiteral => self.lex_string_literal()?,
+            LexerMode::TemplateLiteral => self.lex_template_literal()?,
         };
 
         let text = self.input[start..self.pos].to_string();
-        Some(Token { kind, text, start })
+        Ok(Some(Token { kind, text, start }))
     }
 
     /// Lexes in normal mode (TypeScript + template constructs).
@@ -165,22 +225,98 @@ impl Lexer {
             return SyntaxKind::At;
         }
 
-        if remaining.starts_with("{#") {
-            self.advance(2);
+        // Template control flow - opening constructs {#...
+        // Check longest patterns first to avoid prefix matching issues
+        if remaining.starts_with("{#while")
+            && !remaining
+                .chars()
+                .nth(7)
+                .map(|c| c.is_alphanumeric() || c == '_')
+                .unwrap_or(false)
+        {
+            self.advance(7);
             self.push_mode(LexerMode::ControlBlock);
-            return SyntaxKind::HashOpen;
+            return SyntaxKind::BraceHashWhile;
+        }
+        if remaining.starts_with("{#match")
+            && !remaining
+                .chars()
+                .nth(7)
+                .map(|c| c.is_alphanumeric() || c == '_')
+                .unwrap_or(false)
+        {
+            self.advance(7);
+            self.push_mode(LexerMode::ControlBlock);
+            return SyntaxKind::BraceHashMatch;
+        }
+        if remaining.starts_with("{#for")
+            && !remaining
+                .chars()
+                .nth(5)
+                .map(|c| c.is_alphanumeric() || c == '_')
+                .unwrap_or(false)
+        {
+            self.advance(5);
+            self.push_mode(LexerMode::ControlBlock);
+            return SyntaxKind::BraceHashFor;
+        }
+        if remaining.starts_with("{#if")
+            && !remaining
+                .chars()
+                .nth(4)
+                .map(|c| c.is_alphanumeric() || c == '_')
+                .unwrap_or(false)
+        {
+            self.advance(4);
+            self.push_mode(LexerMode::ControlBlock);
+            return SyntaxKind::BraceHashIf;
         }
 
-        if remaining.starts_with("{/") {
-            self.advance(2);
-            self.push_mode(LexerMode::ControlBlock);
-            return SyntaxKind::SlashOpen;
+        // Template control flow - closing constructs {/...}
+        if remaining.starts_with("{/while}") {
+            self.advance(8);
+            return SyntaxKind::BraceSlashWhile;
+        }
+        if remaining.starts_with("{/match}") {
+            self.advance(8);
+            return SyntaxKind::BraceSlashMatch;
+        }
+        if remaining.starts_with("{/for}") {
+            self.advance(6);
+            return SyntaxKind::BraceSlashFor;
+        }
+        if remaining.starts_with("{/if}") {
+            self.advance(5);
+            return SyntaxKind::BraceSlashIf;
         }
 
-        if remaining.starts_with("{:") {
-            self.advance(2);
+        // Template control flow - continuation constructs {:...
+        // Check {:else if before {:else to avoid prefix matching
+        if remaining.starts_with("{:else if")
+            && !remaining
+                .chars()
+                .nth(9)
+                .map(|c| c.is_alphanumeric() || c == '_')
+                .unwrap_or(false)
+        {
+            self.advance(9);
             self.push_mode(LexerMode::ControlBlock);
-            return SyntaxKind::ColonOpen;
+            return SyntaxKind::BraceColonElseIf;
+        }
+        if remaining.starts_with("{:else}") {
+            self.advance(7);
+            return SyntaxKind::BraceColonElse;
+        }
+        if remaining.starts_with("{:case")
+            && !remaining
+                .chars()
+                .nth(6)
+                .map(|c| c.is_alphanumeric() || c == '_')
+                .unwrap_or(false)
+        {
+            self.advance(6);
+            self.push_mode(LexerMode::ControlBlock);
+            return SyntaxKind::BraceColonCase;
         }
 
         if remaining.starts_with("{$") {
@@ -348,7 +484,10 @@ impl Lexer {
                 '@' => {
                     // Check what follows @ (note: @{ is handled earlier in this function)
                     // Look at the character after @
-                    let after_at = self.input.get(self.pos + 1..).and_then(|s| s.chars().next());
+                    let after_at = self
+                        .input
+                        .get(self.pos + 1..)
+                        .and_then(|s| s.chars().next());
                     match after_at {
                         Some(c) if c.is_alphabetic() || c == '_' => {
                             // `@identifier` - TypeScript decorator

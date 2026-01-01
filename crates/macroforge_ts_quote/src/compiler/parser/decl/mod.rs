@@ -3,6 +3,7 @@ mod function;
 mod import_export;
 mod interface;
 
+use super::expr::errors::{ParseError, ParseErrorKind, ParseResult};
 use super::*;
 
 // =========================================================================
@@ -18,14 +19,14 @@ impl Parser {
         // Check what follows
         match self.current_kind() {
             // Declaration exports
-            Some(SyntaxKind::ClassKw) => self.parse_class_decl(true),
+            Some(SyntaxKind::ClassKw) => self.parse_class_decl(true).ok(),
             Some(SyntaxKind::FunctionKw) => self.parse_function_decl(true, false),
             Some(SyntaxKind::InterfaceKw) => self.parse_interface_decl(true),
             Some(SyntaxKind::ConstKw) | Some(SyntaxKind::LetKw) | Some(SyntaxKind::VarKw) => {
-                self.parse_var_decl(true)
+                self.parse_var_decl(true).ok()
             }
             Some(SyntaxKind::AsyncKw) => self.parse_async_decl(true),
-            Some(SyntaxKind::EnumKw) => self.parse_enum_decl(true, false),
+            Some(SyntaxKind::EnumKw) => self.parse_enum_decl(true, false).ok(),
 
             // Named export, export all, export default, export type
             Some(SyntaxKind::LBrace)
@@ -52,13 +53,16 @@ impl Parser {
         }
     }
 
-    pub(super) fn parse_class_decl(&mut self, exported: bool) -> Option<IrNode> {
+    pub(super) fn parse_class_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         // Consume "class"
-        self.consume()?;
+        self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "class keyword"))?;
         self.skip_whitespace();
 
         // Parse class name (may be placeholder)
-        let name = self.parse_ts_ident_or_placeholder()?;
+        let name = self.parse_ts_ident_or_placeholder()
+            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)
+                .with_context("class declaration name"))?;
         self.skip_whitespace();
 
         // Parse optional type params
@@ -72,7 +76,7 @@ impl Parser {
             Some(Box::new(self.parse_ts_expr_until(&[
                 SyntaxKind::ImplementsKw,
                 SyntaxKind::LBrace,
-            ])?))
+            ]).map_err(|e| e.with_context("class extends clause"))?))
         } else {
             None
         };
@@ -89,15 +93,16 @@ impl Parser {
         // Parse class body - use the new parse_class_body from expr/mod.rs
         if !self.at(SyntaxKind::LBrace) {
             // No body, return raw
-            return Some(IrNode::Raw("class ".to_string()));
+            return Ok(IrNode::Raw("class ".to_string()));
         }
 
-        let body = self.parse_class_body().ok()?;
+        let body = self.parse_class_body()
+            .map_err(|e| e.with_context("class body"))?;
 
         // Take pending decorators
         let decorators = std::mem::take(&mut self.pending_decorators);
 
-        Some(IrNode::ClassDecl {
+        Ok(IrNode::ClassDecl {
             exported,
             declare: false,
             abstract_: false,
@@ -117,7 +122,7 @@ impl Parser {
         self.consume()?;
         self.skip_whitespace();
 
-        let params = self.parse_param_list();
+        let params = self.parse_param_list().ok()?;
         self.skip_whitespace();
 
         let body = if self.at(SyntaxKind::LBrace) {
@@ -158,7 +163,7 @@ impl Parser {
         self.skip_whitespace();
 
         // Parse params
-        let params = self.parse_param_list();
+        let params = self.parse_param_list().ok()?;
         self.skip_whitespace();
 
         // Parse return type
@@ -195,12 +200,14 @@ impl Parser {
         self.wrap_with_doc(node).ok()
     }
 
-    pub(super) fn parse_var_decl(&mut self, exported: bool) -> Option<IrNode> {
+    pub(super) fn parse_var_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         let kind = match self.current_kind() {
             Some(SyntaxKind::ConstKw) => VarKind::Const,
             Some(SyntaxKind::LetKw) => VarKind::Let,
             Some(SyntaxKind::VarKw) => VarKind::Var,
-            _ => return None,
+            _ => return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+                .with_context("variable declaration")
+                .with_expected(&["const", "let", "var"])),
         };
         self.consume();
         self.skip_whitespace();
@@ -208,15 +215,23 @@ impl Parser {
         // Check for destructuring pattern (object or array)
         if self.at(SyntaxKind::LBrace) || self.at(SyntaxKind::LBracket) {
             // For destructuring patterns, collect as raw text until semicolon
-            return self.parse_var_decl_as_raw(exported, &kind);
+            return self.parse_var_decl_as_raw(exported, &kind)
+                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "destructuring pattern"));
         }
 
         let mut decls = Vec::new();
 
         loop {
             // Push Identifier context for variable name
-            self.push_context(Context::Identifier);
-            let name = self.parse_ts_ident_or_placeholder()?;
+            self.push_context(Context::identifier([
+                SyntaxKind::Colon,
+                SyntaxKind::Eq,
+                SyntaxKind::Semicolon,
+                SyntaxKind::LParen,
+            ]));
+            let name = self.parse_ts_ident_or_placeholder()
+                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)
+                    .with_context("variable declarator name"))?;
             self.pop_context();
             self.skip_whitespace();
 
@@ -224,8 +239,9 @@ impl Parser {
             let name_with_type = if self.at(SyntaxKind::Colon) {
                 self.consume();
                 self.skip_whitespace();
-                let type_ann =
-                    self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])?;
+                let type_ann = self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])
+                    .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.pos)
+                        .with_context("variable type annotation"))?;
                 IrNode::BindingIdent {
                     name: Box::new(name),
                     type_ann: Some(Box::new(type_ann)),
@@ -241,7 +257,7 @@ impl Parser {
                 Some(Box::new(self.parse_ts_expr_until(&[
                     SyntaxKind::Comma,
                     SyntaxKind::Semicolon,
-                ])?))
+                ]).map_err(|e| e.with_context("variable initializer"))?))
             } else {
                 None
             };
@@ -267,7 +283,7 @@ impl Parser {
             self.consume();
         }
 
-        Some(IrNode::VarDecl {
+        Ok(IrNode::VarDecl {
             exported,
             declare: false,
             kind,
@@ -323,7 +339,7 @@ impl Parser {
                     }
                 }
                 Some(SyntaxKind::At) => {
-                    if let Some(placeholder) = self.parse_interpolation() {
+                    if let Ok(placeholder) = self.parse_interpolation() {
                         parts.push(placeholder);
                     }
                 }

@@ -13,7 +13,7 @@ impl Parser {
 
         while !self.at_eof() && !self.at(SyntaxKind::PipeClose) {
             if self.at(SyntaxKind::At) {
-                if let Some(node) = self.parse_interpolation() {
+                if let Ok(node) = self.parse_interpolation() {
                     parts.push(node);
                 }
             } else if let Some(token) = self.consume() {

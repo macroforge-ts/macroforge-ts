@@ -1,23 +1,24 @@
 mod r#as;
 
+use super::error::{GenError, GenErrorKind, GenResult};
 use super::*;
 
 impl Codegen {
-    pub(in super::super) fn generate_expr(&self, node: &IrNode) -> TokenStream {
+    pub(in super::super) fn generate_expr(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::Ident(name) => {
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Ident(
                     macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
                         #name.into(),
                         macroforge_ts::swc_core::common::DUMMY_SP,
                     )
                 )
-            }
+            })
         }
 
         IrNode::StrLit(value) => {
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
                     macroforge_ts::swc_core::ecma::ast::Lit::Str(
                         macroforge_ts::swc_core::ecma::ast::Str {
@@ -27,12 +28,16 @@ impl Codegen {
                         }
                     )
                 )
-            }
+            })
         }
 
         IrNode::NumLit(value) => {
-            let num: f64 = value.parse().unwrap_or(0.0);
-            quote! {
+            let num: f64 = value.parse().map_err(|_| {
+                GenError::new(GenErrorKind::InvalidNumericLiteral)
+                    .with_context("numeric literal")
+                    .with_found(value)
+            })?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
                     macroforge_ts::swc_core::ecma::ast::Lit::Num(
                         macroforge_ts::swc_core::ecma::ast::Number {
@@ -42,11 +47,11 @@ impl Codegen {
                         }
                     )
                 )
-            }
+            })
         }
 
         IrNode::BoolLit(value) => {
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
                     macroforge_ts::swc_core::ecma::ast::Lit::Bool(
                         macroforge_ts::swc_core::ecma::ast::Bool {
@@ -55,11 +60,11 @@ impl Codegen {
                         }
                     )
                 )
-            }
+            })
         }
 
         IrNode::NullLit => {
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
                     macroforge_ts::swc_core::ecma::ast::Lit::Null(
                         macroforge_ts::swc_core::ecma::ast::Null {
@@ -67,17 +72,27 @@ impl Codegen {
                         }
                     )
                 )
-            }
+            })
         }
 
         IrNode::ThisExpr => {
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::This(
                     macroforge_ts::swc_core::ecma::ast::ThisExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                     }
                 )
-            }
+            })
+        }
+
+        IrNode::SuperExpr => {
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::Expr::Super(
+                    macroforge_ts::swc_core::ecma::ast::Super {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    }
+                )
+            })
         }
 
         IrNode::CallExpr {
@@ -85,21 +100,21 @@ impl Codegen {
             type_args: _,
             args,
         } => {
-            let callee_code = self.generate_expr(callee);
+            let callee_code = self.generate_expr(callee)?;
             let args_code: Vec<TokenStream> = args
                 .iter()
                 .map(|a| {
-                    let expr = self.generate_expr(a);
-                    quote! {
+                    let expr = self.generate_expr(a)?;
+                    Ok(quote! {
                         macroforge_ts::swc_core::ecma::ast::ExprOrSpread {
                             spread: None,
                             expr: Box::new(#expr),
                         }
-                    }
+                    })
                 })
-                .collect();
+                .collect::<GenResult<Vec<_>>>()?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Call(
                     macroforge_ts::swc_core::ecma::ast::CallExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -109,7 +124,7 @@ impl Codegen {
                         type_args: None,
                     }
                 )
-            }
+            })
         }
 
         IrNode::MemberExpr {
@@ -117,9 +132,9 @@ impl Codegen {
             prop,
             computed,
         } => {
-            let obj_code = self.generate_expr(obj);
+            let obj_code = self.generate_expr(obj)?;
             let prop_code = if *computed {
-                let p = self.generate_expr(prop);
+                let p = self.generate_expr(prop)?;
                 quote! {
                     macroforge_ts::swc_core::ecma::ast::MemberProp::Computed(
                         macroforge_ts::swc_core::ecma::ast::ComputedPropName {
@@ -129,13 +144,13 @@ impl Codegen {
                     )
                 }
             } else {
-                let ident_code = self.generate_ident_name(prop);
+                let ident_code = self.generate_ident_name(prop)?;
                 quote! {
                     macroforge_ts::swc_core::ecma::ast::MemberProp::Ident(#ident_code)
                 }
             };
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Member(
                     macroforge_ts::swc_core::ecma::ast::MemberExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -143,51 +158,51 @@ impl Codegen {
                         prop: #prop_code,
                     }
                 )
-            }
+            })
         }
 
         IrNode::ObjectLit { props } => {
-            let props_code = self.generate_props(props);
-            quote! {
+            let props_code = self.generate_props(props)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Object(
                     macroforge_ts::swc_core::ecma::ast::ObjectLit {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         props: #props_code,
                     }
                 )
-            }
+            })
         }
 
         IrNode::ArrayLit { elems } => {
             let elems_code: Vec<TokenStream> = elems
                 .iter()
                 .map(|e| {
-                    let expr = self.generate_expr(e);
-                    quote! {
+                    let expr = self.generate_expr(e)?;
+                    Ok(quote! {
                         Some(macroforge_ts::swc_core::ecma::ast::ExprOrSpread {
                             spread: None,
                             expr: Box::new(#expr),
                         })
-                    }
+                    })
                 })
-                .collect();
+                .collect::<GenResult<Vec<_>>>()?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Array(
                     macroforge_ts::swc_core::ecma::ast::ArrayLit {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         elems: vec![#(#elems_code),*],
                     }
                 )
-            }
+            })
         }
 
         IrNode::BinExpr { left, op, right } => {
-            let left_code = self.generate_expr(left);
-            let right_code = self.generate_expr(right);
+            let left_code = self.generate_expr(left)?;
+            let right_code = self.generate_expr(right)?;
             let op_code = self.generate_binary_op(op);
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Bin(
                     macroforge_ts::swc_core::ecma::ast::BinExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -196,15 +211,15 @@ impl Codegen {
                         right: Box::new(#right_code),
                     }
                 )
-            }
+            })
         }
 
         IrNode::AssignExpr { left, op, right } => {
-            let left_code = self.generate_assign_target(left);
-            let right_code = self.generate_expr(right);
+            let left_code = self.generate_assign_target(left)?;
+            let right_code = self.generate_expr(right)?;
             let op_code = self.generate_assign_op(op);
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Assign(
                     macroforge_ts::swc_core::ecma::ast::AssignExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -213,15 +228,15 @@ impl Codegen {
                         right: Box::new(#right_code),
                     }
                 )
-            }
+            })
         }
 
         IrNode::CondExpr { test, consequent, alternate } => {
-            let test_code = self.generate_expr(test);
-            let cons_code = self.generate_expr(consequent);
-            let alt_code = self.generate_expr(alternate);
+            let test_code = self.generate_expr(test)?;
+            let cons_code = self.generate_expr(consequent)?;
+            let alt_code = self.generate_expr(alternate)?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Cond(
                     macroforge_ts::swc_core::ecma::ast::CondExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -230,7 +245,7 @@ impl Codegen {
                         alt: Box::new(#alt_code),
                     }
                 )
-            }
+            })
         }
 
         IrNode::NewExpr {
@@ -238,21 +253,21 @@ impl Codegen {
             type_args: _,
             args,
         } => {
-            let callee_code = self.generate_expr(callee);
+            let callee_code = self.generate_expr(callee)?;
             let args_code: Vec<TokenStream> = args
                 .iter()
                 .map(|a| {
-                    let expr = self.generate_expr(a);
-                    quote! {
+                    let expr = self.generate_expr(a)?;
+                    Ok(quote! {
                         macroforge_ts::swc_core::ecma::ast::ExprOrSpread {
                             spread: None,
                             expr: Box::new(#expr),
                         }
-                    }
+                    })
                 })
-                .collect();
+                .collect::<GenResult<Vec<_>>>()?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::New(
                     macroforge_ts::swc_core::ecma::ast::NewExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -262,7 +277,7 @@ impl Codegen {
                         type_args: None,
                     }
                 )
-            }
+            })
         }
 
         IrNode::ArrowExpr {
@@ -272,10 +287,10 @@ impl Codegen {
             return_type: _,
             body,
         } => {
-            let params_code = self.generate_pats(params);
-            let body_code = self.generate_block_stmt_or_expr(body);
+            let params_code = self.generate_pats(params)?;
+            let body_code = self.generate_block_stmt_or_expr(body)?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Arrow(
                     macroforge_ts::swc_core::ecma::ast::ArrowExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -288,7 +303,7 @@ impl Codegen {
                         return_type: None,
                     }
                 )
-            }
+            })
         }
 
         IrNode::TplLit { quasis, exprs } => {
@@ -311,12 +326,12 @@ impl Codegen {
             let exprs_code: Vec<TokenStream> = exprs
                 .iter()
                 .map(|e| {
-                    let expr = self.generate_expr(e);
-                    quote! { Box::new(#expr) }
+                    let expr = self.generate_expr(e)?;
+                    Ok(quote! { Box::new(#expr) })
                 })
-                .collect();
+                .collect::<GenResult<Vec<_>>>()?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Tpl(
                     macroforge_ts::swc_core::ecma::ast::Tpl {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -324,7 +339,7 @@ impl Codegen {
                         exprs: vec![#(#exprs_code),*],
                     }
                 )
-            }
+            })
         }
 
         // StringInterp from template literals - convert to Tpl expression
@@ -365,7 +380,7 @@ impl Codegen {
                 })
                 .collect();
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Tpl(
                     macroforge_ts::swc_core::ecma::ast::Tpl {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -373,28 +388,32 @@ impl Codegen {
                         exprs: vec![#(#exprs),*],
                     }
                 )
-            }
+            })
         }
 
         IrNode::Placeholder { kind, expr } => match kind {
             PlaceholderKind::Expr => {
-                quote! { macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone()) }
+                Ok(quote! { macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone()) })
             }
             PlaceholderKind::Ident => {
-                quote! {
+                Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::Expr::Ident(
                         macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
                     )
-                }
+                })
             }
-            _ => quote! { /* placeholder in wrong context */ },
+            other => Err(GenError::invalid_placeholder(
+                "expression",
+                &format!("{:?}", other),
+                &["Expr", "Ident"],
+            )),
         },
 
         // TypeScript type assertion: expr as Type
         IrNode::TsAsExpr { expr, type_ann } => {
-            let expr_code = self.generate_expr(expr);
-            let type_ann_code = self.generate_ts_type(type_ann);
-            quote! {
+            let expr_code = self.generate_expr(expr)?;
+            let type_ann_code = self.generate_ts_type(type_ann)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::TsAs(
                     macroforge_ts::swc_core::ecma::ast::TsAsExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -402,14 +421,14 @@ impl Codegen {
                         type_ann: Box::new(#type_ann_code),
                     }
                 )
-            }
+            })
         }
 
         // TypeScript satisfies: expr satisfies Type
         IrNode::TsSatisfiesExpr { expr, type_ann } => {
-            let expr_code = self.generate_expr(expr);
-            let type_ann_code = self.generate_ts_type(type_ann);
-            quote! {
+            let expr_code = self.generate_expr(expr)?;
+            let type_ann_code = self.generate_ts_type(type_ann)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::TsSatisfies(
                     macroforge_ts::swc_core::ecma::ast::TsSatisfiesExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -417,27 +436,40 @@ impl Codegen {
                         type_ann: Box::new(#type_ann_code),
                     }
                 )
-            }
+            })
         }
 
         // TypeScript non-null assertion: expr!
         IrNode::TsNonNullExpr { expr } => {
-            let expr_code = self.generate_expr(expr);
-            quote! {
+            let expr_code = self.generate_expr(expr)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::TsNonNull(
                     macroforge_ts::swc_core::ecma::ast::TsNonNullExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         expr: Box::new(#expr_code),
                     }
                 )
-            }
+            })
+        }
+
+        // TypeScript const assertion: expr as const
+        IrNode::TsConstAssertion { expr } => {
+            let expr_code = self.generate_expr(expr)?;
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::Expr::TsConstAssertion(
+                    macroforge_ts::swc_core::ecma::ast::TsConstAssertion {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        expr: Box::new(#expr_code),
+                    }
+                )
+            })
         }
 
         // TypeScript instantiation: expr<Type>
         IrNode::TsInstantiation { expr, type_args } => {
-            let expr_code = self.generate_expr(expr);
-            let type_args_code = self.generate_type_param_instantiation(type_args);
-            quote! {
+            let expr_code = self.generate_expr(expr)?;
+            let type_args_code = self.generate_type_param_instantiation(type_args)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::TsInstantiation(
                     macroforge_ts::swc_core::ecma::ast::TsInstantiation {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -445,29 +477,33 @@ impl Codegen {
                         type_args: Box::new(#type_args_code),
                     }
                 )
-            }
+            })
         }
 
         // Await expression: await expr
         IrNode::AwaitExpr { arg } => {
-            let arg_code = self.generate_expr(arg);
-            quote! {
+            let arg_code = self.generate_expr(arg)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Await(
                     macroforge_ts::swc_core::ecma::ast::AwaitExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         arg: Box::new(#arg_code),
                     }
                 )
-            }
+            })
         }
 
         // Yield expression: yield expr, yield* expr
+        // Note: unwrap_or for arg is valid - None is a valid yield (yield without value)
         IrNode::YieldExpr { arg, delegate } => {
-            let arg_code = arg.as_ref().map(|a| {
-                let ac = self.generate_expr(a);
-                quote! { Some(Box::new(#ac)) }
-            }).unwrap_or(quote! { None });
-            quote! {
+            let arg_code = match arg.as_ref() {
+                Some(a) => {
+                    let ac = self.generate_expr(a)?;
+                    quote! { Some(Box::new(#ac)) }
+                }
+                None => quote! { None },
+            };
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Yield(
                     macroforge_ts::swc_core::ecma::ast::YieldExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -475,12 +511,12 @@ impl Codegen {
                         delegate: #delegate,
                     }
                 )
-            }
+            })
         }
 
         // Phase 4: Private name #field
         IrNode::PrivateName(name) => {
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::PrivateName(
                     macroforge_ts::swc_core::ecma::ast::PrivateName {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -490,12 +526,14 @@ impl Codegen {
                         ),
                     }
                 )
-            }
+            })
         }
 
         // BigInt literal: 42n
+        // Note: BigInt parsing at runtime - the macro generates code that parses at runtime
+        // Keep unwrap_or_default since parsing happens at runtime, not compile-time
         IrNode::BigIntLit(value) => {
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
                     macroforge_ts::swc_core::ecma::ast::Lit::BigInt(
                         macroforge_ts::swc_core::ecma::ast::BigInt {
@@ -505,14 +543,14 @@ impl Codegen {
                         }
                     )
                 )
-            }
+            })
         }
 
         // Update expression: ++x, x--, etc.
         IrNode::UpdateExpr { op, prefix, arg } => {
-            let arg_code = self.generate_expr(arg);
+            let arg_code = self.generate_expr(arg)?;
             let op_code = self.generate_update_op(op);
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Update(
                     macroforge_ts::swc_core::ecma::ast::UpdateExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -521,20 +559,35 @@ impl Codegen {
                         arg: Box::new(#arg_code),
                     }
                 )
-            }
+            })
+        }
+
+        // Unary expression: -x, !x, typeof x, etc.
+        IrNode::UnaryExpr { op, arg } => {
+            let arg_code = self.generate_expr(arg)?;
+            let op_code = self.generate_unary_op(op);
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::Expr::Unary(
+                    macroforge_ts::swc_core::ecma::ast::UnaryExpr {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        op: #op_code,
+                        arg: Box::new(#arg_code),
+                    }
+                )
+            })
         }
 
         // Optional chaining expression: obj?.prop, fn?.()
         IrNode::OptChainExpr { base, expr } => {
             // `base` is the object being accessed (e.g., `x` in `x?.y`)
             // `expr` contains the chain operation with a placeholder for the object
-            let base_obj_code = self.generate_expr(base);
+            let base_obj_code = self.generate_expr(base)?;
             let chain_base_code = match expr.as_ref() {
                 // x?.y or x?.[y] - member access
                 IrNode::MemberExpr { obj: _, prop, computed } => {
                     // obj is a placeholder, use base instead
                     let prop_code = if *computed {
-                        let p = self.generate_expr(prop);
+                        let p = self.generate_expr(prop)?;
                         quote! {
                             macroforge_ts::swc_core::ecma::ast::MemberProp::Computed(
                                 macroforge_ts::swc_core::ecma::ast::ComputedPropName {
@@ -544,7 +597,7 @@ impl Codegen {
                             )
                         }
                     } else {
-                        let ident_code = self.generate_ident_name(prop);
+                        let ident_code = self.generate_ident_name(prop)?;
                         quote! {
                             macroforge_ts::swc_core::ecma::ast::MemberProp::Ident(#ident_code)
                         }
@@ -566,15 +619,15 @@ impl Codegen {
                     let args_code: Vec<TokenStream> = args
                         .iter()
                         .map(|a| {
-                            let expr = self.generate_expr(a);
-                            quote! {
+                            let expr = self.generate_expr(a)?;
+                            Ok(quote! {
                                 macroforge_ts::swc_core::ecma::ast::ExprOrSpread {
                                     spread: None,
                                     expr: Box::new(#expr),
                                 }
-                            }
+                            })
                         })
-                        .collect();
+                        .collect::<GenResult<Vec<_>>>()?;
 
                     quote! {
                         macroforge_ts::swc_core::ecma::ast::OptChainBase::Call(
@@ -589,10 +642,10 @@ impl Codegen {
                     }
                 }
                 // Fallback for unexpected expr types
-                _ => self.generate_opt_chain_base(base),
+                _ => self.generate_opt_chain_base(base)?,
             };
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::OptChain(
                     macroforge_ts::swc_core::ecma::ast::OptChainExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -600,22 +653,29 @@ impl Codegen {
                         base: Box::new(#chain_base_code),
                     }
                 )
-            }
+            })
         }
 
         // Phase 5: Function expression
+        // Note: unwrap_or for name is valid - anonymous functions are valid
         IrNode::FnExpr { async_, generator, name, type_params: _, params, return_type: _, body } => {
-            let params_code = self.generate_params(params);
-            let name_code = name.as_ref().map(|n| {
-                let nc = self.generate_ident(n);
-                quote! { Some(#nc) }
-            }).unwrap_or(quote! { None });
-            let body_code = body.as_ref().map(|b| {
-                let bc = self.generate_block_stmt(b);
-                quote! { Some(#bc) }
-            }).unwrap_or(quote! { None });
+            let params_code = self.generate_params(params)?;
+            let name_code = match name.as_ref() {
+                Some(n) => {
+                    let nc = self.generate_ident(n)?;
+                    quote! { Some(#nc) }
+                }
+                None => quote! { None },
+            };
+            let body_code = match body.as_ref() {
+                Some(b) => {
+                    let bc = self.generate_block_stmt(b)?;
+                    quote! { Some(#bc) }
+                }
+                None => quote! { None },
+            };
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Fn(
                     macroforge_ts::swc_core::ecma::ast::FnExpr {
                         ident: #name_code,
@@ -632,28 +692,35 @@ impl Codegen {
                         }),
                     }
                 )
-            }
+            })
         }
 
         // Class expression
+        // Note: unwrap_or for name is valid - anonymous classes are valid
         IrNode::ClassExpr { name, type_params: _, extends, implements: _, body } => {
-            let name_code = name.as_ref().map(|n| {
-                let nc = self.generate_ident(n);
-                quote! { Some(#nc) }
-            }).unwrap_or(quote! { None });
-            let extends_code = extends.as_ref().map(|e| {
-                let ec = self.generate_expr(e);
-                quote! {
-                    Some(Box::new(macroforge_ts::swc_core::ecma::ast::ExtendsClause {
-                        span: macroforge_ts::swc_core::common::DUMMY_SP,
-                        super_class: Box::new(#ec),
-                        type_args: None,
-                    }))
+            let name_code = match name.as_ref() {
+                Some(n) => {
+                    let nc = self.generate_ident(n)?;
+                    quote! { Some(#nc) }
                 }
-            }).unwrap_or(quote! { None });
-            let body_code = self.generate_class_members(body);
+                None => quote! { None },
+            };
+            let extends_code = match extends.as_ref() {
+                Some(e) => {
+                    let ec = self.generate_expr(e)?;
+                    quote! {
+                        Some(Box::new(macroforge_ts::swc_core::ecma::ast::ExtendsClause {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            super_class: Box::new(#ec),
+                            type_args: None,
+                        }))
+                    }
+                }
+                None => quote! { None },
+            };
+            let body_code = self.generate_class_members(body)?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Class(
                     macroforge_ts::swc_core::ecma::ast::ClassExpr {
                         ident: #name_code,
@@ -669,20 +736,20 @@ impl Codegen {
                         }),
                     }
                 )
-            }
+            })
         }
 
         // Parenthesized expression: (expr)
         IrNode::ParenExpr { expr } => {
-            let expr_code = self.generate_expr(expr);
-            quote! {
+            let expr_code = self.generate_expr(expr)?;
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Paren(
                     macroforge_ts::swc_core::ecma::ast::ParenExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         expr: Box::new(#expr_code),
                     }
                 )
-            }
+            })
         }
 
         // Sequence expression: a, b, c
@@ -690,24 +757,24 @@ impl Codegen {
             let exprs_code: Vec<TokenStream> = exprs
                 .iter()
                 .map(|e| {
-                    let ec = self.generate_expr(e);
-                    quote! { Box::new(#ec) }
+                    let ec = self.generate_expr(e)?;
+                    Ok(quote! { Box::new(#ec) })
                 })
-                .collect();
+                .collect::<GenResult<Vec<_>>>()?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Seq(
                     macroforge_ts::swc_core::ecma::ast::SeqExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         exprs: vec![#(#exprs_code),*],
                     }
                 )
-            }
+            })
         }
 
         // Tagged template literal: tag`template`
         IrNode::TaggedTpl { tag, type_args: _, tpl } => {
-            let tag_code = self.generate_expr(tag);
+            let tag_code = self.generate_expr(tag)?;
 
             // Extract quasis and exprs from the TplLit node
             let (quasis, exprs) = match tpl.as_ref() {
@@ -733,12 +800,12 @@ impl Codegen {
             let exprs_code: Vec<TokenStream> = exprs
                 .iter()
                 .map(|e| {
-                    let ec = self.generate_expr(e);
-                    quote! { Box::new(#ec) }
+                    let ec = self.generate_expr(e)?;
+                    Ok(quote! { Box::new(#ec) })
                 })
-                .collect();
+                .collect::<GenResult<Vec<_>>>()?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::TaggedTpl(
                     macroforge_ts::swc_core::ecma::ast::TaggedTpl {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -752,13 +819,14 @@ impl Codegen {
                         }),
                     }
                 )
-            }
+            })
         }
 
         // Raw text - parse as expression at runtime
         // Note: parse_ts_expr returns Result<Box<Expr>, _>, so we dereference to get Expr
+        // Runtime parsing fallback is intentional - allows dynamic expression parsing
         IrNode::Raw(text) => {
-            quote! {
+            Ok(quote! {
                 {
                     let __source = #text;
                     *macroforge_ts::ts_syn::parse_ts_expr(__source)
@@ -768,7 +836,7 @@ impl Codegen {
                             }
                         )))
                 }
-            }
+            })
         }
 
         // IdentBlock with multiple parts - build string and parse
@@ -868,7 +936,8 @@ impl Codegen {
                   .collect();
 
             // Note: parse_ts_expr returns Result<Box<Expr>, _>, so we dereference to get Expr
-            quote! {
+            // Runtime parsing fallback is intentional - allows dynamic expression construction
+            Ok(quote! {
                 {
                     let mut __expr_str = String::new();
                     #(#part_exprs)*
@@ -889,19 +958,23 @@ impl Codegen {
                             ))
                         })
                 }
-            }
+            })
         }
 
-        // Default: identity expression for unknown node types
-        _ => {
-            quote! {
-                macroforge_ts::swc_core::ecma::ast::Expr::Invalid(
-                    macroforge_ts::swc_core::ecma::ast::Invalid {
-                        span: macroforge_ts::swc_core::common::DUMMY_SP,
-                    }
-                )
-            }
-        }
+        // Default: return error for unknown node types
+        other => Err(GenError::unexpected_node(
+            "expression",
+            other,
+            &[
+                "Ident", "StrLit", "NumLit", "BoolLit", "NullLit", "ThisExpr", "SuperExpr",
+                "CallExpr", "MemberExpr", "ObjectLit", "ArrayLit", "BinExpr", "AssignExpr",
+                "CondExpr", "NewExpr", "ArrowExpr", "TplLit", "StringInterp", "Placeholder",
+                "TsAsExpr", "TsSatisfiesExpr", "TsNonNullExpr", "TsConstAssertion", "TsInstantiation",
+                "AwaitExpr", "YieldExpr", "PrivateName", "BigIntLit", "UpdateExpr", "UnaryExpr",
+                "OptChainExpr", "FnExpr", "ClassExpr", "ParenExpr", "SeqExpr", "TaggedTpl",
+                "Raw", "IdentBlock",
+            ],
+        )),
     }
 }
 /// Generate code that builds an expression string from an IrNode.
@@ -922,13 +995,26 @@ fn generate_update_op(&self, op: &UpdateOp) -> TokenStream {
     }
 }
 
+/// Generate code for unary operators (-, +, !, ~, typeof, void, delete)
+fn generate_unary_op(&self, op: &UnaryOp) -> TokenStream {
+    match op {
+        UnaryOp::Minus => quote! { macroforge_ts::swc_core::ecma::ast::UnaryOp::Minus },
+        UnaryOp::Plus => quote! { macroforge_ts::swc_core::ecma::ast::UnaryOp::Plus },
+        UnaryOp::Not => quote! { macroforge_ts::swc_core::ecma::ast::UnaryOp::Bang },
+        UnaryOp::BitNot => quote! { macroforge_ts::swc_core::ecma::ast::UnaryOp::Tilde },
+        UnaryOp::TypeOf => quote! { macroforge_ts::swc_core::ecma::ast::UnaryOp::TypeOf },
+        UnaryOp::Void => quote! { macroforge_ts::swc_core::ecma::ast::UnaryOp::Void },
+        UnaryOp::Delete => quote! { macroforge_ts::swc_core::ecma::ast::UnaryOp::Delete },
+    }
+}
+
 /// Generate code for optional chain base (member access or call)
-fn generate_opt_chain_base(&self, node: &IrNode) -> TokenStream {
+fn generate_opt_chain_base(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::MemberExpr { obj, prop, computed } => {
-            let obj_code = self.generate_expr(obj);
+            let obj_code = self.generate_expr(obj)?;
             let prop_code = if *computed {
-                let p = self.generate_expr(prop);
+                let p = self.generate_expr(prop)?;
                 quote! {
                     macroforge_ts::swc_core::ecma::ast::MemberProp::Computed(
                         macroforge_ts::swc_core::ecma::ast::ComputedPropName {
@@ -938,13 +1024,13 @@ fn generate_opt_chain_base(&self, node: &IrNode) -> TokenStream {
                     )
                 }
             } else {
-                let ident_code = self.generate_ident_name(prop);
+                let ident_code = self.generate_ident_name(prop)?;
                 quote! {
                     macroforge_ts::swc_core::ecma::ast::MemberProp::Ident(#ident_code)
                 }
             };
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::OptChainBase::Member(
                     macroforge_ts::swc_core::ecma::ast::MemberExpr {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -952,24 +1038,24 @@ fn generate_opt_chain_base(&self, node: &IrNode) -> TokenStream {
                         prop: #prop_code,
                     }
                 )
-            }
+            })
         }
         IrNode::CallExpr { callee, args, type_args: _ } => {
-            let callee_code = self.generate_expr(callee);
+            let callee_code = self.generate_expr(callee)?;
             let args_code: Vec<TokenStream> = args
                 .iter()
                 .map(|a| {
-                    let expr = self.generate_expr(a);
-                    quote! {
+                    let expr = self.generate_expr(a)?;
+                    Ok(quote! {
                         macroforge_ts::swc_core::ecma::ast::ExprOrSpread {
                             spread: None,
                             expr: Box::new(#expr),
                         }
-                    }
+                    })
                 })
-                .collect();
+                .collect::<GenResult<Vec<_>>>()?;
 
-            quote! {
+            Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::OptChainBase::Call(
                     macroforge_ts::swc_core::ecma::ast::OptCall {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -979,26 +1065,13 @@ fn generate_opt_chain_base(&self, node: &IrNode) -> TokenStream {
                         type_args: None,
                     }
                 )
-            }
+            })
         }
-        _ => {
-            // Fallback - treat as expression and wrap in member access
-            let expr_code = self.generate_expr(node);
-            quote! {
-                macroforge_ts::swc_core::ecma::ast::OptChainBase::Member(
-                    macroforge_ts::swc_core::ecma::ast::MemberExpr {
-                        span: macroforge_ts::swc_core::common::DUMMY_SP,
-                        obj: Box::new(#expr_code),
-                        prop: macroforge_ts::swc_core::ecma::ast::MemberProp::Ident(
-                            macroforge_ts::swc_core::ecma::ast::IdentName::new(
-                                "".into(),
-                                macroforge_ts::swc_core::common::DUMMY_SP,
-                            )
-                        ),
-                    }
-                )
-            }
-        }
+        other => Err(GenError::unexpected_node(
+            "optional chain base",
+            other,
+            &["MemberExpr", "CallExpr"],
+        )),
     }
 }
 }

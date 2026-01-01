@@ -1,8 +1,11 @@
+use super::errors::{LexError, LexResult};
 use super::*;
 
 impl Lexer {
-    /// Lexes inside a control block `{#...}`, `{/...}`, or `{:...}`.
-    pub(super) fn lex_control_block(&mut self) -> SyntaxKind {
+    /// Lexes inside a control block after `{#if`, `{#for`, `{:else if`, `{:case`, etc.
+    /// The opening keyword is already consumed as part of the token.
+    /// This mode handles the condition/expression until the closing `}`.
+    pub(super) fn lex_control_block(&mut self) -> LexResult<SyntaxKind> {
         let remaining = self.remaining();
 
         // Skip whitespace
@@ -10,58 +13,56 @@ impl Lexer {
             && c.is_whitespace()
         {
             self.consume_while(|c| c.is_whitespace());
-            return SyntaxKind::Whitespace;
+            return Ok(SyntaxKind::Whitespace);
         }
 
-        // Check for closing brace
+        // Check for closing brace - ends the control block
         if remaining.starts_with("}") {
             self.advance(1);
             self.pop_mode();
-            return SyntaxKind::RBrace;
+            return Ok(SyntaxKind::RBrace);
         }
 
-        // Check for control keywords
-        let keywords = [
-            ("if", SyntaxKind::IfKw),
-            ("else", SyntaxKind::ElseKw),
-            ("for", SyntaxKind::ForKw),
-            ("while", SyntaxKind::WhileKw),
-            ("match", SyntaxKind::MatchKw),
-            ("case", SyntaxKind::CaseKw),
-            ("let", SyntaxKind::LetKw),
-            ("in", SyntaxKind::InKw),
-        ];
-
-        for (kw, kind) in keywords {
-            if remaining.starts_with(kw) {
-                let next_char = remaining.chars().nth(kw.len());
-                if next_char
-                    .map(|c| !c.is_alphanumeric() && c != '_')
-                    .unwrap_or(true)
-                {
-                    self.advance(kw.len());
-                    return kind;
-                }
+        // Check for `let` keyword (used in `{#if let ...}` patterns)
+        if remaining.starts_with("let") {
+            let next_char = remaining.chars().nth(3);
+            if next_char
+                .map(|c| !c.is_alphanumeric() && c != '_')
+                .unwrap_or(true)
+            {
+                self.advance(3);
+                return Ok(SyntaxKind::LetKw);
             }
         }
 
-        // Tokenize granularly so we can detect keywords like "in"
-        // Only consume one "unit" at a time (identifier, operator, etc.)
+        // Check for `in` keyword (used in `{#for x in items}`)
+        if remaining.starts_with("in") {
+            let next_char = remaining.chars().nth(2);
+            if next_char
+                .map(|c| !c.is_alphanumeric() && c != '_')
+                .unwrap_or(true)
+            {
+                self.advance(2);
+                return Ok(SyntaxKind::InKw);
+            }
+        }
+
+        // Tokenize granularly for the condition/expression
         if let Some(c) = self.peek() {
             if c.is_alphabetic() || c == '_' {
-                // Identifier - consume just this one identifier
+                // Identifier
                 self.consume_while(|c| c.is_alphanumeric() || c == '_');
-                SyntaxKind::Ident
+                Ok(SyntaxKind::Ident)
             } else {
                 // Single character operators/punctuation
                 match c {
                     '(' | ')' | '[' | ']' | '{' | ',' | '.' | ':' | ';' | '+' | '-' | '*' | '/'
                     | '%' | '&' | '|' | '^' | '!' | '=' | '<' | '>' | '?' | '@' | '#' | '$' | '~' => {
                         self.advance(1);
-                        SyntaxKind::Text
+                        Ok(SyntaxKind::Text)
                     }
                     '"' => {
-                        // String literal - consume the whole thing
+                        // String literal
                         self.advance(1);
                         while let Some(c) = self.peek() {
                             if c == '\\' {
@@ -73,7 +74,7 @@ impl Lexer {
                                 self.advance(c.len_utf8());
                             }
                         }
-                        SyntaxKind::Text
+                        Ok(SyntaxKind::Text)
                     }
                     '\'' => {
                         // Char literal
@@ -88,7 +89,7 @@ impl Lexer {
                                 self.advance(c.len_utf8());
                             }
                         }
-                        SyntaxKind::Text
+                        Ok(SyntaxKind::Text)
                     }
                     _ => {
                         // Numbers or other characters
@@ -97,12 +98,12 @@ impl Lexer {
                         } else {
                             self.advance(c.len_utf8());
                         }
-                        SyntaxKind::Text
+                        Ok(SyntaxKind::Text)
                     }
                 }
             }
         } else {
-            SyntaxKind::Error
+            Err(LexError::unexpected_eof(self.pos, "control block condition"))
         }
     }
 }

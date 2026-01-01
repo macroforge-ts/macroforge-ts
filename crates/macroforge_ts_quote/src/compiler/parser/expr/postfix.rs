@@ -42,6 +42,11 @@ impl Parser {
         loop {
             self.skip_whitespace();
 
+            // Check if we've hit a terminator (from context stack)
+            if self.at_terminator() {
+                break;
+            }
+
             let Some(token) = self.current() else {
                 break;
             };
@@ -435,20 +440,18 @@ impl Parser {
 
         match token.kind {
             SyntaxKind::Ident => {
-                let t = self.consume().unwrap();
-                Ok(IrNode::Ident(t.text))
+                let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "identifier"))?;
+                Ok(IrNode::Ident(token.text))
             }
             // Private identifier: #name
             SyntaxKind::Hash => self.parse_private_name(),
             // Keywords can be used as property names
             _ if token.kind.is_ts_keyword() => {
-                let t = self.consume().unwrap();
-                Ok(IrNode::Ident(t.text))
+                let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "keyword as property name"))?;
+                Ok(IrNode::Ident(token.text))
             }
             // Placeholder in property position
-            SyntaxKind::At => self
-                .parse_interpolation()
-                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "placeholder")),
+            SyntaxKind::At => self.parse_interpolation(),
             _ => Err(ParseError::new(ParseErrorKind::MissingPropertyName, self.pos)
                 .with_found(&token.text)),
         }

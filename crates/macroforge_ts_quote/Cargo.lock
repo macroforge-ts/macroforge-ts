@@ -925,6 +925,7 @@ dependencies = [
  "quote",
  "rowan",
  "rustc-hash 2.1.1",
+ "smallvec",
  "swc_core",
  "swc_macros_common",
  "syn",

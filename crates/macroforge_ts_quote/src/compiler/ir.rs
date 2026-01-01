@@ -1380,8 +1380,8 @@ mod tests {
     fn test_ir_node_cond_expr() {
         let node = IrNode::CondExpr {
             test: Box::new(IrNode::BoolLit(true)),
-            cons: Box::new(IrNode::NumLit("1".to_string())),
-            alt: Box::new(IrNode::NumLit("2".to_string())),
+            consequent: Box::new(IrNode::NumLit("1".to_string())),
+            alternate: Box::new(IrNode::NumLit("2".to_string())),
         };
         assert!(matches!(node, IrNode::CondExpr { .. }));
     }

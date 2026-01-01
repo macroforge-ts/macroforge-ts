@@ -56,17 +56,17 @@ impl Parser {
             let (pattern_str, type_hint) = if let Some(colon_pos) = name_part.find(':') {
                 (
                     name_part[..colon_pos].trim(),
-                    Some(Self::str_to_token_stream(name_part[colon_pos + 1..].trim())),
+                    Some(Self::str_to_token_stream_or_panic(name_part[colon_pos + 1..].trim(), "let directive type hint")),
                 )
             } else {
                 (name_part, None)
             };
 
             Some(IrNode::Let {
-                pattern: Self::str_to_token_stream(pattern_str),
+                pattern: Self::str_to_token_stream_or_panic(pattern_str, "let directive pattern"),
                 mutable,
                 type_hint,
-                value: Self::str_to_token_stream(value_str),
+                value: Self::str_to_token_stream_or_panic(value_str, "let directive value"),
             })
         } else {
             None
@@ -82,7 +82,7 @@ impl Parser {
         self.expect(SyntaxKind::RBrace);
 
         Some(IrNode::Do {
-            code: Self::str_to_token_stream(&code_str),
+            code: Self::str_to_token_stream_or_panic(&code_str, "do directive code"),
         })
     }
 
@@ -95,7 +95,7 @@ impl Parser {
         self.expect(SyntaxKind::RBrace);
 
         Some(IrNode::TypeScript {
-            stream: Self::str_to_token_stream(&stream_str),
+            stream: Self::str_to_token_stream_or_panic(&stream_str, "typescript directive stream"),
         })
     }
 }

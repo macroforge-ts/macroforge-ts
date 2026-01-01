@@ -27,11 +27,106 @@ use super::ir::{
 use super::lexer::{Lexer, Token};
 use super::syntax::SyntaxKind;
 use proc_macro2::TokenStream;
+use smallvec::SmallVec;
 use std::str::FromStr;
 
+/// Control flow markers that ALWAYS terminate expression parsing.
+/// These are template-language constructs, not JS/TS syntax.
+pub(super) const CONTROL_FLOW_TERMINATORS: &[SyntaxKind] = &[
+    // Opening constructs: {#if}, {#for}, {#while}, {#match}
+    SyntaxKind::BraceHashIf,
+    SyntaxKind::BraceHashFor,
+    SyntaxKind::BraceHashWhile,
+    SyntaxKind::BraceHashMatch,
+    // Closing constructs: {/if}, {/for}, {/while}, {/match}
+    SyntaxKind::BraceSlashIf,
+    SyntaxKind::BraceSlashFor,
+    SyntaxKind::BraceSlashWhile,
+    SyntaxKind::BraceSlashMatch,
+    // Continuation constructs: {:else}, {:else if}, {:case}
+    SyntaxKind::BraceColonElse,
+    SyntaxKind::BraceColonElseIf,
+    SyntaxKind::BraceColonCase,
+];
+
 /// Analysis context for placeholder classification.
+/// Combines the context kind (for placeholder classification) with
+/// terminators (for expression parsing termination).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct Context {
+    kind: ContextKind,
+    terminators: SmallVec<[SyntaxKind; 4]>,
+}
+
+impl Context {
+    /// Creates an expression context with the given kind and terminators (array form).
+    fn expression<const N: usize>(kind: ExpressionKind, terminators: [SyntaxKind; N]) -> Self {
+        Self {
+            kind: ContextKind::Expression(kind),
+            terminators: SmallVec::from_iter(terminators),
+        }
+    }
+
+    /// Creates an expression context with the given kind and terminators (slice form).
+    fn expression_from_slice(kind: ExpressionKind, terminators: &[SyntaxKind]) -> Self {
+        Self {
+            kind: ContextKind::Expression(kind),
+            terminators: SmallVec::from_iter(terminators.iter().copied()),
+        }
+    }
+
+    /// Creates a type annotation context with the given terminators.
+    fn type_annotation<const N: usize>(terminators: [SyntaxKind; N]) -> Self {
+        Self {
+            kind: ContextKind::TypeAnnotation,
+            terminators: SmallVec::from_iter(terminators),
+        }
+    }
+
+    /// Creates a type assertion context with the given terminators.
+    fn type_assertion<const N: usize>(terminators: [SyntaxKind; N]) -> Self {
+        Self {
+            kind: ContextKind::TypeAssertion,
+            terminators: SmallVec::from_iter(terminators),
+        }
+    }
+
+    /// Creates an identifier context with the given terminators.
+    fn identifier<const N: usize>(terminators: [SyntaxKind; N]) -> Self {
+        Self {
+            kind: ContextKind::Identifier,
+            terminators: SmallVec::from_iter(terminators),
+        }
+    }
+
+    /// Creates a generic params context with the given terminators.
+    fn generic_params<const N: usize>(terminators: [SyntaxKind; N]) -> Self {
+        Self {
+            kind: ContextKind::GenericParams,
+            terminators: SmallVec::from_iter(terminators),
+        }
+    }
+
+    /// Creates a statement context (no terminators needed).
+    fn statement() -> Self {
+        Self {
+            kind: ContextKind::Statement,
+            terminators: SmallVec::new(),
+        }
+    }
+
+    /// Creates a parameters context with the given terminators.
+    fn parameters<const N: usize>(terminators: [SyntaxKind; N]) -> Self {
+        Self {
+            kind: ContextKind::Parameters,
+            terminators: SmallVec::from_iter(terminators),
+        }
+    }
+}
+
+/// The kind of context (for placeholder classification).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Context {
+enum ContextKind {
     /// Top-level or statement context.
     Statement,
     /// Expression context with optional sub-kind.
@@ -79,22 +174,47 @@ pub struct Parser {
 
 impl Parser {
     /// Creates a new parser from input text.
+    /// Panics if the input cannot be tokenized (lexer error).
     pub fn new(input: &str) -> Self {
-        let tokens = Lexer::new(input).tokenize();
+        let tokens = Lexer::new(input).tokenize().unwrap_or_else(|e| {
+            panic!("Lexer error: {}", e);
+        });
         Self {
             tokens,
             pos: 0,
-            context_stack: vec![Context::Expression(ExpressionKind::Normal)],
+            context_stack: vec![Context::expression(ExpressionKind::Normal, [])],
             source: input.to_string(),
             pending_doc: None,
             pending_decorators: Vec::new(),
         }
     }
 
+    /// Creates a new parser from input text, returning an error if lexing fails.
+    pub fn try_new(input: &str) -> Result<Self, crate::compiler::lexer::LexError> {
+        let tokens = Lexer::new(input).tokenize()?;
+        Ok(Self {
+            tokens,
+            pos: 0,
+            context_stack: vec![Context::expression(ExpressionKind::Normal, [])],
+            source: input.to_string(),
+            pending_doc: None,
+            pending_decorators: Vec::new(),
+        })
+    }
+
     /// Parses the input and returns an AST.
     pub fn parse(mut self) -> Ir {
         let nodes = self.parse_nodes();
         Ir::with_nodes(Self::merge_adjacent_text(nodes))
+    }
+
+    /// Execute a function with a temporary context pushed.
+    /// Context is popped when function returns.
+    pub(super) fn with_context<T>(&mut self, ctx: Context, f: impl FnOnce(&mut Self) -> T) -> T {
+        self.context_stack.push(ctx);
+        let result = f(self);
+        self.context_stack.pop();
+        result
     }
 
     // =========================================================================
@@ -113,6 +233,21 @@ impl Parser {
         self.current_kind() == Some(kind)
     }
 
+    /// Returns true if the current token is any `{#...` opening token (BraceHashIf, BraceHashFor, etc.)
+    fn at_brace_hash_open(&self) -> bool {
+        self.current_kind().map_or(false, |k| k.is_brace_hash_open())
+    }
+
+    /// Returns true if the current token is any `{/...}` closing token (BraceSlashIf, BraceSlashFor, etc.)
+    fn at_brace_slash_close(&self) -> bool {
+        self.current_kind().map_or(false, |k| k.is_brace_slash_close())
+    }
+
+    /// Returns true if the current token is any `{:...` continuation token (BraceColonElse, BraceColonElseIf, etc.)
+    fn at_brace_colon(&self) -> bool {
+        self.current_kind().map_or(false, |k| k.is_brace_colon())
+    }
+
     fn at_eof(&self) -> bool {
         self.pos >= self.tokens.len()
     }
@@ -120,10 +255,11 @@ impl Parser {
     fn advance(&mut self) {
         if !self.at_eof() {
             // Clone token data to avoid borrow issues
-            let (kind, text) = self
+            // SAFETY: We just verified !at_eof(), so current() must return Some
+            let token = self
                 .current()
-                .map(|t| (t.kind, t.text.clone()))
-                .unwrap_or((SyntaxKind::Error, String::new()));
+                .expect("advance() called when not at EOF but current() returned None");
+            let (kind, text) = (token.kind, token.text.clone());
 
             // Update context based on the token we're consuming
             self.update_context(kind, &text);
@@ -270,7 +406,7 @@ impl Parser {
 
         let node = match self.current_kind()? {
             SyntaxKind::At => {
-                if let Some(placeholder) = self.parse_interpolation() {
+                if let Ok(placeholder) = self.parse_interpolation() {
                     // Check if there's an identifier suffix immediately after (e.g., @{name}Obj)
                     if let Some(token) = self.current() {
                         if token.kind == SyntaxKind::Ident {
@@ -295,15 +431,24 @@ impl Parser {
                     None
                 }
             }
-            SyntaxKind::HashOpen => self.parse_control_block(),
-            SyntaxKind::SlashOpen => {
-                // End of control block - consume and return None
-                self.consume_until_rbrace();
+            // Template control flow opening constructs
+            SyntaxKind::BraceHashIf => self.parse_if_block_from_token(),
+            SyntaxKind::BraceHashFor => self.parse_for_block_from_token(),
+            SyntaxKind::BraceHashWhile => self.parse_while_block_from_token(),
+            SyntaxKind::BraceHashMatch => self.parse_match_block_from_token(),
+            // Template control flow closing constructs - consume and return None
+            SyntaxKind::BraceSlashIf
+            | SyntaxKind::BraceSlashFor
+            | SyntaxKind::BraceSlashWhile
+            | SyntaxKind::BraceSlashMatch => {
+                // End of control block - consume the closing token
+                self.consume();
                 None
             }
-            SyntaxKind::ColonOpen => {
-                // Else clause at top level - error, consume
-                self.consume_until_rbrace();
+            // Template control flow continuation constructs - error at top level
+            SyntaxKind::BraceColonElse | SyntaxKind::BraceColonElseIf | SyntaxKind::BraceColonCase => {
+                // Else/case clause at top level - error, consume
+                self.consume();
                 None
             }
             SyntaxKind::DollarOpen => self.parse_directive(),
@@ -323,20 +468,20 @@ impl Parser {
             // TypeScript declarations
             SyntaxKind::ExportKw => self.parse_export_decl(),
             SyntaxKind::ImportKw => self.parse_import_decl(),
-            SyntaxKind::EnumKw => self.parse_enum_decl(false, false),
-            SyntaxKind::ClassKw => self.parse_class_decl(false),
+            SyntaxKind::EnumKw => self.parse_enum_decl(false, false).ok(),
+            SyntaxKind::ClassKw => self.parse_class_decl(false).ok(),
             SyntaxKind::FunctionKw => self.parse_function_decl(false, false),
             SyntaxKind::InterfaceKw => self.parse_interface_decl(false),
             SyntaxKind::ConstKw => {
                 // Check for `const enum`
                 if self.peek_is_enum() {
-                    self.parse_enum_decl(false, true)
+                    self.parse_enum_decl(false, true).ok()
                 } else {
-                    self.parse_var_decl(false)
+                    self.parse_var_decl(false).ok()
                 }
             }
             SyntaxKind::LetKw | SyntaxKind::VarKw => {
-                self.parse_var_decl(false)
+                self.parse_var_decl(false).ok()
             }
             SyntaxKind::AsyncKw => self.parse_async_decl(false),
             // Interface/type members (can appear in for-loop bodies inside interfaces)
@@ -344,11 +489,11 @@ impl Parser {
             // Block statement at module level - use lookahead to distinguish from object literal
             SyntaxKind::LBrace if self.looks_like_block_stmt() => self.parse_block_stmt().ok(),
             // TypeScript statements that can appear at module level
-            SyntaxKind::IfKw => self.parse_ts_if_stmt(),
+            SyntaxKind::IfKw => self.parse_ts_if_stmt().ok(),
             SyntaxKind::ForKw | SyntaxKind::WhileKw => self.parse_ts_loop_stmt().ok(),
             SyntaxKind::TryKw => self.parse_ts_try_stmt(),
-            SyntaxKind::ReturnKw => self.parse_return_stmt(),
-            SyntaxKind::ThrowKw => self.parse_throw_stmt(),
+            SyntaxKind::ReturnKw => self.parse_return_stmt().ok(),
+            SyntaxKind::ThrowKw => self.parse_throw_stmt().ok(),
             _ => self.parse_text_token(),
         };
 
@@ -383,7 +528,7 @@ impl Parser {
                 }
                 Some(SyntaxKind::At) => {
                     // Interpolation inside decorator
-                    if let Some(placeholder) = self.parse_interpolation() {
+                    if let Ok(placeholder) = self.parse_interpolation() {
                         parts.push(placeholder);
                     }
                 }
@@ -453,6 +598,26 @@ impl Parser {
         } else {
             Some(IrNode::IdentBlock { parts: merged })
         }
+    }
+
+    // =========================================================================
+    // Control block handlers (called from parse_node for new token types)
+    // =========================================================================
+
+    fn parse_if_block_from_token(&mut self) -> Option<IrNode> {
+        self.parse_control_block(SyntaxKind::BraceHashIf)
+    }
+
+    fn parse_for_block_from_token(&mut self) -> Option<IrNode> {
+        self.parse_control_block(SyntaxKind::BraceHashFor)
+    }
+
+    fn parse_while_block_from_token(&mut self) -> Option<IrNode> {
+        self.parse_control_block(SyntaxKind::BraceHashWhile)
+    }
+
+    fn parse_match_block_from_token(&mut self) -> Option<IrNode> {
+        self.parse_control_block(SyntaxKind::BraceHashMatch)
     }
 
     fn parse_text_token(&mut self) -> Option<IrNode> {

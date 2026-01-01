@@ -28,6 +28,7 @@ convert_case = "0.10.0"
 rowan = "0.16.1"
 anyhow = "1.0"
 rustc-hash = "2.1.1"
+smallvec = "1.13"
 swc_macros_common = "1.0"
 swc_core = { version = "52.0.0", default-features = false, features = [
   "common",

@@ -73,7 +73,7 @@ impl Parser {
                             }
                         }
                         Some(SyntaxKind::At) => {
-                            if let Some(placeholder) = self.parse_interpolation() {
+                            if let Ok(placeholder) = self.parse_interpolation() {
                                 parts.push(placeholder);
                             }
                         }

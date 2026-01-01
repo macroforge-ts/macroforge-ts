@@ -10,6 +10,7 @@
 //! - `export * from "module"`
 //! - `export default expr`
 
+use super::super::expr::errors::{ParseError, ParseErrorKind, ParseResult};
 use super::*;
 
 impl Parser {
@@ -208,7 +209,7 @@ impl Parser {
             Some(SyntaxKind::Star) => self.parse_export_all(),
 
             // Export default: `export default expr`
-            Some(SyntaxKind::DefaultKw) => self.parse_export_default(),
+            Some(SyntaxKind::DefaultKw) => self.parse_export_default().ok(),
 
             // Type export: `export type { T }` or `export type Foo = ...`
             Some(SyntaxKind::TypeKw) => {
@@ -382,7 +383,7 @@ impl Parser {
     }
 
     /// Parse export default: `export default expr`
-    fn parse_export_default(&mut self) -> Option<IrNode> {
+    fn parse_export_default(&mut self) -> ParseResult<IrNode> {
         self.consume(); // consume "default"
         self.skip_whitespace();
 
@@ -390,22 +391,30 @@ impl Parser {
         match self.current_kind() {
             Some(SyntaxKind::ClassKw) => {
                 // export default class Foo { }
-                let class_decl = self.parse_class_decl(true)?;
-                return Some(IrNode::ExportDefaultExpr {
+                let class_decl = self
+                    .parse_class_decl(true)
+                    .map_err(|e| e.with_context("parsing export default class declaration"))?;
+                return Ok(IrNode::ExportDefaultExpr {
                     expr: Box::new(class_decl),
                 });
             }
             Some(SyntaxKind::FunctionKw) => {
                 // export default function foo() { }
-                let fn_decl = self.parse_function_decl(true, false)?;
-                return Some(IrNode::ExportDefaultExpr {
+                let fn_decl = self.parse_function_decl(true, false).ok_or_else(|| {
+                    ParseError::new(ParseErrorKind::ExpectedExpression, self.pos)
+                        .with_context("parsing export default function declaration")
+                })?;
+                return Ok(IrNode::ExportDefaultExpr {
                     expr: Box::new(fn_decl),
                 });
             }
             Some(SyntaxKind::AsyncKw) => {
                 // export default async function foo() { }
-                let fn_decl = self.parse_async_decl(true)?;
-                return Some(IrNode::ExportDefaultExpr {
+                let fn_decl = self.parse_async_decl(true).ok_or_else(|| {
+                    ParseError::new(ParseErrorKind::ExpectedExpression, self.pos)
+                        .with_context("parsing export default async function declaration")
+                })?;
+                return Ok(IrNode::ExportDefaultExpr {
                     expr: Box::new(fn_decl),
                 });
             }
@@ -413,13 +422,15 @@ impl Parser {
         }
 
         // Parse as expression
-        let expr = self.parse_ts_expr_until(&[SyntaxKind::Semicolon])?;
+        let expr = self
+            .parse_ts_expr_until(&[SyntaxKind::Semicolon])
+            .map_err(|e| e.with_context("parsing export default expression"))?;
 
         if self.at(SyntaxKind::Semicolon) {
             self.consume();
         }
 
-        Some(IrNode::ExportDefaultExpr {
+        Ok(IrNode::ExportDefaultExpr {
             expr: Box::new(expr),
         })
     }

@@ -5,12 +5,13 @@
 //! - `const enum Direction { Up, Down }`
 //! - `export enum Color { Red = 0, Green = 1 }`
 
+use super::super::expr::errors::{ParseError, ParseResult};
 use super::*;
 
 impl Parser {
     /// Parse enum declaration
     /// Handles: enum, const enum, export enum
-    pub(crate) fn parse_enum_decl(&mut self, exported: bool, const_: bool) -> Option<IrNode> {
+    pub(crate) fn parse_enum_decl(&mut self, exported: bool, const_: bool) -> ParseResult<IrNode> {
         // If we're at "const", consume it
         let const_ = if self.at(SyntaxKind::ConstKw) {
             self.consume();
@@ -22,28 +23,32 @@ impl Parser {
 
         // Consume "enum"
         if !self.at(SyntaxKind::EnumKw) {
-            return None;
+            return Err(ParseError::unexpected_eof(self.pos, "enum keyword"))
+                .map_err(|e| e.with_context("parsing enum declaration"));
         }
-        self.consume()?;
+        self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "enum keyword"))?;
         self.skip_whitespace();
 
         // Parse enum name
-        let name = self.parse_ts_ident_or_placeholder()?;
+        let name = self.parse_ts_ident_or_placeholder()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "enum name")
+                .with_context("parsing enum declaration"))?;
         self.skip_whitespace();
 
         // Parse enum body
         if !self.at(SyntaxKind::LBrace) {
-            return Some(IrNode::Raw("enum ".to_string()));
+            return Ok(IrNode::Raw("enum ".to_string()));
         }
         self.consume(); // consume {
         self.skip_whitespace();
 
-        let members = self.parse_enum_members();
+        let members = self.parse_enum_members()?;
 
         self.skip_whitespace();
         self.expect(SyntaxKind::RBrace);
 
-        Some(IrNode::EnumDecl {
+        Ok(IrNode::EnumDecl {
             exported,
             declare: false,
             const_,
@@ -53,7 +58,7 @@ impl Parser {
     }
 
     /// Parse enum members
-    fn parse_enum_members(&mut self) -> Vec<IrNode> {
+    fn parse_enum_members(&mut self) -> ParseResult<Vec<IrNode>> {
         let mut members = Vec::new();
 
         while !self.at_eof() && !self.at(SyntaxKind::RBrace) {
@@ -64,11 +69,19 @@ impl Parser {
             }
 
             // Check for control flow (for loop, etc.)
-            if self.at(SyntaxKind::HashOpen) {
-                if let Some(node) = self.parse_control_block() {
-                    members.push(node);
+            if let Some(kind) = self.current_kind() {
+                match kind {
+                    SyntaxKind::BraceHashIf
+                    | SyntaxKind::BraceHashFor
+                    | SyntaxKind::BraceHashWhile
+                    | SyntaxKind::BraceHashMatch => {
+                        if let Some(node) = self.parse_control_block(kind) {
+                            members.push(node);
+                        }
+                        continue;
+                    }
+                    _ => {}
                 }
-                continue;
             }
 
             // Check for directives
@@ -80,11 +93,17 @@ impl Parser {
             }
 
             // Parse enum member
-            if let Some(member) = self.parse_enum_member() {
-                members.push(member);
-            } else {
-                // Consume unknown token to prevent infinite loop
-                self.advance();
+            match self.parse_enum_member() {
+                Ok(member) => members.push(member),
+                Err(e) => {
+                    // If we get an error parsing member, propagate it
+                    // unless we're at a position where we can recover
+                    if self.at(SyntaxKind::Comma) || self.at(SyntaxKind::RBrace) {
+                        // Skip and continue
+                    } else {
+                        return Err(e.with_context("parsing enum members"));
+                    }
+                }
             }
 
             self.skip_whitespace();
@@ -95,13 +114,15 @@ impl Parser {
             }
         }
 
-        members
+        Ok(members)
     }
 
     /// Parse a single enum member: `Name` or `Name = value`
-    fn parse_enum_member(&mut self) -> Option<IrNode> {
+    fn parse_enum_member(&mut self) -> ParseResult<IrNode> {
         // Parse member name (can be identifier or placeholder)
-        let name = self.parse_ts_ident_or_placeholder()?;
+        let name = self.parse_ts_ident_or_placeholder()
+            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "enum member name")
+                .with_context("parsing enum member"))?;
         self.skip_whitespace();
 
         // Check for initializer
@@ -109,15 +130,15 @@ impl Parser {
             self.consume();
             self.skip_whitespace();
             // Parse the initializer expression until comma or closing brace
-            Some(Box::new(self.parse_ts_expr_until(&[
-                SyntaxKind::Comma,
-                SyntaxKind::RBrace,
-            ])?))
+            Some(Box::new(
+                self.parse_ts_expr_until(&[SyntaxKind::Comma, SyntaxKind::RBrace])
+                    .map_err(|e| e.with_context("parsing enum member initializer"))?,
+            ))
         } else {
             None
         };
 
-        Some(IrNode::EnumMember {
+        Ok(IrNode::EnumMember {
             name: Box::new(name),
             init,
         })

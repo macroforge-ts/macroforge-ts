@@ -56,11 +56,19 @@ impl Parser {
             }
 
             // Check for control flow
-            if self.at(SyntaxKind::HashOpen) {
-                if let Some(node) = self.parse_control_block() {
-                    members.push(node);
+            if let Some(kind) = self.current_kind() {
+                match kind {
+                    SyntaxKind::BraceHashIf
+                    | SyntaxKind::BraceHashFor
+                    | SyntaxKind::BraceHashWhile
+                    | SyntaxKind::BraceHashMatch => {
+                        if let Some(node) = self.parse_control_block(kind) {
+                            members.push(node);
+                        }
+                        continue;
+                    }
+                    _ => {}
                 }
-                continue;
             }
 
             // Check for directives
@@ -137,7 +145,10 @@ impl Parser {
                 SyntaxKind::Semicolon,
                 SyntaxKind::Comma,
                 SyntaxKind::RBrace,
-                SyntaxKind::SlashOpen,
+                SyntaxKind::BraceSlashIf,
+                SyntaxKind::BraceSlashFor,
+                SyntaxKind::BraceSlashWhile,
+                SyntaxKind::BraceSlashMatch,
             ]);
 
             // Consume optional separator
@@ -187,7 +198,9 @@ impl Parser {
         // Check if method signature or property
         if self.at(SyntaxKind::LParen) || self.at(SyntaxKind::Lt) {
             let type_params = self.parse_optional_type_params();
-            let params = self.parse_param_list();
+            let params = self.parse_param_list()
+                .map_err(|e| e.with_context("interface method signature"))
+                .ok()?;
             self.skip_whitespace();
 
             let return_type = if self.at(SyntaxKind::Colon) {

@@ -37,16 +37,39 @@ pub enum SyntaxKind {
     DecoratorAt,
     /// `@@` - escaped @ (produces literal @)
     AtAt,
+    /// `${` - JavaScript template expression start (inside template literals)
+    DollarBrace,
     /// `{` - left brace
     LBrace,
     /// `}` - right brace
     RBrace,
-    /// `{#` - control flow open
-    HashOpen,
-    /// `{/` - control flow close
-    SlashOpen,
-    /// `{:` - control flow continuation (else, case)
-    ColonOpen,
+    // Template control flow - opening constructs `{#...`
+    /// `{#if` - template if open
+    BraceHashIf,
+    /// `{#for` - template for open
+    BraceHashFor,
+    /// `{#while` - template while open
+    BraceHashWhile,
+    /// `{#match` - template match open
+    BraceHashMatch,
+
+    // Template control flow - continuation constructs `{:...`
+    /// `{:else}` - template else (complete with closing brace)
+    BraceColonElse,
+    /// `{:else if` - template else-if open
+    BraceColonElseIf,
+    /// `{:case` - template match case
+    BraceColonCase,
+
+    // Template control flow - closing constructs `{/...}`
+    /// `{/if}` - template if close
+    BraceSlashIf,
+    /// `{/for}` - template for close
+    BraceSlashFor,
+    /// `{/while}` - template while close
+    BraceSlashWhile,
+    /// `{/match}` - template match close
+    BraceSlashMatch,
     /// `{$` - directive open (let, do, typescript)
     DollarOpen,
     /// `` - ident block open
@@ -487,6 +510,30 @@ impl SyntaxKind {
                 | Self::NewKw
         )
     }
+
+    /// Returns true if this is an opening control block token (`{#if`, `{#for`, `{#while`, `{#match`).
+    pub fn is_brace_hash_open(self) -> bool {
+        matches!(
+            self,
+            Self::BraceHashIf | Self::BraceHashFor | Self::BraceHashWhile | Self::BraceHashMatch
+        )
+    }
+
+    /// Returns true if this is a closing control block token (`{/if}`, `{/for}`, `{/while}`, `{/match}`).
+    pub fn is_brace_slash_close(self) -> bool {
+        matches!(
+            self,
+            Self::BraceSlashIf | Self::BraceSlashFor | Self::BraceSlashWhile | Self::BraceSlashMatch
+        )
+    }
+
+    /// Returns true if this is a continuation control block token (`{:else}`, `{:else if`, `{:case`).
+    pub fn is_brace_colon(self) -> bool {
+        matches!(
+            self,
+            Self::BraceColonElse | Self::BraceColonElseIf | Self::BraceColonCase
+        )
+    }
 }
 
 impl From<SyntaxKind> for rowan::SyntaxKind {
@@ -544,9 +591,17 @@ mod tests {
             SyntaxKind::AtAt,
             SyntaxKind::LBrace,
             SyntaxKind::RBrace,
-            SyntaxKind::HashOpen,
-            SyntaxKind::SlashOpen,
-            SyntaxKind::ColonOpen,
+            SyntaxKind::BraceHashIf,
+            SyntaxKind::BraceHashFor,
+            SyntaxKind::BraceHashWhile,
+            SyntaxKind::BraceHashMatch,
+            SyntaxKind::BraceColonElse,
+            SyntaxKind::BraceColonElseIf,
+            SyntaxKind::BraceColonCase,
+            SyntaxKind::BraceSlashIf,
+            SyntaxKind::BraceSlashFor,
+            SyntaxKind::BraceSlashWhile,
+            SyntaxKind::BraceSlashMatch,
             SyntaxKind::DollarOpen,
             SyntaxKind::Colon,
             SyntaxKind::Semicolon,

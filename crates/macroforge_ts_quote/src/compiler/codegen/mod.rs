@@ -2,8 +2,10 @@
 //!
 //! Generates Rust code that builds SWC AST nodes directly.
 //! Each IR node type maps to corresponding SWC AST construction code.
+//! No silent fallbacks - all errors are explicit via GenResult.
 
 mod class;
+mod error;
 mod expr;
 mod ident;
 mod interface;
@@ -17,6 +19,8 @@ mod signature;
 mod stmt;
 mod target;
 mod r#type;
+
+pub use error::{GenError, GenErrorKind, GenResult};
 
 pub use super::ir::{
     Accessibility, AssignOp, BinaryOp, Ir, IrNode, MatchArm, MethodKind, PlaceholderKind,
@@ -53,9 +57,9 @@ impl Codegen {
     }
 
     /// Generate the complete output for an IR tree.
-    pub fn generate(&self, ir: &Ir) -> TokenStream {
+    pub fn generate(&self, ir: &Ir) -> GenResult<TokenStream> {
         let output_var = format_ident!("{}", self.config.output_var);
-        let body = self.generate_module_items(&ir.nodes);
+        let body = self.generate_module_items(&ir.nodes)?;
 
         let result = quote! {
             {
@@ -70,72 +74,132 @@ impl Codegen {
             eprintln!("[MF_DEBUG_CODEGEN] Generated code:\n{}", result);
         }
 
-        result
+        Ok(result)
     }
 
-    fn generate_var_declarators(&self, decls: &[VarDeclarator]) -> TokenStream {
-        let decls_code: Vec<TokenStream> = decls
-            .iter()
-            .map(|d| {
-                let name_code = self.generate_pat(&d.name);
-                let init_code = d
-                    .init
-                    .as_ref()
-                    .map(|i| {
-                        let ic = self.generate_expr(i);
-                        quote! { Some(Box::new(#ic)) }
-                    })
-                    .unwrap_or(quote! { None });
+    fn generate_var_declarators(&self, decls: &[VarDeclarator]) -> GenResult<TokenStream> {
+        let mut decls_code: Vec<TokenStream> = Vec::new();
 
-                quote! {
-                    macroforge_ts::swc_core::ecma::ast::VarDeclarator {
-                        span: macroforge_ts::swc_core::common::DUMMY_SP,
-                        name: #name_code,
-                        init: #init_code,
-                        definite: false,
-                    }
+        for d in decls {
+            let name_code = self.generate_pat(&d.name)?;
+            let init_code = match &d.init {
+                Some(i) => {
+                    let ic = self.generate_expr(i)?;
+                    quote! { Some(Box::new(#ic)) }
                 }
-            })
-            .collect();
+                None => quote! { None },
+            };
 
-        quote! { vec![#(#decls_code),*] }
+            decls_code.push(quote! {
+                macroforge_ts::swc_core::ecma::ast::VarDeclarator {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    name: #name_code,
+                    init: #init_code,
+                    definite: false,
+                }
+            });
+        }
+
+        Ok(quote! { vec![#(#decls_code),*] })
     }
 
-    fn generate_entity_name(&self, node: &IrNode) -> TokenStream {
+    fn generate_entity_name(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
             IrNode::Ident(name) => {
-                quote! {
+                Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
                         macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
                             #name.into(),
                             macroforge_ts::swc_core::common::DUMMY_SP,
                         )
                     )
-                }
+                })
             }
             IrNode::Placeholder {
                 kind: PlaceholderKind::Ident,
                 expr,
             } => {
-                quote! {
+                Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
                         macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
                     )
-                }
+                })
             }
-            _ => quote! {
-                macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
-                    macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
-                        "".into(),
-                        macroforge_ts::swc_core::common::DUMMY_SP,
+            // Handle Placeholder with Expr kind - try to convert expression to entity name
+            IrNode::Placeholder {
+                kind: PlaceholderKind::Expr,
+                expr,
+            } => {
+                // For expression placeholders, assume they evaluate to something that can be
+                // converted to an identifier (string, &str, Ident, etc.)
+                Ok(quote! {
+                    macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
+                        macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
                     )
-                )
-            },
+                })
+            }
+            // Handle Placeholder with Type kind - for type references used as entity names
+            IrNode::Placeholder {
+                kind: PlaceholderKind::Type,
+                expr,
+            } => {
+                // For type placeholders in entity name position, convert to identifier
+                Ok(quote! {
+                    macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
+                        macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
+                    )
+                })
+            }
+            // Handle Placeholder with Stmt kind - shouldn't typically happen, but handle gracefully
+            IrNode::Placeholder {
+                kind: PlaceholderKind::Stmt,
+                expr,
+            } => {
+                // For statement placeholders in entity name position, try to convert to identifier
+                Ok(quote! {
+                    macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
+                        macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
+                    )
+                })
+            }
+            // Handle TypeScript injection node - the stream produces an entity name directly
+            IrNode::TypeScript { stream } => {
+                Ok(quote! { #stream })
+            }
+            other => Err(GenError::unexpected_node(
+                "entity name",
+                other,
+                &["Ident", "Placeholder", "TypeScript"],
+            )),
         }
     }
 
-    fn generate_implements(&self, _implements: &[IrNode]) -> TokenStream {
-        quote! { vec![] }
+    fn generate_implements(&self, implements: &[IrNode]) -> GenResult<TokenStream> {
+        if implements.is_empty() {
+            return Ok(quote! { vec![] });
+        }
+
+        let mut impl_codes = Vec::new();
+        for node in implements {
+            let entity_name = self.generate_entity_name(node)?;
+            impl_codes.push(quote! {
+                macroforge_ts::swc_core::ecma::ast::TsExprWithTypeArgs {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    expr: Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Ident(
+                        match #entity_name {
+                            macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(i) => i,
+                            macroforge_ts::swc_core::ecma::ast::TsEntityName::TsQualifiedName(q) => {
+                                // For qualified names, extract the rightmost identifier
+                                q.right.into()
+                            }
+                        }
+                    )),
+                    type_args: None,
+                }
+            });
+        }
+
+        Ok(quote! { vec![#(#impl_codes),*] })
     }
 }
 
@@ -219,7 +283,7 @@ mod tests {
     fn test_generate_empty_ir() {
         let codegen = Codegen::new();
         let ir = Ir::new();
-        let output = codegen.generate(&ir);
+        let output = codegen.generate(&ir).unwrap();
         let output_str = output.to_string();
 
         // Should contain the output variable and vec creation
@@ -235,7 +299,7 @@ mod tests {
         };
         let codegen = Codegen::with_config(config);
         let ir = Ir::new();
-        let output = codegen.generate(&ir);
+        let output = codegen.generate(&ir).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("my_items"));
@@ -245,7 +309,7 @@ mod tests {
     fn test_generate_with_ident_node() {
         let codegen = Codegen::new();
         let ir = Ir::with_nodes(vec![IrNode::Ident("test".to_string())]);
-        let output = codegen.generate(&ir);
+        let output = codegen.generate(&ir).unwrap();
         let output_str = output.to_string();
 
         // Should contain Ident related code
@@ -256,7 +320,7 @@ mod tests {
     fn test_generate_with_string_literal() {
         let codegen = Codegen::new();
         let ir = Ir::with_nodes(vec![IrNode::StrLit("hello".to_string())]);
-        let output = codegen.generate(&ir);
+        let output = codegen.generate(&ir).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("__stmts"));
@@ -268,7 +332,7 @@ mod tests {
     fn test_generate_var_declarators_empty() {
         let codegen = Codegen::new();
         let decls: Vec<VarDeclarator> = vec![];
-        let output = codegen.generate_var_declarators(&decls);
+        let output = codegen.generate_var_declarators(&decls).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("vec"));
@@ -283,7 +347,7 @@ mod tests {
             init: None,
             definite: false,
         }];
-        let output = codegen.generate_var_declarators(&decls);
+        let output = codegen.generate_var_declarators(&decls).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("VarDeclarator"));
@@ -298,7 +362,7 @@ mod tests {
             init: Some(Box::new(IrNode::NumLit("42".to_string()))),
             definite: false,
         }];
-        let output = codegen.generate_var_declarators(&decls);
+        let output = codegen.generate_var_declarators(&decls).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("VarDeclarator"));
@@ -309,7 +373,7 @@ mod tests {
     fn test_generate_entity_name_ident() {
         let codegen = Codegen::new();
         let node = IrNode::Ident("MyType".to_string());
-        let output = codegen.generate_entity_name(&node);
+        let output = codegen.generate_entity_name(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsEntityName"));
@@ -323,7 +387,7 @@ mod tests {
             kind: PlaceholderKind::Ident,
             expr: syn::parse_quote! { my_var },
         };
-        let output = codegen.generate_entity_name(&node);
+        let output = codegen.generate_entity_name(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsEntityName"));
@@ -331,21 +395,20 @@ mod tests {
     }
 
     #[test]
-    fn test_generate_entity_name_fallback() {
+    fn test_generate_entity_name_invalid_returns_error() {
         let codegen = Codegen::new();
         let node = IrNode::NumLit("123".to_string()); // Not a valid entity name
         let output = codegen.generate_entity_name(&node);
-        let output_str = output.to_string();
 
-        // Should still produce valid entity name (empty string fallback)
-        assert!(output_str.contains("TsEntityName"));
+        // Should now return an error instead of silently producing invalid code
+        assert!(output.is_err());
     }
 
     #[test]
     fn test_generate_implements_empty() {
         let codegen = Codegen::new();
         let implements: Vec<IrNode> = vec![];
-        let output = codegen.generate_implements(&implements);
+        let output = codegen.generate_implements(&implements).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("vec"));
@@ -691,7 +754,7 @@ mod tests {
     fn test_generate_expr_ident() {
         let codegen = Codegen::new();
         let node = IrNode::Ident("myVar".to_string());
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Expr"));
@@ -702,7 +765,7 @@ mod tests {
     fn test_generate_expr_str_lit() {
         let codegen = Codegen::new();
         let node = IrNode::StrLit("hello world".to_string());
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Expr"));
@@ -714,7 +777,7 @@ mod tests {
     fn test_generate_expr_num_lit() {
         let codegen = Codegen::new();
         let node = IrNode::NumLit("42".to_string());
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Expr"));
@@ -726,7 +789,7 @@ mod tests {
     fn test_generate_expr_bool_lit_true() {
         let codegen = Codegen::new();
         let node = IrNode::BoolLit(true);
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Bool"));
@@ -737,7 +800,7 @@ mod tests {
     fn test_generate_expr_bool_lit_false() {
         let codegen = Codegen::new();
         let node = IrNode::BoolLit(false);
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Bool"));
@@ -748,7 +811,7 @@ mod tests {
     fn test_generate_expr_null_lit() {
         let codegen = Codegen::new();
         let node = IrNode::NullLit;
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Null"));
@@ -758,7 +821,7 @@ mod tests {
     fn test_generate_expr_this() {
         let codegen = Codegen::new();
         let node = IrNode::ThisExpr;
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("This"));
@@ -772,7 +835,7 @@ mod tests {
             type_args: None,
             args: vec![IrNode::NumLit("1".to_string())],
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Call"));
@@ -787,7 +850,7 @@ mod tests {
             prop: Box::new(IrNode::Ident("prop".to_string())),
             computed: false,
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Member"));
@@ -802,7 +865,7 @@ mod tests {
             prop: Box::new(IrNode::NumLit("0".to_string())),
             computed: true,
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Member"));
@@ -818,7 +881,7 @@ mod tests {
                 value: Box::new(IrNode::NumLit("1".to_string())),
             }],
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Object"));
@@ -834,7 +897,7 @@ mod tests {
                 IrNode::NumLit("2".to_string()),
             ],
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Array"));
@@ -849,7 +912,7 @@ mod tests {
             op: BinaryOp::Add,
             right: Box::new(IrNode::NumLit("2".to_string())),
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Bin"));
@@ -864,7 +927,7 @@ mod tests {
             op: AssignOp::Assign,
             right: Box::new(IrNode::NumLit("5".to_string())),
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Assign"));
@@ -876,10 +939,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::CondExpr {
             test: Box::new(IrNode::BoolLit(true)),
-            cons: Box::new(IrNode::NumLit("1".to_string())),
-            alt: Box::new(IrNode::NumLit("0".to_string())),
+            consequent: Box::new(IrNode::NumLit("1".to_string())),
+            alternate: Box::new(IrNode::NumLit("0".to_string())),
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Cond"));
@@ -894,7 +957,7 @@ mod tests {
             type_args: None,
             args: vec![],
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("New"));
@@ -911,7 +974,7 @@ mod tests {
             return_type: None,
             body: Box::new(IrNode::Ident("x".to_string())),
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Arrow"));
@@ -928,7 +991,7 @@ mod tests {
             return_type: None,
             body: Box::new(IrNode::NullLit),
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("is_async"));
@@ -942,7 +1005,7 @@ mod tests {
             quasis: vec!["hello ".to_string(), "!".to_string()],
             exprs: vec![IrNode::Ident("name".to_string())],
         };
-        let output = codegen.generate_expr(&node);
+        let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Tpl"));
@@ -955,7 +1018,7 @@ mod tests {
     fn test_generate_pat_ident() {
         let codegen = Codegen::new();
         let node = IrNode::Ident("x".to_string());
-        let output = codegen.generate_pat(&node);
+        let output = codegen.generate_pat(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Pat"));
@@ -970,7 +1033,7 @@ mod tests {
             type_ann: None,
             optional: false,
         };
-        let output = codegen.generate_pat(&node);
+        let output = codegen.generate_pat(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Pat"));
@@ -985,7 +1048,7 @@ mod tests {
             type_ann: Some(Box::new(IrNode::KeywordType(TsKeyword::String))),
             optional: false,
         };
-        let output = codegen.generate_pat(&node);
+        let output = codegen.generate_pat(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Pat"));
@@ -999,7 +1062,7 @@ mod tests {
             kind: PlaceholderKind::Ident,
             expr: syn::parse_quote! { my_name },
         };
-        let output = codegen.generate_pat(&node);
+        let output = codegen.generate_pat(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Pat"));
@@ -1012,7 +1075,7 @@ mod tests {
     fn test_generate_type_keyword_string() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::String);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsKeywordType"));
@@ -1023,7 +1086,7 @@ mod tests {
     fn test_generate_type_keyword_number() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Number);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsNumberKeyword"));
@@ -1033,7 +1096,7 @@ mod tests {
     fn test_generate_type_keyword_boolean() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Boolean);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsBooleanKeyword"));
@@ -1043,7 +1106,7 @@ mod tests {
     fn test_generate_type_keyword_any() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Any);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsAnyKeyword"));
@@ -1053,7 +1116,7 @@ mod tests {
     fn test_generate_type_keyword_unknown() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Unknown);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsUnknownKeyword"));
@@ -1063,7 +1126,7 @@ mod tests {
     fn test_generate_type_keyword_void() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Void);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsVoidKeyword"));
@@ -1073,7 +1136,7 @@ mod tests {
     fn test_generate_type_keyword_null() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Null);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsNullKeyword"));
@@ -1083,7 +1146,7 @@ mod tests {
     fn test_generate_type_keyword_undefined() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Undefined);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsUndefinedKeyword"));
@@ -1093,7 +1156,7 @@ mod tests {
     fn test_generate_type_keyword_never() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Never);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsNeverKeyword"));
@@ -1103,7 +1166,7 @@ mod tests {
     fn test_generate_type_keyword_object() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Object);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsObjectKeyword"));
@@ -1113,7 +1176,7 @@ mod tests {
     fn test_generate_type_keyword_bigint() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::BigInt);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsBigIntKeyword"));
@@ -1123,7 +1186,7 @@ mod tests {
     fn test_generate_type_keyword_symbol() {
         let codegen = Codegen::new();
         let node = IrNode::KeywordType(TsKeyword::Symbol);
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsSymbolKeyword"));
@@ -1136,7 +1199,7 @@ mod tests {
             name: Box::new(IrNode::Ident("MyType".to_string())),
             type_params: None,
         };
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsTypeRef"));
@@ -1151,7 +1214,7 @@ mod tests {
                 IrNode::KeywordType(TsKeyword::Number),
             ],
         };
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsUnionType"));
@@ -1163,7 +1226,7 @@ mod tests {
         let node = IrNode::ArrayType {
             elem: Box::new(IrNode::KeywordType(TsKeyword::String)),
         };
-        let output = codegen.generate_type(&node);
+        let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("TsArrayType"));
@@ -1177,10 +1240,8 @@ mod tests {
         let node = IrNode::ExprStmt {
             expr: Box::new(IrNode::Ident("foo".to_string())),
         };
-        let output = codegen.generate_stmt(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_stmt(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Stmt"));
         assert!(output_str.contains("Expr"));
     }
@@ -1191,10 +1252,8 @@ mod tests {
         let node = IrNode::ReturnStmt {
             arg: Some(Box::new(IrNode::NumLit("42".to_string()))),
         };
-        let output = codegen.generate_stmt(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_stmt(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Return"));
     }
 
@@ -1202,10 +1261,8 @@ mod tests {
     fn test_generate_stmt_return_void() {
         let codegen = Codegen::new();
         let node = IrNode::ReturnStmt { arg: None };
-        let output = codegen.generate_stmt(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_stmt(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Return"));
         assert!(output_str.contains("None"));
     }
@@ -1214,10 +1271,8 @@ mod tests {
     fn test_generate_stmt_block() {
         let codegen = Codegen::new();
         let node = IrNode::BlockStmt { stmts: vec![] };
-        let output = codegen.generate_stmt(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_stmt(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Block"));
         assert!(output_str.contains("BlockStmt"));
     }
@@ -1236,10 +1291,8 @@ mod tests {
                 definite: false,
             }],
         };
-        let output = codegen.generate_stmt(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_stmt(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Decl"));
         assert!(output_str.contains("VarDecl"));
         assert!(output_str.contains("Const"));
@@ -1254,10 +1307,8 @@ mod tests {
             kind: VarKind::Let,
             decls: vec![],
         };
-        let output = codegen.generate_stmt(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_stmt(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Let"));
     }
 
@@ -1270,10 +1321,8 @@ mod tests {
             kind: VarKind::Var,
             decls: vec![],
         };
-        let output = codegen.generate_stmt(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_stmt(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Var"));
     }
 
@@ -1287,10 +1336,8 @@ mod tests {
             params: vec![],
             body: None,
         };
-        let output = codegen.generate_class_member(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_class_member(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Constructor"));
     }
 
@@ -1302,10 +1349,8 @@ mod tests {
             params: vec![],
             body: None,
         };
-        let output = codegen.generate_class_member(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_class_member(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Public"));
     }
 
@@ -1326,10 +1371,8 @@ mod tests {
             return_type: None,
             body: None,
         };
-        let output = codegen.generate_class_member(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_class_member(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("ClassMethod"));
     }
 
@@ -1350,10 +1393,8 @@ mod tests {
             return_type: None,
             body: None,
         };
-        let output = codegen.generate_class_member(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_class_member(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Getter"));
     }
 
@@ -1374,10 +1415,8 @@ mod tests {
             return_type: None,
             body: None,
         };
-        let output = codegen.generate_class_member(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_class_member(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("Setter"));
     }
 
@@ -1395,10 +1434,8 @@ mod tests {
             type_ann: None,
             value: None,
         };
-        let output = codegen.generate_class_member(&node);
-
-        assert!(output.is_some());
-        let output_str = output.unwrap().to_string();
+        let output = codegen.generate_class_member(&node).unwrap();
+        let output_str = output.to_string();
         assert!(output_str.contains("ClassProp"));
     }
 
@@ -1520,7 +1557,7 @@ mod tests {
     fn test_generate_ident_basic() {
         let codegen = Codegen::new();
         let node = IrNode::Ident("myVar".to_string());
-        let output = codegen.generate_ident(&node);
+        let output = codegen.generate_ident(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Ident"));
@@ -1534,7 +1571,7 @@ mod tests {
             kind: PlaceholderKind::Ident,
             expr: syn::parse_quote! { my_var },
         };
-        let output = codegen.generate_ident(&node);
+        let output = codegen.generate_ident(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("ToTsIdent"));
@@ -1544,7 +1581,7 @@ mod tests {
     fn test_generate_ident_name_basic() {
         let codegen = Codegen::new();
         let node = IrNode::Ident("propName".to_string());
-        let output = codegen.generate_ident_name(&node);
+        let output = codegen.generate_ident_name(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("IdentName"));
@@ -1559,7 +1596,7 @@ mod tests {
             key: Box::new(IrNode::Ident("x".to_string())),
             value: Box::new(IrNode::NumLit("1".to_string())),
         };
-        let output = codegen.generate_prop(&node);
+        let output = codegen.generate_prop(&node).unwrap();
 
         assert!(output.is_some());
         let output_str = output.unwrap().to_string();
@@ -1572,7 +1609,7 @@ mod tests {
         let node = IrNode::ShorthandProp {
             key: Box::new(IrNode::Ident("x".to_string())),
         };
-        let output = codegen.generate_prop(&node);
+        let output = codegen.generate_prop(&node).unwrap();
 
         assert!(output.is_some());
         let output_str = output.unwrap().to_string();
@@ -1585,7 +1622,7 @@ mod tests {
         let node = IrNode::SpreadElement {
             expr: Box::new(IrNode::Ident("obj".to_string())),
         };
-        let output = codegen.generate_prop(&node);
+        let output = codegen.generate_prop(&node).unwrap();
 
         assert!(output.is_some());
         let output_str = output.unwrap().to_string();
@@ -1596,7 +1633,7 @@ mod tests {
     fn test_generate_prop_name_ident() {
         let codegen = Codegen::new();
         let node = IrNode::Ident("propName".to_string());
-        let output = codegen.generate_prop_name(&node);
+        let output = codegen.generate_prop_name(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("PropName"));
@@ -1607,7 +1644,7 @@ mod tests {
     fn test_generate_prop_name_str() {
         let codegen = Codegen::new();
         let node = IrNode::StrLit("prop-name".to_string());
-        let output = codegen.generate_prop_name(&node);
+        let output = codegen.generate_prop_name(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("PropName"));
@@ -1620,7 +1657,7 @@ mod tests {
         let node = IrNode::ComputedPropName {
             expr: Box::new(IrNode::Ident("key".to_string())),
         };
-        let output = codegen.generate_prop_name(&node);
+        let output = codegen.generate_prop_name(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("PropName"));
@@ -1633,7 +1670,7 @@ mod tests {
     fn test_generate_param_ident() {
         let codegen = Codegen::new();
         let node = IrNode::Ident("x".to_string());
-        let output = codegen.generate_param(&node);
+        let output = codegen.generate_param(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Param"));
@@ -1648,7 +1685,7 @@ mod tests {
             type_ann: Some(Box::new(IrNode::KeywordType(TsKeyword::String))),
             optional: false,
         };
-        let output = codegen.generate_param(&node);
+        let output = codegen.generate_param(&node).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Param"));
@@ -1659,7 +1696,7 @@ mod tests {
     fn test_generate_params_empty() {
         let codegen = Codegen::new();
         let params: Vec<IrNode> = vec![];
-        let output = codegen.generate_params(&params);
+        let output = codegen.generate_params(&params).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("vec"));
@@ -1672,7 +1709,7 @@ mod tests {
             IrNode::Ident("a".to_string()),
             IrNode::Ident("b".to_string()),
         ];
-        let output = codegen.generate_params(&params);
+        let output = codegen.generate_params(&params).unwrap();
         let output_str = output.to_string();
 
         assert!(output_str.contains("Param"));

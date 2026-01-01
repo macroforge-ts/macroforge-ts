@@ -30,7 +30,7 @@ impl Parser {
                     }
                 }
                 Some(SyntaxKind::At) => {
-                    if let Some(placeholder) = self.parse_interpolation() {
+                    if let Ok(placeholder) = self.parse_interpolation() {
                         // Check for identifier suffix
                         if let Some(token) = self.current() {
                             if token.kind == SyntaxKind::Ident {
@@ -52,8 +52,9 @@ impl Parser {
                         parts.push(placeholder);
                     }
                 }
-                Some(SyntaxKind::HashOpen) => {
-                    if let Some(control) = self.parse_control_block() {
+                // Handle any {#... opening token for control blocks
+                Some(k) if k.is_brace_hash_open() => {
+                    if let Some(control) = self.parse_control_block(k) {
                         parts.push(control);
                     }
                 }
