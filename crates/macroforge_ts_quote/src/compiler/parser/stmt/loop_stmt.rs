@@ -10,7 +10,7 @@ impl Parser {
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
         let keyword = self.current()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "loop statement"))?
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "loop statement"))?
             .text.clone();
 
         #[cfg(debug_assertions)]
@@ -107,7 +107,7 @@ impl Parser {
                 .map_err(|e| e.with_context("parsing for loop body"))?
         } else {
             self.parse_stmt()
-                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop body"))?
+                .map_err(|e| e.with_context("parsing for loop body"))?
         };
 
         if is_for_in {
@@ -131,7 +131,7 @@ impl Parser {
     fn parse_for_loop_left(&mut self) -> ParseResult<IrNode> {
         let kind = self
             .current_kind()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop left-hand side"))?;
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "for loop left-hand side"))?;
 
         match kind {
             SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => {
@@ -186,7 +186,7 @@ impl Parser {
     fn parse_for_loop_binding(&mut self) -> ParseResult<IrNode> {
         let kind = self
             .current_kind()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "for loop binding"))?;
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "for loop binding"))?;
 
         match kind {
             SyntaxKind::LBracket => self
@@ -197,7 +197,7 @@ impl Parser {
                 .map_err(|e| e.with_context("parsing for loop object pattern")),
             SyntaxKind::At => self.parse_interpolation(),
             _ => self.parse_ts_ident_or_placeholder().ok_or_else(|| {
-                ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)
+                ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
                     .with_context("parsing for loop binding identifier")
             }),
         }
@@ -247,7 +247,7 @@ impl Parser {
         }
 
         self.expect(SyntaxKind::RBracket).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingBracket, self.pos)
+            ParseError::new(ParseErrorKind::MissingClosingBracket, self.current_byte_offset())
                 .with_context("parsing array pattern")
         })?;
 
@@ -286,7 +286,7 @@ impl Parser {
             } else {
                 // Regular property
                 let key = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
-                    ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)
+                    ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
                         .with_context("parsing object pattern property key")
                 })?;
                 self.skip_whitespace();
@@ -318,7 +318,7 @@ impl Parser {
         }
 
         self.expect(SyntaxKind::RBrace).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingBrace, self.pos)
+            ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
                 .with_context("parsing object pattern")
         })?;
 
@@ -335,7 +335,7 @@ impl Parser {
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
         let keyword = self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "loop keyword"))?
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "loop keyword"))?
             .text;
 
         #[cfg(debug_assertions)]
@@ -389,38 +389,35 @@ impl Parser {
                     }
                 }
                 SyntaxKind::At => {
-                    if let Ok(placeholder) = self.parse_interpolation() {
-                        // Check for identifier suffix
-                        if let Some(token) = self.current() {
-                            if token.kind == SyntaxKind::Ident {
-                                let suffix = token.text.clone();
-                                self.consume();
-                                let ident_placeholder = match placeholder {
-                                    IrNode::Placeholder { expr, .. } => {
-                                        IrNode::Placeholder { kind: PlaceholderKind::Ident, expr }
-                                    }
-                                    other => other,
-                                };
-                                parts.push(IrNode::IdentBlock {
-                                    parts: vec![ident_placeholder, IrNode::Raw(suffix)],
-                                });
-                                continue;
-                            }
+                    let placeholder = self.parse_interpolation()?;
+                    // Check for identifier suffix
+                    if let Some(token) = self.current() {
+                        if token.kind == SyntaxKind::Ident {
+                            let suffix = token.text.clone();
+                            self.consume();
+                            let ident_placeholder = match placeholder {
+                                IrNode::Placeholder { expr, .. } => {
+                                    IrNode::Placeholder { kind: PlaceholderKind::Ident, expr }
+                                }
+                                other => other,
+                            };
+                            parts.push(IrNode::IdentBlock {
+                                parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                            });
+                            continue;
                         }
-                        parts.push(placeholder);
                     }
+                    parts.push(placeholder);
                 }
                 SyntaxKind::DoubleQuote => {
                     // Use the new parse_string_literal from expr/primary.rs
-                    if let Ok(node) = self.parse_string_literal() {
-                        parts.push(node);
-                    }
+                    let node = self.parse_string_literal()?;
+                    parts.push(node);
                 }
                 SyntaxKind::Backtick => {
                     // Use the new parse_template_literal from expr/primary.rs
-                    if let Ok(node) = self.parse_template_literal() {
-                        parts.push(node);
-                    }
+                    let node = self.parse_template_literal()?;
+                    parts.push(node);
                 }
                 _ => {
                     if let Some(t) = self.consume() {
@@ -471,36 +468,33 @@ impl Parser {
                         }
                     }
                     SyntaxKind::At => {
-                        if let Ok(placeholder) = self.parse_interpolation() {
-                            // Check for identifier suffix
-                            if let Some(token) = self.current() {
-                                if token.kind == SyntaxKind::Ident {
-                                    let suffix = token.text.clone();
-                                    self.consume();
-                                    let ident_placeholder = match placeholder {
-                                        IrNode::Placeholder { expr, .. } => {
-                                            IrNode::Placeholder { kind: PlaceholderKind::Ident, expr }
-                                        }
-                                        other => other,
-                                    };
-                                    parts.push(IrNode::IdentBlock {
-                                        parts: vec![ident_placeholder, IrNode::Raw(suffix)],
-                                    });
-                                    continue;
-                                }
+                        let placeholder = self.parse_interpolation()?;
+                        // Check for identifier suffix
+                        if let Some(token) = self.current() {
+                            if token.kind == SyntaxKind::Ident {
+                                let suffix = token.text.clone();
+                                self.consume();
+                                let ident_placeholder = match placeholder {
+                                    IrNode::Placeholder { expr, .. } => {
+                                        IrNode::Placeholder { kind: PlaceholderKind::Ident, expr }
+                                    }
+                                    other => other,
+                                };
+                                parts.push(IrNode::IdentBlock {
+                                    parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                                });
+                                continue;
                             }
-                            parts.push(placeholder);
                         }
+                        parts.push(placeholder);
                     }
                     SyntaxKind::DoubleQuote => {
-                        if let Ok(node) = self.parse_string_literal() {
-                            parts.push(node);
-                        }
+                        let node = self.parse_string_literal()?;
+                        parts.push(node);
                     }
                     SyntaxKind::Backtick => {
-                        if let Ok(node) = self.parse_template_literal() {
-                            parts.push(node);
-                        }
+                        let node = self.parse_template_literal()?;
+                        parts.push(node);
                     }
                     _ => {
                         if let Some(t) = self.consume() {

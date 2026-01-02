@@ -197,19 +197,25 @@ impl Parser {
 
     /// Parse export declaration (enhanced version)
     /// Handles: export named, export from, export all, export default
-    pub(crate) fn parse_export_decl_full(&mut self) -> Option<IrNode> {
+    pub(crate) fn parse_export_decl_full(&mut self) -> ParseResult<IrNode> {
         // Note: "export" is already consumed by parse_export_decl
         // This is called from parse_export_decl for complex cases
 
         match self.current_kind() {
             // Named export: `export { a, b as c }`
-            Some(SyntaxKind::LBrace) => self.parse_named_export(),
+            Some(SyntaxKind::LBrace) => self.parse_named_export().ok_or_else(|| {
+                ParseError::new(ParseErrorKind::ExpectedExpression, self.current_byte_offset())
+                    .with_context("parsing named export")
+            }),
 
             // Export all: `export * from "module"`
-            Some(SyntaxKind::Star) => self.parse_export_all(),
+            Some(SyntaxKind::Star) => self.parse_export_all().ok_or_else(|| {
+                ParseError::new(ParseErrorKind::ExpectedExpression, self.current_byte_offset())
+                    .with_context("parsing export all")
+            }),
 
             // Export default: `export default expr`
-            Some(SyntaxKind::DefaultKw) => self.parse_export_default().ok(),
+            Some(SyntaxKind::DefaultKw) => self.parse_export_default(),
 
             // Type export: `export type { T }` or `export type Foo = ...`
             Some(SyntaxKind::TypeKw) => {
@@ -220,30 +226,40 @@ impl Parser {
 
                 if self.at(SyntaxKind::LBrace) {
                     // `export type { T }` - named type export
-                    self.parse_named_export_inner(true)
+                    self.parse_named_export_inner(true).ok_or_else(|| {
+                        ParseError::new(ParseErrorKind::ExpectedExpression, self.current_byte_offset())
+                            .with_context("parsing named type export")
+                    })
                 } else {
                     // `export type Foo = ...` - type alias
                     // Don't consume again - parse_type_alias_decl expects "type" to be current
                     // But we already consumed it, so we need to parse the name directly here
-                    let name = self.parse_ts_ident_or_placeholder()?;
+                    let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+                        ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
+                            .with_context("type alias name")
+                    })?;
                     self.skip_whitespace();
 
                     let type_params = self.parse_optional_type_params();
                     self.skip_whitespace();
 
                     if !self.at(SyntaxKind::Eq) {
-                        return Some(IrNode::Raw("export type ".to_string()));
+                        return Ok(IrNode::Raw("export type ".to_string()));
                     }
                     self.consume(); // consume =
                     self.skip_whitespace();
 
-                    let type_ann = self.parse_type_until(&[SyntaxKind::Semicolon])?;
+                    let type_ann = self.parse_type_until(&[SyntaxKind::Semicolon])?
+                        .ok_or_else(|| {
+                            ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
+                                .with_context("type alias definition")
+                        })?;
 
                     if self.at(SyntaxKind::Semicolon) {
                         self.consume();
                     }
 
-                    Some(IrNode::TypeAliasDecl {
+                    Ok(IrNode::TypeAliasDecl {
                         exported: true,
                         declare: false,
                         name: Box::new(name),
@@ -254,7 +270,9 @@ impl Parser {
             }
 
             // Declaration exports handled by parse_export_decl
-            _ => None,
+            _ => Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                .with_context("parsing export declaration")
+                .with_expected(&["{", "*", "default", "type"])),
         }
     }
 
@@ -400,20 +418,16 @@ impl Parser {
             }
             Some(SyntaxKind::FunctionKw) => {
                 // export default function foo() { }
-                let fn_decl = self.parse_function_decl(true, false).ok_or_else(|| {
-                    ParseError::new(ParseErrorKind::ExpectedExpression, self.pos)
-                        .with_context("parsing export default function declaration")
-                })?;
+                let fn_decl = self.parse_function_decl(true, false)
+                    .map_err(|e| e.with_context("parsing export default function declaration"))?;
                 return Ok(IrNode::ExportDefaultExpr {
                     expr: Box::new(fn_decl),
                 });
             }
             Some(SyntaxKind::AsyncKw) => {
                 // export default async function foo() { }
-                let fn_decl = self.parse_async_decl(true).ok_or_else(|| {
-                    ParseError::new(ParseErrorKind::ExpectedExpression, self.pos)
-                        .with_context("parsing export default async function declaration")
-                })?;
+                let fn_decl = self.parse_async_decl(true)
+                    .map_err(|e| e.with_context("parsing export default async function declaration"))?;
                 return Ok(IrNode::ExportDefaultExpr {
                     expr: Box::new(fn_decl),
                 });

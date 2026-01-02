@@ -1,12 +1,16 @@
 use super::super::*;
+use super::ParseResult;
 
 impl Parser {
-    pub(in super::super) fn parse_interface_decl(&mut self, exported: bool) -> Option<IrNode> {
+    pub(in super::super) fn parse_interface_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         // Consume "interface"
-        self.consume()?;
+        self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "interface keyword"))?;
         self.skip_whitespace();
 
-        let name = self.parse_ts_ident_or_placeholder()?;
+        let name = self.parse_ts_ident_or_placeholder()
+            .ok_or_else(|| ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                .with_context("interface name"))?;
         self.skip_whitespace();
 
         let type_params = self.parse_optional_type_params();
@@ -17,18 +21,19 @@ impl Parser {
             self.consume();
             self.skip_whitespace();
             self.parse_type_list_until(SyntaxKind::LBrace)
+                .map_err(|e| e.with_context("interface extends clause"))?
         } else {
             vec![]
         };
 
         // Parse body
         if !self.at(SyntaxKind::LBrace) {
-            return Some(IrNode::Raw("interface ".to_string()));
+            return Ok(IrNode::Raw("interface ".to_string()));
         }
         self.consume();
         self.skip_whitespace();
 
-        let body = self.parse_interface_body();
+        let body = self.parse_interface_body()?;
 
         self.skip_whitespace();
         self.expect(SyntaxKind::RBrace);
@@ -42,10 +47,10 @@ impl Parser {
             body,
         };
 
-        self.wrap_with_doc(node).ok()
+        self.wrap_with_doc(node)
     }
 
-    fn parse_interface_body(&mut self) -> Vec<IrNode> {
+    fn parse_interface_body(&mut self) -> ParseResult<Vec<IrNode>> {
         let mut members = Vec::new();
 
         while !self.at_eof() && !self.at(SyntaxKind::RBrace) {
@@ -62,9 +67,7 @@ impl Parser {
                     | SyntaxKind::BraceHashFor
                     | SyntaxKind::BraceHashWhile
                     | SyntaxKind::BraceHashMatch => {
-                        if let Some(node) = self.parse_control_block(kind) {
-                            members.push(node);
-                        }
+                        members.push(self.parse_control_block(kind)?);
                         continue;
                     }
                     _ => {}
@@ -79,21 +82,23 @@ impl Parser {
                 continue;
             }
 
-            if let Some(member) = self.parse_interface_member() {
+            if let Some(member) = self.parse_interface_member()? {
                 members.push(member);
             } else {
                 self.advance();
             }
         }
 
-        members
+        Ok(members)
     }
 
     /// Try to parse an interface member (property/method signature) when we see `readonly`.
     /// Falls back to Raw text if it doesn't look like an interface member pattern.
-    pub(in super::super) fn parse_maybe_interface_member(&mut self) -> Option<IrNode> {
+    pub(in super::super) fn parse_maybe_interface_member(&mut self) -> ParseResult<Option<IrNode>> {
         // We're at `readonly` - consume it
-        let readonly_token = self.consume()?;
+        let Some(readonly_token) = self.consume() else {
+            return Ok(None);
+        };
         self.skip_whitespace();
 
         #[cfg(debug_assertions)]
@@ -113,7 +118,7 @@ impl Parser {
             // Looks like interface member - parse the name
             let name = match self.parse_ts_ident_or_placeholder() {
                 Some(n) => n,
-                None => return Some(IrNode::Raw(readonly_token.text)),
+                None => return Ok(Some(IrNode::Raw(readonly_token.text))),
             };
             #[cfg(debug_assertions)]
             if std::env::var("MF_DEBUG_PARSER").is_ok() {
@@ -135,7 +140,7 @@ impl Parser {
             // Need colon for type annotation
             if !self.at(SyntaxKind::Colon) {
                 // Not a valid member pattern - return what we consumed as raw
-                return Some(IrNode::Raw(format!("{} ", readonly_token.text)));
+                return Ok(Some(IrNode::Raw(format!("{} ", readonly_token.text))));
             }
 
             self.consume(); // colon
@@ -145,30 +150,30 @@ impl Parser {
                 SyntaxKind::Semicolon,
                 SyntaxKind::Comma,
                 SyntaxKind::RBrace,
-                SyntaxKind::BraceSlashIf,
-                SyntaxKind::BraceSlashFor,
-                SyntaxKind::BraceSlashWhile,
-                SyntaxKind::BraceSlashMatch,
-            ]);
+                SyntaxKind::BraceSlashIfBrace,
+                SyntaxKind::BraceSlashForBrace,
+                SyntaxKind::BraceSlashWhileBrace,
+                SyntaxKind::BraceSlashMatchBrace,
+            ])?;
 
             // Consume optional separator
             if self.at(SyntaxKind::Semicolon) || self.at(SyntaxKind::Comma) {
                 self.consume();
             }
 
-            Some(IrNode::PropSignature {
+            Ok(Some(IrNode::PropSignature {
                 readonly: true,
                 name: Box::new(name),
                 optional,
                 type_ann: type_ann.map(Box::new),
-            })
+            }))
         } else {
             // Doesn't look like interface member - return readonly as raw text
-            Some(IrNode::Raw(readonly_token.text))
+            Ok(Some(IrNode::Raw(readonly_token.text)))
         }
     }
 
-    fn parse_interface_member(&mut self) -> Option<IrNode> {
+    fn parse_interface_member(&mut self) -> ParseResult<Option<IrNode>> {
         self.skip_whitespace();
 
         let readonly = if self.at(SyntaxKind::ReadonlyKw) {
@@ -184,7 +189,10 @@ impl Parser {
             return self.parse_index_signature(readonly);
         }
 
-        let name = self.parse_ts_ident_or_placeholder()?;
+        let name = match self.parse_ts_ident_or_placeholder() {
+            Some(n) => n,
+            None => return Ok(None),
+        };
         self.skip_whitespace();
 
         let optional = if self.at(SyntaxKind::Question) {
@@ -199,18 +207,17 @@ impl Parser {
         if self.at(SyntaxKind::LParen) || self.at(SyntaxKind::Lt) {
             let type_params = self.parse_optional_type_params();
             let params = self.parse_param_list()
-                .map_err(|e| e.with_context("interface method signature"))
-                .ok()?;
+                .map_err(|e| e.with_context("interface method signature"))?;
             self.skip_whitespace();
 
             let return_type = if self.at(SyntaxKind::Colon) {
                 self.consume();
                 self.skip_whitespace();
-                Some(Box::new(self.parse_type_until(&[
+                self.parse_type_until(&[
                     SyntaxKind::Semicolon,
                     SyntaxKind::Comma,
                     SyntaxKind::RBrace,
-                ])?))
+                ])?.map(Box::new)
             } else {
                 None
             };
@@ -220,24 +227,24 @@ impl Parser {
                 self.consume();
             }
 
-            return Some(IrNode::MethodSignature {
+            return Ok(Some(IrNode::MethodSignature {
                 name: Box::new(name),
                 optional,
                 type_params,
                 params,
                 return_type,
-            });
+            }));
         }
 
         // Property signature
         let type_ann = if self.at(SyntaxKind::Colon) {
             self.consume();
             self.skip_whitespace();
-            Some(Box::new(self.parse_type_until(&[
+            self.parse_type_until(&[
                 SyntaxKind::Semicolon,
                 SyntaxKind::Comma,
                 SyntaxKind::RBrace,
-            ])?))
+            ])?.map(Box::new)
         } else {
             None
         };
@@ -247,24 +254,28 @@ impl Parser {
             self.consume();
         }
 
-        Some(IrNode::PropSignature {
+        Ok(Some(IrNode::PropSignature {
             readonly,
             name: Box::new(name),
             optional,
             type_ann,
-        })
+        }))
     }
 
     /// Parse an index signature: [key: Type]: Type
-    fn parse_index_signature(&mut self, readonly: bool) -> Option<IrNode> {
-        self.consume()?; // [
+    fn parse_index_signature(&mut self, readonly: bool) -> ParseResult<Option<IrNode>> {
+        let Some(_) = self.consume() else {
+            return Ok(None);
+        }; // [
         self.skip_whitespace();
 
         // Parse parameter(s) - typically just one: key: Type
         let mut params = Vec::new();
 
         while !self.at_eof() && !self.at(SyntaxKind::RBracket) {
-            let param_name = self.parse_ts_ident_or_placeholder()?;
+            let Some(param_name) = self.parse_ts_ident_or_placeholder() else {
+                return Ok(None);
+            };
             self.skip_whitespace();
 
             // Expect colon and type
@@ -274,7 +285,9 @@ impl Parser {
             self.consume(); // :
             self.skip_whitespace();
 
-            let param_type = self.parse_type_until(&[SyntaxKind::RBracket, SyntaxKind::Comma])?;
+            let Some(param_type) = self.parse_type_until(&[SyntaxKind::RBracket, SyntaxKind::Comma])? else {
+                return Ok(None);
+            };
 
             // Create a Param node with the binding
             params.push(IrNode::Param {
@@ -298,26 +311,28 @@ impl Parser {
 
         // Expect colon and return type
         if !self.at(SyntaxKind::Colon) {
-            return None;
+            return Ok(None);
         }
         self.consume(); // :
         self.skip_whitespace();
 
-        let type_ann = self.parse_type_until(&[
+        let Some(type_ann) = self.parse_type_until(&[
             SyntaxKind::Semicolon,
             SyntaxKind::Comma,
             SyntaxKind::RBrace,
-        ])?;
+        ])? else {
+            return Ok(None);
+        };
 
         // Consume optional separator
         if self.at(SyntaxKind::Semicolon) || self.at(SyntaxKind::Comma) {
             self.consume();
         }
 
-        Some(IrNode::IndexSignature {
+        Ok(Some(IrNode::IndexSignature {
             readonly,
             params,
             type_ann: Box::new(type_ann),
-        })
+        }))
     }
 }

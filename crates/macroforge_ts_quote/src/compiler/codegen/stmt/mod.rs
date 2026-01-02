@@ -188,9 +188,12 @@ pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> GenR
             let mut __stmt_str = String::new();
             #(#part_exprs)*
             if !__stmt_str.trim().is_empty() {
-                if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str) {
-                    __body_stmts.push(__parsed);
-                }
+                let __parsed = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str)
+                    .unwrap_or_else(|e| panic!(
+                        "Failed to parse generated TypeScript statement:\n\n{}\n\nError: {:?}",
+                        __stmt_str, e
+                    ));
+                __body_stmts.push(__parsed);
             }
         }
     }))
@@ -317,6 +320,25 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 while #condition {
                     #(#body_parts)*
                 }
+            }
+        }
+        IrNode::Match { expr, arms } => {
+            let arm_tokens: Vec<TokenStream> = arms
+                .iter()
+                .map(|MatchArm { pattern, guard, body }| {
+                    let body_parts: Vec<TokenStream> = body
+                        .iter()
+                        .map(|n| self.generate_stmt_string_part(n))
+                        .collect();
+                    if let Some(g) = guard {
+                        quote! { #pattern if #g => { #(#body_parts)* } }
+                    } else {
+                        quote! { #pattern => { #(#body_parts)* } }
+                    }
+                })
+                .collect();
+            quote! {
+                match #expr { #(#arm_tokens)* }
             }
         }
         IrNode::Let {

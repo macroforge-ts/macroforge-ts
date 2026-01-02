@@ -148,9 +148,12 @@ impl Codegen {
                 let mut __module_str = String::new();
                 #(#part_exprs)*
                 if !__module_str.trim().is_empty() {
-                    if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_module(&__module_str) {
-                        #output_var.extend(__parsed.body);
-                    }
+                    let __parsed = macroforge_ts::ts_syn::parse_ts_module(&__module_str)
+                        .unwrap_or_else(|e| panic!(
+                            "Failed to parse generated TypeScript module:\n\n{}\n\nError: {:?}",
+                            __module_str, e
+                        ));
+                    #output_var.extend(__parsed.body);
                 }
             }
         }))
@@ -1411,10 +1414,12 @@ impl Codegen {
                 Ok(Some(quote! {
                     {
                         let __raw_text = #text;
-                        if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_module(__raw_text) {
-                            #output_var.extend(__parsed.body);
-                        }
-                        // If parsing fails, it's likely a fragment - skip it as placeholders will handle interpolation
+                        let __parsed = macroforge_ts::ts_syn::parse_ts_module(__raw_text)
+                            .unwrap_or_else(|e| panic!(
+                                "Failed to parse raw TypeScript fragment:\n\n{}\n\nError: {:?}",
+                                __raw_text, e
+                            ));
+                        #output_var.extend(__parsed.body);
                     }
                 }))
             }
@@ -1438,9 +1443,12 @@ impl Codegen {
                         __stmt_str.push_str(") ");
                         #cons_code
                         #alt_code
-                        if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str) {
-                            #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__parsed));
-                        }
+                        let __parsed = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str)
+                            .unwrap_or_else(|e| panic!(
+                                "Failed to parse generated TypeScript if statement:\n\n{}\n\nError: {:?}",
+                                __stmt_str, e
+                            ));
+                        #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__parsed));
                     }
                 }))
             }
@@ -1453,9 +1461,12 @@ impl Codegen {
                     {
                         let mut __stmt_str = String::new();
                         #(#part_exprs)*
-                        if let Ok(__parsed) = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str) {
-                            #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__parsed));
-                        }
+                        let __parsed = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str)
+                            .unwrap_or_else(|e| panic!(
+                                "Failed to parse generated TypeScript loop statement:\n\n{}\n\nError: {:?}",
+                                __stmt_str, e
+                            ));
+                        #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__parsed));
                     }
                 }))
             }

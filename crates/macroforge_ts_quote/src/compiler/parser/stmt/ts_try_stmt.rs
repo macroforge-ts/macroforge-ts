@@ -1,8 +1,9 @@
 use super::super::*;
+use super::ParseResult;
 
 impl Parser {
     /// Parse a TypeScript try-catch-finally statement as raw text with placeholders.
-    pub(in super::super) fn parse_ts_try_stmt(&mut self) -> Option<IrNode> {
+    pub(in super::super) fn parse_ts_try_stmt(&mut self) -> ParseResult<IrNode> {
         let mut parts = vec![];
 
         // Consume "try"
@@ -13,7 +14,9 @@ impl Parser {
         // Collect whitespace
         while let Some(t) = self.current() {
             if t.kind == SyntaxKind::Whitespace {
-                parts.push(IrNode::Raw(self.consume()?.text));
+                if let Some(ws) = self.consume() {
+                    parts.push(IrNode::Raw(ws.text));
+                }
             } else {
                 break;
             }
@@ -21,13 +24,15 @@ impl Parser {
 
         // Parse the try block
         if self.at(SyntaxKind::LBrace) {
-            self.collect_block_with_placeholders(&mut parts);
+            self.collect_block_with_placeholders(&mut parts)?;
         }
 
         // Skip whitespace
         while let Some(t) = self.current() {
             if t.kind == SyntaxKind::Whitespace {
-                parts.push(IrNode::Raw(self.consume()?.text));
+                if let Some(ws) = self.consume() {
+                    parts.push(IrNode::Raw(ws.text));
+                }
             } else {
                 break;
             }
@@ -43,7 +48,9 @@ impl Parser {
             // Skip whitespace
             while let Some(t) = self.current() {
                 if t.kind == SyntaxKind::Whitespace {
-                    parts.push(IrNode::Raw(self.consume()?.text));
+                    if let Some(ws) = self.consume() {
+                        parts.push(IrNode::Raw(ws.text));
+                    }
                 } else {
                     break;
                 }
@@ -73,9 +80,7 @@ impl Parser {
                             }
                         }
                         Some(SyntaxKind::At) => {
-                            if let Ok(placeholder) = self.parse_interpolation() {
-                                parts.push(placeholder);
-                            }
+                            parts.push(self.parse_interpolation()?);
                         }
                         _ => {
                             if let Some(t) = self.consume() {
@@ -89,7 +94,9 @@ impl Parser {
             // Skip whitespace
             while let Some(t) = self.current() {
                 if t.kind == SyntaxKind::Whitespace {
-                    parts.push(IrNode::Raw(self.consume()?.text));
+                    if let Some(ws) = self.consume() {
+                        parts.push(IrNode::Raw(ws.text));
+                    }
                 } else {
                     break;
                 }
@@ -97,13 +104,15 @@ impl Parser {
 
             // Parse catch body
             if self.at(SyntaxKind::LBrace) {
-                self.collect_block_with_placeholders(&mut parts);
+                self.collect_block_with_placeholders(&mut parts)?;
             }
 
             // Skip whitespace
             while let Some(t) = self.current() {
                 if t.kind == SyntaxKind::Whitespace {
-                    parts.push(IrNode::Raw(self.consume()?.text));
+                    if let Some(ws) = self.consume() {
+                        parts.push(IrNode::Raw(ws.text));
+                    }
                 } else {
                     break;
                 }
@@ -120,7 +129,9 @@ impl Parser {
             // Skip whitespace
             while let Some(t) = self.current() {
                 if t.kind == SyntaxKind::Whitespace {
-                    parts.push(IrNode::Raw(self.consume()?.text));
+                    if let Some(ws) = self.consume() {
+                        parts.push(IrNode::Raw(ws.text));
+                    }
                 } else {
                     break;
                 }
@@ -128,7 +139,7 @@ impl Parser {
 
             // Parse finally body
             if self.at(SyntaxKind::LBrace) {
-                self.collect_block_with_placeholders(&mut parts);
+                self.collect_block_with_placeholders(&mut parts)?;
             }
         }
 
@@ -136,6 +147,6 @@ impl Parser {
         let merged = Self::merge_adjacent_text(parts);
 
         // Reuse TsLoopStmt since it has the same structure
-        Some(IrNode::TsLoopStmt { parts: merged })
+        Ok(IrNode::TsLoopStmt { parts: merged })
     }
 }

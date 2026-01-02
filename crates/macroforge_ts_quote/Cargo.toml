@@ -21,7 +21,7 @@ proc-macro = true
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(swc_ast_unknown)'] }
 
 [dependencies]
-proc-macro2 = "1.0.95"
+proc-macro2 = { version = "1.0.95", features = ["proc-macro", "span-locations"] }
 quote = "1.0.40"
 syn = { version = "2.0.104", features = ["full"] }
 convert_case = "0.10.0"

@@ -1,7 +1,39 @@
-use super::errors::{LexError, LexResult};
+use super::errors::LexResult;
 use super::*;
 
 impl Lexer {
+    /// Lexes inside a JSDoc comment `/** ... */`.
+    /// Collects content as Text until `*/` is encountered.
+    pub(super) fn lex_jsdoc(&mut self) -> SyntaxKind {
+        let remaining = self.remaining();
+
+        // Check for closing */
+        if remaining.starts_with("*/") {
+            self.advance(2);
+            self.pop_mode();
+            return SyntaxKind::JsDocClose;
+        }
+
+        // Consume text until */
+        let text_start = self.pos;
+        while self.pos < self.input.len() {
+            let r = self.remaining();
+            if r.starts_with("*/") {
+                break;
+            }
+            if let Some(c) = self.peek() {
+                self.advance(c.len_utf8());
+            }
+        }
+
+        if self.pos > text_start {
+            SyntaxKind::Text
+        } else {
+            // EOF reached without closing - return what we have
+            SyntaxKind::Text
+        }
+    }
+
     /// Lexes inside a string literal.
     pub(super) fn lex_string_literal(&mut self) -> LexResult<SyntaxKind> {
         let start_pos = self.pos;

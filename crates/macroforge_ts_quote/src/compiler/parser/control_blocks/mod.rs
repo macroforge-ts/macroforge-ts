@@ -7,9 +7,11 @@ use super::*;
 impl Parser {
     /// Dispatch to the appropriate control block parser based on the opening token.
     /// Called when we see BraceHashIf, BraceHashFor, BraceHashWhile, or BraceHashMatch.
-    pub(super) fn parse_control_block(&mut self, kind: SyntaxKind) -> Option<IrNode> {
+    pub(super) fn parse_control_block(&mut self, kind: SyntaxKind) -> super::ParseResult<IrNode> {
         // Consume the opening token (e.g., {#if, {#for, etc.)
-        self.consume()?;
+        if self.consume().is_none() {
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "control block opening"));
+        }
         self.skip_whitespace();
 
         match kind {
@@ -20,16 +22,20 @@ impl Parser {
             _ => {
                 // Unknown control block - consume until }
                 self.consume_until_rbrace();
-                None
+                Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                    .with_context("control block")
+                    .with_help("expected {#if}, {#for}, {#while}, or {#match}"))
             }
         }
     }
 
     /// Parse control flow inside type context - body content is collected as raw text with placeholders.
     /// Called when we see BraceHashIf, BraceHashFor, or BraceHashWhile in type position.
-    pub(super) fn parse_type_control_block(&mut self, kind: SyntaxKind) -> Option<IrNode> {
+    pub(super) fn parse_type_control_block(&mut self, kind: SyntaxKind) -> super::ParseResult<IrNode> {
         // Consume the opening token (e.g., {#if, {#for, etc.)
-        self.consume()?;
+        if self.consume().is_none() {
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "type control block opening"));
+        }
         self.skip_whitespace();
 
         match kind {
@@ -38,12 +44,14 @@ impl Parser {
             SyntaxKind::BraceHashWhile => self.parse_type_while_block(),
             _ => {
                 self.consume_until_rbrace();
-                None
+                Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                    .with_context("type control block")
+                    .with_help("expected {#if}, {#for}, or {#while}"))
             }
         }
     }
 
-    fn parse_type_for_block(&mut self) -> Option<IrNode> {
+    fn parse_type_for_block(&mut self) -> super::ParseResult<IrNode> {
         // Note: {#for has already been consumed, we start at the pattern
 
         // Parse "pattern in iterator"
@@ -61,34 +69,37 @@ impl Parser {
         self.expect(SyntaxKind::RBrace);
 
         // Parse body as type content (raw text with placeholders) until {/for}
-        let body = self.parse_type_block_body(&[SyntaxKind::BraceSlashFor]);
+        let body = self.parse_type_block_body(&[SyntaxKind::BraceSlashForBrace])?;
 
         // Consume {/for} - it's a complete token including the closing brace
-        if self.at(SyntaxKind::BraceSlashFor) {
+        if self.at(SyntaxKind::BraceSlashForBrace) {
             self.consume();
         }
 
-        Some(IrNode::For {
-            pattern: Self::str_to_token_stream_or_panic(pattern_str.trim(), "type for-loop pattern"),
-            iterator: Self::str_to_token_stream_or_panic(&iterator_str, "type for-loop iterator"),
+        Ok(IrNode::For {
+            pattern: Self::str_to_token_stream(pattern_str.trim())
+                .map_err(|e| e.with_context("type for-loop pattern"))?,
+            iterator: Self::str_to_token_stream(&iterator_str)
+                .map_err(|e| e.with_context("type for-loop iterator"))?,
             body: Self::merge_adjacent_text(body),
         })
     }
 
-    fn parse_type_if_block(&mut self) -> Option<IrNode> {
+    fn parse_type_if_block(&mut self) -> super::ParseResult<IrNode> {
         // Note: {#if has already been consumed, we start at the condition
 
         // Parse condition until }
         let condition_str = self.collect_rust_until(SyntaxKind::RBrace);
-        let condition = Self::str_to_token_stream_or_panic(&condition_str, "type if-block condition");
+        let condition = Self::str_to_token_stream(&condition_str)
+            .map_err(|e| e.with_context("type if-block condition"))?;
         self.expect(SyntaxKind::RBrace);
 
         // Parse body as type content until {:else}, {:else if}, or {/if}
         let then_body = self.parse_type_block_body(&[
-            SyntaxKind::BraceColonElse,
+            SyntaxKind::BraceColonElseBrace,
             SyntaxKind::BraceColonElseIf,
-            SyntaxKind::BraceSlashIf,
-        ]);
+            SyntaxKind::BraceSlashIfBrace,
+        ])?;
 
         // Check for else-if and else clauses
         let mut else_if_branches = Vec::new();
@@ -101,19 +112,20 @@ impl Parser {
                     self.consume();
                     self.skip_whitespace();
                     let cond_str = self.collect_rust_until(SyntaxKind::RBrace);
-                    let cond = Self::str_to_token_stream_or_panic(&cond_str, "type else-if condition");
+                    let cond = Self::str_to_token_stream(&cond_str)
+                        .map_err(|e| e.with_context("type else-if condition"))?;
                     self.expect(SyntaxKind::RBrace);
                     let body = self.parse_type_block_body(&[
-                        SyntaxKind::BraceColonElse,
+                        SyntaxKind::BraceColonElseBrace,
                         SyntaxKind::BraceColonElseIf,
-                        SyntaxKind::BraceSlashIf,
-                    ]);
+                        SyntaxKind::BraceSlashIfBrace,
+                    ])?;
                     else_if_branches.push((cond, body));
                 }
-                Some(SyntaxKind::BraceColonElse) => {
+                Some(SyntaxKind::BraceColonElseBrace) => {
                     // {:else} - complete token including closing brace
                     self.consume();
-                    else_body = Some(self.parse_type_block_body(&[SyntaxKind::BraceSlashIf]));
+                    else_body = Some(self.parse_type_block_body(&[SyntaxKind::BraceSlashIfBrace])?);
                     break;
                 }
                 _ => break,
@@ -121,11 +133,11 @@ impl Parser {
         }
 
         // Consume {/if} - complete token including closing brace
-        if self.at(SyntaxKind::BraceSlashIf) {
+        if self.at(SyntaxKind::BraceSlashIfBrace) {
             self.consume();
         }
 
-        Some(IrNode::If {
+        Ok(IrNode::If {
             condition,
             then_body: Self::merge_adjacent_text(then_body),
             else_if_branches: else_if_branches
@@ -136,28 +148,29 @@ impl Parser {
         })
     }
 
-    fn parse_type_while_block(&mut self) -> Option<IrNode> {
+    fn parse_type_while_block(&mut self) -> super::ParseResult<IrNode> {
         // Note: {#while has already been consumed, we start at the condition
 
         let condition_str = self.collect_rust_until(SyntaxKind::RBrace);
-        let condition = Self::str_to_token_stream_or_panic(&condition_str, "type while-block condition");
+        let condition = Self::str_to_token_stream(&condition_str)
+            .map_err(|e| e.with_context("type while-block condition"))?;
         self.expect(SyntaxKind::RBrace);
 
-        let body = self.parse_type_block_body(&[SyntaxKind::BraceSlashWhile]);
+        let body = self.parse_type_block_body(&[SyntaxKind::BraceSlashWhileBrace])?;
 
         // Consume {/while} - complete token including closing brace
-        if self.at(SyntaxKind::BraceSlashWhile) {
+        if self.at(SyntaxKind::BraceSlashWhileBrace) {
             self.consume();
         }
 
-        Some(IrNode::While {
+        Ok(IrNode::While {
             condition,
             body: Self::merge_adjacent_text(body),
         })
     }
 
     /// Parse block body in type context - collects raw text with placeholders and nested control flow
-    fn parse_type_block_body(&mut self, terminators: &[SyntaxKind]) -> Vec<IrNode> {
+    fn parse_type_block_body(&mut self, terminators: &[SyntaxKind]) -> super::ParseResult<Vec<IrNode>> {
         let mut nodes = Vec::new();
 
         while !self.at_eof() {
@@ -169,35 +182,33 @@ impl Parser {
                 match kind {
                     SyntaxKind::At => {
                         // Placeholder
-                        if let Ok(placeholder) = self.parse_interpolation() {
-                            // Check for identifier suffix
-                            if let Some(token) = self.current() {
-                                if token.kind == SyntaxKind::Ident {
-                                    let suffix = token.text.clone();
-                                    self.consume();
-                                    let ident_placeholder = match placeholder {
-                                        IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
-                                            kind: PlaceholderKind::Ident,
-                                            expr,
-                                        },
-                                        other => other,
-                                    };
-                                    nodes.push(IrNode::IdentBlock {
-                                        parts: vec![ident_placeholder, IrNode::Raw(suffix)],
-                                    });
-                                    continue;
-                                }
+                        let placeholder = self.parse_interpolation()?;
+                        // Check for identifier suffix
+                        if let Some(token) = self.current() {
+                            if token.kind == SyntaxKind::Ident {
+                                let suffix = token.text.clone();
+                                self.consume();
+                                let ident_placeholder = match placeholder {
+                                    IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
+                                        kind: PlaceholderKind::Ident,
+                                        expr,
+                                    },
+                                    other => other,
+                                };
+                                nodes.push(IrNode::IdentBlock {
+                                    parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                                });
+                                continue;
                             }
-                            nodes.push(placeholder);
                         }
+                        nodes.push(placeholder);
                     }
                     // Nested control flow - handle specific opening tokens
                     SyntaxKind::BraceHashIf
                     | SyntaxKind::BraceHashFor
                     | SyntaxKind::BraceHashWhile => {
-                        if let Some(control) = self.parse_type_control_block(kind) {
-                            nodes.push(control);
-                        }
+                        let control = self.parse_type_control_block(kind)?;
+                        nodes.push(control);
                     }
                     _ => {
                         // Raw text
@@ -211,23 +222,24 @@ impl Parser {
             }
         }
 
-        nodes
+        Ok(nodes)
     }
 
-    fn parse_if_block(&mut self) -> Option<IrNode> {
+    fn parse_if_block(&mut self) -> super::ParseResult<IrNode> {
         // Note: {#if has already been consumed, we start at the condition
 
         // Parse condition until }
         let condition_str = self.collect_rust_until(SyntaxKind::RBrace);
-        let condition = Self::str_to_token_stream_or_panic(&condition_str, "if-block condition");
+        let condition = Self::str_to_token_stream(&condition_str)
+            .map_err(|e| e.with_context("if-block condition"))?;
         self.expect(SyntaxKind::RBrace);
 
         // Parse body until {:else}, {:else if}, or {/if}
         let then_body = self.parse_block_body(&[
-            SyntaxKind::BraceColonElse,
+            SyntaxKind::BraceColonElseBrace,
             SyntaxKind::BraceColonElseIf,
-            SyntaxKind::BraceSlashIf,
-        ]);
+            SyntaxKind::BraceSlashIfBrace,
+        ])?;
 
         // Check for else-if and else clauses
         let mut else_if_branches = Vec::new();
@@ -240,19 +252,20 @@ impl Parser {
                     self.consume();
                     self.skip_whitespace();
                     let cond_str = self.collect_rust_until(SyntaxKind::RBrace);
-                    let cond = Self::str_to_token_stream_or_panic(&cond_str, "else-if condition");
+                    let cond = Self::str_to_token_stream(&cond_str)
+                        .map_err(|e| e.with_context("else-if condition"))?;
                     self.expect(SyntaxKind::RBrace);
                     let body = self.parse_block_body(&[
-                        SyntaxKind::BraceColonElse,
+                        SyntaxKind::BraceColonElseBrace,
                         SyntaxKind::BraceColonElseIf,
-                        SyntaxKind::BraceSlashIf,
-                    ]);
+                        SyntaxKind::BraceSlashIfBrace,
+                    ])?;
                     else_if_branches.push((cond, body));
                 }
-                Some(SyntaxKind::BraceColonElse) => {
+                Some(SyntaxKind::BraceColonElseBrace) => {
                     // {:else} - complete token including closing brace
                     self.consume();
-                    else_body = Some(self.parse_block_body(&[SyntaxKind::BraceSlashIf]));
+                    else_body = Some(self.parse_block_body(&[SyntaxKind::BraceSlashIfBrace])?);
                     break;
                 }
                 _ => break,
@@ -260,11 +273,11 @@ impl Parser {
         }
 
         // Consume {/if} - complete token including closing brace
-        if self.at(SyntaxKind::BraceSlashIf) {
+        if self.at(SyntaxKind::BraceSlashIfBrace) {
             self.consume();
         }
 
-        Some(IrNode::If {
+        Ok(IrNode::If {
             condition,
             then_body: Self::merge_adjacent_text(then_body),
             else_if_branches: else_if_branches
@@ -275,7 +288,7 @@ impl Parser {
         })
     }
 
-    fn parse_for_block(&mut self) -> Option<IrNode> {
+    fn parse_for_block(&mut self) -> super::ParseResult<IrNode> {
         // Note: {#for has already been consumed, we start at the pattern
 
         // Parse "pattern in iterator"
@@ -293,40 +306,43 @@ impl Parser {
         self.expect(SyntaxKind::RBrace);
 
         // Parse body
-        let body = self.parse_block_body(&[SyntaxKind::BraceSlashFor]);
+        let body = self.parse_block_body(&[SyntaxKind::BraceSlashForBrace])?;
 
         // Consume {/for} - complete token including closing brace
-        if self.at(SyntaxKind::BraceSlashFor) {
+        if self.at(SyntaxKind::BraceSlashForBrace) {
             self.consume();
         }
 
-        Some(IrNode::For {
-            pattern: Self::str_to_token_stream_or_panic(pattern_str.trim(), "for-loop pattern"),
-            iterator: Self::str_to_token_stream_or_panic(&iterator_str, "for-loop iterator"),
+        Ok(IrNode::For {
+            pattern: Self::str_to_token_stream(pattern_str.trim())
+                .map_err(|e| e.with_context("for-loop pattern"))?,
+            iterator: Self::str_to_token_stream(&iterator_str)
+                .map_err(|e| e.with_context("for-loop iterator"))?,
             body: Self::merge_adjacent_text(body),
         })
     }
 
-    fn parse_while_block(&mut self) -> Option<IrNode> {
+    fn parse_while_block(&mut self) -> super::ParseResult<IrNode> {
         // Note: {#while has already been consumed, we start at the condition
 
         let condition_str = self.collect_rust_until(SyntaxKind::RBrace);
         self.expect(SyntaxKind::RBrace);
 
-        let body = self.parse_block_body(&[SyntaxKind::BraceSlashWhile]);
+        let body = self.parse_block_body(&[SyntaxKind::BraceSlashWhileBrace])?;
 
         // Consume {/while} - complete token including closing brace
-        if self.at(SyntaxKind::BraceSlashWhile) {
+        if self.at(SyntaxKind::BraceSlashWhileBrace) {
             self.consume();
         }
 
-        Some(IrNode::While {
-            condition: Self::str_to_token_stream_or_panic(&condition_str, "while-block condition"),
+        Ok(IrNode::While {
+            condition: Self::str_to_token_stream(&condition_str)
+                .map_err(|e| e.with_context("while-block condition"))?,
             body: Self::merge_adjacent_text(body),
         })
     }
 
-    fn parse_match_block(&mut self) -> Option<IrNode> {
+    fn parse_match_block(&mut self) -> super::ParseResult<IrNode> {
         // Note: {#match has already been consumed, we start at the expression
 
         let expr_str = self.collect_rust_until(SyntaxKind::RBrace);
@@ -346,27 +362,32 @@ impl Parser {
             let pattern_str = self.collect_rust_until(SyntaxKind::RBrace);
             self.expect(SyntaxKind::RBrace);
 
-            let body = self.parse_block_body(&[SyntaxKind::BraceColonCase, SyntaxKind::BraceSlashMatch]);
+            let body = self.parse_block_body(&[SyntaxKind::BraceColonCase, SyntaxKind::BraceSlashMatchBrace])?;
 
             arms.push(MatchArm {
-                pattern: Self::str_to_token_stream_or_panic(&pattern_str, "match case pattern"),
+                pattern: Self::str_to_token_stream(&pattern_str)
+                    .map_err(|e| e.with_context("match case pattern"))?,
                 guard: None,
                 body: Self::merge_adjacent_text(body),
             });
         }
 
         // Consume {/match} - complete token including closing brace
-        if self.at(SyntaxKind::BraceSlashMatch) {
+        if self.at(SyntaxKind::BraceSlashMatchBrace) {
             self.consume();
         }
 
-        Some(IrNode::Match {
-            expr: Self::str_to_token_stream_or_panic(&expr_str, "match expression"),
+        Ok(IrNode::Match {
+            expr: Self::str_to_token_stream(&expr_str)
+                .map_err(|e| e.with_context("match expression"))?,
             arms,
         })
     }
 
-    pub(super) fn parse_block_body(&mut self, terminators: &[SyntaxKind]) -> Vec<IrNode> {
+    pub(super) fn parse_block_body(
+        &mut self,
+        terminators: &[SyntaxKind],
+    ) -> super::ParseResult<Vec<IrNode>> {
         let mut nodes = Vec::new();
 
         while !self.at_eof() {
@@ -376,12 +397,14 @@ impl Parser {
                 }
             }
 
-            if let Some(node) = self.parse_node() {
-                nodes.push(node);
+            // Propagate errors from parse_node
+            match self.parse_node()? {
+                super::ParseOutcome::Node(node) => nodes.push(node),
+                super::ParseOutcome::Skip => {}
             }
         }
 
-        nodes
+        Ok(nodes)
     }
 
     pub(super) fn collect_rust_until(&mut self, terminator: SyntaxKind) -> String {

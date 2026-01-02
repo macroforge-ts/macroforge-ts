@@ -25,7 +25,7 @@ impl Parser {
         self.skip_whitespace();
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.pos, "expression"));
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "expression"));
         };
 
         let kind = token.kind;
@@ -33,9 +33,7 @@ impl Parser {
 
         match kind {
             // Placeholder interpolation: @{expr} or composite like @{a}Middle@{b}
-            SyntaxKind::At => self
-                .parse_interpolated_ident()
-                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "placeholder")),
+            SyntaxKind::At => self.parse_interpolated_ident(),
 
             // Update operators as prefix: ++x, --x
             SyntaxKind::PlusPlus | SyntaxKind::MinusMinus => self.parse_prefix_update(),
@@ -129,19 +127,25 @@ impl Parser {
             // Other keywords that can be used as identifiers in certain contexts
             _ if kind.is_ts_keyword() => self.parse_identifier_expr(),
 
-            _ => Err(ParseError::expected_expression_found(self.pos, kind)),
+            // Template control blocks in expression context
+            SyntaxKind::BraceHashIf => self.parse_if_expr(),
+            SyntaxKind::BraceHashFor => self.parse_for_expr(),
+            SyntaxKind::BraceHashWhile => self.parse_while_expr(),
+            SyntaxKind::BraceHashMatch => self.parse_match_expr(),
+
+            _ => Err(ParseError::expected_expression_found(self.current_byte_offset(), kind)),
         }
     }
 
     /// Parses a prefix update expression: ++x or --x
     fn parse_prefix_update(&mut self) -> ParseResult<IrNode> {
         let token = self.consume().ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedEof, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedEof, self.current_byte_offset())
                 .with_context("prefix update operator")
         })?;
 
         let op = to_update_op(token.kind).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::InvalidPrefixOperator, self.pos)
+            ParseError::new(ParseErrorKind::InvalidPrefixOperator, self.current_byte_offset())
                 .with_found(&token.text)
         })?;
 
@@ -158,12 +162,12 @@ impl Parser {
     /// Parses a unary keyword expression: typeof x, void x, delete x
     fn parse_unary_keyword_expr(&mut self) -> ParseResult<IrNode> {
         let token = self.consume().ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedEof, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedEof, self.current_byte_offset())
                 .with_context("unary keyword operator")
         })?;
 
         let op = to_unary_op(token.kind, &token.text).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::InvalidPrefixOperator, self.pos)
+            ParseError::new(ParseErrorKind::InvalidPrefixOperator, self.current_byte_offset())
                 .with_found(&token.text)
         })?;
 
@@ -179,12 +183,12 @@ impl Parser {
     /// Parses a unary expression: -x, +x, !x, ~x
     fn parse_unary_expr(&mut self) -> ParseResult<IrNode> {
         let token = self.consume().ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedEof, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedEof, self.current_byte_offset())
                 .with_context("unary operator")
         })?;
 
         let op = to_unary_op(token.kind, &token.text).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::InvalidPrefixOperator, self.pos)
+            ParseError::new(ParseErrorKind::InvalidPrefixOperator, self.current_byte_offset())
                 .with_found(&token.text)
         })?;
 
@@ -203,7 +207,7 @@ impl Parser {
         self.skip_whitespace();
 
         let Some(token) = self.current() else {
-            return Err(ParseError::new(ParseErrorKind::MissingOperand, self.pos)
+            return Err(ParseError::new(ParseErrorKind::MissingOperand, self.current_byte_offset())
                 .with_context("unary expression"));
         };
 
@@ -225,7 +229,7 @@ impl Parser {
     /// Parses a new expression: new Foo() or new Foo
     fn parse_new_expr(&mut self) -> ParseResult<IrNode> {
         self.expect(SyntaxKind::NewKw).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["new"])
         })?;
 
@@ -260,7 +264,7 @@ impl Parser {
     /// Parses an await expression: await promise
     fn parse_await_expr(&mut self) -> ParseResult<IrNode> {
         self.expect(SyntaxKind::AwaitKw).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["await"])
         })?;
 
@@ -275,7 +279,7 @@ impl Parser {
     /// Parses a yield expression: yield value or yield* value
     fn parse_yield_expr(&mut self) -> ParseResult<IrNode> {
         self.expect(SyntaxKind::YieldKw).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["yield"])
         })?;
 
@@ -303,7 +307,7 @@ impl Parser {
     /// Parses a function expression: function name?() {}
     fn parse_function_expr(&mut self) -> ParseResult<IrNode> {
         self.expect(SyntaxKind::FunctionKw).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["function"])
         })?;
 
@@ -320,7 +324,7 @@ impl Parser {
 
         // Optional name
         let name = if self.at(SyntaxKind::Ident) {
-            let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "function name"))?;
+            let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "function name"))?;
             Some(Box::new(IrNode::Ident(token.text)))
         } else {
             None
@@ -362,7 +366,7 @@ impl Parser {
     /// Parses an async expression: async function or async arrow
     fn parse_async_expr(&mut self) -> ParseResult<IrNode> {
         self.expect(SyntaxKind::AsyncKw).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["async"])
         })?;
 
@@ -384,7 +388,7 @@ impl Parser {
 
             // Optional name
             let name = if self.at(SyntaxKind::Ident) {
-                let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "async function name"))?;
+                let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "async function name"))?;
                 Some(Box::new(IrNode::Ident(token.text)))
             } else {
                 None
@@ -434,7 +438,7 @@ impl Parser {
 
         // Expect =>
         if !self.at_text("=>") {
-            return Err(ParseError::new(ParseErrorKind::MissingArrowBody, self.pos)
+            return Err(ParseError::new(ParseErrorKind::MissingArrowBody, self.current_byte_offset())
                 .with_expected(&["=>"]));
         }
         self.consume(); // =>
@@ -461,7 +465,7 @@ impl Parser {
     /// Parses a class expression: class Name? extends Base? {}
     fn parse_class_expr(&mut self) -> ParseResult<IrNode> {
         self.expect(SyntaxKind::ClassKw).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["class"])
         })?;
 
@@ -469,7 +473,7 @@ impl Parser {
 
         // Optional name
         let name = if self.at(SyntaxKind::Ident) {
-            let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "class name"))?;
+            let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "class name"))?;
             Some(Box::new(IrNode::Ident(token.text)))
         } else {
             None
@@ -521,7 +525,7 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::LParen).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["("])
         })?;
 
@@ -538,7 +542,7 @@ impl Parser {
             }
 
             // Empty parentheses without arrow - error or undefined behavior
-            return Err(ParseError::new(ParseErrorKind::ExpectedExpression, self.pos)
+            return Err(ParseError::new(ParseErrorKind::ExpectedExpression, self.current_byte_offset())
                 .with_context("parenthesized expression"));
         }
 
@@ -571,7 +575,7 @@ impl Parser {
             if !self.at(SyntaxKind::RParen) {
                 return Err(ParseError::missing_closing(
                     ParseErrorKind::MissingClosingParen,
-                    self.pos,
+                    self.current_byte_offset(),
                     start_pos,
                 ));
             }
@@ -602,7 +606,7 @@ impl Parser {
         if !self.at(SyntaxKind::RParen) {
             return Err(ParseError::missing_closing(
                 ParseErrorKind::MissingClosingParen,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -632,7 +636,7 @@ impl Parser {
 
         // Consume =>
         if !self.at_text("=>") {
-            return Err(ParseError::new(ParseErrorKind::MissingArrowBody, self.pos)
+            return Err(ParseError::new(ParseErrorKind::MissingArrowBody, self.current_byte_offset())
                 .with_expected(&["=>"]));
         }
         self.consume();
@@ -695,7 +699,7 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::LBracket).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["["])
         })?;
 
@@ -737,7 +741,7 @@ impl Parser {
         if !self.at(SyntaxKind::RBracket) {
             return Err(ParseError::missing_closing(
                 ParseErrorKind::MissingClosingBracket,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -751,7 +755,7 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::LBrace).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["{"])
         })?;
 
@@ -779,7 +783,7 @@ impl Parser {
         if !self.at(SyntaxKind::RBrace) {
             return Err(ParseError::missing_closing(
                 ParseErrorKind::MissingClosingBrace,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -791,6 +795,16 @@ impl Parser {
     /// Parses a single object property.
     fn parse_object_property(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
+
+        // Control blocks in object literal context: {#if}, {#for}, {#while}, {#match}
+        // These can generate multiple properties dynamically
+        match self.current_kind() {
+            Some(SyntaxKind::BraceHashIf) => return self.parse_if_expr(),
+            Some(SyntaxKind::BraceHashFor) => return self.parse_for_expr(),
+            Some(SyntaxKind::BraceHashWhile) => return self.parse_while_expr(),
+            Some(SyntaxKind::BraceHashMatch) => return self.parse_match_expr(),
+            _ => {}
+        }
 
         // Spread property: ...expr
         if self.at(SyntaxKind::DotDotDot) {
@@ -877,29 +891,47 @@ impl Parser {
         })
     }
 
-    /// Parses a property name (identifier, string, or number).
+    /// Parses a property name (identifier, string, number, computed, or placeholder).
     pub(in crate::compiler::parser) fn parse_property_name(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.pos, "property name"));
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "property name"));
         };
 
         match token.kind {
             SyntaxKind::Ident => {
-                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "property name identifier"))?;
+                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "property name identifier"))?;
                 Ok(IrNode::Ident(t.text))
             }
             SyntaxKind::DoubleQuote | SyntaxKind::SingleQuote => self.parse_string_literal(),
             SyntaxKind::Text if token.text.chars().next().map(|c| c.is_ascii_digit()).unwrap_or(false) => {
                 self.parse_numeric_literal()
             }
+            SyntaxKind::At => {
+                // Placeholder as property name: @{name}
+                self.parse_interpolation()
+            }
+            SyntaxKind::LBracket => {
+                // Computed property name: [expr]
+                self.consume();
+                self.skip_whitespace();
+                let expr = self.parse_expression_with_precedence(0)?;
+                self.skip_whitespace();
+                self.expect(SyntaxKind::RBracket).ok_or_else(|| {
+                    ParseError::new(ParseErrorKind::MissingClosingBracket, self.current_byte_offset())
+                        .with_context("computed property name")
+                })?;
+                Ok(IrNode::ComputedPropName {
+                    expr: Box::new(expr),
+                })
+            }
             _ if token.kind.is_ts_keyword() => {
                 // Keywords can be property names
-                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "property name keyword"))?;
+                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "property name keyword"))?;
                 Ok(IrNode::Ident(t.text))
             }
-            _ => Err(ParseError::new(ParseErrorKind::InvalidPropertyName, self.pos)
+            _ => Err(ParseError::new(ParseErrorKind::InvalidPropertyName, self.current_byte_offset())
                 .with_found(&token.text)),
         }
     }
@@ -993,7 +1025,7 @@ impl Parser {
         if !self.at(SyntaxKind::RBracket) {
             return Err(ParseError::missing_closing(
                 ParseErrorKind::MissingClosingBracket,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -1021,7 +1053,7 @@ impl Parser {
             });
         }
 
-        Err(ParseError::new(ParseErrorKind::InvalidComputedProperty, self.pos))
+        Err(ParseError::new(ParseErrorKind::InvalidComputedProperty, self.current_byte_offset()))
     }
 
     /// Parses a method property: name() {}
@@ -1059,7 +1091,7 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::Backtick).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["`"])
         })?;
 
@@ -1097,7 +1129,7 @@ impl Parser {
                 if !self.at(SyntaxKind::RBrace) {
                     return Err(ParseError::missing_closing(
                         ParseErrorKind::MissingClosingBrace,
-                        self.pos,
+                        self.current_byte_offset(),
                         start_pos,
                     ));
                 }
@@ -1123,7 +1155,7 @@ impl Parser {
         let start_pos = self.pos;
 
         let quote_kind = self.current_kind().ok_or_else(|| {
-            ParseError::unexpected_eof(self.pos, "string literal")
+            ParseError::unexpected_eof(self.current_byte_offset(), "string literal")
         })?;
 
         let quote_char = if quote_kind == SyntaxKind::DoubleQuote {
@@ -1189,7 +1221,7 @@ impl Parser {
     /// Parses a numeric literal.
     fn parse_numeric_literal(&mut self) -> ParseResult<IrNode> {
         let token = self.consume().ok_or_else(|| {
-            ParseError::unexpected_eof(self.pos, "numeric literal")
+            ParseError::unexpected_eof(self.current_byte_offset(), "numeric literal")
         })?;
 
         let text = token.text;
@@ -1205,12 +1237,12 @@ impl Parser {
     /// Parses a private name: #field
     pub(in crate::compiler::parser) fn parse_private_name(&mut self) -> ParseResult<IrNode> {
         self.expect(SyntaxKind::Hash).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["#"])
         })?;
 
         let name_token = self.expect(SyntaxKind::Ident).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)
+            ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
                 .with_context("private name")
         })?;
 
@@ -1220,7 +1252,7 @@ impl Parser {
     /// Parses an identifier expression.
     fn parse_identifier_expr(&mut self) -> ParseResult<IrNode> {
         let token = self.consume().ok_or_else(|| {
-            ParseError::unexpected_eof(self.pos, "identifier")
+            ParseError::unexpected_eof(self.current_byte_offset(), "identifier")
         })?;
 
         Ok(IrNode::Ident(token.text))
@@ -1265,6 +1297,11 @@ impl Parser {
                 | SyntaxKind::NullKw
                 | SyntaxKind::TrueKw
                 | SyntaxKind::FalseKw
+                // Template control blocks in expression context
+                | SyntaxKind::BraceHashIf
+                | SyntaxKind::BraceHashFor
+                | SyntaxKind::BraceHashWhile
+                | SyntaxKind::BraceHashMatch
         ) || matches!(token.text.as_str(), "-" | "+" | "~")
     }
 

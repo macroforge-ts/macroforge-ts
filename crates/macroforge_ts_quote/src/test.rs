@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 /// Helper to compile a template and get the generated code as a string
 fn compile(input: &str) -> String {
-    compile_template(input, None).unwrap().to_string()
+    compile_template(input, None, 0).unwrap().to_string()
 }
 
 #[test]
@@ -46,16 +46,93 @@ fn test_ident_block_binding() {
     );
 }
 
+/// Tests control blocks in expression position.
+///
+/// NOTE: This test uses `TokenStream::from_str()` which goes through Rust's tokenizer.
+/// Rust's tokenizer splits `{#if` into separate tokens `{`, `#`, `if`, producing
+/// `{ # if cond }` when `.to_string()` is called. The template lexer's normalizer
+/// (`normalize_template`) rejoins these back to `{#if cond}`.
 #[test]
 fn test_if_expression_in_statement() {
-    let input = TokenStream2::from_str("const status = {#if cond} \"a\" {:else} \"b\" {/if}").unwrap();
-    let s = compile(&input.to_string());
+    // Use raw string to bypass Rust's tokenizer
+    let s = compile("const status = {#if cond} \"a\" {:else} \"b\" {/if}");
 
-    // New compiler generates Rust if statements for control flow
+    // Expression-level if generates Rust if expression
     assert!(
         s.contains("if cond"),
         "Expected Rust if for expression control. Got: {}",
         s
+    );
+}
+
+#[test]
+fn test_for_expression() {
+    // Use raw string to bypass Rust's tokenizer
+    let s = compile("const items = [{#for x in list} x.name {/for}]");
+
+    // For expression generates iterator with map
+    assert!(
+        s.contains("into_iter") && s.contains("map"),
+        "Expected iterator map pattern for for-expression. Got: {}",
+        s
+    );
+}
+
+#[test]
+fn test_while_expression() {
+    // Use raw string to bypass Rust's tokenizer
+    let s = compile("const vals = {#while cond} get_next() {/while}");
+
+    // While expression generates std::iter::from_fn
+    assert!(
+        s.contains("from_fn"),
+        "Expected from_fn for while-expression. Got: {}",
+        s
+    );
+}
+
+#[test]
+fn test_match_expression() {
+    // Use raw string to bypass Rust's tokenizer
+    let s = compile("const val = {#match x}{:case Some(v)} v {:case None} 0 {/match}");
+
+    // Match expression generates Rust match
+    assert!(
+        s.contains("match"),
+        "Expected Rust match for match-expression. Got: {}",
+        s
+    );
+}
+
+#[test]
+fn test_nested_control_expressions() {
+    // Use raw string to bypass Rust's tokenizer
+    let s = compile("const x = {#if a} {#if b} 1 {:else} 2 {/if} {:else} 3 {/if}");
+
+    // Nested if expressions should both appear
+    assert!(
+        s.contains("if a") || s.contains("if b"),
+        "Expected nested if expressions. Got: {}",
+        s
+    );
+}
+
+#[test]
+fn test_if_expression_requires_else() {
+    use crate::compiler::compile_template;
+
+    // If expression without else should fail
+    let result = compile_template("const x = {#if cond} \"a\" {/if}", None, 0);
+    assert!(
+        result.is_err(),
+        "Expected error for if-expression without else branch"
+    );
+
+    let err_msg = result.unwrap_err().to_string();
+    assert!(
+        err_msg.contains("else") || err_msg.contains("MissingElseBranch"),
+        "Expected error message about missing else. Got: {}",
+        err_msg
     );
 }
 
@@ -313,7 +390,7 @@ fn test_for_loop_with_string_field_name() {
 fn test_within_position_extracts_body_correctly() {
     // Test that Within position wrapping works
     let wrapped = "class __MF_DUMMY__ { readonly foo: string; readonly bar: number; }";
-    let s = compile_template(wrapped, Some("Within")).unwrap().to_string();
+    let s = compile_template(wrapped, Some("Within"), 0).unwrap().to_string();
 
     eprintln!("Generated code for Within body:\n{}", s);
 
@@ -391,6 +468,40 @@ fn test_conditional_in_interface_member() {
     assert!(
         s.contains("else"),
         "Expected else branch. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_for_loop_with_tuple_pattern_in_function_body() {
+    // This test replicates the derive_ord pattern that was failing
+    let input = r#"export function compare(a: T, b: T): number {
+        if (a === b) return 0;
+        {#for (name, expr) in &steps}
+            const @{name.clone()} = @{expr.clone()};
+            if (@{name.clone()} !== 0) return @{name.clone()};
+        {/for}
+        return 0;
+    }"#;
+
+    // Dump tokens using the test helper in lexer tests
+    eprintln!("=== INPUT ===\n{}\n=== END INPUT ===\n", input);
+
+    let s = compile(input);
+
+    eprintln!("Generated code for for loop with tuple in function body:\n{}", s);
+
+    // Should generate Rust for loop with tuple pattern
+    assert!(
+        s.contains("for (name , expr) in & steps") || s.contains("for ( name , expr ) in"),
+        "Expected Rust for loop with tuple pattern. Got:\n{}",
+        s
+    );
+
+    // The loop variables should be used inside the loop
+    assert!(
+        s.contains("name . clone"),
+        "Expected name.clone() inside loop. Got:\n{}",
         s
     );
 }

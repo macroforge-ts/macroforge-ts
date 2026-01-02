@@ -53,6 +53,8 @@ enum LexerMode {
     StringLiteral,
     /// Inside a template literal (backticks)
     TemplateLiteral,
+    /// Inside a JSDoc comment `/** ... */` - collects as text until `*/`
+    JsDoc,
 }
 
 impl LexerMode {
@@ -67,6 +69,7 @@ impl LexerMode {
             Self::IdentBlock => "IdentBlock",
             Self::StringLiteral => "StringLiteral",
             Self::TemplateLiteral => "TemplateLiteral",
+            Self::JsDoc => "JsDoc",
         }
     }
 }
@@ -202,6 +205,7 @@ impl Lexer {
             LexerMode::IdentBlock => self.lex_ident_block()?,
             LexerMode::StringLiteral => self.lex_string_literal()?,
             LexerMode::TemplateLiteral => self.lex_template_literal()?,
+            LexerMode::JsDoc => self.lex_jsdoc(),
         };
 
         let text = self.input[start..self.pos].to_string();
@@ -275,19 +279,19 @@ impl Lexer {
         // Template control flow - closing constructs {/...}
         if remaining.starts_with("{/while}") {
             self.advance(8);
-            return SyntaxKind::BraceSlashWhile;
+            return SyntaxKind::BraceSlashWhileBrace;
         }
         if remaining.starts_with("{/match}") {
             self.advance(8);
-            return SyntaxKind::BraceSlashMatch;
+            return SyntaxKind::BraceSlashMatchBrace;
         }
         if remaining.starts_with("{/for}") {
             self.advance(6);
-            return SyntaxKind::BraceSlashFor;
+            return SyntaxKind::BraceSlashForBrace;
         }
         if remaining.starts_with("{/if}") {
             self.advance(5);
-            return SyntaxKind::BraceSlashIf;
+            return SyntaxKind::BraceSlashIfBrace;
         }
 
         // Template control flow - continuation constructs {:...
@@ -305,7 +309,7 @@ impl Lexer {
         }
         if remaining.starts_with("{:else}") {
             self.advance(7);
-            return SyntaxKind::BraceColonElse;
+            return SyntaxKind::BraceColonElseBrace;
         }
         if remaining.starts_with("{:case")
             && !remaining
@@ -359,12 +363,41 @@ impl Lexer {
 
         if remaining.starts_with("/**") {
             self.advance(3);
+            self.push_mode(LexerMode::JsDoc);
             return SyntaxKind::JsDocOpen;
         }
 
-        if remaining.starts_with("*/") {
+        // Note: */ is handled in JsDoc mode, not here in Normal mode
+
+        // TypeScript line comment: // (but not /// which is doc comment, handled above)
+        if remaining.starts_with("//") {
+            // Consume // and everything until end of line
             self.advance(2);
-            return SyntaxKind::JsDocClose;
+            self.consume_while(|c| c != '\n');
+            return SyntaxKind::TsLineComment;
+        }
+
+        // TypeScript block comment: /* (but not /** which is JSDoc, handled above)
+        if remaining.starts_with("/*") {
+            // Consume /* and everything until */
+            self.advance(2);
+            loop {
+                if self.remaining().starts_with("*/") {
+                    self.advance(2);
+                    break;
+                }
+                if self.pos >= self.input.len() {
+                    // Unterminated block comment - stop at EOF
+                    break;
+                }
+                // Advance by one character
+                if let Some(c) = self.peek() {
+                    self.advance(c.len_utf8());
+                } else {
+                    break;
+                }
+            }
+            return SyntaxKind::TsBlockComment;
         }
 
         // Check for multi-character operators first (before single-char matching)
@@ -440,8 +473,18 @@ impl Lexer {
                     SyntaxKind::Comma
                 }
                 '=' => {
-                    self.advance(1);
-                    SyntaxKind::Eq
+                    // Check for === or ==
+                    let rest = &self.input[self.pos + 1..];
+                    if rest.starts_with("==") {
+                        self.advance(3);
+                        SyntaxKind::EqEqEq
+                    } else if rest.starts_with('=') {
+                        self.advance(2);
+                        SyntaxKind::EqEq
+                    } else {
+                        self.advance(1);
+                        SyntaxKind::Eq
+                    }
                 }
                 '?' => {
                     self.advance(1);
@@ -460,12 +503,32 @@ impl Lexer {
                     SyntaxKind::Hash
                 }
                 '!' => {
-                    self.advance(1);
-                    SyntaxKind::Exclaim
+                    // Check for !== or !=
+                    let rest = &self.input[self.pos + 1..];
+                    if rest.starts_with("==") {
+                        self.advance(3);
+                        SyntaxKind::NotEqEq
+                    } else if rest.starts_with('=') {
+                        self.advance(2);
+                        SyntaxKind::NotEq
+                    } else {
+                        self.advance(1);
+                        SyntaxKind::Exclaim
+                    }
                 }
                 '&' => {
-                    self.advance(1);
-                    SyntaxKind::Ampersand
+                    // Check for && or &=
+                    let rest = &self.input[self.pos + 1..];
+                    if rest.starts_with('&') {
+                        self.advance(2);
+                        SyntaxKind::AmpersandAmpersand
+                    } else if rest.starts_with('=') {
+                        self.advance(2);
+                        SyntaxKind::AmpersandEq
+                    } else {
+                        self.advance(1);
+                        SyntaxKind::Ampersand
+                    }
                 }
                 '"' => {
                     self.advance(1);

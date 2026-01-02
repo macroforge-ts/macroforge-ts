@@ -5,17 +5,16 @@ use super::*;
 // =========================================================================
 
 impl Parser {
-    pub(super) fn parse_ident_block(&mut self) -> Option<IrNode> {
+    pub(super) fn parse_ident_block(&mut self) -> ParseResult<IrNode> {
         // Consume {|
-        self.consume()?;
+        self.consume();
 
         let mut parts = Vec::new();
 
         while !self.at_eof() && !self.at(SyntaxKind::PipeClose) {
             if self.at(SyntaxKind::At) {
-                if let Ok(node) = self.parse_interpolation() {
-                    parts.push(node);
-                }
+                let node = self.parse_interpolation()?;
+                parts.push(node);
             } else if let Some(token) = self.consume() {
                 parts.push(IrNode::Raw(token.text));
             }
@@ -23,7 +22,7 @@ impl Parser {
 
         self.expect(SyntaxKind::PipeClose);
 
-        Some(IrNode::IdentBlock {
+        Ok(IrNode::IdentBlock {
             parts: Self::merge_adjacent_text(parts),
         })
     }

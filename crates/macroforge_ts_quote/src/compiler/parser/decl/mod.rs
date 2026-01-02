@@ -11,22 +11,23 @@ use super::*;
 // =========================================================================
 
 impl Parser {
-    pub(super) fn parse_export_decl(&mut self) -> Option<IrNode> {
+    pub(super) fn parse_export_decl(&mut self) -> ParseResult<IrNode> {
         // Consume "export"
-        self.consume()?;
+        self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "export keyword"))?;
         self.skip_whitespace();
 
         // Check what follows
         match self.current_kind() {
             // Declaration exports
-            Some(SyntaxKind::ClassKw) => self.parse_class_decl(true).ok(),
+            Some(SyntaxKind::ClassKw) => self.parse_class_decl(true),
             Some(SyntaxKind::FunctionKw) => self.parse_function_decl(true, false),
             Some(SyntaxKind::InterfaceKw) => self.parse_interface_decl(true),
             Some(SyntaxKind::ConstKw) | Some(SyntaxKind::LetKw) | Some(SyntaxKind::VarKw) => {
-                self.parse_var_decl(true).ok()
+                self.parse_var_decl(true)
             }
             Some(SyntaxKind::AsyncKw) => self.parse_async_decl(true),
-            Some(SyntaxKind::EnumKw) => self.parse_enum_decl(true, false).ok(),
+            Some(SyntaxKind::EnumKw) => self.parse_enum_decl(true, false),
 
             // Named export, export all, export default, export type
             Some(SyntaxKind::LBrace)
@@ -35,13 +36,14 @@ impl Parser {
             | Some(SyntaxKind::TypeKw) => self.parse_export_decl_full(),
 
             // Fallback
-            _ => Some(IrNode::Raw("export ".to_string())),
+            _ => Ok(IrNode::Raw("export ".to_string())),
         }
     }
 
-    pub(super) fn parse_async_decl(&mut self, exported: bool) -> Option<IrNode> {
+    pub(super) fn parse_async_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         // Consume "async"
-        self.consume()?;
+        self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "async keyword"))?;
         self.skip_whitespace();
 
         if self.at(SyntaxKind::FunctionKw) {
@@ -49,19 +51,19 @@ impl Parser {
         } else {
             // Not a function, just return raw
             let prefix = if exported { "export async " } else { "async " };
-            Some(IrNode::Raw(prefix.to_string()))
+            Ok(IrNode::Raw(prefix.to_string()))
         }
     }
 
     pub(super) fn parse_class_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         // Consume "class"
         self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "class keyword"))?;
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "class keyword"))?;
         self.skip_whitespace();
 
         // Parse class name (may be placeholder)
         let name = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)
+            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
                 .with_context("class declaration name"))?;
         self.skip_whitespace();
 
@@ -86,6 +88,7 @@ impl Parser {
             self.consume();
             self.skip_whitespace();
             self.parse_type_list_until(SyntaxKind::LBrace)
+                .map_err(|e| e.with_context("class implements clause"))?
         } else {
             vec![]
         };
@@ -117,16 +120,19 @@ impl Parser {
 
     // parse_class_body and parse_class_member are now in expr/mod.rs with proper error handling
 
-    fn parse_constructor(&mut self, accessibility: Option<Accessibility>) -> Option<IrNode> {
+    fn parse_constructor(&mut self, accessibility: Option<Accessibility>) -> ParseResult<IrNode> {
         // Consume "constructor"
-        self.consume()?;
+        self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "constructor keyword"))?;
         self.skip_whitespace();
 
-        let params = self.parse_param_list().ok()?;
+        let params = self.parse_param_list()
+            .map_err(|e| e.with_context("constructor parameters"))?;
         self.skip_whitespace();
 
         let body = if self.at(SyntaxKind::LBrace) {
-            Some(Box::new(self.parse_block_stmt().ok()?))
+            Some(Box::new(self.parse_block_stmt()
+                .map_err(|e| e.with_context("constructor body"))?))
         } else {
             None
         };
@@ -137,12 +143,13 @@ impl Parser {
             body,
         };
 
-        self.wrap_with_doc(node).ok()
+        self.wrap_with_doc(node)
     }
 
-    pub(super) fn parse_function_decl(&mut self, exported: bool, async_: bool) -> Option<IrNode> {
+    pub(super) fn parse_function_decl(&mut self, exported: bool, async_: bool) -> ParseResult<IrNode> {
         // Consume "function"
-        self.consume()?;
+        self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "function keyword"))?;
         self.skip_whitespace();
 
         // Check for generator (by checking for `*` text)
@@ -155,7 +162,9 @@ impl Parser {
         };
 
         // Parse function name
-        let name = self.parse_ts_ident_or_placeholder()?;
+        let name = self.parse_ts_ident_or_placeholder()
+            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
+                .with_context("function declaration name"))?;
         self.skip_whitespace();
 
         // Parse optional type params
@@ -163,7 +172,8 @@ impl Parser {
         self.skip_whitespace();
 
         // Parse params
-        let params = self.parse_param_list().ok()?;
+        let params = self.parse_param_list()
+            .map_err(|e| e.with_context("function parameters"))?;
         self.skip_whitespace();
 
         // Parse return type
@@ -173,14 +183,17 @@ impl Parser {
             Some(Box::new(self.parse_type_until(&[
                 SyntaxKind::LBrace,
                 SyntaxKind::Semicolon,
-            ])?))
+            ]).map_err(|e| e.with_context("function return type"))?
+                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
+                    .with_context("function return type"))?))
         } else {
             None
         };
 
         // Parse body
         let body = if self.at(SyntaxKind::LBrace) {
-            Some(Box::new(self.parse_block_stmt().ok()?))
+            Some(Box::new(self.parse_block_stmt()
+                .map_err(|e| e.with_context("function body"))?))
         } else {
             None
         };
@@ -197,7 +210,7 @@ impl Parser {
             body,
         };
 
-        self.wrap_with_doc(node).ok()
+        self.wrap_with_doc(node)
     }
 
     pub(super) fn parse_var_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
@@ -205,7 +218,7 @@ impl Parser {
             Some(SyntaxKind::ConstKw) => VarKind::Const,
             Some(SyntaxKind::LetKw) => VarKind::Let,
             Some(SyntaxKind::VarKw) => VarKind::Var,
-            _ => return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            _ => return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_context("variable declaration")
                 .with_expected(&["const", "let", "var"])),
         };
@@ -215,8 +228,7 @@ impl Parser {
         // Check for destructuring pattern (object or array)
         if self.at(SyntaxKind::LBrace) || self.at(SyntaxKind::LBracket) {
             // For destructuring patterns, collect as raw text until semicolon
-            return self.parse_var_decl_as_raw(exported, &kind)
-                .ok_or_else(|| ParseError::unexpected_eof(self.pos, "destructuring pattern"));
+            return self.parse_var_decl_as_raw(exported, &kind);
         }
 
         let mut decls = Vec::new();
@@ -230,7 +242,7 @@ impl Parser {
                 SyntaxKind::LParen,
             ]));
             let name = self.parse_ts_ident_or_placeholder()
-                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.pos)
+                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
                     .with_context("variable declarator name"))?;
             self.pop_context();
             self.skip_whitespace();
@@ -239,8 +251,8 @@ impl Parser {
             let name_with_type = if self.at(SyntaxKind::Colon) {
                 self.consume();
                 self.skip_whitespace();
-                let type_ann = self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])
-                    .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.pos)
+                let type_ann = self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])?
+                    .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
                         .with_context("variable type annotation"))?;
                 IrNode::BindingIdent {
                     name: Box::new(name),
@@ -293,7 +305,7 @@ impl Parser {
 
     /// Parse a variable declaration with destructuring pattern as raw text.
     /// This handles patterns like `const { a, b } = obj;` or `const [x, y] = arr;`
-    fn parse_var_decl_as_raw(&mut self, exported: bool, kind: &VarKind) -> Option<IrNode> {
+    fn parse_var_decl_as_raw(&mut self, exported: bool, kind: &VarKind) -> ParseResult<IrNode> {
         let kind_str = match kind {
             VarKind::Const => "const ",
             VarKind::Let => "let ",
@@ -339,9 +351,9 @@ impl Parser {
                     }
                 }
                 Some(SyntaxKind::At) => {
-                    if let Ok(placeholder) = self.parse_interpolation() {
-                        parts.push(placeholder);
-                    }
+                    let placeholder = self.parse_interpolation()
+                        .map_err(|e| e.with_context("destructuring pattern interpolation"))?;
+                    parts.push(placeholder);
                 }
                 Some(SyntaxKind::Semicolon) => {
                     if brace_depth == 0 && bracket_depth == 0 {
@@ -365,27 +377,33 @@ impl Parser {
 
         // Merge adjacent raw nodes and return as TsLoopStmt (which handles raw statements)
         let merged = Self::merge_adjacent_text(parts);
-        Some(IrNode::TsLoopStmt { parts: merged })
+        Ok(IrNode::TsLoopStmt { parts: merged })
     }
 
-    pub(super) fn parse_type_alias_decl(&mut self, exported: bool) -> Option<IrNode> {
+    pub(super) fn parse_type_alias_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         // Consume "type"
-        self.consume()?;
+        self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "type keyword"))?;
         self.skip_whitespace();
 
-        let name = self.parse_ts_ident_or_placeholder()?;
+        let name = self.parse_ts_ident_or_placeholder()
+            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
+                .with_context("type alias name"))?;
         self.skip_whitespace();
 
         let type_params = self.parse_optional_type_params();
         self.skip_whitespace();
 
         if !self.at(SyntaxKind::Eq) {
-            return Some(IrNode::Raw("type ".to_string()));
+            return Ok(IrNode::Raw("type ".to_string()));
         }
         self.consume();
         self.skip_whitespace();
 
-        let type_ann = self.parse_type_until(&[SyntaxKind::Semicolon])?;
+        let type_ann = self.parse_type_until(&[SyntaxKind::Semicolon])
+            .map_err(|e| e.with_context("type alias definition"))?
+            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
+                .with_context("type alias definition"))?;
 
         if self.at(SyntaxKind::Semicolon) {
             self.consume();
@@ -399,6 +417,6 @@ impl Parser {
             type_ann: Box::new(type_ann),
         };
 
-        self.wrap_with_doc(node).ok()
+        self.wrap_with_doc(node)
     }
 }

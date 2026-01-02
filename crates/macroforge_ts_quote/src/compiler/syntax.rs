@@ -55,7 +55,7 @@ pub enum SyntaxKind {
 
     // Template control flow - continuation constructs `{:...`
     /// `{:else}` - template else (complete with closing brace)
-    BraceColonElse,
+    BraceColonElseBrace,
     /// `{:else if` - template else-if open
     BraceColonElseIf,
     /// `{:case` - template match case
@@ -63,13 +63,13 @@ pub enum SyntaxKind {
 
     // Template control flow - closing constructs `{/...}`
     /// `{/if}` - template if close
-    BraceSlashIf,
+    BraceSlashIfBrace,
     /// `{/for}` - template for close
-    BraceSlashFor,
+    BraceSlashForBrace,
     /// `{/while}` - template while close
-    BraceSlashWhile,
+    BraceSlashWhileBrace,
     /// `{/match}` - template match close
-    BraceSlashMatch,
+    BraceSlashMatchBrace,
     /// `{$` - directive open (let, do, typescript)
     DollarOpen,
     /// `` - ident block open
@@ -96,6 +96,10 @@ pub enum SyntaxKind {
     JsDocOpen,
     /// `*/` - jsdoc block close
     JsDocClose,
+    /// `// comment` - TypeScript line comment (not doc comment)
+    TsLineComment,
+    /// `/* comment */` - TypeScript block comment (not JSDoc)
+    TsBlockComment,
     /// `#[doc = "..."]` - Rust doc attribute (converted from `/** ... */` by Rust tokenizer)
     RustDocAttr,
     /// `:` - colon (for type annotations, object properties)
@@ -116,8 +120,12 @@ pub enum SyntaxKind {
     Gt,
     /// `,` - comma
     Comma,
-    /// `=` - equals
+    /// `=` - equals (assignment)
     Eq,
+    /// `==` - equality operator
+    EqEq,
+    /// `===` - strict equality operator
+    EqEqEq,
     /// `?` - question mark (for optional)
     Question,
     /// `.` - dot
@@ -128,14 +136,22 @@ pub enum SyntaxKind {
     Hash,
     /// `!` - exclamation mark (for non-null assertions)
     Exclaim,
+    /// `!=` - not equal operator
+    NotEq,
+    /// `!==` - strict not equal operator
+    NotEqEq,
     /// `++` - increment operator
     PlusPlus,
     /// `--` - decrement operator
     MinusMinus,
     /// `?.` - optional chaining
     QuestionDot,
-    /// `&` - ampersand (for intersection types)
+    /// `&` - ampersand (for intersection types and bitwise AND)
     Ampersand,
+    /// `&&` - logical AND operator
+    AmpersandAmpersand,
+    /// `&=` - bitwise AND assignment
+    AmpersandEq,
     /// `...` - spread/rest operator
     DotDotDot,
 
@@ -390,7 +406,10 @@ impl SyntaxKind {
 
     /// Returns true if this is a trivia token (whitespace, comments).
     pub fn is_trivia(self) -> bool {
-        matches!(self, Self::Whitespace)
+        matches!(
+            self,
+            Self::Whitespace | Self::TsLineComment | Self::TsBlockComment
+        )
     }
 
     /// Returns true if this is a control flow keyword.
@@ -523,7 +542,7 @@ impl SyntaxKind {
     pub fn is_brace_slash_close(self) -> bool {
         matches!(
             self,
-            Self::BraceSlashIf | Self::BraceSlashFor | Self::BraceSlashWhile | Self::BraceSlashMatch
+            Self::BraceSlashIfBrace | Self::BraceSlashForBrace | Self::BraceSlashWhileBrace | Self::BraceSlashMatchBrace
         )
     }
 
@@ -531,7 +550,7 @@ impl SyntaxKind {
     pub fn is_brace_colon(self) -> bool {
         matches!(
             self,
-            Self::BraceColonElse | Self::BraceColonElseIf | Self::BraceColonCase
+            Self::BraceColonElseBrace | Self::BraceColonElseIf | Self::BraceColonCase
         )
     }
 }
@@ -595,13 +614,13 @@ mod tests {
             SyntaxKind::BraceHashFor,
             SyntaxKind::BraceHashWhile,
             SyntaxKind::BraceHashMatch,
-            SyntaxKind::BraceColonElse,
+            SyntaxKind::BraceColonElseBrace,
             SyntaxKind::BraceColonElseIf,
             SyntaxKind::BraceColonCase,
-            SyntaxKind::BraceSlashIf,
-            SyntaxKind::BraceSlashFor,
-            SyntaxKind::BraceSlashWhile,
-            SyntaxKind::BraceSlashMatch,
+            SyntaxKind::BraceSlashIfBrace,
+            SyntaxKind::BraceSlashForBrace,
+            SyntaxKind::BraceSlashWhileBrace,
+            SyntaxKind::BraceSlashMatchBrace,
             SyntaxKind::DollarOpen,
             SyntaxKind::Colon,
             SyntaxKind::Semicolon,

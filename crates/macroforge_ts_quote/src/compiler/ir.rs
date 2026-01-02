@@ -851,6 +851,38 @@ pub enum IrNode {
         code: TokenStream,
     },
 
+    // =========================================================================
+    // Expression-Level Control Flow (produces values, not statements)
+    // =========================================================================
+
+    /// If expression - produces a value: `{#if cond} expr {:else} expr {/if}`
+    /// All branches required in expression context.
+    IfExpr {
+        condition: TokenStream,
+        then_expr: Box<IrNode>,
+        else_if_branches: Vec<(TokenStream, Box<IrNode>)>,
+        else_expr: Box<IrNode>,
+    },
+
+    /// For expression - produces an iterator: `{#for pat in iter} expr {/for}`
+    ForExpr {
+        pattern: TokenStream,
+        iterator: TokenStream,
+        body_expr: Box<IrNode>,
+    },
+
+    /// While expression - produces an iterator: `{#while cond} expr {/while}`
+    WhileExpr {
+        condition: TokenStream,
+        body_expr: Box<IrNode>,
+    },
+
+    /// Match expression - all arms produce values: `{#match expr}{:case pat} expr {/match}`
+    MatchExpr {
+        expr: TokenStream,
+        arms: Vec<MatchArmExpr>,
+    },
+
     /// TypeScript injection: `{$typescript stream}`
     TypeScript {
         stream: TokenStream,
@@ -976,12 +1008,20 @@ pub struct VarDeclarator {
     pub definite: bool,
 }
 
-/// Match arm for template match construct.
+/// Match arm for template match construct (statement context).
 #[derive(Debug, Clone)]
 pub struct MatchArm {
     pub pattern: TokenStream,
     pub guard: Option<TokenStream>,
     pub body: Vec<IrNode>,
+}
+
+/// Match arm for expression context - produces a value instead of statements.
+#[derive(Debug, Clone)]
+pub struct MatchArmExpr {
+    pub pattern: TokenStream,
+    pub guard: Option<TokenStream>,
+    pub body_expr: Box<IrNode>,
 }
 
 // =============================================================================

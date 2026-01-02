@@ -19,7 +19,9 @@ mod interpolation;
 mod stmt;
 
 // Re-export error types for use throughout the parser
-pub use expr::errors::{ParseError, ParseErrorKind, ParseResult};
+pub use expr::errors::{
+    ParseError, ParseErrorKind, ParseNodeResult, ParseOutcome, ParseResult, SourceLocation,
+};
 
 use super::ir::{
     Accessibility, Ir, IrNode, MatchArm, MethodKind, PlaceholderKind, VarDeclarator, VarKind,
@@ -39,12 +41,12 @@ pub(super) const CONTROL_FLOW_TERMINATORS: &[SyntaxKind] = &[
     SyntaxKind::BraceHashWhile,
     SyntaxKind::BraceHashMatch,
     // Closing constructs: {/if}, {/for}, {/while}, {/match}
-    SyntaxKind::BraceSlashIf,
-    SyntaxKind::BraceSlashFor,
-    SyntaxKind::BraceSlashWhile,
-    SyntaxKind::BraceSlashMatch,
+    SyntaxKind::BraceSlashIfBrace,
+    SyntaxKind::BraceSlashForBrace,
+    SyntaxKind::BraceSlashWhileBrace,
+    SyntaxKind::BraceSlashMatchBrace,
     // Continuation constructs: {:else}, {:else if}, {:case}
-    SyntaxKind::BraceColonElse,
+    SyntaxKind::BraceColonElseBrace,
     SyntaxKind::BraceColonElseIf,
     SyntaxKind::BraceColonCase,
 ];
@@ -122,6 +124,14 @@ impl Context {
             terminators: SmallVec::from_iter(terminators),
         }
     }
+
+    /// Creates a template control block context (for `{#if}`, `{#for}`, etc.)
+    fn template_control_block<const N: usize>(terminators: [SyntaxKind; N]) -> Self {
+        Self {
+            kind: ContextKind::Expression(ExpressionKind::TemplateControlBlock),
+            terminators: SmallVec::from_iter(terminators),
+        }
+    }
 }
 
 /// The kind of context (for placeholder classification).
@@ -153,6 +163,9 @@ enum ExpressionKind {
     Ternary,
     /// Object literal expression (`:` is property separator, not type annotation)
     ObjectLiteral,
+    /// Inside a template control block (`{#if}`, `{#for}`, `{#while}`, `{#match}`).
+    /// This preserves the parent context so `is_object_literal()` can search the stack.
+    TemplateControlBlock,
 }
 
 /// The parser for template input.
@@ -203,9 +216,11 @@ impl Parser {
     }
 
     /// Parses the input and returns an AST.
-    pub fn parse(mut self) -> Ir {
-        let nodes = self.parse_nodes();
-        Ir::with_nodes(Self::merge_adjacent_text(nodes))
+    ///
+    /// Returns an error if parsing fails with unrecoverable issues.
+    pub fn parse(mut self) -> ParseResult<Ir> {
+        let nodes = self.parse_nodes()?;
+        Ok(Ir::with_nodes(Self::merge_adjacent_text(nodes)))
     }
 
     /// Execute a function with a temporary context pushed.
@@ -238,12 +253,12 @@ impl Parser {
         self.current_kind().map_or(false, |k| k.is_brace_hash_open())
     }
 
-    /// Returns true if the current token is any `{/...}` closing token (BraceSlashIf, BraceSlashFor, etc.)
+    /// Returns true if the current token is any `{/...}` closing token (BraceSlashIfBrace, BraceSlashForBrace, etc.)
     fn at_brace_slash_close(&self) -> bool {
         self.current_kind().map_or(false, |k| k.is_brace_slash_close())
     }
 
-    /// Returns true if the current token is any `{:...` continuation token (BraceColonElse, BraceColonElseIf, etc.)
+    /// Returns true if the current token is any `{:...` continuation token (BraceColonElseBrace, BraceColonElseIf, etc.)
     fn at_brace_colon(&self) -> bool {
         self.current_kind().map_or(false, |k| k.is_brace_colon())
     }
@@ -281,16 +296,34 @@ impl Parser {
     }
 
     fn skip_whitespace(&mut self) {
-        while self.at(SyntaxKind::Whitespace) {
-            self.advance();
+        while let Some(kind) = self.current_kind() {
+            if kind.is_trivia() {
+                self.advance();
+            } else if kind == SyntaxKind::JsDocOpen || kind == SyntaxKind::DocCommentPrefix {
+                // Parse JSDoc and store in pending_doc so it's preserved in output
+                if let Some(IrNode::DocComment { text }) = self.parse_doc_comment() {
+                    self.pending_doc = Some(text);
+                }
+            } else {
+                break;
+            }
         }
+    }
+
+    /// Returns the byte offset of the current token in the source string.
+    /// If at EOF, returns the length of the source.
+    pub(super) fn current_byte_offset(&self) -> usize {
+        self.tokens
+            .get(self.pos)
+            .map(|t| t.start)
+            .unwrap_or(self.source.len())
     }
 
     // =========================================================================
     // Parsing
     // =========================================================================
 
-    fn parse_nodes(&mut self) -> Vec<IrNode> {
+    fn parse_nodes(&mut self) -> ParseResult<Vec<IrNode>> {
         let mut nodes = Vec::new();
         let mut iterations = 0usize;
         const MAX_ITERATIONS: usize = 100_000;
@@ -323,13 +356,18 @@ impl Parser {
                         self.tokens.len(),
                         self.current()
                     );
-                    eprintln!("[MF_DEBUG_PARSER] source snippet: {:?}", &self.source[..self.source.len().min(500)]);
+                    eprintln!(
+                        "[MF_DEBUG_PARSER] source snippet: {:?}",
+                        &self.source[..self.source.len().min(500)]
+                    );
                 }
-                panic!("Parser infinite loop detected: exceeded {} iterations", MAX_ITERATIONS);
+                return Err(ParseError::new(ParseErrorKind::UnterminatedExpression, self.current_byte_offset())
+                    .with_context("parser exceeded maximum iterations (possible infinite loop)"));
             }
 
-            if let Some(node) = self.parse_node() {
-                nodes.push(node);
+            match self.parse_node()? {
+                ParseOutcome::Node(node) => nodes.push(node),
+                ParseOutcome::Skip => {}
             }
 
             // Safety check: ensure we made progress
@@ -347,14 +385,14 @@ impl Parser {
             }
         }
 
-        nodes
+        Ok(nodes)
     }
 
-    fn parse_node(&mut self) -> Option<IrNode> {
+    fn parse_node(&mut self) -> ParseNodeResult<IrNode> {
         self.parse_node_inner(0)
     }
 
-    fn parse_node_inner(&mut self, depth: usize) -> Option<IrNode> {
+    fn parse_node_inner(&mut self, depth: usize) -> ParseNodeResult<IrNode> {
         const MAX_DEPTH: usize = 100;
         if depth > MAX_DEPTH {
             #[cfg(debug_assertions)]
@@ -364,11 +402,16 @@ impl Parser {
                 self.pos,
                 self.current()
             );
-            panic!("Parser infinite recursion detected in parse_node");
+            return Err(ParseError::new(ParseErrorKind::UnterminatedExpression, self.current_byte_offset())
+                .with_context("parser recursion depth exceeded"));
         }
 
         // Check for doc comments first - store them for the next node
-        match self.current_kind()? {
+        let Some(current_kind) = self.current_kind() else {
+            return Ok(ParseOutcome::Skip);
+        };
+
+        match current_kind {
             SyntaxKind::RustDocAttr => {
                 let pos_before = self.pos;
                 if let Some(IrNode::DocComment { text }) = self.parse_rust_doc_attr() {
@@ -404,115 +447,126 @@ impl Parser {
             _ => {}
         }
 
-        let node = match self.current_kind()? {
+        let Some(kind) = self.current_kind() else {
+            return Ok(ParseOutcome::Skip);
+        };
+
+        let node: Option<IrNode> = match kind {
             SyntaxKind::At => {
-                if let Ok(placeholder) = self.parse_interpolation() {
-                    // Check if there's an identifier suffix immediately after (e.g., @{name}Obj)
-                    if let Some(token) = self.current() {
-                        if token.kind == SyntaxKind::Ident {
-                            let suffix = token.text.clone();
-                            self.consume();
-                            // Force placeholder to be Ident kind for identifier concatenation
-                            let ident_placeholder = match placeholder {
-                                IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
-                                    kind: PlaceholderKind::Ident,
-                                    expr,
-                                },
-                                other => other,
-                            };
-                            // Create an IdentBlock combining placeholder + suffix
-                            return Some(IrNode::IdentBlock {
-                                parts: vec![ident_placeholder, IrNode::Raw(suffix)],
-                            });
+                match self.parse_interpolation() {
+                    Ok(placeholder) => {
+                        // Check if there's an identifier suffix immediately after (e.g., @{name}Obj)
+                        if let Some(token) = self.current() {
+                            if token.kind == SyntaxKind::Ident {
+                                let suffix = token.text.clone();
+                                self.consume();
+                                // Force placeholder to be Ident kind for identifier concatenation
+                                let ident_placeholder = match placeholder {
+                                    IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
+                                        kind: PlaceholderKind::Ident,
+                                        expr,
+                                    },
+                                    other => other,
+                                };
+                                // Create an IdentBlock combining placeholder + suffix
+                                return Ok(ParseOutcome::Node(IrNode::IdentBlock {
+                                    parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                                }));
+                            }
                         }
+                        Some(placeholder)
                     }
-                    Some(placeholder)
-                } else {
-                    None
+                    Err(e) => return Err(e),
                 }
             }
             // Template control flow opening constructs
-            SyntaxKind::BraceHashIf => self.parse_if_block_from_token(),
-            SyntaxKind::BraceHashFor => self.parse_for_block_from_token(),
-            SyntaxKind::BraceHashWhile => self.parse_while_block_from_token(),
-            SyntaxKind::BraceHashMatch => self.parse_match_block_from_token(),
-            // Template control flow closing constructs - consume and return None
-            SyntaxKind::BraceSlashIf
-            | SyntaxKind::BraceSlashFor
-            | SyntaxKind::BraceSlashWhile
-            | SyntaxKind::BraceSlashMatch => {
+            SyntaxKind::BraceHashIf => Some(self.parse_if_block_from_token()?),
+            SyntaxKind::BraceHashFor => Some(self.parse_for_block_from_token()?),
+            SyntaxKind::BraceHashWhile => Some(self.parse_while_block_from_token()?),
+            SyntaxKind::BraceHashMatch => Some(self.parse_match_block_from_token()?),
+            // Template control flow closing constructs - consume and skip
+            SyntaxKind::BraceSlashIfBrace
+            | SyntaxKind::BraceSlashForBrace
+            | SyntaxKind::BraceSlashWhileBrace
+            | SyntaxKind::BraceSlashMatchBrace => {
                 // End of control block - consume the closing token
                 self.consume();
-                None
+                return Ok(ParseOutcome::Skip);
             }
             // Template control flow continuation constructs - error at top level
-            SyntaxKind::BraceColonElse | SyntaxKind::BraceColonElseIf | SyntaxKind::BraceColonCase => {
+            SyntaxKind::BraceColonElseBrace | SyntaxKind::BraceColonElseIf | SyntaxKind::BraceColonCase => {
                 // Else/case clause at top level - error, consume
                 self.consume();
-                None
+                return Ok(ParseOutcome::Skip);
             }
             SyntaxKind::DollarOpen => self.parse_directive(),
-            SyntaxKind::PipeOpen => self.parse_ident_block(),
+            SyntaxKind::PipeOpen => Some(self.parse_ident_block()?),
             SyntaxKind::CommentLineOpen => self.parse_line_comment(),
             SyntaxKind::CommentBlockOpen => self.parse_block_comment(),
-            SyntaxKind::DoubleQuote => self.parse_string_literal().ok(),
-            SyntaxKind::Backtick => self.parse_template_literal().ok(),
+            SyntaxKind::DoubleQuote => Some(self.parse_string_literal()?),
+            SyntaxKind::Backtick => Some(self.parse_template_literal()?),
             // TypeScript decorator - collect and attach to next class/function
             SyntaxKind::DecoratorAt => {
-                if let Some(decorator) = self.parse_decorator_raw() {
+                if let Some(decorator) = self.parse_decorator_raw()? {
                     self.pending_decorators.push(decorator);
                 }
                 // Continue to parse the next node (the decorated class/function)
                 return self.parse_node_inner(depth + 1);
             }
             // TypeScript declarations
-            SyntaxKind::ExportKw => self.parse_export_decl(),
+            SyntaxKind::ExportKw => Some(self.parse_export_decl()?),
             SyntaxKind::ImportKw => self.parse_import_decl(),
-            SyntaxKind::EnumKw => self.parse_enum_decl(false, false).ok(),
-            SyntaxKind::ClassKw => self.parse_class_decl(false).ok(),
-            SyntaxKind::FunctionKw => self.parse_function_decl(false, false),
-            SyntaxKind::InterfaceKw => self.parse_interface_decl(false),
+            SyntaxKind::EnumKw => Some(self.parse_enum_decl(false, false)?),
+            SyntaxKind::ClassKw => Some(self.parse_class_decl(false)?),
+            SyntaxKind::FunctionKw => Some(self.parse_function_decl(false, false)?),
+            SyntaxKind::InterfaceKw => Some(self.parse_interface_decl(false)?),
             SyntaxKind::ConstKw => {
                 // Check for `const enum`
                 if self.peek_is_enum() {
-                    self.parse_enum_decl(false, true).ok()
+                    Some(self.parse_enum_decl(false, true)?)
                 } else {
-                    self.parse_var_decl(false).ok()
+                    Some(self.parse_var_decl(false)?)
                 }
             }
             SyntaxKind::LetKw | SyntaxKind::VarKw => {
-                self.parse_var_decl(false).ok()
+                Some(self.parse_var_decl(false)?)
             }
-            SyntaxKind::AsyncKw => self.parse_async_decl(false),
+            SyntaxKind::AsyncKw => Some(self.parse_async_decl(false)?),
             // Interface/type members (can appear in for-loop bodies inside interfaces)
-            SyntaxKind::ReadonlyKw => self.parse_maybe_interface_member(),
+            SyntaxKind::ReadonlyKw => self.parse_maybe_interface_member()?,
             // Block statement at module level - use lookahead to distinguish from object literal
-            SyntaxKind::LBrace if self.looks_like_block_stmt() => self.parse_block_stmt().ok(),
+            SyntaxKind::LBrace if self.looks_like_block_stmt() => Some(self.parse_block_stmt()?),
             // TypeScript statements that can appear at module level
-            SyntaxKind::IfKw => self.parse_ts_if_stmt().ok(),
-            SyntaxKind::ForKw | SyntaxKind::WhileKw => self.parse_ts_loop_stmt().ok(),
-            SyntaxKind::TryKw => self.parse_ts_try_stmt(),
-            SyntaxKind::ReturnKw => self.parse_return_stmt().ok(),
-            SyntaxKind::ThrowKw => self.parse_throw_stmt().ok(),
+            SyntaxKind::IfKw => Some(self.parse_ts_if_stmt()?),
+            SyntaxKind::ForKw | SyntaxKind::WhileKw => Some(self.parse_ts_loop_stmt()?),
+            SyntaxKind::TryKw => Some(self.parse_ts_try_stmt()?),
+            SyntaxKind::ReturnKw => Some(self.parse_return_stmt()?),
+            SyntaxKind::ThrowKw => Some(self.parse_throw_stmt()?),
             _ => self.parse_text_token(),
         };
 
         // Wrap with pending doc comment if present
-        if let Some(doc) = self.pending_doc.take() {
-            node.map(|n| IrNode::Documented {
-                doc,
-                inner: Box::new(n),
-            })
-        } else {
-            node
+        match node {
+            Some(n) => {
+                let wrapped = if let Some(doc) = self.pending_doc.take() {
+                    IrNode::Documented {
+                        doc,
+                        inner: Box::new(n),
+                    }
+                } else {
+                    n
+                };
+                Ok(ParseOutcome::Node(wrapped))
+            }
+            None => Ok(ParseOutcome::Skip),
         }
     }
 
     /// Parse a TypeScript decorator and pass through as raw text.
     /// Handles: `@decorator`, `@decorator(args)`, `@decorator.member`, etc.
-    fn parse_decorator_raw(&mut self) -> Option<IrNode> {
+    fn parse_decorator_raw(&mut self) -> ParseResult<Option<IrNode>> {
         // The DecoratorAt token is just "@", we need to collect the full decorator
-        self.consume()?; // consume @
+        self.consume(); // consume @
         let mut parts = vec![IrNode::Raw("@".to_string())];
 
         // Consume the decorator identifier/expression
@@ -528,9 +582,8 @@ impl Parser {
                 }
                 Some(SyntaxKind::At) => {
                     // Interpolation inside decorator
-                    if let Ok(placeholder) = self.parse_interpolation() {
-                        parts.push(placeholder);
-                    }
+                    let placeholder = self.parse_interpolation()?;
+                    parts.push(placeholder);
                 }
                 Some(SyntaxKind::LParen) => {
                     paren_depth += 1;
@@ -556,9 +609,8 @@ impl Parser {
                     if paren_depth > 0 {
                         // Inside parens, consume everything
                         if self.at(SyntaxKind::DoubleQuote) {
-                            if let Ok(s) = self.parse_string_literal() {
-                                parts.push(s);
-                            }
+                            let s = self.parse_string_literal()?;
+                            parts.push(s);
                         } else if let Some(t) = self.consume() {
                             parts.push(IrNode::Raw(t.text));
                         }
@@ -594,9 +646,9 @@ impl Parser {
         // Merge and return
         let merged = Self::merge_adjacent_text(parts);
         if merged.len() == 1 {
-            Some(merged.into_iter().next().unwrap())
+            Ok(Some(merged.into_iter().next().unwrap()))
         } else {
-            Some(IrNode::IdentBlock { parts: merged })
+            Ok(Some(IrNode::IdentBlock { parts: merged }))
         }
     }
 
@@ -604,19 +656,19 @@ impl Parser {
     // Control block handlers (called from parse_node for new token types)
     // =========================================================================
 
-    fn parse_if_block_from_token(&mut self) -> Option<IrNode> {
+    fn parse_if_block_from_token(&mut self) -> ParseResult<IrNode> {
         self.parse_control_block(SyntaxKind::BraceHashIf)
     }
 
-    fn parse_for_block_from_token(&mut self) -> Option<IrNode> {
+    fn parse_for_block_from_token(&mut self) -> ParseResult<IrNode> {
         self.parse_control_block(SyntaxKind::BraceHashFor)
     }
 
-    fn parse_while_block_from_token(&mut self) -> Option<IrNode> {
+    fn parse_while_block_from_token(&mut self) -> ParseResult<IrNode> {
         self.parse_control_block(SyntaxKind::BraceHashWhile)
     }
 
-    fn parse_match_block_from_token(&mut self) -> Option<IrNode> {
+    fn parse_match_block_from_token(&mut self) -> ParseResult<IrNode> {
         self.parse_control_block(SyntaxKind::BraceHashMatch)
     }
 

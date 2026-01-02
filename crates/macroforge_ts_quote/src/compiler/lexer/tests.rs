@@ -260,17 +260,17 @@
 
 	#[test]
 	fn test_brace_slash_if() {
-		// {/if} is now a single BraceSlashIf token (includes closing brace)
+		// {/if} is now a single BraceSlashIfBrace token (includes closing brace)
 		let tokens = lex("{/if}");
-		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashIf);
+		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashIfBrace);
 		assert_eq!(tokens.len(), 1);
 	}
 
 	#[test]
 	fn test_brace_colon_else() {
-		// {:else} is now a single BraceColonElse token (includes closing brace)
+		// {:else} is now a single BraceColonElseBrace token (includes closing brace)
 		let tokens = lex("{:else}");
-		assert_eq!(tokens[0].0, SyntaxKind::BraceColonElse);
+		assert_eq!(tokens[0].0, SyntaxKind::BraceColonElseBrace);
 		assert_eq!(tokens.len(), 1);
 	}
 
@@ -299,8 +299,8 @@
 	#[test]
 	fn test_else_control_block() {
 		let tokens = lex("{:else}");
-		// {:else} is now a single BraceColonElse token (includes closing brace)
-		assert_eq!(tokens[0].0, SyntaxKind::BraceColonElse);
+		// {:else} is now a single BraceColonElseBrace token (includes closing brace)
+		assert_eq!(tokens[0].0, SyntaxKind::BraceColonElseBrace);
 		assert_eq!(tokens.len(), 1);
 	}
 
@@ -357,32 +357,32 @@
 	#[test]
 	fn test_end_if_block() {
 		let tokens = lex("{/if}");
-		// {/if} is now a single BraceSlashIf token (includes closing brace)
-		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashIf);
+		// {/if} is now a single BraceSlashIfBrace token (includes closing brace)
+		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashIfBrace);
 		assert_eq!(tokens.len(), 1);
 	}
 
 	#[test]
 	fn test_end_for_block() {
 		let tokens = lex("{/for}");
-		// {/for} is now a single BraceSlashFor token (includes closing brace)
-		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashFor);
+		// {/for} is now a single BraceSlashForBrace token (includes closing brace)
+		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashForBrace);
 		assert_eq!(tokens.len(), 1);
 	}
 
 	#[test]
 	fn test_end_while_block() {
 		let tokens = lex("{/while}");
-		// {/while} is now a single BraceSlashWhile token (includes closing brace)
-		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashWhile);
+		// {/while} is now a single BraceSlashWhileBrace token (includes closing brace)
+		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashWhileBrace);
 		assert_eq!(tokens.len(), 1);
 	}
 
 	#[test]
 	fn test_end_match_block() {
 		let tokens = lex("{/match}");
-		// {/match} is now a single BraceSlashMatch token (includes closing brace)
-		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashMatch);
+		// {/match} is now a single BraceSlashMatchBrace token (includes closing brace)
+		assert_eq!(tokens[0].0, SyntaxKind::BraceSlashMatchBrace);
 		assert_eq!(tokens.len(), 1);
 	}
 
@@ -458,8 +458,12 @@
 
 	#[test]
 	fn test_jsdoc_close() {
-		let tokens = lex("*/");
-		assert_eq!(tokens[0].0, SyntaxKind::JsDocClose);
+		// Test complete JSDoc comment - */ only appears after /** in JsDoc mode
+		let tokens = lex("/** doc */");
+		assert_eq!(tokens[0].0, SyntaxKind::JsDocOpen);
+		assert_eq!(tokens[1].0, SyntaxKind::Text);
+		assert_eq!(tokens[1].1, " doc ");
+		assert_eq!(tokens[2].0, SyntaxKind::JsDocClose);
 	}
 
 	// ==================== TypeScript Keyword Tests ====================
@@ -584,9 +588,9 @@
 		let tokens = lex("else");
 		assert_eq!(tokens[0].0, SyntaxKind::ElseKw);
 
-		// Template {:else} returns complete BraceColonElse token
+		// Template {:else} returns complete BraceColonElseBrace token
 		let tokens2 = lex("{:else}");
-		assert_eq!(tokens2[0].0, SyntaxKind::BraceColonElse);
+		assert_eq!(tokens2[0].0, SyntaxKind::BraceColonElseBrace);
 		assert_eq!(tokens2.len(), 1);
 	}
 
@@ -848,4 +852,129 @@
 		assert!(cd_token.is_some());
 		// Position should be after "ab" and whitespace
 		assert!(cd_token.unwrap().start > 2);
+	}
+
+	#[test]
+	fn test_if_expression_with_else_tokens() {
+		// This is the exact input that fails in test_if_expression_in_statement
+		let input = r#"const status = {#if cond} "a" {:else} "b" {/if}"#;
+		let tokens = lex(input);
+
+		// Debug output
+		eprintln!("Tokens for if-expression:");
+		for (i, (kind, text)) in tokens.iter().enumerate() {
+			eprintln!("  {:3}: {:?} = {:?}", i, kind, text);
+		}
+
+		// Check all expected tokens are present
+		assert!(tokens.iter().any(|(k, _)| *k == SyntaxKind::BraceHashIf),
+			"Expected BraceHashIf token");
+		assert!(tokens.iter().any(|(k, _)| *k == SyntaxKind::BraceColonElseBrace),
+			"Expected BraceColonElseBrace token. Tokens: {:?}", tokens);
+		assert!(tokens.iter().any(|(k, _)| *k == SyntaxKind::BraceSlashIfBrace),
+			"Expected BraceSlashIfBrace token");
+	}
+
+	// ==================== TypeScript Comment Tests ====================
+
+	#[test]
+	fn test_ts_line_comment() {
+		let tokens = lex("// this is a comment\nconst x = 1");
+		// First token should be TsLineComment
+		assert_eq!(tokens[0].0, SyntaxKind::TsLineComment);
+		assert_eq!(tokens[0].1, "// this is a comment");
+		// Should have newline (whitespace) after comment
+		assert_eq!(tokens[1].0, SyntaxKind::Whitespace);
+		// Then const keyword
+		assert!(tokens.iter().any(|(k, _)| *k == SyntaxKind::ConstKw));
+	}
+
+	#[test]
+	fn test_ts_line_comment_at_eof() {
+		let tokens = lex("const x = 1 // comment at end");
+		// Last token should be TsLineComment
+		let last = tokens.last().unwrap();
+		assert_eq!(last.0, SyntaxKind::TsLineComment);
+		assert_eq!(last.1, "// comment at end");
+	}
+
+	#[test]
+	fn test_ts_line_comment_vs_doc_comment() {
+		// /// is a doc comment prefix, not a line comment
+		let tokens = lex("/// doc comment");
+		assert_eq!(tokens[0].0, SyntaxKind::DocCommentPrefix);
+
+		// // is a regular line comment
+		let tokens = lex("// regular comment");
+		assert_eq!(tokens[0].0, SyntaxKind::TsLineComment);
+	}
+
+	#[test]
+	fn test_ts_block_comment() {
+		let tokens = lex("/* block comment */ const x = 1");
+		// First token should be TsBlockComment
+		assert_eq!(tokens[0].0, SyntaxKind::TsBlockComment);
+		assert_eq!(tokens[0].1, "/* block comment */");
+		// Should have whitespace after comment
+		assert_eq!(tokens[1].0, SyntaxKind::Whitespace);
+		// Then const keyword
+		assert!(tokens.iter().any(|(k, _)| *k == SyntaxKind::ConstKw));
+	}
+
+	#[test]
+	fn test_ts_block_comment_multiline() {
+		let tokens = lex("/* multi\nline\ncomment */ x");
+		assert_eq!(tokens[0].0, SyntaxKind::TsBlockComment);
+		assert_eq!(tokens[0].1, "/* multi\nline\ncomment */");
+	}
+
+	#[test]
+	fn test_ts_block_comment_vs_jsdoc() {
+		// /** is JSDoc, not a block comment
+		let tokens = lex("/** jsdoc */");
+		assert_eq!(tokens[0].0, SyntaxKind::JsDocOpen);
+
+		// /* is a regular block comment
+		let tokens = lex("/* comment */");
+		assert_eq!(tokens[0].0, SyntaxKind::TsBlockComment);
+	}
+
+	#[test]
+	fn test_jsdoc_with_dots_and_at_symbols() {
+		// JSDoc with dots and @ symbols should be collected as text
+		let tokens = lex("/** @param value - The value. @returns string */");
+		assert_eq!(tokens[0].0, SyntaxKind::JsDocOpen);
+		assert_eq!(tokens[1].0, SyntaxKind::Text);
+		// The dot should be inside the text, not a separate Dot token
+		assert!(tokens[1].1.contains("."));
+		assert!(tokens[1].1.contains("@param"));
+		assert_eq!(tokens[2].0, SyntaxKind::JsDocClose);
+		// Should be exactly 3 tokens: JsDocOpen, Text, JsDocClose
+		assert_eq!(tokens.len(), 3);
+	}
+
+	#[test]
+	fn test_ts_block_comment_unterminated() {
+		// Unterminated block comment should consume to EOF
+		let tokens = lex("/* unterminated");
+		assert_eq!(tokens[0].0, SyntaxKind::TsBlockComment);
+		assert_eq!(tokens[0].1, "/* unterminated");
+	}
+
+	#[test]
+	fn test_ts_comments_with_interpolation() {
+		// Comments before interpolation
+		let tokens = lex("// comment\n@{expr}");
+		assert_eq!(tokens[0].0, SyntaxKind::TsLineComment);
+		assert!(tokens.iter().any(|(k, _)| *k == SyntaxKind::At));
+	}
+
+	#[test]
+	fn test_ts_line_comment_is_trivia() {
+		assert!(SyntaxKind::TsLineComment.is_trivia());
+	}
+
+	#[test]
+	fn test_ts_block_comment_is_trivia() {
+		assert!(SyntaxKind::TsBlockComment.is_trivia());
 	}

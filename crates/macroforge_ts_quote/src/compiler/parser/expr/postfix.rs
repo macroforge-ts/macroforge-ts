@@ -63,7 +63,7 @@ impl Parser {
                 // Check if this could be a postfix operator (no newline between)
                 if prec::POSTFIX >= min_bp {
                     let op = to_update_op(kind).ok_or_else(|| {
-                        ParseError::new(ParseErrorKind::InvalidPostfixOperator, self.pos)
+                        ParseError::new(ParseErrorKind::InvalidPostfixOperator, self.current_byte_offset())
                     })?;
                     self.consume();
                     left = IrNode::UpdateExpr {
@@ -119,7 +119,7 @@ impl Parser {
                 if !self.at(SyntaxKind::RBracket) {
                     return Err(ParseError::missing_closing(
                         ParseErrorKind::MissingClosingBracket,
-                        self.pos,
+                        self.current_byte_offset(),
                         start_pos,
                     ));
                 }
@@ -257,7 +257,7 @@ impl Parser {
                     if !self.at(SyntaxKind::Colon) {
                         return Err(ParseError::new(
                             ParseErrorKind::MissingConditionalColon,
-                            self.pos,
+                            self.current_byte_offset(),
                         )
                         .with_expected(&[":"]));
                     }
@@ -283,7 +283,7 @@ impl Parser {
 
             if is_assignment_operator(&text) && prec::ASSIGN.left >= min_bp {
                 let op = text_to_assign_op(&text).ok_or_else(|| {
-                    ParseError::new(ParseErrorKind::InvalidOperator, self.pos)
+                    ParseError::new(ParseErrorKind::InvalidOperator, self.current_byte_offset())
                         .with_found(&text)
                 })?;
 
@@ -315,7 +315,7 @@ impl Parser {
                         op
                     } else {
                         // Should not happen if infix_binding_power returned Some
-                        return Err(ParseError::new(ParseErrorKind::InvalidBinaryOperator, self.pos)
+                        return Err(ParseError::new(ParseErrorKind::InvalidBinaryOperator, self.current_byte_offset())
                             .with_found(&text));
                     };
 
@@ -365,7 +365,7 @@ impl Parser {
 
         // Determine what follows the ?.
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.pos, "optional chain"));
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "optional chain"));
         };
 
         match token.kind {
@@ -396,7 +396,7 @@ impl Parser {
                 if !self.at(SyntaxKind::RBracket) {
                     return Err(ParseError::missing_closing(
                         ParseErrorKind::MissingClosingBracket,
-                        self.pos,
+                        self.current_byte_offset(),
                         start_pos,
                     ));
                 }
@@ -435,24 +435,24 @@ impl Parser {
     /// Parses a property name after a dot.
     fn parse_member_property(&mut self) -> ParseResult<IrNode> {
         let Some(token) = self.current() else {
-            return Err(ParseError::new(ParseErrorKind::MissingPropertyName, self.pos));
+            return Err(ParseError::new(ParseErrorKind::MissingPropertyName, self.current_byte_offset()));
         };
 
         match token.kind {
             SyntaxKind::Ident => {
-                let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "identifier"))?;
+                let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "identifier"))?;
                 Ok(IrNode::Ident(token.text))
             }
             // Private identifier: #name
             SyntaxKind::Hash => self.parse_private_name(),
             // Keywords can be used as property names
             _ if token.kind.is_ts_keyword() => {
-                let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "keyword as property name"))?;
+                let token = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "keyword as property name"))?;
                 Ok(IrNode::Ident(token.text))
             }
             // Placeholder in property position
             SyntaxKind::At => self.parse_interpolation(),
-            _ => Err(ParseError::new(ParseErrorKind::MissingPropertyName, self.pos)
+            _ => Err(ParseError::new(ParseErrorKind::MissingPropertyName, self.current_byte_offset())
                 .with_found(&token.text)),
         }
     }
@@ -564,7 +564,7 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::LParen).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["("])
         })?;
 
@@ -603,7 +603,7 @@ impl Parser {
         if !self.at(SyntaxKind::RParen) {
             return Err(ParseError::missing_closing(
                 ParseErrorKind::MissingClosingParen,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }

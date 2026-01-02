@@ -1,9 +1,11 @@
+use super::*;
 
-     use super::*;
-
-     fn parse(input: &str) -> Ir {
-         Parser::new(input).parse()
-     }
+fn parse(input: &str) -> Ir {
+    Parser::try_new(input)
+        .expect("Lexer error in test")
+        .parse()
+        .expect("Parse error in test")
+}
 
      /// Helper to find all placeholders in the IR (recursively traverses all node types)
      fn find_placeholders(ir: &Ir) -> Vec<(PlaceholderKind, String)> {
@@ -1053,4 +1055,54 @@
         // a simplified block parsing that doesn't extract statements yet.
         // For now, we just verify the @{param} placeholder is found.
         assert!(placeholders.len() >= 1, "Expected at least 1 placeholder in function expression");
+    }
+
+    // =========================================================================
+    // Expression-level control flow tests
+    // =========================================================================
+
+    #[test]
+    fn test_parse_if_expression_debug() {
+        // This is the exact input that fails in test_if_expression_in_statement
+        let input = r#"const status = {#if cond} "a" {:else} "b" {/if}"#;
+
+        // First, print the tokens to see what the parser sees
+        use crate::compiler::lexer::Lexer;
+        let tokens = Lexer::new(input).tokenize().expect("lexer should succeed");
+        eprintln!("Tokens for if-expression parsing:");
+        for (i, t) in tokens.iter().enumerate() {
+            eprintln!("  {:3}: {:?} = {:?} (start={})", i, t.kind, t.text, t.start);
+        }
+
+        // Now try to parse
+        let result = Parser::try_new(input);
+        match result {
+            Err(e) => panic!("Lexer error: {:?}", e),
+            Ok(mut parser) => {
+                let parse_result = parser.parse();
+                match parse_result {
+                    Ok(ir) => {
+                        eprintln!("\nParsed IR:");
+                        for (i, node) in ir.nodes.iter().enumerate() {
+                            eprintln!("  Node {}: {:?}", i, node);
+                        }
+                        // Check for IfExpr node
+                        fn has_if_expr(node: &IrNode) -> bool {
+                            match node {
+                                IrNode::IfExpr { .. } => true,
+                                IrNode::VarDecl { decls, .. } => {
+                                    decls.iter().any(|d| d.init.as_ref().map_or(false, |init| has_if_expr(init)))
+                                }
+                                _ => false,
+                            }
+                        }
+                        let has_if = ir.nodes.iter().any(has_if_expr);
+                        assert!(has_if, "Expected IfExpr node in IR");
+                    }
+                    Err(e) => {
+                        panic!("Parse error: {}", e.to_message());
+                    }
+                }
+            }
+        }
     }

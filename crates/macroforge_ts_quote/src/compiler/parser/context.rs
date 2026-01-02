@@ -118,6 +118,13 @@ impl Parser {
                 }
             }
 
+            // Placeholder (@{...}) also consumes identifier context (acts like an identifier)
+            SyntaxKind::At => {
+                if self.current_context_kind() == ContextKind::Identifier {
+                    self.pop_context();
+                }
+            }
+
             // Opening paren ends identifier context
             SyntaxKind::LParen => {
                 if self.current_context_kind() == ContextKind::Identifier {
@@ -245,11 +252,22 @@ impl Parser {
         )
     }
 
+    /// Returns true if the current (top) context is an object literal.
+    /// Used by `update_context` to know when to pop on `}`.
     pub(super) fn is_object_literal(&self) -> bool {
         matches!(
             self.current_context_kind(),
             ContextKind::Expression(ExpressionKind::ObjectLiteral)
         )
+    }
+
+    /// Returns true if we're anywhere inside an object literal context.
+    /// Searches the entire stack, so nested contexts (like template control blocks)
+    /// can detect they're inside an object literal.
+    pub(super) fn is_inside_object_literal(&self) -> bool {
+        self.context_stack.iter().any(|ctx| {
+            matches!(ctx.kind, ContextKind::Expression(ExpressionKind::ObjectLiteral))
+        })
     }
 
     /// Check if the current token is a terminator for expression parsing.

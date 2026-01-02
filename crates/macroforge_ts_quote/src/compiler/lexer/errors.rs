@@ -2,6 +2,7 @@
 //!
 //! Provides detailed, context-rich error messages for debugging lexer failures.
 
+use crate::compiler::parser::SourceLocation;
 use std::fmt;
 
 /// The kind of lexer error that occurred.
@@ -269,6 +270,124 @@ impl LexError {
     pub fn opened_at(mut self, pos: usize) -> Self {
         self.opened_at = Some(pos);
         self
+    }
+
+    /// Formats the error with source context for display.
+    ///
+    /// Produces an error message with source context:
+    /// ```text
+    /// error: message
+    ///  --> input:8:13
+    /// `8 | const x = "unterminated          `
+    /// `  |           ^ found: end of input  `
+    /// help: suggestion
+    /// ```
+    pub fn format_with_source(&self, source: &str) -> String {
+        self.format_with_source_and_file(source, "input", 0)
+    }
+
+    /// Formats the error with source context and a custom filename.
+    /// `line_offset` is added to convert relative template lines to absolute file lines.
+    pub fn format_with_source_and_file(&self, source: &str, filename: &str, line_offset: usize) -> String {
+        let loc = SourceLocation::from_offset(source, self.position);
+        let absolute_line = loc.line + line_offset;
+
+        // Header: error: message
+        let mut msg = format!("error: {}\n", self.kind.description());
+
+        // Location: --> file:line:column (UTF-16 column for editor compatibility)
+        msg.push_str(&format!(" --> {}:{}:{}\n", filename, absolute_line, loc.column));
+
+        // Extract and show the problematic line with caret
+        let lines: Vec<&str> = source.lines().collect();
+        if loc.line > 0 && loc.line <= lines.len() {
+            let line_content = lines[loc.line - 1];
+            // Expand tabs to spaces for consistent alignment, trim any trailing whitespace
+            let expanded_content = line_content.replace('\t', "    ").trim_end().to_string();
+
+            // Calculate byte offset within the line for visual caret positioning
+            let line_start_offset = source[..self.position]
+                .rfind('\n')
+                .map(|pos| pos + 1)
+                .unwrap_or(0);
+            let byte_offset_in_line = self.position.saturating_sub(line_start_offset);
+
+            // Calculate visual column (accounting for tabs) from byte offset
+            let visual_column: usize = line_content
+                .char_indices()
+                .take_while(|(i, _)| *i < byte_offset_in_line)
+                .map(|(_, c)| if c == '\t' { 4 } else { 1 })
+                .sum();
+
+            // Caret line annotation
+            let annotation = if let Some(ref found) = self.found {
+                format!("found: {}", found)
+            } else if !self.expected.is_empty() {
+                format!("expected: {}", self.expected.join(" or "))
+            } else {
+                String::new()
+            };
+
+            // Truncate long lines to show context around the error
+            const MAX_LINE_LEN: usize = 80;
+            const CONTEXT_CHARS: usize = 30;
+
+            let (display_content, display_caret_col) = if expanded_content.len() > MAX_LINE_LEN {
+                // Find a window around the error position
+                let start = visual_column.saturating_sub(CONTEXT_CHARS);
+                let end = (visual_column + CONTEXT_CHARS).min(expanded_content.len());
+
+                // Adjust to char boundaries
+                let content_chars: Vec<char> = expanded_content.chars().collect();
+                let start = start.min(content_chars.len());
+                let end = end.min(content_chars.len());
+
+                let prefix = if start > 0 { "..." } else { "" };
+                let suffix = if end < content_chars.len() { "..." } else { "" };
+
+                let snippet: String = content_chars[start..end].iter().collect();
+                let new_caret_col = visual_column - start + prefix.len();
+
+                (format!("{}{}{}", prefix, snippet, suffix), new_caret_col)
+            } else {
+                (expanded_content.clone(), visual_column)
+            };
+
+            // Line number width for alignment
+            let line_num_width = absolute_line.to_string().len();
+
+            // Source line with line number and pipe
+            let source_line = format!("{:>width$} | {}", absolute_line, display_content, width = line_num_width);
+            // Caret line with pipe (no line number, just spaces)
+            let caret_content = format!("{:>col$}^ {}", "", annotation, col = display_caret_col);
+            let caret_line = format!("{:>width$} | {}", "", caret_content, width = line_num_width);
+
+            // Pad both lines to equal length for alignment
+            let max_len = source_line.len().max(caret_line.len());
+            let padded_source = format!("{:<width$}", source_line, width = max_len);
+            let padded_caret = format!("{:<width$}", caret_line, width = max_len);
+
+            msg.push_str(&format!("`{}`\n", padded_source));
+            msg.push_str(&format!("`{}`\n", padded_caret));
+        }
+
+        // For unterminated errors, show where construct was opened
+        if let Some(opened_pos) = self.opened_at {
+            let opened_loc = SourceLocation::from_offset(source, opened_pos);
+            msg.push_str(&format!(
+                "opened at: {}:{}:{}\n",
+                filename, opened_loc.line + line_offset, opened_loc.column
+            ));
+        }
+
+        // Help note if available
+        if let Some(ref help) = self.help {
+            msg.push_str(&format!("help: {}\n", help));
+        } else if let Some(suggestion) = self.kind.suggestion() {
+            msg.push_str(&format!("help: {}\n", suggestion));
+        }
+
+        msg
     }
 
     /// Converts the error to a user-friendly message.

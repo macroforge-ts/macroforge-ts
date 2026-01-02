@@ -5,24 +5,30 @@ use super::expr::errors::{ParseError, ParseErrorKind, ParseResult};
 use super::*;
 
 impl Parser {
-    pub(super) fn parse_stmt(&mut self) -> Option<IrNode> {
-        match self.current_kind()? {
-            SyntaxKind::ReturnKw => self.parse_return_stmt().ok(),
-            SyntaxKind::ThrowKw => self.parse_throw_stmt().ok(),
-            SyntaxKind::IfKw => self.parse_ts_if_stmt().ok(),
-            SyntaxKind::ForKw | SyntaxKind::WhileKw => self.parse_ts_loop_stmt().ok(),
+    pub(super) fn parse_stmt(&mut self) -> ParseResult<IrNode> {
+        let kind = self.current_kind().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "statement")
+        })?;
+
+        match kind {
+            SyntaxKind::ReturnKw => self.parse_return_stmt(),
+            SyntaxKind::ThrowKw => self.parse_throw_stmt(),
+            SyntaxKind::IfKw => self.parse_ts_if_stmt(),
+            SyntaxKind::ForKw | SyntaxKind::WhileKw => self.parse_ts_loop_stmt(),
             SyntaxKind::TryKw => self.parse_ts_try_stmt(),
-            SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => self.parse_var_decl(false).ok(),
-            SyntaxKind::At => self.parse_interpolation().ok(), // Statement placeholder
+            SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => self.parse_var_decl(false),
+            SyntaxKind::At => self.parse_interpolation()
+                .map_err(|e| e.with_context("statement placeholder")),
             _ => {
                 // Expression statement - collect until semicolon or special tokens
-                let expr = self.parse_ts_expr_until(&[SyntaxKind::Semicolon]).ok()?;
+                let expr = self.parse_ts_expr_until(&[SyntaxKind::Semicolon])
+                    .map_err(|e| e.with_context("expression statement"))?;
 
                 if self.at(SyntaxKind::Semicolon) {
                     self.consume();
                 }
 
-                Some(IrNode::ExprStmt {
+                Ok(IrNode::ExprStmt {
                     expr: Box::new(expr),
                 })
             }
@@ -34,7 +40,7 @@ impl Parser {
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
         self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "return keyword"))?; // return
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "return keyword"))?; // return
         self.skip_whitespace();
 
         #[cfg(debug_assertions)]
@@ -78,7 +84,7 @@ impl Parser {
 
     pub(super) fn parse_throw_stmt(&mut self) -> ParseResult<IrNode> {
         self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "throw keyword"))?; // throw
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "throw keyword"))?; // throw
         self.skip_whitespace();
 
         let arg = self
@@ -97,13 +103,13 @@ impl Parser {
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
         self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "if keyword"))?; // if
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "if keyword"))?; // if
         self.skip_whitespace();
 
         // Parse condition in parens
         self.expect(SyntaxKind::LParen)
             .ok_or_else(|| {
-                ParseError::new(ParseErrorKind::UnexpectedToken, self.pos)
+                ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                     .with_context("parsing if statement condition")
                     .with_expected(&["("])
             })?;
@@ -118,7 +124,7 @@ impl Parser {
 
         self.expect(SyntaxKind::RParen)
             .ok_or_else(|| {
-                ParseError::new(ParseErrorKind::MissingClosingParen, self.pos)
+                ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
                     .with_context("parsing if statement condition")
             })?;
         self.skip_whitespace();
@@ -138,9 +144,7 @@ impl Parser {
         } else {
             // Single statement
             self.parse_stmt()
-                .ok_or_else(|| {
-                    ParseError::unexpected_eof(self.pos, "if statement consequent")
-                })?
+                .map_err(|e| e.with_context("parsing if statement consequent"))?
         };
 
         #[cfg(debug_assertions)]
@@ -167,9 +171,7 @@ impl Parser {
             } else {
                 Some(Box::new(
                     self.parse_stmt()
-                        .ok_or_else(|| {
-                            ParseError::unexpected_eof(self.pos, "else statement body")
-                        })?,
+                        .map_err(|e| e.with_context("parsing else statement body"))?,
                 ))
             }
         } else {
@@ -185,7 +187,7 @@ impl Parser {
 
     // parse_block_stmt is now in expr/mod.rs with proper error handling (ParseResult)
 
-    fn parse_stmt_list(&mut self) -> Vec<IrNode> {
+    fn parse_stmt_list(&mut self) -> super::ParseResult<Vec<IrNode>> {
         let mut stmts = Vec::new();
 
         while !self.at_eof() && !self.at(SyntaxKind::RBrace) {
@@ -198,9 +200,7 @@ impl Parser {
             // Check for control flow - any {#... opening token
             if self.at_brace_hash_open() {
                 let kind = self.current_kind().unwrap();
-                if let Some(node) = self.parse_control_block(kind) {
-                    stmts.push(node);
-                }
+                stmts.push(self.parse_control_block(kind)?);
                 continue;
             }
 
@@ -213,16 +213,12 @@ impl Parser {
             }
 
             // Parse statement
-            if let Some(stmt) = self.parse_stmt() {
-                stmts.push(stmt);
-            } else {
-                // Unknown - consume one token as raw
-                if let Some(token) = self.consume() {
-                    stmts.push(IrNode::Raw(token.text));
-                }
+            match self.parse_stmt() {
+                Ok(stmt) => stmts.push(stmt),
+                Err(e) => return Err(e.with_context("parsing statement in block")),
             }
         }
 
-        Self::merge_adjacent_text(stmts)
+        Ok(Self::merge_adjacent_text(stmts))
     }
 }

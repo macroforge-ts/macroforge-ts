@@ -23,16 +23,16 @@ impl Parser {
 
         // Consume "enum"
         if !self.at(SyntaxKind::EnumKw) {
-            return Err(ParseError::unexpected_eof(self.pos, "enum keyword"))
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "enum keyword"))
                 .map_err(|e| e.with_context("parsing enum declaration"));
         }
         self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "enum keyword"))?;
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "enum keyword"))?;
         self.skip_whitespace();
 
         // Parse enum name
         let name = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "enum name")
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "enum name")
                 .with_context("parsing enum declaration"))?;
         self.skip_whitespace();
 
@@ -75,9 +75,7 @@ impl Parser {
                     | SyntaxKind::BraceHashFor
                     | SyntaxKind::BraceHashWhile
                     | SyntaxKind::BraceHashMatch => {
-                        if let Some(node) = self.parse_control_block(kind) {
-                            members.push(node);
-                        }
+                        members.push(self.parse_control_block(kind)?);
                         continue;
                     }
                     _ => {}
@@ -121,7 +119,7 @@ impl Parser {
     fn parse_enum_member(&mut self) -> ParseResult<IrNode> {
         // Parse member name (can be identifier or placeholder)
         let name = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::unexpected_eof(self.pos, "enum member name")
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "enum member name")
                 .with_context("parsing enum member"))?;
         self.skip_whitespace();
 

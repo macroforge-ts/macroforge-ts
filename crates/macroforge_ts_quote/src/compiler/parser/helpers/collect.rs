@@ -1,10 +1,11 @@
 use super::super::*;
+use super::ParseResult;
 
 impl Parser {
     /// Helper to collect a brace-delimited block with placeholder support.
-    pub(in super::super) fn collect_block_with_placeholders(&mut self, parts: &mut Vec<IrNode>) {
+    pub(in super::super) fn collect_block_with_placeholders(&mut self, parts: &mut Vec<IrNode>) -> ParseResult<()> {
         if !self.at(SyntaxKind::LBrace) {
-            return;
+            return Ok(());
         }
 
         let mut brace_depth = 0;
@@ -30,33 +31,30 @@ impl Parser {
                     }
                 }
                 Some(SyntaxKind::At) => {
-                    if let Ok(placeholder) = self.parse_interpolation() {
-                        // Check for identifier suffix
-                        if let Some(token) = self.current() {
-                            if token.kind == SyntaxKind::Ident {
-                                let suffix = token.text.clone();
-                                self.consume();
-                                let ident_placeholder = match placeholder {
-                                    IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
-                                        kind: PlaceholderKind::Ident,
-                                        expr,
-                                    },
-                                    other => other,
-                                };
-                                parts.push(IrNode::IdentBlock {
-                                    parts: vec![ident_placeholder, IrNode::Raw(suffix)],
-                                });
-                                continue;
-                            }
+                    let placeholder = self.parse_interpolation()?;
+                    // Check for identifier suffix
+                    if let Some(token) = self.current() {
+                        if token.kind == SyntaxKind::Ident {
+                            let suffix = token.text.clone();
+                            self.consume();
+                            let ident_placeholder = match placeholder {
+                                IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
+                                    kind: PlaceholderKind::Ident,
+                                    expr,
+                                },
+                                other => other,
+                            };
+                            parts.push(IrNode::IdentBlock {
+                                parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                            });
+                            continue;
                         }
-                        parts.push(placeholder);
                     }
+                    parts.push(placeholder);
                 }
                 // Handle any {#... opening token for control blocks
                 Some(k) if k.is_brace_hash_open() => {
-                    if let Some(control) = self.parse_control_block(k) {
-                        parts.push(control);
-                    }
+                    parts.push(self.parse_control_block(k)?);
                 }
                 Some(SyntaxKind::DollarOpen) => {
                     if let Some(directive) = self.parse_directive() {
@@ -64,14 +62,10 @@ impl Parser {
                     }
                 }
                 Some(SyntaxKind::DoubleQuote) => {
-                    if let Ok(node) = self.parse_string_literal() {
-                        parts.push(node);
-                    }
+                    parts.push(self.parse_string_literal()?);
                 }
                 Some(SyntaxKind::Backtick) => {
-                    if let Ok(node) = self.parse_template_literal() {
-                        parts.push(node);
-                    }
+                    parts.push(self.parse_template_literal()?);
                 }
                 _ => {
                     if let Some(t) = self.consume() {
@@ -80,5 +74,6 @@ impl Parser {
                 }
             }
         }
+        Ok(())
     }
 }

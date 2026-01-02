@@ -13,13 +13,13 @@ impl Parser {
 
         // Consume @{ (the At token includes both @ and {)
         let at_token = self.consume().ok_or_else(|| {
-            ParseError::unexpected_eof(self.pos, "interpolation")
+            ParseError::unexpected_eof(self.current_byte_offset(), "interpolation")
         })?;
 
         // The lexer puts all content until } in one RBrace token
         // So we just need to get the RBrace token and extract the content
         let rbrace_token = self.expect(SyntaxKind::RBrace).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingBrace, self.pos)
+            ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
                 .with_context("interpolation")
                 .with_help("Interpolations must be closed with '}'")
         })?;
@@ -31,7 +31,7 @@ impl Parser {
             .and_then(|s| s.strip_suffix("}"))
             .map(|s| s.trim().to_string())
             .ok_or_else(|| {
-                ParseError::new(ParseErrorKind::InvalidInterpolation, self.pos)
+                ParseError::new(ParseErrorKind::InvalidInterpolation, self.current_byte_offset())
                     .with_context("interpolation")
                     .with_found(&full_text)
                     .with_help("Interpolation must have format @{...}")
@@ -39,7 +39,7 @@ impl Parser {
 
         // Parse as TokenStream
         let expr = TokenStream::from_str(&rust_expr_str).map_err(|e| {
-            ParseError::new(ParseErrorKind::InvalidRustExpression, self.pos)
+            ParseError::new(ParseErrorKind::InvalidRustExpression, self.current_byte_offset())
                 .with_context("interpolation")
                 .with_found(&rust_expr_str)
                 .with_help(&format!("Failed to parse as Rust expression: {}", e))
@@ -57,8 +57,8 @@ impl Parser {
     /// - `@{a}@{b}` -> IdentBlock [placeholder_a(Ident), placeholder_b(Ident)]
     /// - `Pre@{mid}Post` -> would need to start with ident (handled elsewhere)
     /// - `@{prefix}Middle@{suffix}End` -> IdentBlock [placeholder(Ident), "Middle", placeholder(Ident), "End"]
-    pub(super) fn parse_interpolated_ident(&mut self) -> Option<IrNode> {
-        let first = self.parse_interpolation().ok()?;
+    pub(super) fn parse_interpolated_ident(&mut self) -> ParseResult<IrNode> {
+        let first = self.parse_interpolation()?;
 
         // Collect additional parts (identifiers or more interpolations) with no whitespace
         let mut additional_parts: Vec<IrNode> = Vec::new();
@@ -67,11 +67,8 @@ impl Parser {
             match self.current_kind() {
                 // Another interpolation immediately following
                 Some(SyntaxKind::At) => {
-                    if let Ok(placeholder) = self.parse_interpolation() {
-                        additional_parts.push(placeholder);
-                    } else {
-                        break;
-                    }
+                    let placeholder = self.parse_interpolation()?;
+                    additional_parts.push(placeholder);
                 }
                 // An identifier immediately following
                 Some(SyntaxKind::Ident) => {
@@ -90,7 +87,7 @@ impl Parser {
 
         // If no additional parts, return the first placeholder as-is (keeps original kind)
         if additional_parts.is_empty() {
-            return Some(first);
+            return Ok(first);
         }
 
         // Multiple parts form a composite identifier - convert all placeholders to Ident kind
@@ -99,7 +96,7 @@ impl Parser {
             parts.push(Self::to_ident_placeholder(part));
         }
 
-        Some(IrNode::IdentBlock { parts })
+        Ok(IrNode::IdentBlock { parts })
     }
 
     /// Convert a placeholder to Ident kind for identifier concatenation.

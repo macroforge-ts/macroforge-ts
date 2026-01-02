@@ -6,6 +6,45 @@
 use crate::compiler::syntax::SyntaxKind;
 use std::fmt;
 
+/// Line and column information for error reporting.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SourceLocation {
+    /// 1-indexed line number.
+    pub line: usize,
+    /// 1-indexed column number (in UTF-16 code units for LSP/editor compatibility).
+    pub column: usize,
+    /// Byte offset in the source.
+    pub offset: usize,
+}
+
+impl SourceLocation {
+    /// Calculate line/column from source and byte offset.
+    ///
+    /// Column is calculated in UTF-16 code units (not bytes or chars) for
+    /// compatibility with editors like Zed that use UTF-16 internally.
+    pub fn from_offset(source: &str, offset: usize) -> Self {
+        let offset = offset.min(source.len());
+        let before = &source[..offset];
+
+        // Count lines (1-indexed)
+        let line = before.chars().filter(|&c| c == '\n').count() + 1;
+
+        // Find start of current line
+        let line_start = before.rfind('\n').map(|pos| pos + 1).unwrap_or(0);
+
+        // Calculate column in UTF-16 code units (1-indexed)
+        // This matches LSP and editors like Zed that use UTF-16 internally
+        let line_content = &source[line_start..offset];
+        let column = line_content.chars().map(|c| c.len_utf16()).sum::<usize>() + 1;
+
+        Self {
+            line,
+            column,
+            offset,
+        }
+    }
+}
+
 /// The kind of parse error that occurred.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParseErrorKind {
@@ -93,6 +132,8 @@ pub enum ParseErrorKind {
     InvalidInterpolation,
     /// Invalid Rust expression inside interpolation.
     InvalidRustExpression,
+    /// If-expression requires an else branch to produce a value.
+    MissingElseBranch,
 }
 
 impl ParseErrorKind {
@@ -141,6 +182,7 @@ impl ParseErrorKind {
             Self::ReservedWordAsIdentifier => "reserved word cannot be used as identifier",
             Self::InvalidInterpolation => "invalid interpolation syntax",
             Self::InvalidRustExpression => "invalid Rust expression in interpolation",
+            Self::MissingElseBranch => "if-expression requires an {:else} branch to produce a value",
         }
     }
 }
@@ -292,6 +334,115 @@ impl ParseError {
         self
     }
 
+    /// Formats the error with source context for display.
+    ///
+    /// Produces an error message with source context:
+    /// ```text
+    /// error: message
+    ///  --> input:8:13
+    /// `8 | const x = foo                    `
+    /// `  |           ^ found: 'bar'         `
+    /// help: suggestion
+    /// ```
+    pub fn format_with_source(&self, source: &str) -> String {
+        self.format_with_source_and_file(source, "input", 0)
+    }
+
+    /// Formats the error with source context and a custom filename.
+    /// `line_offset` is added to convert relative template lines to absolute file lines.
+    pub fn format_with_source_and_file(&self, source: &str, filename: &str, line_offset: usize) -> String {
+        let loc = SourceLocation::from_offset(source, self.position);
+        let absolute_line = loc.line + line_offset;
+
+        // Header: error: message
+        let mut msg = format!("error: {}\n", self.kind.description());
+
+        // Location: --> file:line:column (UTF-16 column for editor compatibility)
+        msg.push_str(&format!(" --> {}:{}:{}\n", filename, absolute_line, loc.column));
+
+        // Extract and show the problematic line with caret
+        let lines: Vec<&str> = source.lines().collect();
+        if loc.line > 0 && loc.line <= lines.len() {
+            let line_content = lines[loc.line - 1];
+            // Expand tabs to spaces for consistent alignment, trim any trailing whitespace
+            let expanded_content = line_content.replace('\t', "    ").trim_end().to_string();
+
+            // Calculate byte offset within the line for visual caret positioning
+            let line_start_offset = source[..self.position]
+                .rfind('\n')
+                .map(|pos| pos + 1)
+                .unwrap_or(0);
+            let byte_offset_in_line = self.position.saturating_sub(line_start_offset);
+
+            // Calculate visual column (accounting for tabs) from byte offset
+            let visual_column: usize = line_content
+                .char_indices()
+                .take_while(|(i, _)| *i < byte_offset_in_line)
+                .map(|(_, c)| if c == '\t' { 4 } else { 1 })
+                .sum();
+
+            // Caret line annotation
+            let annotation = if let Some(ref found) = self.found {
+                format!("found: {}", found)
+            } else if !self.expected.is_empty() {
+                format!("expected: {}", self.expected.join(" or "))
+            } else {
+                String::new()
+            };
+
+            // Truncate long lines to show context around the error
+            const MAX_LINE_LEN: usize = 80;
+            const CONTEXT_CHARS: usize = 30;
+
+            let (display_content, display_caret_col, truncated) = if expanded_content.len() > MAX_LINE_LEN {
+                // Find a window around the error position
+                let start = visual_column.saturating_sub(CONTEXT_CHARS);
+                let end = (visual_column + CONTEXT_CHARS).min(expanded_content.len());
+
+                // Adjust to char boundaries
+                let content_chars: Vec<char> = expanded_content.chars().collect();
+                let start = start.min(content_chars.len());
+                let end = end.min(content_chars.len());
+
+                let prefix = if start > 0 { "..." } else { "" };
+                let suffix = if end < content_chars.len() { "..." } else { "" };
+
+                let snippet: String = content_chars[start..end].iter().collect();
+                let new_caret_col = visual_column - start + prefix.len();
+
+                (format!("{}{}{}", prefix, snippet, suffix), new_caret_col, true)
+            } else {
+                (expanded_content.clone(), visual_column, false)
+            };
+
+            // Line number width for alignment
+            let line_num_width = absolute_line.to_string().len();
+
+            // Source line with line number and pipe
+            let source_line = format!("{:>width$} | {}", absolute_line, display_content, width = line_num_width);
+            // Caret line with pipe (no line number, just spaces)
+            let caret_content = format!("{:>col$}^ {}", "", annotation, col = display_caret_col);
+            let caret_line = format!("{:>width$} | {}", "", caret_content, width = line_num_width);
+
+            // Pad both lines to equal length for alignment
+            let max_len = source_line.len().max(caret_line.len());
+            let padded_source = format!("{:<width$}", source_line, width = max_len);
+            let padded_caret = format!("{:<width$}", caret_line, width = max_len);
+
+            msg.push_str(&format!("`{}`\n", padded_source));
+            msg.push_str(&format!("`{}`\n", padded_caret));
+
+            let _ = truncated; // silence unused warning
+        }
+
+        // Help note if available
+        if let Some(ref help) = self.help {
+            msg.push_str(&format!("help: {}\n", help));
+        }
+
+        msg
+    }
+
     /// Converts the error to a user-friendly message.
     pub fn to_message(&self) -> String {
         let mut msg = format!("Parse error at position {}: ", self.position);
@@ -341,6 +492,42 @@ impl std::error::Error for ParseError {}
 /// Result type for expression parsing.
 pub type ParseResult<T> = Result<T, ParseError>;
 
+/// Outcome of attempting to parse a single node.
+///
+/// Used by `parse_node()` to distinguish between:
+/// - Successfully parsed a node
+/// - Nothing to parse at current position (skip token and continue)
+#[derive(Debug)]
+pub enum ParseOutcome<T> {
+    /// Successfully parsed a node.
+    Node(T),
+    /// Nothing to parse at current position (skip token).
+    Skip,
+}
+
+impl<T> ParseOutcome<T> {
+    /// Returns true if this outcome contains a node.
+    pub fn is_node(&self) -> bool {
+        matches!(self, Self::Node(_))
+    }
+
+    /// Returns true if this outcome is a skip.
+    pub fn is_skip(&self) -> bool {
+        matches!(self, Self::Skip)
+    }
+
+    /// Converts the outcome to an Option.
+    pub fn into_option(self) -> Option<T> {
+        match self {
+            Self::Node(node) => Some(node),
+            Self::Skip => None,
+        }
+    }
+}
+
+/// Result type for parse_node() - can succeed with a node, skip, or error.
+pub type ParseNodeResult<T> = Result<ParseOutcome<T>, ParseError>;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -381,6 +568,77 @@ mod tests {
         let msg = err.to_message();
         assert!(msg.contains("binary expression"));
         assert!(msg.contains("EOF"));
+    }
+
+    #[test]
+    fn test_source_location_from_offset() {
+        // Test basic case: position on line 3
+        let source = "line1\nline2\n            = @{raw_var_ident} as @{inner}[];";
+
+        // Calculate offset of ']' character
+        // "line1\n" = 6, "line2\n" = 6, then 43 chars to get to ']'
+        let line3 = "            = @{raw_var_ident} as @{inner}[]";
+        let offset_of_bracket = 6 + 6 + line3.len() - 1; // -1 because we want ']' not ';'
+
+        let loc = SourceLocation::from_offset(source, offset_of_bracket);
+
+        println!("Source: {:?}", source);
+        println!("Offset: {}", offset_of_bracket);
+        println!("Line: {}, Column: {}", loc.line, loc.column);
+
+        assert_eq!(loc.line, 3, "Should be line 3");
+        // Column should be position of ']' on line 3 (1-indexed)
+        // "            = @{raw_var_ident} as @{inner}[]"
+        //  123456789012345678901234567890123456789012345
+        //            1         2         3         4
+        // ']' is at position 44
+        assert_eq!(loc.column, 44, "Should be column 44");
+    }
+
+    #[test]
+    fn test_source_location_first_line() {
+        let source = "hello world";
+        let loc = SourceLocation::from_offset(source, 6); // 'w'
+        assert_eq!(loc.line, 1);
+        assert_eq!(loc.column, 7); // 1-indexed
+    }
+
+    #[test]
+    fn test_source_location_after_newline() {
+        let source = "hello\nworld";
+        let loc = SourceLocation::from_offset(source, 6); // 'w' after newline
+        assert_eq!(loc.line, 2);
+        assert_eq!(loc.column, 1); // First char on line 2
+    }
+
+    #[test]
+    fn test_caret_with_placeholder_and_array_type() {
+        // This is the actual template content that shows wrong caret position
+        let source = r#"instance.@{field._field_ident} = @{raw_var_ident} as @{inner}[];"#;
+
+        // Let's see how the lexer tokenizes this and what positions we get
+        use crate::compiler::lexer::Lexer;
+
+        let tokens: Vec<_> = Lexer::new(source).tokenize().unwrap();
+        println!("Tokens:");
+        for (i, t) in tokens.iter().enumerate() {
+            println!("  {}: {:?} '{}' at byte {}", i, t.kind, t.text, t.start);
+        }
+
+        // Find the RBracket token
+        let rbracket = tokens.iter().find(|t| t.text == "]").unwrap();
+        println!("\nRBracket token at byte offset: {}", rbracket.start);
+
+        // Now check what SourceLocation gives us
+        let loc = SourceLocation::from_offset(source, rbracket.start);
+        println!("SourceLocation: line {}, column {}", loc.line, loc.column);
+
+        // Verify the character at that position in the source
+        let char_at_offset = source.chars().nth(rbracket.start).unwrap();
+        println!("Character at offset {}: '{}'", rbracket.start, char_at_offset);
+
+        // The character should be ']'
+        assert_eq!(char_at_offset, ']', "Token start should point to ']'");
     }
 
     #[test]
@@ -429,6 +687,7 @@ mod tests {
             ParseErrorKind::ReservedWordAsIdentifier,
             ParseErrorKind::InvalidInterpolation,
             ParseErrorKind::InvalidRustExpression,
+            ParseErrorKind::MissingElseBranch,
         ];
 
         for kind in kinds {

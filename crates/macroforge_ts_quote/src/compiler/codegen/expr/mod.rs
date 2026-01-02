@@ -961,6 +961,77 @@ impl Codegen {
             })
         }
 
+        // =========================================================================
+        // Expression-Level Control Flow
+        // These generate Rust control flow that produces TypeScript expressions
+        // =========================================================================
+
+        IrNode::IfExpr {
+            condition,
+            then_expr,
+            else_if_branches,
+            else_expr,
+        } => {
+            let then_code = self.generate_expr(then_expr)?;
+            let else_code = self.generate_expr(else_expr)?;
+
+            let else_if_codes: Vec<TokenStream> = else_if_branches
+                .iter()
+                .map(|(cond, expr)| {
+                    let e = self.generate_expr(expr)?;
+                    Ok(quote! { else if #cond { #e } })
+                })
+                .collect::<GenResult<_>>()?;
+
+            Ok(quote! {
+                if #condition { #then_code } #(#else_if_codes)* else { #else_code }
+            })
+        }
+
+        IrNode::ForExpr {
+            pattern,
+            iterator,
+            body_expr,
+        } => {
+            let body_code = self.generate_expr(body_expr)?;
+
+            // Lazy iterator - no collect(), caller decides collection type
+            Ok(quote! {
+                (#iterator).into_iter().map(|#pattern| #body_code)
+            })
+        }
+
+        IrNode::WhileExpr {
+            condition,
+            body_expr,
+        } => {
+            let body_code = self.generate_expr(body_expr)?;
+
+            // While as iterator using std::iter::from_fn
+            Ok(quote! {
+                std::iter::from_fn(|| if #condition { Some(#body_code) } else { None })
+            })
+        }
+
+        IrNode::MatchExpr { expr, arms } => {
+            let arm_codes: Vec<TokenStream> = arms
+                .iter()
+                .map(|arm| {
+                    let pattern = &arm.pattern;
+                    let body = self.generate_expr(&arm.body_expr)?;
+                    if let Some(guard) = &arm.guard {
+                        Ok(quote! { #pattern if #guard => #body })
+                    } else {
+                        Ok(quote! { #pattern => #body })
+                    }
+                })
+                .collect::<GenResult<_>>()?;
+
+            Ok(quote! {
+                match #expr { #(#arm_codes),* }
+            })
+        }
+
         // Default: return error for unknown node types
         other => Err(GenError::unexpected_node(
             "expression",
@@ -972,7 +1043,7 @@ impl Codegen {
                 "TsAsExpr", "TsSatisfiesExpr", "TsNonNullExpr", "TsConstAssertion", "TsInstantiation",
                 "AwaitExpr", "YieldExpr", "PrivateName", "BigIntLit", "UpdateExpr", "UnaryExpr",
                 "OptChainExpr", "FnExpr", "ClassExpr", "ParenExpr", "SeqExpr", "TaggedTpl",
-                "Raw", "IdentBlock",
+                "Raw", "IdentBlock", "IfExpr", "ForExpr", "WhileExpr", "MatchExpr",
             ],
         )),
     }

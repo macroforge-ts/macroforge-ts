@@ -27,6 +27,7 @@
 //! 3. **`parse_primary_expr`** - Handles "atoms" (literals, identifiers, etc.)
 //! 4. **`parse_postfix_and_infix`** - Handles operators after the initial atom
 
+pub mod control_expr;
 pub mod errors;
 pub mod operators;
 pub mod postfix;
@@ -98,6 +99,85 @@ impl Parser {
         )
     }
 
+    /// Parses an expression until terminators, with explicit object literal context handling.
+    ///
+    /// The `in_object_literal` parameter explicitly indicates whether to parse in object literal
+    /// context. This is used for control expressions like `{#for}` inside object literals where
+    /// the context may have been modified during control block header parsing.
+    ///
+    /// When in object literal context, this parses a key-value property pattern (key: value)
+    /// instead of treating `:` as an unexpected token.
+    pub fn parse_expression_until_in_context(
+        &mut self,
+        terminators: &[SyntaxKind],
+        in_object_literal: bool,
+    ) -> ParseResult<IrNode> {
+        use super::{Context, ExpressionKind};
+
+        if in_object_literal {
+            // Parse with ObjectLiteral context to properly handle `:` as property separator
+            self.with_context(
+                Context::expression_from_slice(ExpressionKind::ObjectLiteral, terminators),
+                |parser| parser.parse_object_property_in_control_context(),
+            )
+        } else {
+            // Normal expression parsing
+            self.with_context(
+                Context::expression_from_slice(ExpressionKind::Normal, terminators),
+                |parser| parser.parse_expression_with_precedence(0),
+            )
+        }
+    }
+
+    /// Parses an object property inside a control block context.
+    ///
+    /// This handles patterns like `@{name}: @{value}` inside `{#for}` blocks within object literals.
+    fn parse_object_property_in_control_context(&mut self) -> ParseResult<IrNode> {
+        self.skip_whitespace();
+
+        // Parse the key (first part before potential `:`)
+        let key = self.parse_expression_with_precedence(0)?;
+
+        self.skip_whitespace();
+
+        // Check if this is a key-value property (has `:`)
+        if self.at(SyntaxKind::Colon) {
+            self.consume(); // :
+            self.skip_whitespace();
+
+            // Parse the value - use assignment precedence to properly handle the value expression
+            let value = self.parse_expression_with_precedence(prec::ASSIGN.right)?;
+
+            self.skip_whitespace();
+
+            // Consume trailing comma if present (common in for loops generating properties)
+            if self.at(SyntaxKind::Comma) {
+                self.consume();
+            }
+
+            Ok(IrNode::KeyValueProp {
+                key: Box::new(key),
+                value: Box::new(value),
+            })
+        } else {
+            // No colon - treat as shorthand property or regular expression
+            // Consume trailing comma if present
+            if self.at(SyntaxKind::Comma) {
+                self.consume();
+            }
+
+            // Check if it looks like a shorthand property (identifier without value)
+            match &key {
+                IrNode::Ident(_) | IrNode::Placeholder { .. } => {
+                    Ok(IrNode::ShorthandProp {
+                        key: Box::new(key),
+                    })
+                }
+                _ => Ok(key),
+            }
+        }
+    }
+
     /// Parses arrow function parameters.
     ///
     /// Handles: `(a, b, c)` or `a` (single identifier without parens).
@@ -120,7 +200,7 @@ impl Parser {
         } else {
             Err(ParseError::new(
                 errors::ParseErrorKind::InvalidArrowParams,
-                self.pos,
+                self.current_byte_offset(),
             ))
         }
     }
@@ -130,7 +210,7 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::LParen).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["("])
         })?;
 
@@ -158,7 +238,7 @@ impl Parser {
         if !self.at(SyntaxKind::RParen) {
             return Err(ParseError::missing_closing(
                 errors::ParseErrorKind::MissingClosingParen,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -210,7 +290,7 @@ impl Parser {
         self.skip_whitespace();
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.pos, "binding pattern"));
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "binding pattern"));
         };
 
         match token.kind {
@@ -263,7 +343,7 @@ impl Parser {
             SyntaxKind::LBrace => self.parse_object_pattern(),
             _ => Err(ParseError::new(
                 errors::ParseErrorKind::InvalidFunctionParameter,
-                self.pos,
+                self.current_byte_offset(),
             )
             .with_found(&token.text)),
         }
@@ -317,7 +397,7 @@ impl Parser {
         if !self.at(SyntaxKind::RBracket) {
             return Err(ParseError::missing_closing(
                 errors::ParseErrorKind::MissingClosingBracket,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -382,7 +462,7 @@ impl Parser {
         if !self.at(SyntaxKind::RBrace) {
             return Err(ParseError::missing_closing(
                 errors::ParseErrorKind::MissingClosingBrace,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -411,7 +491,7 @@ impl Parser {
         self.skip_whitespace();
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.pos, "object pattern property"));
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "object pattern property"));
         };
 
         // Get the key
@@ -441,7 +521,7 @@ impl Parser {
             _ => {
                 return Err(ParseError::new(
                     errors::ParseErrorKind::InvalidPropertyName,
-                    self.pos,
+                    self.current_byte_offset(),
                 )
                 .with_found(&token.text))
             }
@@ -488,7 +568,8 @@ impl Parser {
     fn parse_decorators(&mut self) -> ParseResult<Vec<IrNode>> {
         let mut decorators = Vec::new();
 
-        while self.at(SyntaxKind::At) {
+        // Handle both At (placeholder @{...}) and DecoratorAt (@name) tokens
+        while self.at(SyntaxKind::At) || self.at(SyntaxKind::DecoratorAt) {
             // Check if this is a placeholder @{} or a decorator @name
             // The lexer combines "@{" into a single At token, so check the text
             if let Some(text) = self.current_text() {
@@ -498,7 +579,7 @@ impl Parser {
                 }
             }
 
-            self.consume(); // @
+            self.consume(); // @ or DecoratorAt
             self.skip_whitespace();
 
             let expr = self.parse_expression_with_precedence(prec::CALL.left)?;
@@ -530,7 +611,7 @@ impl Parser {
     /// Parses type parameters: <T, U extends V>
     fn parse_type_params(&mut self) -> ParseResult<IrNode> {
         self.expect(SyntaxKind::Lt).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["<"])
         })?;
 
@@ -558,7 +639,7 @@ impl Parser {
         if !self.at(SyntaxKind::Gt) {
             return Err(ParseError::new(
                 errors::ParseErrorKind::UnexpectedToken,
-                self.pos,
+                self.current_byte_offset(),
             )
             .with_expected(&[">"]));
         }
@@ -579,7 +660,7 @@ impl Parser {
             let placeholder = self.parse_interpolation()?;
             return Ok(placeholder);
         } else {
-            return Err(ParseError::new(errors::ParseErrorKind::ExpectedIdentifier, self.pos));
+            return Err(ParseError::new(errors::ParseErrorKind::ExpectedIdentifier, self.current_byte_offset()));
         };
 
         self.skip_whitespace();
@@ -626,7 +707,7 @@ impl Parser {
     /// Parses type arguments: <T, U>
     fn parse_type_args(&mut self) -> ParseResult<IrNode> {
         self.expect(SyntaxKind::Lt).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["<"])
         })?;
 
@@ -654,7 +735,7 @@ impl Parser {
         if !self.at(SyntaxKind::Gt) {
             return Err(ParseError::new(
                 errors::ParseErrorKind::UnexpectedToken,
-                self.pos,
+                self.current_byte_offset(),
             )
             .with_expected(&[">"]));
         }
@@ -691,7 +772,7 @@ impl Parser {
         }
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.pos, "type annotation"));
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "type annotation"));
         };
 
         // Handle keyword types
@@ -701,7 +782,7 @@ impl Parser {
                     || token.text == "number"
                     || token.text == "boolean" =>
             {
-                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.pos, "expected type keyword"))?;
+                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "expected type keyword"))?;
                 IrNode::KeywordType(self.text_to_ts_keyword(&t.text)?)
             }
             SyntaxKind::Ident => {
@@ -718,10 +799,14 @@ impl Parser {
                     "object" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::Object),
                     "symbol" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::Symbol),
                     "bigint" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::BigInt),
-                    _ => IrNode::TypeRef {
-                        name: Box::new(IrNode::Ident(name)),
-                        type_params: None,
-                    },
+                    _ => {
+                        // Check for generic type arguments like <string, unknown>
+                        let type_params = self.parse_optional_type_args()?.map(Box::new);
+                        IrNode::TypeRef {
+                            name: Box::new(IrNode::Ident(name)),
+                            type_params,
+                        }
+                    }
                 }
             }
             SyntaxKind::VoidKw => {
@@ -762,7 +847,7 @@ impl Parser {
             }
             _ => {
                 return Err(
-                    ParseError::new(errors::ParseErrorKind::ExpectedTypeAnnotation, self.pos)
+                    ParseError::new(errors::ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
                         .with_found(&token.text),
                 )
             }
@@ -829,7 +914,7 @@ impl Parser {
         if !self.at_text("=>") {
             return Err(ParseError::new(
                 errors::ParseErrorKind::MissingArrowBody,
-                self.pos,
+                self.current_byte_offset(),
             )
             .with_expected(&["=>"]));
         }
@@ -876,7 +961,7 @@ impl Parser {
         if !self.at(SyntaxKind::RBracket) {
             return Err(ParseError::missing_closing(
                 errors::ParseErrorKind::MissingClosingBracket,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -914,7 +999,7 @@ impl Parser {
         if !self.at(SyntaxKind::RBrace) {
             return Err(ParseError::missing_closing(
                 errors::ParseErrorKind::MissingClosingBrace,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -937,7 +1022,7 @@ impl Parser {
         };
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.pos, "type member"));
+            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "type member"));
         };
 
         // Get the key
@@ -955,7 +1040,7 @@ impl Parser {
                     self.consume().expect("guarded by at() check").text
                 } else {
                     return Err(
-                        ParseError::new(errors::ParseErrorKind::ExpectedIdentifier, self.pos)
+                        ParseError::new(errors::ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
                             .with_context("index signature"),
                     );
                 };
@@ -991,7 +1076,7 @@ impl Parser {
             }
             _ => {
                 return Err(
-                    ParseError::new(errors::ParseErrorKind::InvalidPropertyName, self.pos)
+                    ParseError::new(errors::ParseErrorKind::InvalidPropertyName, self.current_byte_offset())
                         .with_found(&token.text),
                 )
             }
@@ -1055,7 +1140,7 @@ impl Parser {
             "bigint" => Ok(crate::compiler::ir::TsKeyword::BigInt),
             _ => Err(ParseError::new(
                 errors::ParseErrorKind::UnexpectedToken,
-                self.pos,
+                self.current_byte_offset(),
             )
             .with_found(text)
             .with_expected(&["string", "number", "boolean", "any", "unknown", "never", "void", "null", "undefined", "object", "symbol", "bigint"])),
@@ -1089,17 +1174,17 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::LBrace).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["{"])
         })?;
 
         // Parse statements using the proper statement list parser
-        let stmts = self.parse_block_stmt_list();
+        let stmts = self.parse_block_stmt_list()?;
 
         if !self.at(SyntaxKind::RBrace) {
             return Err(ParseError::missing_closing(
                 errors::ParseErrorKind::MissingClosingBrace,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }
@@ -1109,7 +1194,7 @@ impl Parser {
     }
 
     /// Parses a list of statements inside a block until `}`
-    fn parse_block_stmt_list(&mut self) -> Vec<IrNode> {
+    fn parse_block_stmt_list(&mut self) -> ParseResult<Vec<IrNode>> {
         let mut stmts = Vec::new();
 
         while !self.at_eof() && !self.at(SyntaxKind::RBrace) {
@@ -1122,9 +1207,7 @@ impl Parser {
             // Check for control flow - any {#... opening token
             if self.at_brace_hash_open() {
                 let kind = self.current_kind().unwrap();
-                if let Some(node) = self.parse_control_block(kind) {
-                    stmts.push(node);
-                }
+                stmts.push(self.parse_control_block(kind)?);
                 continue;
             }
 
@@ -1137,17 +1220,17 @@ impl Parser {
             }
 
             // Parse statement
-            if let Some(stmt) = self.parse_stmt() {
-                stmts.push(stmt);
-            } else {
-                // Unknown - consume one token as raw
-                if let Some(token) = self.consume() {
-                    stmts.push(IrNode::Raw(token.text));
+            match self.parse_stmt() {
+                Ok(stmt) => stmts.push(stmt),
+                Err(e) => {
+                    // For expression statements that fail to parse, we might have raw text
+                    // But propagate the actual error for debugging
+                    return Err(e.with_context("parsing statement in block"));
                 }
             }
         }
 
-        Self::merge_adjacent_text(stmts)
+        Ok(Self::merge_adjacent_text(stmts))
     }
 
     /// Parses a class body: { members }
@@ -1155,7 +1238,7 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::LBrace).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.pos)
+            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["{"])
         })?;
 
@@ -1171,7 +1254,7 @@ impl Parser {
             if self.at_eof() {
                 return Err(ParseError::missing_closing(
                     errors::ParseErrorKind::MissingClosingBrace,
-                    self.pos,
+                    self.current_byte_offset(),
                     start_pos,
                 ));
             }
@@ -1191,7 +1274,7 @@ impl Parser {
         if !self.at(SyntaxKind::RBrace) {
             return Err(ParseError::missing_closing(
                 errors::ParseErrorKind::MissingClosingBrace,
-                self.pos,
+                self.current_byte_offset(),
                 start_pos,
             ));
         }

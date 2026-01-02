@@ -172,14 +172,15 @@ pub fn infix_binding_power(kind: SyntaxKind, text: &str) -> Option<BindingPower>
         SyntaxKind::Lt => return Some(prec::RELATIONAL),
         SyntaxKind::Gt => return Some(prec::RELATIONAL),
 
+        // Equality operators
+        SyntaxKind::EqEq => return Some(prec::EQUALITY),
+        SyntaxKind::EqEqEq => return Some(prec::EQUALITY),
+        SyntaxKind::NotEq => return Some(prec::EQUALITY),
+        SyntaxKind::NotEqEq => return Some(prec::EQUALITY),
+
         // Known punctuation with specific meaning
-        SyntaxKind::Ampersand => {
-            // Could be & or && - need to check text
-            if text == "&&" {
-                return Some(prec::LOGICAL_AND);
-            }
-            return Some(prec::BITWISE_AND);
-        }
+        SyntaxKind::AmpersandAmpersand => return Some(prec::LOGICAL_AND),
+        SyntaxKind::Ampersand => return Some(prec::BITWISE_AND),
 
         SyntaxKind::Star => {
             // Could be * or ** - need to check text

@@ -50,13 +50,18 @@ pub fn text_to_binary_op(text: &str) -> Option<BinaryOp> {
     }
 }
 
-/// Maps a keyword `SyntaxKind` to `BinaryOp`.
+/// Maps a `SyntaxKind` to `BinaryOp`.
 ///
-/// This handles keyword-based binary operators like `in` and `instanceof`.
+/// This handles keyword-based binary operators like `in` and `instanceof`,
+/// as well as punctuation-based operators that have their own SyntaxKind.
 pub fn keyword_to_binary_op(kind: SyntaxKind) -> Option<BinaryOp> {
     match kind {
         SyntaxKind::InKw => Some(BinaryOp::In),
         SyntaxKind::InstanceofKw => Some(BinaryOp::InstanceOf),
+        SyntaxKind::EqEq => Some(BinaryOp::EqEq),
+        SyntaxKind::EqEqEq => Some(BinaryOp::EqEqEq),
+        SyntaxKind::NotEq => Some(BinaryOp::NotEq),
+        SyntaxKind::NotEqEq => Some(BinaryOp::NotEqEq),
         _ => None,
     }
 }
@@ -297,6 +302,10 @@ mod tests {
             keyword_to_binary_op(SyntaxKind::InstanceofKw),
             Some(BinaryOp::InstanceOf)
         );
+        assert_eq!(keyword_to_binary_op(SyntaxKind::EqEq), Some(BinaryOp::EqEq));
+        assert_eq!(keyword_to_binary_op(SyntaxKind::EqEqEq), Some(BinaryOp::EqEqEq));
+        assert_eq!(keyword_to_binary_op(SyntaxKind::NotEq), Some(BinaryOp::NotEq));
+        assert_eq!(keyword_to_binary_op(SyntaxKind::NotEqEq), Some(BinaryOp::NotEqEq));
         assert_eq!(keyword_to_binary_op(SyntaxKind::Ident), None);
     }
 
