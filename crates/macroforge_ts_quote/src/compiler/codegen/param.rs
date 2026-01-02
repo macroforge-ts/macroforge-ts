@@ -4,7 +4,7 @@ use super::*;
 impl Codegen {
     pub(super) fn generate_param(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Param { decorators: _, pat } => {
+            IrNode::Param { decorators: _, pat, .. } => {
                 let pat_code = self.generate_pat(pat)?;
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::Param {
@@ -18,6 +18,7 @@ impl Codegen {
                 name,
                 type_ann,
                 optional: _,
+                ..
             } => {
                 let name_code = self.generate_ident(name)?;
                 // Type annotation is legitimately optional for parameters
@@ -44,7 +45,7 @@ impl Codegen {
                 })
             }
             // Ident nodes are valid - treat them as simple parameter identifiers
-            IrNode::Ident(_) | IrNode::Placeholder { .. } => {
+            IrNode::Ident { .. } | IrNode::Placeholder { .. } => {
                 let ident_code = self.generate_ident(node)?;
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::Param {
@@ -83,6 +84,7 @@ impl Codegen {
                 name,
                 type_ann,
                 optional,
+                ..
             } => {
                 let name_code = self.generate_ident_with_optional(name, *optional)?;
                 // Type annotation is legitimately optional for parameters
@@ -108,7 +110,7 @@ impl Codegen {
                 // Recurse to the pattern
                 self.generate_ts_fn_param(pat)
             }
-            IrNode::RestPat { arg, type_ann } => {
+            IrNode::RestPat { arg, type_ann, .. } => {
                 let arg_code = self.generate_pat(arg)?;
                 // Type annotation is legitimately optional for rest parameters
                 let type_ann_code = type_ann
@@ -132,7 +134,7 @@ impl Codegen {
                 })
             }
             // Ident nodes are valid - treat them as simple parameter identifiers
-            IrNode::Ident(_) | IrNode::Placeholder { .. } => {
+            IrNode::Ident { .. } | IrNode::Placeholder { .. } => {
                 let ident_code = self.generate_ident(node)?;
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsFnParam::Ident(

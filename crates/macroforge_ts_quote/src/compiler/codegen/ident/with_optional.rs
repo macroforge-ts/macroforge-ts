@@ -5,7 +5,7 @@ impl Codegen {
     /// Generate an identifier with the optional flag set (for optional parameters)
     pub(in super::super::super) fn generate_ident_with_optional(&self, node: &IrNode, optional: bool) -> GenResult<TokenStream> {
         match node {
-            IrNode::Ident(name) => {
+            IrNode::Ident { value: name, .. } => {
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::Ident {
                         sym: #name.into(),
@@ -18,6 +18,7 @@ impl Codegen {
             IrNode::Placeholder {
                 kind: PlaceholderKind::Ident,
                 expr,
+                ..
             } => {
                 if optional {
                     Ok(quote! {
@@ -35,14 +36,14 @@ impl Codegen {
                 let kind_str = format!("{:?}", kind);
                 Err(GenError::invalid_placeholder("identifier (with optional)", &kind_str, &["Ident"]))
             }
-            IrNode::IdentBlock { parts } => {
+            IrNode::IdentBlock { parts, .. } => {
                 // Build the identifier name from parts at runtime
                 let part_strs: Vec<TokenStream> = parts
                     .iter()
                     .filter_map(|p| match p {
-                        IrNode::Raw(text) => Some(quote! { __ident_str.push_str(#text); }),
-                        IrNode::StrLit(text) => Some(quote! { __ident_str.push_str(#text); }),
-                        IrNode::Ident(text) => Some(quote! { __ident_str.push_str(#text); }),
+                        IrNode::Raw { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
+                        IrNode::StrLit { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
+                        IrNode::Ident { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
                         IrNode::Placeholder { expr, .. } => {
                             Some(quote! { __ident_str.push_str(&(#expr).to_string()); })
                         }

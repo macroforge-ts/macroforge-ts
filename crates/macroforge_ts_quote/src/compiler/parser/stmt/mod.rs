@@ -6,6 +6,7 @@ use super::*;
 
 impl Parser {
     pub(super) fn parse_stmt(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         let kind = self.current_kind().ok_or_else(|| {
             ParseError::unexpected_eof(self.current_byte_offset(), "statement")
         })?;
@@ -29,6 +30,7 @@ impl Parser {
                 }
 
                 Ok(IrNode::ExprStmt {
+                    span: IrSpan::new(start_byte, self.current_byte_offset()),
                     expr: Box::new(expr),
                 })
             }
@@ -36,6 +38,7 @@ impl Parser {
     }
 
     pub(super) fn parse_return_stmt(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
@@ -61,7 +64,10 @@ impl Parser {
             if self.at(SyntaxKind::Semicolon) {
                 self.consume();
             }
-            return Ok(IrNode::ReturnStmt { arg: None });
+            return Ok(IrNode::ReturnStmt {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                arg: None,
+            });
         }
 
         let arg = self
@@ -78,11 +84,13 @@ impl Parser {
         }
 
         Ok(IrNode::ReturnStmt {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             arg: Some(Box::new(arg)),
         })
     }
 
     pub(super) fn parse_throw_stmt(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "throw keyword"))?; // throw
         self.skip_whitespace();
@@ -95,10 +103,14 @@ impl Parser {
             self.consume();
         }
 
-        Ok(IrNode::ThrowStmt { arg: Box::new(arg) })
+        Ok(IrNode::ThrowStmt {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            arg: Box::new(arg),
+        })
     }
 
     pub(super) fn parse_ts_if_stmt(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
@@ -179,6 +191,7 @@ impl Parser {
         };
 
         Ok(IrNode::TsIfStmt {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             test: Box::new(test),
             cons: Box::new(cons),
             alt,

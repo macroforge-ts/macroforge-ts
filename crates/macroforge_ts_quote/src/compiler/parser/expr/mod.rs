@@ -34,7 +34,7 @@ pub mod postfix;
 pub mod precedence;
 pub mod primary;
 
-use crate::compiler::ir::IrNode;
+use crate::compiler::ir::{IntoIrNode, IrNode, IrSpan};
 use crate::compiler::parser::Parser;
 use crate::compiler::syntax::SyntaxKind;
 use errors::{ParseError, ParseResult};
@@ -134,6 +134,7 @@ impl Parser {
     /// This handles patterns like `@{name}: @{value}` inside `{#for}` blocks within object literals.
     fn parse_object_property_in_control_context(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
+        let start_byte = self.current_byte_offset();
 
         // Parse the key (first part before potential `:`)
         let key = self.parse_expression_with_precedence(0)?;
@@ -156,6 +157,7 @@ impl Parser {
             }
 
             Ok(IrNode::KeyValueProp {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 key: Box::new(key),
                 value: Box::new(value),
             })
@@ -168,8 +170,9 @@ impl Parser {
 
             // Check if it looks like a shorthand property (identifier without value)
             match &key {
-                IrNode::Ident(_) | IrNode::Placeholder { .. } => {
+                IrNode::Ident { .. } | IrNode::Placeholder { .. } => {
                     Ok(IrNode::ShorthandProp {
+                        span: key.span(),
                         key: Box::new(key),
                     })
                 }
@@ -189,10 +192,13 @@ impl Parser {
         } else if self.at(SyntaxKind::Ident) {
             // Single identifier: x => x + 1
             let token = self.consume().expect("guarded by at() check");
+            let span = token.ir_span();
             Ok(vec![IrNode::Param {
+                span,
                 decorators: Vec::new(),
                 pat: Box::new(IrNode::BindingIdent {
-                    name: Box::new(IrNode::Ident(token.text)),
+                    span,
+                    name: Box::new(IrNode::ident(&token)),
                     type_ann: None,
                     optional: false,
                 }),
@@ -250,6 +256,7 @@ impl Parser {
     /// Parses a single function parameter.
     pub(super) fn parse_single_param(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
+        let start_byte = self.current_byte_offset();
 
         // Handle decorators
         let decorators = self.parse_decorators()?;
@@ -262,6 +269,7 @@ impl Parser {
             self.skip_whitespace();
             let pat = self.parse_binding_pattern()?;
             return Ok(IrNode::RestPat {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 arg: Box::new(pat),
                 type_ann: None, // TODO: parse type annotation
             });
@@ -271,6 +279,7 @@ impl Parser {
         if self.at(SyntaxKind::At) {
             let placeholder = self.parse_interpolation()?;
             return Ok(IrNode::Param {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 decorators,
                 pat: Box::new(placeholder),
             });
@@ -280,6 +289,7 @@ impl Parser {
         let pat = self.parse_binding_pattern()?;
 
         Ok(IrNode::Param {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             decorators,
             pat: Box::new(pat),
         })
@@ -295,7 +305,8 @@ impl Parser {
 
         match token.kind {
             SyntaxKind::Ident => {
-                let name = self.consume().expect("guarded by match arm").text;
+                let ident_token = self.consume().expect("guarded by match arm");
+                let span = ident_token.ir_span();
                 self.skip_whitespace();
 
                 // Check for optional marker: ?
@@ -324,8 +335,10 @@ impl Parser {
                     self.skip_whitespace();
                     let init = self.parse_expression_with_precedence(prec::ASSIGN.right)?;
                     return Ok(IrNode::AssignPat {
+                        span,
                         left: Box::new(IrNode::BindingIdent {
-                            name: Box::new(IrNode::Ident(name)),
+                            span,
+                            name: Box::new(IrNode::ident(&ident_token)),
                             type_ann,
                             optional,
                         }),
@@ -334,7 +347,8 @@ impl Parser {
                 }
 
                 Ok(IrNode::BindingIdent {
-                    name: Box::new(IrNode::Ident(name)),
+                    span,
+                    name: Box::new(IrNode::ident(&ident_token)),
                     type_ann,
                     optional,
                 })
@@ -352,6 +366,7 @@ impl Parser {
     /// Parses an array destructuring pattern: [a, b, ...rest]
     fn parse_array_pattern(&mut self) -> ParseResult<IrNode> {
         let start_pos = self.pos;
+        let start_byte = self.current_byte_offset();
 
         self.expect(SyntaxKind::LBracket);
 
@@ -373,10 +388,12 @@ impl Parser {
 
             // Handle rest: [...x]
             if self.at(SyntaxKind::DotDotDot) {
+                let rest_start = self.current_byte_offset();
                 self.consume();
                 self.skip_whitespace();
                 let arg = self.parse_binding_pattern()?;
                 elems.push(Some(IrNode::RestPat {
+                    span: IrSpan::new(rest_start, self.current_byte_offset()),
                     arg: Box::new(arg),
                     type_ann: None,
                 }));
@@ -415,6 +432,7 @@ impl Parser {
         };
 
         Ok(IrNode::ArrayPat {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             elems,
             type_ann,
             optional: false,
@@ -424,6 +442,7 @@ impl Parser {
     /// Parses an object destructuring pattern: { a, b: c, ...rest }
     fn parse_object_pattern(&mut self) -> ParseResult<IrNode> {
         let start_pos = self.pos;
+        let start_byte = self.current_byte_offset();
 
         self.expect(SyntaxKind::LBrace);
 
@@ -438,10 +457,12 @@ impl Parser {
 
             // Handle rest: {...x}
             if self.at(SyntaxKind::DotDotDot) {
+                let rest_start = self.current_byte_offset();
                 self.consume();
                 self.skip_whitespace();
                 let arg = self.parse_binding_pattern()?;
                 props.push(IrNode::RestPat {
+                    span: IrSpan::new(rest_start, self.current_byte_offset()),
                     arg: Box::new(arg),
                     type_ann: None,
                 });
@@ -480,6 +501,7 @@ impl Parser {
         };
 
         Ok(IrNode::ObjectPat {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             props,
             type_ann,
             optional: false,
@@ -497,8 +519,8 @@ impl Parser {
         // Get the key
         let key = match token.kind {
             SyntaxKind::Ident => {
-                let name = self.consume().expect("guarded by match arm").text;
-                IrNode::Ident(name)
+                let t = self.consume().expect("guarded by match arm");
+                IrNode::ident(&t)
             }
             SyntaxKind::DoubleQuote | SyntaxKind::SingleQuote => {
                 self.parse_string_literal()?
@@ -511,12 +533,13 @@ impl Parser {
                 self.skip_whitespace();
                 self.expect(SyntaxKind::RBracket);
                 IrNode::ComputedPropName {
+                    span: IrSpan::empty(),
                     expr: Box::new(expr),
                 }
             }
             _ if token.kind.is_ts_keyword() => {
-                let name = self.consume().expect("guarded by match arm").text;
-                IrNode::Ident(name)
+                let t = self.consume().expect("guarded by match arm");
+                IrNode::ident(&t)
             }
             _ => {
                 return Err(ParseError::new(
@@ -529,12 +552,15 @@ impl Parser {
 
         self.skip_whitespace();
 
+        let key_span = key.span();
+
         // Check for : to rename
         if self.at(SyntaxKind::Colon) {
             self.consume();
             self.skip_whitespace();
             let value = self.parse_binding_pattern()?;
             return Ok(IrNode::ObjectPatProp {
+                span: key_span,
                 key: Box::new(key),
                 value: Some(Box::new(value)),
             });
@@ -549,8 +575,10 @@ impl Parser {
             let init = self.parse_expression_with_precedence(prec::ASSIGN.right)?;
             // For default values in destructuring, wrap in AssignPat
             return Ok(IrNode::ObjectPatProp {
+                span: key_span,
                 key: Box::new(key.clone()),
                 value: Some(Box::new(IrNode::AssignPat {
+                    span: key_span,
                     left: Box::new(key),
                     right: Box::new(init),
                 })),
@@ -559,6 +587,7 @@ impl Parser {
 
         // Shorthand property: { a }
         Ok(IrNode::ObjectPatProp {
+            span: key_span,
             key: Box::new(key),
             value: None,
         })
@@ -579,11 +608,13 @@ impl Parser {
                 }
             }
 
+            let dec_start = self.current_byte_offset();
             self.consume(); // @ or DecoratorAt
             self.skip_whitespace();
 
             let expr = self.parse_expression_with_precedence(prec::CALL.left)?;
             decorators.push(IrNode::Decorator {
+                span: IrSpan::new(dec_start, self.current_byte_offset()),
                 expr: Box::new(expr),
             });
 
@@ -610,6 +641,7 @@ impl Parser {
 
     /// Parses type parameters: <T, U extends V>
     fn parse_type_params(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         self.expect(SyntaxKind::Lt).ok_or_else(|| {
             ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["<"])
@@ -645,12 +677,16 @@ impl Parser {
         }
         self.consume();
 
-        Ok(IrNode::TypeParams { params })
+        Ok(IrNode::TypeParams {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            params,
+        })
     }
 
     /// Parses a single type parameter: T or T extends U = Default
     fn parse_type_param(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
+        let start_byte = self.current_byte_offset();
 
         // Get the name
         let name = if self.at(SyntaxKind::Ident) {
@@ -686,6 +722,7 @@ impl Parser {
         };
 
         Ok(IrNode::TypeParam {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             name,
             constraint,
             default,
@@ -706,6 +743,7 @@ impl Parser {
 
     /// Parses type arguments: <T, U>
     fn parse_type_args(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         self.expect(SyntaxKind::Lt).ok_or_else(|| {
             ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
                 .with_expected(&["<"])
@@ -741,7 +779,10 @@ impl Parser {
         }
         self.consume();
 
-        Ok(IrNode::TypeArgs { args: params })
+        Ok(IrNode::TypeArgs {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            args: params,
+        })
     }
 
     /// Parses an optional return type annotation: : Type
@@ -783,43 +824,45 @@ impl Parser {
                     || token.text == "boolean" =>
             {
                 let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "expected type keyword"))?;
-                IrNode::KeywordType(self.text_to_ts_keyword(&t.text)?)
+                IrNode::keyword_type(&t, self.text_to_ts_keyword(&t.text)?)
             }
             SyntaxKind::Ident => {
-                let name = self.consume().expect("guarded by match arm").text;
+                let t = self.consume().expect("guarded by match arm");
+                let span = t.ir_span();
 
                 // Check for common type keywords that come as identifiers
-                match name.as_str() {
-                    "string" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::String),
-                    "number" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::Number),
-                    "boolean" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::Boolean),
-                    "any" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::Any),
-                    "unknown" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::Unknown),
-                    "never" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::Never),
-                    "object" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::Object),
-                    "symbol" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::Symbol),
-                    "bigint" => IrNode::KeywordType(crate::compiler::ir::TsKeyword::BigInt),
+                match t.text.as_str() {
+                    "string" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::String),
+                    "number" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Number),
+                    "boolean" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Boolean),
+                    "any" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Any),
+                    "unknown" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Unknown),
+                    "never" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Never),
+                    "object" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Object),
+                    "symbol" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Symbol),
+                    "bigint" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::BigInt),
                     _ => {
                         // Check for generic type arguments like <string, unknown>
                         let type_params = self.parse_optional_type_args()?.map(Box::new);
                         IrNode::TypeRef {
-                            name: Box::new(IrNode::Ident(name)),
+                            span,
+                            name: Box::new(IrNode::ident(&t)),
                             type_params,
                         }
                     }
                 }
             }
             SyntaxKind::VoidKw => {
-                self.consume();
-                IrNode::KeywordType(crate::compiler::ir::TsKeyword::Void)
+                let t = self.consume().unwrap();
+                IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Void)
             }
             SyntaxKind::NullKw => {
-                self.consume();
-                IrNode::KeywordType(crate::compiler::ir::TsKeyword::Null)
+                let t = self.consume().unwrap();
+                IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Null)
             }
             SyntaxKind::UndefinedKw => {
-                self.consume();
-                IrNode::KeywordType(crate::compiler::ir::TsKeyword::Undefined)
+                let t = self.consume().unwrap();
+                IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Undefined)
             }
             // Function type: () => T
             SyntaxKind::LParen => self.parse_function_type()?,
@@ -829,19 +872,21 @@ impl Parser {
             SyntaxKind::LBrace => self.parse_object_type()?,
             // typeof type
             SyntaxKind::TypeofKw => {
-                self.consume();
+                let t = self.consume().unwrap();
                 self.skip_whitespace();
                 let expr = self.parse_primary_expr()?;
                 IrNode::TypeofType {
+                    span: t.ir_span(),
                     expr: Box::new(expr),
                 }
             }
             // keyof type
             SyntaxKind::KeyofKw => {
-                self.consume();
+                let t = self.consume().unwrap();
                 self.skip_whitespace();
                 let ty = self.parse_type()?;
                 IrNode::KeyofType {
+                    span: t.ir_span(),
                     type_ann: Box::new(ty),
                 }
             }
@@ -870,6 +915,7 @@ impl Parser {
                     self.consume(); // [
                     self.consume(); // ]
                     ty = IrNode::ArrayType {
+                        span: ty.span(),
                         elem: Box::new(ty),
                     };
                     continue;
@@ -882,6 +928,7 @@ impl Parser {
                 self.skip_whitespace();
                 let right = self.parse_type()?;
                 ty = IrNode::UnionType {
+                    span: ty.span().extend(right.span()),
                     types: vec![ty, right],
                 };
                 continue;
@@ -893,6 +940,7 @@ impl Parser {
                 self.skip_whitespace();
                 let right = self.parse_type()?;
                 ty = IrNode::IntersectionType {
+                    span: ty.span().extend(right.span()),
                     types: vec![ty, right],
                 };
                 continue;
@@ -906,6 +954,7 @@ impl Parser {
 
     /// Parses a function type: (a: A, b: B) => R
     fn parse_function_type(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         let params = self.parse_function_params()?;
 
         self.skip_whitespace();
@@ -925,6 +974,7 @@ impl Parser {
         let return_type = self.parse_type()?;
 
         Ok(IrNode::FnType {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             type_params: None,
             params,
             return_type: Box::new(return_type),
@@ -934,6 +984,7 @@ impl Parser {
     /// Parses a tuple type: [A, B, C]
     fn parse_tuple_type(&mut self) -> ParseResult<IrNode> {
         let start_pos = self.pos;
+        let start_byte = self.current_byte_offset();
 
         self.expect(SyntaxKind::LBracket);
 
@@ -967,12 +1018,16 @@ impl Parser {
         }
         self.consume();
 
-        Ok(IrNode::TupleType { elems })
+        Ok(IrNode::TupleType {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            elems,
+        })
     }
 
     /// Parses an object type: { prop: T, method(): R }
     fn parse_object_type(&mut self) -> ParseResult<IrNode> {
         let start_pos = self.pos;
+        let start_byte = self.current_byte_offset();
 
         self.expect(SyntaxKind::LBrace);
 
@@ -1005,12 +1060,16 @@ impl Parser {
         }
         self.consume();
 
-        Ok(IrNode::ObjectType { members })
+        Ok(IrNode::ObjectType {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            members,
+        })
     }
 
     /// Parses a single type member in an object type.
     fn parse_type_member(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
+        let start_byte = self.current_byte_offset();
 
         // Handle readonly modifier
         let readonly = if self.at(SyntaxKind::ReadonlyKw) {
@@ -1028,22 +1087,23 @@ impl Parser {
         // Get the key
         let key = match token.kind {
             SyntaxKind::Ident => {
-                let name = self.consume().expect("guarded by match arm").text;
-                IrNode::Ident(name)
+                let t = self.consume().expect("guarded by match arm");
+                IrNode::ident(&t)
             }
             SyntaxKind::LBracket => {
                 // Index signature: [key: string]: T
                 self.consume();
                 self.skip_whitespace();
 
-                let param_name = if self.at(SyntaxKind::Ident) {
-                    self.consume().expect("guarded by at() check").text
+                let param_token = if self.at(SyntaxKind::Ident) {
+                    self.consume().expect("guarded by at() check")
                 } else {
                     return Err(
                         ParseError::new(errors::ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
                             .with_context("index signature"),
                     );
                 };
+                let param_span = param_token.ir_span();
 
                 self.skip_whitespace();
                 self.expect(SyntaxKind::Colon);
@@ -1061,9 +1121,11 @@ impl Parser {
                 let value_type = self.parse_type()?;
 
                 return Ok(IrNode::IndexSignature {
+                    span: IrSpan::new(start_byte, self.current_byte_offset()),
                     readonly,
                     params: vec![IrNode::BindingIdent {
-                        name: Box::new(IrNode::Ident(param_name)),
+                        span: param_span,
+                        name: Box::new(IrNode::ident(&param_token)),
                         type_ann: Some(Box::new(key_type)),
                         optional: false,
                     }],
@@ -1071,8 +1133,8 @@ impl Parser {
                 });
             }
             _ if token.kind.is_ts_keyword() => {
-                let name = self.consume().expect("guarded by match arm").text;
-                IrNode::Ident(name)
+                let t = self.consume().expect("guarded by match arm");
+                IrNode::ident(&t)
             }
             _ => {
                 return Err(
@@ -1101,6 +1163,7 @@ impl Parser {
             let return_type = self.parse_optional_return_type()?;
 
             return Ok(IrNode::MethodSignature {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 name: Box::new(key),
                 optional,
                 type_params,
@@ -1116,6 +1179,7 @@ impl Parser {
         let type_ann = self.parse_type()?;
 
         Ok(IrNode::PropSignature {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             readonly,
             name: Box::new(key),
             optional,
@@ -1172,6 +1236,7 @@ impl Parser {
     /// Parses a block statement: { stmt; stmt; }
     pub(super) fn parse_block_stmt(&mut self) -> ParseResult<IrNode> {
         let start_pos = self.pos;
+        let start_byte = self.current_byte_offset();
 
         self.expect(SyntaxKind::LBrace).ok_or_else(|| {
             ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
@@ -1190,7 +1255,10 @@ impl Parser {
         }
         self.consume();
 
-        Ok(IrNode::BlockStmt { stmts })
+        Ok(IrNode::BlockStmt {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            stmts,
+        })
     }
 
     /// Parses a list of statements inside a block until `}`
@@ -1286,6 +1354,7 @@ impl Parser {
     /// Parses a single class member.
     fn parse_class_member(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
+        let start_byte = self.current_byte_offset();
 
         // Parse decorators (parsed but not stored in IR Method/ClassProp)
         let _decorators = self.parse_decorators()?;
@@ -1357,6 +1426,7 @@ impl Parser {
                 };
 
                 return Ok(IrNode::Method {
+                    span: IrSpan::new(start_byte, self.current_byte_offset()),
                     static_: is_static,
                     accessibility,
                     readonly: is_readonly,
@@ -1381,6 +1451,7 @@ impl Parser {
                 };
 
                 return Ok(IrNode::Method {
+                    span: IrSpan::new(start_byte, self.current_byte_offset()),
                     static_: is_static,
                     accessibility,
                     readonly: is_readonly,
@@ -1412,6 +1483,7 @@ impl Parser {
             };
 
             return Ok(IrNode::Constructor {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 accessibility,
                 params,
                 body,
@@ -1448,6 +1520,7 @@ impl Parser {
             };
 
             return Ok(IrNode::Method {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 static_: is_static,
                 accessibility,
                 readonly: is_readonly,
@@ -1487,6 +1560,7 @@ impl Parser {
         };
 
         Ok(IrNode::ClassProp {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             static_: is_static,
             accessibility,
             readonly: is_readonly,

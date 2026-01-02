@@ -4,7 +4,7 @@ use super::*;
 impl Codegen {
     pub(super) fn generate_assign_target(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::Ident(name) => {
+        IrNode::Ident { value: name, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::AssignTarget::Simple(
                     macroforge_ts::swc_core::ecma::ast::SimpleAssignTarget::Ident(
@@ -23,6 +23,7 @@ impl Codegen {
             obj,
             prop,
             computed,
+            ..
         } => {
             let obj_code = self.generate_expr(obj)?;
             let prop_code = if *computed {

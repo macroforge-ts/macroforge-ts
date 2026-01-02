@@ -8,6 +8,7 @@ impl Codegen {
             name,
             type_ann,
             optional: _,
+            ..
         } => {
             let name_code = self.generate_ident(name)?;
             let type_ann_code = match type_ann.as_ref() {
@@ -27,7 +28,7 @@ impl Codegen {
                 )
             })
         }
-        IrNode::Ident(name) => {
+        IrNode::Ident { value: name, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Pat::Ident(
                     macroforge_ts::swc_core::ecma::ast::BindingIdent {
@@ -40,7 +41,7 @@ impl Codegen {
                 )
             })
         }
-        IrNode::Placeholder { kind, expr } => {
+        IrNode::Placeholder { kind, expr, .. } => {
             match kind {
                 PlaceholderKind::Ident => {
                     Ok(quote! {
@@ -69,14 +70,14 @@ impl Codegen {
                 }
             }
         }
-        IrNode::IdentBlock { parts } => {
+        IrNode::IdentBlock { parts, .. } => {
             // Build identifier string from parts at runtime
             let part_exprs: Vec<TokenStream> = parts
                     .iter()
                     .filter_map(|p| match p {
-                        IrNode::Raw(text) => Some(quote! { __ident.push_str(#text); }),
-                        IrNode::StrLit(text) => Some(quote! { __ident.push_str(#text); }),
-                        IrNode::Ident(text) => Some(quote! { __ident.push_str(#text); }),
+                        IrNode::Raw { value: text, .. } => Some(quote! { __ident.push_str(#text); }),
+                        IrNode::StrLit { value: text, .. } => Some(quote! { __ident.push_str(#text); }),
+                        IrNode::Ident { value: text, .. } => Some(quote! { __ident.push_str(#text); }),
                         IrNode::Placeholder { expr, .. } => {
                             Some(quote! {
                                 __ident.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
@@ -102,7 +103,7 @@ impl Codegen {
                 }
             })
         }
-        IrNode::ArrayPat { elems, type_ann, optional } => {
+        IrNode::ArrayPat { elems, type_ann, optional, .. } => {
             let elems_code: Vec<TokenStream> = elems.iter().map(|opt_elem| {
                 match opt_elem {
                     Some(elem) => {
@@ -130,7 +131,7 @@ impl Codegen {
                 )
             })
         }
-        IrNode::ObjectPat { props, type_ann, optional } => {
+        IrNode::ObjectPat { props, type_ann, optional, .. } => {
             let props_code: Vec<TokenStream> = props.iter().map(|prop| {
                 self.generate_object_pat_prop(prop)
             }).collect::<GenResult<Vec<_>>>()?;
@@ -152,7 +153,7 @@ impl Codegen {
                 )
             })
         }
-        IrNode::RestPat { arg, type_ann } => {
+        IrNode::RestPat { arg, type_ann, .. } => {
             let arg_code = self.generate_pat(arg)?;
             let type_ann_code = match type_ann.as_ref() {
                 Some(t) => {
@@ -172,7 +173,7 @@ impl Codegen {
                 )
             })
         }
-        IrNode::AssignPat { left, right } => {
+        IrNode::AssignPat { left, right, .. } => {
             let left_code = self.generate_pat(left)?;
             let right_code = self.generate_expr(right)?;
             Ok(quote! {
@@ -198,7 +199,7 @@ impl Codegen {
 /// Generate code for an object pattern property.
 pub(super) fn generate_object_pat_prop(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::ObjectPatProp { key, value } => {
+        IrNode::ObjectPatProp { key, value, .. } => {
             let key_code = self.generate_ident(key)?;
             match value {
                 Some(val) => {
@@ -231,7 +232,7 @@ pub(super) fn generate_object_pat_prop(&self, node: &IrNode) -> GenResult<TokenS
                 }
             }
         }
-        IrNode::RestPat { arg, type_ann } => {
+        IrNode::RestPat { arg, type_ann, .. } => {
             let arg_code = self.generate_pat(arg)?;
             let type_ann_code = match type_ann.as_ref() {
                 Some(t) => {

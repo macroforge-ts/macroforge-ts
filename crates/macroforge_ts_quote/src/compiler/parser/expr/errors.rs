@@ -351,96 +351,26 @@ impl ParseError {
     /// Formats the error with source context and a custom filename.
     /// `line_offset` is added to convert relative template lines to absolute file lines.
     pub fn format_with_source_and_file(&self, source: &str, filename: &str, line_offset: usize) -> String {
-        let loc = SourceLocation::from_offset(source, self.position);
-        let absolute_line = loc.line + line_offset;
+        use crate::compiler::error_fmt::{build_annotation, ErrorFormat};
 
-        // Header: error: message
-        let mut msg = format!("error: {}\n", self.kind.description());
+        let annotation = build_annotation(
+            self.found.as_deref(),
+            &self.expected.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
+        );
 
-        // Location: --> file:line:column (UTF-16 column for editor compatibility)
-        msg.push_str(&format!(" --> {}:{}:{}\n", filename, absolute_line, loc.column));
+        let mut fmt = ErrorFormat::new(self.kind.description(), source, self.position)
+            .filename(filename)
+            .line_offset(line_offset);
 
-        // Extract and show the problematic line with caret
-        let lines: Vec<&str> = source.lines().collect();
-        if loc.line > 0 && loc.line <= lines.len() {
-            let line_content = lines[loc.line - 1];
-            // Expand tabs to spaces for consistent alignment, trim any trailing whitespace
-            let expanded_content = line_content.replace('\t', "    ").trim_end().to_string();
-
-            // Calculate byte offset within the line for visual caret positioning
-            let line_start_offset = source[..self.position]
-                .rfind('\n')
-                .map(|pos| pos + 1)
-                .unwrap_or(0);
-            let byte_offset_in_line = self.position.saturating_sub(line_start_offset);
-
-            // Calculate visual column (accounting for tabs) from byte offset
-            let visual_column: usize = line_content
-                .char_indices()
-                .take_while(|(i, _)| *i < byte_offset_in_line)
-                .map(|(_, c)| if c == '\t' { 4 } else { 1 })
-                .sum();
-
-            // Caret line annotation
-            let annotation = if let Some(ref found) = self.found {
-                format!("found: {}", found)
-            } else if !self.expected.is_empty() {
-                format!("expected: {}", self.expected.join(" or "))
-            } else {
-                String::new()
-            };
-
-            // Truncate long lines to show context around the error
-            const MAX_LINE_LEN: usize = 80;
-            const CONTEXT_CHARS: usize = 30;
-
-            let (display_content, display_caret_col, truncated) = if expanded_content.len() > MAX_LINE_LEN {
-                // Find a window around the error position
-                let start = visual_column.saturating_sub(CONTEXT_CHARS);
-                let end = (visual_column + CONTEXT_CHARS).min(expanded_content.len());
-
-                // Adjust to char boundaries
-                let content_chars: Vec<char> = expanded_content.chars().collect();
-                let start = start.min(content_chars.len());
-                let end = end.min(content_chars.len());
-
-                let prefix = if start > 0 { "..." } else { "" };
-                let suffix = if end < content_chars.len() { "..." } else { "" };
-
-                let snippet: String = content_chars[start..end].iter().collect();
-                let new_caret_col = visual_column - start + prefix.len();
-
-                (format!("{}{}{}", prefix, snippet, suffix), new_caret_col, true)
-            } else {
-                (expanded_content.clone(), visual_column, false)
-            };
-
-            // Line number width for alignment
-            let line_num_width = absolute_line.to_string().len();
-
-            // Source line with line number and pipe
-            let source_line = format!("{:>width$} | {}", absolute_line, display_content, width = line_num_width);
-            // Caret line with pipe (no line number, just spaces)
-            let caret_content = format!("{:>col$}^ {}", "", annotation, col = display_caret_col);
-            let caret_line = format!("{:>width$} | {}", "", caret_content, width = line_num_width);
-
-            // Pad both lines to equal length for alignment
-            let max_len = source_line.len().max(caret_line.len());
-            let padded_source = format!("{:<width$}", source_line, width = max_len);
-            let padded_caret = format!("{:<width$}", caret_line, width = max_len);
-
-            msg.push_str(&format!("`{}`\n", padded_source));
-            msg.push_str(&format!("`{}`\n", padded_caret));
-
-            let _ = truncated; // silence unused warning
+        if let Some(ann) = annotation {
+            fmt = fmt.annotation(ann);
         }
 
-        // Help note if available
         if let Some(ref help) = self.help {
-            msg.push_str(&format!("help: {}\n", help));
+            fmt = fmt.help(help);
         }
 
-        msg
+        fmt.format()
     }
 
     /// Converts the error to a user-friendly message.

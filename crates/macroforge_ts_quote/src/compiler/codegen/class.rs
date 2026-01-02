@@ -50,6 +50,7 @@ pub(super) fn generate_class_member_push(&self, node: &IrNode) -> GenResult<Toke
             pattern,
             iterator,
             body,
+            ..
         } => {
             let body_pushes = self.generate_class_member_pushes(body)?;
             Ok(quote! {
@@ -61,6 +62,7 @@ pub(super) fn generate_class_member_push(&self, node: &IrNode) -> GenResult<Toke
             then_body,
             else_if_branches,
             else_body,
+            ..
         } => {
             let then_pushes = self.generate_class_member_pushes(then_body)?;
 
@@ -83,13 +85,13 @@ pub(super) fn generate_class_member_push(&self, node: &IrNode) -> GenResult<Toke
                 if #condition { #then_pushes } #else_code
             })
         }
-        IrNode::While { condition, body } => {
+        IrNode::While { condition, body, .. } => {
             let body_pushes = self.generate_class_member_pushes(body)?;
             Ok(quote! {
                 while #condition { #body_pushes }
             })
         }
-        IrNode::Match { expr, arms } => {
+        IrNode::Match { expr, arms, .. } => {
             let arm_tokens: Vec<TokenStream> = arms
                 .iter()
                 .map(
@@ -97,6 +99,7 @@ pub(super) fn generate_class_member_push(&self, node: &IrNode) -> GenResult<Toke
                          pattern,
                          guard,
                          body,
+                         ..
                      }| {
                         let b = self.generate_class_member_pushes(body)?;
                         if let Some(g) = guard {
@@ -116,6 +119,7 @@ pub(super) fn generate_class_member_push(&self, node: &IrNode) -> GenResult<Toke
             mutable,
             type_hint,
             value,
+            ..
         } => {
             let mutability = if *mutable {
                 quote! { mut }
@@ -128,7 +132,7 @@ pub(super) fn generate_class_member_push(&self, node: &IrNode) -> GenResult<Toke
                 Ok(quote! { let #mutability #pattern = #value; })
             }
         }
-        IrNode::Do { code } => Ok(quote! { #code; }),
+        IrNode::Do { code, .. } => Ok(quote! { #code; }),
         _ => {
             // Regular class member - push to __class_members
             let member_code = self.generate_class_member(node)?;
@@ -143,6 +147,7 @@ pub(super) fn generate_class_member(&self, node: &IrNode) -> GenResult<TokenStre
             accessibility,
             params,
             body,
+            ..
         } => {
             let params_code = self.generate_constructor_params(params)?;
             let body_code = match body {
@@ -193,6 +198,7 @@ pub(super) fn generate_class_member(&self, node: &IrNode) -> GenResult<TokenStre
             params,
             return_type,
             body,
+            ..
         } => {
             let name_code = self.generate_prop_name(name)?;
             let params_code = self.generate_params(params)?;
@@ -273,6 +279,7 @@ pub(super) fn generate_class_member(&self, node: &IrNode) -> GenResult<TokenStre
             name,
             type_ann,
             value,
+            ..
         } => {
             let name_code = self.generate_prop_name(name)?;
             let type_ann_code = match type_ann {

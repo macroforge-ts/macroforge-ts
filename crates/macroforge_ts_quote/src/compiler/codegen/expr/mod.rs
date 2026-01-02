@@ -6,7 +6,7 @@ use super::*;
 impl Codegen {
     pub(in super::super) fn generate_expr(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::Ident(name) => {
+        IrNode::Ident { value: name, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Ident(
                     macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
@@ -17,7 +17,7 @@ impl Codegen {
             })
         }
 
-        IrNode::StrLit(value) => {
+        IrNode::StrLit { value, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
                     macroforge_ts::swc_core::ecma::ast::Lit::Str(
@@ -31,11 +31,12 @@ impl Codegen {
             })
         }
 
-        IrNode::NumLit(value) => {
+        IrNode::NumLit { span, value } => {
             let num: f64 = value.parse().map_err(|_| {
                 GenError::new(GenErrorKind::InvalidNumericLiteral)
                     .with_context("numeric literal")
                     .with_found(value)
+                    .with_span(*span)
             })?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
@@ -50,7 +51,7 @@ impl Codegen {
             })
         }
 
-        IrNode::BoolLit(value) => {
+        IrNode::BoolLit { value, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
                     macroforge_ts::swc_core::ecma::ast::Lit::Bool(
@@ -63,7 +64,7 @@ impl Codegen {
             })
         }
 
-        IrNode::NullLit => {
+        IrNode::NullLit { .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
                     macroforge_ts::swc_core::ecma::ast::Lit::Null(
@@ -75,7 +76,7 @@ impl Codegen {
             })
         }
 
-        IrNode::ThisExpr => {
+        IrNode::ThisExpr { .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::This(
                     macroforge_ts::swc_core::ecma::ast::ThisExpr {
@@ -85,7 +86,7 @@ impl Codegen {
             })
         }
 
-        IrNode::SuperExpr => {
+        IrNode::SuperExpr { .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Super(
                     macroforge_ts::swc_core::ecma::ast::Super {
@@ -99,6 +100,7 @@ impl Codegen {
             callee,
             type_args: _,
             args,
+            ..
         } => {
             let callee_code = self.generate_expr(callee)?;
             let args_code: Vec<TokenStream> = args
@@ -131,6 +133,7 @@ impl Codegen {
             obj,
             prop,
             computed,
+            ..
         } => {
             let obj_code = self.generate_expr(obj)?;
             let prop_code = if *computed {
@@ -161,7 +164,7 @@ impl Codegen {
             })
         }
 
-        IrNode::ObjectLit { props } => {
+        IrNode::ObjectLit { props, .. } => {
             let props_code = self.generate_props(props)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Object(
@@ -173,7 +176,7 @@ impl Codegen {
             })
         }
 
-        IrNode::ArrayLit { elems } => {
+        IrNode::ArrayLit { elems, .. } => {
             let elems_code: Vec<TokenStream> = elems
                 .iter()
                 .map(|e| {
@@ -197,7 +200,7 @@ impl Codegen {
             })
         }
 
-        IrNode::BinExpr { left, op, right } => {
+        IrNode::BinExpr { left, op, right, .. } => {
             let left_code = self.generate_expr(left)?;
             let right_code = self.generate_expr(right)?;
             let op_code = self.generate_binary_op(op);
@@ -214,7 +217,7 @@ impl Codegen {
             })
         }
 
-        IrNode::AssignExpr { left, op, right } => {
+        IrNode::AssignExpr { left, op, right, .. } => {
             let left_code = self.generate_assign_target(left)?;
             let right_code = self.generate_expr(right)?;
             let op_code = self.generate_assign_op(op);
@@ -231,7 +234,7 @@ impl Codegen {
             })
         }
 
-        IrNode::CondExpr { test, consequent, alternate } => {
+        IrNode::CondExpr { test, consequent, alternate, .. } => {
             let test_code = self.generate_expr(test)?;
             let cons_code = self.generate_expr(consequent)?;
             let alt_code = self.generate_expr(alternate)?;
@@ -252,6 +255,7 @@ impl Codegen {
             callee,
             type_args: _,
             args,
+            ..
         } => {
             let callee_code = self.generate_expr(callee)?;
             let args_code: Vec<TokenStream> = args
@@ -286,6 +290,7 @@ impl Codegen {
             params,
             return_type: _,
             body,
+            ..
         } => {
             let params_code = self.generate_pats(params)?;
             let body_code = self.generate_block_stmt_or_expr(body)?;
@@ -306,7 +311,7 @@ impl Codegen {
             })
         }
 
-        IrNode::TplLit { quasis, exprs } => {
+        IrNode::TplLit { quasis, exprs, .. } => {
             let quasis_code: Vec<TokenStream> = quasis
                 .iter()
                 .enumerate()
@@ -343,7 +348,7 @@ impl Codegen {
         }
 
         // StringInterp from template literals - convert to Tpl expression
-        IrNode::StringInterp { quote: _, parts } => {
+        IrNode::StringInterp { quote: _, parts, .. } => {
             // Convert parts into quasis and exprs
             let mut quasis = Vec::new();
             let mut exprs = Vec::new();
@@ -351,7 +356,7 @@ impl Codegen {
 
             for part in parts {
                 match part {
-                    IrNode::Raw(text) | IrNode::StrLit(text) => current_text.push_str(text),
+                    IrNode::Raw { value: text, .. } | IrNode::StrLit { value: text, .. } => current_text.push_str(text),
                     IrNode::Placeholder { expr, .. } => {
                         quasis.push(std::mem::take(&mut current_text));
                         exprs.push(quote! {
@@ -391,7 +396,7 @@ impl Codegen {
             })
         }
 
-        IrNode::Placeholder { kind, expr } => match kind {
+        IrNode::Placeholder { kind, expr, span } => match kind {
             PlaceholderKind::Expr => {
                 Ok(quote! { macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone()) })
             }
@@ -402,15 +407,16 @@ impl Codegen {
                     )
                 })
             }
-            other => Err(GenError::invalid_placeholder(
+            other => Err(GenError::invalid_placeholder_at(
                 "expression",
                 &format!("{:?}", other),
                 &["Expr", "Ident"],
+                *span,
             )),
         },
 
         // TypeScript type assertion: expr as Type
-        IrNode::TsAsExpr { expr, type_ann } => {
+        IrNode::TsAsExpr { expr, type_ann, .. } => {
             let expr_code = self.generate_expr(expr)?;
             let type_ann_code = self.generate_ts_type(type_ann)?;
             Ok(quote! {
@@ -425,7 +431,7 @@ impl Codegen {
         }
 
         // TypeScript satisfies: expr satisfies Type
-        IrNode::TsSatisfiesExpr { expr, type_ann } => {
+        IrNode::TsSatisfiesExpr { expr, type_ann, .. } => {
             let expr_code = self.generate_expr(expr)?;
             let type_ann_code = self.generate_ts_type(type_ann)?;
             Ok(quote! {
@@ -440,7 +446,7 @@ impl Codegen {
         }
 
         // TypeScript non-null assertion: expr!
-        IrNode::TsNonNullExpr { expr } => {
+        IrNode::TsNonNullExpr { expr, .. } => {
             let expr_code = self.generate_expr(expr)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::TsNonNull(
@@ -453,7 +459,7 @@ impl Codegen {
         }
 
         // TypeScript const assertion: expr as const
-        IrNode::TsConstAssertion { expr } => {
+        IrNode::TsConstAssertion { expr, .. } => {
             let expr_code = self.generate_expr(expr)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::TsConstAssertion(
@@ -466,7 +472,7 @@ impl Codegen {
         }
 
         // TypeScript instantiation: expr<Type>
-        IrNode::TsInstantiation { expr, type_args } => {
+        IrNode::TsInstantiation { expr, type_args, .. } => {
             let expr_code = self.generate_expr(expr)?;
             let type_args_code = self.generate_type_param_instantiation(type_args)?;
             Ok(quote! {
@@ -481,7 +487,7 @@ impl Codegen {
         }
 
         // Await expression: await expr
-        IrNode::AwaitExpr { arg } => {
+        IrNode::AwaitExpr { arg, .. } => {
             let arg_code = self.generate_expr(arg)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Await(
@@ -495,7 +501,7 @@ impl Codegen {
 
         // Yield expression: yield expr, yield* expr
         // Note: unwrap_or for arg is valid - None is a valid yield (yield without value)
-        IrNode::YieldExpr { arg, delegate } => {
+        IrNode::YieldExpr { arg, delegate, .. } => {
             let arg_code = match arg.as_ref() {
                 Some(a) => {
                     let ac = self.generate_expr(a)?;
@@ -515,7 +521,7 @@ impl Codegen {
         }
 
         // Phase 4: Private name #field
-        IrNode::PrivateName(name) => {
+        IrNode::PrivateName { value: name, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::PrivateName(
                     macroforge_ts::swc_core::ecma::ast::PrivateName {
@@ -532,7 +538,7 @@ impl Codegen {
         // BigInt literal: 42n
         // Note: BigInt parsing at runtime - the macro generates code that parses at runtime
         // Keep unwrap_or_default since parsing happens at runtime, not compile-time
-        IrNode::BigIntLit(value) => {
+        IrNode::BigIntLit { value, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Lit(
                     macroforge_ts::swc_core::ecma::ast::Lit::BigInt(
@@ -547,7 +553,7 @@ impl Codegen {
         }
 
         // Update expression: ++x, x--, etc.
-        IrNode::UpdateExpr { op, prefix, arg } => {
+        IrNode::UpdateExpr { op, prefix, arg, .. } => {
             let arg_code = self.generate_expr(arg)?;
             let op_code = self.generate_update_op(op);
             Ok(quote! {
@@ -563,7 +569,7 @@ impl Codegen {
         }
 
         // Unary expression: -x, !x, typeof x, etc.
-        IrNode::UnaryExpr { op, arg } => {
+        IrNode::UnaryExpr { op, arg, .. } => {
             let arg_code = self.generate_expr(arg)?;
             let op_code = self.generate_unary_op(op);
             Ok(quote! {
@@ -578,13 +584,13 @@ impl Codegen {
         }
 
         // Optional chaining expression: obj?.prop, fn?.()
-        IrNode::OptChainExpr { base, expr } => {
+        IrNode::OptChainExpr { base, expr, .. } => {
             // `base` is the object being accessed (e.g., `x` in `x?.y`)
             // `expr` contains the chain operation with a placeholder for the object
             let base_obj_code = self.generate_expr(base)?;
             let chain_base_code = match expr.as_ref() {
                 // x?.y or x?.[y] - member access
-                IrNode::MemberExpr { obj: _, prop, computed } => {
+                IrNode::MemberExpr { obj: _, prop, computed, .. } => {
                     // obj is a placeholder, use base instead
                     let prop_code = if *computed {
                         let p = self.generate_expr(prop)?;
@@ -614,7 +620,7 @@ impl Codegen {
                     }
                 }
                 // x?.() - optional call
-                IrNode::CallExpr { callee: _, args, type_args: _ } => {
+                IrNode::CallExpr { callee: _, args, type_args: _, .. } => {
                     // callee is a placeholder, use base instead
                     let args_code: Vec<TokenStream> = args
                         .iter()
@@ -658,7 +664,7 @@ impl Codegen {
 
         // Phase 5: Function expression
         // Note: unwrap_or for name is valid - anonymous functions are valid
-        IrNode::FnExpr { async_, generator, name, type_params: _, params, return_type: _, body } => {
+        IrNode::FnExpr { async_, generator, name, type_params: _, params, return_type: _, body, .. } => {
             let params_code = self.generate_params(params)?;
             let name_code = match name.as_ref() {
                 Some(n) => {
@@ -697,7 +703,7 @@ impl Codegen {
 
         // Class expression
         // Note: unwrap_or for name is valid - anonymous classes are valid
-        IrNode::ClassExpr { name, type_params: _, extends, implements: _, body } => {
+        IrNode::ClassExpr { name, type_params: _, extends, implements: _, body, .. } => {
             let name_code = match name.as_ref() {
                 Some(n) => {
                     let nc = self.generate_ident(n)?;
@@ -740,7 +746,7 @@ impl Codegen {
         }
 
         // Parenthesized expression: (expr)
-        IrNode::ParenExpr { expr } => {
+        IrNode::ParenExpr { expr, .. } => {
             let expr_code = self.generate_expr(expr)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Paren(
@@ -753,7 +759,7 @@ impl Codegen {
         }
 
         // Sequence expression: a, b, c
-        IrNode::SeqExpr { exprs } => {
+        IrNode::SeqExpr { exprs, .. } => {
             let exprs_code: Vec<TokenStream> = exprs
                 .iter()
                 .map(|e| {
@@ -773,12 +779,12 @@ impl Codegen {
         }
 
         // Tagged template literal: tag`template`
-        IrNode::TaggedTpl { tag, type_args: _, tpl } => {
+        IrNode::TaggedTpl { tag, type_args: _, tpl, .. } => {
             let tag_code = self.generate_expr(tag)?;
 
             // Extract quasis and exprs from the TplLit node
             let (quasis, exprs) = match tpl.as_ref() {
-                IrNode::TplLit { quasis, exprs } => (quasis.clone(), exprs.clone()),
+                IrNode::TplLit { quasis, exprs, .. } => (quasis.clone(), exprs.clone()),
                 _ => (vec![], vec![]),
             };
 
@@ -825,7 +831,7 @@ impl Codegen {
         // Raw text - parse as expression at runtime
         // Note: parse_ts_expr returns Result<Box<Expr>, _>, so we dereference to get Expr
         // Runtime parsing fallback is intentional - allows dynamic expression parsing
-        IrNode::Raw(text) => {
+        IrNode::Raw { value: text, .. } => {
             Ok(quote! {
                 {
                     let __source = #text;
@@ -840,14 +846,14 @@ impl Codegen {
         }
 
         // IdentBlock with multiple parts - build string and parse
-        IrNode::IdentBlock { parts } => {
+        IrNode::IdentBlock { parts, .. } => {
             let part_exprs: Vec<TokenStream> = parts
                   .iter()
                   .map(|p| match p {
-                      IrNode::Raw(text) => quote! { __expr_str.push_str(#text); },
-                      IrNode::StrLit(text) => quote! { __expr_str.push_str(#text); },
-                      IrNode::Ident(text) => quote! { __expr_str.push_str(#text); },
-                      IrNode::Placeholder { kind, expr } => {
+                      IrNode::Raw { value: text, .. } => quote! { __expr_str.push_str(#text); },
+                      IrNode::StrLit { value: text, .. } => quote! { __expr_str.push_str(#text); },
+                      IrNode::Ident { value: text, .. } => quote! { __expr_str.push_str(#text); },
+                      IrNode::Placeholder { kind, expr, .. } => {
                           match kind {
                               PlaceholderKind::Expr => {
                                   // For expressions, emit as TypeScript literal
@@ -872,14 +878,14 @@ impl Codegen {
                           }
                       }
                       // Handle nested IdentBlock (e.g., @{name}Val within a larger expression)
-                      IrNode::IdentBlock { parts: inner_parts } => {
+                      IrNode::IdentBlock { parts: inner_parts, .. } => {
                           let inner_exprs: Vec<TokenStream> = inner_parts
                               .iter()
                               .map(|ip| match ip {
-                                  IrNode::Raw(text) => quote! { __expr_str.push_str(#text); },
-                                  IrNode::StrLit(text) => quote! { __expr_str.push_str(#text); },
-                                  IrNode::Ident(text) => quote! { __expr_str.push_str(#text); },
-                                  IrNode::Placeholder { kind, expr } => {
+                                  IrNode::Raw { value: text, .. } => quote! { __expr_str.push_str(#text); },
+                                  IrNode::StrLit { value: text, .. } => quote! { __expr_str.push_str(#text); },
+                                  IrNode::Ident { value: text, .. } => quote! { __expr_str.push_str(#text); },
+                                  IrNode::Placeholder { kind, expr, .. } => {
                                       match kind {
                                           PlaceholderKind::Ident => {
                                               quote! {
@@ -908,13 +914,13 @@ impl Codegen {
                       }
                       // Handle StringInterp (string literals with placeholders like "@{name}")
                       // For placeholders inside strings, we insert the raw value (not quoted expression)
-                      IrNode::StringInterp { quote: q, parts: string_parts } => {
+                      IrNode::StringInterp { quote: q, parts: string_parts, .. } => {
                           let quote_char = q.to_string();
                           let inner_exprs: Vec<TokenStream> = string_parts
                               .iter()
                               .map(|sp| match sp {
-                                  IrNode::Raw(text) => quote! { __expr_str.push_str(#text); },
-                                  IrNode::StrLit(text) => quote! { __expr_str.push_str(#text); },
+                                  IrNode::Raw { value: text, .. } => quote! { __expr_str.push_str(#text); },
+                                  IrNode::StrLit { value: text, .. } => quote! { __expr_str.push_str(#text); },
                                   IrNode::Placeholder { expr, .. } => {
                                       // Inside a string, always insert the raw string value
                                       // (not the quoted expression representation)
@@ -971,6 +977,7 @@ impl Codegen {
             then_expr,
             else_if_branches,
             else_expr,
+            ..
         } => {
             let then_code = self.generate_expr(then_expr)?;
             let else_code = self.generate_expr(else_expr)?;
@@ -992,6 +999,7 @@ impl Codegen {
             pattern,
             iterator,
             body_expr,
+            ..
         } => {
             let body_code = self.generate_expr(body_expr)?;
 
@@ -1004,6 +1012,7 @@ impl Codegen {
         IrNode::WhileExpr {
             condition,
             body_expr,
+            ..
         } => {
             let body_code = self.generate_expr(body_expr)?;
 
@@ -1013,7 +1022,7 @@ impl Codegen {
             })
         }
 
-        IrNode::MatchExpr { expr, arms } => {
+        IrNode::MatchExpr { expr, arms, .. } => {
             let arm_codes: Vec<TokenStream> = arms
                 .iter()
                 .map(|arm| {
@@ -1082,7 +1091,7 @@ fn generate_unary_op(&self, op: &UnaryOp) -> TokenStream {
 /// Generate code for optional chain base (member access or call)
 fn generate_opt_chain_base(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::MemberExpr { obj, prop, computed } => {
+        IrNode::MemberExpr { obj, prop, computed, .. } => {
             let obj_code = self.generate_expr(obj)?;
             let prop_code = if *computed {
                 let p = self.generate_expr(prop)?;
@@ -1111,7 +1120,7 @@ fn generate_opt_chain_base(&self, node: &IrNode) -> GenResult<TokenStream> {
                 )
             })
         }
-        IrNode::CallExpr { callee, args, type_args: _ } => {
+        IrNode::CallExpr { callee, args, type_args: _, .. } => {
             let callee_code = self.generate_expr(callee)?;
             let args_code: Vec<TokenStream> = args
                 .iter()

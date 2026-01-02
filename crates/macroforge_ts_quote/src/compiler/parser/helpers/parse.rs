@@ -10,12 +10,12 @@ impl Parser {
             // Check if there's an identifier suffix immediately after (e.g., @{name}Obj)
             if let Some(token) = self.current() {
                 if token.kind == SyntaxKind::Ident {
-                    let suffix = token.text.clone();
-                    self.consume();
+                    let suffix_token = self.consume().unwrap();
 
                     // Return as IdentBlock combining placeholder + suffix
                     return Some(IrNode::IdentBlock {
-                        parts: vec![placeholder, IrNode::Raw(suffix)],
+                        span: IrSpan::empty(),
+                        parts: vec![placeholder, IrNode::raw(&suffix_token)],
                     });
                 }
             }
@@ -23,9 +23,8 @@ impl Parser {
             Some(placeholder)
         } else if let Some(token) = self.current() {
             if token.kind == SyntaxKind::Ident || token.kind.is_ts_keyword() {
-                let name = token.text.clone();
-                self.consume();
-                Some(IrNode::Ident(name))
+                let t = self.consume().unwrap();
+                Some(IrNode::ident(&t))
             } else {
                 None
             }
@@ -157,8 +156,11 @@ impl Parser {
             None
         };
 
+        let name_span = name.span();
+
         // Build the pattern
         let binding = IrNode::BindingIdent {
+            span: name_span,
             name: Box::new(name),
             type_ann,
             optional,
@@ -167,11 +169,13 @@ impl Parser {
         // Wrap with rest or assign pattern if needed
         let pat = if rest {
             Box::new(IrNode::RestPat {
+                span: name_span,
                 arg: Box::new(binding),
                 type_ann: None, // type_ann is already on BindingIdent
             })
         } else if let Some(right) = default_value {
             Box::new(IrNode::AssignPat {
+                span: name_span,
                 left: Box::new(binding),
                 right,
             })
@@ -180,6 +184,7 @@ impl Parser {
         };
 
         Ok(IrNode::Param {
+            span: name_span,
             decorators: vec![],
             pat,
         })
@@ -205,7 +210,7 @@ impl Parser {
                 SyntaxKind::Lt | SyntaxKind::LParen | SyntaxKind::LBrace | SyntaxKind::LBracket => {
                     depth += 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
                 SyntaxKind::Gt | SyntaxKind::RParen | SyntaxKind::RBrace | SyntaxKind::RBracket => {
@@ -219,7 +224,7 @@ impl Parser {
                         break;
                     }
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
                 SyntaxKind::At => {
@@ -228,18 +233,19 @@ impl Parser {
                     // Check if there's an identifier suffix immediately after
                     if let Some(token) = self.current() {
                         if token.kind == SyntaxKind::Ident {
-                            let suffix = token.text.clone();
-                            self.consume();
+                            let suffix_token = self.consume().unwrap();
                             // Force placeholder to be Ident kind for identifier concatenation
                             let ident_placeholder = match placeholder {
-                                IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
+                                IrNode::Placeholder { span, expr, .. } => IrNode::Placeholder {
+                                    span,
                                     kind: PlaceholderKind::Ident,
                                     expr,
                                 },
                                 other => other,
                             };
                             parts.push(IrNode::IdentBlock {
-                                parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                                span: IrSpan::empty(),
+                                parts: vec![ident_placeholder, IrNode::raw(&suffix_token)],
                             });
                             continue;
                         }
@@ -275,7 +281,7 @@ impl Parser {
                         }
                     }
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
             }
@@ -304,7 +310,8 @@ impl Parser {
             } else {
                 // Wrap multiple parts in TypeAnnotation for complex types with placeholders
                 Ok(Some(IrNode::TypeAnnotation {
-                    type_ann: Box::new(IrNode::IdentBlock { parts: merged }),
+                    span: IrSpan::empty(),
+                    type_ann: Box::new(IrNode::IdentBlock { span: IrSpan::empty(), parts: merged }),
                 }))
             }
         }

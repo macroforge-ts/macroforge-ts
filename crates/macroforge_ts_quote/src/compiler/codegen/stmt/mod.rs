@@ -5,7 +5,7 @@ impl Codegen {
     /// Generate a BlockStmt from an IrNode (for function bodies)
     pub(in super::super) fn generate_block_stmt(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::BlockStmt { stmts } => {
+            IrNode::BlockStmt { stmts, .. } => {
                 let stmts_code = self.generate_stmts_vec(stmts);
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::BlockStmt {
@@ -31,7 +31,7 @@ impl Codegen {
 
     pub(in super::super) fn generate_block_stmt_opt(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::BlockStmt { stmts } => {
+        IrNode::BlockStmt { stmts, .. } => {
             let stmts_code = self.generate_stmts_vec(stmts);
             Ok(quote! {
                 Some(macroforge_ts::swc_core::ecma::ast::BlockStmt {
@@ -51,7 +51,7 @@ impl Codegen {
 
 pub(in super::super) fn generate_block_stmt_or_expr(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::BlockStmt { stmts } => {
+        IrNode::BlockStmt { stmts, .. } => {
             let stmts_code = self.generate_stmts_vec(stmts);
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::BlockStmtOrExpr::BlockStmt(
@@ -172,7 +172,7 @@ pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> GenR
     // Check if all nodes are whitespace-only Raw nodes
     let all_whitespace = nodes
         .iter()
-        .all(|n| matches!(n, IrNode::Raw(text) if text.trim().is_empty()));
+        .all(|n| matches!(n, IrNode::Raw { value: text, .. } if text.trim().is_empty()));
     if all_whitespace {
         return Ok(None);
     }
@@ -201,10 +201,10 @@ pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> GenR
 
 pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> TokenStream {
     match node {
-        IrNode::Raw(text) => quote! { __stmt_str.push_str(#text); },
-        IrNode::StrLit(text) => quote! { __stmt_str.push_str(#text); },
-        IrNode::Ident(name) => quote! { __stmt_str.push_str(#name); },
-        IrNode::IdentBlock { parts } => {
+        IrNode::Raw { value: text, .. } => quote! { __stmt_str.push_str(#text); },
+        IrNode::StrLit { value: text, .. } => quote! { __stmt_str.push_str(#text); },
+        IrNode::Ident { value: name, .. } => quote! { __stmt_str.push_str(#name); },
+        IrNode::IdentBlock { parts, .. } => {
             // Recursively process each part
             let part_strs: Vec<TokenStream> = parts
                 .iter()
@@ -212,12 +212,12 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 .collect();
             quote! { #(#part_strs)* }
         }
-        IrNode::StringInterp { quote: q, parts } => {
+        IrNode::StringInterp { quote: q, parts, .. } => {
             let quote_char = q.to_string();
             let inner_parts: Vec<TokenStream> = parts
                 .iter()
                 .map(|p| match p {
-                    IrNode::Raw(text) | IrNode::StrLit(text) => {
+                    IrNode::Raw { value: text, .. } | IrNode::StrLit { value: text, .. } => {
                         quote! { __stmt_str.push_str(#text); }
                     }
                     IrNode::Placeholder { expr, .. } => {
@@ -232,7 +232,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str(#quote_char);
             }
         }
-        IrNode::Placeholder { kind, expr } => match kind {
+        IrNode::Placeholder { kind, expr, span } => match kind {
             PlaceholderKind::Expr => {
                 quote! {
                     let __expr = macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
@@ -251,10 +251,11 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 }
             }
             _ => {
-                let err = GenError::invalid_placeholder(
+                let err = GenError::invalid_placeholder_at(
                     "statement string part",
                     &format!("{:?}", kind),
                     &["Expr", "Ident", "Type"],
+                    *span,
                 );
                 panic!("{}", err.to_message());
             }
@@ -264,6 +265,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
             pattern,
             iterator,
             body,
+            ..
         } => {
             let body_parts: Vec<TokenStream> = body
                 .iter()
@@ -280,6 +282,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
             then_body,
             else_if_branches,
             else_body,
+            ..
         } => {
             let then_parts: Vec<TokenStream> = then_body
                 .iter()
@@ -311,7 +314,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 #else_part
             }
         }
-        IrNode::While { condition, body } => {
+        IrNode::While { condition, body, .. } => {
             let body_parts: Vec<TokenStream> = body
                 .iter()
                 .map(|n| self.generate_stmt_string_part(n))
@@ -322,10 +325,10 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 }
             }
         }
-        IrNode::Match { expr, arms } => {
+        IrNode::Match { expr, arms, .. } => {
             let arm_tokens: Vec<TokenStream> = arms
                 .iter()
-                .map(|MatchArm { pattern, guard, body }| {
+                .map(|MatchArm { pattern, guard, body, .. }| {
                     let body_parts: Vec<TokenStream> = body
                         .iter()
                         .map(|n| self.generate_stmt_string_part(n))
@@ -346,6 +349,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
             mutable,
             type_hint,
             value,
+            ..
         } => {
             let mutability = if *mutable {
                 quote! { mut }
@@ -358,13 +362,14 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 quote! { let #mutability #pattern = #value; }
             }
         }
-        IrNode::Do { code } => quote! { #code; },
+        IrNode::Do { code, .. } => quote! { #code; },
         // TypeScript statement nodes - build as strings
         IrNode::VarDecl {
             exported: _,
             declare: _,
             kind,
             decls,
+            ..
         } => {
             let kind_str = match kind {
                 VarKind::Const => "const",
@@ -404,14 +409,14 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str(";");
             }
         }
-        IrNode::ExprStmt { expr } => {
+        IrNode::ExprStmt { expr, .. } => {
             let expr_parts = self.generate_stmt_string_part(expr);
             quote! {
                 #expr_parts
                 __stmt_str.push_str(";");
             }
         }
-        IrNode::ReturnStmt { arg } => {
+        IrNode::ReturnStmt { arg, .. } => {
             if let Some(a) = arg {
                 let arg_parts = self.generate_stmt_string_part(a);
                 quote! {
@@ -425,7 +430,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 }
             }
         }
-        IrNode::BlockStmt { stmts } => {
+        IrNode::BlockStmt { stmts, .. } => {
             let stmt_parts: Vec<TokenStream> = stmts
                 .iter()
                 .map(|s| self.generate_stmt_string_part(s))
@@ -436,7 +441,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str(" }");
             }
         }
-        IrNode::TsIfStmt { test, cons, alt } => {
+        IrNode::TsIfStmt { test, cons, alt, .. } => {
             let test_parts = self.generate_stmt_string_part(test);
             let cons_parts = self.generate_stmt_string_part(cons);
             let alt_parts = alt.as_ref().map(|a| {
@@ -454,7 +459,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 #alt_parts
             }
         }
-        IrNode::TsLoopStmt { parts } => {
+        IrNode::TsLoopStmt { parts, .. } => {
             let part_exprs: Vec<TokenStream> = parts
                 .iter()
                 .map(|p| self.generate_stmt_string_part(p))
@@ -462,7 +467,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
             quote! { #(#part_exprs)* }
         }
         // Expression nodes - generate as string representations
-        IrNode::UnaryExpr { op, arg } => {
+        IrNode::UnaryExpr { op, arg, .. } => {
             let op_str = match op {
                 UnaryOp::Minus => "-",
                 UnaryOp::Plus => "+",
@@ -478,7 +483,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 #arg_parts
             }
         }
-        IrNode::BinExpr { left, op, right } => {
+        IrNode::BinExpr { left, op, right, .. } => {
             let op_str = match op {
                 BinaryOp::Add => " + ",
                 BinaryOp::Sub => " - ",
@@ -514,7 +519,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 #right_parts
             }
         }
-        IrNode::CondExpr { test, consequent, alternate } => {
+        IrNode::CondExpr { test, consequent, alternate, .. } => {
             let test_parts = self.generate_stmt_string_part(test);
             let cons_parts = self.generate_stmt_string_part(consequent);
             let alt_parts = self.generate_stmt_string_part(alternate);
@@ -550,7 +555,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str(")");
             }
         }
-        IrNode::MemberExpr { obj, prop, computed } => {
+        IrNode::MemberExpr { obj, prop, computed, .. } => {
             let obj_parts = self.generate_stmt_string_part(obj);
             let prop_parts = self.generate_stmt_string_part(prop);
             if *computed {
@@ -593,7 +598,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str(")");
             }
         }
-        IrNode::ParenExpr { expr } => {
+        IrNode::ParenExpr { expr, .. } => {
             let expr_parts = self.generate_stmt_string_part(expr);
             quote! {
                 __stmt_str.push_str("(");
@@ -601,7 +606,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str(")");
             }
         }
-        IrNode::ArrayLit { elems } => {
+        IrNode::ArrayLit { elems, .. } => {
             let elem_parts: Vec<TokenStream> = elems
                 .iter()
                 .enumerate()
@@ -623,7 +628,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str("]");
             }
         }
-        IrNode::ObjectLit { props } => {
+        IrNode::ObjectLit { props, .. } => {
             let prop_parts: Vec<TokenStream> = props
                 .iter()
                 .enumerate()
@@ -645,7 +650,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str(" }");
             }
         }
-        IrNode::KeyValueProp { key, value } => {
+        IrNode::KeyValueProp { key, value, .. } => {
             let key_parts = self.generate_stmt_string_part(key);
             let value_parts = self.generate_stmt_string_part(value);
             quote! {
@@ -654,33 +659,33 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 #value_parts
             }
         }
-        IrNode::ShorthandProp { key } => {
+        IrNode::ShorthandProp { key, .. } => {
             self.generate_stmt_string_part(key)
         }
-        IrNode::SpreadElement { expr } => {
+        IrNode::SpreadElement { expr, .. } => {
             let expr_parts = self.generate_stmt_string_part(expr);
             quote! {
                 __stmt_str.push_str("...");
                 #expr_parts
             }
         }
-        IrNode::NumLit(value) => {
+        IrNode::NumLit { value, .. } => {
             quote! { __stmt_str.push_str(#value); }
         }
-        IrNode::BoolLit(value) => {
+        IrNode::BoolLit { value, .. } => {
             let val_str = if *value { "true" } else { "false" };
             quote! { __stmt_str.push_str(#val_str); }
         }
-        IrNode::NullLit => {
+        IrNode::NullLit { .. } => {
             quote! { __stmt_str.push_str("null"); }
         }
-        IrNode::ThisExpr => {
+        IrNode::ThisExpr { .. } => {
             quote! { __stmt_str.push_str("this"); }
         }
-        IrNode::SuperExpr => {
+        IrNode::SuperExpr { .. } => {
             quote! { __stmt_str.push_str("super"); }
         }
-        IrNode::AssignExpr { left, op, right } => {
+        IrNode::AssignExpr { left, op, right, .. } => {
             let op_str = match op {
                 AssignOp::Assign => " = ",
                 AssignOp::AddAssign => " += ",
@@ -707,7 +712,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 #right_parts
             }
         }
-        IrNode::UpdateExpr { op, prefix, arg } => {
+        IrNode::UpdateExpr { op, prefix, arg, .. } => {
             let op_str = match op {
                 UpdateOp::Increment => "++",
                 UpdateOp::Decrement => "--",
@@ -725,14 +730,14 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 }
             }
         }
-        IrNode::AwaitExpr { arg } => {
+        IrNode::AwaitExpr { arg, .. } => {
             let arg_parts = self.generate_stmt_string_part(arg);
             quote! {
                 __stmt_str.push_str("await ");
                 #arg_parts
             }
         }
-        IrNode::TsAsExpr { expr, type_ann } => {
+        IrNode::TsAsExpr { expr, type_ann, .. } => {
             let expr_parts = self.generate_stmt_string_part(expr);
             let type_parts = self.generate_stmt_string_part(type_ann);
             quote! {
@@ -741,7 +746,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 #type_parts
             }
         }
-        IrNode::TsNonNullExpr { expr } => {
+        IrNode::TsNonNullExpr { expr, .. } => {
             let expr_parts = self.generate_stmt_string_part(expr);
             quote! {
                 #expr_parts
@@ -749,7 +754,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
             }
         }
         // Type nodes for string representation
-        IrNode::KeywordType(kw) => {
+        IrNode::KeywordType { keyword: kw, .. } => {
             let type_str = match kw {
                 TsKeyword::Any => "any",
                 TsKeyword::Unknown => "unknown",
@@ -766,7 +771,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
             };
             quote! { __stmt_str.push_str(#type_str); }
         }
-        IrNode::TypeRef { name, type_params } => {
+        IrNode::TypeRef { name, type_params, .. } => {
             let name_parts = self.generate_stmt_string_part(name);
             if let Some(params) = type_params {
                 let params_parts = self.generate_stmt_string_part(params);
@@ -778,7 +783,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 name_parts
             }
         }
-        IrNode::TypeArgs { args } => {
+        IrNode::TypeArgs { args, .. } => {
             let arg_parts: Vec<TokenStream> = args
                 .iter()
                 .enumerate()
@@ -800,7 +805,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str(">");
             }
         }
-        IrNode::UnionType { types } => {
+        IrNode::UnionType { types, .. } => {
             let type_parts: Vec<TokenStream> = types
                 .iter()
                 .enumerate()
@@ -818,7 +823,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 .collect();
             quote! { #(#type_parts)* }
         }
-        IrNode::ArrayType { elem } => {
+        IrNode::ArrayType { elem, .. } => {
             let elem_parts = self.generate_stmt_string_part(elem);
             quote! {
                 #elem_parts
@@ -838,7 +843,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
 /// Generate code that builds a statement string from an IrNode.
     pub(in super::super) fn generate_stmt_as_string(&self, node: &IrNode) -> TokenStream {
     match node {
-        IrNode::BlockStmt { stmts } => {
+        IrNode::BlockStmt { stmts, .. } => {
             let part_exprs: Vec<TokenStream> = stmts
                 .iter()
                 .map(|s| self.generate_stmt_string_part(s))
@@ -849,14 +854,14 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 __stmt_str.push_str(" }");
             }
         }
-        IrNode::ExprStmt { expr } => {
+        IrNode::ExprStmt { expr, .. } => {
             let expr_parts = self.generate_stmt_string_part(expr);
             quote! {
                 #expr_parts
                 __stmt_str.push_str(";");
             }
         }
-        IrNode::ReturnStmt { arg } => {
+        IrNode::ReturnStmt { arg, .. } => {
             if let Some(a) = arg {
                 let arg_parts = self.generate_stmt_string_part(a);
                 quote! {
@@ -870,7 +875,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 }
             }
         }
-        IrNode::TsIfStmt { test, cons, alt } => {
+        IrNode::TsIfStmt { test, cons, alt, .. } => {
             let test_parts = self.generate_stmt_string_part(test);
             let cons_parts = self.generate_stmt_as_string(cons);
             let alt_parts = alt.as_ref().map(|a| {
@@ -888,7 +893,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 #alt_parts
             }
         }
-        IrNode::TsLoopStmt { parts } => {
+        IrNode::TsLoopStmt { parts, .. } => {
             let part_exprs: Vec<TokenStream> = parts
                 .iter()
                 .map(|p| self.generate_stmt_string_part(p))
@@ -906,6 +911,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
             pattern,
             iterator,
             body,
+            ..
         } => {
             let body_pushes = self.generate_stmt_pushes(body);
             Ok(quote! {
@@ -917,6 +923,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
             then_body,
             else_if_branches,
             else_body,
+            ..
         } => {
             let then_pushes = self.generate_stmt_pushes(then_body);
 
@@ -939,13 +946,13 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
                 if #condition { #then_pushes } #else_code
             })
         }
-        IrNode::While { condition, body } => {
+        IrNode::While { condition, body, .. } => {
             let body_pushes = self.generate_stmt_pushes(body);
             Ok(quote! {
                 while #condition { #body_pushes }
             })
         }
-        IrNode::Match { expr, arms } => {
+        IrNode::Match { expr, arms, .. } => {
             let arm_tokens: Vec<TokenStream> = arms
                 .iter()
                 .map(
@@ -953,6 +960,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
                          pattern,
                          guard,
                          body,
+                         ..
                      }| {
                         let b = self.generate_stmt_pushes(body);
                         if let Some(g) = guard {
@@ -972,6 +980,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
             mutable,
             type_hint,
             value,
+            ..
         } => {
             let mutability = if *mutable {
                 quote! { mut }
@@ -984,7 +993,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
                 Ok(quote! { let #mutability #pattern = #value; })
             }
         }
-        IrNode::Do { code } => Ok(quote! { #code; }),
+        IrNode::Do { code, .. } => Ok(quote! { #code; }),
         _ => {
             // Regular statement - push to __body_stmts
             let stmt_code = self.generate_stmt(node)?;
@@ -995,7 +1004,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
 
 pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::ExprStmt { expr } => {
+        IrNode::ExprStmt { expr, .. } => {
             let expr_code = self.generate_expr(expr)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
@@ -1006,7 +1015,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
                 )
             })
         }
-        IrNode::ReturnStmt { arg } => {
+        IrNode::ReturnStmt { arg, .. } => {
             let arg_code = match arg.as_ref() {
                 Some(a) => {
                     let ac = self.generate_expr(a)?;
@@ -1023,7 +1032,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
                 )
             })
         }
-        IrNode::ThrowStmt { arg } => {
+        IrNode::ThrowStmt { arg, .. } => {
             let arg_code = self.generate_expr(arg)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::Throw(
@@ -1034,7 +1043,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
                 )
             })
         }
-        IrNode::BlockStmt { stmts } => {
+        IrNode::BlockStmt { stmts, .. } => {
             let stmts_code = self.generate_stmts_vec(stmts);
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::Block(
@@ -1051,6 +1060,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
             declare,
             kind,
             decls,
+            ..
         } => {
             let kind_code = match kind {
                 VarKind::Const => {
@@ -1076,7 +1086,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
         // TypeScript if statement
-        IrNode::TsIfStmt { test, cons, alt } => {
+        IrNode::TsIfStmt { test, cons, alt, .. } => {
             // Build if statement string from parts
             let test_code = self.generate_expr_string_parts(test);
             let cons_code = self.generate_stmt_as_string(cons);
@@ -1101,7 +1111,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
         // TypeScript loop statement (for/while parsed as raw text with placeholders)
-        IrNode::TsLoopStmt { parts } => {
+        IrNode::TsLoopStmt { parts, .. } => {
             // Build the loop string from parts and parse at runtime
             // generate_stmt_string_part uses __stmt_str, so we alias it
             let part_exprs: Vec<TokenStream> = parts
@@ -1118,7 +1128,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
         // Structured for-in statement
-        IrNode::ForInStmt { left, right, body } => {
+        IrNode::ForInStmt { left, right, body, .. } => {
             let left_code = self.generate_for_head(left)?;
             let right_code = self.generate_expr(right)?;
             let body_code = self.generate_stmt(body)?;
@@ -1134,7 +1144,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
         // Structured for-of statement
-        IrNode::ForOfStmt { await_, left, right, body } => {
+        IrNode::ForOfStmt { await_, left, right, body, .. } => {
             let left_code = self.generate_for_head(left)?;
             let right_code = self.generate_expr(right)?;
             let body_code = self.generate_stmt(body)?;
@@ -1151,7 +1161,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
         // TypeScript injection - the stream is a Rust expression that produces a Stmt
-        IrNode::TypeScript { stream } => {
+        IrNode::TypeScript { stream, .. } => {
             Ok(quote! { #stream })
         }
         // Control flow that generates Rust code - these are not TS statements

@@ -3,6 +3,7 @@ use super::ParseResult;
 
 impl Parser {
     pub(in super::super) fn parse_interface_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "interface"
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "interface keyword"))?;
@@ -28,7 +29,10 @@ impl Parser {
 
         // Parse body
         if !self.at(SyntaxKind::LBrace) {
-            return Ok(IrNode::Raw("interface ".to_string()));
+            return Ok(IrNode::Raw {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                value: "interface ".to_string(),
+            });
         }
         self.consume();
         self.skip_whitespace();
@@ -39,6 +43,7 @@ impl Parser {
         self.expect(SyntaxKind::RBrace);
 
         let node = IrNode::InterfaceDecl {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             exported,
             declare: false,
             name: Box::new(name),
@@ -95,6 +100,7 @@ impl Parser {
     /// Try to parse an interface member (property/method signature) when we see `readonly`.
     /// Falls back to Raw text if it doesn't look like an interface member pattern.
     pub(in super::super) fn parse_maybe_interface_member(&mut self) -> ParseResult<Option<IrNode>> {
+        let start_byte = self.current_byte_offset();
         // We're at `readonly` - consume it
         let Some(readonly_token) = self.consume() else {
             return Ok(None);
@@ -118,7 +124,7 @@ impl Parser {
             // Looks like interface member - parse the name
             let name = match self.parse_ts_ident_or_placeholder() {
                 Some(n) => n,
-                None => return Ok(Some(IrNode::Raw(readonly_token.text))),
+                None => return Ok(Some(IrNode::raw(&readonly_token))),
             };
             #[cfg(debug_assertions)]
             if std::env::var("MF_DEBUG_PARSER").is_ok() {
@@ -140,7 +146,10 @@ impl Parser {
             // Need colon for type annotation
             if !self.at(SyntaxKind::Colon) {
                 // Not a valid member pattern - return what we consumed as raw
-                return Ok(Some(IrNode::Raw(format!("{} ", readonly_token.text))));
+                return Ok(Some(IrNode::Raw {
+                    span: IrSpan::new(start_byte, self.current_byte_offset()),
+                    value: format!("{} ", readonly_token.text),
+                }));
             }
 
             self.consume(); // colon
@@ -162,6 +171,7 @@ impl Parser {
             }
 
             Ok(Some(IrNode::PropSignature {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 readonly: true,
                 name: Box::new(name),
                 optional,
@@ -169,11 +179,12 @@ impl Parser {
             }))
         } else {
             // Doesn't look like interface member - return readonly as raw text
-            Ok(Some(IrNode::Raw(readonly_token.text)))
+            Ok(Some(IrNode::raw(&readonly_token)))
         }
     }
 
     fn parse_interface_member(&mut self) -> ParseResult<Option<IrNode>> {
+        let start_byte = self.current_byte_offset();
         self.skip_whitespace();
 
         let readonly = if self.at(SyntaxKind::ReadonlyKw) {
@@ -186,7 +197,7 @@ impl Parser {
 
         // Check for index signature: [key: Type]: Type
         if self.at(SyntaxKind::LBracket) {
-            return self.parse_index_signature(readonly);
+            return self.parse_index_signature(readonly, start_byte);
         }
 
         let name = match self.parse_ts_ident_or_placeholder() {
@@ -228,6 +239,7 @@ impl Parser {
             }
 
             return Ok(Some(IrNode::MethodSignature {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 name: Box::new(name),
                 optional,
                 type_params,
@@ -255,6 +267,7 @@ impl Parser {
         }
 
         Ok(Some(IrNode::PropSignature {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             readonly,
             name: Box::new(name),
             optional,
@@ -263,7 +276,7 @@ impl Parser {
     }
 
     /// Parse an index signature: [key: Type]: Type
-    fn parse_index_signature(&mut self, readonly: bool) -> ParseResult<Option<IrNode>> {
+    fn parse_index_signature(&mut self, readonly: bool, start_byte: usize) -> ParseResult<Option<IrNode>> {
         let Some(_) = self.consume() else {
             return Ok(None);
         }; // [
@@ -273,6 +286,7 @@ impl Parser {
         let mut params = Vec::new();
 
         while !self.at_eof() && !self.at(SyntaxKind::RBracket) {
+            let param_start = self.current_byte_offset();
             let Some(param_name) = self.parse_ts_ident_or_placeholder() else {
                 return Ok(None);
             };
@@ -289,10 +303,13 @@ impl Parser {
                 return Ok(None);
             };
 
+            let param_end = self.current_byte_offset();
             // Create a Param node with the binding
             params.push(IrNode::Param {
+                span: IrSpan::new(param_start, param_end),
                 decorators: vec![],
                 pat: Box::new(IrNode::BindingIdent {
+                    span: IrSpan::new(param_start, param_end),
                     name: Box::new(param_name),
                     type_ann: Some(Box::new(param_type)),
                     optional: false,
@@ -330,6 +347,7 @@ impl Parser {
         }
 
         Ok(Some(IrNode::IndexSignature {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             readonly,
             params,
             type_ann: Box::new(type_ann),

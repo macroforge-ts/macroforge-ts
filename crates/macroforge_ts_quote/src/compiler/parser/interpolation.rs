@@ -6,6 +6,7 @@ use super::*;
 
 impl Parser {
     pub(super) fn parse_interpolation(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // IMPORTANT: Capture placeholder kind BEFORE consuming any tokens.
         // The RBrace token will trigger update_context which pops TypeAnnotation,
         // so we must determine the kind while the context is still intact.
@@ -45,7 +46,11 @@ impl Parser {
                 .with_help(&format!("Failed to parse as Rust expression: {}", e))
         })?;
 
-        Ok(IrNode::Placeholder { kind, expr })
+        Ok(IrNode::Placeholder {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            kind,
+            expr,
+        })
     }
 
     /// Parse an interpolated identifier - a sequence of identifiers and interpolations
@@ -72,10 +77,8 @@ impl Parser {
                 }
                 // An identifier immediately following
                 Some(SyntaxKind::Ident) => {
-                    if let Some(token) = self.current() {
-                        let text = token.text.clone();
-                        self.consume();
-                        additional_parts.push(IrNode::Raw(text));
+                    if let Some(token) = self.consume() {
+                        additional_parts.push(IrNode::raw(&token));
                     } else {
                         break;
                     }
@@ -90,20 +93,27 @@ impl Parser {
             return Ok(first);
         }
 
+        // Capture the span start before moving first
+        let first_span_start = first.span().start;
+
         // Multiple parts form a composite identifier - convert all placeholders to Ident kind
         let mut parts = vec![Self::to_ident_placeholder(first)];
         for part in additional_parts {
             parts.push(Self::to_ident_placeholder(part));
         }
 
-        Ok(IrNode::IdentBlock { parts })
+        Ok(IrNode::IdentBlock {
+            span: IrSpan::new(first_span_start, self.current_byte_offset()),
+            parts,
+        })
     }
 
     /// Convert a placeholder to Ident kind for identifier concatenation.
     /// Raw nodes pass through unchanged.
     fn to_ident_placeholder(node: IrNode) -> IrNode {
         match node {
-            IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
+            IrNode::Placeholder { span, expr, .. } => IrNode::Placeholder {
+                span,
                 kind: PlaceholderKind::Ident,
                 expr,
             },

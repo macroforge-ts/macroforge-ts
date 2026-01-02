@@ -12,7 +12,9 @@ impl Parser {
 
     pub(super) fn wrap_with_doc(&mut self, node: IrNode) -> ParseResult<IrNode> {
         if let Some(doc) = self.pending_doc.take() {
+            let span = node.span();
             Ok(IrNode::Documented {
+                span,
                 doc,
                 inner: Box::new(node),
             })
@@ -114,12 +116,15 @@ impl Parser {
 
         for node in nodes {
             match node {
-                IrNode::Raw(text) => {
-                    pending_text.push_str(&text);
+                IrNode::Raw { value, .. } => {
+                    pending_text.push_str(&value);
                 }
                 other => {
                     if !pending_text.is_empty() {
-                        result.push(IrNode::Raw(std::mem::take(&mut pending_text)));
+                        result.push(IrNode::Raw {
+                            span: IrSpan::empty(),
+                            value: std::mem::take(&mut pending_text),
+                        });
                     }
                     result.push(other);
                 }
@@ -127,7 +132,10 @@ impl Parser {
         }
 
         if !pending_text.is_empty() {
-            result.push(IrNode::Raw(pending_text));
+            result.push(IrNode::Raw {
+                span: IrSpan::empty(),
+                value: pending_text,
+            });
         }
 
         result

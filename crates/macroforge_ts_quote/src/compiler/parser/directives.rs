@@ -31,6 +31,7 @@ impl Parser {
     }
 
     fn parse_let_directive(&mut self) -> Option<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "let"
         self.consume()?;
         self.skip_whitespace();
@@ -63,6 +64,7 @@ impl Parser {
             };
 
             Some(IrNode::Let {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 pattern: Self::str_to_token_stream_or_panic(pattern_str, "let directive pattern"),
                 mutable,
                 type_hint,
@@ -74,6 +76,7 @@ impl Parser {
     }
 
     fn parse_do_directive(&mut self) -> Option<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "do"
         self.consume()?;
         self.skip_whitespace();
@@ -82,11 +85,13 @@ impl Parser {
         self.expect(SyntaxKind::RBrace);
 
         Some(IrNode::Do {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             code: Self::str_to_token_stream_or_panic(&code_str, "do directive code"),
         })
     }
 
     fn parse_typescript_directive(&mut self) -> Option<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "typescript"
         self.consume()?;
         self.skip_whitespace();
@@ -95,6 +100,7 @@ impl Parser {
         self.expect(SyntaxKind::RBrace);
 
         Some(IrNode::TypeScript {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             stream: Self::str_to_token_stream_or_panic(&stream_str, "typescript directive stream"),
         })
     }

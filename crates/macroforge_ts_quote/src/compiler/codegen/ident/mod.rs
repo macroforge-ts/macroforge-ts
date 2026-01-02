@@ -6,7 +6,7 @@ use super::*;
 impl Codegen {
     pub(in super::super) fn generate_ident(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Ident(name) => {
+            IrNode::Ident { value: name, .. } => {
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
                         #name.into(),
@@ -15,7 +15,7 @@ impl Codegen {
                 })
             }
             // Handle Raw nodes as identifiers (e.g., "*" in `export * as ns`)
-            IrNode::Raw(name) => {
+            IrNode::Raw { value: name, .. } => {
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
                         #name.into(),
@@ -26,6 +26,7 @@ impl Codegen {
             IrNode::Placeholder {
                 kind: PlaceholderKind::Ident,
                 expr,
+                ..
             } => {
                 Ok(quote! { macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()) })
             }
@@ -33,14 +34,14 @@ impl Codegen {
                 let kind_str = format!("{:?}", kind);
                 Err(GenError::invalid_placeholder("identifier", &kind_str, &["Ident"]))
             }
-            IrNode::IdentBlock { parts } => {
+            IrNode::IdentBlock { parts, .. } => {
                 // Build the identifier name from parts at runtime
                 let part_strs: Vec<TokenStream> = parts
                     .iter()
                     .filter_map(|p| match p {
-                        IrNode::Raw(text) => Some(quote! { __ident_str.push_str(#text); }),
-                        IrNode::StrLit(text) => Some(quote! { __ident_str.push_str(#text); }),
-                        IrNode::Ident(text) => Some(quote! { __ident_str.push_str(#text); }),
+                        IrNode::Raw { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
+                        IrNode::StrLit { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
+                        IrNode::Ident { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
                         IrNode::Placeholder { expr, .. } => {
                             Some(quote! { __ident_str.push_str(&(#expr).to_string()); })
                         }
@@ -68,7 +69,7 @@ impl Codegen {
 
     pub(in super::super) fn generate_ident_name(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Ident(name) => {
+            IrNode::Ident { value: name, .. } => {
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::IdentName::new(
                         #name.into(),
@@ -79,6 +80,7 @@ impl Codegen {
             IrNode::Placeholder {
                 kind: PlaceholderKind::Ident,
                 expr,
+                ..
             } => {
                 Ok(quote! {
                     {

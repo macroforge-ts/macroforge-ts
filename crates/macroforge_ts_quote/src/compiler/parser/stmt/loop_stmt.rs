@@ -39,6 +39,7 @@ impl Parser {
 
         // Save position for backtracking
         let start_pos = self.pos;
+        let start_byte = self.current_byte_offset();
 
         self.consume(); // for
         self.skip_whitespace();
@@ -110,14 +111,17 @@ impl Parser {
                 .map_err(|e| e.with_context("parsing for loop body"))?
         };
 
+        let end_byte = self.current_byte_offset();
         if is_for_in {
             Ok(Some(IrNode::ForInStmt {
+                span: IrSpan::new(start_byte, end_byte),
                 left: Box::new(left),
                 right: Box::new(right),
                 body: Box::new(body),
             }))
         } else {
             Ok(Some(IrNode::ForOfStmt {
+                span: IrSpan::new(start_byte, end_byte),
                 await_: has_await,
                 left: Box::new(left),
                 right: Box::new(right),
@@ -129,6 +133,7 @@ impl Parser {
     /// Parse the left-hand side of a for-in/for-of loop.
     /// This can be a variable declaration (const/let/var x) or an expression.
     fn parse_for_loop_left(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         let kind = self
             .current_kind()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "for loop left-hand side"))?;
@@ -150,11 +155,14 @@ impl Parser {
                     .parse_for_loop_binding()
                     .map_err(|e| e.with_context("parsing for loop variable binding"))?;
 
+                let end_byte = self.current_byte_offset();
                 Ok(IrNode::VarDecl {
+                    span: IrSpan::new(start_byte, end_byte),
                     exported: false,
                     declare: false,
                     kind: var_kind,
                     decls: vec![VarDeclarator {
+                        span: IrSpan::new(start_byte, end_byte),
                         name: Box::new(name),
                         type_ann: None,
                         init: None,
@@ -205,6 +213,7 @@ impl Parser {
 
     /// Parse array pattern for for-loop: [a, b, ...rest]
     fn parse_for_loop_array_pattern(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         self.consume(); // [
         self.skip_whitespace();
 
@@ -224,12 +233,15 @@ impl Parser {
 
             // Check for rest pattern
             if self.at(SyntaxKind::DotDotDot) {
+                let rest_start = self.current_byte_offset();
                 self.consume();
                 self.skip_whitespace();
                 let arg = self
                     .parse_for_loop_binding()
                     .map_err(|e| e.with_context("parsing rest element in array pattern"))?;
+                let rest_end = self.current_byte_offset();
                 elems.push(IrNode::RestPat {
+                    span: IrSpan::new(rest_start, rest_end),
                     arg: Box::new(arg),
                     type_ann: None,
                 });
@@ -251,7 +263,9 @@ impl Parser {
                 .with_context("parsing array pattern")
         })?;
 
+        let end_byte = self.current_byte_offset();
         Ok(IrNode::ArrayPat {
+            span: IrSpan::new(start_byte, end_byte),
             elems: elems.into_iter().map(Some).collect(),
             type_ann: None,
             optional: false,
@@ -260,6 +274,7 @@ impl Parser {
 
     /// Parse object pattern for for-loop: { a, b: c, ...rest }
     fn parse_for_loop_object_pattern(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         self.consume(); // {
         self.skip_whitespace();
 
@@ -274,17 +289,21 @@ impl Parser {
 
             // Check for rest pattern
             if self.at(SyntaxKind::DotDotDot) {
+                let rest_start = self.current_byte_offset();
                 self.consume();
                 self.skip_whitespace();
                 let arg = self
                     .parse_for_loop_binding()
                     .map_err(|e| e.with_context("parsing rest element in object pattern"))?;
+                let rest_end = self.current_byte_offset();
                 props.push(IrNode::RestPat {
+                    span: IrSpan::new(rest_start, rest_end),
                     arg: Box::new(arg),
                     type_ann: None,
                 });
             } else {
                 // Regular property
+                let prop_start = self.current_byte_offset();
                 let key = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
                     ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
                         .with_context("parsing object pattern property key")
@@ -298,13 +317,17 @@ impl Parser {
                     let value = self
                         .parse_for_loop_binding()
                         .map_err(|e| e.with_context("parsing object pattern property value"))?;
+                    let prop_end = self.current_byte_offset();
                     props.push(IrNode::ObjectPatProp {
+                        span: IrSpan::new(prop_start, prop_end),
                         key: Box::new(key),
                         value: Some(Box::new(value)),
                     });
                 } else {
                     // Shorthand: { a }
+                    let prop_end = self.current_byte_offset();
                     props.push(IrNode::ObjectPatProp {
+                        span: IrSpan::new(prop_start, prop_end),
                         key: Box::new(key),
                         value: None,
                     });
@@ -322,7 +345,9 @@ impl Parser {
                 .with_context("parsing object pattern")
         })?;
 
+        let end_byte = self.current_byte_offset();
         Ok(IrNode::ObjectPat {
+            span: IrSpan::new(start_byte, end_byte),
             props,
             type_ann: None,
             optional: false,
@@ -334,21 +359,27 @@ impl Parser {
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
-        let keyword = self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "loop keyword"))?
-            .text;
+        let start_byte = self.current_byte_offset();
+        let keyword_tok = self.consume()
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "loop keyword"))?;
 
         #[cfg(debug_assertions)]
         if debug_parser {
-            eprintln!("[MF_DEBUG] parse_loop_as_raw: keyword={:?}", keyword);
+            eprintln!("[MF_DEBUG] parse_loop_as_raw: keyword={:?}", keyword_tok.text);
         }
-        let mut parts = vec![IrNode::Raw(keyword)];
+        let mut parts = vec![IrNode::Raw {
+            span: IrSpan::new(keyword_tok.start, keyword_tok.end()),
+            value: keyword_tok.text
+        }];
 
         // Helper to add whitespace
         while let Some(t) = self.current() {
             if t.kind == SyntaxKind::Whitespace {
                 if let Some(tok) = self.consume() {
-                    parts.push(IrNode::Raw(tok.text));
+                    parts.push(IrNode::Raw {
+                        span: IrSpan::new(tok.start, tok.end()),
+                        value: tok.text
+                    });
                 }
             } else {
                 break;
@@ -358,7 +389,8 @@ impl Parser {
         // Parse the loop header in parens
         if !self.at(SyntaxKind::LParen) {
             // Try to recover - just return what we have
-            return Ok(IrNode::IdentBlock { parts });
+            let end_byte = self.current_byte_offset();
+            return Ok(IrNode::IdentBlock { span: IrSpan::new(start_byte, end_byte), parts });
         }
 
         let mut paren_depth = 0;
@@ -376,12 +408,12 @@ impl Parser {
                 SyntaxKind::LParen => {
                     paren_depth += 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
                     }
                 }
                 SyntaxKind::RParen => {
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
                     }
                     paren_depth -= 1;
                     if paren_depth == 0 {
@@ -393,16 +425,19 @@ impl Parser {
                     // Check for identifier suffix
                     if let Some(token) = self.current() {
                         if token.kind == SyntaxKind::Ident {
+                            let suffix_start = token.start;
+                            let suffix_end = token.end();
                             let suffix = token.text.clone();
                             self.consume();
                             let ident_placeholder = match placeholder {
-                                IrNode::Placeholder { expr, .. } => {
-                                    IrNode::Placeholder { kind: PlaceholderKind::Ident, expr }
+                                IrNode::Placeholder { expr, span, .. } => {
+                                    IrNode::Placeholder { span, kind: PlaceholderKind::Ident, expr }
                                 }
                                 other => other,
                             };
                             parts.push(IrNode::IdentBlock {
-                                parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                                span: IrSpan::empty(), // TODO: proper span
+                                parts: vec![ident_placeholder, IrNode::Raw { span: IrSpan::new(suffix_start, suffix_end), value: suffix }],
                             });
                             continue;
                         }
@@ -421,7 +456,7 @@ impl Parser {
                 }
                 _ => {
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
                     }
                 }
             }
@@ -431,7 +466,7 @@ impl Parser {
         while let Some(t) = self.current() {
             if t.kind == SyntaxKind::Whitespace {
                 if let Some(tok) = self.consume() {
-                    parts.push(IrNode::Raw(tok.text));
+                    parts.push(IrNode::Raw { span: IrSpan::new(tok.start, tok.end()), value: tok.text });
                 }
             } else {
                 break;
@@ -455,12 +490,12 @@ impl Parser {
                     SyntaxKind::LBrace => {
                         brace_depth += 1;
                         if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw(t.text));
+                            parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
                         }
                     }
                     SyntaxKind::RBrace => {
                         if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw(t.text));
+                            parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
                         }
                         brace_depth -= 1;
                         if brace_depth == 0 {
@@ -472,16 +507,19 @@ impl Parser {
                         // Check for identifier suffix
                         if let Some(token) = self.current() {
                             if token.kind == SyntaxKind::Ident {
+                                let suffix_start = token.start;
+                                let suffix_end = token.end();
                                 let suffix = token.text.clone();
                                 self.consume();
                                 let ident_placeholder = match placeholder {
-                                    IrNode::Placeholder { expr, .. } => {
-                                        IrNode::Placeholder { kind: PlaceholderKind::Ident, expr }
+                                    IrNode::Placeholder { expr, span, .. } => {
+                                        IrNode::Placeholder { span, kind: PlaceholderKind::Ident, expr }
                                     }
                                     other => other,
                                 };
                                 parts.push(IrNode::IdentBlock {
-                                    parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                                    span: IrSpan::empty(),
+                                    parts: vec![ident_placeholder, IrNode::Raw { span: IrSpan::new(suffix_start, suffix_end), value: suffix }],
                                 });
                                 continue;
                             }
@@ -498,7 +536,7 @@ impl Parser {
                     }
                     _ => {
                         if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw(t.text));
+                            parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
                         }
                     }
                 }
@@ -513,16 +551,17 @@ impl Parser {
             eprintln!("[MF_DEBUG] parse_loop_as_raw: collected {} parts", merged.len());
             for (i, part) in merged.iter().enumerate() {
                 match part {
-                    IrNode::Raw(text) => eprintln!("  part[{}]: Raw({:?})", i, &text[..text.len().min(50)]),
+                    IrNode::Raw { value: text, .. } => eprintln!("  part[{}]: Raw({:?})", i, &text[..text.len().min(50)]),
                     IrNode::Placeholder { kind, .. } => eprintln!("  part[{}]: Placeholder({:?})", i, kind),
-                    IrNode::IdentBlock { parts } => eprintln!("  part[{}]: IdentBlock({} parts)", i, parts.len()),
+                    IrNode::IdentBlock { parts, .. } => eprintln!("  part[{}]: IdentBlock({} parts)", i, parts.len()),
                     IrNode::StringInterp { .. } => eprintln!("  part[{}]: StringInterp", i),
                     other => eprintln!("  part[{}]: {:?}", i, std::mem::discriminant(other)),
                 }
             }
         }
 
+        let end_byte = self.current_byte_offset();
         // Return as TsLoopStmt which will be handled as a structured statement
-        Ok(IrNode::TsLoopStmt { parts: merged })
+        Ok(IrNode::TsLoopStmt { span: IrSpan::new(start_byte, end_byte), parts: merged })
     }
 }

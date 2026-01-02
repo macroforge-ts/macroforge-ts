@@ -56,6 +56,7 @@ impl Codegen {
                 pattern,
                 iterator,
                 body,
+                ..
             } => {
                 let body_stmts: Vec<TokenStream> = body
                     .iter()
@@ -76,6 +77,7 @@ impl Codegen {
                 then_body,
                 else_if_branches,
                 else_body,
+                ..
             } => {
                 let then_stmts: Vec<TokenStream> = then_body
                     .iter()
@@ -124,6 +126,7 @@ impl Codegen {
                 name,
                 optional,
                 type_ann,
+                ..
             } => {
                 let member_code =
                     self.generate_prop_signature(*readonly, name, *optional, type_ann.as_deref())?;
@@ -137,6 +140,7 @@ impl Codegen {
                 type_params,
                 params,
                 return_type,
+                ..
             } => {
                 let member_code = self.generate_method_signature(
                     name,
@@ -153,6 +157,7 @@ impl Codegen {
                 readonly,
                 params,
                 type_ann,
+                ..
             } => {
                 let member_code = self.generate_index_signature(*readonly, params, type_ann)?;
                 Ok(Some(quote! {
@@ -164,6 +169,7 @@ impl Codegen {
                 mutable,
                 type_hint,
                 value,
+                ..
             } => {
                 let mutability = if *mutable {
                     quote! { mut }
@@ -177,7 +183,7 @@ impl Codegen {
                     Ok(Some(quote! { let #mutability #pattern = #value; }))
                 }
             }
-            IrNode::Raw(_) => Ok(None), // Skip whitespace/raw text
+            IrNode::Raw { .. } => Ok(None), // Skip whitespace/raw text
             _ => Ok(None),
         }
     }
@@ -189,6 +195,7 @@ impl Codegen {
                 name,
                 optional,
                 type_ann,
+                ..
             } => Ok(Some(self.generate_prop_signature(*readonly, name, *optional, type_ann.as_deref())?)),
             IrNode::MethodSignature {
                 name,
@@ -196,6 +203,7 @@ impl Codegen {
                 type_params,
                 params,
                 return_type,
+                ..
             } => Ok(Some(self.generate_method_signature(
                 name,
                 *optional,
@@ -207,6 +215,7 @@ impl Codegen {
                 readonly,
                 params,
                 type_ann,
+                ..
             } => Ok(Some(self.generate_index_signature(*readonly, params, type_ann)?)),
             _ => Ok(None),
         }

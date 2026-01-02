@@ -11,7 +11,7 @@ fn parse(input: &str) -> Ir {
      fn find_placeholders(ir: &Ir) -> Vec<(PlaceholderKind, String)> {
          fn collect_node(node: &IrNode, result: &mut Vec<(PlaceholderKind, String)>) {
              match node {
-                 IrNode::Placeholder { kind, expr } => {
+                 IrNode::Placeholder { kind, expr, .. } => {
                      result.push((*kind, expr.to_string()));
                  }
                  IrNode::If { then_body, else_if_branches, else_body, .. } => {
@@ -26,7 +26,7 @@ fn parse(input: &str) -> Ir {
                  IrNode::For { body, .. } | IrNode::While { body, .. } => {
                      collect_nodes(body, result);
                  }
-                 IrNode::ForInStmt { left, right, body } | IrNode::ForOfStmt { left, right, body, .. } => {
+                 IrNode::ForInStmt { left, right, body, .. } | IrNode::ForOfStmt { left, right, body, .. } => {
                      collect_node(left, result);
                      collect_node(right, result);
                      collect_node(body, result);
@@ -36,7 +36,7 @@ fn parse(input: &str) -> Ir {
                          collect_nodes(&arm.body, result);
                      }
                  }
-                 IrNode::IdentBlock { parts } | IrNode::StringInterp { parts, .. } => {
+                 IrNode::IdentBlock { parts, .. } | IrNode::StringInterp { parts, .. } => {
                      collect_nodes(parts, result);
                  }
                  // Declarations
@@ -120,21 +120,21 @@ fn parse(input: &str) -> Ir {
                      }
                  }
                  // Statements
-                 IrNode::BlockStmt { stmts } => {
+                 IrNode::BlockStmt { stmts, .. } => {
                      collect_nodes(stmts, result);
                  }
-                 IrNode::ExprStmt { expr } => {
+                 IrNode::ExprStmt { expr, .. } => {
                      collect_node(expr, result);
                  }
-                 IrNode::ReturnStmt { arg } => {
+                 IrNode::ReturnStmt { arg, .. } => {
                      if let Some(a) = arg {
                          collect_node(a, result);
                      }
                  }
-                 IrNode::ThrowStmt { arg } => {
+                 IrNode::ThrowStmt { arg, .. } => {
                      collect_node(arg, result);
                  }
-                 IrNode::TsIfStmt { test, cons, alt } => {
+                 IrNode::TsIfStmt { test, cons, alt, .. } => {
                      collect_node(test, result);
                      collect_node(cons, result);
                      if let Some(a) = alt {
@@ -142,7 +142,7 @@ fn parse(input: &str) -> Ir {
                      }
                  }
                  // Parameters
-                 IrNode::Param { decorators, pat } => {
+                 IrNode::Param { decorators, pat, .. } => {
                      collect_nodes(decorators, result);
                      collect_node(pat, result);
                  }
@@ -152,21 +152,21 @@ fn parse(input: &str) -> Ir {
                          collect_node(ta, result);
                      }
                  }
-                 IrNode::RestPat { arg, type_ann } => {
+                 IrNode::RestPat { arg, type_ann, .. } => {
                      collect_node(arg, result);
                      if let Some(ta) = type_ann {
                          collect_node(ta, result);
                      }
                  }
-                 IrNode::AssignPat { left, right } => {
+                 IrNode::AssignPat { left, right, .. } => {
                      collect_node(left, result);
                      collect_node(right, result);
                  }
                  // Types
-                 IrNode::TypeAnnotation { type_ann } => {
+                 IrNode::TypeAnnotation { type_ann, .. } => {
                      collect_node(type_ann, result);
                  }
-                 IrNode::TypeParams { params } => {
+                 IrNode::TypeParams { params, .. } => {
                      collect_nodes(params, result);
                  }
                  // Interface members
@@ -191,7 +191,7 @@ fn parse(input: &str) -> Ir {
                      collect_node(inner, result);
                  }
                 // Expressions
-                IrNode::CondExpr { test, consequent, alternate } => {
+                IrNode::CondExpr { test, consequent, alternate, .. } => {
                     collect_node(test, result);
                     collect_node(consequent, result);
                     collect_node(alternate, result);
@@ -216,13 +216,13 @@ fn parse(input: &str) -> Ir {
                     collect_node(callee, result);
                     collect_nodes(args, result);
                 }
-                IrNode::UnaryExpr { arg, .. } | IrNode::UpdateExpr { arg, .. } | IrNode::AwaitExpr { arg } => {
+                IrNode::UnaryExpr { arg, .. } | IrNode::UpdateExpr { arg, .. } | IrNode::AwaitExpr { arg, .. } => {
                     collect_node(arg, result);
                 }
-                IrNode::SeqExpr { exprs } => {
+                IrNode::SeqExpr { exprs, .. } => {
                     collect_nodes(exprs, result);
                 }
-                IrNode::ParenExpr { expr } => {
+                IrNode::ParenExpr { expr, .. } => {
                     collect_node(expr, result);
                 }
                 IrNode::YieldExpr { arg, .. } => {
@@ -246,17 +246,17 @@ fn parse(input: &str) -> Ir {
                     }
                     collect_nodes(body, result);
                 }
-                IrNode::ObjectLit { props } => {
+                IrNode::ObjectLit { props, .. } => {
                     collect_nodes(props, result);
                 }
-                IrNode::ArrayLit { elems } => {
+                IrNode::ArrayLit { elems, .. } => {
                     collect_nodes(elems, result);
                 }
-                IrNode::KeyValueProp { key, value } => {
+                IrNode::KeyValueProp { key, value, .. } => {
                     collect_node(key, result);
                     collect_node(value, result);
                 }
-                IrNode::ShorthandProp { key } => {
+                IrNode::ShorthandProp { key, .. } => {
                     collect_node(key, result);
                 }
                 IrNode::MethodProp { name, type_params, params, return_type, body, .. } => {
@@ -282,7 +282,7 @@ fn parse(input: &str) -> Ir {
                     collect_node(param, result);
                     collect_node(body, result);
                 }
-                IrNode::SpreadElement { expr } => {
+                IrNode::SpreadElement { expr, .. } => {
                     collect_node(expr, result);
                 }
                 IrNode::TplLit { exprs, .. } => {
@@ -292,18 +292,18 @@ fn parse(input: &str) -> Ir {
                     collect_node(tag, result);
                     collect_node(tpl, result);
                 }
-                IrNode::TsAsExpr { expr, type_ann } | IrNode::TsSatisfiesExpr { expr, type_ann } => {
+                IrNode::TsAsExpr { expr, type_ann, .. } | IrNode::TsSatisfiesExpr { expr, type_ann, .. } => {
                     collect_node(expr, result);
                     collect_node(type_ann, result);
                 }
-                IrNode::TsNonNullExpr { expr } | IrNode::TsConstAssertion { expr } => {
+                IrNode::TsNonNullExpr { expr, .. } | IrNode::TsConstAssertion { expr, .. } => {
                     collect_node(expr, result);
                 }
-                IrNode::TsInstantiation { expr, type_args } => {
+                IrNode::TsInstantiation { expr, type_args, .. } => {
                     collect_node(expr, result);
                     collect_node(type_args, result);
                 }
-                IrNode::OptChainExpr { base, expr } => {
+                IrNode::OptChainExpr { base, expr, .. } => {
                     collect_node(base, result);
                     collect_node(expr, result);
                 }
@@ -329,7 +329,7 @@ fn parse(input: &str) -> Ir {
          let ir = parse("hello world");
          assert_eq!(ir.nodes.len(), 1);
          match &ir.nodes[0] {
-             IrNode::Raw(text) => assert!(text.contains("hello")),
+             IrNode::Raw { value: text, .. } => assert!(text.contains("hello")),
              _ => panic!("Expected Raw"),
          }
      }
@@ -455,7 +455,7 @@ fn parse(input: &str) -> Ir {
          let ir = parse("{#if cond}body{/if}");
          assert_eq!(ir.nodes.len(), 1);
          match &ir.nodes[0] {
-             IrNode::If { condition, then_body, else_if_branches, else_body } => {
+             IrNode::If { condition, then_body, else_if_branches, else_body, .. } => {
                  assert_eq!(condition.to_string(), "cond");
                  assert!(!then_body.is_empty());
                  assert!(else_if_branches.is_empty());
@@ -498,7 +498,7 @@ fn parse(input: &str) -> Ir {
          let ir = parse("{#for item in items}@{item}{/for}");
          assert_eq!(ir.nodes.len(), 1);
          match &ir.nodes[0] {
-             IrNode::For { pattern, iterator, body } => {
+             IrNode::For { pattern, iterator, body, .. } => {
                  assert_eq!(pattern.to_string(), "item");
                  assert_eq!(iterator.to_string(), "items");
                  assert!(!body.is_empty());
@@ -526,7 +526,7 @@ fn parse(input: &str) -> Ir {
          let ir = parse("{#while cond}body{/while}");
          assert_eq!(ir.nodes.len(), 1);
          match &ir.nodes[0] {
-             IrNode::While { condition, body } => {
+             IrNode::While { condition, body, .. } => {
                  assert_eq!(condition.to_string(), "cond");
                  assert!(!body.is_empty());
              }
@@ -539,7 +539,7 @@ fn parse(input: &str) -> Ir {
          let ir = parse("{#match expr}{:case Some(x)}found{:case None}empty{/match}");
          assert_eq!(ir.nodes.len(), 1);
          match &ir.nodes[0] {
-             IrNode::Match { expr, arms } => {
+             IrNode::Match { expr, arms, .. } => {
                  assert_eq!(expr.to_string(), "expr");
                  assert_eq!(arms.len(), 2);
                  assert!(arms[0].pattern.to_string().contains("Some"));
@@ -596,7 +596,7 @@ fn parse(input: &str) -> Ir {
          let ir = parse("{$do println!(\"test\")}");
          assert_eq!(ir.nodes.len(), 1);
          match &ir.nodes[0] {
-             IrNode::Do { code } => {
+             IrNode::Do { code, .. } => {
                  assert!(code.to_string().contains("println"));
              }
              _ => panic!("Expected Do"),
@@ -664,7 +664,7 @@ fn parse(input: &str) -> Ir {
          let ir = parse("`hello @{name}`");
          assert_eq!(ir.nodes.len(), 1);
          match &ir.nodes[0] {
-             IrNode::TplLit { quasis, exprs } => {
+             IrNode::TplLit { quasis, exprs, .. } => {
                  // Template literal with "hello " and "" quasis, with placeholder expression
                  assert!(!quasis.is_empty(), "Expected quasis");
                  assert!(!exprs.is_empty(), "Expected expressions (placeholder)");
@@ -764,7 +764,7 @@ fn parse(input: &str) -> Ir {
              match node {
                  IrNode::For { .. } => true,
                  IrNode::FnDecl { body, .. } => body.as_ref().map(|b| has_for_node(b)).unwrap_or(false),
-                 IrNode::BlockStmt { stmts } => stmts.iter().any(has_for_node),
+                 IrNode::BlockStmt { stmts, .. } => stmts.iter().any(has_for_node),
                  _ => false,
              }
          }
@@ -776,7 +776,7 @@ fn parse(input: &str) -> Ir {
          // Verify raw nodes don't contain control flow markers
          fn check_no_control_flow_in_raw(node: &IrNode) {
              match node {
-                 IrNode::Raw(text) => {
+                 IrNode::Raw { value: text, .. } => {
                      assert!(!text.contains("{#for"), "Raw node should not contain {{#for: {}", text);
                      assert!(!text.contains("{/for"), "Raw node should not contain {{/for: {}", text);
                  }
@@ -785,7 +785,7 @@ fn parse(input: &str) -> Ir {
                          check_no_control_flow_in_raw(b);
                      }
                  }
-                 IrNode::BlockStmt { stmts } => {
+                 IrNode::BlockStmt { stmts, .. } => {
                      for stmt in stmts {
                          check_no_control_flow_in_raw(stmt);
                      }

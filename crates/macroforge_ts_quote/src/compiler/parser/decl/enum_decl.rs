@@ -12,6 +12,8 @@ impl Parser {
     /// Parse enum declaration
     /// Handles: enum, const enum, export enum
     pub(crate) fn parse_enum_decl(&mut self, exported: bool, const_: bool) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
+
         // If we're at "const", consume it
         let const_ = if self.at(SyntaxKind::ConstKw) {
             self.consume();
@@ -38,7 +40,10 @@ impl Parser {
 
         // Parse enum body
         if !self.at(SyntaxKind::LBrace) {
-            return Ok(IrNode::Raw("enum ".to_string()));
+            return Ok(IrNode::Raw {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                value: "enum ".to_string(),
+            });
         }
         self.consume(); // consume {
         self.skip_whitespace();
@@ -49,6 +54,7 @@ impl Parser {
         self.expect(SyntaxKind::RBrace);
 
         Ok(IrNode::EnumDecl {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             exported,
             declare: false,
             const_,
@@ -117,6 +123,8 @@ impl Parser {
 
     /// Parse a single enum member: `Name` or `Name = value`
     fn parse_enum_member(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
+
         // Parse member name (can be identifier or placeholder)
         let name = self.parse_ts_ident_or_placeholder()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "enum member name")
@@ -137,6 +145,7 @@ impl Parser {
         };
 
         Ok(IrNode::EnumMember {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             name: Box::new(name),
             init,
         })

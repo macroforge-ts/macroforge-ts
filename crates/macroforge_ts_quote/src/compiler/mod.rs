@@ -6,6 +6,7 @@
 //! - Codegen: Generates Rust TokenStream output from IR
 
 mod codegen;
+mod error_fmt;
 mod ir;
 mod lexer;
 mod parser;
@@ -18,19 +19,31 @@ use parser::Parser;
 use proc_macro2::{Span, TokenStream, TokenTree};
 use quote::quote;
 
-/// Builds a span map from token positions to proc_macro2 Spans.
-/// Maps line numbers to the spans of tokens on those lines for precise error highlighting.
+/// A span entry with line and column information for precise lookup.
+#[derive(Clone, Copy)]
+struct SpanEntry {
+    /// Line number (1-indexed, from proc_macro2)
+    line: usize,
+    /// Start column (0-indexed)
+    col_start: usize,
+    /// End column (0-indexed, exclusive)
+    col_end: usize,
+    /// The proc_macro2 span
+    span: Span,
+}
+
+/// Maps line/column positions to proc_macro2 Spans for precise error highlighting.
 struct SpanMap {
-    /// Map from line number to a representative span on that line
-    line_spans: std::collections::HashMap<usize, Span>,
-    /// Fallback span covering the whole content
+    /// Span entries sorted by (line, col_start) for efficient lookup.
+    entries: Vec<SpanEntry>,
+    /// Fallback span when no entry matches.
     fallback: Span,
 }
 
 impl SpanMap {
-    /// Build a span map from a TokenStream.
+    /// Build a SpanMap from a TokenStream using line/column information.
     fn from_token_stream(stream: &TokenStream) -> Self {
-        let mut line_spans = std::collections::HashMap::new();
+        let mut entries = Vec::new();
         let fallback = stream
             .clone()
             .into_iter()
@@ -38,29 +51,104 @@ impl SpanMap {
             .map(|t| t.span())
             .unwrap_or_else(Span::call_site);
 
-        Self::collect_line_spans(stream, &mut line_spans);
+        Self::collect_spans(stream, &mut entries);
 
-        Self { line_spans, fallback }
+        // Sort by (line, col_start) for binary search
+        entries.sort_by(|a, b| {
+            a.line.cmp(&b.line).then(a.col_start.cmp(&b.col_start))
+        });
+
+        Self { entries, fallback }
     }
 
-    /// Recursively collect spans by line number
-    fn collect_line_spans(stream: &TokenStream, line_spans: &mut std::collections::HashMap<usize, Span>) {
+    /// Recursively collect spans from the token stream.
+    fn collect_spans(stream: &TokenStream, entries: &mut Vec<SpanEntry>) {
         for token in stream.clone() {
             let span = token.span();
-            let line = span.start().line;
-            // Only store the first span we see for each line
-            line_spans.entry(line).or_insert(span);
+            let start = span.start();
+            let end = span.end();
+
+            // Add entry for this token
+            entries.push(SpanEntry {
+                line: start.line,
+                col_start: start.column,
+                col_end: if end.line == start.line { end.column } else { usize::MAX },
+                span,
+            });
 
             // Recurse into groups
             if let TokenTree::Group(group) = token {
-                Self::collect_line_spans(&group.stream(), line_spans);
+                // Add open delimiter span
+                let open_span = group.span_open();
+                let open_start = open_span.start();
+                entries.push(SpanEntry {
+                    line: open_start.line,
+                    col_start: open_start.column,
+                    col_end: open_start.column + 1,
+                    span: open_span,
+                });
+
+                // Process contents
+                Self::collect_spans(&group.stream(), entries);
+
+                // Add close delimiter span
+                let close_span = group.span_close();
+                let close_start = close_span.start();
+                entries.push(SpanEntry {
+                    line: close_start.line,
+                    col_start: close_start.column,
+                    col_end: close_start.column + 1,
+                    span: close_span,
+                });
             }
         }
     }
 
-    /// Find a span for the given absolute line number
+    /// Find the span for a given line and column.
+    /// Line is 1-indexed (matching proc_macro2), column is 1-indexed (matching SourceLocation).
+    fn span_at(&self, line: usize, column: usize) -> Span {
+        // Convert column to 0-indexed for comparison
+        let col = column.saturating_sub(1);
+
+        // Find entries on this line
+        let line_start = self.entries.partition_point(|e| e.line < line);
+        let line_end = self.entries.partition_point(|e| e.line <= line);
+
+        if line_start >= line_end {
+            // No entries on this line, find closest line before
+            if line_start > 0 {
+                return self.entries[line_start - 1].span;
+            }
+            return self.fallback;
+        }
+
+        // Find the entry containing this column, or closest before
+        let line_entries = &self.entries[line_start..line_end];
+
+        // First try to find an entry that contains the column
+        for entry in line_entries {
+            if col >= entry.col_start && col < entry.col_end {
+                return entry.span;
+            }
+        }
+
+        // Otherwise find the closest entry before this column
+        let mut best = None;
+        for entry in line_entries {
+            if entry.col_start <= col {
+                best = Some(entry.span);
+            }
+        }
+
+        best.unwrap_or_else(|| {
+            // Use first entry on this line
+            line_entries.first().map(|e| e.span).unwrap_or(self.fallback)
+        })
+    }
+
+    /// Find span for a line (for compatibility with line-offset based lookup).
     fn span_for_line(&self, line: usize) -> Span {
-        self.line_spans.get(&line).copied().unwrap_or(self.fallback)
+        self.span_at(line, 1)
     }
 }
 
@@ -69,13 +157,13 @@ impl SpanMap {
 pub fn compile_template_tokens(input: TokenStream) -> syn::Result<TokenStream> {
     let parsed = parse_position(input)?;
 
-    // Build span map for precise error highlighting
+    // Build span map from token stream for error highlighting
     let span_map = SpanMap::from_token_stream(&parsed.body);
 
     // Use original source text if available (preserves formatting and line numbers).
     // Fall back to to_string() which may alter whitespace/line structure.
     let has_source_text = parsed.source_text.is_some();
-    let (template_str, line_offset) = if let Some(source) = parsed.source_text {
+    let (template_str, line_offset) = if let Some(ref source) = parsed.source_text {
         // source_text includes the braces, so strip them
         let trimmed = source.trim();
         let inner = if trimmed.starts_with('{') && trimmed.ends_with('}') {
@@ -208,7 +296,7 @@ fn parse_position(input: TokenStream) -> syn::Result<ParsedInput> {
 pub fn compile_template(template: &str, position: Option<&str>, line_offset: usize) -> syn::Result<TokenStream> {
     // Create a dummy span map for tests/CLI usage
     let dummy_span_map = SpanMap {
-        line_spans: std::collections::HashMap::new(),
+        entries: Vec::new(),
         fallback: Span::call_site(),
     };
     compile_template_with_spans(template, position, line_offset, &dummy_span_map)
@@ -232,10 +320,10 @@ fn compile_template_with_spans(
 
     // Create parser (may fail with LexError)
     let parser = Parser::try_new(template).map_err(|e| {
-        // Calculate the absolute line for this error
+        // Convert byte position to line/column, then look up precise span
         let loc = SourceLocation::from_offset(template, e.position);
         let absolute_line = loc.line + line_offset;
-        let span = span_map.span_for_line(absolute_line);
+        let span = span_map.span_at(absolute_line, loc.column);
         syn::Error::new(
             span,
             e.format_with_source_and_file(template, "template", line_offset),
@@ -244,10 +332,10 @@ fn compile_template_with_spans(
 
     // Parse to IR (may fail with ParseError)
     let ir = parser.parse().map_err(|e| {
-        // Calculate the absolute line for this error
+        // Convert byte position to line/column, then look up precise span
         let loc = SourceLocation::from_offset(template, e.position);
         let absolute_line = loc.line + line_offset;
-        let span = span_map.span_for_line(absolute_line);
+        let span = span_map.span_at(absolute_line, loc.column);
         syn::Error::new(
             span,
             e.format_with_source_and_file(template, "template", line_offset),
@@ -258,7 +346,18 @@ fn compile_template_with_spans(
     let config = CodegenConfig::default();
     let stmts_code = Codegen::with_config(config)
         .generate(&ir)
-        .map_err(|e| syn::Error::new(span_map.fallback, e.to_string()))?;
+        .map_err(|e| {
+            // Use span from error if available, otherwise fallback
+            let span = if let Some(ir_span) = e.span {
+                span_map.span_at(
+                    SourceLocation::from_offset(template, ir_span.start).line + line_offset,
+                    SourceLocation::from_offset(template, ir_span.start).column,
+                )
+            } else {
+                span_map.fallback
+            };
+            syn::Error::new(span, e.format_with_source_and_file(template, "template", line_offset))
+        })?;
 
     // Wrap in TsStream construction
     let insert_pos = position_to_tokens(position);

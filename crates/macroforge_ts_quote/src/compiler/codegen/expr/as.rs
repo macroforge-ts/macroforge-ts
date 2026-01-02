@@ -8,12 +8,12 @@ impl Codegen {
     /// Returns Err(e) if the node is an expression type but generation fails.
     pub(in super::super::super) fn try_generate_as_expr(&self, node: &IrNode) -> GenResult<Option<TokenStream>> {
     match node {
-        IrNode::Ident(_)
-        | IrNode::StrLit(_)
-        | IrNode::NumLit(_)
-        | IrNode::BoolLit(_)
-        | IrNode::NullLit
-        | IrNode::ThisExpr
+        IrNode::Ident { .. }
+        | IrNode::StrLit { .. }
+        | IrNode::NumLit { .. }
+        | IrNode::BoolLit { .. }
+        | IrNode::NullLit { .. }
+        | IrNode::ThisExpr { .. }
         | IrNode::CallExpr { .. }
         | IrNode::MemberExpr { .. }
         | IrNode::ObjectLit { .. }
@@ -24,7 +24,7 @@ impl Codegen {
         | IrNode::ArrowExpr { .. }
         | IrNode::NewExpr { .. }
         | IrNode::TplLit { .. }
-        | IrNode::Raw(_)
+        | IrNode::Raw { .. }
         | IrNode::Placeholder { .. }
         | IrNode::IdentBlock { .. }
         | IrNode::StringInterp { .. }
@@ -36,8 +36,8 @@ impl Codegen {
         | IrNode::AwaitExpr { .. }
         | IrNode::YieldExpr { .. }
         // Phase 4: Literal/operator expressions
-        | IrNode::PrivateName(_)
-        | IrNode::BigIntLit(_)
+        | IrNode::PrivateName { .. }
+        | IrNode::BigIntLit { .. }
         | IrNode::UpdateExpr { .. }
         | IrNode::OptChainExpr { .. }
         // Phase 5: Complex expressions

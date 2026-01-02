@@ -3,7 +3,7 @@
 //! Provides detailed, context-rich error messages for debugging codegen failures.
 //! No silent fallbacks - all errors are explicit and actionable.
 
-use crate::compiler::ir::IrNode;
+use crate::compiler::ir::{IrNode, IrSpan};
 use std::fmt;
 
 /// The kind of codegen error that occurred.
@@ -111,6 +111,8 @@ pub struct GenError {
     pub help: Option<String>,
     /// Source chain for nested errors.
     pub source: Option<Box<GenError>>,
+    /// Byte offset span in template source for error highlighting.
+    pub span: Option<IrSpan>,
 }
 
 impl GenError {
@@ -124,10 +126,11 @@ impl GenError {
             found: None,
             help: None,
             source: None,
+            span: None,
         }
     }
 
-    /// Creates an "unexpected IR node" error.
+    /// Creates an "unexpected IR node" error with span from the node.
     pub fn unexpected_node(context: &str, node: &IrNode, expected: &[&str]) -> Self {
         Self {
             kind: GenErrorKind::UnexpectedIrNode,
@@ -137,6 +140,7 @@ impl GenError {
             found: Some(node_variant_name(node)),
             help: None,
             source: None,
+            span: Some(node.span()),
         }
     }
 
@@ -158,6 +162,30 @@ impl GenError {
                 expected_kinds.join(", ")
             )),
             source: None,
+            span: None,
+        }
+    }
+
+    /// Creates an "invalid placeholder kind" error with span.
+    pub fn invalid_placeholder_at(
+        context: &str,
+        found_kind: &str,
+        expected_kinds: &[&str],
+        span: IrSpan,
+    ) -> Self {
+        Self {
+            kind: GenErrorKind::InvalidPlaceholderKind,
+            context: context.to_string(),
+            ir_node: None,
+            expected: expected_kinds.iter().map(|s| (*s).to_string()).collect(),
+            found: Some(found_kind.to_string()),
+            help: Some(format!(
+                "In {} position, placeholders must be one of: {}",
+                context,
+                expected_kinds.join(", ")
+            )),
+            source: None,
+            span: Some(span),
         }
     }
 
@@ -171,6 +199,7 @@ impl GenError {
             found: Some("None".to_string()),
             help: Some(format!("The {} field is required for {}", field_name, context)),
             source: None,
+            span: None,
         }
     }
 
@@ -187,6 +216,7 @@ impl GenError {
                 message
             )),
             source: None,
+            span: None,
         }
     }
 
@@ -196,9 +226,12 @@ impl GenError {
         self
     }
 
-    /// Adds the IR node to the error.
+    /// Adds the IR node to the error (also captures span for highlighting).
     pub fn with_ir_node(mut self, node: &IrNode) -> Self {
         self.ir_node = Some(format!("{:?}", std::mem::discriminant(node)));
+        if self.span.is_none() {
+            self.span = Some(node.span());
+        }
         self
     }
 
@@ -224,6 +257,23 @@ impl GenError {
     pub fn with_source(mut self, source: GenError) -> Self {
         self.source = Some(Box::new(source));
         self
+    }
+
+    /// Adds a span for error highlighting.
+    pub fn with_span(mut self, span: IrSpan) -> Self {
+        self.span = Some(span);
+        self
+    }
+
+    /// Adds a span from an IR node for error highlighting.
+    pub fn with_node_span(mut self, node: &IrNode) -> Self {
+        self.span = Some(node.span());
+        self
+    }
+
+    /// Returns the position (start byte offset) for error highlighting.
+    pub fn position(&self) -> Option<usize> {
+        self.span.map(|s| s.start)
     }
 
     /// Converts the error to a user-friendly message.
@@ -261,6 +311,11 @@ impl GenError {
             msg.push_str(&format!("\n  IR node: {}", ir_node));
         }
 
+        // Span info (byte offsets for error highlighting)
+        if let Some(span) = self.span {
+            msg.push_str(&format!("\n  at: bytes {}..{}", span.start, span.end));
+        }
+
         // Help text
         if let Some(ref help) = self.help {
             msg.push_str(&format!("\n  help: {}", help));
@@ -272,6 +327,52 @@ impl GenError {
         }
 
         msg
+    }
+
+    /// Formats the error with source context, showing the problematic line with a caret.
+    ///
+    /// Output format:
+    /// ```text
+    /// error: error message
+    ///  --> file:line:column
+    ///   |
+    /// 5 | source line here
+    ///   |      ^ found: X
+    ///   |
+    ///   = help: suggestion
+    /// ```
+    pub fn format_with_source(&self, source: &str) -> String {
+        self.format_with_source_and_file(source, "template", 0)
+    }
+
+    /// Formats the error with source context and a custom filename.
+    /// `line_offset` is added to convert relative template lines to absolute file lines.
+    pub fn format_with_source_and_file(&self, source: &str, filename: &str, line_offset: usize) -> String {
+        use crate::compiler::error_fmt::{build_annotation, ErrorFormat};
+
+        // If no span is available, fall back to basic message
+        let Some(span) = self.span else {
+            return self.to_message();
+        };
+
+        let annotation = build_annotation(
+            self.found.as_deref(),
+            &self.expected.iter().map(|s| s.as_str()).collect::<Vec<_>>(),
+        );
+
+        let mut fmt = ErrorFormat::new(self.kind.description(), source, span.start)
+            .filename(filename)
+            .line_offset(line_offset);
+
+        if let Some(ann) = annotation {
+            fmt = fmt.annotation(ann);
+        }
+
+        if let Some(ref help) = self.help {
+            fmt = fmt.help(help);
+        }
+
+        fmt.format()
     }
 }
 
@@ -309,7 +410,7 @@ mod tests {
 
     #[test]
     fn test_unexpected_node_error() {
-        let node = IrNode::NumLit("42".to_string());
+        let node = IrNode::NumLit { span: IrSpan::empty(), value: "42".to_string() };
         let err = GenError::unexpected_node("statement", &node, &["VarDecl", "FnDecl", "ExprStmt"]);
         let msg = err.to_message();
         assert!(msg.contains("unexpected IR node"));
@@ -374,5 +475,119 @@ mod tests {
             let desc = kind.description();
             assert!(!desc.is_empty(), "{:?} has empty description", kind);
         }
+    }
+
+    #[test]
+    fn test_format_with_source_shows_line_and_caret() {
+        let err = GenError::new(GenErrorKind::InvalidNumericLiteral)
+            .with_context("numeric literal")
+            .with_found("123abc")
+            .with_span(IrSpan::new(10, 16)); // Points to "123abc"
+
+        let source = "let x = 123abc;";
+        let formatted = err.format_with_source_and_file(source, "test.ts", 0);
+
+        // Should show line number
+        assert!(formatted.contains("1 |"), "should show line 1");
+        // Should show the source line
+        assert!(formatted.contains("let x = 123abc;"), "should show source line");
+        // Should show caret pointing to error
+        assert!(formatted.contains("^"), "should show caret");
+        // Should show filename
+        assert!(formatted.contains("test.ts"), "should show filename");
+    }
+
+    #[test]
+    fn test_format_with_source_multiline() {
+        let source = "function foo() {\n  return invalid;\n}";
+        // Error at "invalid" which starts at byte 26
+        let err = GenError::new(GenErrorKind::UnexpectedIrNode)
+            .with_context("return expression")
+            .with_found("invalid")
+            .with_span(IrSpan::new(26, 33));
+
+        let formatted = err.format_with_source_and_file(source, "test.ts", 0);
+
+        // Should show line 2
+        assert!(formatted.contains("2 |"), "should show line 2");
+        // Should show the source line with "invalid"
+        assert!(formatted.contains("return invalid;"), "should show source line");
+    }
+
+    #[test]
+    fn test_format_with_source_with_line_offset() {
+        let source = "let bad = 42abc;";
+        let err = GenError::new(GenErrorKind::InvalidNumericLiteral)
+            .with_context("numeric literal")
+            .with_span(IrSpan::new(10, 15));
+
+        // With line_offset=9, the error should show as line 10
+        let formatted = err.format_with_source_and_file(source, "template", 9);
+
+        assert!(formatted.contains("10 |"), "should show line 10 with offset");
+    }
+
+    #[test]
+    fn test_format_with_source_caret_at_span_start() {
+        let source = "let longIdentifier = bad;";
+        // Span covers "longIdentifier" (positions 4-18, 14 chars)
+        let err = GenError::new(GenErrorKind::UnexpectedIrNode)
+            .with_context("identifier")
+            .with_span(IrSpan::new(4, 18));
+
+        let formatted = err.format_with_source_and_file(source, "test.ts", 0);
+
+        // Should have caret pointing to span start
+        assert!(formatted.contains("^"), "should show caret at span start");
+        // Should show the source line
+        assert!(formatted.contains("longIdentifier"), "should show source line");
+    }
+
+    #[test]
+    fn test_format_without_span_shows_error_only() {
+        let err = GenError::new(GenErrorKind::InvalidNumericLiteral)
+            .with_context("numeric literal")
+            .with_found("bad");
+
+        let source = "let x = bad;";
+        let formatted = err.format_with_source_and_file(source, "test.ts", 0);
+
+        // Without span, should not show backtick-wrapped source context
+        assert!(!formatted.contains("`"), "should not show backtick-wrapped source without span");
+        // But should still show error message
+        assert!(formatted.contains("invalid numeric literal"), "should show error message");
+    }
+
+    #[test]
+    fn test_format_uses_backticks() {
+        let err = GenError::new(GenErrorKind::InvalidNumericLiteral)
+            .with_context("numeric literal")
+            .with_found("bad")
+            .with_span(IrSpan::new(8, 11));
+
+        let source = "let x = bad;";
+        let formatted = err.format_with_source_and_file(source, "test.ts", 0);
+
+        // Should wrap source and caret lines in backticks
+        assert!(formatted.contains("`1 |"), "should have backtick before line number");
+        // Count backticks - should have at least 4 (2 per line, 2 lines)
+        let backtick_count = formatted.chars().filter(|&c| c == '`').count();
+        assert!(backtick_count >= 4, "should have at least 4 backticks, found {}", backtick_count);
+        // Verify closing backticks exist (at end of lines)
+        assert!(formatted.contains("`\n"), "should have backtick at end of lines");
+    }
+
+    #[test]
+    fn test_format_long_line_truncation() {
+        // Create a line longer than 80 chars with error in the middle
+        let long_line = "let veryLongVariableName = someFunction(anotherLongArgument, yetAnotherArgument, andEvenMoreArguments, finalArgument);";
+        let err = GenError::new(GenErrorKind::UnexpectedIrNode)
+            .with_context("expression")
+            .with_span(IrSpan::new(50, 55));
+
+        let formatted = err.format_with_source_and_file(long_line, "test.ts", 0);
+
+        // Should have ellipsis for truncation
+        assert!(formatted.contains("..."), "long lines should be truncated with ellipsis, got:\n{}", formatted);
     }
 }

@@ -7,7 +7,7 @@ use super::*;
 impl Parser {
     pub(super) fn parse_line_comment(&mut self) -> Option<IrNode> {
         // Consume {>
-        self.consume()?;
+        let start_token = self.consume()?;
 
         let mut text = String::new();
         while !self.at_eof() && !self.at(SyntaxKind::CommentLineClose) {
@@ -19,13 +19,14 @@ impl Parser {
         self.expect(SyntaxKind::CommentLineClose);
 
         Some(IrNode::LineComment {
+            span: start_token.ir_span(),
             text: text.trim().to_string(),
         })
     }
 
     pub(super) fn parse_block_comment(&mut self) -> Option<IrNode> {
         // Consume {>>
-        self.consume()?;
+        let start_token = self.consume()?;
 
         let mut text = String::new();
         while !self.at_eof() && !self.at(SyntaxKind::CommentBlockClose) {
@@ -37,6 +38,7 @@ impl Parser {
         self.expect(SyntaxKind::CommentBlockClose);
 
         Some(IrNode::BlockComment {
+            span: start_token.ir_span(),
             text: text.trim().to_string(),
         })
     }
@@ -44,11 +46,15 @@ impl Parser {
     pub(super) fn parse_rust_doc_attr(&mut self) -> Option<IrNode> {
         // Token text is already just the doc content (extracted by lexer)
         let token = self.consume()?;
-        Some(IrNode::DocComment { text: token.text })
+        Some(IrNode::DocComment {
+            span: token.ir_span(),
+            text: token.text,
+        })
     }
 
     pub(super) fn parse_doc_comment(&mut self) -> Option<IrNode> {
         let mut text = String::new();
+        let start_offset = self.current_byte_offset();
 
         match self.current_kind() {
             Some(SyntaxKind::DocCommentPrefix) => {
@@ -79,7 +85,9 @@ impl Parser {
             _ => return None,
         }
 
+        let end_offset = self.current_byte_offset();
         Some(IrNode::DocComment {
+            span: IrSpan::new(start_offset, end_offset),
             text: text.trim().to_string(),
         })
     }

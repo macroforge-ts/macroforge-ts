@@ -18,12 +18,12 @@ impl Parser {
                 Some(SyntaxKind::LBrace) => {
                     brace_depth += 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
                 Some(SyntaxKind::RBrace) => {
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                     brace_depth -= 1;
                     if brace_depth == 0 {
@@ -35,17 +35,18 @@ impl Parser {
                     // Check for identifier suffix
                     if let Some(token) = self.current() {
                         if token.kind == SyntaxKind::Ident {
-                            let suffix = token.text.clone();
-                            self.consume();
+                            let suffix_token = self.consume().unwrap();
                             let ident_placeholder = match placeholder {
-                                IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
+                                IrNode::Placeholder { span, expr, .. } => IrNode::Placeholder {
+                                    span,
                                     kind: PlaceholderKind::Ident,
                                     expr,
                                 },
                                 other => other,
                             };
                             parts.push(IrNode::IdentBlock {
-                                parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                                span: IrSpan::empty(),
+                                parts: vec![ident_placeholder, IrNode::raw(&suffix_token)],
                             });
                             continue;
                         }
@@ -69,7 +70,7 @@ impl Parser {
                 }
                 _ => {
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
             }

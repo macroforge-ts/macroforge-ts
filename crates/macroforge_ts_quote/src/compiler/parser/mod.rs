@@ -24,7 +24,8 @@ pub use expr::errors::{
 };
 
 use super::ir::{
-    Accessibility, Ir, IrNode, MatchArm, MethodKind, PlaceholderKind, VarDeclarator, VarKind,
+    Accessibility, IntoIrNode, Ir, IrNode, IrSpan, MatchArm, MatchArmExpr, MethodKind,
+    PlaceholderKind, VarDeclarator, VarKind,
 };
 use super::lexer::{Lexer, Token};
 use super::syntax::SyntaxKind;
@@ -301,7 +302,7 @@ impl Parser {
                 self.advance();
             } else if kind == SyntaxKind::JsDocOpen || kind == SyntaxKind::DocCommentPrefix {
                 // Parse JSDoc and store in pending_doc so it's preserved in output
-                if let Some(IrNode::DocComment { text }) = self.parse_doc_comment() {
+                if let Some(IrNode::DocComment { text, .. }) = self.parse_doc_comment() {
                     self.pending_doc = Some(text);
                 }
             } else {
@@ -414,7 +415,7 @@ impl Parser {
         match current_kind {
             SyntaxKind::RustDocAttr => {
                 let pos_before = self.pos;
-                if let Some(IrNode::DocComment { text }) = self.parse_rust_doc_attr() {
+                if let Some(IrNode::DocComment { text, .. }) = self.parse_rust_doc_attr() {
                     self.pending_doc = Some(text);
                 }
                 // Ensure we made progress before recursing
@@ -430,7 +431,7 @@ impl Parser {
             }
             SyntaxKind::DocCommentPrefix | SyntaxKind::JsDocOpen => {
                 let pos_before = self.pos;
-                if let Some(IrNode::DocComment { text }) = self.parse_doc_comment() {
+                if let Some(IrNode::DocComment { text, .. }) = self.parse_doc_comment() {
                     self.pending_doc = Some(text);
                 }
                 // Ensure we made progress before recursing
@@ -453,16 +454,18 @@ impl Parser {
 
         let node: Option<IrNode> = match kind {
             SyntaxKind::At => {
+                let start_byte = self.current_byte_offset();
                 match self.parse_interpolation() {
                     Ok(placeholder) => {
                         // Check if there's an identifier suffix immediately after (e.g., @{name}Obj)
                         if let Some(token) = self.current() {
                             if token.kind == SyntaxKind::Ident {
-                                let suffix = token.text.clone();
+                                let suffix_token = token.clone();
                                 self.consume();
                                 // Force placeholder to be Ident kind for identifier concatenation
                                 let ident_placeholder = match placeholder {
-                                    IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
+                                    IrNode::Placeholder { span, expr, .. } => IrNode::Placeholder {
+                                        span,
                                         kind: PlaceholderKind::Ident,
                                         expr,
                                     },
@@ -470,7 +473,8 @@ impl Parser {
                                 };
                                 // Create an IdentBlock combining placeholder + suffix
                                 return Ok(ParseOutcome::Node(IrNode::IdentBlock {
-                                    parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                                    span: IrSpan::new(start_byte, self.current_byte_offset()),
+                                    parts: vec![ident_placeholder, IrNode::raw(&suffix_token)],
                                 }));
                             }
                         }
@@ -549,7 +553,9 @@ impl Parser {
         match node {
             Some(n) => {
                 let wrapped = if let Some(doc) = self.pending_doc.take() {
+                    let span = n.span();
                     IrNode::Documented {
+                        span,
                         doc,
                         inner: Box::new(n),
                     }
@@ -565,9 +571,13 @@ impl Parser {
     /// Parse a TypeScript decorator and pass through as raw text.
     /// Handles: `@decorator`, `@decorator(args)`, `@decorator.member`, etc.
     fn parse_decorator_raw(&mut self) -> ParseResult<Option<IrNode>> {
+        let start_byte = self.current_byte_offset();
         // The DecoratorAt token is just "@", we need to collect the full decorator
         self.consume(); // consume @
-        let mut parts = vec![IrNode::Raw("@".to_string())];
+        let mut parts = vec![IrNode::Raw {
+            span: IrSpan::new(start_byte, start_byte + 1),
+            value: "@".to_string(),
+        }];
 
         // Consume the decorator identifier/expression
         // This could be: identifier, member access (a.b.c), or call (fn(args))
@@ -577,7 +587,7 @@ impl Parser {
             match self.current_kind() {
                 Some(SyntaxKind::Ident) => {
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
                 Some(SyntaxKind::At) => {
@@ -588,13 +598,13 @@ impl Parser {
                 Some(SyntaxKind::LParen) => {
                     paren_depth += 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
                 Some(SyntaxKind::RParen) => {
                     paren_depth -= 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                     if paren_depth <= 0 {
                         break;
@@ -612,7 +622,7 @@ impl Parser {
                             let s = self.parse_string_literal()?;
                             parts.push(s);
                         } else if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw(t.text));
+                            parts.push(IrNode::raw(&t));
                         }
                     } else {
                         // Outside parens, we're done with the decorator
@@ -623,7 +633,7 @@ impl Parser {
                     if paren_depth > 0 {
                         // Consume whitespace inside parens
                         if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw(t.text));
+                            parts.push(IrNode::raw(&t));
                         }
                     } else {
                         // Whitespace after decorator, we're done
@@ -634,7 +644,7 @@ impl Parser {
                     if paren_depth > 0 {
                         // Inside parens, consume anything
                         if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw(t.text));
+                            parts.push(IrNode::raw(&t));
                         }
                     } else {
                         break;
@@ -648,7 +658,10 @@ impl Parser {
         if merged.len() == 1 {
             Ok(Some(merged.into_iter().next().unwrap()))
         } else {
-            Ok(Some(IrNode::IdentBlock { parts: merged }))
+            Ok(Some(IrNode::IdentBlock {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                parts: merged,
+            }))
         }
     }
 
@@ -674,7 +687,7 @@ impl Parser {
 
     fn parse_text_token(&mut self) -> Option<IrNode> {
         let token = self.consume()?;
-        Some(IrNode::Raw(token.text))
+        Some(IrNode::raw(&token))
     }
 
     fn consume_until_rbrace(&mut self) {

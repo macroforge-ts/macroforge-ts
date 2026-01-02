@@ -34,6 +34,38 @@ pub struct Token {
     pub start: usize,
 }
 
+impl Token {
+    /// Get the end byte offset of this token.
+    #[inline]
+    pub fn end(&self) -> usize {
+        self.start + self.text.len()
+    }
+}
+
+impl super::ir::Spanned for Token {
+    #[inline]
+    fn span_start(&self) -> usize {
+        self.start
+    }
+
+    #[inline]
+    fn span_len(&self) -> usize {
+        self.text.len()
+    }
+}
+
+impl super::ir::IntoIrNode for Token {
+    #[inline]
+    fn text(&self) -> &str {
+        &self.text
+    }
+
+    #[inline]
+    fn ir_span(&self) -> super::ir::IrSpan {
+        super::ir::IrSpan::from_pos_len(self.start, self.text.len())
+    }
+}
+
 /// Lexer state for context-sensitive tokenization.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum LexerMode {

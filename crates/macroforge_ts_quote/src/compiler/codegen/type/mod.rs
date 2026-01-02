@@ -9,12 +9,12 @@ impl Codegen {
 
     pub(in super::super) fn generate_type_params(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::TypeParams { params } => {
+        IrNode::TypeParams { params, .. } => {
             // Generate each type param
             let params_code: Vec<TokenStream> = params
                 .iter()
                 .filter_map(|p| match p {
-                    IrNode::Raw(text) => {
+                    IrNode::Raw { value: text, .. } => {
                         let name = text.trim();
                         if name.is_empty() {
                             None
@@ -76,7 +76,7 @@ pub(in super::super) fn generate_type_param_instantiation(&self, _node: &IrNode)
 
 pub(in super::super) fn generate_type_ann(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::TypeAnnotation { type_ann } => {
+        IrNode::TypeAnnotation { type_ann, .. } => {
             let type_code = self.generate_type(type_ann)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsTypeAnn {
@@ -99,7 +99,7 @@ pub(in super::super) fn generate_type_ann(&self, node: &IrNode) -> GenResult<Tok
 
 pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::TypeRef { name, type_params } => {
+        IrNode::TypeRef { name, type_params, .. } => {
             let name_code = self.generate_entity_name(name)?;
             let type_params_code = match type_params.as_ref() {
                 Some(tp) => {
@@ -120,7 +120,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
 
-        IrNode::KeywordType(kw) => {
+        IrNode::KeywordType { keyword: kw, .. } => {
             let kw_code = match kw {
                 TsKeyword::Any => {
                     quote! { macroforge_ts::swc_core::ecma::ast::TsKeywordTypeKind::TsAnyKeyword }
@@ -170,7 +170,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
 
-        IrNode::UnionType { types } => {
+        IrNode::UnionType { types, .. } => {
             let mut types_code: Vec<TokenStream> = Vec::with_capacity(types.len());
             for t in types {
                 let tc = self.generate_type(t)?;
@@ -189,7 +189,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
 
-        IrNode::ArrayType { elem } => {
+        IrNode::ArrayType { elem, .. } => {
             let elem_code = self.generate_type(elem)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsType::TsArrayType(
@@ -202,7 +202,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // ThisType
-        IrNode::ThisType => {
+        IrNode::ThisType { .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsType::TsThisType(
                     macroforge_ts::swc_core::ecma::ast::TsThisType {
@@ -213,7 +213,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // LiteralType
-        IrNode::LiteralType { lit } => {
+        IrNode::LiteralType { lit, .. } => {
             let lit_code = self.generate_ts_lit(lit)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsType::TsLitType(
@@ -226,7 +226,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // ParenType
-        IrNode::ParenType { type_ann } => {
+        IrNode::ParenType { type_ann, .. } => {
             let type_code = self.generate_type(type_ann)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsType::TsParenthesizedType(
@@ -239,7 +239,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // TupleType
-        IrNode::TupleType { elems } => {
+        IrNode::TupleType { elems, .. } => {
             let mut elems_code: Vec<TokenStream> = Vec::with_capacity(elems.len());
             for e in elems {
                 let elem_code = self.generate_tuple_element(e)?;
@@ -256,7 +256,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // IntersectionType
-        IrNode::IntersectionType { types } => {
+        IrNode::IntersectionType { types, .. } => {
             let mut types_code: Vec<TokenStream> = Vec::with_capacity(types.len());
             for t in types {
                 let tc = self.generate_type(t)?;
@@ -276,7 +276,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // TypeofType
-        IrNode::TypeofType { expr } => {
+        IrNode::TypeofType { expr, .. } => {
             let expr_code = self.generate_entity_name(expr)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsType::TsTypeQuery(
@@ -290,7 +290,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // KeyofType
-        IrNode::KeyofType { type_ann } => {
+        IrNode::KeyofType { type_ann, .. } => {
             let type_code = self.generate_type(type_ann)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsType::TsTypeOperator(
@@ -304,7 +304,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // IndexedAccessType
-        IrNode::IndexedAccessType { obj, index } => {
+        IrNode::IndexedAccessType { obj, index, .. } => {
             let obj_code = self.generate_type(obj)?;
             let index_code = self.generate_type(index)?;
             Ok(quote! {
@@ -320,7 +320,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // ConditionalType
-        IrNode::ConditionalType { check, extends, true_type, false_type } => {
+        IrNode::ConditionalType { check, extends, true_type, false_type, .. } => {
             let check_code = self.generate_type(check)?;
             let extends_code = self.generate_type(extends)?;
             let true_code = self.generate_type(true_type)?;
@@ -339,7 +339,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // InferType
-        IrNode::InferType { type_param } => {
+        IrNode::InferType { type_param, .. } => {
             let param_code = self.generate_type_param(type_param)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsType::TsInferType(
@@ -352,7 +352,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // MappedType
-        IrNode::MappedType { readonly, type_param, name_type, optional, type_ann } => {
+        IrNode::MappedType { readonly, type_param, name_type, optional, type_ann, .. } => {
             let readonly_code = match readonly {
                 Some(true) => quote! { Some(macroforge_ts::swc_core::ecma::ast::TruePlusMinus::Plus) },
                 Some(false) => quote! { Some(macroforge_ts::swc_core::ecma::ast::TruePlusMinus::Minus) },
@@ -393,7 +393,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // ConstructorType
-        IrNode::ConstructorType { type_params: _, params, return_type } => {
+        IrNode::ConstructorType { type_params: _, params, return_type, .. } => {
             let params_code = self.generate_fn_type_params(params)?;
             let return_code = self.generate_type(return_type)?;
             Ok(quote! {
@@ -413,7 +413,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // ImportType
-        IrNode::ImportType { arg, qualifier, type_args: _ } => {
+        IrNode::ImportType { arg, qualifier, type_args: _, .. } => {
             let arg_code = self.generate_type(arg)?;
             let qualifier_code = match qualifier.as_ref() {
                 Some(q) => {
@@ -435,7 +435,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // QualifiedName (handled via TypeRef for now)
-        IrNode::QualifiedName { left, right } => {
+        IrNode::QualifiedName { left, right, .. } => {
             let left_code = self.generate_entity_name(left)?;
             let right_code = self.generate_ident(right)?;
             Ok(quote! {
@@ -458,7 +458,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // ObjectType
-        IrNode::ObjectType { members } => {
+        IrNode::ObjectType { members, .. } => {
             let members_code = self.generate_type_members(members)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsType::TsTypeLit(
@@ -473,11 +473,12 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         IrNode::Placeholder {
             kind: PlaceholderKind::Type,
             expr,
+            ..
         } => {
             Ok(quote! { macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone()) })
         }
 
-        IrNode::Ident(name) => {
+        IrNode::Ident { value: name, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::TsType::TsTypeRef(
                     macroforge_ts::swc_core::ecma::ast::TsTypeRef {
@@ -495,7 +496,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // Raw text - parse as type at runtime, return error on failure
-        IrNode::Raw(text) => {
+        IrNode::Raw { value: text, .. } => {
             Ok(quote! {
                 {
                     let __source = #text;
@@ -506,7 +507,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // IdentBlock with multiple parts - build string and parse
-        IrNode::IdentBlock { parts } => {
+        IrNode::IdentBlock { parts, .. } => {
             let part_exprs: Vec<TokenStream> = parts
                 .iter()
                 .map(|p| self.generate_type_str_part(p))
@@ -526,7 +527,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // TypeAnnotation wrapper - unwrap and generate the inner type
-        IrNode::TypeAnnotation { type_ann } => self.generate_type(type_ann),
+        IrNode::TypeAnnotation { type_ann, .. } => self.generate_type(type_ann),
 
         _ => Err(GenError::unexpected_node(
             "type",
@@ -564,7 +565,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
 /// Generate a TsLit for literal types
     pub(in super::super) fn generate_ts_lit(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::StrLit(value) => {
+            IrNode::StrLit { value, .. } => {
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsLit::Str(
                         macroforge_ts::swc_core::ecma::ast::Str {
@@ -575,7 +576,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                     )
                 })
             }
-            IrNode::NumLit(value) => {
+            IrNode::NumLit { value, .. } => {
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsLit::Number(
                         macroforge_ts::swc_core::ecma::ast::Number {
@@ -586,7 +587,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                     )
                 })
             }
-            IrNode::BoolLit(value) => {
+            IrNode::BoolLit { value, .. } => {
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsLit::Bool(
                         macroforge_ts::swc_core::ecma::ast::Bool {
@@ -596,7 +597,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                     )
                 })
             }
-            IrNode::BigIntLit(value) => {
+            IrNode::BigIntLit { value, .. } => {
                 // Return error code that fails at runtime if BigInt parsing fails
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsLit::BigInt(
@@ -620,7 +621,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
     /// Generate a TsTupleElement
     pub(in super::super) fn generate_tuple_element(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::OptionalType { type_ann } => {
+            IrNode::OptionalType { type_ann, .. } => {
                 let type_code = self.generate_type(type_ann)?;
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsTupleElement {
@@ -635,7 +636,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                     }
                 })
             }
-            IrNode::RestType { type_ann } => {
+            IrNode::RestType { type_ann, .. } => {
                 let type_code = self.generate_type(type_ann)?;
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsTupleElement {
@@ -667,7 +668,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
     /// Generate a single TsTypeParam
     pub(in super::super) fn generate_type_param(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::TypeParam { name, constraint, default } => {
+            IrNode::TypeParam { name, constraint, default, .. } => {
                 let constraint_code = match constraint.as_ref() {
                     Some(c) => {
                         let cc = self.generate_type(c)?;
@@ -697,7 +698,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                     }
                 })
             }
-            IrNode::Ident(name) => {
+            IrNode::Ident { value: name, .. } => {
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::TsTypeParam {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -725,7 +726,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
     pub(in super::super) fn generate_fn_type_params(&self, params: &[IrNode]) -> GenResult<TokenStream> {
         let params_code: Vec<TokenStream> = params.iter().map(|p| {
             match p {
-                IrNode::Param { decorators: _, pat } => {
+                IrNode::Param { decorators: _, pat, .. } => {
                     let pat_code = self.generate_pat(pat)?;
                     Ok(quote! {
                         macroforge_ts::swc_core::ecma::ast::TsFnParam::Ident(
@@ -745,7 +746,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                         )
                     })
                 }
-                IrNode::Ident(name) => {
+                IrNode::Ident { value: name, .. } => {
                     Ok(quote! {
                         macroforge_ts::swc_core::ecma::ast::TsFnParam::Ident(
                             macroforge_ts::swc_core::ecma::ast::BindingIdent {
@@ -775,7 +776,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         let mut members_code: Vec<TokenStream> = Vec::new();
         for m in members {
             match m {
-                IrNode::PropSignature { name, type_ann, optional, readonly: _ } => {
+                IrNode::PropSignature { name, type_ann, optional, readonly: _, .. } => {
                     let key_code = self.generate_prop_name(name)?;
                     let type_ann_code = match type_ann.as_ref() {
                         Some(t) => {
@@ -806,7 +807,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                         )
                     });
                 }
-                IrNode::MethodSignature { name, type_params: _, params, return_type, optional: _ } => {
+                IrNode::MethodSignature { name, type_params: _, params, return_type, optional: _, .. } => {
                     let key_code = self.generate_prop_name(name)?;
                     let params_code = self.generate_fn_type_params(params)?;
                     let return_code = match return_type.as_ref() {
@@ -839,7 +840,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                         )
                     });
                 }
-                IrNode::IndexSignature { readonly, params, type_ann } => {
+                IrNode::IndexSignature { readonly, params, type_ann, .. } => {
                     let params_code = self.generate_fn_type_params(params)?;
                     let tc = self.generate_type_ann(type_ann)?;
                     let return_code = quote! { Some(Box::new(#tc)) };
@@ -865,10 +866,10 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
 /// Generate code that pushes to __type_str for building types with control flow
     pub(in super::super) fn generate_type_str_part(&self, node: &IrNode) -> GenResult<Option<TokenStream>> {
     match node {
-        IrNode::Raw(text) => Ok(Some(quote! { __type_str.push_str(#text); })),
-        IrNode::StrLit(text) => Ok(Some(quote! { __type_str.push_str(#text); })),
-        IrNode::Ident(text) => Ok(Some(quote! { __type_str.push_str(#text); })),
-        IrNode::Placeholder { kind, expr } => {
+        IrNode::Raw { value: text, .. } => Ok(Some(quote! { __type_str.push_str(#text); })),
+        IrNode::StrLit { value: text, .. } => Ok(Some(quote! { __type_str.push_str(#text); })),
+        IrNode::Ident { value: text, .. } => Ok(Some(quote! { __type_str.push_str(#text); })),
+        IrNode::Placeholder { kind, expr, .. } => {
             match kind {
                 PlaceholderKind::Type => Ok(Some(quote! {
                     let __ty = macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone());
@@ -892,7 +893,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                 }
             }
         }
-        IrNode::IdentBlock { parts } => {
+        IrNode::IdentBlock { parts, .. } => {
             // Nested IdentBlock - recursively generate parts
             let inner_parts: Vec<TokenStream> = parts
                 .iter()
@@ -907,6 +908,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
             pattern,
             iterator,
             body,
+            ..
         } => {
             // Control flow: for loop inside type
             let body_parts: Vec<TokenStream> = body
@@ -927,6 +929,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
             then_body,
             else_if_branches,
             else_body,
+            ..
         } => {
             // Control flow: if/else inside type
             let then_parts: Vec<TokenStream> = then_body
@@ -979,7 +982,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                 #else_code
             }))
         }
-        IrNode::While { condition, body } => {
+        IrNode::While { condition, body, .. } => {
             let body_parts: Vec<TokenStream> = body
                 .iter()
                 .map(|p| self.generate_type_str_part(p))
@@ -993,9 +996,9 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                 }
             }))
         }
-        IrNode::Match { expr, arms } => {
+        IrNode::Match { expr, arms, .. } => {
             let mut arm_tokens: Vec<TokenStream> = Vec::with_capacity(arms.len());
-            for MatchArm { pattern, guard, body } in arms {
+            for MatchArm { pattern, guard, body, .. } in arms {
                 let body_parts: Vec<TokenStream> = body
                     .iter()
                     .map(|p| self.generate_type_str_part(p))
@@ -1016,7 +1019,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
             }))
         }
         IrNode::Let { pattern, value, .. } => Ok(Some(quote! { let #pattern = #value; })),
-        IrNode::TypeAnnotation { type_ann } => self.generate_type_str_part(type_ann),
+        IrNode::TypeAnnotation { type_ann, .. } => self.generate_type_str_part(type_ann),
         _ => Ok(None),
     }
 }

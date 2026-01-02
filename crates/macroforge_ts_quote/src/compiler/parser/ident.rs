@@ -6,6 +6,7 @@ use super::*;
 
 impl Parser {
     pub(super) fn parse_ident_block(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume {|
         self.consume();
 
@@ -16,13 +17,14 @@ impl Parser {
                 let node = self.parse_interpolation()?;
                 parts.push(node);
             } else if let Some(token) = self.consume() {
-                parts.push(IrNode::Raw(token.text));
+                parts.push(IrNode::raw(&token));
             }
         }
 
         self.expect(SyntaxKind::PipeClose);
 
         Ok(IrNode::IdentBlock {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             parts: Self::merge_adjacent_text(parts),
         })
     }

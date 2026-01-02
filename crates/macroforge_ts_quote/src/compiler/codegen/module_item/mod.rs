@@ -6,8 +6,8 @@ impl Codegen {
     /// Handles Raw, IdentBlock with StringInterp, and placeholders.
     fn generate_decorator_string(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Raw(text) => Ok(quote! { #text.to_string() }),
-            IrNode::IdentBlock { parts } => {
+            IrNode::Raw { value: text, .. } => Ok(quote! { #text.to_string() }),
+            IrNode::IdentBlock { parts, .. } => {
                 let part_exprs: Vec<TokenStream> = parts
                     .iter()
                     .map(|p| self.generate_decorator_string_part(p))
@@ -31,8 +31,8 @@ impl Codegen {
     /// Generate code for a single part of a decorator string.
     fn generate_decorator_string_part(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Raw(text) => Ok(quote! { __s.push_str(#text); }),
-            IrNode::StrLit(text) => {
+            IrNode::Raw { value: text, .. } => Ok(quote! { __s.push_str(#text); }),
+            IrNode::StrLit { value: text, .. } => {
                 // String literal - include with quotes
                 Ok(quote! {
                     __s.push_str("\"");
@@ -40,14 +40,14 @@ impl Codegen {
                     __s.push_str("\"");
                 })
             }
-            IrNode::Ident(name) => Ok(quote! { __s.push_str(#name); }),
-            IrNode::NumLit(num) => Ok(quote! { __s.push_str(#num); }),
-            IrNode::BoolLit(b) => {
+            IrNode::Ident { value: name, .. } => Ok(quote! { __s.push_str(#name); }),
+            IrNode::NumLit { value: num, .. } => Ok(quote! { __s.push_str(#num); }),
+            IrNode::BoolLit { value: b, .. } => {
                 let val = if *b { "true" } else { "false" };
                 Ok(quote! { __s.push_str(#val); })
             }
-            IrNode::NullLit => Ok(quote! { __s.push_str("null"); }),
-            IrNode::StringInterp { quote: q, parts } => {
+            IrNode::NullLit { .. } => Ok(quote! { __s.push_str("null"); }),
+            IrNode::StringInterp { quote: q, parts, .. } => {
                 let quote_char = match q {
                     '"' => "\"",
                     '\'' => "'",
@@ -56,7 +56,7 @@ impl Codegen {
                 let part_exprs: Vec<TokenStream> = parts
                     .iter()
                     .map(|p| match p {
-                        IrNode::Raw(t) => Ok(quote! { __s.push_str(#t); }),
+                        IrNode::Raw { value: t, .. } => Ok(quote! { __s.push_str(#t); }),
                         IrNode::Placeholder { expr, .. } => {
                             Ok(quote! { __s.push_str(&(#expr).to_string()); })
                         }
@@ -132,7 +132,7 @@ impl Codegen {
         // Check if all nodes are whitespace-only Raw nodes
         let all_whitespace = nodes
             .iter()
-            .all(|n| matches!(n, IrNode::Raw(text) if text.trim().is_empty()));
+            .all(|n| matches!(n, IrNode::Raw { value: text, .. } if text.trim().is_empty()));
         if all_whitespace {
             return Ok(None);
         }
@@ -165,10 +165,10 @@ impl Codegen {
         node: &IrNode,
     ) -> GenResult<TokenStream> {
         match node {
-            IrNode::Raw(text) => Ok(quote! { __module_str.push_str(#text); }),
-            IrNode::StrLit(text) => Ok(quote! { __module_str.push_str(#text); }),
-            IrNode::Ident(name) => Ok(quote! { __module_str.push_str(#name); }),
-            IrNode::Placeholder { kind, expr } => match kind {
+            IrNode::Raw { value: text, .. } => Ok(quote! { __module_str.push_str(#text); }),
+            IrNode::StrLit { value: text, .. } => Ok(quote! { __module_str.push_str(#text); }),
+            IrNode::Ident { value: name, .. } => Ok(quote! { __module_str.push_str(#name); }),
+            IrNode::Placeholder { kind, expr, span } => match kind {
                 PlaceholderKind::Expr => Ok(quote! {
                     let __expr = macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
                     __module_str.push_str(&macroforge_ts::ts_syn::emit_expr(&__expr));
@@ -180,16 +180,17 @@ impl Codegen {
                     let __ty = macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone());
                     __module_str.push_str(&macroforge_ts::ts_syn::emit_ts_type(&__ty));
                 }),
-                PlaceholderKind::Stmt => Err(GenError::invalid_placeholder(
+                PlaceholderKind::Stmt => Err(GenError::invalid_placeholder_at(
                     "module item string",
                     "Stmt",
                     &["Expr", "Ident", "Type"],
+                    *span,
                 )
                 .with_help(
                     "Statement placeholders cannot be used in string interpolation context",
                 )),
             },
-            IrNode::IdentBlock { parts } => {
+            IrNode::IdentBlock { parts, .. } => {
                 let part_exprs: Vec<TokenStream> = parts
                     .iter()
                     .map(|p| self.generate_module_item_string_part(p))
@@ -239,6 +240,7 @@ impl Codegen {
                 params,
                 return_type,
                 body,
+                ..
             } => {
                 let name_code = self.generate_ident(name).unwrap_or_else(|e| {
                     panic!("Codegen error in generate_ident: {}", e)
@@ -317,6 +319,7 @@ impl Codegen {
                 extends,
                 implements,
                 body,
+                ..
             } => {
                 let name_code = self.generate_ident(name).unwrap_or_else(|e| {
                     panic!("Codegen error in generate_ident: {}", e)
@@ -431,6 +434,7 @@ impl Codegen {
                 type_params,
                 extends,
                 body,
+                ..
             } => {
                 let name_code = self.generate_ident(name).unwrap_or_else(|e| {
                     panic!("Codegen error in generate_ident: {}", e)
@@ -486,6 +490,7 @@ impl Codegen {
                 name,
                 type_params,
                 type_ann,
+                ..
             } => {
                 let name_code = self.generate_ident(name).unwrap_or_else(|e| {
                     panic!("Codegen error in generate_ident: {}", e)
@@ -540,6 +545,7 @@ impl Codegen {
                 declare,
                 kind,
                 decls,
+                ..
             } => {
                 let kind_code = match kind {
                     VarKind::Const => {
@@ -589,11 +595,12 @@ impl Codegen {
                 type_only,
                 specifiers,
                 src,
+                ..
             } => {
                 let specifiers_code: GenResult<Vec<TokenStream>> = specifiers
                     .iter()
                     .map(|spec| match spec {
-                        IrNode::NamedImport { local, imported } => {
+                        IrNode::NamedImport { local, imported, .. } => {
                             let local_code = self.generate_ident(local).unwrap_or_else(|e| {
                                 panic!("Codegen error in generate_ident: {}", e)
                             });
@@ -617,7 +624,7 @@ impl Codegen {
                                 )
                             })
                         }
-                        IrNode::DefaultImport { local } => {
+                        IrNode::DefaultImport { local, .. } => {
                             let local_code = self.generate_ident(local).unwrap_or_else(|e| {
                                 panic!("Codegen error in generate_ident: {}", e)
                             });
@@ -630,7 +637,7 @@ impl Codegen {
                                 )
                             })
                         }
-                        IrNode::NamespaceImport { local } => {
+                        IrNode::NamespaceImport { local, .. } => {
                             let local_code = self.generate_ident(local).unwrap_or_else(|e| {
                                 panic!("Codegen error in generate_ident: {}", e)
                             });
@@ -676,11 +683,12 @@ impl Codegen {
                 specifiers,
                 src,
                 type_only,
+                ..
             } => {
                 let specifiers_code: GenResult<Vec<TokenStream>> = specifiers
                     .iter()
                     .map(|spec| {
-                        if let IrNode::ExportSpecifier { local, exported } = spec {
+                        if let IrNode::ExportSpecifier { local, exported, .. } = spec {
                             let local_code = self.generate_ident(local).unwrap_or_else(|e| {
                                 panic!("Codegen error in generate_ident: {}", e)
                             });
@@ -743,7 +751,7 @@ impl Codegen {
                 }))
             }
 
-            IrNode::ExportAll { src, type_only } => {
+            IrNode::ExportAll { src, type_only, .. } => {
                 Ok(Some(quote! {
                     #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
                         macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportAll(
@@ -762,7 +770,7 @@ impl Codegen {
                 }))
             }
 
-            IrNode::ExportDefaultExpr { expr } => {
+            IrNode::ExportDefaultExpr { expr, .. } => {
                 // Check if it's a declaration that needs ExportDefaultDecl
                 match expr.as_ref() {
                     IrNode::ClassDecl {
@@ -945,6 +953,7 @@ impl Codegen {
                 const_,
                 name,
                 members,
+                ..
             } => {
                 let name_code = self.generate_ident(name).unwrap_or_else(|e| {
                     panic!("Codegen error in generate_ident: {}", e)
@@ -952,7 +961,7 @@ impl Codegen {
                 let members_code = members
                     .iter()
                     .filter_map(|m| {
-                        if let IrNode::EnumMember { name, init } = m {
+                        if let IrNode::EnumMember { name, init, .. } = m {
                             let member_name_code = self.generate_ident(name).unwrap_or_else(|e| {
                                 panic!("Codegen error in generate_ident: {}", e)
                             });
@@ -1013,7 +1022,7 @@ impl Codegen {
             // =================================================================
             // Decorator (standalone - attached to next declaration)
             // =================================================================
-            IrNode::Decorator { expr } => {
+            IrNode::Decorator { expr, .. } => {
                 // Generate the decorator expression - this will be collected and applied
                 // to the next class/method declaration
                 let decorator_expr = self.generate_expr(expr).unwrap_or_else(|e| {
@@ -1031,7 +1040,7 @@ impl Codegen {
             // =================================================================
             // Statements as module items
             // =================================================================
-            IrNode::ExprStmt { expr } => {
+            IrNode::ExprStmt { expr, .. } => {
                 let expr_code = self.generate_expr(expr).unwrap_or_else(|e| {
                     panic!("Codegen error in generate_expr: {}", e)
                 });
@@ -1047,7 +1056,7 @@ impl Codegen {
                 }))
             }
 
-            IrNode::ReturnStmt { arg } => {
+            IrNode::ReturnStmt { arg, .. } => {
                 let arg_code = arg
                     .as_ref()
                     .map(|a| {
@@ -1069,7 +1078,7 @@ impl Codegen {
                 }))
             }
 
-            IrNode::BlockStmt { stmts } => {
+            IrNode::BlockStmt { stmts, .. } => {
                 let stmts_code = self.generate_stmts_vec(stmts);
                 Ok(Some(quote! {
                     #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
@@ -1084,7 +1093,7 @@ impl Codegen {
                 }))
             }
 
-            IrNode::ThrowStmt { arg } => {
+            IrNode::ThrowStmt { arg, .. } => {
                 let arg_code = self.generate_expr(arg).unwrap_or_else(|e| {
                     panic!("Codegen error in generate_expr: {}", e)
                 });
@@ -1108,6 +1117,7 @@ impl Codegen {
                 then_body,
                 else_if_branches,
                 else_body,
+                ..
             } => {
                 let cond = condition;
                 let then_stmts = self.generate_module_items(then_body)?;
@@ -1140,6 +1150,7 @@ impl Codegen {
                 pattern,
                 iterator,
                 body,
+                ..
             } => {
                 let body_stmts = self.generate_module_items(body)?;
                 Ok(Some(quote! {
@@ -1147,14 +1158,14 @@ impl Codegen {
                 }))
             }
 
-            IrNode::While { condition, body } => {
+            IrNode::While { condition, body, .. } => {
                 let body_stmts = self.generate_module_items(body)?;
                 Ok(Some(quote! {
                     while #condition { #body_stmts }
                 }))
             }
 
-            IrNode::Match { expr, arms } => {
+            IrNode::Match { expr, arms, .. } => {
                 let arm_tokens: GenResult<Vec<TokenStream>> = arms
                     .iter()
                     .map(
@@ -1162,6 +1173,7 @@ impl Codegen {
                              pattern,
                              guard,
                              body,
+                             ..
                          }| {
                             let b = self.generate_module_items(body)?;
                             if let Some(g) = guard {
@@ -1184,6 +1196,7 @@ impl Codegen {
                 mutable,
                 type_hint,
                 value,
+                ..
             } => {
                 let mutability = if *mutable {
                     quote! { mut }
@@ -1198,9 +1211,9 @@ impl Codegen {
                 }
             }
 
-            IrNode::Do { code } => Ok(Some(quote! { #code; })),
+            IrNode::Do { code, .. } => Ok(Some(quote! { #code; })),
 
-            IrNode::TypeScript { stream } => {
+            IrNode::TypeScript { stream, .. } => {
                 // Handle both module-level and class body streams.
                 // Class body streams are marked with /* @macroforge:body */
                 Ok(Some(quote! {
@@ -1234,7 +1247,7 @@ impl Codegen {
             // =================================================================
             // Placeholders
             // =================================================================
-            IrNode::Placeholder { kind, expr } => match kind {
+            IrNode::Placeholder { kind, expr, .. } => match kind {
                 PlaceholderKind::Expr => Ok(Some(quote! {
                     #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
                         macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
@@ -1292,7 +1305,7 @@ impl Codegen {
             // =================================================================
             // Comments
             // =================================================================
-            IrNode::LineComment { text: _ } | IrNode::BlockComment { text: _ } => {
+            IrNode::LineComment { text: _, .. } | IrNode::BlockComment { text: _, .. } => {
                 // Comments are emitted as empty statements for now
                 // TODO: Use SWC comments API
                 Ok(Some(quote! {
@@ -1306,20 +1319,20 @@ impl Codegen {
                 }))
             }
 
-            IrNode::DocComment { text: _ } => Ok(None),
+            IrNode::DocComment { text: _, .. } => Ok(None),
 
-            IrNode::Documented { doc: _, inner } => self.generate_module_item(inner),
+            IrNode::Documented { doc: _, inner, .. } => self.generate_module_item(inner),
 
             // =================================================================
             // Special constructs
             // =================================================================
-            IrNode::IdentBlock { parts } => {
+            IrNode::IdentBlock { parts, .. } => {
                 let part_exprs: Vec<TokenStream> = parts
                     .iter()
                     .filter_map(|p| match p {
-                        IrNode::Raw(text) => Some(quote! { __ident.push_str(#text); }),
-                        IrNode::StrLit(text) => Some(quote! { __ident.push_str(#text); }),
-                        IrNode::Ident(text) => Some(quote! { __ident.push_str(#text); }),
+                        IrNode::Raw { value: text, .. } => Some(quote! { __ident.push_str(#text); }),
+                        IrNode::StrLit { value: text, .. } => Some(quote! { __ident.push_str(#text); }),
+                        IrNode::Ident { value: text, .. } => Some(quote! { __ident.push_str(#text); }),
                         IrNode::Placeholder { expr, .. } => {
                             Some(quote! {
                                 __ident.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
@@ -1350,14 +1363,14 @@ impl Codegen {
                 }))
             }
 
-            IrNode::StringInterp { quote: _, parts } => {
+            IrNode::StringInterp { quote: _, parts, .. } => {
                 let mut quasi_parts = Vec::new();
                 let mut expr_parts = Vec::new();
                 let mut current_text = String::new();
 
                 for part in parts {
                     match part {
-                        IrNode::Raw(text) | IrNode::StrLit(text) => current_text.push_str(text),
+                        IrNode::Raw { value: text, .. } | IrNode::StrLit { value: text, .. } => current_text.push_str(text),
                         IrNode::Placeholder { expr, .. } => {
                             let text = std::mem::take(&mut current_text);
                             quasi_parts.push(quote! {
@@ -1405,7 +1418,7 @@ impl Codegen {
             }
 
             // Raw text - parse at runtime since it might be a fragment
-            IrNode::Raw(text) => {
+            IrNode::Raw { value: text, .. } => {
                 if text.trim().is_empty() {
                     return Ok(None);
                 }
@@ -1425,7 +1438,7 @@ impl Codegen {
             }
 
             // TypeScript if statement at module level
-            IrNode::TsIfStmt { test, cons, alt } => {
+            IrNode::TsIfStmt { test, cons, alt, .. } => {
                 let test_code = self.generate_expr_string_parts(test);
                 let cons_code = self.generate_stmt_as_string(cons);
                 let alt_code = alt.as_ref().map(|a| {
@@ -1454,7 +1467,7 @@ impl Codegen {
             }
 
             // TypeScript loop statement at module level
-            IrNode::TsLoopStmt { parts } => {
+            IrNode::TsLoopStmt { parts, .. } => {
                 let part_exprs: Vec<TokenStream> =
                     parts.iter().map(|p| self.generate_stmt_string_part(p)).collect();
                 Ok(Some(quote! {

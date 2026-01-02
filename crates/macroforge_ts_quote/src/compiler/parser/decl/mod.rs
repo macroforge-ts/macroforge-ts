@@ -12,6 +12,7 @@ use super::*;
 
 impl Parser {
     pub(super) fn parse_export_decl(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "export"
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "export keyword"))?;
@@ -36,11 +37,15 @@ impl Parser {
             | Some(SyntaxKind::TypeKw) => self.parse_export_decl_full(),
 
             // Fallback
-            _ => Ok(IrNode::Raw("export ".to_string())),
+            _ => Ok(IrNode::Raw {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                value: "export ".to_string(),
+            }),
         }
     }
 
     pub(super) fn parse_async_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "async"
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "async keyword"))?;
@@ -51,11 +56,15 @@ impl Parser {
         } else {
             // Not a function, just return raw
             let prefix = if exported { "export async " } else { "async " };
-            Ok(IrNode::Raw(prefix.to_string()))
+            Ok(IrNode::Raw {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                value: prefix.to_string(),
+            })
         }
     }
 
     pub(super) fn parse_class_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "class"
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "class keyword"))?;
@@ -96,7 +105,10 @@ impl Parser {
         // Parse class body - use the new parse_class_body from expr/mod.rs
         if !self.at(SyntaxKind::LBrace) {
             // No body, return raw
-            return Ok(IrNode::Raw("class ".to_string()));
+            return Ok(IrNode::Raw {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                value: "class ".to_string(),
+            });
         }
 
         let body = self.parse_class_body()
@@ -106,6 +118,7 @@ impl Parser {
         let decorators = std::mem::take(&mut self.pending_decorators);
 
         Ok(IrNode::ClassDecl {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             exported,
             declare: false,
             abstract_: false,
@@ -121,6 +134,7 @@ impl Parser {
     // parse_class_body and parse_class_member are now in expr/mod.rs with proper error handling
 
     fn parse_constructor(&mut self, accessibility: Option<Accessibility>) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "constructor"
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "constructor keyword"))?;
@@ -138,6 +152,7 @@ impl Parser {
         };
 
         let node = IrNode::Constructor {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             accessibility,
             params,
             body,
@@ -147,6 +162,7 @@ impl Parser {
     }
 
     pub(super) fn parse_function_decl(&mut self, exported: bool, async_: bool) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "function"
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "function keyword"))?;
@@ -199,6 +215,7 @@ impl Parser {
         };
 
         let node = IrNode::FnDecl {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             exported,
             declare: false,
             async_,
@@ -214,6 +231,7 @@ impl Parser {
     }
 
     pub(super) fn parse_var_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         let kind = match self.current_kind() {
             Some(SyntaxKind::ConstKw) => VarKind::Const,
             Some(SyntaxKind::LetKw) => VarKind::Let,
@@ -228,12 +246,13 @@ impl Parser {
         // Check for destructuring pattern (object or array)
         if self.at(SyntaxKind::LBrace) || self.at(SyntaxKind::LBracket) {
             // For destructuring patterns, collect as raw text until semicolon
-            return self.parse_var_decl_as_raw(exported, &kind);
+            return self.parse_var_decl_as_raw(exported, &kind, start_byte);
         }
 
         let mut decls = Vec::new();
 
         loop {
+            let decl_start = self.current_byte_offset();
             // Push Identifier context for variable name
             self.push_context(Context::identifier([
                 SyntaxKind::Colon,
@@ -249,12 +268,14 @@ impl Parser {
 
             // If there's a type annotation, wrap the name in a BindingIdent
             let name_with_type = if self.at(SyntaxKind::Colon) {
+                let binding_span = name.span();
                 self.consume();
                 self.skip_whitespace();
                 let type_ann = self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])?
                     .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
                         .with_context("variable type annotation"))?;
                 IrNode::BindingIdent {
+                    span: IrSpan::new(binding_span.start, self.current_byte_offset()),
                     name: Box::new(name),
                     type_ann: Some(Box::new(type_ann)),
                     optional: false,
@@ -275,6 +296,7 @@ impl Parser {
             };
 
             decls.push(VarDeclarator {
+                span: IrSpan::new(decl_start, self.current_byte_offset()),
                 name: Box::new(name_with_type),
                 type_ann: None, // Type annotation is now in the BindingIdent
                 init,
@@ -296,6 +318,7 @@ impl Parser {
         }
 
         Ok(IrNode::VarDecl {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             exported,
             declare: false,
             kind,
@@ -305,7 +328,7 @@ impl Parser {
 
     /// Parse a variable declaration with destructuring pattern as raw text.
     /// This handles patterns like `const { a, b } = obj;` or `const [x, y] = arr;`
-    fn parse_var_decl_as_raw(&mut self, exported: bool, kind: &VarKind) -> ParseResult<IrNode> {
+    fn parse_var_decl_as_raw(&mut self, exported: bool, kind: &VarKind, start_byte: usize) -> ParseResult<IrNode> {
         let kind_str = match kind {
             VarKind::Const => "const ",
             VarKind::Let => "let ",
@@ -314,7 +337,10 @@ impl Parser {
         let export_str = if exported { "export " } else { "" };
 
         let mut parts = Vec::new();
-        parts.push(IrNode::Raw(format!("{}{}", export_str, kind_str)));
+        parts.push(IrNode::Raw {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            value: format!("{}{}", export_str, kind_str),
+        });
 
         // Collect everything until semicolon, handling nested braces/brackets and placeholders
         let mut brace_depth = 0;
@@ -329,25 +355,25 @@ impl Parser {
                 Some(SyntaxKind::LBrace) => {
                     brace_depth += 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
                 Some(SyntaxKind::RBrace) => {
                     brace_depth -= 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
                 Some(SyntaxKind::LBracket) => {
                     bracket_depth += 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
                 Some(SyntaxKind::RBracket) => {
                     bracket_depth -= 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
                 Some(SyntaxKind::At) => {
@@ -358,18 +384,18 @@ impl Parser {
                 Some(SyntaxKind::Semicolon) => {
                     if brace_depth == 0 && bracket_depth == 0 {
                         if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw(t.text));
+                            parts.push(IrNode::raw(&t));
                         }
                         break;
                     } else {
                         if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw(t.text));
+                            parts.push(IrNode::raw(&t));
                         }
                     }
                 }
                 _ => {
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw(t.text));
+                        parts.push(IrNode::raw(&t));
                     }
                 }
             }
@@ -377,10 +403,14 @@ impl Parser {
 
         // Merge adjacent raw nodes and return as TsLoopStmt (which handles raw statements)
         let merged = Self::merge_adjacent_text(parts);
-        Ok(IrNode::TsLoopStmt { parts: merged })
+        Ok(IrNode::TsLoopStmt {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            parts: merged,
+        })
     }
 
     pub(super) fn parse_type_alias_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Consume "type"
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "type keyword"))?;
@@ -395,7 +425,10 @@ impl Parser {
         self.skip_whitespace();
 
         if !self.at(SyntaxKind::Eq) {
-            return Ok(IrNode::Raw("type ".to_string()));
+            return Ok(IrNode::Raw {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                value: "type ".to_string(),
+            });
         }
         self.consume();
         self.skip_whitespace();
@@ -410,6 +443,7 @@ impl Parser {
         }
 
         let node = IrNode::TypeAliasDecl {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             exported,
             declare: false,
             name: Box::new(name),

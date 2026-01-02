@@ -77,6 +77,7 @@ impl Parser {
         }
 
         Ok(IrNode::For {
+            span: IrSpan::empty(),
             pattern: Self::str_to_token_stream(pattern_str.trim())
                 .map_err(|e| e.with_context("type for-loop pattern"))?,
             iterator: Self::str_to_token_stream(&iterator_str)
@@ -138,6 +139,7 @@ impl Parser {
         }
 
         Ok(IrNode::If {
+            span: IrSpan::empty(),
             condition,
             then_body: Self::merge_adjacent_text(then_body),
             else_if_branches: else_if_branches
@@ -164,6 +166,7 @@ impl Parser {
         }
 
         Ok(IrNode::While {
+            span: IrSpan::empty(),
             condition,
             body: Self::merge_adjacent_text(body),
         })
@@ -186,17 +189,18 @@ impl Parser {
                         // Check for identifier suffix
                         if let Some(token) = self.current() {
                             if token.kind == SyntaxKind::Ident {
-                                let suffix = token.text.clone();
-                                self.consume();
+                                let suffix_token = self.consume().unwrap();
                                 let ident_placeholder = match placeholder {
-                                    IrNode::Placeholder { expr, .. } => IrNode::Placeholder {
+                                    IrNode::Placeholder { span, expr, .. } => IrNode::Placeholder {
+                                        span,
                                         kind: PlaceholderKind::Ident,
                                         expr,
                                     },
                                     other => other,
                                 };
                                 nodes.push(IrNode::IdentBlock {
-                                    parts: vec![ident_placeholder, IrNode::Raw(suffix)],
+                                    span: IrSpan::empty(),
+                                    parts: vec![ident_placeholder, IrNode::raw(&suffix_token)],
                                 });
                                 continue;
                             }
@@ -213,7 +217,7 @@ impl Parser {
                     _ => {
                         // Raw text
                         if let Some(token) = self.consume() {
-                            nodes.push(IrNode::Raw(token.text));
+                            nodes.push(IrNode::raw(&token));
                         }
                     }
                 }
@@ -278,6 +282,7 @@ impl Parser {
         }
 
         Ok(IrNode::If {
+            span: IrSpan::empty(),
             condition,
             then_body: Self::merge_adjacent_text(then_body),
             else_if_branches: else_if_branches
@@ -314,6 +319,7 @@ impl Parser {
         }
 
         Ok(IrNode::For {
+            span: IrSpan::empty(),
             pattern: Self::str_to_token_stream(pattern_str.trim())
                 .map_err(|e| e.with_context("for-loop pattern"))?,
             iterator: Self::str_to_token_stream(&iterator_str)
@@ -336,6 +342,7 @@ impl Parser {
         }
 
         Ok(IrNode::While {
+            span: IrSpan::empty(),
             condition: Self::str_to_token_stream(&condition_str)
                 .map_err(|e| e.with_context("while-block condition"))?,
             body: Self::merge_adjacent_text(body),
@@ -365,6 +372,7 @@ impl Parser {
             let body = self.parse_block_body(&[SyntaxKind::BraceColonCase, SyntaxKind::BraceSlashMatchBrace])?;
 
             arms.push(MatchArm {
+                span: IrSpan::empty(),
                 pattern: Self::str_to_token_stream(&pattern_str)
                     .map_err(|e| e.with_context("match case pattern"))?,
                 guard: None,
@@ -378,6 +386,7 @@ impl Parser {
         }
 
         Ok(IrNode::Match {
+            span: IrSpan::empty(),
             expr: Self::str_to_token_stream(&expr_str)
                 .map_err(|e| e.with_context("match expression"))?,
             arms,

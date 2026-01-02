@@ -14,7 +14,7 @@ impl Codegen {
 
 pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStream>> {
     match node {
-        IrNode::KeyValueProp { key, value } => {
+        IrNode::KeyValueProp { key, value, .. } => {
             let key_code = self.generate_prop_name(key)?;
             let value_code = self.generate_expr(value)?;
             Ok(Some(quote! {
@@ -28,7 +28,7 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStrea
                 ))
             }))
         }
-        IrNode::ShorthandProp { key } => {
+        IrNode::ShorthandProp { key, .. } => {
             let key_code = self.generate_ident(key)?;
             Ok(Some(quote! {
                 macroforge_ts::swc_core::ecma::ast::PropOrSpread::Prop(Box::new(
@@ -36,7 +36,7 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStrea
                 ))
             }))
         }
-        IrNode::SpreadElement { expr } => {
+        IrNode::SpreadElement { expr, .. } => {
             let expr_code = self.generate_expr(expr)?;
             Ok(Some(quote! {
                 macroforge_ts::swc_core::ecma::ast::PropOrSpread::Spread(
@@ -48,7 +48,7 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStrea
             }))
         }
         // Method property: `name() { }`
-        IrNode::MethodProp { async_, generator, name, type_params: _, params, return_type: _, body } => {
+        IrNode::MethodProp { async_, generator, name, type_params: _, params, return_type: _, body, .. } => {
             let key_code = self.generate_prop_name(name)?;
             let params_code = self.generate_params(params)?;
             let body_code = self.generate_block_stmt(body)?;
@@ -74,7 +74,7 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStrea
             }))
         }
         // Getter property: `get name() { }`
-        IrNode::GetterProp { name, type_ann: _, body } => {
+        IrNode::GetterProp { name, type_ann: _, body, .. } => {
             let key_code = self.generate_prop_name(name)?;
             let body_code = self.generate_block_stmt(body)?;
             Ok(Some(quote! {
@@ -91,7 +91,7 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStrea
             }))
         }
         // Setter property: `set name(param) { }`
-        IrNode::SetterProp { name, param, body } => {
+        IrNode::SetterProp { name, param, body, .. } => {
             let key_code = self.generate_prop_name(name)?;
             let param_code = self.generate_param(param)?;
             let body_code = self.generate_block_stmt(body)?;
@@ -117,7 +117,7 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStrea
 
 pub(super) fn generate_prop_name(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::Ident(name) => {
+        IrNode::Ident { value: name, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::PropName::Ident(
                     macroforge_ts::swc_core::ecma::ast::IdentName::new(
@@ -127,7 +127,7 @@ pub(super) fn generate_prop_name(&self, node: &IrNode) -> GenResult<TokenStream>
                 )
             })
         }
-        IrNode::StrLit(value) => {
+        IrNode::StrLit { value, .. } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::PropName::Str(
                     macroforge_ts::swc_core::ecma::ast::Str {
@@ -138,7 +138,7 @@ pub(super) fn generate_prop_name(&self, node: &IrNode) -> GenResult<TokenStream>
                 )
             })
         }
-        IrNode::ComputedPropName { expr } => {
+        IrNode::ComputedPropName { expr, .. } => {
             let expr_code = self.generate_expr(expr)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::PropName::Computed(
@@ -154,6 +154,7 @@ pub(super) fn generate_prop_name(&self, node: &IrNode) -> GenResult<TokenStream>
         IrNode::Placeholder {
             kind: PlaceholderKind::Ident,
             expr,
+            ..
         } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::PropName::Ident({
@@ -169,6 +170,7 @@ pub(super) fn generate_prop_name(&self, node: &IrNode) -> GenResult<TokenStream>
         IrNode::Placeholder {
             kind: PlaceholderKind::Expr,
             expr,
+            ..
         } => {
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::PropName::Computed(

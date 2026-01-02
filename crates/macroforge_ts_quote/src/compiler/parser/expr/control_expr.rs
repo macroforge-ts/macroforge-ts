@@ -22,7 +22,7 @@
 //! ```
 
 use super::errors::{ParseError, ParseErrorKind, ParseResult};
-use crate::compiler::ir::{IrNode, MatchArmExpr};
+use crate::compiler::ir::{IrNode, IrSpan, MatchArmExpr};
 use crate::compiler::parser::Parser;
 use crate::compiler::syntax::SyntaxKind;
 
@@ -32,6 +32,7 @@ impl Parser {
     /// Unlike statement-level `{#if}`, expression-level if **requires** an `{:else}` branch
     /// because all branches must produce a value.
     pub(super) fn parse_if_expr(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Push TemplateControlBlock context FIRST to preserve parent context (e.g., ObjectLiteral).
         // This must happen before consuming any tokens so that the closing `}` of the header
         // (in `{#if condition}`) doesn't pop the ObjectLiteral context.
@@ -109,6 +110,7 @@ impl Parser {
             .map_err(|e| e.with_context("if-expression condition"))?;
 
         Ok(IrNode::IfExpr {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             condition,
             then_expr: Box::new(then_expr),
             else_if_branches,
@@ -120,6 +122,7 @@ impl Parser {
     ///
     /// Produces an iterator via `.into_iter().map(|pattern| expr)`.
     pub(super) fn parse_for_expr(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Push TemplateControlBlock context FIRST to preserve parent context (e.g., ObjectLiteral).
         // This must happen before consuming any tokens so that the closing `}` of the header
         // (in `{#for pattern in iter}`) doesn't pop the ObjectLiteral context.
@@ -184,6 +187,7 @@ impl Parser {
             .map_err(|e| e.with_context("for-expression iterator"))?;
 
         Ok(IrNode::ForExpr {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             pattern,
             iterator,
             body_expr: Box::new(body_expr),
@@ -194,6 +198,7 @@ impl Parser {
     ///
     /// Produces an iterator via `std::iter::from_fn(|| if cond { Some(expr) } else { None })`.
     pub(super) fn parse_while_expr(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Push TemplateControlBlock context FIRST to preserve parent context (e.g., ObjectLiteral).
         // This must happen before consuming any tokens so that the closing `}` of the header
         // (in `{#while condition}`) doesn't pop the ObjectLiteral context.
@@ -238,6 +243,7 @@ impl Parser {
             .map_err(|e| e.with_context("while-expression condition"))?;
 
         Ok(IrNode::WhileExpr {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
             condition,
             body_expr: Box::new(body_expr),
         })
@@ -245,6 +251,7 @@ impl Parser {
 
     /// Parses a match expression: `{#match expr}{:case pattern} expr {:case pattern} expr {/match}`
     pub(super) fn parse_match_expr(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
         // Push TemplateControlBlock context FIRST to preserve parent context (e.g., ObjectLiteral).
         // This must happen before consuming any tokens so that the closing `}` of the header
         // (in `{#match expr}`) doesn't pop the ObjectLiteral context.
@@ -291,6 +298,7 @@ impl Parser {
                 .map_err(|e| e.with_context("match arm pattern"))?;
 
             arms.push(MatchArmExpr {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
                 pattern,
                 guard: None, // TODO: Support guards with `if cond` syntax
                 body_expr: Box::new(body_expr),
@@ -313,7 +321,11 @@ impl Parser {
         let expr = Self::str_to_token_stream(&expr_str)
             .map_err(|e| e.with_context("match-expression scrutinee"))?;
 
-        Ok(IrNode::MatchExpr { expr, arms })
+        Ok(IrNode::MatchExpr {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            expr,
+            arms,
+        })
     }
 
     /// Parses an expression until a control flow continuation token.

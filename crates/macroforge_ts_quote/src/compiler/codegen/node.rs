@@ -5,9 +5,9 @@ impl Codegen {
     pub(super) fn is_fragment_node(&self, node: &IrNode) -> bool {
         matches!(
             node,
-            IrNode::Raw(_)
-                | IrNode::Ident(_)
-                | IrNode::StrLit(_)
+            IrNode::Raw { .. }
+                | IrNode::Ident { .. }
+                | IrNode::StrLit { .. }
                 | IrNode::IdentBlock { .. }
                 | IrNode::StringInterp { .. }
                 | IrNode::Placeholder { .. }
