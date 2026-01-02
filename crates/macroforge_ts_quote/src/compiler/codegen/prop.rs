@@ -48,10 +48,24 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStrea
             }))
         }
         // Method property: `name() { }`
-        IrNode::MethodProp { async_, generator, name, type_params: _, params, return_type: _, body, .. } => {
+        IrNode::MethodProp { async_, generator, name, type_params, params, return_type, body, .. } => {
             let key_code = self.generate_prop_name(name)?;
             let params_code = self.generate_params(params)?;
             let body_code = self.generate_block_stmt(body)?;
+            let type_params_code = match type_params {
+                Some(tp) => {
+                    let tpc = self.generate_type_params(tp)?;
+                    quote! { Some(Box::new(#tpc)) }
+                }
+                None => quote! { None },
+            };
+            let return_type_code = match return_type {
+                Some(t) => {
+                    let tc = self.generate_type_ann(t)?;
+                    quote! { Some(Box::new(#tc)) }
+                }
+                None => quote! { None },
+            };
             Ok(Some(quote! {
                 macroforge_ts::swc_core::ecma::ast::PropOrSpread::Prop(Box::new(
                     macroforge_ts::swc_core::ecma::ast::Prop::Method(
@@ -65,8 +79,8 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStrea
                                 body: Some(#body_code),
                                 is_generator: #generator,
                                 is_async: #async_,
-                                type_params: None,
-                                return_type: None,
+                                type_params: #type_params_code,
+                                return_type: #return_type_code,
                             }),
                         }
                     )
@@ -74,16 +88,23 @@ pub(super) fn generate_prop(&self, node: &IrNode) -> GenResult<Option<TokenStrea
             }))
         }
         // Getter property: `get name() { }`
-        IrNode::GetterProp { name, type_ann: _, body, .. } => {
+        IrNode::GetterProp { name, type_ann, body, .. } => {
             let key_code = self.generate_prop_name(name)?;
             let body_code = self.generate_block_stmt(body)?;
+            let type_ann_code = match type_ann {
+                Some(t) => {
+                    let tc = self.generate_type_ann(t)?;
+                    quote! { Some(Box::new(#tc)) }
+                }
+                None => quote! { None },
+            };
             Ok(Some(quote! {
                 macroforge_ts::swc_core::ecma::ast::PropOrSpread::Prop(Box::new(
                     macroforge_ts::swc_core::ecma::ast::Prop::Getter(
                         macroforge_ts::swc_core::ecma::ast::GetterProp {
                             span: macroforge_ts::swc_core::common::DUMMY_SP,
                             key: #key_code,
-                            type_ann: None,
+                            type_ann: #type_ann_code,
                             body: Some(#body_code),
                         }
                     )

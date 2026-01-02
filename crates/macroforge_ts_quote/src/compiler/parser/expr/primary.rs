@@ -1300,7 +1300,7 @@ impl Parser {
     }
 
     /// Parses a numeric literal.
-    fn parse_numeric_literal(&mut self) -> ParseResult<IrNode> {
+    pub(in crate::compiler::parser) fn parse_numeric_literal(&mut self) -> ParseResult<IrNode> {
         let token = self.consume().ok_or_else(|| {
             ParseError::unexpected_eof(self.current_byte_offset(), "numeric literal")
         })?;
@@ -1309,10 +1309,7 @@ impl Parser {
 
         // Check for BigInt
         if text.ends_with('n') {
-            Ok(IrNode::BigIntLit {
-                span: token.ir_span(),
-                value: text[..text.len() - 1].to_string(),
-            })
+            Ok(IrNode::bigint_lit(&token))
         } else {
             Ok(IrNode::num_lit(&token))
         }

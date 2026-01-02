@@ -81,6 +81,10 @@ impl Codegen {
         let mut decls_code: Vec<TokenStream> = Vec::new();
 
         for d in decls {
+            // Consume span field (we use DUMMY_SP for generated code)
+            let _ = d.span;
+            let definite = d.definite;
+
             let name_code = self.generate_pat(&d.name)?;
             let init_code = match &d.init {
                 Some(i) => {
@@ -95,7 +99,7 @@ impl Codegen {
                     span: macroforge_ts::swc_core::common::DUMMY_SP,
                     name: #name_code,
                     init: #init_code,
-                    definite: false,
+                    definite: #definite,
                 }
             });
         }
@@ -204,6 +208,26 @@ impl Codegen {
         }
 
         Ok(quote! { vec![#(#impl_codes),*] })
+    }
+
+    /// Generate a single decorator node.
+    pub(crate) fn generate_decorator(&self, node: &IrNode) -> GenResult<TokenStream> {
+        match node {
+            IrNode::Decorator { expr, .. } => {
+                let expr_code = self.generate_expr(expr)?;
+                Ok(quote! {
+                    macroforge_ts::swc_core::ecma::ast::Decorator {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        expr: Box::new(#expr_code),
+                    }
+                })
+            }
+            _ => Err(GenError::unexpected_node(
+                "decorator",
+                node,
+                &["Decorator"],
+            )),
+        }
     }
 }
 

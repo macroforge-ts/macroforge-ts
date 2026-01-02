@@ -242,9 +242,7 @@ impl Codegen {
                 body,
                 ..
             } => {
-                let name_code = self.generate_ident(name).unwrap_or_else(|e| {
-                    panic!("Codegen error in generate_ident: {}", e)
-                });
+                let name_code = self.generate_ident(name)?;
                 let params_code = self.generate_params(params)?;
                 let body_code = match body.as_ref() {
                     Some(b) => self.generate_block_stmt_opt(b)?,
@@ -252,18 +250,14 @@ impl Codegen {
                 };
                 let return_type_code = match return_type.as_ref() {
                     Some(t) => {
-                        let tc = self.generate_type_ann(t).unwrap_or_else(|e| {
-                            panic!("Codegen error in generate_type_ann: {}", e)
-                        });
+                        let tc = self.generate_type_ann(t)?;
                         quote! { Some(Box::new(#tc)) }
                     }
                     None => quote! { None },
                 };
                 let type_params_code = match type_params.as_ref() {
                     Some(tp) => {
-                        let tpc = self.generate_type_params(tp).unwrap_or_else(|e| {
-                            panic!("Codegen error in generate_type_params: {}", e)
-                        });
+                        let tpc = self.generate_type_params(tp)?;
                         quote! { Some(Box::new(#tpc)) }
                     }
                     None => quote! { None },
@@ -321,16 +315,11 @@ impl Codegen {
                 body,
                 ..
             } => {
-                let name_code = self.generate_ident(name).unwrap_or_else(|e| {
-                    panic!("Codegen error in generate_ident: {}", e)
-                });
+                let name_code = self.generate_ident(name)?;
                 let body_code = self.generate_class_members(body)?;
-                let extends_code = extends
-                    .as_ref()
-                    .map(|e| {
-                        let ec = self.generate_expr(e).unwrap_or_else(|e| {
-                            panic!("Codegen error in generate_expr: {}", e)
-                        });
+                let extends_code = match extends.as_ref() {
+                    Some(e) => {
+                        let ec = self.generate_expr(e)?;
                         quote! {
                             Some(Box::new(macroforge_ts::swc_core::ecma::ast::ExtendsClause {
                                 span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -338,17 +327,16 @@ impl Codegen {
                                 type_args: None,
                             }))
                         }
-                    })
-                    .unwrap_or(quote! { None });
-                let type_params_code = type_params
-                    .as_ref()
-                    .map(|tp| {
-                        let tpc = self.generate_type_params(tp).unwrap_or_else(|e| {
-                            panic!("Codegen error in generate_type_params: {}", e)
-                        });
+                    }
+                    None => quote! { None },
+                };
+                let type_params_code = match type_params.as_ref() {
+                    Some(tp) => {
+                        let tpc = self.generate_type_params(tp)?;
                         quote! { Some(Box::new(#tpc)) }
-                    })
-                    .unwrap_or(quote! { None });
+                    }
+                    None => quote! { None },
+                };
                 let implements_code = self.generate_implements(implements)?;
 
                 // Generate decorators - build the decorator expression dynamically
@@ -436,19 +424,15 @@ impl Codegen {
                 body,
                 ..
             } => {
-                let name_code = self.generate_ident(name).unwrap_or_else(|e| {
-                    panic!("Codegen error in generate_ident: {}", e)
-                });
+                let name_code = self.generate_ident(name)?;
                 let body_code = self.generate_ts_interface_body(body)?;
-                let type_params_code = type_params
-                    .as_ref()
-                    .map(|tp| {
-                        let tpc = self.generate_type_params(tp).unwrap_or_else(|e| {
-                            panic!("Codegen error in generate_type_params: {}", e)
-                        });
+                let type_params_code = match type_params.as_ref() {
+                    Some(tp) => {
+                        let tpc = self.generate_type_params(tp)?;
                         quote! { Some(Box::new(#tpc)) }
-                    })
-                    .unwrap_or(quote! { None });
+                    }
+                    None => quote! { None },
+                };
                 let extends_code = self.generate_ts_expr_with_type_args(extends);
 
                 let interface_decl = quote! {
@@ -492,21 +476,15 @@ impl Codegen {
                 type_ann,
                 ..
             } => {
-                let name_code = self.generate_ident(name).unwrap_or_else(|e| {
-                    panic!("Codegen error in generate_ident: {}", e)
-                });
-                let type_ann_code = self.generate_type(type_ann).unwrap_or_else(|e| {
-                    panic!("Codegen error in generate_type: {}", e)
-                });
-                let type_params_code = type_params
-                    .as_ref()
-                    .map(|tp| {
-                        let tpc = self.generate_type_params(tp).unwrap_or_else(|e| {
-                            panic!("Codegen error in generate_type_params: {}", e)
-                        });
+                let name_code = self.generate_ident(name)?;
+                let type_ann_code = self.generate_type(type_ann)?;
+                let type_params_code = match type_params.as_ref() {
+                    Some(tp) => {
+                        let tpc = self.generate_type_params(tp)?;
                         quote! { Some(Box::new(#tpc)) }
-                    })
-                    .unwrap_or(quote! { None });
+                    }
+                    None => quote! { None },
+                };
 
                 let type_alias = quote! {
                     macroforge_ts::swc_core::ecma::ast::TsTypeAliasDecl {
@@ -601,18 +579,14 @@ impl Codegen {
                     .iter()
                     .map(|spec| match spec {
                         IrNode::NamedImport { local, imported, .. } => {
-                            let local_code = self.generate_ident(local).unwrap_or_else(|e| {
-                                panic!("Codegen error in generate_ident: {}", e)
-                            });
-                            let imported_code = imported
-                                .as_ref()
-                                .map(|i| {
-                                    let ic = self.generate_ident(i).unwrap_or_else(|e| {
-                                        panic!("Codegen error in generate_ident: {}", e)
-                                    });
+                            let local_code = self.generate_ident(local)?;
+                            let imported_code = match imported.as_ref() {
+                                Some(i) => {
+                                    let ic = self.generate_ident(i)?;
                                     quote! { Some(macroforge_ts::swc_core::ecma::ast::ModuleExportName::Ident(#ic)) }
-                                })
-                                .unwrap_or(quote! { None });
+                                }
+                                None => quote! { None },
+                            };
                             Ok(quote! {
                                 macroforge_ts::swc_core::ecma::ast::ImportSpecifier::Named(
                                     macroforge_ts::swc_core::ecma::ast::ImportNamedSpecifier {
@@ -625,9 +599,7 @@ impl Codegen {
                             })
                         }
                         IrNode::DefaultImport { local, .. } => {
-                            let local_code = self.generate_ident(local).unwrap_or_else(|e| {
-                                panic!("Codegen error in generate_ident: {}", e)
-                            });
+                            let local_code = self.generate_ident(local)?;
                             Ok(quote! {
                                 macroforge_ts::swc_core::ecma::ast::ImportSpecifier::Default(
                                     macroforge_ts::swc_core::ecma::ast::ImportDefaultSpecifier {
@@ -638,9 +610,7 @@ impl Codegen {
                             })
                         }
                         IrNode::NamespaceImport { local, .. } => {
-                            let local_code = self.generate_ident(local).unwrap_or_else(|e| {
-                                panic!("Codegen error in generate_ident: {}", e)
-                            });
+                            let local_code = self.generate_ident(local)?;
                             Ok(quote! {
                                 macroforge_ts::swc_core::ecma::ast::ImportSpecifier::Namespace(
                                     macroforge_ts::swc_core::ecma::ast::ImportStarAsSpecifier {
@@ -689,15 +659,11 @@ impl Codegen {
                     .iter()
                     .map(|spec| {
                         if let IrNode::ExportSpecifier { local, exported, .. } = spec {
-                            let local_code = self.generate_ident(local).unwrap_or_else(|e| {
-                                panic!("Codegen error in generate_ident: {}", e)
-                            });
+                            let local_code = self.generate_ident(local)?;
                             let local_name = quote! { macroforge_ts::swc_core::ecma::ast::ModuleExportName::Ident(#local_code) };
                             let exported_code = match exported.as_ref() {
                                 Some(e) => {
-                                    let ec = self.generate_ident(e).unwrap_or_else(|e| {
-                                        panic!("Codegen error in generate_ident: {}", e)
-                                    });
+                                    let ec = self.generate_ident(e)?;
                                     quote! { Some(macroforge_ts::swc_core::ecma::ast::ModuleExportName::Ident(#ec)) }
                                 }
                                 None => quote! { None },
@@ -955,37 +921,34 @@ impl Codegen {
                 members,
                 ..
             } => {
-                let name_code = self.generate_ident(name).unwrap_or_else(|e| {
-                    panic!("Codegen error in generate_ident: {}", e)
-                });
-                let members_code = members
+                let name_code = self.generate_ident(name)?;
+                let members_code: Vec<TokenStream> = members
                     .iter()
                     .filter_map(|m| {
                         if let IrNode::EnumMember { name, init, .. } = m {
-                            let member_name_code = self.generate_ident(name).unwrap_or_else(|e| {
-                                panic!("Codegen error in generate_ident: {}", e)
-                            });
-                            let init_code = init
-                                .as_ref()
-                                .map(|i| {
-                                    let ic = self.generate_expr(i).unwrap_or_else(|e| {
-                                        panic!("Codegen error in generate_expr: {}", e)
-                                    });
-                                    quote! { Some(Box::new(#ic)) }
-                                })
-                                .unwrap_or(quote! { None });
-                            Some(quote! {
-                                macroforge_ts::swc_core::ecma::ast::TsEnumMember {
-                                    span: macroforge_ts::swc_core::common::DUMMY_SP,
-                                    id: macroforge_ts::swc_core::ecma::ast::TsEnumMemberId::Ident(#member_name_code),
-                                    init: #init_code,
-                                }
-                            })
+                            Some((name, init))
                         } else {
                             None
                         }
                     })
-                    .collect::<Vec<_>>();
+                    .map(|(name, init)| {
+                        let member_name_code = self.generate_ident(name)?;
+                        let init_code = match init.as_ref() {
+                            Some(i) => {
+                                let ic = self.generate_expr(i)?;
+                                quote! { Some(Box::new(#ic)) }
+                            }
+                            None => quote! { None },
+                        };
+                        Ok(quote! {
+                            macroforge_ts::swc_core::ecma::ast::TsEnumMember {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                id: macroforge_ts::swc_core::ecma::ast::TsEnumMemberId::Ident(#member_name_code),
+                                init: #init_code,
+                            }
+                        })
+                    })
+                    .collect::<GenResult<_>>()?;
 
                 let enum_decl = quote! {
                     macroforge_ts::swc_core::ecma::ast::TsEnumDecl {
@@ -1025,9 +988,7 @@ impl Codegen {
             IrNode::Decorator { expr, .. } => {
                 // Generate the decorator expression - this will be collected and applied
                 // to the next class/method declaration
-                let decorator_expr = self.generate_expr(expr).unwrap_or_else(|e| {
-                    panic!("Codegen error in generate_expr: {}", e)
-                });
+                let decorator_expr = self.generate_expr(expr)?;
 
                 // For module-level decorators, emit a comment for now
                 // Full support would require modifying how we collect decorators
@@ -1041,9 +1002,7 @@ impl Codegen {
             // Statements as module items
             // =================================================================
             IrNode::ExprStmt { expr, .. } => {
-                let expr_code = self.generate_expr(expr).unwrap_or_else(|e| {
-                    panic!("Codegen error in generate_expr: {}", e)
-                });
+                let expr_code = self.generate_expr(expr)?;
                 Ok(Some(quote! {
                     #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
                         macroforge_ts::swc_core::ecma::ast::Stmt::Expr(
@@ -1057,15 +1016,13 @@ impl Codegen {
             }
 
             IrNode::ReturnStmt { arg, .. } => {
-                let arg_code = arg
-                    .as_ref()
-                    .map(|a| {
-                        let ac = self.generate_expr(a).unwrap_or_else(|e| {
-                            panic!("Codegen error in generate_expr: {}", e)
-                        });
+                let arg_code = match arg.as_ref() {
+                    Some(a) => {
+                        let ac = self.generate_expr(a)?;
                         quote! { Some(Box::new(#ac)) }
-                    })
-                    .unwrap_or(quote! { None });
+                    }
+                    None => quote! { None },
+                };
                 Ok(Some(quote! {
                     #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
                         macroforge_ts::swc_core::ecma::ast::Stmt::Return(
@@ -1079,7 +1036,7 @@ impl Codegen {
             }
 
             IrNode::BlockStmt { stmts, .. } => {
-                let stmts_code = self.generate_stmts_vec(stmts);
+                let stmts_code = self.generate_stmts_vec(stmts)?;
                 Ok(Some(quote! {
                     #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
                         macroforge_ts::swc_core::ecma::ast::Stmt::Block(
@@ -1094,9 +1051,7 @@ impl Codegen {
             }
 
             IrNode::ThrowStmt { arg, .. } => {
-                let arg_code = self.generate_expr(arg).unwrap_or_else(|e| {
-                    panic!("Codegen error in generate_expr: {}", e)
-                });
+                let arg_code = self.generate_expr(arg)?;
                 Ok(Some(quote! {
                     #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
                         macroforge_ts::swc_core::ecma::ast::Stmt::Throw(
@@ -1170,11 +1125,12 @@ impl Codegen {
                     .iter()
                     .map(
                         |MatchArm {
+                             span,
                              pattern,
                              guard,
                              body,
-                             ..
                          }| {
+                            let _ = span; // Consume span field
                             let b = self.generate_module_items(body)?;
                             if let Some(g) = guard {
                                 Ok(quote! { #pattern if #g => { #b } })
@@ -1305,9 +1261,11 @@ impl Codegen {
             // =================================================================
             // Comments
             // =================================================================
-            IrNode::LineComment { text: _, .. } | IrNode::BlockComment { text: _, .. } => {
+            IrNode::LineComment { text, .. } => {
                 // Comments are emitted as empty statements for now
-                // TODO: Use SWC comments API
+                // SWC doesn't have inline comment AST nodes - comments are stored separately
+                // The text is consumed here to satisfy the "never read" warning
+                let _ = text;
                 Ok(Some(quote! {
                     #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
                         macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
@@ -1319,9 +1277,32 @@ impl Codegen {
                 }))
             }
 
-            IrNode::DocComment { text: _, .. } => Ok(None),
+            IrNode::BlockComment { text, .. } => {
+                // Block comments are emitted as empty statements for now
+                // The text is consumed here to satisfy the "never read" warning
+                let _ = text;
+                Ok(Some(quote! {
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(
+                        macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
+                            macroforge_ts::swc_core::ecma::ast::EmptyStmt {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            }
+                        )
+                    ));
+                }))
+            }
 
-            IrNode::Documented { doc: _, inner, .. } => self.generate_module_item(inner),
+            IrNode::DocComment { text, .. } => {
+                // Doc comments are preserved but don't generate AST nodes
+                let _ = text; // Consume the field
+                Ok(None)
+            }
+
+            IrNode::Documented { doc, inner, .. } => {
+                // Documented nodes carry JSDoc - for now we preserve the inner and note the doc
+                let _ = doc; // Consume the doc field - could be used for JSDoc generation in future
+                self.generate_module_item(inner)
+            }
 
             // =================================================================
             // Special constructs
@@ -1439,15 +1420,15 @@ impl Codegen {
 
             // TypeScript if statement at module level
             IrNode::TsIfStmt { test, cons, alt, .. } => {
-                let test_code = self.generate_expr_string_parts(test);
-                let cons_code = self.generate_stmt_as_string(cons);
+                let test_code = self.generate_expr_string_parts(test)?;
+                let cons_code = self.generate_stmt_as_string(cons)?;
                 let alt_code = alt.as_ref().map(|a| {
-                    let ac = self.generate_stmt_as_string(a);
-                    quote! {
+                    let ac = self.generate_stmt_as_string(a)?;
+                    Ok(quote! {
                         __stmt_str.push_str(" else ");
                         #ac
-                    }
-                });
+                    })
+                }).transpose()?;
                 Ok(Some(quote! {
                     {
                         let mut __stmt_str = String::new();
@@ -1469,7 +1450,7 @@ impl Codegen {
             // TypeScript loop statement at module level
             IrNode::TsLoopStmt { parts, .. } => {
                 let part_exprs: Vec<TokenStream> =
-                    parts.iter().map(|p| self.generate_stmt_string_part(p)).collect();
+                    parts.iter().map(|p| self.generate_stmt_string_part(p)).collect::<GenResult<_>>()?;
                 Ok(Some(quote! {
                     {
                         let mut __stmt_str = String::new();

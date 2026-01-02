@@ -842,11 +842,37 @@ impl Parser {
                     "symbol" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Symbol),
                     "bigint" => IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::BigInt),
                     _ => {
+                        // Check for qualified name: NS.SubModule.Type
+                        let mut current: IrNode = IrNode::ident(&t);
+                        let mut current_span = span;
+
+                        while self.at(SyntaxKind::Dot) {
+                            self.consume(); // consume '.'
+                            self.skip_whitespace();
+
+                            if !self.at(SyntaxKind::Ident) {
+                                return Err(ParseError::new(
+                                    errors::ParseErrorKind::ExpectedTypeAnnotation,
+                                    self.current_byte_offset(),
+                                ).with_expected(&["identifier"]));
+                            }
+
+                            let right_token = self.consume().expect("guarded by at() check");
+                            let right_span = right_token.ir_span();
+
+                            current = IrNode::QualifiedName {
+                                span: IrSpan::new(current_span.start, right_span.end),
+                                left: Box::new(current),
+                                right: Box::new(IrNode::ident(&right_token)),
+                            };
+                            current_span = IrSpan::new(current_span.start, right_span.end);
+                        }
+
                         // Check for generic type arguments like <string, unknown>
                         let type_params = self.parse_optional_type_args()?.map(Box::new);
                         IrNode::TypeRef {
-                            span,
-                            name: Box::new(IrNode::ident(&t)),
+                            span: current_span,
+                            name: Box::new(current),
                             type_params,
                         }
                     }
@@ -864,8 +890,8 @@ impl Parser {
                 let t = self.consume().unwrap();
                 IrNode::keyword_type(&t, crate::compiler::ir::TsKeyword::Undefined)
             }
-            // Function type: () => T
-            SyntaxKind::LParen => self.parse_function_type()?,
+            // Function type: () => T  OR  Parenthesized type: (T)
+            SyntaxKind::LParen => self.parse_paren_or_function_type()?,
             // Array type or tuple: [T, U] or T[]
             SyntaxKind::LBracket => self.parse_tuple_type()?,
             // Object type: { prop: T }
@@ -890,6 +916,130 @@ impl Parser {
                     type_ann: Box::new(ty),
                 }
             }
+            // String literal type: "foo" or 'bar'
+            SyntaxKind::DoubleQuote | SyntaxKind::SingleQuote => {
+                let lit = self.parse_string_literal()?;
+                IrNode::LiteralType {
+                    span: lit.span(),
+                    lit: Box::new(lit),
+                }
+            }
+            // Number literal type: 42, 3.14
+            SyntaxKind::Text if token.text.chars().next().map(|c| c.is_ascii_digit() || c == '-').unwrap_or(false) => {
+                let lit = self.parse_numeric_literal()?;
+                IrNode::LiteralType {
+                    span: lit.span(),
+                    lit: Box::new(lit),
+                }
+            }
+            // Boolean literal type: true, false
+            SyntaxKind::TrueKw | SyntaxKind::FalseKw => {
+                let t = self.consume().unwrap();
+                let lit = IrNode::bool_lit(&t);
+                IrNode::LiteralType {
+                    span: t.ir_span(),
+                    lit: Box::new(lit),
+                }
+            }
+            // Constructor type: new (params) => Type
+            SyntaxKind::NewKw => {
+                let start = self.consume().unwrap(); // consume 'new'
+                self.skip_whitespace();
+
+                // Parse optional type parameters
+                let type_params = self.parse_optional_type_params();
+                self.skip_whitespace();
+
+                // Parse parameters
+                let params = self.parse_function_params()?;
+                self.skip_whitespace();
+
+                // Expect =>
+                if !self.at_text("=>") {
+                    return Err(ParseError::new(
+                        errors::ParseErrorKind::MissingArrowBody,
+                        self.current_byte_offset(),
+                    ).with_expected(&["=>"]));
+                }
+                self.consume();
+                self.skip_whitespace();
+
+                let return_type = self.parse_type()?;
+
+                IrNode::ConstructorType {
+                    span: IrSpan::new(start.ir_span().start, self.current_byte_offset()),
+                    type_params,
+                    params,
+                    return_type: Box::new(return_type),
+                }
+            }
+            // this type
+            SyntaxKind::ThisKw => {
+                let t = self.consume().unwrap();
+                IrNode::this_type(&t)
+            }
+            // infer type: infer T
+            SyntaxKind::InferKw => {
+                let start = self.consume().unwrap(); // consume 'infer'
+                self.skip_whitespace();
+
+                // Parse the type parameter name
+                let type_param = self.parse_type_param()?;
+
+                IrNode::InferType {
+                    span: IrSpan::new(start.ir_span().start, self.current_byte_offset()),
+                    type_param: Box::new(type_param),
+                }
+            }
+            // import type: import("module")
+            SyntaxKind::ImportKw => {
+                let start = self.consume().unwrap(); // consume 'import'
+                self.skip_whitespace();
+
+                // Expect (
+                if !self.at(SyntaxKind::LParen) {
+                    return Err(ParseError::new(
+                        errors::ParseErrorKind::ExpectedTypeAnnotation,
+                        self.current_byte_offset(),
+                    ).with_expected(&["("]));
+                }
+                self.consume(); // consume '('
+                self.skip_whitespace();
+
+                // Parse the module string argument
+                let arg = self.parse_type()?;
+                self.skip_whitespace();
+
+                // Expect )
+                if !self.at(SyntaxKind::RParen) {
+                    return Err(ParseError::new(
+                        errors::ParseErrorKind::MissingClosingParen,
+                        self.current_byte_offset(),
+                    ).with_expected(&[")"]));
+                }
+                self.consume(); // consume ')'
+                self.skip_whitespace();
+
+                // Optional qualifier: import("module").Foo
+                let qualifier = if self.at(SyntaxKind::Dot) {
+                    self.consume(); // consume '.'
+                    self.skip_whitespace();
+                    let q = self.parse_type()?;
+                    Some(Box::new(q))
+                } else {
+                    None
+                };
+
+                // Optional type args: import("module")<T>
+                let type_args = self.parse_optional_type_args()?.map(Box::new);
+
+                IrNode::ImportType {
+                    span: IrSpan::new(start.ir_span().start, self.current_byte_offset()),
+                    arg: Box::new(arg),
+                    qualifier,
+                    type_args,
+                }
+            }
             _ => {
                 return Err(
                     ParseError::new(errors::ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
@@ -904,22 +1054,87 @@ impl Parser {
         self.parse_type_modifiers(base_type)
     }
 
-    /// Parses type modifiers after a base type ([], |, &)
+    /// Parses type modifiers after a base type ([], |, &, extends, [K])
     fn parse_type_modifiers(&mut self, mut ty: IrNode) -> ParseResult<IrNode> {
         loop {
             self.skip_whitespace();
 
-            // Array type: T[]
+            // Array type: T[] or Indexed access type: T[K]
             if self.at(SyntaxKind::LBracket) {
-                if self.peek_kind(1) == Some(SyntaxKind::RBracket) {
-                    self.consume(); // [
+                self.consume(); // [
+                self.skip_whitespace();
+
+                if self.at(SyntaxKind::RBracket) {
+                    // Array type: T[]
                     self.consume(); // ]
                     ty = IrNode::ArrayType {
                         span: ty.span(),
                         elem: Box::new(ty),
                     };
                     continue;
+                } else {
+                    // Indexed access type: T[K]
+                    let index_type = self.parse_type()?;
+                    self.skip_whitespace();
+
+                    if !self.at(SyntaxKind::RBracket) {
+                        return Err(ParseError::new(
+                            errors::ParseErrorKind::MissingClosingBracket,
+                            self.current_byte_offset(),
+                        ));
+                    }
+                    self.consume(); // ]
+
+                    ty = IrNode::IndexedAccessType {
+                        span: ty.span().extend(IrSpan::at(self.current_byte_offset())),
+                        obj: Box::new(ty),
+                        index: Box::new(index_type),
+                    };
+                    continue;
                 }
+            }
+
+            // Conditional type: T extends U ? X : Y
+            if self.at(SyntaxKind::ExtendsKw) {
+                self.consume(); // extends
+                self.skip_whitespace();
+
+                let extends_type = self.parse_type()?;
+                self.skip_whitespace();
+
+                // Check for ? (conditional type)
+                if self.at(SyntaxKind::Question) {
+                    self.consume(); // ?
+                    self.skip_whitespace();
+
+                    let true_type = self.parse_type()?;
+                    self.skip_whitespace();
+
+                    if !self.at(SyntaxKind::Colon) {
+                        return Err(ParseError::new(
+                            errors::ParseErrorKind::UnexpectedToken,
+                            self.current_byte_offset(),
+                        ).with_expected(&[":"]));
+                    }
+                    self.consume(); // :
+                    self.skip_whitespace();
+
+                    let false_type = self.parse_type()?;
+
+                    ty = IrNode::ConditionalType {
+                        span: ty.span().extend(false_type.span()),
+                        check: Box::new(ty),
+                        extends: Box::new(extends_type),
+                        true_type: Box::new(true_type),
+                        false_type: Box::new(false_type),
+                    };
+                    continue;
+                }
+                // If no ?, this might be a constraint - for now, error
+                return Err(ParseError::new(
+                    errors::ParseErrorKind::UnexpectedToken,
+                    self.current_byte_offset(),
+                ).with_expected(&["?"]));
             }
 
             // Union type: T | U
@@ -952,6 +1167,159 @@ impl Parser {
         Ok(ty)
     }
 
+    /// Parses either a parenthesized type `(T)` or a function type `(params) => R`
+    fn parse_paren_or_function_type(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
+
+        self.expect(SyntaxKind::LParen).ok_or_else(|| {
+            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                .with_expected(&["("])
+        })?;
+
+        self.skip_whitespace();
+
+        // Empty parens `()` must be function type
+        if self.at(SyntaxKind::RParen) {
+            self.consume(); // consume )
+            self.skip_whitespace();
+
+            // Expect =>
+            if !self.at_text("=>") {
+                return Err(ParseError::new(
+                    errors::ParseErrorKind::MissingArrowBody,
+                    self.current_byte_offset(),
+                ).with_expected(&["=>"]));
+            }
+            self.consume();
+            self.skip_whitespace();
+
+            let return_type = self.parse_type()?;
+            return Ok(IrNode::FnType {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                type_params: None,
+                params: vec![],
+                return_type: Box::new(return_type),
+            });
+        }
+
+        // Check if this looks like a function parameter (has `:` or is `...`)
+        // Peek ahead: if we see Ident followed by `:` or `,`, or `...`, it's function params
+        let is_function_params = self.at(SyntaxKind::DotDotDot)
+            || self.at(SyntaxKind::At) // placeholder as param
+            || (self.at(SyntaxKind::Ident) && {
+                // Look ahead for : or , after the identifier
+                let mut lookahead = 1;
+                while self.peek_kind(lookahead) == Some(SyntaxKind::Whitespace) {
+                    lookahead += 1;
+                }
+                matches!(
+                    self.peek_kind(lookahead),
+                    Some(SyntaxKind::Colon) | Some(SyntaxKind::Comma) | Some(SyntaxKind::Question)
+                )
+            });
+
+        if is_function_params {
+            // Parse as function type - need to re-parse from (
+            // We already consumed the (, so parse params from here
+            let mut params = Vec::new();
+
+            loop {
+                self.skip_whitespace();
+                if self.at(SyntaxKind::RParen) {
+                    break;
+                }
+
+                let param = self.parse_single_param()?;
+                params.push(param);
+
+                self.skip_whitespace();
+                if self.at(SyntaxKind::Comma) {
+                    self.consume();
+                } else {
+                    break;
+                }
+            }
+
+            if !self.at(SyntaxKind::RParen) {
+                return Err(ParseError::new(
+                    errors::ParseErrorKind::MissingClosingParen,
+                    self.current_byte_offset(),
+                ));
+            }
+            self.consume(); // )
+
+            self.skip_whitespace();
+
+            // Expect =>
+            if !self.at_text("=>") {
+                return Err(ParseError::new(
+                    errors::ParseErrorKind::MissingArrowBody,
+                    self.current_byte_offset(),
+                ).with_expected(&["=>"]));
+            }
+            self.consume();
+            self.skip_whitespace();
+
+            let return_type = self.parse_type()?;
+            return Ok(IrNode::FnType {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                type_params: None,
+                params,
+                return_type: Box::new(return_type),
+            });
+        }
+
+        // Otherwise, try to parse as parenthesized type (T)
+        let inner_type = self.parse_type()?;
+
+        self.skip_whitespace();
+
+        if !self.at(SyntaxKind::RParen) {
+            return Err(ParseError::new(
+                errors::ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+            ));
+        }
+        self.consume(); // )
+
+        self.skip_whitespace();
+
+        // Check if followed by => (would be function type with single unnamed param)
+        if self.at_text("=>") {
+            // This is `(Type) => R` which in TypeScript is a function type
+            // where "Type" is actually the parameter name
+            self.consume();
+            self.skip_whitespace();
+
+            let return_type = self.parse_type()?;
+
+            // Treat the inner_type as a parameter name (convert to BindingIdent)
+            let param = IrNode::Param {
+                span: inner_type.span(),
+                decorators: vec![],
+                pat: Box::new(IrNode::BindingIdent {
+                    span: inner_type.span(),
+                    name: Box::new(inner_type),
+                    type_ann: None,
+                    optional: false,
+                }),
+            };
+
+            return Ok(IrNode::FnType {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                type_params: None,
+                params: vec![param],
+                return_type: Box::new(return_type),
+            });
+        }
+
+        // It's a parenthesized type
+        Ok(IrNode::ParenType {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            type_ann: Box::new(inner_type),
+        })
+    }
+
     /// Parses a function type: (a: A, b: B) => R
     fn parse_function_type(&mut self) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
@@ -981,7 +1349,7 @@ impl Parser {
         })
     }
 
-    /// Parses a tuple type: [A, B, C]
+    /// Parses a tuple type: [A, B?, ...C]
     fn parse_tuple_type(&mut self) -> ParseResult<IrNode> {
         let start_pos = self.pos;
         let start_byte = self.current_byte_offset();
@@ -997,8 +1365,41 @@ impl Parser {
                 break;
             }
 
+            let elem_start = self.current_byte_offset();
+
+            // Check for rest element: ...T
+            let is_rest = self.at(SyntaxKind::DotDotDot);
+            if is_rest {
+                self.consume(); // consume ...
+                self.skip_whitespace();
+            }
+
             let ty = self.parse_type()?;
-            elems.push(ty);
+
+            self.skip_whitespace();
+
+            // Check for optional element: T?
+            // Only valid if not a rest element
+            let is_optional = !is_rest && self.at(SyntaxKind::Question);
+            if is_optional {
+                self.consume(); // consume ?
+            }
+
+            let elem = if is_rest {
+                IrNode::RestType {
+                    span: IrSpan::new(elem_start, self.current_byte_offset()),
+                    type_ann: Box::new(ty),
+                }
+            } else if is_optional {
+                IrNode::OptionalType {
+                    span: IrSpan::new(elem_start, self.current_byte_offset()),
+                    type_ann: Box::new(ty),
+                }
+            } else {
+                ty
+            };
+
+            elems.push(elem);
 
             self.skip_whitespace();
 
@@ -1024,12 +1425,21 @@ impl Parser {
         })
     }
 
-    /// Parses an object type: { prop: T, method(): R }
+    /// Parses an object type: { prop: T, method(): R } or mapped type: { [K in T]: V }
     fn parse_object_type(&mut self) -> ParseResult<IrNode> {
         let start_pos = self.pos;
         let start_byte = self.current_byte_offset();
 
         self.expect(SyntaxKind::LBrace);
+        self.skip_whitespace();
+
+        // Check for mapped type: { [readonly] [K in T]: V }
+        // Look ahead to see if this is a mapped type
+        let is_mapped_type = self.is_mapped_type_start();
+
+        if is_mapped_type {
+            return self.parse_mapped_type_body(start_pos, start_byte);
+        }
 
         let mut members = Vec::new();
 
@@ -1063,6 +1473,205 @@ impl Parser {
         Ok(IrNode::ObjectType {
             span: IrSpan::new(start_byte, self.current_byte_offset()),
             members,
+        })
+    }
+
+    /// Check if we're at the start of a mapped type: [readonly] [+/-readonly] [K in ...]
+    fn is_mapped_type_start(&self) -> bool {
+        let mut lookahead_pos = self.pos;
+
+        // Helper to skip whitespace
+        macro_rules! skip_ws {
+            () => {
+                while lookahead_pos < self.tokens.len()
+                    && self.tokens[lookahead_pos].kind == SyntaxKind::Whitespace
+                {
+                    lookahead_pos += 1;
+                }
+            };
+        }
+
+        // Helper to get current token
+        macro_rules! current {
+            () => {
+                if lookahead_pos < self.tokens.len() {
+                    Some(&self.tokens[lookahead_pos])
+                } else {
+                    None
+                }
+            };
+        }
+
+        skip_ws!();
+
+        // Skip optional readonly/+readonly/-readonly modifier
+        if let Some(t) = current!() {
+            if t.kind == SyntaxKind::ReadonlyKw || t.text == "+" || t.text == "-" {
+                lookahead_pos += 1;
+                skip_ws!();
+                // Skip readonly after +/-
+                if let Some(t2) = current!() {
+                    if t2.kind == SyntaxKind::ReadonlyKw {
+                        lookahead_pos += 1;
+                        skip_ws!();
+                    }
+                }
+            }
+        }
+
+        // Expect [
+        if let Some(t) = current!() {
+            if t.kind != SyntaxKind::LBracket {
+                return false;
+            }
+            lookahead_pos += 1;
+            skip_ws!();
+        } else {
+            return false;
+        }
+
+        // Skip identifier
+        if let Some(t) = current!() {
+            if t.kind != SyntaxKind::Ident {
+                return false;
+            }
+            lookahead_pos += 1;
+            skip_ws!();
+        } else {
+            return false;
+        }
+
+        // Check for "in" keyword
+        if let Some(t) = current!() {
+            t.kind == SyntaxKind::InKw
+        } else {
+            false
+        }
+    }
+
+    /// Parse the body of a mapped type after the opening brace
+    fn parse_mapped_type_body(&mut self, start_pos: usize, start_byte: usize) -> ParseResult<IrNode> {
+        // Parse optional readonly modifier: readonly, +readonly, -readonly
+        let readonly = if self.at_text("+") || self.at_text("-") {
+            let sign = self.consume().unwrap();
+            let is_plus = sign.text == "+";
+            self.skip_whitespace();
+            if self.at(SyntaxKind::ReadonlyKw) {
+                self.consume();
+                self.skip_whitespace();
+            }
+            Some(is_plus)
+        } else if self.at(SyntaxKind::ReadonlyKw) {
+            self.consume();
+            self.skip_whitespace();
+            Some(true)
+        } else {
+            None
+        };
+
+        // Expect [
+        self.expect(SyntaxKind::LBracket);
+        self.skip_whitespace();
+
+        // Parse type parameter name: K
+        let (type_param_name, name_span) = if self.at(SyntaxKind::Ident) {
+            let t = self.consume().unwrap();
+            let name = t.text.clone();
+            let span = IrSpan::new(t.start, t.start + t.text.len());
+            (name, span)
+        } else {
+            return Err(ParseError::new(
+                errors::ParseErrorKind::ExpectedIdentifier,
+                self.current_byte_offset(),
+            ).with_context("mapped type parameter"));
+        };
+        self.skip_whitespace();
+
+        // Expect "in"
+        if !self.at(SyntaxKind::InKw) {
+            return Err(ParseError::new(
+                errors::ParseErrorKind::ExpectedTypeAnnotation,
+                self.current_byte_offset(),
+            ).with_expected(&["in"]));
+        }
+        self.consume();
+        self.skip_whitespace();
+
+        // Parse constraint type
+        let constraint_type = self.parse_type()?;
+        self.skip_whitespace();
+
+        // Build type parameter
+        let type_param = IrNode::TypeParam {
+            span: name_span,
+            name: type_param_name,
+            constraint: Some(Box::new(constraint_type)),
+            default: None,
+        };
+
+        // Parse optional "as" clause for key remapping
+        let name_type = if self.at(SyntaxKind::AsKw) {
+            self.consume();
+            self.skip_whitespace();
+            Some(Box::new(self.parse_type()?))
+        } else {
+            None
+        };
+        self.skip_whitespace();
+
+        // Expect ]
+        self.expect(SyntaxKind::RBracket);
+        self.skip_whitespace();
+
+        // Parse optional modifier: ?, +?, -?
+        let optional = if self.at_text("+") || self.at_text("-") {
+            let sign = self.consume().unwrap();
+            let is_plus = sign.text == "+";
+            self.skip_whitespace();
+            if self.at(SyntaxKind::Question) {
+                self.consume();
+                self.skip_whitespace();
+            }
+            Some(is_plus)
+        } else if self.at(SyntaxKind::Question) {
+            self.consume();
+            self.skip_whitespace();
+            Some(true)
+        } else {
+            None
+        };
+
+        // Expect :
+        self.expect(SyntaxKind::Colon);
+        self.skip_whitespace();
+
+        // Parse value type
+        let type_ann = self.parse_type()?;
+        self.skip_whitespace();
+
+        // Allow optional semicolon
+        if self.at(SyntaxKind::Semicolon) {
+            self.consume();
+            self.skip_whitespace();
+        }
+
+        // Expect }
+        if !self.at(SyntaxKind::RBrace) {
+            return Err(ParseError::missing_closing(
+                errors::ParseErrorKind::MissingClosingBrace,
+                self.current_byte_offset(),
+                start_pos,
+            ));
+        }
+        self.consume();
+
+        Ok(IrNode::MappedType {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            readonly,
+            type_param: Box::new(type_param),
+            name_type,
+            optional,
+            type_ann: Some(Box::new(type_ann)),
         })
     }
 

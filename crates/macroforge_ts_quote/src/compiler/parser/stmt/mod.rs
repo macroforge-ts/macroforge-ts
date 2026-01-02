@@ -12,6 +12,11 @@ impl Parser {
         })?;
 
         match kind {
+            // Empty statement: standalone ;
+            SyntaxKind::Semicolon => {
+                let token = self.consume().unwrap();
+                Ok(IrNode::empty_stmt(&token))
+            }
             SyntaxKind::ReturnKw => self.parse_return_stmt(),
             SyntaxKind::ThrowKw => self.parse_throw_stmt(),
             SyntaxKind::IfKw => self.parse_ts_if_stmt(),

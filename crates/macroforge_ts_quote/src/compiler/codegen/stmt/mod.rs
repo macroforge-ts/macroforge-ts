@@ -6,7 +6,7 @@ impl Codegen {
     pub(in super::super) fn generate_block_stmt(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
             IrNode::BlockStmt { stmts, .. } => {
-                let stmts_code = self.generate_stmts_vec(stmts);
+                let stmts_code = self.generate_stmts_vec(stmts)?;
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::BlockStmt {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
@@ -30,49 +30,49 @@ impl Codegen {
     }
 
     pub(in super::super) fn generate_block_stmt_opt(&self, node: &IrNode) -> GenResult<TokenStream> {
-    match node {
-        IrNode::BlockStmt { stmts, .. } => {
-            let stmts_code = self.generate_stmts_vec(stmts);
-            Ok(quote! {
-                Some(macroforge_ts::swc_core::ecma::ast::BlockStmt {
-                    span: macroforge_ts::swc_core::common::DUMMY_SP,
-                    ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
-                    stmts: #stmts_code,
-                })
-            })
-        }
-        _ => Err(GenError::unexpected_node(
-            "optional block statement",
-            node,
-            &["BlockStmt"],
-        )),
-    }
-}
-
-pub(in super::super) fn generate_block_stmt_or_expr(&self, node: &IrNode) -> GenResult<TokenStream> {
-    match node {
-        IrNode::BlockStmt { stmts, .. } => {
-            let stmts_code = self.generate_stmts_vec(stmts);
-            Ok(quote! {
-                macroforge_ts::swc_core::ecma::ast::BlockStmtOrExpr::BlockStmt(
-                    macroforge_ts::swc_core::ecma::ast::BlockStmt {
+        match node {
+            IrNode::BlockStmt { stmts, .. } => {
+                let stmts_code = self.generate_stmts_vec(stmts)?;
+                Ok(quote! {
+                    Some(macroforge_ts::swc_core::ecma::ast::BlockStmt {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
                         stmts: #stmts_code,
-                    }
-                )
-            })
-        }
-        _ => {
-            let expr_code = self.generate_expr(node)?;
-            Ok(quote! {
-                macroforge_ts::swc_core::ecma::ast::BlockStmtOrExpr::Expr(Box::new(#expr_code))
-            })
+                    })
+                })
+            }
+            _ => Err(GenError::unexpected_node(
+                "optional block statement",
+                node,
+                &["BlockStmt"],
+            )),
         }
     }
-}
 
-pub(in super::super) fn generate_stmts_vec(&self, nodes: &[IrNode]) -> TokenStream {
+    pub(in super::super) fn generate_block_stmt_or_expr(&self, node: &IrNode) -> GenResult<TokenStream> {
+        match node {
+            IrNode::BlockStmt { stmts, .. } => {
+                let stmts_code = self.generate_stmts_vec(stmts)?;
+                Ok(quote! {
+                    macroforge_ts::swc_core::ecma::ast::BlockStmtOrExpr::BlockStmt(
+                        macroforge_ts::swc_core::ecma::ast::BlockStmt {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
+                            stmts: #stmts_code,
+                        }
+                    )
+                })
+            }
+            _ => {
+                let expr_code = self.generate_expr(node)?;
+                Ok(quote! {
+                    macroforge_ts::swc_core::ecma::ast::BlockStmtOrExpr::Expr(Box::new(#expr_code))
+                })
+            }
+        }
+    }
+
+pub(in super::super) fn generate_stmts_vec(&self, nodes: &[IrNode]) -> GenResult<TokenStream> {
     // Check if any node requires dynamic generation (control flow)
     let has_control_flow = nodes.iter().any(|n| {
         matches!(
@@ -88,31 +88,25 @@ pub(in super::super) fn generate_stmts_vec(&self, nodes: &[IrNode]) -> TokenStre
 
     if has_control_flow {
         // Generate code that dynamically builds the vec
-        let stmt_pushes = self.generate_stmt_pushes(nodes);
-        quote! {
+        let stmt_pushes = self.generate_stmt_pushes(nodes)?;
+        Ok(quote! {
             {
                 let mut __body_stmts: Vec<macroforge_ts::swc_core::ecma::ast::Stmt> = Vec::new();
                 #stmt_pushes
                 __body_stmts
             }
-        }
+        })
     } else {
         // No control flow - generate literal vec
-        // Collect results, panicking on errors during code generation
         let stmts: Vec<TokenStream> = nodes
             .iter()
-            .filter_map(|n| {
-                match self.generate_stmt(n) {
-                    Ok(ts) => Some(ts),
-                    Err(e) => panic!("Statement generation failed: {}", e.to_message()),
-                }
-            })
-            .collect();
-        quote! { vec![#(#stmts),*] }
+            .map(|n| self.generate_stmt(n))
+            .collect::<GenResult<_>>()?;
+        Ok(quote! { vec![#(#stmts),*] })
     }
 }
 
-pub(in super::super) fn generate_stmt_pushes(&self, nodes: &[IrNode]) -> TokenStream {
+pub(in super::super) fn generate_stmt_pushes(&self, nodes: &[IrNode]) -> GenResult<TokenStream> {
     // Group adjacent non-control-flow nodes into combined statements
     let mut pushes = Vec::new();
     let mut pending_nodes: Vec<&IrNode> = Vec::new();
@@ -121,18 +115,13 @@ pub(in super::super) fn generate_stmt_pushes(&self, nodes: &[IrNode]) -> TokenSt
         if self.is_control_flow_node(node) || self.is_structured_stmt(node) {
             // Flush pending nodes as combined statement
             if !pending_nodes.is_empty() {
-                match self.generate_combined_stmt(&pending_nodes) {
-                    Ok(Some(stmt)) => pushes.push(stmt),
-                    Ok(None) => {}
-                    Err(e) => panic!("Combined statement generation failed: {}", e.to_message()),
+                if let Some(stmt) = self.generate_combined_stmt(&pending_nodes)? {
+                    pushes.push(stmt);
                 }
                 pending_nodes.clear();
             }
             // Generate control flow / structured statement directly
-            match self.generate_stmt_push(node) {
-                Ok(push) => pushes.push(push),
-                Err(e) => panic!("Statement push generation failed: {}", e.to_message()),
-            }
+            pushes.push(self.generate_stmt_push(node)?);
         } else {
             pending_nodes.push(node);
         }
@@ -140,14 +129,12 @@ pub(in super::super) fn generate_stmt_pushes(&self, nodes: &[IrNode]) -> TokenSt
 
     // Flush remaining pending nodes
     if !pending_nodes.is_empty() {
-        match self.generate_combined_stmt(&pending_nodes) {
-            Ok(Some(stmt)) => pushes.push(stmt),
-            Ok(None) => {}
-            Err(e) => panic!("Combined statement generation failed: {}", e.to_message()),
+        if let Some(stmt) = self.generate_combined_stmt(&pending_nodes)? {
+            pushes.push(stmt);
         }
     }
 
-    quote! { #(#pushes)* }
+    Ok(quote! { #(#pushes)* })
 }
 
 pub(in super::super) fn is_structured_stmt(&self, node: &IrNode) -> bool {
@@ -181,7 +168,7 @@ pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> GenR
     let part_exprs: Vec<TokenStream> = nodes
         .iter()
         .map(|n| self.generate_stmt_string_part(n))
-        .collect();
+        .collect::<GenResult<_>>()?;
 
     Ok(Some(quote! {
         {
@@ -199,18 +186,18 @@ pub(in super::super) fn generate_combined_stmt(&self, nodes: &[&IrNode]) -> GenR
     }))
 }
 
-pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> TokenStream {
+pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
-        IrNode::Raw { value: text, .. } => quote! { __stmt_str.push_str(#text); },
-        IrNode::StrLit { value: text, .. } => quote! { __stmt_str.push_str(#text); },
-        IrNode::Ident { value: name, .. } => quote! { __stmt_str.push_str(#name); },
+        IrNode::Raw { value: text, .. } => Ok(quote! { __stmt_str.push_str(#text); }),
+        IrNode::StrLit { value: text, .. } => Ok(quote! { __stmt_str.push_str(#text); }),
+        IrNode::Ident { value: name, .. } => Ok(quote! { __stmt_str.push_str(#name); }),
         IrNode::IdentBlock { parts, .. } => {
             // Recursively process each part
             let part_strs: Vec<TokenStream> = parts
                 .iter()
                 .map(|p| self.generate_stmt_string_part(p))
-                .collect();
-            quote! { #(#part_strs)* }
+                .collect::<GenResult<_>>()?;
+            Ok(quote! { #(#part_strs)* })
         }
         IrNode::StringInterp { quote: q, parts, .. } => {
             let quote_char = q.to_string();
@@ -218,47 +205,44 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 .iter()
                 .map(|p| match p {
                     IrNode::Raw { value: text, .. } | IrNode::StrLit { value: text, .. } => {
-                        quote! { __stmt_str.push_str(#text); }
+                        Ok(quote! { __stmt_str.push_str(#text); })
                     }
                     IrNode::Placeholder { expr, .. } => {
-                        quote! { __stmt_str.push_str(&(#expr).to_string()); }
+                        Ok(quote! { __stmt_str.push_str(&(#expr).to_string()); })
                     }
                     _ => self.generate_stmt_string_part(p),
                 })
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 __stmt_str.push_str(#quote_char);
                 #(#inner_parts)*
                 __stmt_str.push_str(#quote_char);
-            }
+            })
         }
         IrNode::Placeholder { kind, expr, span } => match kind {
             PlaceholderKind::Expr => {
-                quote! {
+                Ok(quote! {
                     let __expr = macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
                     __stmt_str.push_str(&macroforge_ts::ts_syn::emit_expr(&__expr));
-                }
+                })
             }
             PlaceholderKind::Ident => {
-                quote! {
+                Ok(quote! {
                     __stmt_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
-                }
+                })
             }
             PlaceholderKind::Type => {
-                quote! {
+                Ok(quote! {
                     let __ty = macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone());
                     __stmt_str.push_str(&macroforge_ts::ts_syn::emit_ts_type(&__ty));
-                }
+                })
             }
-            _ => {
-                let err = GenError::invalid_placeholder_at(
-                    "statement string part",
-                    &format!("{:?}", kind),
-                    &["Expr", "Ident", "Type"],
-                    *span,
-                );
-                panic!("{}", err.to_message());
-            }
+            _ => Err(GenError::invalid_placeholder_at(
+                "statement string part",
+                &format!("{:?}", kind),
+                &["Expr", "Ident", "Type"],
+                *span,
+            )),
         },
         // Control flow nodes - generate Rust code that builds the string dynamically
         IrNode::For {
@@ -270,12 +254,12 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
             let body_parts: Vec<TokenStream> = body
                 .iter()
                 .map(|n| self.generate_stmt_string_part(n))
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 for #pattern in #iterator {
                     #(#body_parts)*
                 }
-            }
+            })
         }
         IrNode::If {
             condition,
@@ -287,7 +271,7 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
             let then_parts: Vec<TokenStream> = then_body
                 .iter()
                 .map(|n| self.generate_stmt_string_part(n))
-                .collect();
+                .collect::<GenResult<_>>()?;
 
             let else_ifs: Vec<TokenStream> = else_if_branches
                 .iter()
@@ -295,54 +279,57 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                     let b: Vec<TokenStream> = body
                         .iter()
                         .map(|n| self.generate_stmt_string_part(n))
-                        .collect();
-                    quote! { else if #c { #(#b)* } }
+                        .collect::<GenResult<_>>()?;
+                    Ok(quote! { else if #c { #(#b)* } })
                 })
-                .collect();
+                .collect::<GenResult<_>>()?;
 
             let else_part = else_body.as_ref().map(|body| {
                 let b: Vec<TokenStream> = body
                     .iter()
                     .map(|n| self.generate_stmt_string_part(n))
-                    .collect();
-                quote! { else { #(#b)* } }
-            });
+                    .collect::<GenResult<_>>()?;
+                Ok(quote! { else { #(#b)* } })
+            }).transpose()?;
 
-            quote! {
+            Ok(quote! {
                 if #condition { #(#then_parts)* }
                 #(#else_ifs)*
                 #else_part
-            }
+            })
         }
         IrNode::While { condition, body, .. } => {
             let body_parts: Vec<TokenStream> = body
                 .iter()
                 .map(|n| self.generate_stmt_string_part(n))
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 while #condition {
                     #(#body_parts)*
                 }
-            }
+            })
         }
         IrNode::Match { expr, arms, .. } => {
             let arm_tokens: Vec<TokenStream> = arms
                 .iter()
-                .map(|MatchArm { pattern, guard, body, .. }| {
+                .map(|MatchArm { span, pattern, guard, body }| {
                     let body_parts: Vec<TokenStream> = body
                         .iter()
-                        .map(|n| self.generate_stmt_string_part(n))
-                        .collect();
+                        .map(|n| {
+                            self.generate_stmt_string_part(n)
+                                .map_err(|e| e.with_context("match arm body").with_span(*span))
+                        })
+                        .collect::<GenResult<_>>()?;
                     if let Some(g) = guard {
-                        quote! { #pattern if #g => { #(#body_parts)* } }
+                        Ok(quote! { #pattern if #g => { #(#body_parts)* } })
                     } else {
-                        quote! { #pattern => { #(#body_parts)* } }
+                        Ok(quote! { #pattern => { #(#body_parts)* } })
                     }
                 })
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 match #expr { #(#arm_tokens)* }
-            }
+            })
         }
         IrNode::Let {
             pattern,
@@ -357,12 +344,12 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 quote! {}
             };
             if let Some(ty) = type_hint {
-                quote! { let #mutability #pattern: #ty = #value; }
+                Ok(quote! { let #mutability #pattern: #ty = #value; })
             } else {
-                quote! { let #mutability #pattern = #value; }
+                Ok(quote! { let #mutability #pattern = #value; })
             }
         }
-        IrNode::Do { code, .. } => quote! { #code; },
+        IrNode::Do { code, .. } => Ok(quote! { #code; }),
         // TypeScript statement nodes - build as strings
         IrNode::VarDecl {
             exported: _,
@@ -379,92 +366,92 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
             let decl_parts: Vec<TokenStream> = decls
                 .iter()
                 .map(|decl| {
-                    let name_parts = self.generate_stmt_string_part(&decl.name);
+                    let name_parts = self.generate_stmt_string_part(&decl.name)?;
                     let type_part = decl.type_ann.as_ref().map(|t| {
-                        let tp = self.generate_stmt_string_part(t);
-                        quote! {
+                        let tp = self.generate_stmt_string_part(t)?;
+                        Ok(quote! {
                             __stmt_str.push_str(": ");
                             #tp
-                        }
-                    });
+                        })
+                    }).transpose()?;
                     let init_part = decl.init.as_ref().map(|i| {
-                        let ip = self.generate_stmt_string_part(i);
-                        quote! {
+                        let ip = self.generate_stmt_string_part(i)?;
+                        Ok(quote! {
                             __stmt_str.push_str(" = ");
                             #ip
-                        }
-                    });
-                    quote! {
+                        })
+                    }).transpose()?;
+                    Ok(quote! {
                         #name_parts
                         #type_part
                         #init_part
-                    }
+                    })
                 })
-                .collect();
+                .collect::<GenResult<_>>()?;
 
-            quote! {
+            Ok(quote! {
                 __stmt_str.push_str(#kind_str);
                 __stmt_str.push_str(" ");
                 #(#decl_parts)*
                 __stmt_str.push_str(";");
-            }
+            })
         }
         IrNode::ExprStmt { expr, .. } => {
-            let expr_parts = self.generate_stmt_string_part(expr);
-            quote! {
+            let expr_parts = self.generate_stmt_string_part(expr)?;
+            Ok(quote! {
                 #expr_parts
                 __stmt_str.push_str(";");
-            }
+            })
         }
         IrNode::ReturnStmt { arg, .. } => {
             if let Some(a) = arg {
-                let arg_parts = self.generate_stmt_string_part(a);
-                quote! {
+                let arg_parts = self.generate_stmt_string_part(a)?;
+                Ok(quote! {
                     __stmt_str.push_str("return ");
                     #arg_parts
                     __stmt_str.push_str(";");
-                }
+                })
             } else {
-                quote! {
+                Ok(quote! {
                     __stmt_str.push_str("return;");
-                }
+                })
             }
         }
         IrNode::BlockStmt { stmts, .. } => {
             let stmt_parts: Vec<TokenStream> = stmts
                 .iter()
                 .map(|s| self.generate_stmt_string_part(s))
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 __stmt_str.push_str("{ ");
                 #(#stmt_parts)*
                 __stmt_str.push_str(" }");
-            }
+            })
         }
         IrNode::TsIfStmt { test, cons, alt, .. } => {
-            let test_parts = self.generate_stmt_string_part(test);
-            let cons_parts = self.generate_stmt_string_part(cons);
+            let test_parts = self.generate_stmt_string_part(test)?;
+            let cons_parts = self.generate_stmt_string_part(cons)?;
             let alt_parts = alt.as_ref().map(|a| {
-                let ac = self.generate_stmt_string_part(a);
-                quote! {
+                let ac = self.generate_stmt_string_part(a)?;
+                Ok(quote! {
                     __stmt_str.push_str(" else ");
                     #ac
-                }
-            });
-            quote! {
+                })
+            }).transpose()?;
+            Ok(quote! {
                 __stmt_str.push_str("if (");
                 #test_parts
                 __stmt_str.push_str(") ");
                 #cons_parts
                 #alt_parts
-            }
+            })
         }
         IrNode::TsLoopStmt { parts, .. } => {
             let part_exprs: Vec<TokenStream> = parts
                 .iter()
                 .map(|p| self.generate_stmt_string_part(p))
-                .collect();
-            quote! { #(#part_exprs)* }
+                .collect::<GenResult<_>>()?;
+            Ok(quote! { #(#part_exprs)* })
         }
         // Expression nodes - generate as string representations
         IrNode::UnaryExpr { op, arg, .. } => {
@@ -477,11 +464,11 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 UnaryOp::Void => "void ",
                 UnaryOp::Delete => "delete ",
             };
-            let arg_parts = self.generate_stmt_string_part(arg);
-            quote! {
+            let arg_parts = self.generate_stmt_string_part(arg)?;
+            Ok(quote! {
                 __stmt_str.push_str(#op_str);
                 #arg_parts
-            }
+            })
         }
         IrNode::BinExpr { left, op, right, .. } => {
             let op_str = match op {
@@ -511,179 +498,179 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 BinaryOp::In => " in ",
                 BinaryOp::InstanceOf => " instanceof ",
             };
-            let left_parts = self.generate_stmt_string_part(left);
-            let right_parts = self.generate_stmt_string_part(right);
-            quote! {
+            let left_parts = self.generate_stmt_string_part(left)?;
+            let right_parts = self.generate_stmt_string_part(right)?;
+            Ok(quote! {
                 #left_parts
                 __stmt_str.push_str(#op_str);
                 #right_parts
-            }
+            })
         }
         IrNode::CondExpr { test, consequent, alternate, .. } => {
-            let test_parts = self.generate_stmt_string_part(test);
-            let cons_parts = self.generate_stmt_string_part(consequent);
-            let alt_parts = self.generate_stmt_string_part(alternate);
-            quote! {
+            let test_parts = self.generate_stmt_string_part(test)?;
+            let cons_parts = self.generate_stmt_string_part(consequent)?;
+            let alt_parts = self.generate_stmt_string_part(alternate)?;
+            Ok(quote! {
                 #test_parts
                 __stmt_str.push_str(" ? ");
                 #cons_parts
                 __stmt_str.push_str(" : ");
                 #alt_parts
-            }
+            })
         }
         IrNode::CallExpr { callee, args, .. } => {
-            let callee_parts = self.generate_stmt_string_part(callee);
+            let callee_parts = self.generate_stmt_string_part(callee)?;
             let args_parts: Vec<TokenStream> = args
                 .iter()
                 .enumerate()
                 .map(|(i, a)| {
-                    let arg_part = self.generate_stmt_string_part(a);
+                    let arg_part = self.generate_stmt_string_part(a)?;
                     if i > 0 {
-                        quote! {
+                        Ok(quote! {
                             __stmt_str.push_str(", ");
                             #arg_part
-                        }
+                        })
                     } else {
-                        arg_part
+                        Ok(arg_part)
                     }
                 })
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 #callee_parts
                 __stmt_str.push_str("(");
                 #(#args_parts)*
                 __stmt_str.push_str(")");
-            }
+            })
         }
         IrNode::MemberExpr { obj, prop, computed, .. } => {
-            let obj_parts = self.generate_stmt_string_part(obj);
-            let prop_parts = self.generate_stmt_string_part(prop);
+            let obj_parts = self.generate_stmt_string_part(obj)?;
+            let prop_parts = self.generate_stmt_string_part(prop)?;
             if *computed {
-                quote! {
+                Ok(quote! {
                     #obj_parts
                     __stmt_str.push_str("[");
                     #prop_parts
                     __stmt_str.push_str("]");
-                }
+                })
             } else {
-                quote! {
+                Ok(quote! {
                     #obj_parts
                     __stmt_str.push_str(".");
                     #prop_parts
-                }
+                })
             }
         }
         IrNode::NewExpr { callee, args, .. } => {
-            let callee_parts = self.generate_stmt_string_part(callee);
+            let callee_parts = self.generate_stmt_string_part(callee)?;
             let args_parts: Vec<TokenStream> = args
                 .iter()
                 .enumerate()
                 .map(|(i, a)| {
-                    let arg_part = self.generate_stmt_string_part(a);
+                    let arg_part = self.generate_stmt_string_part(a)?;
                     if i > 0 {
-                        quote! {
+                        Ok(quote! {
                             __stmt_str.push_str(", ");
                             #arg_part
-                        }
+                        })
                     } else {
-                        arg_part
+                        Ok(arg_part)
                     }
                 })
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 __stmt_str.push_str("new ");
                 #callee_parts
                 __stmt_str.push_str("(");
                 #(#args_parts)*
                 __stmt_str.push_str(")");
-            }
+            })
         }
         IrNode::ParenExpr { expr, .. } => {
-            let expr_parts = self.generate_stmt_string_part(expr);
-            quote! {
+            let expr_parts = self.generate_stmt_string_part(expr)?;
+            Ok(quote! {
                 __stmt_str.push_str("(");
                 #expr_parts
                 __stmt_str.push_str(")");
-            }
+            })
         }
         IrNode::ArrayLit { elems, .. } => {
             let elem_parts: Vec<TokenStream> = elems
                 .iter()
                 .enumerate()
                 .map(|(i, e)| {
-                    let elem_part = self.generate_stmt_string_part(e);
+                    let elem_part = self.generate_stmt_string_part(e)?;
                     if i > 0 {
-                        quote! {
+                        Ok(quote! {
                             __stmt_str.push_str(", ");
                             #elem_part
-                        }
+                        })
                     } else {
-                        elem_part
+                        Ok(elem_part)
                     }
                 })
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 __stmt_str.push_str("[");
                 #(#elem_parts)*
                 __stmt_str.push_str("]");
-            }
+            })
         }
         IrNode::ObjectLit { props, .. } => {
             let prop_parts: Vec<TokenStream> = props
                 .iter()
                 .enumerate()
                 .map(|(i, p)| {
-                    let prop_part = self.generate_stmt_string_part(p);
+                    let prop_part = self.generate_stmt_string_part(p)?;
                     if i > 0 {
-                        quote! {
+                        Ok(quote! {
                             __stmt_str.push_str(", ");
                             #prop_part
-                        }
+                        })
                     } else {
-                        prop_part
+                        Ok(prop_part)
                     }
                 })
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 __stmt_str.push_str("{ ");
                 #(#prop_parts)*
                 __stmt_str.push_str(" }");
-            }
+            })
         }
         IrNode::KeyValueProp { key, value, .. } => {
-            let key_parts = self.generate_stmt_string_part(key);
-            let value_parts = self.generate_stmt_string_part(value);
-            quote! {
+            let key_parts = self.generate_stmt_string_part(key)?;
+            let value_parts = self.generate_stmt_string_part(value)?;
+            Ok(quote! {
                 #key_parts
                 __stmt_str.push_str(": ");
                 #value_parts
-            }
+            })
         }
         IrNode::ShorthandProp { key, .. } => {
             self.generate_stmt_string_part(key)
         }
         IrNode::SpreadElement { expr, .. } => {
-            let expr_parts = self.generate_stmt_string_part(expr);
-            quote! {
+            let expr_parts = self.generate_stmt_string_part(expr)?;
+            Ok(quote! {
                 __stmt_str.push_str("...");
                 #expr_parts
-            }
+            })
         }
         IrNode::NumLit { value, .. } => {
-            quote! { __stmt_str.push_str(#value); }
+            Ok(quote! { __stmt_str.push_str(#value); })
         }
         IrNode::BoolLit { value, .. } => {
             let val_str = if *value { "true" } else { "false" };
-            quote! { __stmt_str.push_str(#val_str); }
+            Ok(quote! { __stmt_str.push_str(#val_str); })
         }
         IrNode::NullLit { .. } => {
-            quote! { __stmt_str.push_str("null"); }
+            Ok(quote! { __stmt_str.push_str("null"); })
         }
         IrNode::ThisExpr { .. } => {
-            quote! { __stmt_str.push_str("this"); }
+            Ok(quote! { __stmt_str.push_str("this"); })
         }
         IrNode::SuperExpr { .. } => {
-            quote! { __stmt_str.push_str("super"); }
+            Ok(quote! { __stmt_str.push_str("super"); })
         }
         IrNode::AssignExpr { left, op, right, .. } => {
             let op_str = match op {
@@ -704,54 +691,54 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 AssignOp::OrAssign => " ||= ",
                 AssignOp::NullishAssign => " ??= ",
             };
-            let left_parts = self.generate_stmt_string_part(left);
-            let right_parts = self.generate_stmt_string_part(right);
-            quote! {
+            let left_parts = self.generate_stmt_string_part(left)?;
+            let right_parts = self.generate_stmt_string_part(right)?;
+            Ok(quote! {
                 #left_parts
                 __stmt_str.push_str(#op_str);
                 #right_parts
-            }
+            })
         }
         IrNode::UpdateExpr { op, prefix, arg, .. } => {
             let op_str = match op {
                 UpdateOp::Increment => "++",
                 UpdateOp::Decrement => "--",
             };
-            let arg_parts = self.generate_stmt_string_part(arg);
+            let arg_parts = self.generate_stmt_string_part(arg)?;
             if *prefix {
-                quote! {
+                Ok(quote! {
                     __stmt_str.push_str(#op_str);
                     #arg_parts
-                }
+                })
             } else {
-                quote! {
+                Ok(quote! {
                     #arg_parts
                     __stmt_str.push_str(#op_str);
-                }
+                })
             }
         }
         IrNode::AwaitExpr { arg, .. } => {
-            let arg_parts = self.generate_stmt_string_part(arg);
-            quote! {
+            let arg_parts = self.generate_stmt_string_part(arg)?;
+            Ok(quote! {
                 __stmt_str.push_str("await ");
                 #arg_parts
-            }
+            })
         }
         IrNode::TsAsExpr { expr, type_ann, .. } => {
-            let expr_parts = self.generate_stmt_string_part(expr);
-            let type_parts = self.generate_stmt_string_part(type_ann);
-            quote! {
+            let expr_parts = self.generate_stmt_string_part(expr)?;
+            let type_parts = self.generate_stmt_string_part(type_ann)?;
+            Ok(quote! {
                 #expr_parts
                 __stmt_str.push_str(" as ");
                 #type_parts
-            }
+            })
         }
         IrNode::TsNonNullExpr { expr, .. } => {
-            let expr_parts = self.generate_stmt_string_part(expr);
-            quote! {
+            let expr_parts = self.generate_stmt_string_part(expr)?;
+            Ok(quote! {
                 #expr_parts
                 __stmt_str.push_str("!");
-            }
+            })
         }
         // Type nodes for string representation
         IrNode::KeywordType { keyword: kw, .. } => {
@@ -769,18 +756,18 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 TsKeyword::BigInt => "bigint",
                 TsKeyword::Symbol => "symbol",
             };
-            quote! { __stmt_str.push_str(#type_str); }
+            Ok(quote! { __stmt_str.push_str(#type_str); })
         }
         IrNode::TypeRef { name, type_params, .. } => {
-            let name_parts = self.generate_stmt_string_part(name);
+            let name_parts = self.generate_stmt_string_part(name)?;
             if let Some(params) = type_params {
-                let params_parts = self.generate_stmt_string_part(params);
-                quote! {
+                let params_parts = self.generate_stmt_string_part(params)?;
+                Ok(quote! {
                     #name_parts
                     #params_parts
-                }
+                })
             } else {
-                name_parts
+                Ok(name_parts)
             }
         }
         IrNode::TypeArgs { args, .. } => {
@@ -788,117 +775,114 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> Token
                 .iter()
                 .enumerate()
                 .map(|(i, a)| {
-                    let arg_part = self.generate_stmt_string_part(a);
+                    let arg_part = self.generate_stmt_string_part(a)?;
                     if i > 0 {
-                        quote! {
+                        Ok(quote! {
                             __stmt_str.push_str(", ");
                             #arg_part
-                        }
+                        })
                     } else {
-                        arg_part
+                        Ok(arg_part)
                     }
                 })
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 __stmt_str.push_str("<");
                 #(#arg_parts)*
                 __stmt_str.push_str(">");
-            }
+            })
         }
         IrNode::UnionType { types, .. } => {
             let type_parts: Vec<TokenStream> = types
                 .iter()
                 .enumerate()
                 .map(|(i, t)| {
-                    let type_part = self.generate_stmt_string_part(t);
+                    let type_part = self.generate_stmt_string_part(t)?;
                     if i > 0 {
-                        quote! {
+                        Ok(quote! {
                             __stmt_str.push_str(" | ");
                             #type_part
-                        }
+                        })
                     } else {
-                        type_part
+                        Ok(type_part)
                     }
                 })
-                .collect();
-            quote! { #(#type_parts)* }
+                .collect::<GenResult<_>>()?;
+            Ok(quote! { #(#type_parts)* })
         }
         IrNode::ArrayType { elem, .. } => {
-            let elem_parts = self.generate_stmt_string_part(elem);
-            quote! {
+            let elem_parts = self.generate_stmt_string_part(elem)?;
+            Ok(quote! {
                 #elem_parts
                 __stmt_str.push_str("[]");
-            }
+            })
         }
-        _ => {
-            let err = GenError::unexpected_node(
-                "statement string part",
-                node,
-                &["Raw", "StrLit", "Ident", "IdentBlock", "StringInterp", "Placeholder", "For", "If", "While", "Let", "Do", "VarDecl", "ExprStmt", "ReturnStmt", "BlockStmt", "TsIfStmt", "TsLoopStmt", "UnaryExpr", "BinExpr", "CallExpr", "MemberExpr", "NewExpr", "ParenExpr", "ArrayLit", "ObjectLit", "NumLit", "BoolLit", "NullLit", "ThisExpr", "etc."],
-            );
-            panic!("{}", err.to_message());
-        }
+        _ => Err(GenError::unexpected_node(
+            "statement string part",
+            node,
+            &["Raw", "StrLit", "Ident", "IdentBlock", "StringInterp", "Placeholder", "For", "If", "While", "Let", "Do", "VarDecl", "ExprStmt", "ReturnStmt", "BlockStmt", "TsIfStmt", "TsLoopStmt", "UnaryExpr", "BinExpr", "CallExpr", "MemberExpr", "NewExpr", "ParenExpr", "ArrayLit", "ObjectLit", "NumLit", "BoolLit", "NullLit", "ThisExpr", "etc."],
+        )),
     }
 }
 /// Generate code that builds a statement string from an IrNode.
-    pub(in super::super) fn generate_stmt_as_string(&self, node: &IrNode) -> TokenStream {
+    pub(in super::super) fn generate_stmt_as_string(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
         IrNode::BlockStmt { stmts, .. } => {
             let part_exprs: Vec<TokenStream> = stmts
                 .iter()
                 .map(|s| self.generate_stmt_string_part(s))
-                .collect();
-            quote! {
+                .collect::<GenResult<_>>()?;
+            Ok(quote! {
                 __stmt_str.push_str("{ ");
                 #(#part_exprs)*
                 __stmt_str.push_str(" }");
-            }
+            })
         }
         IrNode::ExprStmt { expr, .. } => {
-            let expr_parts = self.generate_stmt_string_part(expr);
-            quote! {
+            let expr_parts = self.generate_stmt_string_part(expr)?;
+            Ok(quote! {
                 #expr_parts
                 __stmt_str.push_str(";");
-            }
+            })
         }
         IrNode::ReturnStmt { arg, .. } => {
             if let Some(a) = arg {
-                let arg_parts = self.generate_stmt_string_part(a);
-                quote! {
+                let arg_parts = self.generate_stmt_string_part(a)?;
+                Ok(quote! {
                     __stmt_str.push_str("return ");
                     #arg_parts
                     __stmt_str.push_str(";");
-                }
+                })
             } else {
-                quote! {
+                Ok(quote! {
                     __stmt_str.push_str("return;");
-                }
+                })
             }
         }
         IrNode::TsIfStmt { test, cons, alt, .. } => {
-            let test_parts = self.generate_stmt_string_part(test);
-            let cons_parts = self.generate_stmt_as_string(cons);
+            let test_parts = self.generate_stmt_string_part(test)?;
+            let cons_parts = self.generate_stmt_as_string(cons)?;
             let alt_parts = alt.as_ref().map(|a| {
-                let ac = self.generate_stmt_as_string(a);
-                quote! {
+                let ac = self.generate_stmt_as_string(a)?;
+                Ok(quote! {
                     __stmt_str.push_str(" else ");
                     #ac
-                }
-            });
-            quote! {
+                })
+            }).transpose()?;
+            Ok(quote! {
                 __stmt_str.push_str("if (");
                 #test_parts
                 __stmt_str.push_str(") ");
                 #cons_parts
                 #alt_parts
-            }
+            })
         }
         IrNode::TsLoopStmt { parts, .. } => {
             let part_exprs: Vec<TokenStream> = parts
                 .iter()
                 .map(|p| self.generate_stmt_string_part(p))
-                .collect();
-            quote! { #(#part_exprs)* }
+                .collect::<GenResult<_>>()?;
+            Ok(quote! { #(#part_exprs)* })
         }
         // For other nodes, just use generate_stmt_string_part
         _ => self.generate_stmt_string_part(node),
@@ -913,7 +897,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
             body,
             ..
         } => {
-            let body_pushes = self.generate_stmt_pushes(body);
+            let body_pushes = self.generate_stmt_pushes(body)?;
             Ok(quote! {
                 for #pattern in #iterator { #body_pushes }
             })
@@ -925,18 +909,18 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
             else_body,
             ..
         } => {
-            let then_pushes = self.generate_stmt_pushes(then_body);
+            let then_pushes = self.generate_stmt_pushes(then_body)?;
 
             let else_code = if else_if_branches.is_empty() && else_body.is_none() {
                 quote! {}
             } else {
                 let mut branches = TokenStream::new();
                 for (cond, body) in else_if_branches {
-                    let b = self.generate_stmt_pushes(body);
+                    let b = self.generate_stmt_pushes(body)?;
                     branches.extend(quote! { else if #cond { #b } });
                 }
                 if let Some(eb) = else_body {
-                    let eb_pushes = self.generate_stmt_pushes(eb);
+                    let eb_pushes = self.generate_stmt_pushes(eb)?;
                     branches.extend(quote! { else { #eb_pushes } });
                 }
                 branches
@@ -947,7 +931,7 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
             })
         }
         IrNode::While { condition, body, .. } => {
-            let body_pushes = self.generate_stmt_pushes(body);
+            let body_pushes = self.generate_stmt_pushes(body)?;
             Ok(quote! {
                 while #condition { #body_pushes }
             })
@@ -957,20 +941,21 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
                 .iter()
                 .map(
                     |MatchArm {
+                         span,
                          pattern,
                          guard,
                          body,
-                         ..
                      }| {
-                        let b = self.generate_stmt_pushes(body);
+                        let b = self.generate_stmt_pushes(body)
+                            .map_err(|e| e.with_context("match arm body").with_span(*span))?;
                         if let Some(g) = guard {
-                            quote! { #pattern if #g => { #b } }
+                            Ok(quote! { #pattern if #g => { #b } })
                         } else {
-                            quote! { #pattern => { #b } }
+                            Ok(quote! { #pattern => { #b } })
                         }
                     },
                 )
-                .collect();
+                .collect::<GenResult<_>>()?;
             Ok(quote! {
                 match #expr { #(#arm_tokens)* }
             })
@@ -1004,6 +989,15 @@ pub(in super::super) fn generate_stmt_push(&self, node: &IrNode) -> GenResult<To
 
 pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenStream> {
     match node {
+        IrNode::EmptyStmt { .. } => {
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::Stmt::Empty(
+                    macroforge_ts::swc_core::ecma::ast::EmptyStmt {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    }
+                )
+            })
+        }
         IrNode::ExprStmt { expr, .. } => {
             let expr_code = self.generate_expr(expr)?;
             Ok(quote! {
@@ -1044,7 +1038,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
         IrNode::BlockStmt { stmts, .. } => {
-            let stmts_code = self.generate_stmts_vec(stmts);
+            let stmts_code = self.generate_stmts_vec(stmts)?;
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Stmt::Block(
                     macroforge_ts::swc_core::ecma::ast::BlockStmt {
@@ -1088,15 +1082,15 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
         // TypeScript if statement
         IrNode::TsIfStmt { test, cons, alt, .. } => {
             // Build if statement string from parts
-            let test_code = self.generate_expr_string_parts(test);
-            let cons_code = self.generate_stmt_as_string(cons);
+            let test_code = self.generate_expr_string_parts(test)?;
+            let cons_code = self.generate_stmt_as_string(cons)?;
             let alt_code = alt.as_ref().map(|a| {
-                let ac = self.generate_stmt_as_string(a);
-                quote! {
+                let ac = self.generate_stmt_as_string(a)?;
+                Ok(quote! {
                     __stmt_str.push_str(" else ");
                     #ac
-                }
-            });
+                })
+            }).transpose()?;
             Ok(quote! {
                 {
                     let mut __stmt_str = String::new();
@@ -1117,7 +1111,7 @@ pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenSt
             let part_exprs: Vec<TokenStream> = parts
                 .iter()
                 .map(|p| self.generate_stmt_string_part(p))
-                .collect();
+                .collect::<GenResult<_>>()?;
             Ok(quote! {
                 {
                     let mut __stmt_str = String::new();

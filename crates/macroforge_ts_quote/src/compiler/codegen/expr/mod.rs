@@ -98,7 +98,7 @@ impl Codegen {
 
         IrNode::CallExpr {
             callee,
-            type_args: _,
+            type_args,
             args,
             ..
         } => {
@@ -116,6 +116,14 @@ impl Codegen {
                 })
                 .collect::<GenResult<Vec<_>>>()?;
 
+            let type_args_code = match type_args {
+                Some(ta) => {
+                    let tpc = self.generate_type_param_instantiation(ta)?;
+                    quote! { Some(Box::new(#tpc)) }
+                }
+                None => quote! { None },
+            };
+
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Call(
                     macroforge_ts::swc_core::ecma::ast::CallExpr {
@@ -123,7 +131,7 @@ impl Codegen {
                         ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
                         callee: macroforge_ts::swc_core::ecma::ast::Callee::Expr(Box::new(#callee_code)),
                         args: vec![#(#args_code),*],
-                        type_args: None,
+                        type_args: #type_args_code,
                     }
                 )
             })
@@ -253,7 +261,7 @@ impl Codegen {
 
         IrNode::NewExpr {
             callee,
-            type_args: _,
+            type_args,
             args,
             ..
         } => {
@@ -271,6 +279,14 @@ impl Codegen {
                 })
                 .collect::<GenResult<Vec<_>>>()?;
 
+            let type_args_code = match type_args {
+                Some(ta) => {
+                    let tpc = self.generate_type_param_instantiation(ta)?;
+                    quote! { Some(Box::new(#tpc)) }
+                }
+                None => quote! { None },
+            };
+
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::New(
                     macroforge_ts::swc_core::ecma::ast::NewExpr {
@@ -278,7 +294,7 @@ impl Codegen {
                         ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
                         callee: Box::new(#callee_code),
                         args: Some(vec![#(#args_code),*]),
-                        type_args: None,
+                        type_args: #type_args_code,
                     }
                 )
             })
@@ -286,14 +302,30 @@ impl Codegen {
 
         IrNode::ArrowExpr {
             async_,
-            type_params: _,
+            type_params,
             params,
-            return_type: _,
+            return_type,
             body,
             ..
         } => {
             let params_code = self.generate_pats(params)?;
             let body_code = self.generate_block_stmt_or_expr(body)?;
+
+            let type_params_code = match type_params {
+                Some(tp) => {
+                    let tpc = self.generate_type_params(tp)?;
+                    quote! { Some(Box::new(#tpc)) }
+                }
+                None => quote! { None },
+            };
+
+            let return_type_code = match return_type {
+                Some(rt) => {
+                    let rtc = self.generate_type_ann(rt)?;
+                    quote! { Some(Box::new(#rtc)) }
+                }
+                None => quote! { None },
+            };
 
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Arrow(
@@ -304,8 +336,8 @@ impl Codegen {
                         body: Box::new(#body_code),
                         is_async: #async_,
                         is_generator: false,
-                        type_params: None,
-                        return_type: None,
+                        type_params: #type_params_code,
+                        return_type: #return_type_code,
                     }
                 )
             })
@@ -664,7 +696,7 @@ impl Codegen {
 
         // Phase 5: Function expression
         // Note: unwrap_or for name is valid - anonymous functions are valid
-        IrNode::FnExpr { async_, generator, name, type_params: _, params, return_type: _, body, .. } => {
+        IrNode::FnExpr { async_, generator, name, type_params, params, return_type, body, .. } => {
             let params_code = self.generate_params(params)?;
             let name_code = match name.as_ref() {
                 Some(n) => {
@@ -681,6 +713,22 @@ impl Codegen {
                 None => quote! { None },
             };
 
+            let type_params_code = match type_params.as_ref() {
+                Some(tp) => {
+                    let tpc = self.generate_type_params(tp)?;
+                    quote! { Some(Box::new(#tpc)) }
+                }
+                None => quote! { None },
+            };
+
+            let return_type_code = match return_type.as_ref() {
+                Some(rt) => {
+                    let rtc = self.generate_type_ann(rt)?;
+                    quote! { Some(Box::new(#rtc)) }
+                }
+                None => quote! { None },
+            };
+
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Fn(
                     macroforge_ts::swc_core::ecma::ast::FnExpr {
@@ -693,8 +741,8 @@ impl Codegen {
                             body: #body_code,
                             is_generator: #generator,
                             is_async: #async_,
-                            type_params: None,
-                            return_type: None,
+                            type_params: #type_params_code,
+                            return_type: #return_type_code,
                         }),
                     }
                 )
@@ -703,7 +751,7 @@ impl Codegen {
 
         // Class expression
         // Note: unwrap_or for name is valid - anonymous classes are valid
-        IrNode::ClassExpr { name, type_params: _, extends, implements: _, body, .. } => {
+        IrNode::ClassExpr { name, type_params, extends, implements, body, .. } => {
             let name_code = match name.as_ref() {
                 Some(n) => {
                     let nc = self.generate_ident(n)?;
@@ -726,6 +774,28 @@ impl Codegen {
             };
             let body_code = self.generate_class_members(body)?;
 
+            let type_params_code = match type_params.as_ref() {
+                Some(tp) => {
+                    let tpc = self.generate_type_params(tp)?;
+                    quote! { Some(Box::new(#tpc)) }
+                }
+                None => quote! { None },
+            };
+
+            let implements_code: Vec<TokenStream> = implements
+                .iter()
+                .filter_map(|i| {
+                    let expr_code = self.generate_type(i).ok()?;
+                    Some(quote! {
+                        macroforge_ts::swc_core::ecma::ast::TsExprWithTypeArgs {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            expr: Box::new(#expr_code),
+                            type_args: None,
+                        }
+                    })
+                })
+                .collect();
+
             Ok(quote! {
                 macroforge_ts::swc_core::ecma::ast::Expr::Class(
                     macroforge_ts::swc_core::ecma::ast::ClassExpr {
@@ -737,8 +807,8 @@ impl Codegen {
                             body: #body_code,
                             super_class: #extends_code,
                             is_abstract: false,
-                            type_params: None,
-                            implements: vec![],
+                            type_params: #type_params_code,
+                            implements: vec![#(#implements_code),*],
                         }),
                     }
                 )
@@ -779,8 +849,17 @@ impl Codegen {
         }
 
         // Tagged template literal: tag`template`
-        IrNode::TaggedTpl { tag, type_args: _, tpl, .. } => {
+        IrNode::TaggedTpl { tag, type_args, tpl, .. } => {
             let tag_code = self.generate_expr(tag)?;
+
+            // Generate type_args if present
+            let type_args_code = match type_args {
+                Some(ta) => {
+                    let tpc = self.generate_type_param_instantiation(ta)?;
+                    quote! { Some(Box::new(#tpc)) }
+                }
+                None => quote! { None },
+            };
 
             // Extract quasis and exprs from the TplLit node
             let (quasis, exprs) = match tpl.as_ref() {
@@ -817,7 +896,7 @@ impl Codegen {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         ctxt: macroforge_ts::swc_core::common::SyntaxContext::empty(),
                         tag: Box::new(#tag_code),
-                        type_params: None,
+                        type_params: #type_args_code,
                         tpl: Box::new(macroforge_ts::swc_core::ecma::ast::Tpl {
                             span: macroforge_ts::swc_core::common::DUMMY_SP,
                             quasis: vec![#(#quasis_code),*],
@@ -1027,7 +1106,9 @@ impl Codegen {
                 .iter()
                 .map(|arm| {
                     let pattern = &arm.pattern;
-                    let body = self.generate_expr(&arm.body_expr)?;
+                    let body = self.generate_expr(&arm.body_expr).map_err(|e| {
+                        e.with_context("match arm body").with_span(arm.span)
+                    })?;
                     if let Some(guard) = &arm.guard {
                         Ok(quote! { #pattern if #guard => #body })
                     } else {
@@ -1058,7 +1139,7 @@ impl Codegen {
     }
 }
 /// Generate code that builds an expression string from an IrNode.
-    pub(in super::super) fn generate_expr_string_parts(&self, node: &IrNode) -> TokenStream {
+    pub(in super::super) fn generate_expr_string_parts(&self, node: &IrNode) -> GenResult<TokenStream> {
     // Reuse generate_stmt_string_part since it handles the same node types
     self.generate_stmt_string_part(node)
 }

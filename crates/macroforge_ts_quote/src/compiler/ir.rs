@@ -40,7 +40,10 @@ impl IrSpan {
 
     /// Create a span at a single position.
     pub fn at(pos: usize) -> Self {
-        Self { start: pos, end: pos }
+        Self {
+            start: pos,
+            end: pos,
+        }
     }
 
     /// Create an empty/unknown span.
@@ -62,16 +65,6 @@ impl IrSpan {
             start,
             end: start + len,
         }
-    }
-}
-
-/// Trait for types that can provide span information.
-pub trait Spanned {
-    fn span_start(&self) -> usize;
-    fn span_len(&self) -> usize;
-
-    fn ir_span(&self) -> IrSpan {
-        IrSpan::from_pos_len(self.span_start(), self.span_len())
     }
 }
 
@@ -124,72 +117,72 @@ pub enum MethodKind {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BinaryOp {
     // Arithmetic
-    Add,      // +
-    Sub,      // -
-    Mul,      // *
-    Div,      // /
-    Mod,      // %
-    Exp,      // **
+    Add, // +
+    Sub, // -
+    Mul, // *
+    Div, // /
+    Mod, // %
+    Exp, // **
 
     // Comparison
-    EqEq,     // ==
-    NotEq,    // !=
-    EqEqEq,   // ===
-    NotEqEq,  // !==
-    Lt,       // <
-    Le,       // <=
-    Gt,       // >
-    Ge,       // >=
+    EqEq,    // ==
+    NotEq,   // !=
+    EqEqEq,  // ===
+    NotEqEq, // !==
+    Lt,      // <
+    Le,      // <=
+    Gt,      // >
+    Ge,      // >=
 
     // Logical
-    And,      // &&
-    Or,       // ||
+    And,             // &&
+    Or,              // ||
     NullishCoalesce, // ??
 
     // Bitwise
-    BitAnd,   // &
-    BitOr,    // |
-    BitXor,   // ^
-    Shl,      // <<
-    Shr,      // >>
-    UShr,     // >>>
+    BitAnd, // &
+    BitOr,  // |
+    BitXor, // ^
+    Shl,    // <<
+    Shr,    // >>
+    UShr,   // >>>
 
     // Other
-    In,       // in
+    In,         // in
     InstanceOf, // instanceof
 }
 
 /// Assignment operators.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AssignOp {
-    Assign,   // =
-    AddAssign, // +=
-    SubAssign, // -=
-    MulAssign, // *=
-    DivAssign, // /=
-    ModAssign, // %=
-    ExpAssign, // **=
-    ShlAssign, // <<=
-    ShrAssign, // >>=
-    UShrAssign, // >>>=
-    BitAndAssign, // &=
-    BitOrAssign, // |=
-    BitXorAssign, // ^=
-    AndAssign, // &&=
-    OrAssign,  // ||=
+    Assign,        // =
+    AddAssign,     // +=
+    SubAssign,     // -=
+    MulAssign,     // *=
+    DivAssign,     // /=
+    ModAssign,     // %=
+    ExpAssign,     // **=
+    ShlAssign,     // <<=
+    ShrAssign,     // >>=
+    UShrAssign,    // >>>=
+    BitAndAssign,  // &=
+    BitOrAssign,   // |=
+    BitXorAssign,  // ^=
+    AndAssign,     // &&=
+    OrAssign,      // ||=
     NullishAssign, // ??=
 }
 
 /// Unary operators.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UnaryOp {
-    Minus,    // -
-    Plus,     // +
-    Not,      // !
-    BitNot,   // ~
-    TypeOf,   // typeof
-    Void,     // void
-    Delete,   // delete
+    Minus,  // -
+    Plus,   // +
+    Not,    // !
+    BitNot, // ~
+    TypeOf, // typeof
+    Void,   // void
+    Delete, // delete
 }
 
 /// Update operators (++/--)
@@ -227,7 +220,6 @@ pub enum IrNode {
     // =========================================================================
     // Declarations
     // =========================================================================
-
     /// Function declaration: `function name(params): RetType { body }`
     FnDecl {
         span: IrSpan,
@@ -299,7 +291,6 @@ pub enum IrNode {
     // =========================================================================
     // Class Members
     // =========================================================================
-
     /// Constructor: `constructor(params) { body }`
     Constructor {
         span: IrSpan,
@@ -350,7 +341,6 @@ pub enum IrNode {
     // =========================================================================
     // Interface Members
     // =========================================================================
-
     /// Property signature: `name?: Type`
     PropSignature {
         span: IrSpan,
@@ -373,18 +363,11 @@ pub enum IrNode {
     // =========================================================================
     // Statements
     // =========================================================================
-
     /// Block statement: `{ stmts }`
-    BlockStmt {
-        span: IrSpan,
-        stmts: Vec<IrNode>,
-    },
+    BlockStmt { span: IrSpan, stmts: Vec<IrNode> },
 
     /// Expression statement: `expr;`
-    ExprStmt {
-        span: IrSpan,
-        expr: Box<IrNode>,
-    },
+    ExprStmt { span: IrSpan, expr: Box<IrNode> },
 
     /// Return statement: `return expr;`
     ReturnStmt {
@@ -393,10 +376,7 @@ pub enum IrNode {
     },
 
     /// Throw statement: `throw expr;`
-    ThrowStmt {
-        span: IrSpan,
-        arg: Box<IrNode>,
-    },
+    ThrowStmt { span: IrSpan, arg: Box<IrNode> },
 
     /// TypeScript if statement: `if (test) { cons } else { alt }`
     TsIfStmt {
@@ -407,10 +387,7 @@ pub enum IrNode {
     },
 
     /// TypeScript for/while loop (parsed as raw text with placeholders)
-    TsLoopStmt {
-        span: IrSpan,
-        parts: Vec<IrNode>,
-    },
+    TsLoopStmt { span: IrSpan, parts: Vec<IrNode> },
 
     /// For-in statement: `for (left in right) body`
     ForInStmt {
@@ -435,7 +412,6 @@ pub enum IrNode {
     // =========================================================================
     // Expressions
     // =========================================================================
-
     /// Identifier: `foo`
     Ident { span: IrSpan, value: String },
 
@@ -498,16 +474,10 @@ pub enum IrNode {
     },
 
     /// Object literal: `{ props }`
-    ObjectLit {
-        span: IrSpan,
-        props: Vec<IrNode>,
-    },
+    ObjectLit { span: IrSpan, props: Vec<IrNode> },
 
     /// Array literal: `[elems]`
-    ArrayLit {
-        span: IrSpan,
-        elems: Vec<IrNode>,
-    },
+    ArrayLit { span: IrSpan, elems: Vec<IrNode> },
 
     /// Arrow function: `(params) => body`
     ArrowExpr {
@@ -581,10 +551,7 @@ pub enum IrNode {
     },
 
     /// Sequence expression: `a, b, c`
-    SeqExpr {
-        span: IrSpan,
-        exprs: Vec<IrNode>,
-    },
+    SeqExpr { span: IrSpan, exprs: Vec<IrNode> },
 
     /// Template literal: `` `hello ${expr}` ``
     TplLit {
@@ -605,16 +572,10 @@ pub enum IrNode {
     },
 
     /// Parenthesized expression: `(expr)`
-    ParenExpr {
-        span: IrSpan,
-        expr: Box<IrNode>,
-    },
+    ParenExpr { span: IrSpan, expr: Box<IrNode> },
 
     /// Await expression: `await expr`
-    AwaitExpr {
-        span: IrSpan,
-        arg: Box<IrNode>,
-    },
+    AwaitExpr { span: IrSpan, arg: Box<IrNode> },
 
     /// Yield expression: `yield expr` or `yield* expr`
     YieldExpr {
@@ -631,10 +592,7 @@ pub enum IrNode {
     },
 
     /// Const assertion: `expr as const`
-    TsConstAssertion {
-        span: IrSpan,
-        expr: Box<IrNode>,
-    },
+    TsConstAssertion { span: IrSpan, expr: Box<IrNode> },
 
     /// Satisfies expression: `expr satisfies Type`
     TsSatisfiesExpr {
@@ -644,10 +602,7 @@ pub enum IrNode {
     },
 
     /// Non-null assertion: `expr!`
-    TsNonNullExpr {
-        span: IrSpan,
-        expr: Box<IrNode>,
-    },
+    TsNonNullExpr { span: IrSpan, expr: Box<IrNode> },
 
     /// Type instantiation: `expr<Type>`
     TsInstantiation {
@@ -659,7 +614,6 @@ pub enum IrNode {
     // =========================================================================
     // Object Properties
     // =========================================================================
-
     /// Key-value property: `key: value`
     KeyValueProp {
         span: IrSpan,
@@ -668,22 +622,13 @@ pub enum IrNode {
     },
 
     /// Shorthand property: `key` (same as `key: key`)
-    ShorthandProp {
-        span: IrSpan,
-        key: Box<IrNode>,
-    },
+    ShorthandProp { span: IrSpan, key: Box<IrNode> },
 
     /// Spread property: `...expr`
-    SpreadElement {
-        span: IrSpan,
-        expr: Box<IrNode>,
-    },
+    SpreadElement { span: IrSpan, expr: Box<IrNode> },
 
     /// Computed property name: `[expr]`
-    ComputedPropName {
-        span: IrSpan,
-        expr: Box<IrNode>,
-    },
+    ComputedPropName { span: IrSpan, expr: Box<IrNode> },
 
     /// Method property: `name() { }`
     MethodProp {
@@ -716,7 +661,6 @@ pub enum IrNode {
     // =========================================================================
     // Parameters
     // =========================================================================
-
     /// Parameter: `name: Type = default`
     Param {
         span: IrSpan,
@@ -772,12 +716,8 @@ pub enum IrNode {
     // =========================================================================
     // Type Nodes
     // =========================================================================
-
     /// Type annotation wrapper: `: Type`
-    TypeAnnotation {
-        span: IrSpan,
-        type_ann: Box<IrNode>,
-    },
+    TypeAnnotation { span: IrSpan, type_ann: Box<IrNode> },
 
     /// Type reference: `TypeName<Args>`
     TypeRef {
@@ -794,10 +734,7 @@ pub enum IrNode {
     },
 
     /// Type parameters: `<T, U extends V>`
-    TypeParams {
-        span: IrSpan,
-        params: Vec<IrNode>,
-    },
+    TypeParams { span: IrSpan, params: Vec<IrNode> },
 
     /// Type parameter: `T extends Constraint = Default`
     TypeParam {
@@ -808,58 +745,31 @@ pub enum IrNode {
     },
 
     /// Type arguments: `<T, U>`
-    TypeArgs {
-        span: IrSpan,
-        args: Vec<IrNode>,
-    },
+    TypeArgs { span: IrSpan, args: Vec<IrNode> },
 
     /// Keyword type: `string`, `number`, etc.
-    KeywordType {
-        span: IrSpan,
-        keyword: TsKeyword,
-    },
+    KeywordType { span: IrSpan, keyword: TsKeyword },
 
     /// Literal type: `"hello"`, `42`, `true`
-    LiteralType {
-        span: IrSpan,
-        lit: Box<IrNode>,
-    },
+    LiteralType { span: IrSpan, lit: Box<IrNode> },
 
     /// Union type: `A | B`
-    UnionType {
-        span: IrSpan,
-        types: Vec<IrNode>,
-    },
+    UnionType { span: IrSpan, types: Vec<IrNode> },
 
     /// Intersection type: `A & B`
-    IntersectionType {
-        span: IrSpan,
-        types: Vec<IrNode>,
-    },
+    IntersectionType { span: IrSpan, types: Vec<IrNode> },
 
     /// Array type: `T[]`
-    ArrayType {
-        span: IrSpan,
-        elem: Box<IrNode>,
-    },
+    ArrayType { span: IrSpan, elem: Box<IrNode> },
 
     /// Tuple type: `[A, B, C]`
-    TupleType {
-        span: IrSpan,
-        elems: Vec<IrNode>,
-    },
+    TupleType { span: IrSpan, elems: Vec<IrNode> },
 
     /// Optional type element: `T?` (in tuple)
-    OptionalType {
-        span: IrSpan,
-        type_ann: Box<IrNode>,
-    },
+    OptionalType { span: IrSpan, type_ann: Box<IrNode> },
 
     /// Rest type element: `...T` (in tuple)
-    RestType {
-        span: IrSpan,
-        type_ann: Box<IrNode>,
-    },
+    RestType { span: IrSpan, type_ann: Box<IrNode> },
 
     /// Function type: `(params) => RetType`
     FnType {
@@ -878,28 +788,16 @@ pub enum IrNode {
     },
 
     /// Object type / type literal: `{ prop: Type }`
-    ObjectType {
-        span: IrSpan,
-        members: Vec<IrNode>,
-    },
+    ObjectType { span: IrSpan, members: Vec<IrNode> },
 
     /// Parenthesized type: `(Type)`
-    ParenType {
-        span: IrSpan,
-        type_ann: Box<IrNode>,
-    },
+    ParenType { span: IrSpan, type_ann: Box<IrNode> },
 
     /// Typeof type: `typeof expr`
-    TypeofType {
-        span: IrSpan,
-        expr: Box<IrNode>,
-    },
+    TypeofType { span: IrSpan, expr: Box<IrNode> },
 
     /// Keyof type: `keyof Type`
-    KeyofType {
-        span: IrSpan,
-        type_ann: Box<IrNode>,
-    },
+    KeyofType { span: IrSpan, type_ann: Box<IrNode> },
 
     /// Indexed access type: `T[K]`
     IndexedAccessType {
@@ -947,7 +845,6 @@ pub enum IrNode {
     // =========================================================================
     // Template Constructs (Rust Integration)
     // =========================================================================
-
     /// Placeholder: `@{expr}`
     Placeholder {
         span: IrSpan,
@@ -996,15 +893,11 @@ pub enum IrNode {
     },
 
     /// Do directive: `{$do code}`
-    Do {
-        span: IrSpan,
-        code: TokenStream,
-    },
+    Do { span: IrSpan, code: TokenStream },
 
     // =========================================================================
     // Expression-Level Control Flow (produces values, not statements)
     // =========================================================================
-
     /// If expression - produces a value: `{#if cond} expr {:else} expr {/if}`
     /// All branches required in expression context.
     IfExpr {
@@ -1038,32 +931,19 @@ pub enum IrNode {
     },
 
     /// TypeScript injection: `{$typescript stream}`
-    TypeScript {
-        span: IrSpan,
-        stream: TokenStream,
-    },
+    TypeScript { span: IrSpan, stream: TokenStream },
 
     // =========================================================================
     // Comments
     // =========================================================================
-
     /// Line comment: `{> text <}` -> `//`
-    LineComment {
-        span: IrSpan,
-        text: String,
-    },
+    LineComment { span: IrSpan, text: String },
 
     /// Block comment: `{>> text <<}` -> `/* */`
-    BlockComment {
-        span: IrSpan,
-        text: String,
-    },
+    BlockComment { span: IrSpan, text: String },
 
     /// Doc comment: `/** text */`
-    DocComment {
-        span: IrSpan,
-        text: String,
-    },
+    DocComment { span: IrSpan, text: String },
 
     /// A node with an attached doc comment.
     Documented {
@@ -1075,12 +955,8 @@ pub enum IrNode {
     // =========================================================================
     // Special Constructs
     // =========================================================================
-
     /// Identifier block: `{|prefix_@{name}_suffix|}`
-    IdentBlock {
-        span: IrSpan,
-        parts: Vec<IrNode>,
-    },
+    IdentBlock { span: IrSpan, parts: Vec<IrNode> },
 
     /// String interpolation: `"text @{expr} more"`
     StringInterp {
@@ -1090,10 +966,7 @@ pub enum IrNode {
     },
 
     /// Raw text (fallback for unparseable content - should be minimized)
-    Raw {
-        span: IrSpan,
-        value: String,
-    },
+    Raw { span: IrSpan, value: String },
 
     /// Enum member: `Name = value`
     EnumMember {
@@ -1103,10 +976,7 @@ pub enum IrNode {
     },
 
     /// Decorator: `@expr`
-    Decorator {
-        span: IrSpan,
-        expr: Box<IrNode>,
-    },
+    Decorator { span: IrSpan, expr: Box<IrNode> },
 
     /// Import declaration
     ImportDecl {
@@ -1124,22 +994,10 @@ pub enum IrNode {
     },
 
     /// Default import: `foo`
-    DefaultImport {
-        span: IrSpan,
-        local: Box<IrNode>,
-    },
+    DefaultImport { span: IrSpan, local: Box<IrNode> },
 
     /// Namespace import: `* as foo`
-    NamespaceImport {
-        span: IrSpan,
-        local: Box<IrNode>,
-    },
-
-    /// Export declaration wrapper
-    ExportDecl {
-        span: IrSpan,
-        decl: Box<IrNode>,
-    },
+    NamespaceImport { span: IrSpan, local: Box<IrNode> },
 
     /// Named export: `export { a, b as c }`
     NamedExport {
@@ -1157,10 +1015,7 @@ pub enum IrNode {
     },
 
     /// Default export: `export default expr`
-    ExportDefaultExpr {
-        span: IrSpan,
-        expr: Box<IrNode>,
-    },
+    ExportDefaultExpr { span: IrSpan, expr: Box<IrNode> },
 
     /// Re-export all: `export * from "module"`
     ExportAll {
@@ -1257,14 +1112,6 @@ impl IrNode {
         }
     }
 
-    /// Create a string literal node from a token.
-    pub fn str_lit(token: &impl IntoIrNode) -> Self {
-        IrNode::StrLit {
-            span: token.ir_span(),
-            value: token.text().to_string(),
-        }
-    }
-
     /// Create a number literal node from a token.
     pub fn num_lit(token: &impl IntoIrNode) -> Self {
         IrNode::NumLit {
@@ -1281,11 +1128,13 @@ impl IrNode {
         }
     }
 
-    /// Create a bigint literal node from a token.
+    /// Create a bigint literal node from a token (strips trailing 'n').
     pub fn bigint_lit(token: &impl IntoIrNode) -> Self {
+        let text = token.text();
+        let value = text.strip_suffix('n').unwrap_or(text);
         IrNode::BigIntLit {
             span: token.ir_span(),
-            value: token.text().to_string(),
+            value: value.to_string(),
         }
     }
 
@@ -1361,22 +1210,6 @@ impl IrNode {
     /// Create an identifier with a custom value (uses token for span only).
     pub fn ident_with(token: &impl IntoIrNode, value: impl Into<String>) -> Self {
         IrNode::Ident {
-            span: token.ir_span(),
-            value: value.into(),
-        }
-    }
-
-    /// Create a string literal with a custom value (uses token for span only).
-    pub fn str_lit_with(token: &impl IntoIrNode, value: impl Into<String>) -> Self {
-        IrNode::StrLit {
-            span: token.ir_span(),
-            value: value.into(),
-        }
-    }
-
-    /// Create a raw node with a custom value (uses token for span only).
-    pub fn raw_with(token: &impl IntoIrNode, value: impl Into<String>) -> Self {
-        IrNode::Raw {
             span: token.ir_span(),
             value: value.into(),
         }
@@ -1530,31 +1363,10 @@ impl IrNode {
             IrNode::NamedImport { span, .. } => *span,
             IrNode::DefaultImport { span, .. } => *span,
             IrNode::NamespaceImport { span, .. } => *span,
-            IrNode::ExportDecl { span, .. } => *span,
             IrNode::NamedExport { span, .. } => *span,
             IrNode::ExportSpecifier { span, .. } => *span,
             IrNode::ExportDefaultExpr { span, .. } => *span,
             IrNode::ExportAll { span, .. } => *span,
-        }
-    }
-
-    /// Create a copy of this node with a new span.
-    pub fn with_span(self, span: IrSpan) -> Self {
-        match self {
-            IrNode::Ident { value, .. } => IrNode::Ident { span, value },
-            IrNode::StrLit { value, .. } => IrNode::StrLit { span, value },
-            IrNode::NumLit { value, .. } => IrNode::NumLit { span, value },
-            IrNode::BoolLit { value, .. } => IrNode::BoolLit { span, value },
-            IrNode::NullLit { .. } => IrNode::NullLit { span },
-            IrNode::ThisExpr { .. } => IrNode::ThisExpr { span },
-            IrNode::SuperExpr { .. } => IrNode::SuperExpr { span },
-            IrNode::EmptyStmt { .. } => IrNode::EmptyStmt { span },
-            // For complex nodes, we only update the span field
-            other => {
-                // This is a simplified version - for complex nodes we'd need full match
-                // For now, return as-is (the span is already embedded)
-                other
-            }
         }
     }
 }
@@ -1574,7 +1386,7 @@ mod tests {
     #[test]
     fn test_placeholder_kind_clone() {
         let kind = PlaceholderKind::Type;
-        let cloned = kind.clone();
+        let cloned = kind;
         assert_eq!(kind, cloned);
     }
 
@@ -1763,57 +1575,83 @@ mod tests {
 
     #[test]
     fn test_ir_node_ident() {
-        let node = IrNode::Ident { span: IrSpan::empty(), value: "foo".to_string() };
+        let node = IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "foo".to_string(),
+        };
         assert!(matches!(node, IrNode::Ident { value, .. } if value == "foo"));
     }
 
     #[test]
     fn test_ir_node_str_lit() {
-        let node = IrNode::StrLit { span: IrSpan::empty(), value: "hello".to_string() };
+        let node = IrNode::StrLit {
+            span: IrSpan::empty(),
+            value: "hello".to_string(),
+        };
         assert!(matches!(node, IrNode::StrLit { value, .. } if value == "hello"));
     }
 
     #[test]
     fn test_ir_node_num_lit() {
-        let node = IrNode::NumLit { span: IrSpan::empty(), value: "42".to_string() };
+        let node = IrNode::NumLit {
+            span: IrSpan::empty(),
+            value: "42".to_string(),
+        };
         assert!(matches!(node, IrNode::NumLit { value, .. } if value == "42"));
     }
 
     #[test]
     fn test_ir_node_bool_lit() {
-        let true_node = IrNode::BoolLit { span: IrSpan::empty(), value: true };
-        let false_node = IrNode::BoolLit { span: IrSpan::empty(), value: false };
+        let true_node = IrNode::BoolLit {
+            span: IrSpan::empty(),
+            value: true,
+        };
+        let false_node = IrNode::BoolLit {
+            span: IrSpan::empty(),
+            value: false,
+        };
         assert!(matches!(true_node, IrNode::BoolLit { value: true, .. }));
         assert!(matches!(false_node, IrNode::BoolLit { value: false, .. }));
     }
 
     #[test]
     fn test_ir_node_null_lit() {
-        let node = IrNode::NullLit { span: IrSpan::empty() };
+        let node = IrNode::NullLit {
+            span: IrSpan::empty(),
+        };
         assert!(matches!(node, IrNode::NullLit { .. }));
     }
 
     #[test]
     fn test_ir_node_this_expr() {
-        let node = IrNode::ThisExpr { span: IrSpan::empty() };
+        let node = IrNode::ThisExpr {
+            span: IrSpan::empty(),
+        };
         assert!(matches!(node, IrNode::ThisExpr { .. }));
     }
 
     #[test]
     fn test_ir_node_super_expr() {
-        let node = IrNode::SuperExpr { span: IrSpan::empty() };
+        let node = IrNode::SuperExpr {
+            span: IrSpan::empty(),
+        };
         assert!(matches!(node, IrNode::SuperExpr { .. }));
     }
 
     #[test]
     fn test_ir_node_empty_stmt() {
-        let node = IrNode::EmptyStmt { span: IrSpan::empty() };
+        let node = IrNode::EmptyStmt {
+            span: IrSpan::empty(),
+        };
         assert!(matches!(node, IrNode::EmptyStmt { .. }));
     }
 
     #[test]
     fn test_ir_node_block_stmt() {
-        let node = IrNode::BlockStmt { span: IrSpan::empty(), stmts: vec![] };
+        let node = IrNode::BlockStmt {
+            span: IrSpan::empty(),
+            stmts: vec![],
+        };
         assert!(matches!(node, IrNode::BlockStmt { stmts, .. } if stmts.is_empty()));
     }
 
@@ -1821,7 +1659,10 @@ mod tests {
     fn test_ir_node_expr_stmt() {
         let node = IrNode::ExprStmt {
             span: IrSpan::empty(),
-            expr: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            expr: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
         };
         assert!(matches!(node, IrNode::ExprStmt { .. }));
     }
@@ -1830,14 +1671,20 @@ mod tests {
     fn test_ir_node_return_stmt_with_arg() {
         let node = IrNode::ReturnStmt {
             span: IrSpan::empty(),
-            arg: Some(Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "42".to_string() })),
+            arg: Some(Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "42".to_string(),
+            })),
         };
         assert!(matches!(node, IrNode::ReturnStmt { arg: Some(_), .. }));
     }
 
     #[test]
     fn test_ir_node_return_stmt_without_arg() {
-        let node = IrNode::ReturnStmt { span: IrSpan::empty(), arg: None };
+        let node = IrNode::ReturnStmt {
+            span: IrSpan::empty(),
+            arg: None,
+        };
         assert!(matches!(node, IrNode::ReturnStmt { arg: None, .. }));
     }
 
@@ -1845,7 +1692,10 @@ mod tests {
     fn test_ir_node_throw_stmt() {
         let node = IrNode::ThrowStmt {
             span: IrSpan::empty(),
-            arg: Box::new(IrNode::StrLit { span: IrSpan::empty(), value: "error".to_string() }),
+            arg: Box::new(IrNode::StrLit {
+                span: IrSpan::empty(),
+                value: "error".to_string(),
+            }),
         };
         assert!(matches!(node, IrNode::ThrowStmt { .. }));
     }
@@ -1854,11 +1704,23 @@ mod tests {
     fn test_ir_node_bin_expr() {
         let node = IrNode::BinExpr {
             span: IrSpan::empty(),
-            left: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() }),
+            left: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "1".to_string(),
+            }),
             op: BinaryOp::Add,
-            right: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "2".to_string() }),
+            right: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "2".to_string(),
+            }),
         };
-        assert!(matches!(node, IrNode::BinExpr { op: BinaryOp::Add, .. }));
+        assert!(matches!(
+            node,
+            IrNode::BinExpr {
+                op: BinaryOp::Add,
+                ..
+            }
+        ));
     }
 
     #[test]
@@ -1866,18 +1728,33 @@ mod tests {
         let node = IrNode::UnaryExpr {
             span: IrSpan::empty(),
             op: UnaryOp::Minus,
-            arg: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "5".to_string() }),
+            arg: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "5".to_string(),
+            }),
         };
-        assert!(matches!(node, IrNode::UnaryExpr { op: UnaryOp::Minus, .. }));
+        assert!(matches!(
+            node,
+            IrNode::UnaryExpr {
+                op: UnaryOp::Minus,
+                ..
+            }
+        ));
     }
 
     #[test]
     fn test_ir_node_call_expr() {
         let node = IrNode::CallExpr {
             span: IrSpan::empty(),
-            callee: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "foo".to_string() }),
+            callee: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "foo".to_string(),
+            }),
             type_args: None,
-            args: vec![IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() }],
+            args: vec![IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "1".to_string(),
+            }],
         };
         assert!(matches!(node, IrNode::CallExpr { .. }));
     }
@@ -1886,7 +1763,10 @@ mod tests {
     fn test_ir_node_new_expr() {
         let node = IrNode::NewExpr {
             span: IrSpan::empty(),
-            callee: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "MyClass".to_string() }),
+            callee: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "MyClass".to_string(),
+            }),
             type_args: None,
             args: vec![],
         };
@@ -1897,16 +1777,31 @@ mod tests {
     fn test_ir_node_member_expr() {
         let node = IrNode::MemberExpr {
             span: IrSpan::empty(),
-            obj: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "obj".to_string() }),
-            prop: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "prop".to_string() }),
+            obj: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "obj".to_string(),
+            }),
+            prop: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "prop".to_string(),
+            }),
             computed: false,
         };
-        assert!(matches!(node, IrNode::MemberExpr { computed: false, .. }));
+        assert!(matches!(
+            node,
+            IrNode::MemberExpr {
+                computed: false,
+                ..
+            }
+        ));
     }
 
     #[test]
     fn test_ir_node_object_lit() {
-        let node = IrNode::ObjectLit { span: IrSpan::empty(), props: vec![] };
+        let node = IrNode::ObjectLit {
+            span: IrSpan::empty(),
+            props: vec![],
+        };
         assert!(matches!(node, IrNode::ObjectLit { props, .. } if props.is_empty()));
     }
 
@@ -1914,7 +1809,10 @@ mod tests {
     fn test_ir_node_array_lit() {
         let node = IrNode::ArrayLit {
             span: IrSpan::empty(),
-            elems: vec![IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() }],
+            elems: vec![IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "1".to_string(),
+            }],
         };
         assert!(matches!(node, IrNode::ArrayLit { elems, .. } if elems.len() == 1));
     }
@@ -1927,7 +1825,10 @@ mod tests {
             type_params: None,
             params: vec![],
             return_type: None,
-            body: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "42".to_string() }),
+            body: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "42".to_string(),
+            }),
         };
         assert!(matches!(node, IrNode::ArrowExpr { async_: false, .. }));
     }
@@ -1936,17 +1837,35 @@ mod tests {
     fn test_ir_node_cond_expr() {
         let node = IrNode::CondExpr {
             span: IrSpan::empty(),
-            test: Box::new(IrNode::BoolLit { span: IrSpan::empty(), value: true }),
-            consequent: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() }),
-            alternate: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "2".to_string() }),
+            test: Box::new(IrNode::BoolLit {
+                span: IrSpan::empty(),
+                value: true,
+            }),
+            consequent: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "1".to_string(),
+            }),
+            alternate: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "2".to_string(),
+            }),
         };
         assert!(matches!(node, IrNode::CondExpr { .. }));
     }
 
     #[test]
     fn test_ir_node_keyword_type() {
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String };
-        assert!(matches!(node, IrNode::KeywordType { keyword: TsKeyword::String, .. }));
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::String,
+        };
+        assert!(matches!(
+            node,
+            IrNode::KeywordType {
+                keyword: TsKeyword::String,
+                ..
+            }
+        ));
     }
 
     #[test]
@@ -1954,8 +1873,14 @@ mod tests {
         let node = IrNode::UnionType {
             span: IrSpan::empty(),
             types: vec![
-                IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String },
-                IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Number },
+                IrNode::KeywordType {
+                    span: IrSpan::empty(),
+                    keyword: TsKeyword::String,
+                },
+                IrNode::KeywordType {
+                    span: IrSpan::empty(),
+                    keyword: TsKeyword::Number,
+                },
             ],
         };
         assert!(matches!(node, IrNode::UnionType { types, .. } if types.len() == 2));
@@ -1965,7 +1890,10 @@ mod tests {
     fn test_ir_node_array_type() {
         let node = IrNode::ArrayType {
             span: IrSpan::empty(),
-            elem: Box::new(IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Number }),
+            elem: Box::new(IrNode::KeywordType {
+                span: IrSpan::empty(),
+                keyword: TsKeyword::Number,
+            }),
         };
         assert!(matches!(node, IrNode::ArrayType { .. }));
     }
@@ -1979,7 +1907,13 @@ mod tests {
             kind: VarKind::Const,
             decls: vec![],
         };
-        assert!(matches!(node, IrNode::VarDecl { kind: VarKind::Const, .. }));
+        assert!(matches!(
+            node,
+            IrNode::VarDecl {
+                kind: VarKind::Const,
+                ..
+            }
+        ));
     }
 
     #[test]
@@ -1990,11 +1924,17 @@ mod tests {
             declare: false,
             async_: true,
             generator: false,
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "myFn".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "myFn".to_string(),
+            }),
             type_params: None,
             params: vec![],
             return_type: None,
-            body: Some(Box::new(IrNode::BlockStmt { span: IrSpan::empty(), stmts: vec![] })),
+            body: Some(Box::new(IrNode::BlockStmt {
+                span: IrSpan::empty(),
+                stmts: vec![],
+            })),
         };
         assert!(matches!(node, IrNode::FnDecl { async_: true, .. }));
     }
@@ -2007,13 +1947,22 @@ mod tests {
             declare: false,
             abstract_: false,
             decorators: vec![],
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "MyClass".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "MyClass".to_string(),
+            }),
             type_params: None,
             extends: None,
             implements: vec![],
             body: vec![],
         };
-        assert!(matches!(node, IrNode::ClassDecl { abstract_: false, .. }));
+        assert!(matches!(
+            node,
+            IrNode::ClassDecl {
+                abstract_: false,
+                ..
+            }
+        ));
     }
 
     #[test]
@@ -2022,7 +1971,10 @@ mod tests {
             span: IrSpan::empty(),
             exported: true,
             declare: false,
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "MyInterface".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "MyInterface".to_string(),
+            }),
             type_params: None,
             extends: vec![],
             body: vec![],
@@ -2036,16 +1988,25 @@ mod tests {
             span: IrSpan::empty(),
             exported: false,
             declare: false,
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "MyType".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "MyType".to_string(),
+            }),
             type_params: None,
-            type_ann: Box::new(IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String }),
+            type_ann: Box::new(IrNode::KeywordType {
+                span: IrSpan::empty(),
+                keyword: TsKeyword::String,
+            }),
         };
         assert!(matches!(node, IrNode::TypeAliasDecl { .. }));
     }
 
     #[test]
     fn test_ir_node_clone() {
-        let node = IrNode::Ident { span: IrSpan::empty(), value: "test".to_string() };
+        let node = IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "test".to_string(),
+        };
         let cloned = node.clone();
         assert!(matches!(cloned, IrNode::Ident { value, .. } if value == "test"));
     }
@@ -2056,7 +2017,10 @@ mod tests {
     fn test_var_declarator_basic() {
         let decl = VarDeclarator {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
             type_ann: None,
             init: None,
             definite: false,
@@ -2070,9 +2034,15 @@ mod tests {
     fn test_var_declarator_with_init() {
         let decl = VarDeclarator {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
             type_ann: None,
-            init: Some(Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "42".to_string() })),
+            init: Some(Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "42".to_string(),
+            })),
             definite: false,
         };
         assert!(decl.init.is_some());
@@ -2082,8 +2052,14 @@ mod tests {
     fn test_var_declarator_with_type() {
         let decl = VarDeclarator {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
-            type_ann: Some(Box::new(IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Number })),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
+            type_ann: Some(Box::new(IrNode::KeywordType {
+                span: IrSpan::empty(),
+                keyword: TsKeyword::Number,
+            })),
             init: None,
             definite: true,
         };
@@ -2095,7 +2071,10 @@ mod tests {
     fn test_var_declarator_clone() {
         let decl = VarDeclarator {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
             type_ann: None,
             init: None,
             definite: false,
@@ -2124,7 +2103,10 @@ mod tests {
             span: IrSpan::empty(),
             pattern: TokenStream::new(),
             guard: Some(TokenStream::new()),
-            body: vec![IrNode::ReturnStmt { span: IrSpan::empty(), arg: None }],
+            body: vec![IrNode::ReturnStmt {
+                span: IrSpan::empty(),
+                arg: None,
+            }],
         };
         assert!(arm.guard.is_some());
         assert_eq!(arm.body.len(), 1);
@@ -2159,8 +2141,14 @@ mod tests {
     #[test]
     fn test_ir_with_nodes() {
         let nodes = vec![
-            IrNode::Ident { span: IrSpan::empty(), value: "foo".to_string() },
-            IrNode::NumLit { span: IrSpan::empty(), value: "42".to_string() },
+            IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "foo".to_string(),
+            },
+            IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "42".to_string(),
+            },
         ];
         let ir = Ir::with_nodes(nodes);
         assert_eq!(ir.nodes.len(), 2);
@@ -2189,11 +2177,20 @@ mod tests {
             span: IrSpan::empty(),
             obj: Box::new(IrNode::MemberExpr {
                 span: IrSpan::empty(),
-                obj: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "obj".to_string() }),
-                prop: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "foo".to_string() }),
+                obj: Box::new(IrNode::Ident {
+                    span: IrSpan::empty(),
+                    value: "obj".to_string(),
+                }),
+                prop: Box::new(IrNode::Ident {
+                    span: IrSpan::empty(),
+                    value: "foo".to_string(),
+                }),
                 computed: false,
             }),
-            prop: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "bar".to_string() }),
+            prop: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "bar".to_string(),
+            }),
             computed: false,
         };
         assert!(matches!(node, IrNode::MemberExpr { .. }));
@@ -2204,12 +2201,24 @@ mod tests {
         // foo(1, "hello", true)
         let node = IrNode::CallExpr {
             span: IrSpan::empty(),
-            callee: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "foo".to_string() }),
+            callee: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "foo".to_string(),
+            }),
             type_args: None,
             args: vec![
-                IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() },
-                IrNode::StrLit { span: IrSpan::empty(), value: "hello".to_string() },
-                IrNode::BoolLit { span: IrSpan::empty(), value: true },
+                IrNode::NumLit {
+                    span: IrSpan::empty(),
+                    value: "1".to_string(),
+                },
+                IrNode::StrLit {
+                    span: IrSpan::empty(),
+                    value: "hello".to_string(),
+                },
+                IrNode::BoolLit {
+                    span: IrSpan::empty(),
+                    value: true,
+                },
             ],
         };
         if let IrNode::CallExpr { args, .. } = node {
@@ -2227,16 +2236,28 @@ mod tests {
             declare: false,
             abstract_: false,
             decorators: vec![],
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "MyClass".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "MyClass".to_string(),
+            }),
             type_params: None,
-            extends: Some(Box::new(IrNode::Ident { span: IrSpan::empty(), value: "BaseClass".to_string() })),
-            implements: vec![IrNode::Ident { span: IrSpan::empty(), value: "Interface1".to_string() }],
+            extends: Some(Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "BaseClass".to_string(),
+            })),
+            implements: vec![IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "Interface1".to_string(),
+            }],
             body: vec![
                 IrNode::Constructor {
                     span: IrSpan::empty(),
                     accessibility: Some(Accessibility::Public),
                     params: vec![],
-                    body: Some(Box::new(IrNode::BlockStmt { span: IrSpan::empty(), stmts: vec![] })),
+                    body: Some(Box::new(IrNode::BlockStmt {
+                        span: IrSpan::empty(),
+                        stmts: vec![],
+                    })),
                 },
                 IrNode::ClassProp {
                     span: IrSpan::empty(),
@@ -2246,8 +2267,14 @@ mod tests {
                     declare: false,
                     optional: false,
                     definite: false,
-                    name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "value".to_string() }),
-                    type_ann: Some(Box::new(IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Number })),
+                    name: Box::new(IrNode::Ident {
+                        span: IrSpan::empty(),
+                        value: "value".to_string(),
+                    }),
+                    type_ann: Some(Box::new(IrNode::KeywordType {
+                        span: IrSpan::empty(),
+                        keyword: TsKeyword::Number,
+                    })),
                     value: None,
                 },
             ],
@@ -2264,10 +2291,16 @@ mod tests {
         // Promise<string>
         let node = IrNode::TypeRef {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "Promise".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "Promise".to_string(),
+            }),
             type_params: Some(Box::new(IrNode::TypeArgs {
                 span: IrSpan::empty(),
-                args: vec![IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String }],
+                args: vec![IrNode::KeywordType {
+                    span: IrSpan::empty(),
+                    keyword: TsKeyword::String,
+                }],
             })),
         };
         assert!(matches!(node, IrNode::TypeRef { .. }));
@@ -2284,12 +2317,21 @@ mod tests {
                 decorators: vec![],
                 pat: Box::new(IrNode::BindingIdent {
                     span: IrSpan::empty(),
-                    name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
-                    type_ann: Some(Box::new(IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Number })),
+                    name: Box::new(IrNode::Ident {
+                        span: IrSpan::empty(),
+                        value: "x".to_string(),
+                    }),
+                    type_ann: Some(Box::new(IrNode::KeywordType {
+                        span: IrSpan::empty(),
+                        keyword: TsKeyword::Number,
+                    })),
                     optional: false,
                 }),
             }],
-            return_type: Box::new(IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String }),
+            return_type: Box::new(IrNode::KeywordType {
+                span: IrSpan::empty(),
+                keyword: TsKeyword::String,
+            }),
         };
         assert!(matches!(node, IrNode::FnType { .. }));
     }

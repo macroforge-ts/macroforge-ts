@@ -393,7 +393,14 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // ConstructorType
-        IrNode::ConstructorType { type_params: _, params, return_type, .. } => {
+        IrNode::ConstructorType { type_params, params, return_type, .. } => {
+            let type_params_code = match type_params {
+                Some(tp) => {
+                    let tpc = self.generate_type_params(tp)?;
+                    quote! { Some(Box::new(#tpc)) }
+                }
+                None => quote! { None },
+            };
             let params_code = self.generate_fn_type_params(params)?;
             let return_code = self.generate_type(return_type)?;
             Ok(quote! {
@@ -401,7 +408,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                     macroforge_ts::swc_core::ecma::ast::TsConstructorType {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         params: #params_code,
-                        type_params: None,
+                        type_params: #type_params_code,
                         type_ann: Box::new(macroforge_ts::swc_core::ecma::ast::TsTypeAnn {
                             span: macroforge_ts::swc_core::common::DUMMY_SP,
                             type_ann: Box::new(#return_code),
@@ -413,12 +420,19 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
 
         // ImportType
-        IrNode::ImportType { arg, qualifier, type_args: _, .. } => {
+        IrNode::ImportType { arg, qualifier, type_args, .. } => {
             let arg_code = self.generate_type(arg)?;
             let qualifier_code = match qualifier.as_ref() {
                 Some(q) => {
                     let qc = self.generate_entity_name(q)?;
                     quote! { Some(#qc) }
+                }
+                None => quote! { None },
+            };
+            let type_args_code = match type_args {
+                Some(ta) => {
+                    let tac = self.generate_type_param_instantiation(ta)?;
+                    quote! { Some(Box::new(#tac)) }
                 }
                 None => quote! { None },
             };
@@ -428,7 +442,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                         arg: Box::new(#arg_code),
                         qualifier: #qualifier_code,
-                        type_args: None,
+                        type_args: #type_args_code,
                     }
                 )
             })
@@ -529,6 +543,35 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         // TypeAnnotation wrapper - unwrap and generate the inner type
         IrNode::TypeAnnotation { type_ann, .. } => self.generate_type(type_ann),
 
+        // FnType: (params) => return_type
+        IrNode::FnType { type_params, params, return_type, .. } => {
+            let type_params_code = match type_params {
+                Some(tp) => {
+                    let tpc = self.generate_type_params(tp)?;
+                    quote! { Some(Box::new(#tpc)) }
+                }
+                None => quote! { None },
+            };
+            let params_code = self.generate_fn_type_params(params)?;
+            let return_code = self.generate_type(return_type)?;
+
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::TsType::TsFnOrConstructorType(
+                    macroforge_ts::swc_core::ecma::ast::TsFnOrConstructorType::TsFnType(
+                        macroforge_ts::swc_core::ecma::ast::TsFnType {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            params: #params_code,
+                            type_params: #type_params_code,
+                            type_ann: Box::new(macroforge_ts::swc_core::ecma::ast::TsTypeAnn {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                                type_ann: Box::new(#return_code),
+                            }),
+                        }
+                    )
+                )
+            })
+        }
+
         _ => Err(GenError::unexpected_node(
             "type",
             node,
@@ -552,6 +595,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                 "ImportType",
                 "QualifiedName",
                 "ObjectType",
+                "FnType",
                 "Placeholder(Type)",
                 "Ident",
                 "Raw",
@@ -998,10 +1042,13 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
         }
         IrNode::Match { expr, arms, .. } => {
             let mut arm_tokens: Vec<TokenStream> = Vec::with_capacity(arms.len());
-            for MatchArm { pattern, guard, body, .. } in arms {
+            for MatchArm { span, pattern, guard, body } in arms {
                 let body_parts: Vec<TokenStream> = body
                     .iter()
-                    .map(|p| self.generate_type_str_part(p))
+                    .map(|p| {
+                        self.generate_type_str_part(p)
+                            .map_err(|e| e.with_context("match arm body").with_span(*span))
+                    })
                     .collect::<GenResult<Vec<_>>>()?
                     .into_iter()
                     .flatten()

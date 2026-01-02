@@ -188,7 +188,7 @@ pub(super) fn generate_class_member(&self, node: &IrNode) -> GenResult<TokenStre
         IrNode::Method {
             static_,
             accessibility,
-            readonly: _,
+            readonly,
             async_,
             generator,
             kind,
@@ -200,6 +200,10 @@ pub(super) fn generate_class_member(&self, node: &IrNode) -> GenResult<TokenStre
             body,
             ..
         } => {
+            // TypeScript doesn't support readonly on methods - it's only valid on properties.
+            // We consume the field to satisfy the compiler but assert it should always be false.
+            debug_assert!(!readonly, "readonly is not valid on class methods");
+
             let name_code = self.generate_prop_name(name)?;
             let params_code = self.generate_params(params)?;
             let body_code = match body {

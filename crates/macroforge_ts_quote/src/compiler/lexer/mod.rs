@@ -40,17 +40,11 @@ impl Token {
     pub fn end(&self) -> usize {
         self.start + self.text.len()
     }
-}
 
-impl super::ir::Spanned for Token {
+    /// Get the IR span for this token.
     #[inline]
-    fn span_start(&self) -> usize {
-        self.start
-    }
-
-    #[inline]
-    fn span_len(&self) -> usize {
-        self.text.len()
+    pub fn ir_span(&self) -> super::ir::IrSpan {
+        super::ir::IrSpan::new(self.start, self.start + self.text.len())
     }
 }
 

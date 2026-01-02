@@ -4,12 +4,16 @@ use super::*;
 impl Codegen {
     pub(super) fn generate_param(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Param { decorators: _, pat, .. } => {
+            IrNode::Param { decorators, pat, .. } => {
                 let pat_code = self.generate_pat(pat)?;
+                let decorators_code: Vec<TokenStream> = decorators
+                    .iter()
+                    .map(|d| self.generate_decorator(d))
+                    .collect::<GenResult<Vec<_>>>()?;
                 Ok(quote! {
                     macroforge_ts::swc_core::ecma::ast::Param {
                         span: macroforge_ts::swc_core::common::DUMMY_SP,
-                        decorators: vec![],
+                        decorators: vec![#(#decorators_code),*],
                         pat: #pat_code,
                     }
                 })
