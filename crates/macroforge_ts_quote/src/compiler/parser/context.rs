@@ -278,6 +278,14 @@ impl Parser {
         })
     }
 
+    /// Returns true if we're anywhere inside an interface member context.
+    /// Searches the entire stack, so nested control blocks can detect they're inside an interface.
+    pub(super) fn is_inside_interface(&self) -> bool {
+        self.context_stack
+            .iter()
+            .any(|ctx| matches!(ctx.kind, ContextKind::InterfaceMember))
+    }
+
     /// Check if the current token is a terminator for expression parsing.
     /// Checks control flow markers first, then context-specific terminators.
     pub(super) fn at_terminator(&self) -> bool {

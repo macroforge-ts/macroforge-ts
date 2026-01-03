@@ -58,6 +58,9 @@ impl Parser {
     fn parse_interface_body(&mut self) -> ParseResult<Vec<IrNode>> {
         let mut members = Vec::new();
 
+        // Push interface member context so control blocks know to parse members
+        self.push_context(Context::interface_member([SyntaxKind::RBrace]));
+
         while !self.at_eof() && !self.at(SyntaxKind::RBrace) {
             self.skip_whitespace();
 
@@ -94,6 +97,7 @@ impl Parser {
             }
         }
 
+        self.pop_context();
         Ok(members)
     }
 
@@ -183,7 +187,7 @@ impl Parser {
         }
     }
 
-    fn parse_interface_member(&mut self) -> ParseResult<Option<IrNode>> {
+    pub(in super::super) fn parse_interface_member(&mut self) -> ParseResult<Option<IrNode>> {
         let start_byte = self.current_byte_offset();
         self.skip_whitespace();
 

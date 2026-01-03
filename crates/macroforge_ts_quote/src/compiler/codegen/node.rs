@@ -13,19 +13,4 @@ impl Codegen {
         )
     }
 
-// =========================================================================
-// Expression Generation
-// =========================================================================
-
-pub(super) fn is_control_flow_node(&self, node: &IrNode) -> bool {
-    matches!(
-        node,
-        IrNode::For { .. }
-            | IrNode::If { .. }
-            | IrNode::While { .. }
-            | IrNode::Match { .. }
-            | IrNode::Let { .. }
-            | IrNode::Do { .. }
-    )
-}
 }

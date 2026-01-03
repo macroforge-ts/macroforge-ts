@@ -24,7 +24,7 @@ pub use expr::errors::{
 };
 
 use super::ir::{
-    Accessibility, IntoIrNode, Ir, IrNode, IrSpan, MatchArm, MatchArmExpr, MethodKind,
+    Accessibility, Ir, IrNode, IrSpan, MatchArm,
     PlaceholderKind, VarDeclarator, VarKind,
 };
 use super::lexer::{Lexer, Token};
@@ -133,6 +133,14 @@ impl Context {
             terminators: SmallVec::from_iter(terminators),
         }
     }
+
+    /// Creates an interface member context (for property/method signatures).
+    fn interface_member<const N: usize>(terminators: [SyntaxKind; N]) -> Self {
+        Self {
+            kind: ContextKind::InterfaceMember,
+            terminators: SmallVec::from_iter(terminators),
+        }
+    }
 }
 
 /// The kind of context (for placeholder classification).
@@ -152,6 +160,8 @@ enum ContextKind {
     Parameters,
     /// Identifier context (for function/class/variable names).
     Identifier,
+    /// Interface member context (property/method signatures).
+    InterfaceMember,
 }
 
 /// Sub-kinds of expression context.
@@ -186,7 +196,32 @@ pub struct Parser {
     pending_decorators: Vec<IrNode>,
 }
 
+/// Checkpoint for parser state, used for backtracking.
+#[derive(Clone)]
+pub struct Checkpoint {
+    pos: usize,
+    context_stack_len: usize,
+    pending_doc: Option<String>,
+}
+
 impl Parser {
+    /// Create a checkpoint of current parser state for backtracking.
+    pub(super) fn checkpoint(&self) -> Checkpoint {
+        Checkpoint {
+            pos: self.pos,
+            context_stack_len: self.context_stack.len(),
+            pending_doc: self.pending_doc.clone(),
+        }
+    }
+
+    /// Restore parser state to a previous checkpoint.
+    pub(super) fn restore(&mut self, checkpoint: Checkpoint) {
+        self.pos = checkpoint.pos;
+        self.context_stack.truncate(checkpoint.context_stack_len);
+        self.pending_doc = checkpoint.pending_doc;
+        // Note: pending_decorators are not restored - they're typically consumed before checkpoints
+    }
+
     /// Creates a new parser from input text.
     /// Panics if the input cannot be tokenized (lexer error).
     pub fn new(input: &str) -> Self {

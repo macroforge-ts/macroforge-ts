@@ -93,7 +93,8 @@ impl Parser {
             ContextKind::TypeAnnotation | ContextKind::TypeAssertion | ContextKind::GenericParams => {
                 PlaceholderKind::Type
             }
-            ContextKind::Identifier => PlaceholderKind::Ident,
+            // In interface member context, placeholders are typically identifiers (property names)
+            ContextKind::Identifier | ContextKind::InterfaceMember => PlaceholderKind::Ident,
             ContextKind::Statement => PlaceholderKind::Stmt,
             ContextKind::Expression(_) | ContextKind::Parameters => PlaceholderKind::Expr,
         };

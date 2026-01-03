@@ -393,7 +393,7 @@ pub type GenResult<T> = Result<T, GenError>;
 
 /// Helper to get the variant name of an IrNode for error messages.
 /// Uses Debug formatting to extract the variant name without listing all variants.
-fn node_variant_name(node: &IrNode) -> String {
+pub(super) fn node_variant_name(node: &IrNode) -> String {
     let debug_str = format!("{:?}", node);
     // Extract just the variant name (before any { or ()
     debug_str

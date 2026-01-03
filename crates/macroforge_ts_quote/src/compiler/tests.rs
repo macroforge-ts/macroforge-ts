@@ -4,13 +4,70 @@
 //! Tests will FAIL if compilation takes more than 60 seconds.
 
 use crate::compiler::compile_template;
+use crate::compiler::ir::IrNode;
+use crate::compiler::parser::Parser;
 use std::time::{Duration, Instant};
 
 const TIMEOUT: Duration = Duration::from_secs(60);
 
+fn get_node_name(node: &IrNode) -> String {
+    match node {
+        IrNode::Ident { value, .. } => format!("Ident({})", value),
+        IrNode::StrLit { value, .. } => format!("StrLit({:.20})", value),
+        IrNode::NumLit { value, .. } => format!("NumLit({})", value),
+        IrNode::BoolLit { value, .. } => format!("BoolLit({})", value),
+        IrNode::NullLit { .. } => "NullLit".to_string(),
+        IrNode::Placeholder { kind, .. } => format!("Placeholder({:?})", kind),
+        IrNode::IdentBlock { .. } => "IdentBlock".to_string(),
+        IrNode::StringInterp { .. } => "StringInterp".to_string(),
+        IrNode::FnDecl { name, .. } => format!("FnDecl({:?})", get_node_name_short(name)),
+        IrNode::ClassDecl { name, .. } => format!("ClassDecl({:?})", get_node_name_short(name)),
+        IrNode::VarDecl { .. } => "VarDecl".to_string(),
+        IrNode::ExprStmt { .. } => "ExprStmt".to_string(),
+        IrNode::ReturnStmt { .. } => "ReturnStmt".to_string(),
+        IrNode::For { .. } => "For".to_string(),
+        IrNode::If { .. } => "If".to_string(),
+        IrNode::While { .. } => "While".to_string(),
+        IrNode::Match { .. } => "Match".to_string(),
+        IrNode::Let { .. } => "Let".to_string(),
+        IrNode::Param { .. } => "Param".to_string(),
+        IrNode::ArrowExpr { .. } => "ArrowExpr".to_string(),
+        IrNode::CallExpr { .. } => "CallExpr".to_string(),
+        // Show first 100 chars of debug output for unknown variants
+        other => format!("{:.100?}", other),
+    }
+}
+
+fn get_node_name_short(node: &IrNode) -> String {
+    match node {
+        IrNode::Ident { value, .. } => value.clone(),
+        IrNode::IdentBlock { parts, .. } => {
+            parts.iter().map(|p| get_node_name_short(p)).collect::<Vec<_>>().join("+")
+        }
+        IrNode::Placeholder { .. } => "@{..}".to_string(),
+        _ => "?".to_string(),
+    }
+}
+
 fn test_template(name: &str, template: &str) {
     eprintln!("\n=== {} ===", name);
     eprintln!("Template length: {} chars", template.len());
+
+    // Debug: print IR nodes for this template
+    if name == "serde_serialize_class" {
+        let parser = Parser::new(template);
+        match parser.parse() {
+            Ok(ir) => {
+                eprintln!("IR nodes count: {}", ir.nodes.len());
+                for (i, node) in ir.nodes.iter().enumerate() {
+                    eprintln!("[{}] {}", i, get_node_name(node));
+                }
+            }
+            Err(e) => {
+                eprintln!("Parser error: {:?}", e);
+            }
+        }
+    }
 
     let start = Instant::now();
     let result = compile_template(template, None, 0);

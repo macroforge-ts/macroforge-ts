@@ -1,4 +1,4 @@
-use super::error::{GenError, GenErrorKind, GenResult};
+use super::error::{GenError, GenResult};
 use super::*;
 
 impl Codegen {
@@ -222,6 +222,12 @@ impl Codegen {
         &self,
         node: &IrNode,
     ) -> GenResult<Option<TokenStream>> {
+        // Debug: print node type for debugging
+        #[cfg(debug_assertions)]
+        if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+            eprintln!("[MF_DEBUG_CODEGEN] generate_module_item: {}", super::error::node_variant_name(node));
+        }
+
         let output_var = format_ident!("{}", self.config.output_var);
 
         match node {
@@ -986,7 +992,7 @@ impl Codegen {
             IrNode::Decorator { expr, .. } => {
                 // Generate the decorator expression - this will be collected and applied
                 // to the next class/method declaration
-                let decorator_expr = self.generate_expr(expr)?;
+                let _decorator_expr = self.generate_expr(expr)?;
 
                 // For module-level decorators, emit a comment for now
                 // Full support would require modifying how we collect decorators
@@ -1426,6 +1432,12 @@ impl Codegen {
 
             // All other node types that don't make sense at module level
             _ => {
+                // Debug: print node details for debugging
+                #[cfg(debug_assertions)]
+                if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
+                    eprintln!("[MF_DEBUG_CODEGEN] catch-all case: {:.100?}", node);
+                }
+
                 // For nodes that should be expressions or statements,
                 // wrap them appropriately
                 if let Some(expr_code) = self.try_generate_as_expr(node)? {

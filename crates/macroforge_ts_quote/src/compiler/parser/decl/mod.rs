@@ -12,7 +12,7 @@ use super::*;
 
 impl Parser {
     pub(super) fn parse_export_decl(&mut self) -> ParseResult<IrNode> {
-        let start_byte = self.current_byte_offset();
+        let _start_byte = self.current_byte_offset();
         // Consume "export"
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "export keyword"))?;
@@ -45,7 +45,7 @@ impl Parser {
     }
 
     pub(super) fn parse_async_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
-        let start_byte = self.current_byte_offset();
+        let _start_byte = self.current_byte_offset();
         // Consume "async"
         self.consume()
             .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "async keyword"))?;

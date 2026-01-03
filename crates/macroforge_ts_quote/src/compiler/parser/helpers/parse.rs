@@ -90,7 +90,7 @@ impl Parser {
         Ok(params)
     }
 
-    fn parse_param(&mut self) -> ParseResult<IrNode> {
+    pub(in super::super) fn parse_param(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
 
         // Parse optional modifiers (for constructor parameter properties)

@@ -40,7 +40,7 @@ impl Lexer {
     /// Lexes inside a JS template expression `${...}`.
     /// Tokenizes the content as normal TypeScript, tracking brace depth.
     pub(super) fn lex_template_expr(&mut self) -> LexResult<SyntaxKind> {
-        let start_pos = self.pos;
+        let _start_pos = self.pos;
         let remaining = self.remaining();
 
         // Check for closing brace at current depth

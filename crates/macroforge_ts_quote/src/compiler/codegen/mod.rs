@@ -20,7 +20,7 @@ mod stmt;
 mod target;
 mod r#type;
 
-pub use error::{GenError, GenErrorKind, GenResult};
+pub use error::{GenError, GenResult};
 
 pub use super::ir::{
     Accessibility, AssignOp, BinaryOp, Ir, IrNode, MatchArm, MethodKind, PlaceholderKind,
@@ -1606,89 +1606,6 @@ mod tests {
             decls: vec![],
         };
         assert!(!codegen.is_fragment_node(&node));
-    }
-
-    #[test]
-    fn test_is_control_flow_node_for() {
-        use crate::compiler::ir::IrSpan;
-        let codegen = Codegen::new();
-        let node = IrNode::For {
-            span: IrSpan::empty(),
-            pattern: syn::parse_quote! { x },
-            iterator: syn::parse_quote! { items },
-            body: vec![],
-        };
-        assert!(codegen.is_control_flow_node(&node));
-    }
-
-    #[test]
-    fn test_is_control_flow_node_if() {
-        use crate::compiler::ir::IrSpan;
-        let codegen = Codegen::new();
-        let node = IrNode::If {
-            span: IrSpan::empty(),
-            condition: syn::parse_quote! { true },
-            then_body: vec![],
-            else_if_branches: vec![],
-            else_body: None,
-        };
-        assert!(codegen.is_control_flow_node(&node));
-    }
-
-    #[test]
-    fn test_is_control_flow_node_while() {
-        use crate::compiler::ir::IrSpan;
-        let codegen = Codegen::new();
-        let node = IrNode::While {
-            span: IrSpan::empty(),
-            condition: syn::parse_quote! { true },
-            body: vec![],
-        };
-        assert!(codegen.is_control_flow_node(&node));
-    }
-
-    #[test]
-    fn test_is_control_flow_node_match() {
-        use crate::compiler::ir::IrSpan;
-        let codegen = Codegen::new();
-        let node = IrNode::Match {
-            span: IrSpan::empty(),
-            expr: syn::parse_quote! { x },
-            arms: vec![],
-        };
-        assert!(codegen.is_control_flow_node(&node));
-    }
-
-    #[test]
-    fn test_is_control_flow_node_let() {
-        use crate::compiler::ir::IrSpan;
-        let codegen = Codegen::new();
-        let node = IrNode::Let {
-            span: IrSpan::empty(),
-            pattern: syn::parse_quote! { x },
-            mutable: false,
-            type_hint: None,
-            value: syn::parse_quote! { 1 },
-        };
-        assert!(codegen.is_control_flow_node(&node));
-    }
-
-    #[test]
-    fn test_is_control_flow_node_do() {
-        use crate::compiler::ir::IrSpan;
-        let codegen = Codegen::new();
-        let node = IrNode::Do {
-            span: IrSpan::empty(),
-            code: syn::parse_quote! { println!("hi") },
-        };
-        assert!(codegen.is_control_flow_node(&node));
-    }
-
-    #[test]
-    fn test_is_control_flow_node_non_control_flow() {
-        use crate::compiler::ir::IrSpan;
-        let codegen = Codegen::new();
-        assert!(!codegen.is_control_flow_node(&IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }));
     }
 
     // ==================== Identifier Generation Tests ====================

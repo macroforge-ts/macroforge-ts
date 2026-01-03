@@ -524,11 +524,7 @@ impl SyntaxKind {
     pub fn starts_expression_context(self) -> bool {
         matches!(
             self,
-            Self::ReturnKw
-                | Self::ThrowKw
-                | Self::YieldKw
-                | Self::AwaitKw
-                | Self::NewKw
+            Self::ReturnKw | Self::ThrowKw | Self::YieldKw | Self::AwaitKw | Self::NewKw
         )
     }
 
@@ -544,7 +540,10 @@ impl SyntaxKind {
     pub fn is_brace_slash_close(self) -> bool {
         matches!(
             self,
-            Self::BraceSlashIfBrace | Self::BraceSlashForBrace | Self::BraceSlashWhileBrace | Self::BraceSlashMatchBrace
+            Self::BraceSlashIfBrace
+                | Self::BraceSlashForBrace
+                | Self::BraceSlashWhileBrace
+                | Self::BraceSlashMatchBrace
         )
     }
 
@@ -563,33 +562,9 @@ impl From<SyntaxKind> for rowan::SyntaxKind {
     }
 }
 
-/// The language definition for Rowan.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum TemplateLanguage {}
-
-impl rowan::Language for TemplateLanguage {
-    type Kind = SyntaxKind;
-
-    fn kind_from_raw(raw: rowan::SyntaxKind) -> Self::Kind {
-        assert!(raw.0 < SyntaxKind::__LAST as u16);
-        // SAFETY: We just checked that raw.0 is in range
-        unsafe { std::mem::transmute::<u16, SyntaxKind>(raw.0) }
-    }
-
-    fn kind_to_raw(kind: Self::Kind) -> rowan::SyntaxKind {
-        kind.into()
-    }
-}
-
-/// Type alias for the syntax node.
-pub type SyntaxNode = rowan::SyntaxNode<TemplateLanguage>;
-/// Type alias for the syntax token.
-pub type SyntaxToken = rowan::SyntaxToken<TemplateLanguage>;
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rowan::Language;
 
     // ==================== is_token Tests ====================
 
@@ -675,35 +650,6 @@ mod tests {
         }
     }
 
-    // ==================== Conversion Tests ====================
-
-    #[test]
-    fn test_syntax_kind_conversions() {
-        let kind = SyntaxKind::Text;
-        let raw: rowan::SyntaxKind = kind.into();
-        let back = TemplateLanguage::kind_from_raw(raw);
-        assert_eq!(kind, back);
-    }
-
-    #[test]
-    fn test_syntax_kind_round_trip_all_kinds() {
-        // Test a sampling of kinds at different positions
-        let kinds = [
-            SyntaxKind::Text,
-            SyntaxKind::At,
-            SyntaxKind::IfKw,
-            SyntaxKind::Ident,
-            SyntaxKind::Root,
-            SyntaxKind::IfBlock,
-            SyntaxKind::ExprPlaceholder,
-        ];
-        for kind in kinds {
-            let raw: rowan::SyntaxKind = kind.into();
-            let back = TemplateLanguage::kind_from_raw(raw);
-            assert_eq!(kind, back, "Round trip failed for {:?}", kind);
-        }
-    }
-
     // ==================== is_control_keyword Tests ====================
 
     #[test]
@@ -725,7 +671,11 @@ mod tests {
             SyntaxKind::CaseKw,
         ];
         for kw in control_keywords {
-            assert!(kw.is_control_keyword(), "{:?} should be a control keyword", kw);
+            assert!(
+                kw.is_control_keyword(),
+                "{:?} should be a control keyword",
+                kw
+            );
         }
     }
 
@@ -750,7 +700,11 @@ mod tests {
             SyntaxKind::MutKw,
         ];
         for kw in directive_keywords {
-            assert!(kw.is_directive_keyword(), "{:?} should be a directive keyword", kw);
+            assert!(
+                kw.is_directive_keyword(),
+                "{:?} should be a directive keyword",
+                kw
+            );
         }
     }
 
@@ -855,7 +809,7 @@ mod tests {
     #[test]
     fn test_syntax_kind_clone() {
         let kind = SyntaxKind::IfKw;
-        let cloned = kind.clone();
+        let cloned = kind;
         assert_eq!(kind, cloned);
     }
 
@@ -887,30 +841,6 @@ mod tests {
         assert_eq!(set.len(), 3);
         assert!(set.contains(&SyntaxKind::Text));
         assert!(!set.contains(&SyntaxKind::ForKw));
-    }
-
-    // ==================== TemplateLanguage Tests ====================
-
-    #[test]
-    fn test_template_language_kind_to_raw() {
-        let kind = SyntaxKind::Interpolation;
-        let raw = TemplateLanguage::kind_to_raw(kind);
-        assert_eq!(raw.0, SyntaxKind::Interpolation as u16);
-    }
-
-    #[test]
-    fn test_template_language_kind_from_raw() {
-        let raw = rowan::SyntaxKind(SyntaxKind::Text as u16);
-        let kind = TemplateLanguage::kind_from_raw(raw);
-        assert_eq!(kind, SyntaxKind::Text);
-    }
-
-    #[test]
-    fn test_template_language_roundtrip() {
-        let original = SyntaxKind::IfKw;
-        let raw = TemplateLanguage::kind_to_raw(original);
-        let recovered = TemplateLanguage::kind_from_raw(raw);
-        assert_eq!(original, recovered);
     }
 
     // ==================== Edge Cases ====================

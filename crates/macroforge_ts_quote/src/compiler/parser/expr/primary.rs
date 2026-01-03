@@ -13,7 +13,8 @@
 use super::errors::{ParseError, ParseErrorKind, ParseResult};
 use super::operators::{to_unary_op, to_update_op};
 use super::precedence::prec;
-use crate::compiler::ir::{IntoIrNode, IrNode, IrSpan, PlaceholderKind, UnaryOp};
+use super::Context;
+use crate::compiler::ir::{IrNode, IrSpan};
 use crate::compiler::parser::Parser;
 use crate::compiler::syntax::SyntaxKind;
 
@@ -570,13 +571,20 @@ impl Parser {
         }
 
         // Try to determine if this is arrow function params or expression
-        // Heuristic: if we see `:` for type annotation, it's likely arrow params
+        // If we see `:` for type annotation after an identifier, it's arrow params
         // Otherwise, parse as expression first
 
         // Parse the first element
         let first = self.parse_expression_with_precedence(0)?;
 
         self.skip_whitespace();
+
+        // Check for type annotation (indicates arrow function parameter)
+        // This handles cases like (item: Date) => ...
+        if self.at(SyntaxKind::Colon) {
+            // This looks like a typed parameter - switch to parameter parsing mode
+            return self.parse_arrow_params_from_first(first, start_byte);
+        }
 
         // If we see a comma, could be sequence or arrow params
         if self.at(SyntaxKind::Comma) {
@@ -591,7 +599,17 @@ impl Parser {
                     break; // Trailing comma
                 }
 
-                items.push(self.parse_expression_with_precedence(0)?);
+                let item = self.parse_expression_with_precedence(0)?;
+                self.skip_whitespace();
+
+                // Check for type annotation on this parameter
+                if self.at(SyntaxKind::Colon) {
+                    // Typed parameter detected - convert all items to params and continue
+                    items.push(item);
+                    return self.parse_arrow_params_from_items(items, start_byte);
+                }
+
+                items.push(item);
                 self.skip_whitespace();
             }
 
@@ -695,38 +713,309 @@ impl Parser {
         })
     }
 
-    /// Converts a list of expressions to arrow function parameters.
+    /// Parse arrow function parameters when we've detected a type annotation.
+    /// Called when we see `(expr:` - the first expression has been parsed and we're at `:`.
+    fn parse_arrow_params_from_first(
+        &mut self,
+        first: IrNode,
+        start_byte: usize,
+    ) -> ParseResult<IrNode> {
+        // Convert first expression to a parameter with type annotation
+        let first_param = self.expr_to_typed_param(first)?;
+
+        let mut params = vec![first_param];
+
+        self.skip_whitespace();
+
+        // Parse remaining parameters
+        while self.at(SyntaxKind::Comma) {
+            self.consume();
+            self.skip_whitespace();
+
+            if self.at(SyntaxKind::RParen) {
+                break; // Trailing comma
+            }
+
+            // Parse arrow parameter (pattern with optional type annotation)
+            let param = self.parse_arrow_param()?;
+            params.push(param);
+            self.skip_whitespace();
+        }
+
+        if !self.at(SyntaxKind::RParen) {
+            return Err(ParseError::missing_closing(
+                ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+                start_byte,
+            ));
+        }
+        self.consume(); // )
+
+        self.skip_whitespace();
+
+        // Parse optional return type annotation before arrow
+        let return_type = self.parse_optional_return_type()?;
+
+        self.skip_whitespace();
+
+        // Must be followed by =>
+        if !self.at_text("=>") {
+            return Err(ParseError::new(ParseErrorKind::MissingArrowBody, self.current_byte_offset())
+                .with_expected(&["=>"]));
+        }
+        self.consume();
+
+        self.skip_whitespace();
+
+        // Parse body
+        let body = if self.at(SyntaxKind::LBrace) {
+            self.parse_block_stmt()?
+        } else {
+            self.parse_expression_with_precedence(prec::ASSIGN.right)?
+        };
+
+        Ok(IrNode::ArrowExpr {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            async_: false,
+            type_params: None,
+            params,
+            return_type,
+            body: Box::new(body),
+        })
+    }
+
+    /// Parse arrow function parameters when we've already parsed several expressions
+    /// and then detected a type annotation on the last one.
+    fn parse_arrow_params_from_items(
+        &mut self,
+        items: Vec<IrNode>,
+        start_byte: usize,
+    ) -> ParseResult<IrNode> {
+        // Convert all but the last to untyped params
+        let mut params = Vec::new();
+        let len = items.len();
+        for (i, item) in items.into_iter().enumerate() {
+            if i == len - 1 {
+                // Last one has type annotation - we're at `:`
+                let typed_param = self.expr_to_typed_param(item)?;
+                params.push(typed_param);
+            } else {
+                let p = self.exprs_to_params(vec![item])?;
+                params.extend(p);
+            }
+        }
+
+        self.skip_whitespace();
+
+        // Parse remaining parameters
+        while self.at(SyntaxKind::Comma) {
+            self.consume();
+            self.skip_whitespace();
+
+            if self.at(SyntaxKind::RParen) {
+                break; // Trailing comma
+            }
+
+            let param = self.parse_arrow_param()?;
+            params.push(param);
+            self.skip_whitespace();
+        }
+
+        if !self.at(SyntaxKind::RParen) {
+            return Err(ParseError::missing_closing(
+                ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+                start_byte,
+            ));
+        }
+        self.consume(); // )
+
+        self.skip_whitespace();
+
+        // Parse optional return type annotation
+        let return_type = self.parse_optional_return_type()?;
+
+        self.skip_whitespace();
+
+        // Must be followed by =>
+        if !self.at_text("=>") {
+            return Err(ParseError::new(ParseErrorKind::MissingArrowBody, self.current_byte_offset())
+                .with_expected(&["=>"]));
+        }
+        self.consume();
+
+        self.skip_whitespace();
+
+        // Parse body
+        let body = if self.at(SyntaxKind::LBrace) {
+            self.parse_block_stmt()?
+        } else {
+            self.parse_expression_with_precedence(prec::ASSIGN.right)?
+        };
+
+        Ok(IrNode::ArrowExpr {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            async_: false,
+            type_params: None,
+            params,
+            return_type,
+            body: Box::new(body),
+        })
+    }
+
+    /// Convert an expression to a parameter with type annotation.
+    /// Called when we're at `:` after parsing an expression.
+    fn expr_to_typed_param(&mut self, expr: IrNode) -> ParseResult<IrNode> {
+        let _span = expr.span();
+
+        // Consume the colon
+        self.expect(SyntaxKind::Colon)
+            .ok_or_else(|| ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset()))?;
+        self.skip_whitespace();
+
+        // Parse the type annotation
+        self.push_context(Context::type_annotation([
+            SyntaxKind::Comma,
+            SyntaxKind::RParen,
+            SyntaxKind::Eq,
+        ]));
+        let type_ann = self.parse_type()?;
+        self.pop_context();
+
+        self.skip_whitespace();
+
+        // Check for optional marker `?` before colon was consumed, but in arrow params
+        // the optional is usually before colon. Since we already consumed the expression,
+        // we don't have the `?` info. For now, assume not optional.
+        // A more complete implementation would need backtracking or different parse order.
+
+        // Check for default value
+        let _default_value = if self.at(SyntaxKind::Eq) {
+            self.consume();
+            self.skip_whitespace();
+            Some(Box::new(self.parse_expression_with_precedence(prec::ASSIGN.right)?))
+        } else {
+            None
+        };
+
+        // Convert expression to binding pattern
+        // ArrowExpr params are patterns (BindingIdent), not wrapped in Param
+        let binding = match expr {
+            IrNode::Ident { span, value } => IrNode::BindingIdent {
+                span,
+                name: Box::new(IrNode::Ident { span, value }),
+                type_ann: Some(Box::new(type_ann)),
+                optional: false,
+            },
+            IrNode::Placeholder { span, kind, expr } => IrNode::BindingIdent {
+                span,
+                name: Box::new(IrNode::Placeholder { span, kind, expr }),
+                type_ann: Some(Box::new(type_ann)),
+                optional: false,
+            },
+            other => {
+                // For complex patterns, just wrap as-is with type annotation
+                IrNode::BindingIdent {
+                    span: other.span(),
+                    name: Box::new(other),
+                    type_ann: Some(Box::new(type_ann)),
+                    optional: false,
+                }
+            }
+        };
+
+        Ok(binding)
+    }
+
+    /// Converts a list of expressions to arrow function parameters (patterns).
+    /// ArrowExpr params are patterns, not wrapped in Param.
     fn exprs_to_params(&self, exprs: Vec<IrNode>) -> ParseResult<Vec<IrNode>> {
         let mut params = Vec::new();
 
         for expr in exprs {
             let param = match expr {
-                IrNode::Ident { span, value } => IrNode::Param {
+                IrNode::Ident { span, value } => IrNode::BindingIdent {
                     span,
-                    decorators: Vec::new(),
-                    pat: Box::new(IrNode::BindingIdent {
-                        span,
-                        name: Box::new(IrNode::Ident { span, value }),
-                        type_ann: None,
-                        optional: false,
-                    }),
+                    name: Box::new(IrNode::Ident { span, value }),
+                    type_ann: None,
+                    optional: false,
                 },
-                IrNode::Placeholder { span, kind, expr } => IrNode::Param {
-                    span,
-                    decorators: Vec::new(),
-                    pat: Box::new(IrNode::Placeholder { span, kind, expr }),
-                },
-                // Could add more patterns here (destructuring, etc.)
-                other => IrNode::Param {
-                    span: other.span(),
-                    decorators: Vec::new(),
-                    pat: Box::new(other),
-                },
+                IrNode::Placeholder { span, kind, expr } => {
+                    // Placeholder used directly as pattern
+                    IrNode::Placeholder { span, kind, expr }
+                }
+                // For other expressions (destructuring patterns, etc.), use as-is
+                other => other,
             };
             params.push(param);
         }
 
         Ok(params)
+    }
+
+    /// Parse an arrow function parameter (pattern with optional type annotation).
+    /// Returns a BindingIdent or pattern, NOT wrapped in Param.
+    fn parse_arrow_param(&mut self) -> ParseResult<IrNode> {
+        let span_start = self.current_byte_offset();
+
+        // Parse the identifier or pattern
+        let name = self.parse_ts_ident_or_placeholder()
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "arrow parameter name"))?;
+        self.skip_whitespace();
+
+        // Check for optional marker
+        let optional = if self.at(SyntaxKind::Question) {
+            self.consume();
+            self.skip_whitespace();
+            true
+        } else {
+            false
+        };
+
+        // Check for type annotation
+        let type_ann = if self.at(SyntaxKind::Colon) {
+            self.consume();
+            self.skip_whitespace();
+            self.push_context(Context::type_annotation([
+                SyntaxKind::Comma,
+                SyntaxKind::RParen,
+                SyntaxKind::Eq,
+            ]));
+            let ty = self.parse_type()?;
+            self.pop_context();
+            self.skip_whitespace();
+            Some(Box::new(ty))
+        } else {
+            None
+        };
+
+        // Check for default value
+        if self.at(SyntaxKind::Eq) {
+            self.consume();
+            self.skip_whitespace();
+            let default_value = self.parse_expression_with_precedence(prec::ASSIGN.right)?;
+            let span = IrSpan::new(span_start, self.current_byte_offset());
+
+            let binding = IrNode::BindingIdent {
+                span: name.span(),
+                name: Box::new(name),
+                type_ann,
+                optional,
+            };
+
+            Ok(IrNode::AssignPat {
+                span,
+                left: Box::new(binding),
+                right: Box::new(default_value),
+            })
+        } else {
+            Ok(IrNode::BindingIdent {
+                span: name.span(),
+                name: Box::new(name),
+                type_ann,
+                optional,
+            })
+        }
     }
 
     /// Parses an array literal: [elem1, elem2, ...]

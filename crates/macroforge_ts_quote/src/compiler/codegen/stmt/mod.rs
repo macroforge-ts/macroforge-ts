@@ -116,91 +116,19 @@ impl Codegen {
         &self,
         nodes: &[IrNode],
     ) -> GenResult<TokenStream> {
-        // Group adjacent non-control-flow nodes into combined statements
+        // Control block bodies now produce structured IR (statements or interface members)
+        // so we can generate each node directly
         let mut pushes = Vec::new();
-        let mut pending_nodes: Vec<&IrNode> = Vec::new();
 
         for node in nodes {
-            if self.is_control_flow_node(node) || self.is_structured_stmt(node) {
-                // Flush pending nodes as combined statement
-                if !pending_nodes.is_empty() {
-                    if let Some(stmt) = self.generate_combined_stmt(&pending_nodes)? {
-                        pushes.push(stmt);
-                    }
-                    pending_nodes.clear();
-                }
-                // Generate control flow / structured statement directly
-                pushes.push(self.generate_stmt_push(node)?);
-            } else {
-                pending_nodes.push(node);
-            }
-        }
-
-        // Flush remaining pending nodes
-        if !pending_nodes.is_empty() {
-            if let Some(stmt) = self.generate_combined_stmt(&pending_nodes)? {
-                pushes.push(stmt);
-            }
+            pushes.push(self.generate_stmt_push(node)?);
         }
 
         Ok(quote! { #(#pushes)* })
     }
 
-    pub(in super::super) fn is_structured_stmt(&self, node: &IrNode) -> bool {
-        matches!(
-            node,
-            IrNode::VarDecl { .. }
-                | IrNode::ReturnStmt { .. }
-                | IrNode::BlockStmt { .. }
-                | IrNode::ExprStmt { .. }
-                | IrNode::TsIfStmt { .. }
-                | IrNode::ForInStmt { .. }
-                | IrNode::ForOfStmt { .. }
-                | IrNode::TsForStmt { .. }
-                | IrNode::TsWhileStmt { .. }
-                | IrNode::TsDoWhileStmt { .. }
-                | IrNode::TsTryStmt { .. }
-        )
-    }
-
-    pub(in super::super) fn generate_combined_stmt(
-        &self,
-        nodes: &[&IrNode],
-    ) -> GenResult<Option<TokenStream>> {
-        if nodes.is_empty() {
-            return Ok(None);
-        }
-
-        // Check if all nodes are whitespace-only
-        let all_whitespace = nodes
-            .iter()
-            .all(|n| matches!(n, IrNode::StrLit { value: text, .. } if text.trim().is_empty()));
-        if all_whitespace {
-            return Ok(None);
-        }
-
-        // Generate code that builds a statement string and parses it
-        let part_exprs: Vec<TokenStream> = nodes
-            .iter()
-            .map(|n| self.generate_stmt_string_part(n))
-            .collect::<GenResult<_>>()?;
-
-        Ok(Some(quote! {
-            {
-                let mut __stmt_str = String::new();
-                #(#part_exprs)*
-                if !__stmt_str.trim().is_empty() {
-                    let __parsed = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str)
-                        .unwrap_or_else(|e| panic!(
-                            "Failed to parse generated TypeScript statement:\n\n{}\n\nError: {:?}",
-                            __stmt_str, e
-                        ));
-                    __body_stmts.push(__parsed);
-                }
-            }
-        }))
-    }
-
+    /// Used by module_item for string-based generation at module level.
+    /// TODO: Remove in Phase 5 when module-level generation is structured.
     pub(in super::super) fn generate_stmt_string_part(
         &self,
         node: &IrNode,

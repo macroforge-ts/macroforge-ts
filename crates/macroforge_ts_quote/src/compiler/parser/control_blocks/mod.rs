@@ -284,12 +284,9 @@ impl Parser {
         Ok(IrNode::If {
             span: IrSpan::empty(),
             condition,
-            then_body: Self::merge_adjacent_text(then_body),
-            else_if_branches: else_if_branches
-                .into_iter()
-                .map(|(c, b)| (c, Self::merge_adjacent_text(b)))
-                .collect(),
-            else_body: else_body.map(Self::merge_adjacent_text),
+            then_body,
+            else_if_branches,
+            else_body,
         })
     }
 
@@ -324,7 +321,7 @@ impl Parser {
                 .map_err(|e| e.with_context("for-loop pattern"))?,
             iterator: Self::str_to_token_stream(&iterator_str)
                 .map_err(|e| e.with_context("for-loop iterator"))?,
-            body: Self::merge_adjacent_text(body),
+            body,
         })
     }
 
@@ -345,7 +342,7 @@ impl Parser {
             span: IrSpan::empty(),
             condition: Self::str_to_token_stream(&condition_str)
                 .map_err(|e| e.with_context("while-block condition"))?,
-            body: Self::merge_adjacent_text(body),
+            body,
         })
     }
 
@@ -376,7 +373,7 @@ impl Parser {
                 pattern: Self::str_to_token_stream(&pattern_str)
                     .map_err(|e| e.with_context("match case pattern"))?,
                 guard: None,
-                body: Self::merge_adjacent_text(body),
+                body,
             });
         }
 
@@ -399,17 +396,53 @@ impl Parser {
     ) -> super::ParseResult<Vec<IrNode>> {
         let mut nodes = Vec::new();
 
+        // Check context to determine parsing strategy
+        let in_interface = self.is_inside_interface();
+
         while !self.at_eof() {
+            self.skip_whitespace();
+
+            if self.at_eof() {
+                break;
+            }
+
             if let Some(kind) = self.current_kind() {
                 if terminators.contains(&kind) {
                     break;
                 }
             }
 
-            // Propagate errors from parse_node
-            match self.parse_node()? {
-                super::ParseOutcome::Node(node) => nodes.push(node),
-                super::ParseOutcome::Skip => {}
+            // Check for nested control flow (works in all contexts)
+            if self.at_brace_hash_open() {
+                let kind = self.current_kind().unwrap();
+                nodes.push(self.parse_control_block(kind)?);
+                continue;
+            }
+
+            // Check for directives (works in all contexts)
+            if self.at(SyntaxKind::DollarOpen) {
+                if let Some(node) = self.parse_directive() {
+                    nodes.push(node);
+                }
+                continue;
+            }
+
+            if in_interface {
+                // Interface context: parse as interface member
+                match self.parse_interface_member()? {
+                    Some(member) => nodes.push(member),
+                    None => {
+                        return Err(super::ParseError::new(
+                            super::ParseErrorKind::UnexpectedToken,
+                            self.current_byte_offset(),
+                        )
+                        .with_context("expected interface member in control block body"));
+                    }
+                }
+            } else {
+                // Statement context: parse as structured statement
+                let stmt = self.parse_stmt()?;
+                nodes.push(stmt);
             }
         }
 

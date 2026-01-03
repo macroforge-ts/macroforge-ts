@@ -21,7 +21,7 @@ use normalize::normalize_template;
 
 use super::syntax::SyntaxKind;
 
-pub use errors::{LexError, LexErrorKind};
+pub use errors::LexError;
 
 /// A token produced by the lexer.
 #[derive(Debug, Clone, PartialEq, Eq)]

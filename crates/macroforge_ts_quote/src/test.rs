@@ -366,25 +366,9 @@ fn test_for_loop_generates_runtime_iteration() {
     );
 }
 
-#[test]
-fn test_for_loop_with_string_field_name() {
-    let input = TokenStream2::from_str(
-        r#"{#for field in fields}
-            @{&field.name}: __gf_Option<Array<string>>;
-        {/for}"#,
-    )
-    .unwrap();
-    let s = compile(&input.to_string());
-
-    eprintln!("Generated code for field name interpolation:\n{}", s);
-
-    // Should reference field.name in the generated code
-    assert!(
-        s.contains("field") && s.contains("name"),
-        "Expected field.name reference in generated code. Got:\n{}",
-        s
-    );
-}
+// test_for_loop_with_string_field_name removed - fragments no longer supported
+// Control blocks must produce structured IR. Use control blocks inside interfaces
+// for property signatures (see test_for_loop_field_interpolation_in_interface).
 
 #[test]
 fn test_within_position_extracts_body_correctly() {

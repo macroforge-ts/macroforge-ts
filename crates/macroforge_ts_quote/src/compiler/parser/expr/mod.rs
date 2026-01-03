@@ -34,7 +34,7 @@ pub mod postfix;
 pub mod precedence;
 pub mod primary;
 
-use crate::compiler::ir::{IntoIrNode, IrNode, IrSpan};
+use crate::compiler::ir::{IrNode, IrSpan};
 use crate::compiler::parser::{Context, Parser};
 use crate::compiler::syntax::SyntaxKind;
 use errors::{ParseError, ParseResult};

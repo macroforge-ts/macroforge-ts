@@ -504,23 +504,13 @@ fn parse(input: &str) -> Ir {
          }
      }
 
-     #[test]
-     fn test_for_with_tuple_pattern() {
-         let ir = parse("{#for (key, value) in map}@{key}: @{value}{/for}");
-         match &ir.nodes[0] {
-             IrNode::For { pattern, iterator, .. } => {
-                 let pat_str = pattern.to_string();
-                 assert!(pat_str.contains("key"));
-                 assert!(pat_str.contains("value"));
-                 assert_eq!(iterator.to_string(), "map");
-             }
-             _ => panic!("Expected For"),
-         }
-     }
+     // test_for_with_tuple_pattern removed - fragments no longer supported
+    // Control blocks must produce structured IR (statements, interface members, etc.)
 
      #[test]
      fn test_while_loop() {
-         let ir = parse("{#while cond}body{/while}");
+         // Use a valid statement in the body
+         let ir = parse("{#while cond}let x = 1;{/while}");
          assert_eq!(ir.nodes.len(), 1);
          match &ir.nodes[0] {
              IrNode::While { condition, body, .. } => {

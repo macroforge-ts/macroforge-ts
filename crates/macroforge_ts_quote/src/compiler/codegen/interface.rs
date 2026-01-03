@@ -1,4 +1,4 @@
-use super::error::{GenError, GenResult};
+use super::error::GenResult;
 use super::*;
 
 impl Codegen {

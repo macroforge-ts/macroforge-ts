@@ -1,4 +1,4 @@
-use super::errors::{LexError, LexErrorKind, LexResult};
+use super::errors::LexResult;
 use super::*;
 
 impl Lexer {
