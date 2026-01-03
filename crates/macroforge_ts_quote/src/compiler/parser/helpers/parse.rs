@@ -5,22 +5,39 @@ impl Parser {
     pub(in super::super) fn parse_ts_ident_or_placeholder(&mut self) -> Option<IrNode> {
         if self.at(SyntaxKind::At) {
             // It's a placeholder - parse it
-            let placeholder = self.parse_interpolation().ok()?;
+            let first_placeholder = self.parse_interpolation().ok()?;
+            let mut parts = vec![first_placeholder];
 
-            // Check if there's an identifier suffix immediately after (e.g., @{name}Obj)
-            if let Some(token) = self.current() {
-                if token.kind == SyntaxKind::Ident {
-                    let suffix_token = self.consume().unwrap();
-
-                    // Return as IdentBlock combining placeholder + suffix
-                    return Some(IrNode::IdentBlock {
-                        span: IrSpan::empty(),
-                        parts: vec![placeholder, IrNode::raw(&suffix_token)],
-                    });
+            // Check for more placeholders or identifier suffix (e.g., @{prefix}@{suffix}Name)
+            loop {
+                if self.at(SyntaxKind::At) {
+                    // Another placeholder follows
+                    let placeholder = self.parse_interpolation().ok()?;
+                    parts.push(placeholder);
+                } else if let Some(token) = self.current() {
+                    if token.kind == SyntaxKind::Ident {
+                        // Identifier suffix follows
+                        let suffix_token = self.consume().unwrap();
+                        parts.push(IrNode::ident(&suffix_token));
+                        break;
+                    } else {
+                        // End of identifier parts
+                        break;
+                    }
+                } else {
+                    break;
                 }
             }
 
-            Some(placeholder)
+            // Return single placeholder or IdentBlock for multiple parts
+            if parts.len() == 1 {
+                Some(parts.into_iter().next().unwrap())
+            } else {
+                Some(IrNode::IdentBlock {
+                    span: IrSpan::empty(),
+                    parts,
+                })
+            }
         } else if let Some(token) = self.current() {
             if token.kind == SyntaxKind::Ident || token.kind.is_ts_keyword() {
                 let t = self.consume().unwrap();
@@ -190,131 +207,32 @@ impl Parser {
         })
     }
 
+    /// Parses a type annotation until one of the terminator tokens is reached.
+    /// Uses the structured parse_type function instead of collecting raw tokens.
+    /// Also handles control flow blocks ({#for}, {#if}, etc.) that may appear in type contexts.
     pub(in super::super) fn parse_type_until(&mut self, terminators: &[SyntaxKind]) -> ParseResult<Option<IrNode>> {
-        let mut parts = Vec::new();
-        let mut depth = 0; // Track nested brackets/parens
+        self.skip_whitespace();
 
-        while !self.at_eof() {
-            let kind = match self.current_kind() {
-                Some(k) => k,
-                None => break,
-            };
-            let text = self.current().map(|t| t.text.as_str()).unwrap_or("");
+        // Check if we're already at a terminator or EOF
+        if self.at_eof() {
+            return Ok(None);
+        }
 
-            // Only terminate at depth 0
-            if depth == 0 && terminators.contains(&kind) {
-                break;
+        if let Some(k) = self.current_kind() {
+            if terminators.contains(&k) {
+                return Ok(None);
             }
 
-            match kind {
-                SyntaxKind::Lt | SyntaxKind::LParen | SyntaxKind::LBrace | SyntaxKind::LBracket => {
-                    depth += 1;
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
-                    }
-                }
-                SyntaxKind::Gt | SyntaxKind::RParen | SyntaxKind::RBrace | SyntaxKind::RBracket => {
-                    // Handle >> as two >
-                    if text == ">>" {
-                        depth -= 2;
-                    } else {
-                        depth -= 1;
-                    }
-                    if depth < 0 {
-                        break;
-                    }
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
-                    }
-                }
-                SyntaxKind::At => {
-                    let placeholder = self.parse_interpolation()
-                        .map_err(|e| e.with_context("parsing interpolation in type"))?;
-                    // Check if there's an identifier suffix immediately after
-                    if let Some(token) = self.current() {
-                        if token.kind == SyntaxKind::Ident {
-                            let suffix_token = self.consume().unwrap();
-                            // Force placeholder to be Ident kind for identifier concatenation
-                            let ident_placeholder = match placeholder {
-                                IrNode::Placeholder { span, expr, .. } => IrNode::Placeholder {
-                                    span,
-                                    kind: PlaceholderKind::Ident,
-                                    expr,
-                                },
-                                other => other,
-                            };
-                            parts.push(IrNode::IdentBlock {
-                                span: IrSpan::empty(),
-                                parts: vec![ident_placeholder, IrNode::raw(&suffix_token)],
-                            });
-                            continue;
-                        }
-                    }
-                    parts.push(placeholder);
-                }
-                // Control flow blocks within types (e.g., {#for ...} inside object types)
-                // Handle any {#... opening token
-                k if k.is_brace_hash_open() => {
-                    #[cfg(debug_assertions)]
-                    if std::env::var("MF_DEBUG_PARSER").is_ok() {
-                        eprintln!(
-                            "[MF_DEBUG_PARSER] parse_type_until: found {:?}, calling parse_type_control_block",
-                            k
-                        );
-                    }
-                    let control = self.parse_type_control_block(k)?;
-                    #[cfg(debug_assertions)]
-                    if std::env::var("MF_DEBUG_PARSER").is_ok() {
-                        eprintln!(
-                            "[MF_DEBUG_PARSER] parse_type_until: got control node: {:?}",
-                            control
-                        );
-                    }
-                    parts.push(control);
-                }
-                _ => {
-                    // Handle >> as text (in case it's not tokenized as Gt)
-                    if text == ">>" {
-                        depth -= 2;
-                        if depth < 0 {
-                            break;
-                        }
-                    }
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
-                    }
-                }
+            // Handle control flow blocks in type contexts
+            if k.is_brace_hash_open() {
+                let control = self.parse_type_control_block(k)?;
+                return Ok(Some(control));
             }
         }
 
-        if parts.is_empty() {
-            Ok(None)
-        } else {
-            #[cfg(debug_assertions)]
-            if std::env::var("MF_DEBUG_PARSER").is_ok() {
-                eprintln!(
-                    "[MF_DEBUG_PARSER] parse_type_until: parts before merge: {:?}",
-                    parts
-                );
-            }
-            let merged = Self::merge_adjacent_text(parts);
-            #[cfg(debug_assertions)]
-            if std::env::var("MF_DEBUG_PARSER").is_ok() {
-                eprintln!(
-                    "[MF_DEBUG_PARSER] parse_type_until: merged parts: {:?}",
-                    merged
-                );
-            }
-            if merged.len() == 1 {
-                Ok(Some(merged.into_iter().next().unwrap()))
-            } else {
-                // Wrap multiple parts in TypeAnnotation for complex types with placeholders
-                Ok(Some(IrNode::TypeAnnotation {
-                    span: IrSpan::empty(),
-                    type_ann: Box::new(IrNode::IdentBlock { span: IrSpan::empty(), parts: merged }),
-                }))
-            }
-        }
+        // Use the structured parse_type function which returns proper IR nodes
+        let ty = self.parse_type()?;
+        Ok(Some(ty))
     }
 
     pub(in super::super) fn parse_type_list_until(&mut self, terminator: SyntaxKind) -> ParseResult<Vec<IrNode>> {

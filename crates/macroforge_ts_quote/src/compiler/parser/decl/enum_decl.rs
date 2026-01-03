@@ -40,10 +40,10 @@ impl Parser {
 
         // Parse enum body
         if !self.at(SyntaxKind::LBrace) {
-            return Ok(IrNode::Raw {
-                span: IrSpan::new(start_byte, self.current_byte_offset()),
-                value: "enum ".to_string(),
-            });
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            ).with_context("expected '{' for enum body"));
         }
         self.consume(); // consume {
         self.skip_whitespace();

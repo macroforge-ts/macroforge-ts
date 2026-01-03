@@ -2,9 +2,12 @@ use super::super::expr::errors::{ParseError, ParseErrorKind, ParseResult};
 use super::super::*;
 
 impl Parser {
-    /// Parse a TypeScript for/while loop.
-    /// For-in and for-of loops are parsed structurally as ForInStmt/ForOfStmt.
-    /// C-style for loops and while loops are parsed as TsLoopStmt (raw text with placeholders).
+    /// Parse a TypeScript for/while/do-while loop.
+    /// All loop types are now parsed structurally:
+    /// - for-in/for-of → ForInStmt/ForOfStmt
+    /// - C-style for → TsForStmt
+    /// - while → TsWhileStmt
+    /// - do-while → TsDoWhileStmt
     pub(in super::super) fn parse_ts_loop_stmt(&mut self) -> ParseResult<IrNode> {
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
@@ -18,17 +21,307 @@ impl Parser {
             eprintln!("[MF_DEBUG] parse_ts_loop_stmt: keyword={:?}", keyword);
         }
 
-        if keyword == "for" {
-            // Try to parse as for-in or for-of first
-            if let Some(structured) = self.try_parse_for_in_of()? {
-                return Ok(structured);
+        match keyword.as_str() {
+            "for" => {
+                // Try to parse as for-in or for-of first
+                if let Some(structured) = self.try_parse_for_in_of()? {
+                    return Ok(structured);
+                }
+                // Parse as C-style for loop
+                self.parse_ts_for_stmt()
             }
-            // Fall back to raw parsing for C-style for loops
-            return self.parse_loop_as_raw();
+            "while" => self.parse_ts_while_stmt(),
+            "do" => self.parse_ts_do_while_stmt(),
+            _ => Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            ).with_context("expected 'for', 'while', or 'do'")),
+        }
+    }
+
+    /// Parse a C-style for statement: `for (init; test; update) body`
+    fn parse_ts_for_stmt(&mut self) -> ParseResult<IrNode> {
+        #[cfg(debug_assertions)]
+        let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
+
+        let start_byte = self.current_byte_offset();
+        self.consume(); // for
+        self.skip_whitespace();
+
+        #[cfg(debug_assertions)]
+        if debug_parser {
+            eprintln!("[MF_DEBUG] parse_ts_for_stmt: parsing C-style for loop");
         }
 
-        // While loops - parse as raw
-        self.parse_loop_as_raw()
+        self.expect(SyntaxKind::LParen).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
+                .with_context("expected '(' after 'for'")
+        })?;
+        self.skip_whitespace();
+
+        // Parse init (optional: VarDecl or expression)
+        let init = if self.at(SyntaxKind::Semicolon) {
+            None
+        } else if self.at(SyntaxKind::ConstKw) || self.at(SyntaxKind::LetKw) || self.at(SyntaxKind::VarKw) {
+            Some(Box::new(self.parse_for_init_var_decl()?))
+        } else {
+            Some(Box::new(self.parse_ts_expr_until(&[SyntaxKind::Semicolon])?))
+        };
+        self.skip_whitespace();
+        self.expect(SyntaxKind::Semicolon).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                .with_context("expected ';' after for loop init")
+        })?;
+        self.skip_whitespace();
+
+        // Parse test (optional expression)
+        let test = if self.at(SyntaxKind::Semicolon) {
+            None
+        } else {
+            Some(Box::new(self.parse_ts_expr_until(&[SyntaxKind::Semicolon])?))
+        };
+        self.skip_whitespace();
+        self.expect(SyntaxKind::Semicolon).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                .with_context("expected ';' after for loop test")
+        })?;
+        self.skip_whitespace();
+
+        // Parse update (optional expression)
+        let update = if self.at(SyntaxKind::RParen) {
+            None
+        } else {
+            Some(Box::new(self.parse_ts_expr_until(&[SyntaxKind::RParen])?))
+        };
+        self.skip_whitespace();
+        self.expect(SyntaxKind::RParen).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
+                .with_context("closing for loop header")
+        })?;
+        self.skip_whitespace();
+
+        // Parse body
+        let body = if self.at(SyntaxKind::LBrace) {
+            self.parse_block_stmt()
+                .map_err(|e| e.with_context("parsing for loop body"))?
+        } else {
+            self.parse_stmt()
+                .map_err(|e| e.with_context("parsing for loop body"))?
+        };
+
+        let end_byte = self.current_byte_offset();
+
+        #[cfg(debug_assertions)]
+        if debug_parser {
+            eprintln!("[MF_DEBUG] parse_ts_for_stmt: completed, init={}, test={}, update={}",
+                init.is_some(), test.is_some(), update.is_some());
+        }
+
+        Ok(IrNode::TsForStmt {
+            span: IrSpan::new(start_byte, end_byte),
+            init,
+            test,
+            update,
+            body: Box::new(body),
+        })
+    }
+
+    /// Parse a while statement: `while (test) body`
+    fn parse_ts_while_stmt(&mut self) -> ParseResult<IrNode> {
+        #[cfg(debug_assertions)]
+        let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
+
+        let start_byte = self.current_byte_offset();
+        self.consume(); // while
+        self.skip_whitespace();
+
+        #[cfg(debug_assertions)]
+        if debug_parser {
+            eprintln!("[MF_DEBUG] parse_ts_while_stmt: parsing while loop");
+        }
+
+        self.expect(SyntaxKind::LParen).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
+                .with_context("expected '(' after 'while'")
+        })?;
+        self.skip_whitespace();
+
+        // Parse test expression
+        let test = self.parse_ts_expr_until(&[SyntaxKind::RParen])
+            .map_err(|e| e.with_context("parsing while loop condition"))?;
+        self.skip_whitespace();
+
+        self.expect(SyntaxKind::RParen).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
+                .with_context("closing while loop condition")
+        })?;
+        self.skip_whitespace();
+
+        // Parse body
+        let body = if self.at(SyntaxKind::LBrace) {
+            self.parse_block_stmt()
+                .map_err(|e| e.with_context("parsing while loop body"))?
+        } else {
+            self.parse_stmt()
+                .map_err(|e| e.with_context("parsing while loop body"))?
+        };
+
+        let end_byte = self.current_byte_offset();
+
+        #[cfg(debug_assertions)]
+        if debug_parser {
+            eprintln!("[MF_DEBUG] parse_ts_while_stmt: completed");
+        }
+
+        Ok(IrNode::TsWhileStmt {
+            span: IrSpan::new(start_byte, end_byte),
+            test: Box::new(test),
+            body: Box::new(body),
+        })
+    }
+
+    /// Parse a do-while statement: `do body while (test)`
+    fn parse_ts_do_while_stmt(&mut self) -> ParseResult<IrNode> {
+        #[cfg(debug_assertions)]
+        let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
+
+        let start_byte = self.current_byte_offset();
+        self.consume(); // do
+        self.skip_whitespace();
+
+        #[cfg(debug_assertions)]
+        if debug_parser {
+            eprintln!("[MF_DEBUG] parse_ts_do_while_stmt: parsing do-while loop");
+        }
+
+        // Parse body
+        let body = if self.at(SyntaxKind::LBrace) {
+            self.parse_block_stmt()
+                .map_err(|e| e.with_context("parsing do-while loop body"))?
+        } else {
+            self.parse_stmt()
+                .map_err(|e| e.with_context("parsing do-while loop body"))?
+        };
+        self.skip_whitespace();
+
+        // Expect 'while' keyword
+        if !self.at(SyntaxKind::WhileKw) {
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            ).with_context("expected 'while' after do-while body"));
+        }
+        self.consume(); // while
+        self.skip_whitespace();
+
+        self.expect(SyntaxKind::LParen).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
+                .with_context("expected '(' after 'while' in do-while")
+        })?;
+        self.skip_whitespace();
+
+        // Parse test expression
+        let test = self.parse_ts_expr_until(&[SyntaxKind::RParen])
+            .map_err(|e| e.with_context("parsing do-while loop condition"))?;
+        self.skip_whitespace();
+
+        self.expect(SyntaxKind::RParen).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
+                .with_context("closing do-while loop condition")
+        })?;
+        self.skip_whitespace();
+
+        // Optional semicolon
+        if self.at(SyntaxKind::Semicolon) {
+            self.consume();
+        }
+
+        let end_byte = self.current_byte_offset();
+
+        #[cfg(debug_assertions)]
+        if debug_parser {
+            eprintln!("[MF_DEBUG] parse_ts_do_while_stmt: completed");
+        }
+
+        Ok(IrNode::TsDoWhileStmt {
+            span: IrSpan::new(start_byte, end_byte),
+            body: Box::new(body),
+            test: Box::new(test),
+        })
+    }
+
+    /// Parse variable declaration in for loop init: `const i = 0` or `let i = 0`
+    fn parse_for_init_var_decl(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
+        let kind = match self.current_kind() {
+            Some(SyntaxKind::ConstKw) => VarKind::Const,
+            Some(SyntaxKind::LetKw) => VarKind::Let,
+            Some(SyntaxKind::VarKw) => VarKind::Var,
+            _ => return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            ).with_context("expected 'const', 'let', or 'var'")),
+        };
+        self.consume(); // const/let/var
+        self.skip_whitespace();
+
+        // Parse declarators (could be multiple: let i = 0, j = 1)
+        let mut decls = Vec::new();
+        loop {
+            let decl_start = self.current_byte_offset();
+
+            // Parse binding name
+            let name = self.parse_for_loop_binding()
+                .map_err(|e| e.with_context("parsing for loop variable binding"))?;
+            self.skip_whitespace();
+
+            // Optional type annotation
+            let type_ann = if self.at(SyntaxKind::Colon) {
+                self.consume();
+                self.skip_whitespace();
+                self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])?
+                    .map(Box::new)
+            } else {
+                None
+            };
+            self.skip_whitespace();
+
+            // Optional initializer
+            let init = if self.at(SyntaxKind::Eq) {
+                self.consume();
+                self.skip_whitespace();
+                // Parse until semicolon or comma (for multiple declarators)
+                Some(Box::new(self.parse_ts_expr_until(&[SyntaxKind::Semicolon, SyntaxKind::Comma])?))
+            } else {
+                None
+            };
+
+            let decl_end = self.current_byte_offset();
+            decls.push(VarDeclarator {
+                span: IrSpan::new(decl_start, decl_end),
+                name: Box::new(name),
+                type_ann,
+                init,
+                definite: false,
+            });
+
+            self.skip_whitespace();
+            if self.at(SyntaxKind::Comma) {
+                self.consume();
+                self.skip_whitespace();
+            } else {
+                break;
+            }
+        }
+
+        let end_byte = self.current_byte_offset();
+        Ok(IrNode::VarDecl {
+            span: IrSpan::new(start_byte, end_byte),
+            exported: false,
+            declare: false,
+            kind,
+            decls,
+        })
     }
 
     /// Try to parse a for-in or for-of loop.
@@ -354,214 +647,4 @@ impl Parser {
         })
     }
 
-    /// Parse a loop as raw text with placeholders (fallback for C-style for and while loops).
-    fn parse_loop_as_raw(&mut self) -> ParseResult<IrNode> {
-        #[cfg(debug_assertions)]
-        let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
-
-        let start_byte = self.current_byte_offset();
-        let keyword_tok = self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "loop keyword"))?;
-
-        #[cfg(debug_assertions)]
-        if debug_parser {
-            eprintln!("[MF_DEBUG] parse_loop_as_raw: keyword={:?}", keyword_tok.text);
-        }
-        let mut parts = vec![IrNode::Raw {
-            span: IrSpan::new(keyword_tok.start, keyword_tok.end()),
-            value: keyword_tok.text
-        }];
-
-        // Helper to add whitespace
-        while let Some(t) = self.current() {
-            if t.kind == SyntaxKind::Whitespace {
-                if let Some(tok) = self.consume() {
-                    parts.push(IrNode::Raw {
-                        span: IrSpan::new(tok.start, tok.end()),
-                        value: tok.text
-                    });
-                }
-            } else {
-                break;
-            }
-        }
-
-        // Parse the loop header in parens
-        if !self.at(SyntaxKind::LParen) {
-            // Try to recover - just return what we have
-            let end_byte = self.current_byte_offset();
-            return Ok(IrNode::IdentBlock { span: IrSpan::new(start_byte, end_byte), parts });
-        }
-
-        let mut paren_depth = 0;
-        loop {
-            if self.at_eof() {
-                break;
-            }
-
-            let kind = match self.current_kind() {
-                Some(k) => k,
-                None => break,
-            };
-
-            match kind {
-                SyntaxKind::LParen => {
-                    paren_depth += 1;
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
-                    }
-                }
-                SyntaxKind::RParen => {
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
-                    }
-                    paren_depth -= 1;
-                    if paren_depth == 0 {
-                        break;
-                    }
-                }
-                SyntaxKind::At => {
-                    let placeholder = self.parse_interpolation()?;
-                    // Check for identifier suffix
-                    if let Some(token) = self.current() {
-                        if token.kind == SyntaxKind::Ident {
-                            let suffix_start = token.start;
-                            let suffix_end = token.end();
-                            let suffix = token.text.clone();
-                            self.consume();
-                            let ident_placeholder = match placeholder {
-                                IrNode::Placeholder { expr, span, .. } => {
-                                    IrNode::Placeholder { span, kind: PlaceholderKind::Ident, expr }
-                                }
-                                other => other,
-                            };
-                            parts.push(IrNode::IdentBlock {
-                                span: IrSpan::empty(), // TODO: proper span
-                                parts: vec![ident_placeholder, IrNode::Raw { span: IrSpan::new(suffix_start, suffix_end), value: suffix }],
-                            });
-                            continue;
-                        }
-                    }
-                    parts.push(placeholder);
-                }
-                SyntaxKind::DoubleQuote => {
-                    // Use the new parse_string_literal from expr/primary.rs
-                    let node = self.parse_string_literal()?;
-                    parts.push(node);
-                }
-                SyntaxKind::Backtick => {
-                    // Use the new parse_template_literal from expr/primary.rs
-                    let node = self.parse_template_literal()?;
-                    parts.push(node);
-                }
-                _ => {
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
-                    }
-                }
-            }
-        }
-
-        // Skip whitespace before body
-        while let Some(t) = self.current() {
-            if t.kind == SyntaxKind::Whitespace {
-                if let Some(tok) = self.consume() {
-                    parts.push(IrNode::Raw { span: IrSpan::new(tok.start, tok.end()), value: tok.text });
-                }
-            } else {
-                break;
-            }
-        }
-
-        // Parse the body block
-        if self.at(SyntaxKind::LBrace) {
-            let mut brace_depth = 0;
-            loop {
-                if self.at_eof() {
-                    break;
-                }
-
-                let kind = match self.current_kind() {
-                    Some(k) => k,
-                    None => break,
-                };
-
-                match kind {
-                    SyntaxKind::LBrace => {
-                        brace_depth += 1;
-                        if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
-                        }
-                    }
-                    SyntaxKind::RBrace => {
-                        if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
-                        }
-                        brace_depth -= 1;
-                        if brace_depth == 0 {
-                            break;
-                        }
-                    }
-                    SyntaxKind::At => {
-                        let placeholder = self.parse_interpolation()?;
-                        // Check for identifier suffix
-                        if let Some(token) = self.current() {
-                            if token.kind == SyntaxKind::Ident {
-                                let suffix_start = token.start;
-                                let suffix_end = token.end();
-                                let suffix = token.text.clone();
-                                self.consume();
-                                let ident_placeholder = match placeholder {
-                                    IrNode::Placeholder { expr, span, .. } => {
-                                        IrNode::Placeholder { span, kind: PlaceholderKind::Ident, expr }
-                                    }
-                                    other => other,
-                                };
-                                parts.push(IrNode::IdentBlock {
-                                    span: IrSpan::empty(),
-                                    parts: vec![ident_placeholder, IrNode::Raw { span: IrSpan::new(suffix_start, suffix_end), value: suffix }],
-                                });
-                                continue;
-                            }
-                        }
-                        parts.push(placeholder);
-                    }
-                    SyntaxKind::DoubleQuote => {
-                        let node = self.parse_string_literal()?;
-                        parts.push(node);
-                    }
-                    SyntaxKind::Backtick => {
-                        let node = self.parse_template_literal()?;
-                        parts.push(node);
-                    }
-                    _ => {
-                        if let Some(t) = self.consume() {
-                            parts.push(IrNode::Raw { span: IrSpan::new(t.start, t.end()), value: t.text });
-                        }
-                    }
-                }
-            }
-        }
-
-        // Merge adjacent Raw nodes
-        let merged = Self::merge_adjacent_text(parts);
-
-        #[cfg(debug_assertions)]
-        if debug_parser {
-            eprintln!("[MF_DEBUG] parse_loop_as_raw: collected {} parts", merged.len());
-            for (i, part) in merged.iter().enumerate() {
-                match part {
-                    IrNode::Raw { value: text, .. } => eprintln!("  part[{}]: Raw({:?})", i, &text[..text.len().min(50)]),
-                    IrNode::Placeholder { kind, .. } => eprintln!("  part[{}]: Placeholder({:?})", i, kind),
-                    IrNode::IdentBlock { parts, .. } => eprintln!("  part[{}]: IdentBlock({} parts)", i, parts.len()),
-                    IrNode::StringInterp { .. } => eprintln!("  part[{}]: StringInterp", i),
-                    other => eprintln!("  part[{}]: {:?}", i, std::mem::discriminant(other)),
-                }
-            }
-        }
-
-        let end_byte = self.current_byte_offset();
-        // Return as TsLoopStmt which will be handled as a structured statement
-        Ok(IrNode::TsLoopStmt { span: IrSpan::new(start_byte, end_byte), parts: merged })
-    }
 }

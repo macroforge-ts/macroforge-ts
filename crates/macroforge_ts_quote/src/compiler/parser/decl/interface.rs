@@ -29,10 +29,10 @@ impl Parser {
 
         // Parse body
         if !self.at(SyntaxKind::LBrace) {
-            return Ok(IrNode::Raw {
-                span: IrSpan::new(start_byte, self.current_byte_offset()),
-                value: "interface ".to_string(),
-            });
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            ).with_context("expected '{' for interface body"));
         }
         self.consume();
         self.skip_whitespace();
@@ -124,7 +124,7 @@ impl Parser {
             // Looks like interface member - parse the name
             let name = match self.parse_ts_ident_or_placeholder() {
                 Some(n) => n,
-                None => return Ok(Some(IrNode::raw(&readonly_token))),
+                None => return Ok(Some(IrNode::ident(&readonly_token))),
             };
             #[cfg(debug_assertions)]
             if std::env::var("MF_DEBUG_PARSER").is_ok() {
@@ -145,11 +145,11 @@ impl Parser {
 
             // Need colon for type annotation
             if !self.at(SyntaxKind::Colon) {
-                // Not a valid member pattern - return what we consumed as raw
-                return Ok(Some(IrNode::Raw {
-                    span: IrSpan::new(start_byte, self.current_byte_offset()),
-                    value: format!("{} ", readonly_token.text),
-                }));
+                // Not a valid member pattern
+                return Err(ParseError::new(
+                    ParseErrorKind::UnexpectedToken,
+                    self.current_byte_offset(),
+                ).with_context("expected ':' for index signature type"));
             }
 
             self.consume(); // colon
@@ -179,7 +179,7 @@ impl Parser {
             }))
         } else {
             // Doesn't look like interface member - return readonly as raw text
-            Ok(Some(IrNode::raw(&readonly_token)))
+            Ok(Some(IrNode::ident(&readonly_token)))
         }
     }
 

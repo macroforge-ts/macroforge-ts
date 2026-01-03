@@ -5,6 +5,11 @@ use super::*;
 
 impl Codegen {
     pub(in super::super) fn generate_expr(&self, node: &IrNode) -> GenResult<TokenStream> {
+        #[cfg(debug_assertions)]
+        if std::env::var("MF_DEBUG_AST").is_ok() {
+            eprintln!("[MF_DEBUG_AST] generate_expr: {:?}", std::mem::discriminant(node));
+        }
+
     match node {
         IrNode::Ident { value: name, .. } => {
             Ok(quote! {
@@ -388,7 +393,7 @@ impl Codegen {
 
             for part in parts {
                 match part {
-                    IrNode::Raw { value: text, .. } | IrNode::StrLit { value: text, .. } => current_text.push_str(text),
+                    IrNode::StrLit { value: text, .. } => current_text.push_str(text),
                     IrNode::Placeholder { expr, .. } => {
                         quasis.push(std::mem::take(&mut current_text));
                         exprs.push(quote! {
@@ -907,142 +912,41 @@ impl Codegen {
             })
         }
 
-        // Raw text - parse as expression at runtime
-        // Note: parse_ts_expr returns Result<Box<Expr>, _>, so we dereference to get Expr
-        // Runtime parsing fallback is intentional - allows dynamic expression parsing
-        IrNode::Raw { value: text, .. } => {
-            Ok(quote! {
-                {
-                    let __source = #text;
-                    *macroforge_ts::ts_syn::parse_ts_expr(__source)
-                        .unwrap_or_else(|_| Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Invalid(
-                            macroforge_ts::swc_core::ecma::ast::Invalid {
-                                span: macroforge_ts::swc_core::common::DUMMY_SP,
-                            }
-                        )))
-                }
-            })
-        }
-
-        // IdentBlock with multiple parts - build string and parse
+        // IdentBlock - concatenate parts to form a single identifier (no runtime parsing)
+        // The parser ensures all parts are identifier-safe (Ident text or Ident placeholders)
         IrNode::IdentBlock { parts, .. } => {
             let part_exprs: Vec<TokenStream> = parts
-                  .iter()
-                  .map(|p| match p {
-                      IrNode::Raw { value: text, .. } => quote! { __expr_str.push_str(#text); },
-                      IrNode::StrLit { value: text, .. } => quote! { __expr_str.push_str(#text); },
-                      IrNode::Ident { value: text, .. } => quote! { __expr_str.push_str(#text); },
-                      IrNode::Placeholder { kind, expr, .. } => {
-                          match kind {
-                              PlaceholderKind::Expr => {
-                                  // For expressions, emit as TypeScript literal
-                                  quote! {
-                                      let __expr = macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
-                                      __expr_str.push_str(&macroforge_ts::ts_syn::emit_expr(&__expr));
-                                  }
-                              }
-                              PlaceholderKind::Ident => {
-                                  quote! {
-                                      __expr_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
-                                  }
-                              }
-                              PlaceholderKind::Type => {
-                                  // For types (e.g., in "as Type" expressions), emit as type string
-                                  quote! {
-                                      let __ty = macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone());
-                                      __expr_str.push_str(&macroforge_ts::ts_syn::emit_ts_type(&__ty));
-                                  }
-                              }
-                              _ => quote! {},
-                          }
-                      }
-                      // Handle nested IdentBlock (e.g., @{name}Val within a larger expression)
-                      IrNode::IdentBlock { parts: inner_parts, .. } => {
-                          let inner_exprs: Vec<TokenStream> = inner_parts
-                              .iter()
-                              .map(|ip| match ip {
-                                  IrNode::Raw { value: text, .. } => quote! { __expr_str.push_str(#text); },
-                                  IrNode::StrLit { value: text, .. } => quote! { __expr_str.push_str(#text); },
-                                  IrNode::Ident { value: text, .. } => quote! { __expr_str.push_str(#text); },
-                                  IrNode::Placeholder { kind, expr, .. } => {
-                                      match kind {
-                                          PlaceholderKind::Ident => {
-                                              quote! {
-                                                  __expr_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
-                                              }
-                                          }
-                                          PlaceholderKind::Expr => {
-                                              quote! {
-                                                  let __expr = macroforge_ts::ts_syn::ToTsExpr::to_ts_expr((#expr).clone());
-                                                  __expr_str.push_str(&macroforge_ts::ts_syn::emit_expr(&__expr));
-                                              }
-                                          }
-                                          PlaceholderKind::Type => {
-                                              quote! {
-                                                  let __ty = macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone());
-                                                  __expr_str.push_str(&macroforge_ts::ts_syn::emit_ts_type(&__ty));
-                                              }
-                                          }
-                                          _ => quote! {},
-                                      }
-                                  }
-                                  _ => quote! {},
-                              })
-                              .collect();
-                          quote! { #(#inner_exprs)* }
-                      }
-                      // Handle StringInterp (string literals with placeholders like "@{name}")
-                      // For placeholders inside strings, we insert the raw value (not quoted expression)
-                      IrNode::StringInterp { quote: q, parts: string_parts, .. } => {
-                          let quote_char = q.to_string();
-                          let inner_exprs: Vec<TokenStream> = string_parts
-                              .iter()
-                              .map(|sp| match sp {
-                                  IrNode::Raw { value: text, .. } => quote! { __expr_str.push_str(#text); },
-                                  IrNode::StrLit { value: text, .. } => quote! { __expr_str.push_str(#text); },
-                                  IrNode::Placeholder { expr, .. } => {
-                                      // Inside a string, always insert the raw string value
-                                      // (not the quoted expression representation)
-                                      quote! {
-                                          __expr_str.push_str(&(#expr).to_string());
-                                      }
-                                  }
-                                  _ => quote! {},
-                              })
-                              .collect();
-                          quote! {
-                              __expr_str.push_str(#quote_char);
-                              #(#inner_exprs)*
-                              __expr_str.push_str(#quote_char);
-                          }
-                      }
-                      _ => quote! {},
-                  })
-                  .collect();
-
-            // Note: parse_ts_expr returns Result<Box<Expr>, _>, so we dereference to get Expr
-            // Runtime parsing fallback is intentional - allows dynamic expression construction
-            Ok(quote! {
-                {
-                    let mut __expr_str = String::new();
-                    #(#part_exprs)*
-                    #[cfg(debug_assertions)]
-                    if std::env::var("MF_DEBUG_EXPR").is_ok() {
-                        eprintln!("[MF_DEBUG_EXPR] Expression string: {:?}", __expr_str);
+                .iter()
+                .map(|p| match p {
+                    IrNode::StrLit { value: text, .. } => quote! { __ident_str.push_str(#text); },
+                    IrNode::Ident { value: text, .. } => quote! { __ident_str.push_str(#text); },
+                    IrNode::Placeholder { kind: PlaceholderKind::Ident, expr, .. } => {
+                        quote! {
+                            __ident_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
+                        }
                     }
-                    *macroforge_ts::ts_syn::parse_ts_expr(&__expr_str)
-                        .unwrap_or_else(|e| {
-                            #[cfg(debug_assertions)]
-                            if std::env::var("MF_DEBUG_EXPR").is_ok() {
-                                eprintln!("[MF_DEBUG_EXPR] Parse failed: {:?}", e);
-                            }
-                            Box::new(macroforge_ts::swc_core::ecma::ast::Expr::Invalid(
-                                macroforge_ts::swc_core::ecma::ast::Invalid {
-                                    span: macroforge_ts::swc_core::common::DUMMY_SP,
-                                }
-                            ))
-                        })
-                }
+                    // Other placeholder kinds should not appear in IdentBlock per parser rules
+                    IrNode::Placeholder { expr, .. } => {
+                        quote! {
+                            __ident_str.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
+                        }
+                    }
+                    _ => quote! {},
+                })
+                .collect();
+
+            // Build identifier directly without runtime parsing
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::Expr::Ident(
+                    macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
+                        {
+                            let mut __ident_str = String::new();
+                            #(#part_exprs)*
+                            __ident_str.into()
+                        },
+                        macroforge_ts::swc_core::common::DUMMY_SP,
+                    )
+                )
             })
         }
 

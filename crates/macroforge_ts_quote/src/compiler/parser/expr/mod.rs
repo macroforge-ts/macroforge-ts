@@ -1080,7 +1080,12 @@ impl Parser {
             // Only handle this for identifier/this base types (not complex types)
             if self.at(SyntaxKind::IsKw) {
                 // The current `ty` should be an identifier (param name)
-                let start = ty.span().start;
+                // If it's wrapped in TypeRef, unwrap to get the inner Ident
+                let param_name = match ty {
+                    IrNode::TypeRef { name, type_params: None, .. } => *name,
+                    other => other,
+                };
+                let start = param_name.span().start;
                 self.consume(); // consume 'is'
                 self.skip_whitespace();
 
@@ -1089,7 +1094,7 @@ impl Parser {
                 ty = IrNode::TypePredicate {
                     span: IrSpan::new(start, self.current_byte_offset()),
                     asserts: false,
-                    param_name: Box::new(ty),
+                    param_name: Box::new(param_name),
                     type_ann: Some(Box::new(predicate_type)),
                 };
                 // Type predicate is terminal - don't continue to other modifiers

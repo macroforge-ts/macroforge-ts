@@ -24,7 +24,6 @@ impl Codegen {
         | IrNode::ArrowExpr { .. }
         | IrNode::NewExpr { .. }
         | IrNode::TplLit { .. }
-        | IrNode::Raw { .. }
         | IrNode::Placeholder { .. }
         | IrNode::IdentBlock { .. }
         | IrNode::StringInterp { .. }

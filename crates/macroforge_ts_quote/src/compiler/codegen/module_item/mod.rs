@@ -3,10 +3,10 @@ use super::*;
 
 impl Codegen {
     /// Generate code that builds a decorator string at runtime.
-    /// Handles Raw, IdentBlock with StringInterp, and placeholders.
+    /// Handles IdentBlock with StringInterp, and placeholders.
     fn generate_decorator_string(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Raw { value: text, .. } => Ok(quote! { #text.to_string() }),
+            IrNode::StrLit { value: text, .. } => Ok(quote! { #text.to_string() }),
             IrNode::IdentBlock { parts, .. } => {
                 let part_exprs: Vec<TokenStream> = parts
                     .iter()
@@ -23,7 +23,7 @@ impl Codegen {
             _ => Err(GenError::unexpected_node(
                 "decorator string",
                 node,
-                &["Raw", "IdentBlock"],
+                &["StrLit", "IdentBlock"],
             )),
         }
     }
@@ -31,7 +31,6 @@ impl Codegen {
     /// Generate code for a single part of a decorator string.
     fn generate_decorator_string_part(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Raw { value: text, .. } => Ok(quote! { __s.push_str(#text); }),
             IrNode::StrLit { value: text, .. } => {
                 // String literal - include with quotes
                 Ok(quote! {
@@ -56,14 +55,14 @@ impl Codegen {
                 let part_exprs: Vec<TokenStream> = parts
                     .iter()
                     .map(|p| match p {
-                        IrNode::Raw { value: t, .. } => Ok(quote! { __s.push_str(#t); }),
+                        IrNode::StrLit { value: t, .. } => Ok(quote! { __s.push_str(#t); }),
                         IrNode::Placeholder { expr, .. } => {
                             Ok(quote! { __s.push_str(&(#expr).to_string()); })
                         }
                         _ => Err(GenError::unexpected_node(
                             "decorator string interpolation part",
                             p,
-                            &["Raw", "Placeholder"],
+                            &["StrLit", "Placeholder"],
                         )),
                     })
                     .collect::<GenResult<Vec<_>>>()?;
@@ -79,7 +78,7 @@ impl Codegen {
             _ => Err(GenError::unexpected_node(
                 "decorator string part",
                 node,
-                &["Raw", "StrLit", "Ident", "NumLit", "BoolLit", "NullLit", "StringInterp", "Placeholder"],
+                &["StrLit", "Ident", "NumLit", "BoolLit", "NullLit", "StringInterp", "Placeholder"],
             )),
         }
     }
@@ -129,10 +128,10 @@ impl Codegen {
 
         let output_var = format_ident!("{}", self.config.output_var);
 
-        // Check if all nodes are whitespace-only Raw nodes
+        // Check if all nodes are whitespace-only
         let all_whitespace = nodes
             .iter()
-            .all(|n| matches!(n, IrNode::Raw { value: text, .. } if text.trim().is_empty()));
+            .all(|n| matches!(n, IrNode::StrLit { value: text, .. } if text.trim().is_empty()));
         if all_whitespace {
             return Ok(None);
         }
@@ -165,7 +164,6 @@ impl Codegen {
         node: &IrNode,
     ) -> GenResult<TokenStream> {
         match node {
-            IrNode::Raw { value: text, .. } => Ok(quote! { __module_str.push_str(#text); }),
             IrNode::StrLit { value: text, .. } => Ok(quote! { __module_str.push_str(#text); }),
             IrNode::Ident { value: name, .. } => Ok(quote! { __module_str.push_str(#name); }),
             IrNode::Placeholder { kind, expr, span } => match kind {
@@ -1311,7 +1309,6 @@ impl Codegen {
                 let part_exprs: Vec<TokenStream> = parts
                     .iter()
                     .filter_map(|p| match p {
-                        IrNode::Raw { value: text, .. } => Some(quote! { __ident.push_str(#text); }),
                         IrNode::StrLit { value: text, .. } => Some(quote! { __ident.push_str(#text); }),
                         IrNode::Ident { value: text, .. } => Some(quote! { __ident.push_str(#text); }),
                         IrNode::Placeholder { expr, .. } => {
@@ -1351,7 +1348,7 @@ impl Codegen {
 
                 for part in parts {
                     match part {
-                        IrNode::Raw { value: text, .. } | IrNode::StrLit { value: text, .. } => current_text.push_str(text),
+                        IrNode::StrLit { value: text, .. } => current_text.push_str(text),
                         IrNode::Placeholder { expr, .. } => {
                             let text = std::mem::take(&mut current_text);
                             quasi_parts.push(quote! {
@@ -1398,26 +1395,6 @@ impl Codegen {
                 }))
             }
 
-            // Raw text - parse at runtime since it might be a fragment
-            IrNode::Raw { value: text, .. } => {
-                if text.trim().is_empty() {
-                    return Ok(None);
-                }
-                // Use runtime parsing with parse_ts_module, falling back to storing raw text
-                // if it can't be parsed (e.g., partial fragments that will be combined with placeholders)
-                Ok(Some(quote! {
-                    {
-                        let __raw_text = #text;
-                        let __parsed = macroforge_ts::ts_syn::parse_ts_module(__raw_text)
-                            .unwrap_or_else(|e| panic!(
-                                "Failed to parse raw TypeScript fragment:\n\n{}\n\nError: {:?}",
-                                __raw_text, e
-                            ));
-                        #output_var.extend(__parsed.body);
-                    }
-                }))
-            }
-
             // TypeScript if statement at module level
             IrNode::TsIfStmt { test, cons, alt, .. } => {
                 let test_code = self.generate_expr_string_parts(test)?;
@@ -1440,24 +1417,6 @@ impl Codegen {
                         let __parsed = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str)
                             .unwrap_or_else(|e| panic!(
                                 "Failed to parse generated TypeScript if statement:\n\n{}\n\nError: {:?}",
-                                __stmt_str, e
-                            ));
-                        #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__parsed));
-                    }
-                }))
-            }
-
-            // TypeScript loop statement at module level
-            IrNode::TsLoopStmt { parts, .. } => {
-                let part_exprs: Vec<TokenStream> =
-                    parts.iter().map(|p| self.generate_stmt_string_part(p)).collect::<GenResult<_>>()?;
-                Ok(Some(quote! {
-                    {
-                        let mut __stmt_str = String::new();
-                        #(#part_exprs)*
-                        let __parsed = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str)
-                            .unwrap_or_else(|e| panic!(
-                                "Failed to parse generated TypeScript loop statement:\n\n{}\n\nError: {:?}",
                                 __stmt_str, e
                             ));
                         #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__parsed));

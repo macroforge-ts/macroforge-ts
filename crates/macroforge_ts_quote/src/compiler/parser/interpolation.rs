@@ -78,7 +78,7 @@ impl Parser {
                 // An identifier immediately following
                 Some(SyntaxKind::Ident) => {
                     if let Some(token) = self.consume() {
-                        additional_parts.push(IrNode::raw(&token));
+                        additional_parts.push(IrNode::ident(&token));
                     } else {
                         break;
                     }

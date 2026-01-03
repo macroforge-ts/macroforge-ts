@@ -14,15 +14,6 @@ impl Codegen {
                     )
                 })
             }
-            // Handle Raw nodes as identifiers (e.g., "*" in `export * as ns`)
-            IrNode::Raw { value: name, .. } => {
-                Ok(quote! {
-                    macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
-                        #name.into(),
-                        macroforge_ts::swc_core::common::DUMMY_SP,
-                    )
-                })
-            }
             IrNode::Placeholder {
                 kind: PlaceholderKind::Ident,
                 expr,
@@ -39,7 +30,6 @@ impl Codegen {
                 let part_strs: Vec<TokenStream> = parts
                     .iter()
                     .filter_map(|p| match p {
-                        IrNode::Raw { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
                         IrNode::StrLit { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
                         IrNode::Ident { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
                         IrNode::Placeholder { expr, .. } => {
@@ -62,7 +52,7 @@ impl Codegen {
             _ => Err(GenError::unexpected_node(
                 "identifier",
                 node,
-                &["Ident", "Raw", "Placeholder(Ident)", "IdentBlock"],
+                &["Ident", "Placeholder(Ident)", "IdentBlock"],
             )),
         }
     }

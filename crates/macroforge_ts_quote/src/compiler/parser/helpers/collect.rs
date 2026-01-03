@@ -18,12 +18,12 @@ impl Parser {
                 Some(SyntaxKind::LBrace) => {
                     brace_depth += 1;
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
+                        parts.push(IrNode::ident(&t));
                     }
                 }
                 Some(SyntaxKind::RBrace) => {
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
+                        parts.push(IrNode::ident(&t));
                     }
                     brace_depth -= 1;
                     if brace_depth == 0 {
@@ -46,7 +46,7 @@ impl Parser {
                             };
                             parts.push(IrNode::IdentBlock {
                                 span: IrSpan::empty(),
-                                parts: vec![ident_placeholder, IrNode::raw(&suffix_token)],
+                                parts: vec![ident_placeholder, IrNode::ident(&suffix_token)],
                             });
                             continue;
                         }
@@ -70,7 +70,7 @@ impl Parser {
                 }
                 _ => {
                     if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
+                        parts.push(IrNode::ident(&t));
                     }
                 }
             }

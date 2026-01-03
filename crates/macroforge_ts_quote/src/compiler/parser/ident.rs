@@ -17,7 +17,7 @@ impl Parser {
                 let node = self.parse_interpolation()?;
                 parts.push(node);
             } else if let Some(token) = self.consume() {
-                parts.push(IrNode::raw(&token));
+                parts.push(IrNode::ident(&token));
             }
         }
 

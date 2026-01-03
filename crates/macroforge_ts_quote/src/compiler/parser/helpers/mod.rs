@@ -109,19 +109,19 @@ impl Parser {
         kind
     }
 
-    /// Merges adjacent Raw nodes.
+    /// Merges adjacent text nodes (StrLit, Ident).
     pub(super) fn merge_adjacent_text(nodes: Vec<IrNode>) -> Vec<IrNode> {
         let mut result = Vec::with_capacity(nodes.len());
         let mut pending_text = String::new();
 
         for node in nodes {
             match node {
-                IrNode::Raw { value, .. } => {
+                IrNode::StrLit { value, .. } | IrNode::Ident { value, .. } => {
                     pending_text.push_str(&value);
                 }
                 other => {
                     if !pending_text.is_empty() {
-                        result.push(IrNode::Raw {
+                        result.push(IrNode::StrLit {
                             span: IrSpan::empty(),
                             value: std::mem::take(&mut pending_text),
                         });
@@ -132,7 +132,7 @@ impl Parser {
         }
 
         if !pending_text.is_empty() {
-            result.push(IrNode::Raw {
+            result.push(IrNode::StrLit {
                 span: IrSpan::empty(),
                 value: pending_text,
             });

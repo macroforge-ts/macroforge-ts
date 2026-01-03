@@ -14,8 +14,7 @@ impl Codegen {
             let params_code: Vec<TokenStream> = params
                 .iter()
                 .filter_map(|p| match p {
-                    IrNode::Raw { value: text, .. } => {
-                        let name = text.trim();
+                    IrNode::Ident { value: name, .. } => {
                         if name.is_empty() {
                             None
                         } else {
@@ -65,13 +64,32 @@ impl Codegen {
     }
 }
 
-pub(in super::super) fn generate_type_param_instantiation(&self, _node: &IrNode) -> GenResult<TokenStream> {
-    Ok(quote! {
-        macroforge_ts::swc_core::ecma::ast::TsTypeParamInstantiation {
-            span: macroforge_ts::swc_core::common::DUMMY_SP,
-            params: vec![],
+pub(in super::super) fn generate_type_param_instantiation(&self, node: &IrNode) -> GenResult<TokenStream> {
+    match node {
+        IrNode::TypeArgs { args, .. } => {
+            let mut params_code: Vec<TokenStream> = Vec::with_capacity(args.len());
+            for arg in args {
+                let type_code = self.generate_type(arg)?;
+                params_code.push(quote! { Box::new(#type_code) });
+            }
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::TsTypeParamInstantiation {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    params: vec![#(#params_code),*],
+                }
+            })
         }
-    })
+        // For single type passed directly (legacy/fallback)
+        other => {
+            let type_code = self.generate_type(other)?;
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::TsTypeParamInstantiation {
+                    span: macroforge_ts::swc_core::common::DUMMY_SP,
+                    params: vec![Box::new(#type_code)],
+                }
+            })
+        }
+    }
 }
 
 pub(in super::super) fn generate_type_ann(&self, node: &IrNode) -> GenResult<TokenStream> {
@@ -506,34 +524,47 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
 
-        // Raw text - parse as type at runtime, return error on failure
-        IrNode::Raw { value: text, .. } => {
-            Ok(quote! {
-                {
-                    let __source = #text;
-                    macroforge_ts::ts_syn::parse_ts_type(__source)
-                        .expect(&format!("failed to parse type: {}", __source))
-                }
-            })
-        }
-
-        // IdentBlock with multiple parts - build string and parse
+        // IdentBlock - concatenate parts to form a type reference name (no runtime parsing)
+        // The parser ensures all parts are identifier-safe (Ident text or Ident placeholders)
         IrNode::IdentBlock { parts, .. } => {
             let part_exprs: Vec<TokenStream> = parts
                 .iter()
-                .map(|p| self.generate_type_str_part(p))
-                .collect::<GenResult<Vec<_>>>()?
-                .into_iter()
-                .flatten()
+                .map(|p| match p {
+                    IrNode::StrLit { value: text, .. } => quote! { __type_name.push_str(#text); },
+                    IrNode::Ident { value: text, .. } => quote! { __type_name.push_str(#text); },
+                    IrNode::Placeholder { kind: PlaceholderKind::Ident, expr, .. } => {
+                        quote! {
+                            __type_name.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
+                        }
+                    }
+                    // Other placeholder kinds should not appear in IdentBlock per parser rules
+                    IrNode::Placeholder { expr, .. } => {
+                        quote! {
+                            __type_name.push_str(&macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone()).sym.to_string());
+                        }
+                    }
+                    _ => quote! {},
+                })
                 .collect();
 
+            // Build type reference directly without runtime parsing
             Ok(quote! {
-                {
-                    let mut __type_str = String::new();
-                    #(#part_exprs)*
-                    macroforge_ts::ts_syn::parse_ts_type(&__type_str)
-                        .expect(&format!("failed to parse type: {}", __type_str))
-                }
+                macroforge_ts::swc_core::ecma::ast::TsType::TsTypeRef(
+                    macroforge_ts::swc_core::ecma::ast::TsTypeRef {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        type_name: macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
+                            macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
+                                {
+                                    let mut __type_name = String::new();
+                                    #(#part_exprs)*
+                                    __type_name.into()
+                                },
+                                macroforge_ts::swc_core::common::DUMMY_SP,
+                            )
+                        ),
+                        type_params: None,
+                    }
+                )
             })
         }
 
@@ -969,7 +1000,6 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
 /// Generate code that pushes to __type_str for building types with control flow
     pub(in super::super) fn generate_type_str_part(&self, node: &IrNode) -> GenResult<Option<TokenStream>> {
     match node {
-        IrNode::Raw { value: text, .. } => Ok(Some(quote! { __type_str.push_str(#text); })),
         IrNode::StrLit { value: text, .. } => Ok(Some(quote! { __type_str.push_str(#text); })),
         IrNode::Ident { value: text, .. } => Ok(Some(quote! { __type_str.push_str(#text); })),
         IrNode::Placeholder { kind, expr, .. } => {

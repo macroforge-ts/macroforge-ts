@@ -1562,10 +1562,10 @@ mod tests {
     // ==================== Node Detection Tests ====================
 
     #[test]
-    fn test_is_fragment_node_raw() {
+    fn test_is_fragment_node_str_lit_as_fragment() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        assert!(codegen.is_fragment_node(&IrNode::Raw { span: IrSpan::empty(), value: "text".to_string() }));
+        assert!(codegen.is_fragment_node(&IrNode::StrLit { span: IrSpan::empty(), value: "text".to_string() }));
     }
 
     #[test]

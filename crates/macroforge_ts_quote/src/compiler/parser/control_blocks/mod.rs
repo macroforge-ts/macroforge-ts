@@ -200,7 +200,7 @@ impl Parser {
                                 };
                                 nodes.push(IrNode::IdentBlock {
                                     span: IrSpan::empty(),
-                                    parts: vec![ident_placeholder, IrNode::raw(&suffix_token)],
+                                    parts: vec![ident_placeholder, IrNode::ident(&suffix_token)],
                                 });
                                 continue;
                             }
@@ -217,7 +217,7 @@ impl Parser {
                     _ => {
                         // Raw text
                         if let Some(token) = self.consume() {
-                            nodes.push(IrNode::raw(&token));
+                            nodes.push(IrNode::ident(&token));
                         }
                     }
                 }

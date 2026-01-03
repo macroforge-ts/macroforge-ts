@@ -180,11 +180,8 @@ impl Parser {
             }
 
             _ => {
-                // Unknown pattern, fall back to raw
-                return Some(IrNode::Raw {
-                    span: IrSpan::new(start_byte, self.current_byte_offset()),
-                    value: "import ".to_string(),
-                });
+                // Unknown pattern
+                return None;
             }
         }
 
@@ -262,10 +259,10 @@ impl Parser {
                     self.skip_whitespace();
 
                     if !self.at(SyntaxKind::Eq) {
-                        return Ok(IrNode::Raw {
-                            span: IrSpan::new(start_byte, self.current_byte_offset()),
-                            value: "export type ".to_string(),
-                        });
+                        return Err(ParseError::new(
+                            ParseErrorKind::UnexpectedToken,
+                            self.current_byte_offset(),
+                        ).with_context("expected '=' in export type alias"));
                     }
                     self.consume(); // consume =
                     self.skip_whitespace();
@@ -405,7 +402,7 @@ impl Parser {
                 span: IrSpan::new(start_byte, end_byte),
                 specifiers: vec![IrNode::ExportSpecifier {
                     span: IrSpan::new(start_byte, end_byte),
-                    local: Box::new(IrNode::Raw {
+                    local: Box::new(IrNode::Ident {
                         span: IrSpan::new(start_byte, start_byte + 1),
                         value: "*".to_string(),
                     }),

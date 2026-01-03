@@ -183,7 +183,6 @@ impl Codegen {
                     Ok(Some(quote! { let #mutability #pattern = #value; }))
                 }
             }
-            IrNode::Raw { .. } => Ok(None), // Skip whitespace/raw text
             _ => Ok(None),
         }
     }

@@ -41,7 +41,6 @@ impl Codegen {
                 let part_strs: Vec<TokenStream> = parts
                     .iter()
                     .filter_map(|p| match p {
-                        IrNode::Raw { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
                         IrNode::StrLit { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
                         IrNode::Ident { value: text, .. } => Some(quote! { __ident_str.push_str(#text); }),
                         IrNode::Placeholder { expr, .. } => {

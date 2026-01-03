@@ -36,11 +36,11 @@ impl Parser {
             | Some(SyntaxKind::DefaultKw)
             | Some(SyntaxKind::TypeKw) => self.parse_export_decl_full(),
 
-            // Fallback
-            _ => Ok(IrNode::Raw {
-                span: IrSpan::new(start_byte, self.current_byte_offset()),
-                value: "export ".to_string(),
-            }),
+            // Fallback - unexpected token after export
+            _ => Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            ).with_context("expected declaration after 'export'")),
         }
     }
 
@@ -54,12 +54,11 @@ impl Parser {
         if self.at(SyntaxKind::FunctionKw) {
             self.parse_function_decl(exported, true)
         } else {
-            // Not a function, just return raw
-            let prefix = if exported { "export async " } else { "async " };
-            Ok(IrNode::Raw {
-                span: IrSpan::new(start_byte, self.current_byte_offset()),
-                value: prefix.to_string(),
-            })
+            // async must be followed by function
+            Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            ).with_context("expected 'function' after 'async'"))
         }
     }
 
@@ -104,11 +103,11 @@ impl Parser {
 
         // Parse class body - use the new parse_class_body from expr/mod.rs
         if !self.at(SyntaxKind::LBrace) {
-            // No body, return raw
-            return Ok(IrNode::Raw {
-                span: IrSpan::new(start_byte, self.current_byte_offset()),
-                value: "class ".to_string(),
-            });
+            // Class must have a body
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            ).with_context("expected '{' for class body"));
         }
 
         let body = self.parse_class_body()
@@ -243,45 +242,46 @@ impl Parser {
         self.consume();
         self.skip_whitespace();
 
-        // Check for destructuring pattern (object or array)
-        if self.at(SyntaxKind::LBrace) || self.at(SyntaxKind::LBracket) {
-            // For destructuring patterns, collect as raw text until semicolon
-            return self.parse_var_decl_as_raw(exported, &kind, start_byte);
-        }
-
         let mut decls = Vec::new();
 
         loop {
             let decl_start = self.current_byte_offset();
-            // Push Identifier context for variable name
-            self.push_context(Context::identifier([
-                SyntaxKind::Colon,
-                SyntaxKind::Eq,
-                SyntaxKind::Semicolon,
-                SyntaxKind::LParen,
-            ]));
-            let name = self.parse_ts_ident_or_placeholder()
-                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                    .with_context("variable declarator name"))?;
-            self.pop_context();
-            self.skip_whitespace();
 
-            // If there's a type annotation, wrap the name in a BindingIdent
-            let name_with_type = if self.at(SyntaxKind::Colon) {
-                let binding_span = name.span();
-                self.consume();
-                self.skip_whitespace();
-                let type_ann = self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])?
-                    .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
-                        .with_context("variable type annotation"))?;
-                IrNode::BindingIdent {
-                    span: IrSpan::new(binding_span.start, self.current_byte_offset()),
-                    name: Box::new(name),
-                    type_ann: Some(Box::new(type_ann)),
-                    optional: false,
-                }
+            // Check for destructuring pattern (object or array)
+            let name_with_type = if self.at(SyntaxKind::LBrace) || self.at(SyntaxKind::LBracket) {
+                // Parse destructuring pattern using existing pattern parser
+                self.parse_destructuring_pattern()?
             } else {
-                name
+                // Push Identifier context for variable name
+                self.push_context(Context::identifier([
+                    SyntaxKind::Colon,
+                    SyntaxKind::Eq,
+                    SyntaxKind::Semicolon,
+                    SyntaxKind::LParen,
+                ]));
+                let name = self.parse_ts_ident_or_placeholder()
+                    .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
+                        .with_context("variable declarator name"))?;
+                self.pop_context();
+                self.skip_whitespace();
+
+                // If there's a type annotation, wrap the name in a BindingIdent
+                if self.at(SyntaxKind::Colon) {
+                    let binding_span = name.span();
+                    self.consume();
+                    self.skip_whitespace();
+                    let type_ann = self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])?
+                        .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
+                            .with_context("variable type annotation"))?;
+                    IrNode::BindingIdent {
+                        span: IrSpan::new(binding_span.start, self.current_byte_offset()),
+                        name: Box::new(name),
+                        type_ann: Some(Box::new(type_ann)),
+                        optional: false,
+                    }
+                } else {
+                    name
+                }
             };
 
             let init = if self.at(SyntaxKind::Eq) {
@@ -326,87 +326,294 @@ impl Parser {
         })
     }
 
-    /// Parse a variable declaration with destructuring pattern as raw text.
-    /// This handles patterns like `const { a, b } = obj;` or `const [x, y] = arr;`
-    fn parse_var_decl_as_raw(&mut self, exported: bool, kind: &VarKind, start_byte: usize) -> ParseResult<IrNode> {
-        let kind_str = match kind {
-            VarKind::Const => "const ",
-            VarKind::Let => "let ",
-            VarKind::Var => "var ",
+    /// Parse a destructuring pattern for variable declarations.
+    /// Handles both array patterns `[a, b]` and object patterns `{ a, b }`.
+    fn parse_destructuring_pattern(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
+
+        let pattern = if self.at(SyntaxKind::LBracket) {
+            self.parse_var_decl_array_pattern()?
+        } else if self.at(SyntaxKind::LBrace) {
+            self.parse_var_decl_object_pattern()?
+        } else {
+            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                .with_context("expected destructuring pattern"));
         };
-        let export_str = if exported { "export " } else { "" };
 
-        let mut parts = Vec::new();
-        parts.push(IrNode::Raw {
-            span: IrSpan::new(start_byte, self.current_byte_offset()),
-            value: format!("{}{}", export_str, kind_str),
-        });
+        self.skip_whitespace();
 
-        // Collect everything until semicolon, handling nested braces/brackets and placeholders
-        let mut brace_depth = 0;
-        let mut bracket_depth = 0;
+        // Check for optional type annotation after the pattern
+        let type_ann = if self.at(SyntaxKind::Colon) {
+            self.consume();
+            self.skip_whitespace();
+            Some(Box::new(
+                self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])?
+                    .ok_or_else(|| {
+                        ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
+                            .with_context("destructuring pattern type annotation")
+                    })?,
+            ))
+        } else {
+            None
+        };
+
+        // Update pattern with type annotation if present
+        match pattern {
+            IrNode::ArrayPat { elems, optional, .. } => Ok(IrNode::ArrayPat {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                elems,
+                type_ann,
+                optional,
+            }),
+            IrNode::ObjectPat { props, optional, .. } => Ok(IrNode::ObjectPat {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                props,
+                type_ann,
+                optional,
+            }),
+            _ => Ok(pattern),
+        }
+    }
+
+    /// Parse array destructuring pattern for variable declarations: [a, b, ...rest]
+    fn parse_var_decl_array_pattern(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
+        let start_pos = self.pos;
+
+        self.expect(SyntaxKind::LBracket);
+        let mut elems = Vec::new();
 
         loop {
-            if self.at_eof() {
+            self.skip_whitespace();
+
+            if self.at(SyntaxKind::RBracket) {
                 break;
             }
 
-            match self.current_kind() {
-                Some(SyntaxKind::LBrace) => {
-                    brace_depth += 1;
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
-                    }
-                }
-                Some(SyntaxKind::RBrace) => {
-                    brace_depth -= 1;
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
-                    }
-                }
-                Some(SyntaxKind::LBracket) => {
-                    bracket_depth += 1;
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
-                    }
-                }
-                Some(SyntaxKind::RBracket) => {
-                    bracket_depth -= 1;
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
-                    }
-                }
-                Some(SyntaxKind::At) => {
-                    let placeholder = self.parse_interpolation()
-                        .map_err(|e| e.with_context("destructuring pattern interpolation"))?;
-                    parts.push(placeholder);
-                }
-                Some(SyntaxKind::Semicolon) => {
-                    if brace_depth == 0 && bracket_depth == 0 {
-                        if let Some(t) = self.consume() {
-                            parts.push(IrNode::raw(&t));
-                        }
-                        break;
-                    } else {
-                        if let Some(t) = self.consume() {
-                            parts.push(IrNode::raw(&t));
-                        }
-                    }
-                }
-                _ => {
-                    if let Some(t) = self.consume() {
-                        parts.push(IrNode::raw(&t));
-                    }
-                }
+            // Handle holes: [,, x]
+            if self.at(SyntaxKind::Comma) {
+                elems.push(None);
+                self.consume();
+                continue;
+            }
+
+            // Handle rest: [...x]
+            if self.at(SyntaxKind::DotDotDot) {
+                let rest_start = self.current_byte_offset();
+                self.consume();
+                self.skip_whitespace();
+                let arg = self.parse_var_decl_pattern_element()?;
+                elems.push(Some(IrNode::RestPat {
+                    span: IrSpan::new(rest_start, self.current_byte_offset()),
+                    arg: Box::new(arg),
+                    type_ann: None,
+                }));
+            } else {
+                let elem = self.parse_var_decl_pattern_element()?;
+                elems.push(Some(elem));
+            }
+
+            self.skip_whitespace();
+
+            if self.at(SyntaxKind::Comma) {
+                self.consume();
+            } else {
+                break;
             }
         }
 
-        // Merge adjacent raw nodes and return as TsLoopStmt (which handles raw statements)
-        let merged = Self::merge_adjacent_text(parts);
-        Ok(IrNode::TsLoopStmt {
+        if !self.at(SyntaxKind::RBracket) {
+            return Err(ParseError::missing_closing(
+                ParseErrorKind::MissingClosingBracket,
+                self.current_byte_offset(),
+                start_pos,
+            ));
+        }
+        self.consume();
+
+        Ok(IrNode::ArrayPat {
             span: IrSpan::new(start_byte, self.current_byte_offset()),
-            parts: merged,
+            elems,
+            type_ann: None,
+            optional: false,
         })
+    }
+
+    /// Parse object destructuring pattern for variable declarations: { a, b: c, ...rest }
+    fn parse_var_decl_object_pattern(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
+        let start_pos = self.pos;
+
+        self.expect(SyntaxKind::LBrace);
+        let mut props = Vec::new();
+
+        loop {
+            self.skip_whitespace();
+
+            if self.at(SyntaxKind::RBrace) {
+                break;
+            }
+
+            // Handle rest: {...x}
+            if self.at(SyntaxKind::DotDotDot) {
+                let rest_start = self.current_byte_offset();
+                self.consume();
+                self.skip_whitespace();
+                let arg = self.parse_var_decl_pattern_element()?;
+                props.push(IrNode::RestPat {
+                    span: IrSpan::new(rest_start, self.current_byte_offset()),
+                    arg: Box::new(arg),
+                    type_ann: None,
+                });
+            } else {
+                let prop = self.parse_var_decl_object_prop()?;
+                props.push(prop);
+            }
+
+            self.skip_whitespace();
+
+            if self.at(SyntaxKind::Comma) {
+                self.consume();
+            } else {
+                break;
+            }
+        }
+
+        if !self.at(SyntaxKind::RBrace) {
+            return Err(ParseError::missing_closing(
+                ParseErrorKind::MissingClosingBrace,
+                self.current_byte_offset(),
+                start_pos,
+            ));
+        }
+        self.consume();
+
+        Ok(IrNode::ObjectPat {
+            span: IrSpan::new(start_byte, self.current_byte_offset()),
+            props,
+            type_ann: None,
+            optional: false,
+        })
+    }
+
+    /// Parse a single element in a destructuring pattern (identifier, nested pattern, or placeholder)
+    fn parse_var_decl_pattern_element(&mut self) -> ParseResult<IrNode> {
+        self.skip_whitespace();
+
+        // Check for nested patterns
+        if self.at(SyntaxKind::LBracket) {
+            return self.parse_var_decl_array_pattern();
+        }
+        if self.at(SyntaxKind::LBrace) {
+            return self.parse_var_decl_object_pattern();
+        }
+
+        // Check for placeholder
+        if self.at(SyntaxKind::At) {
+            let placeholder = self.parse_interpolation()
+                .map_err(|e| e.with_context("pattern element placeholder"))?;
+            self.skip_whitespace();
+
+            // Check for default value
+            if self.at(SyntaxKind::Eq) {
+                let span = placeholder.span();
+                self.consume();
+                self.skip_whitespace();
+                let default_val = self.parse_ts_expr_until(&[
+                    SyntaxKind::Comma,
+                    SyntaxKind::RBracket,
+                    SyntaxKind::RBrace,
+                ])?;
+                return Ok(IrNode::AssignPat {
+                    span: IrSpan::new(span.start, self.current_byte_offset()),
+                    left: Box::new(placeholder),
+                    right: Box::new(default_val),
+                });
+            }
+
+            return Ok(placeholder);
+        }
+
+        // Parse identifier
+        let ident = self.parse_ts_ident_or_placeholder()
+            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
+                .with_context("pattern element"))?;
+        self.skip_whitespace();
+
+        // Check for default value
+        if self.at(SyntaxKind::Eq) {
+            let span = ident.span();
+            self.consume();
+            self.skip_whitespace();
+            let default_val = self.parse_ts_expr_until(&[
+                SyntaxKind::Comma,
+                SyntaxKind::RBracket,
+                SyntaxKind::RBrace,
+            ])?;
+            return Ok(IrNode::AssignPat {
+                span: IrSpan::new(span.start, self.current_byte_offset()),
+                left: Box::new(ident),
+                right: Box::new(default_val),
+            });
+        }
+
+        Ok(ident)
+    }
+
+    /// Parse a property in an object destructuring pattern: a, a: b, a = default, a: b = default
+    fn parse_var_decl_object_prop(&mut self) -> ParseResult<IrNode> {
+        let start_byte = self.current_byte_offset();
+
+        // Parse the key (could be identifier or placeholder)
+        let key = if self.at(SyntaxKind::At) {
+            self.parse_interpolation()
+                .map_err(|e| e.with_context("object pattern key placeholder"))?
+        } else {
+            self.parse_ts_ident_or_placeholder()
+                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
+                    .with_context("object pattern property key"))?
+        };
+        self.skip_whitespace();
+
+        // Check for : to indicate renamed property
+        if self.at(SyntaxKind::Colon) {
+            self.consume();
+            self.skip_whitespace();
+
+            // Parse the value (could be nested pattern, identifier, or placeholder)
+            let value = self.parse_var_decl_pattern_element()?;
+
+            Ok(IrNode::ObjectPatProp {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                key: Box::new(key),
+                value: Some(Box::new(value)),
+            })
+        } else if self.at(SyntaxKind::Eq) {
+            // Shorthand with default value: { a = default }
+            self.consume();
+            self.skip_whitespace();
+            let default_val = self.parse_ts_expr_until(&[
+                SyntaxKind::Comma,
+                SyntaxKind::RBrace,
+            ])?;
+
+            Ok(IrNode::ObjectPatProp {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                key: Box::new(key.clone()),
+                value: Some(Box::new(IrNode::AssignPat {
+                    span: IrSpan::new(start_byte, self.current_byte_offset()),
+                    left: Box::new(key),
+                    right: Box::new(default_val),
+                })),
+            })
+        } else {
+            // Shorthand: { a }
+            Ok(IrNode::ObjectPatProp {
+                span: IrSpan::new(start_byte, self.current_byte_offset()),
+                key: Box::new(key),
+                value: None,
+            })
+        }
     }
 
     pub(super) fn parse_type_alias_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
@@ -425,10 +632,10 @@ impl Parser {
         self.skip_whitespace();
 
         if !self.at(SyntaxKind::Eq) {
-            return Ok(IrNode::Raw {
-                span: IrSpan::new(start_byte, self.current_byte_offset()),
-                value: "type ".to_string(),
-            });
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            ).with_context("expected '=' in type alias"));
         }
         self.consume();
         self.skip_whitespace();

@@ -386,9 +386,6 @@ pub enum IrNode {
         alt: Option<Box<IrNode>>,
     },
 
-    /// TypeScript for/while loop (parsed as raw text with placeholders)
-    TsLoopStmt { span: IrSpan, parts: Vec<IrNode> },
-
     /// For-in statement: `for (left in right) body`
     ForInStmt {
         span: IrSpan,
@@ -404,6 +401,48 @@ pub enum IrNode {
         left: Box<IrNode>,
         right: Box<IrNode>,
         body: Box<IrNode>,
+    },
+
+    /// C-style for statement: `for (init; test; update) body`
+    TsForStmt {
+        span: IrSpan,
+        /// Initialization: variable declaration or expression
+        init: Option<Box<IrNode>>,
+        /// Loop condition expression
+        test: Option<Box<IrNode>>,
+        /// Update expression (executed after each iteration)
+        update: Option<Box<IrNode>>,
+        /// Loop body statement
+        body: Box<IrNode>,
+    },
+
+    /// While statement: `while (test) body`
+    TsWhileStmt {
+        span: IrSpan,
+        /// Loop condition
+        test: Box<IrNode>,
+        /// Loop body
+        body: Box<IrNode>,
+    },
+
+    /// Do-while statement: `do body while (test)`
+    TsDoWhileStmt {
+        span: IrSpan,
+        /// Loop body (executed at least once)
+        body: Box<IrNode>,
+        /// Loop condition (checked after body)
+        test: Box<IrNode>,
+    },
+
+    /// Try-catch-finally statement: `try { } catch (e) { } finally { }`
+    TsTryStmt {
+        span: IrSpan,
+        /// The try block
+        block: Box<IrNode>,
+        /// Optional catch clause
+        handler: Option<TsCatchClause>,
+        /// Optional finally block
+        finalizer: Option<Box<IrNode>>,
     },
 
     /// Empty statement: `;`
@@ -976,9 +1015,6 @@ pub enum IrNode {
         parts: Vec<IrNode>,
     },
 
-    /// Raw text (fallback for unparseable content - should be minimized)
-    Raw { span: IrSpan, value: String },
-
     /// Enum member: `Name = value`
     EnumMember {
         span: IrSpan,
@@ -1048,6 +1084,16 @@ pub struct VarDeclarator {
     pub type_ann: Option<Box<IrNode>>,
     pub init: Option<Box<IrNode>>,
     pub definite: bool,
+}
+
+/// Catch clause for try-catch statements: `catch (param) { body }`
+#[derive(Debug, Clone)]
+pub struct TsCatchClause {
+    pub span: IrSpan,
+    /// Optional catch parameter (can be None in modern TS: `catch { }`)
+    pub param: Option<Box<IrNode>>,
+    /// The catch body block
+    pub body: Box<IrNode>,
 }
 
 /// Match arm for template match construct (statement context).
@@ -1180,14 +1226,6 @@ impl IrNode {
         }
     }
 
-    /// Create a raw text node from a token.
-    pub fn raw(token: &impl IntoIrNode) -> Self {
-        IrNode::Raw {
-            span: token.ir_span(),
-            value: token.text().to_string(),
-        }
-    }
-
     /// Create an empty statement from a token.
     pub fn empty_stmt(token: &impl IntoIrNode) -> Self {
         IrNode::EmptyStmt {
@@ -1257,9 +1295,12 @@ impl IrNode {
             IrNode::ReturnStmt { span, .. } => *span,
             IrNode::ThrowStmt { span, .. } => *span,
             IrNode::TsIfStmt { span, .. } => *span,
-            IrNode::TsLoopStmt { span, .. } => *span,
             IrNode::ForInStmt { span, .. } => *span,
             IrNode::ForOfStmt { span, .. } => *span,
+            IrNode::TsForStmt { span, .. } => *span,
+            IrNode::TsWhileStmt { span, .. } => *span,
+            IrNode::TsDoWhileStmt { span, .. } => *span,
+            IrNode::TsTryStmt { span, .. } => *span,
             IrNode::EmptyStmt { span } => *span,
 
             // Expressions
@@ -1368,7 +1409,6 @@ impl IrNode {
             // Special Constructs
             IrNode::IdentBlock { span, .. } => *span,
             IrNode::StringInterp { span, .. } => *span,
-            IrNode::Raw { span, .. } => *span,
             IrNode::EnumMember { span, .. } => *span,
             IrNode::Decorator { span, .. } => *span,
             IrNode::ImportDecl { span, .. } => *span,
