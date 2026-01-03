@@ -126,6 +126,8 @@ pub enum SyntaxKind {
     EqEq,
     /// `===` - strict equality operator
     EqEqEq,
+    /// `=>` - fat arrow (for arrow functions)
+    FatArrow,
     /// `?` - question mark (for optional)
     Question,
     /// `.` - dot

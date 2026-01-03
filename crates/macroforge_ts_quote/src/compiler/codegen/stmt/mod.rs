@@ -740,6 +740,56 @@ pub(in super::super) fn generate_stmt_string_part(&self, node: &IrNode) -> GenRe
                 __stmt_str.push_str("!");
             })
         }
+        IrNode::OptChainExpr { base, expr, .. } => {
+            let base_parts = self.generate_stmt_string_part(base)?;
+            // Handle the chained expression (MemberExpr or CallExpr)
+            match expr.as_ref() {
+                IrNode::MemberExpr { prop, computed, .. } => {
+                    let prop_parts = self.generate_stmt_string_part(prop)?;
+                    if *computed {
+                        Ok(quote! {
+                            #base_parts
+                            __stmt_str.push_str("?.[");
+                            #prop_parts
+                            __stmt_str.push_str("]");
+                        })
+                    } else {
+                        Ok(quote! {
+                            #base_parts
+                            __stmt_str.push_str("?.");
+                            #prop_parts
+                        })
+                    }
+                }
+                IrNode::CallExpr { args, .. } => {
+                    let args_parts: Vec<TokenStream> = args
+                        .iter()
+                        .enumerate()
+                        .map(|(i, a)| {
+                            let arg_part = self.generate_stmt_string_part(a)?;
+                            if i > 0 {
+                                Ok(quote! {
+                                    __stmt_str.push_str(", ");
+                                    #arg_part
+                                })
+                            } else {
+                                Ok(arg_part)
+                            }
+                        })
+                        .collect::<GenResult<_>>()?;
+                    Ok(quote! {
+                        #base_parts
+                        __stmt_str.push_str("?.(");
+                        #(#args_parts)*
+                        __stmt_str.push_str(")");
+                    })
+                }
+                _ => {
+                    // Fallback - just emit the base
+                    Ok(base_parts)
+                }
+            }
+        }
         // Type nodes for string representation
         IrNode::KeywordType { keyword: kw, .. } => {
             let type_str = match kw {

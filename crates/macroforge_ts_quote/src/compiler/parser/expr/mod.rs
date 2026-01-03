@@ -35,7 +35,7 @@ pub mod precedence;
 pub mod primary;
 
 use crate::compiler::ir::{IntoIrNode, IrNode, IrSpan};
-use crate::compiler::parser::Parser;
+use crate::compiler::parser::{Context, Parser};
 use crate::compiler::syntax::SyntaxKind;
 use errors::{ParseError, ParseResult};
 use precedence::prec;
@@ -322,7 +322,15 @@ impl Parser {
                 let type_ann = if self.at(SyntaxKind::Colon) {
                     self.consume();
                     self.skip_whitespace();
-                    Some(Box::new(self.parse_type()?))
+                    // Push TypeAnnotation context so placeholders get correct kind
+                    self.push_context(Context::type_annotation([
+                        SyntaxKind::Comma,
+                        SyntaxKind::RParen,
+                        SyntaxKind::Eq,
+                    ]));
+                    let ty = self.parse_type()?;
+                    self.pop_context();
+                    Some(Box::new(ty))
                 } else {
                     None
                 };
@@ -796,7 +804,13 @@ impl Parser {
         self.consume(); // :
         self.skip_whitespace();
 
+        // Push TypeAnnotation context so placeholders get correct kind
+        self.push_context(Context::type_annotation([
+            SyntaxKind::LBrace,
+            SyntaxKind::Semicolon,
+        ]));
         let ty = self.parse_type()?;
+        self.pop_context();
         Ok(Some(Box::new(ty)))
     }
 
@@ -807,9 +821,12 @@ impl Parser {
     pub(super) fn parse_type(&mut self) -> ParseResult<IrNode> {
         self.skip_whitespace();
 
-        // Handle placeholder
+        // Handle placeholder - need to check for type modifiers ([], |, &)
         if self.at(SyntaxKind::At) {
-            return self.parse_interpolation();
+            let placeholder = self.parse_interpolation()?;
+            self.skip_whitespace();
+            // Always check for type modifiers (array [], union |, intersection &)
+            return self.parse_type_modifiers(placeholder);
         }
 
         let Some(token) = self.current() else {
@@ -1054,10 +1071,30 @@ impl Parser {
         self.parse_type_modifiers(base_type)
     }
 
-    /// Parses type modifiers after a base type ([], |, &, extends, [K])
+    /// Parses type modifiers after a base type ([], |, &, extends, [K], is)
     fn parse_type_modifiers(&mut self, mut ty: IrNode) -> ParseResult<IrNode> {
         loop {
             self.skip_whitespace();
+
+            // Type predicate: param is Type
+            // Only handle this for identifier/this base types (not complex types)
+            if self.at(SyntaxKind::IsKw) {
+                // The current `ty` should be an identifier (param name)
+                let start = ty.span().start;
+                self.consume(); // consume 'is'
+                self.skip_whitespace();
+
+                let predicate_type = self.parse_type()?;
+
+                ty = IrNode::TypePredicate {
+                    span: IrSpan::new(start, self.current_byte_offset()),
+                    asserts: false,
+                    param_name: Box::new(ty),
+                    type_ann: Some(Box::new(predicate_type)),
+                };
+                // Type predicate is terminal - don't continue to other modifiers
+                break;
+            }
 
             // Array type: T[] or Indexed access type: T[K]
             if self.at(SyntaxKind::LBracket) {

@@ -118,6 +118,14 @@ impl Parser {
                 }
             }
 
+            // Keywords used as property names also consume identifier context
+            // This handles cases like `obj.is(...)` where `is` is a keyword
+            _ if kind.is_ts_keyword() => {
+                if self.current_context_kind() == ContextKind::Identifier {
+                    self.pop_context();
+                }
+            }
+
             // Placeholder (@{...}) also consumes identifier context (acts like an identifier)
             SyntaxKind::At => {
                 if self.current_context_kind() == ContextKind::Identifier {

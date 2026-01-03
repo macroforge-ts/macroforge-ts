@@ -484,11 +484,8 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
 
-        IrNode::Placeholder {
-            kind: PlaceholderKind::Type,
-            expr,
-            ..
-        } => {
+        // Accept any placeholder kind in type position - runtime trait handles conversion
+        IrNode::Placeholder { expr, .. } => {
             Ok(quote! { macroforge_ts::ts_syn::ToTsType::to_ts_type((#expr).clone()) })
         }
 
@@ -572,6 +569,67 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
             })
         }
 
+        // TypePredicate: param is Type
+        IrNode::TypePredicate { asserts, param_name, type_ann, .. } => {
+            let asserts_code = *asserts;
+            let param_name_code = match param_name.as_ref() {
+                IrNode::Ident { value: name, .. } => {
+                    quote! {
+                        macroforge_ts::swc_core::ecma::ast::TsThisTypeOrIdent::Ident(
+                            macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
+                                #name.into(),
+                                macroforge_ts::swc_core::common::DUMMY_SP,
+                            )
+                        )
+                    }
+                }
+                IrNode::ThisType { .. } | IrNode::ThisExpr { .. } => {
+                    quote! {
+                        macroforge_ts::swc_core::ecma::ast::TsThisTypeOrIdent::TsThisType(
+                            macroforge_ts::swc_core::ecma::ast::TsThisType {
+                                span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            }
+                        )
+                    }
+                }
+                IrNode::Placeholder { expr, .. } => {
+                    quote! {
+                        macroforge_ts::ts_syn::ToTsThisTypeOrIdent::to_ts_this_type_or_ident((#expr).clone())
+                    }
+                }
+                other => {
+                    // Fall back to generating as identifier
+                    let ident_code = self.generate_ident(other)?;
+                    quote! {
+                        macroforge_ts::swc_core::ecma::ast::TsThisTypeOrIdent::Ident(#ident_code)
+                    }
+                }
+            };
+            let type_ann_code = match type_ann {
+                Some(ty) => {
+                    let ty_code = self.generate_type(ty)?;
+                    quote! {
+                        Some(Box::new(macroforge_ts::swc_core::ecma::ast::TsTypeAnn {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            type_ann: Box::new(#ty_code),
+                        }))
+                    }
+                }
+                None => quote! { None },
+            };
+
+            Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::TsType::TsTypePredicate(
+                    macroforge_ts::swc_core::ecma::ast::TsTypePredicate {
+                        span: macroforge_ts::swc_core::common::DUMMY_SP,
+                        asserts: #asserts_code,
+                        param_name: #param_name_code,
+                        type_ann: #type_ann_code,
+                    }
+                )
+            })
+        }
+
         _ => Err(GenError::unexpected_node(
             "type",
             node,
@@ -596,6 +654,7 @@ pub(in super::super) fn generate_type(&self, node: &IrNode) -> GenResult<TokenSt
                 "QualifiedName",
                 "ObjectType",
                 "FnType",
+                "TypePredicate",
                 "Placeholder(Type)",
                 "Ident",
                 "Raw",

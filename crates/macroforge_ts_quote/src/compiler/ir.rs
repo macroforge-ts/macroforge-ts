@@ -842,6 +842,17 @@ pub enum IrNode {
     /// This type: `this`
     ThisType { span: IrSpan },
 
+    /// Type predicate: `param is Type` or `asserts param is Type`
+    TypePredicate {
+        span: IrSpan,
+        /// Whether this is an assertion predicate (`asserts param is Type`)
+        asserts: bool,
+        /// The parameter name (identifier or `this`)
+        param_name: Box<IrNode>,
+        /// The type being asserted (None for bare `asserts param`)
+        type_ann: Option<Box<IrNode>>,
+    },
+
     // =========================================================================
     // Template Constructs (Rust Integration)
     // =========================================================================
@@ -1332,6 +1343,7 @@ impl IrNode {
             IrNode::MappedType { span, .. } => *span,
             IrNode::ImportType { span, .. } => *span,
             IrNode::ThisType { span } => *span,
+            IrNode::TypePredicate { span, .. } => *span,
 
             // Template Constructs
             IrNode::Placeholder { span, .. } => *span,

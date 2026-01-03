@@ -499,7 +499,7 @@ impl Lexer {
                     SyntaxKind::Comma
                 }
                 '=' => {
-                    // Check for === or ==
+                    // Check for ===, ==, or =>
                     let rest = &self.input[self.pos + 1..];
                     if rest.starts_with("==") {
                         self.advance(3);
@@ -507,6 +507,9 @@ impl Lexer {
                     } else if rest.starts_with('=') {
                         self.advance(2);
                         SyntaxKind::EqEq
+                    } else if rest.starts_with('>') {
+                        self.advance(2);
+                        SyntaxKind::FatArrow
                     } else {
                         self.advance(1);
                         SyntaxKind::Eq

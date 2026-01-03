@@ -229,7 +229,11 @@ impl Parser {
     pub(super) fn with_context<T>(&mut self, ctx: Context, f: impl FnOnce(&mut Self) -> T) -> T {
         self.context_stack.push(ctx);
         let result = f(self);
-        self.context_stack.pop();
+        // Use guarded pop to ensure we never empty the stack
+        // (something inside f() may have already popped our context)
+        if self.context_stack.len() > 1 {
+            self.context_stack.pop();
+        }
         result
     }
 

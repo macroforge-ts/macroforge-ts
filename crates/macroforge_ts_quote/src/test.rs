@@ -505,3 +505,160 @@ fn test_for_loop_with_tuple_pattern_in_function_body() {
         s
     );
 }
+
+#[test]
+fn test_placeholder_followed_by_method_call() {
+    // This test replicates the issue where placeholder.method(arg) fails to parse
+    // The parser was stopping after .is instead of continuing to parse (result)
+    let input = r#"
+        if (@{pending_ref_expr}.is(result)) {
+            return { __pendingIdx: idx, __refId: result.id };
+        }
+    "#;
+
+    let s = compile(input);
+
+    eprintln!("Generated code for placeholder method call:\n{}", s);
+
+    // The placeholder followed by .is(result) should be parsed as a call expression
+    assert!(
+        s.contains("is") && (s.contains("result") || s.contains("pending_ref_expr")),
+        "Expected placeholder.is(result) to be parsed as call. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_is() {
+    // `is` is a TypeScript keyword (type predicates) but valid as property name
+    let input = r#"const result = obj.is(value);"#;
+    let s = compile(input);
+    assert!(
+        s.contains("is"),
+        "Expected .is() method call to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_as() {
+    // `as` is a TypeScript keyword but valid as property name
+    let input = r#"const result = obj.as(Type);"#;
+    let s = compile(input);
+    assert!(
+        s.contains("as"),
+        "Expected .as() method call to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_type() {
+    // `type` is a TypeScript keyword but valid as property name
+    let input = r#"const t = obj.type;"#;
+    let s = compile(input);
+    assert!(
+        s.contains("type"),
+        "Expected .type property access to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_default() {
+    // `default` is a keyword but valid as property name
+    let input = r#"const d = module.default;"#;
+    let s = compile(input);
+    assert!(
+        s.contains("default"),
+        "Expected .default property access to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_delete() {
+    // `delete` is a keyword but valid as property name
+    let input = r#"await db.delete(id);"#;
+    let s = compile(input);
+    assert!(
+        s.contains("delete"),
+        "Expected .delete() method call to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_get_set() {
+    // `get` and `set` are keywords but valid as property names
+    let input = r#"
+        const val = store.get(key);
+        store.set(key, value);
+    "#;
+    let s = compile(input);
+    assert!(
+        s.contains("get") && s.contains("set"),
+        "Expected .get() and .set() method calls to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_in_chain() {
+    // Keywords in chained member access
+    let input = r#"const result = obj.type.is.default.get();"#;
+    let s = compile(input);
+    assert!(
+        s.contains("type") && s.contains("is") && s.contains("default") && s.contains("get"),
+        "Expected chained keyword property access to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_placeholder_with_keyword_method_chain() {
+    // Placeholder followed by keyword method chain
+    let input = r#"const result = @{expr}.type.is(value).get();"#;
+    let s = compile(input);
+    assert!(
+        s.contains("type") && s.contains("is") && s.contains("get"),
+        "Expected placeholder with keyword method chain to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_new() {
+    // `new` is a keyword but valid as property name
+    let input = r#"const instance = factory.new(config);"#;
+    let s = compile(input);
+    assert!(
+        s.contains("new"),
+        "Expected .new() method call to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_return() {
+    // `return` is a keyword but valid as property name
+    let input = r#"const ret = response.return;"#;
+    let s = compile(input);
+    assert!(
+        s.contains("return"),
+        "Expected .return property access to parse. Got:\n{}",
+        s
+    );
+}
+
+#[test]
+fn test_keyword_as_property_name_typeof() {
+    // `typeof` is a keyword but valid as property name
+    let input = r#"const t = schema.typeof(value);"#;
+    let s = compile(input);
+    assert!(
+        s.contains("typeof"),
+        "Expected .typeof() method call to parse. Got:\n{}",
+        s
+    );
+}
