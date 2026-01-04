@@ -21,12 +21,16 @@ describe('Custom Validators', () => {
     // ============================================================================
     describe('CustomNumberValidator (isEven)', () => {
         test('accepts even number', () => {
-            const result = mod.CustomNumberValidator.deserialize(JSON.stringify({ evenNumber: 2 }));
+            const result = mod.CustomNumberValidator.deserialize(
+                JSON.stringify({ evenNumber: 2 })
+            );
             assertValidationSuccess(result, 'evenNumber');
         });
 
         test('accepts zero', () => {
-            const result = mod.CustomNumberValidator.deserialize(JSON.stringify({ evenNumber: 0 }));
+            const result = mod.CustomNumberValidator.deserialize(
+                JSON.stringify({ evenNumber: 0 })
+            );
             assertValidationSuccess(result, 'evenNumber');
         });
 
@@ -38,7 +42,9 @@ describe('Custom Validators', () => {
         });
 
         test('rejects odd number', () => {
-            const result = mod.CustomNumberValidator.deserialize(JSON.stringify({ evenNumber: 3 }));
+            const result = mod.CustomNumberValidator.deserialize(
+                JSON.stringify({ evenNumber: 3 })
+            );
             assertValidationError(result, 'evenNumber', '');
         });
 

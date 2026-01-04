@@ -3,10 +3,10 @@ mod tests {
     use macroforge_ts_quote::ts_template;
     use macroforge_ts_syn::abi::{MacroContextIR, SpanIR};
     use macroforge_ts_syn::{
-        lower_classes, lower_interfaces, Data, DeriveInput, ParseTs, TsStream,
+        Data, DeriveInput, ParseTs, TsStream, lower_classes, lower_interfaces,
     };
-    use swc_core::common::{sync::Lrc, FileName, Globals, SourceMap, GLOBALS};
-    use swc_core::ecma::parser::{lexer::Lexer, Parser, StringInput, Syntax, TsSyntax};
+    use swc_core::common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
+    use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 
     fn capitalize(s: &str) -> String {
         let mut chars = s.chars();

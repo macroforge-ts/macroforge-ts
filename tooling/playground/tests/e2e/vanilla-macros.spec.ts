@@ -69,7 +69,9 @@ test.describe('Vanilla Playground Macro Tests', () => {
         await page.click('[data-testid="test-all-macros"]');
         await page.waitForSelector('[data-tests-complete="true"]');
 
-        const deserializeResult = page.locator('[data-testid="result-deserialize"]');
+        const deserializeResult = page.locator(
+            '[data-testid="result-deserialize"]'
+        );
         const content = await deserializeResult.textContent();
         // Check if deserialize is available or shows "Not available"
         expect(

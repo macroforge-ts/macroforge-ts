@@ -1,11 +1,11 @@
 //! TUI rendering
 
 use ratatui::{
+    Frame,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, Paragraph},
-    Frame,
 };
 
 use super::app::{App, FocusedPanel, LogLevel, TaskStatus};
@@ -27,8 +27,11 @@ pub fn render(frame: &mut Frame, app: &App) {
 }
 
 fn render_title(frame: &mut Frame, area: Rect) {
-    let title = Paragraph::new(" Macroforge Tooling Dashboard")
-        .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
+    let title = Paragraph::new(" Macroforge Tooling Dashboard").style(
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
+    );
     frame.render_widget(title, area);
 }
 
@@ -125,11 +128,7 @@ fn render_output_log(frame: &mut Frame, area: Rect, app: &App) {
 }
 
 fn render_status_bar(frame: &mut Frame, area: Rect, app: &App) {
-    let status = if app.running {
-        "Running..."
-    } else {
-        "Ready"
-    };
+    let status = if app.running { "Running..." } else { "Ready" };
 
     let time = chrono::Local::now().format("%H:%M:%S").to_string();
 
@@ -142,8 +141,8 @@ fn render_status_bar(frame: &mut Frame, area: Rect, app: &App) {
         Span::styled(time, Style::default().fg(Color::DarkGray)),
     ]);
 
-    let paragraph = Paragraph::new(status_line)
-        .style(Style::default().bg(Color::DarkGray).fg(Color::White));
+    let paragraph =
+        Paragraph::new(status_line).style(Style::default().bg(Color::DarkGray).fg(Color::White));
 
     frame.render_widget(paragraph, area);
 }

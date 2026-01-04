@@ -24,8 +24,7 @@ pub fn load_deps(root: &Path) -> Result<HashMap<String, Vec<String>>> {
         return Ok(HashMap::new());
     }
 
-    let content = std::fs::read_to_string(&deps_path)
-        .context("Failed to read deps.toml")?;
+    let content = std::fs::read_to_string(&deps_path).context("Failed to read deps.toml")?;
 
     // Try parsing as sectioned format first
     if let Ok(sectioned) = toml::from_str::<DepsToml>(&content) {
@@ -41,8 +40,8 @@ pub fn load_deps(root: &Path) -> Result<HashMap<String, Vec<String>>> {
     }
 
     // Fall back to flat format for backwards compatibility
-    let deps: HashMap<String, Vec<String>> = toml::from_str(&content)
-        .context("Failed to parse deps.toml")?;
+    let deps: HashMap<String, Vec<String>> =
+        toml::from_str(&content).context("Failed to parse deps.toml")?;
 
     Ok(deps)
 }
@@ -50,8 +49,8 @@ pub fn load_deps(root: &Path) -> Result<HashMap<String, Vec<String>>> {
 /// Get topologically sorted order for building
 /// Uses Kahn's algorithm with priority queue to prefer packages with fewer dependencies
 pub fn topo_order(deps: &HashMap<String, Vec<String>>) -> Result<Vec<String>> {
-    use std::collections::{BinaryHeap, HashSet};
     use std::cmp::Reverse;
+    use std::collections::{BinaryHeap, HashSet};
 
     // Build in-degree map and adjacency list
     let mut in_degree: HashMap<String, usize> = HashMap::new();
@@ -116,9 +115,7 @@ pub fn topo_order(deps: &HashMap<String, Vec<String>>) -> Result<Vec<String>> {
 
     // Check for cycles
     if result.len() != deps.len() {
-        let remaining: Vec<_> = deps.keys()
-            .filter(|k| !visited.contains(*k))
-            .collect();
+        let remaining: Vec<_> = deps.keys().filter(|k| !visited.contains(*k)).collect();
         anyhow::bail!("Dependency cycle detected involving: {:?}", remaining);
     }
 
@@ -225,7 +222,10 @@ mod tests {
         let mut deps = HashMap::new();
         deps.insert("package-a".to_string(), vec![]);
         deps.insert("package-b".to_string(), vec![]);
-        deps.insert("package-c".to_string(), vec!["package-a".to_string(), "package-b".to_string()]);
+        deps.insert(
+            "package-c".to_string(),
+            vec!["package-a".to_string(), "package-b".to_string()],
+        );
         deps.insert("package-d".to_string(), vec!["package-c".to_string()]);
 
         let result = topo_order(&deps).unwrap();
@@ -256,7 +256,10 @@ mod tests {
         deps.insert("package-a".to_string(), vec![]);
         deps.insert("package-b".to_string(), vec!["package-a".to_string()]);
         deps.insert("package-c".to_string(), vec!["package-a".to_string()]);
-        deps.insert("package-d".to_string(), vec!["package-b".to_string(), "package-c".to_string()]);
+        deps.insert(
+            "package-d".to_string(),
+            vec!["package-b".to_string(), "package-c".to_string()],
+        );
 
         let result = topo_order(&deps).unwrap();
         assert_eq!(result.len(), 4);
@@ -384,7 +387,10 @@ mod tests {
         let mut deps = HashMap::new();
         deps.insert("package-a".to_string(), vec![]);
         deps.insert("package-b".to_string(), vec![]);
-        deps.insert("package-c".to_string(), vec!["package-a".to_string(), "package-b".to_string()]);
+        deps.insert(
+            "package-c".to_string(),
+            vec!["package-a".to_string(), "package-b".to_string()],
+        );
         deps.insert("package-d".to_string(), vec!["package-b".to_string()]);
 
         let mut dependents_a = get_dependents(&deps, "package-a");
@@ -429,8 +435,14 @@ package-c = ["package-a", "package-b"]
 
         assert_eq!(result.len(), 3);
         assert_eq!(result.get("package-a").unwrap().len(), 0);
-        assert_eq!(result.get("package-b").unwrap(), &vec!["package-a".to_string()]);
-        assert_eq!(result.get("package-c").unwrap(), &vec!["package-a".to_string(), "package-b".to_string()]);
+        assert_eq!(
+            result.get("package-b").unwrap(),
+            &vec!["package-a".to_string()]
+        );
+        assert_eq!(
+            result.get("package-c").unwrap(),
+            &vec!["package-a".to_string(), "package-b".to_string()]
+        );
 
         Ok(())
     }
@@ -497,10 +509,22 @@ app-full = ["app-frontend", "app-backend"]
         assert_eq!(result.len(), 6);
         assert_eq!(result.get("core").unwrap().len(), 0);
         assert_eq!(result.get("utils").unwrap(), &vec!["core".to_string()]);
-        assert_eq!(result.get("ui-components").unwrap(), &vec!["core".to_string(), "utils".to_string()]);
-        assert_eq!(result.get("app-frontend").unwrap(), &vec!["ui-components".to_string(), "utils".to_string()]);
-        assert_eq!(result.get("app-backend").unwrap(), &vec!["core".to_string()]);
-        assert_eq!(result.get("app-full").unwrap(), &vec!["app-frontend".to_string(), "app-backend".to_string()]);
+        assert_eq!(
+            result.get("ui-components").unwrap(),
+            &vec!["core".to_string(), "utils".to_string()]
+        );
+        assert_eq!(
+            result.get("app-frontend").unwrap(),
+            &vec!["ui-components".to_string(), "utils".to_string()]
+        );
+        assert_eq!(
+            result.get("app-backend").unwrap(),
+            &vec!["core".to_string()]
+        );
+        assert_eq!(
+            result.get("app-full").unwrap(),
+            &vec!["app-frontend".to_string(), "app-backend".to_string()]
+        );
 
         Ok(())
     }
@@ -591,11 +615,17 @@ website = ["core"]
         // Check crates section
         assert_eq!(result.get("syn").unwrap().len(), 0);
         assert_eq!(result.get("template").unwrap().len(), 0);
-        assert_eq!(result.get("macros").unwrap(), &vec!["syn".to_string(), "template".to_string()]);
+        assert_eq!(
+            result.get("macros").unwrap(),
+            &vec!["syn".to_string(), "template".to_string()]
+        );
 
         // Check packages section
         assert_eq!(result.get("shared").unwrap(), &vec!["core".to_string()]);
-        assert_eq!(result.get("vite-plugin").unwrap(), &vec!["core".to_string(), "shared".to_string()]);
+        assert_eq!(
+            result.get("vite-plugin").unwrap(),
+            &vec!["core".to_string(), "shared".to_string()]
+        );
 
         // Check other section
         assert_eq!(result.get("website").unwrap(), &vec!["core".to_string()]);
@@ -608,10 +638,16 @@ website = ["core"]
         // Packages with fewer deps should come first when both are ready
         let mut deps = HashMap::new();
         deps.insert("core".to_string(), vec![]);
-        deps.insert("mcp-server".to_string(), vec!["core".to_string()]);       // 1 dep
-        deps.insert("shared".to_string(), vec!["core".to_string()]);           // 1 dep
-        deps.insert("vite-plugin".to_string(), vec!["core".to_string(), "shared".to_string()]); // 2 deps
-        deps.insert("tooling".to_string(), vec!["core".to_string(), "vite-plugin".to_string()]); // 2 deps (transitive: 3)
+        deps.insert("mcp-server".to_string(), vec!["core".to_string()]); // 1 dep
+        deps.insert("shared".to_string(), vec!["core".to_string()]); // 1 dep
+        deps.insert(
+            "vite-plugin".to_string(),
+            vec!["core".to_string(), "shared".to_string()],
+        ); // 2 deps
+        deps.insert(
+            "tooling".to_string(),
+            vec!["core".to_string(), "vite-plugin".to_string()],
+        ); // 2 deps (transitive: 3)
 
         let result = topo_order(&deps).unwrap();
 
@@ -625,12 +661,21 @@ website = ["core"]
         let tooling_pos = result.iter().position(|x| x == "tooling").unwrap();
 
         // shared must come before vite-plugin (dependency)
-        assert!(shared_pos < vite_pos, "shared should come before vite-plugin");
+        assert!(
+            shared_pos < vite_pos,
+            "shared should come before vite-plugin"
+        );
 
         // vite-plugin must come before tooling (dependency)
-        assert!(vite_pos < tooling_pos, "vite-plugin should come before tooling");
+        assert!(
+            vite_pos < tooling_pos,
+            "vite-plugin should come before tooling"
+        );
 
         // mcp-server should come before tooling (mcp-server has 1 transitive dep, tooling has 3)
-        assert!(mcp_pos < tooling_pos, "mcp-server should come before tooling due to fewer transitive deps");
+        assert!(
+            mcp_pos < tooling_pos,
+            "mcp-server should come before tooling due to fewer transitive deps"
+        );
     }
 }

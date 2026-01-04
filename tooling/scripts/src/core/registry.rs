@@ -54,11 +54,7 @@ pub fn npm_version(package_name: &str) -> Result<Option<String>> {
 pub fn crates_version(crate_name: &str) -> Result<Option<String>> {
     let url = format!("https://crates.io/api/v1/crates/{}", crate_name);
 
-    match agent()
-        .get(&url)
-        .header("User-Agent", "mf-cli")
-        .call()
-    {
+    match agent().get(&url).header("User-Agent", "mf-cli").call() {
         Ok(resp) => {
             if resp.status() == 404 {
                 return Ok(None);

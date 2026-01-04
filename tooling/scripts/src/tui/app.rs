@@ -139,8 +139,14 @@ impl App {
 
     /// Initialize with default tasks
     pub fn init_default_tasks(&mut self) {
-        self.add_task("Prepare release".into(), "prep --repos all --dry-run".into());
-        self.add_task("Commit release".into(), "commit --repos all --dry-run".into());
+        self.add_task(
+            "Prepare release".into(),
+            "prep --repos all --dry-run".into(),
+        );
+        self.add_task(
+            "Commit release".into(),
+            "commit --repos all --dry-run".into(),
+        );
         self.add_task("Run diagnostics".into(), "diagnostics".into());
         self.add_task("Generate docs".into(), "docs all".into());
         self.add_task("Build all".into(), "build --repos all".into());
@@ -238,13 +244,19 @@ impl App {
                     self.tasks[id].status = TaskStatus::Completed;
                     self.running = false;
                     self.current_task = None;
-                    self.log(LogLevel::Success, format!("Completed: {}", self.tasks[id].name));
+                    self.log(
+                        LogLevel::Success,
+                        format!("Completed: {}", self.tasks[id].name),
+                    );
                 }
                 TaskMessage::Failed(id, error) => {
                     self.tasks[id].status = TaskStatus::Failed(error.clone());
                     self.running = false;
                     self.current_task = None;
-                    self.log(LogLevel::Error, format!("Failed: {} - {}", self.tasks[id].name, error));
+                    self.log(
+                        LogLevel::Error,
+                        format!("Failed: {} - {}", self.tasks[id].name, error),
+                    );
                 }
             }
         }
@@ -269,11 +281,19 @@ mod tests {
         assert_eq!(app.selected_task, 0, "should start with selection at 0");
         assert_eq!(app.logs.len(), 0, "should start with no logs");
         assert_eq!(app.max_logs, 1000, "should have max_logs set to 1000");
-        assert_eq!(app.focused, FocusedPanel::TaskList, "should start focused on task list");
+        assert_eq!(
+            app.focused,
+            FocusedPanel::TaskList,
+            "should start focused on task list"
+        );
         assert!(!app.running, "should not be running initially");
         assert!(!app.should_quit, "should_quit should be false");
         assert_eq!(app.current_task, None, "should have no current task");
-        assert_eq!(app.logs.capacity(), 1000, "logs should have capacity of 1000");
+        assert_eq!(
+            app.logs.capacity(),
+            1000,
+            "logs should have capacity of 1000"
+        );
     }
 
     #[test]
@@ -494,7 +514,10 @@ mod tests {
         app.selected_task = 1; // Last task
         app.select_next();
 
-        assert_eq!(app.selected_task, 1, "should stay at last task when at boundary");
+        assert_eq!(
+            app.selected_task, 1,
+            "should stay at last task when at boundary"
+        );
     }
 
     #[test]

@@ -119,8 +119,7 @@ fn extract_package_docs(pkg_dir: &Path, pkg_name: &str) -> Result<PackageDoc> {
 
     // Parse package.json
     let pkg_json_content = fs::read_to_string(&pkg_json_path).unwrap_or_default();
-    let pkg_json: serde_json::Value =
-        serde_json::from_str(&pkg_json_content).unwrap_or_default();
+    let pkg_json: serde_json::Value = serde_json::from_str(&pkg_json_content).unwrap_or_default();
 
     let name = pkg_json
         .get("name")
@@ -178,10 +177,9 @@ fn extract_exports_from_source(source: &str) -> Vec<ExportDoc> {
     let mut exports = Vec::new();
 
     // Match export function declarations
-    let fn_re = regex::Regex::new(
-        r"(?m)^(?:/\*\*[\s\S]*?\*/\s*)?export\s+(?:async\s+)?function\s+(\w+)",
-    )
-    .unwrap();
+    let fn_re =
+        regex::Regex::new(r"(?m)^(?:/\*\*[\s\S]*?\*/\s*)?export\s+(?:async\s+)?function\s+(\w+)")
+            .unwrap();
 
     for cap in fn_re.captures_iter(source) {
         let name = cap.get(1).map(|m| m.as_str()).unwrap_or("").to_string();
@@ -237,8 +235,7 @@ fn extract_exports_from_source(source: &str) -> Vec<ExportDoc> {
     }
 
     // Match export type declarations
-    let type_re =
-        regex::Regex::new(r"(?m)^(?:/\*\*[\s\S]*?\*/\s*)?export\s+type\s+(\w+)").unwrap();
+    let type_re = regex::Regex::new(r"(?m)^(?:/\*\*[\s\S]*?\*/\s*)?export\s+type\s+(\w+)").unwrap();
 
     for cap in type_re.captures_iter(source) {
         let name = cap.get(1).map(|m| m.as_str()).unwrap_or("").to_string();

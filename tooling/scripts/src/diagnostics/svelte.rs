@@ -1,27 +1,23 @@
 //! Svelte diagnostic runner
 
 use super::{DiagnosticLevel, DiagnosticTool, UnifiedDiagnostic};
+use crate::core::shell;
 use anyhow::{Context, Result};
 use regex::Regex;
 use std::path::Path;
-use std::process::Command;
 
 /// Run svelte-check and collect diagnostics
 pub fn run(_root: &Path, project_dirs: &[&Path]) -> Result<Vec<UnifiedDiagnostic>> {
     let mut diagnostics = Vec::new();
 
     // Regex to match svelte-check error format: /path/file.svelte:line:col - error/warning message
-    let error_regex = Regex::new(r"^(.+?):(\d+):(\d+)\s+-?\s*(error|warning|Error|Warning)\s+(.+)$")
-        .context("Failed to compile error regex")?;
+    let error_regex =
+        Regex::new(r"^(.+?):(\d+):(\d+)\s+-?\s*(error|warning|Error|Warning)\s+(.+)$")
+            .context("Failed to compile error regex")?;
 
     for project_dir in project_dirs {
-        let output = Command::new("deno")
-            .args(["run", "-A", "npm:svelte-check", "--tsconfig", "./tsconfig.json"])
-            .current_dir(project_dir)
-            .output()
-            .context("Failed to run svelte-check")?;
-
-        let stdout = String::from_utf8_lossy(&output.stdout);
+        let result = shell::deno::svelte_check(project_dir)?;
+        let stdout = &result.stdout;
 
         for line in stdout.lines() {
             if let Some(caps) = error_regex.captures(line) {
@@ -60,22 +56,22 @@ pub fn run(_root: &Path, project_dirs: &[&Path]) -> Result<Vec<UnifiedDiagnostic
     Ok(diagnostics)
 }
 
-/// Find all directories with svelte.config.js
+/// Find all directories with svelte.config.js (respects .gitignore)
 pub fn find_svelte_projects(root: &Path) -> Result<Vec<std::path::PathBuf>> {
+    use ignore::WalkBuilder;
+
     let mut projects = Vec::new();
 
-    for entry in walkdir::WalkDir::new(root)
-        .into_iter()
+    for entry in WalkBuilder::new(root)
+        .hidden(true) // Skip hidden files/dirs
+        .git_ignore(true) // Respect .gitignore
+        .git_exclude(true) // Respect .git/info/exclude
         .filter_entry(|e| {
             let name = e.file_name().to_string_lossy();
-            // Skip node_modules, hidden dirs, test directories
-            !name.starts_with('.')
-                && name != "node_modules"
-                && name != "dist"
-                && name != "test"
-                && name != "tests"
-                && name != "fixtures"
+            // Also skip common non-source directories
+            name != "node_modules" && name != "dist" && name != "target"
         })
+        .build()
     {
         let entry = entry?;
         let name = entry.file_name().to_string_lossy();

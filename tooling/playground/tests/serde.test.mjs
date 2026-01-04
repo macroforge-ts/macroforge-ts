@@ -37,7 +37,10 @@ describe('Serialize macro expansion', () => {
             result.code.includes('static serializeWithContext(value: User, ctx'),
             'Should generate static serializeWithContext method'
         );
-        assert.ok(result.code.includes('SerializeContext'), 'Should use SerializeContext');
+        assert.ok(
+            result.code.includes('SerializeContext'),
+            'Should use SerializeContext'
+        );
     });
 
     test('generates __type and __id in serialization output', () => {
@@ -50,8 +53,14 @@ describe('Serialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('__type: "Point"'), 'Should include __type marker');
-        assert.ok(result.code.includes('__id'), 'Should include __id for cycle detection');
+        assert.ok(
+            result.code.includes('__type: "Point"'),
+            'Should include __type marker'
+        );
+        assert.ok(
+            result.code.includes('__id'),
+            'Should include __id for cycle detection'
+        );
     });
 
     test('generates cycle detection with __ref', () => {
@@ -65,9 +74,15 @@ describe('Serialize macro expansion', () => {
         const result = expandSync(code, 'test.ts');
 
         // New format uses 'value' parameter instead of 'this'
-        assert.ok(result.code.includes('ctx.getId(value)'), 'Should check for existing ID');
+        assert.ok(
+            result.code.includes('ctx.getId(value)'),
+            'Should check for existing ID'
+        );
         assert.ok(result.code.includes('__ref:'), 'Should return __ref for cycles');
-        assert.ok(result.code.includes('ctx.register(value)'), 'Should register object');
+        assert.ok(
+            result.code.includes('ctx.register(value)'),
+            'Should register object'
+        );
     });
 
     test('handles optional fields correctly', () => {
@@ -81,7 +96,8 @@ describe('Serialize macro expansion', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('description') && result.code.includes('!== undefined'),
+            result.code.includes('description') &&
+                result.code.includes('!== undefined'),
             'Should check for undefined on optional fields'
         );
     });
@@ -145,7 +161,10 @@ describe('Serialize macro expansion', () => {
         const result = expandSync(code, 'test.ts');
 
         // Direct property access: result.user_id instead of result["user_id"]
-        assert.ok(result.code.includes('result.user_id'), 'Should use renamed key in output');
+        assert.ok(
+            result.code.includes('result.user_id'),
+            'Should use renamed key in output'
+        );
     });
 
     test('handles @serde(skip) decorator', () => {
@@ -160,8 +179,14 @@ describe('Serialize macro expansion', () => {
         const result = expandSync(code, 'test.ts');
 
         // Direct property access: result.username instead of result["username"]
-        assert.ok(result.code.includes('result.username'), 'Should include non-skipped fields');
-        assert.ok(!result.code.includes('result.password'), 'Should skip fields with skip: true');
+        assert.ok(
+            result.code.includes('result.username'),
+            'Should include non-skipped fields'
+        );
+        assert.ok(
+            !result.code.includes('result.password'),
+            'Should skip fields with skip: true'
+        );
     });
 
     test('handles @serde(flatten) decorator', () => {
@@ -180,8 +205,14 @@ describe('Serialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('__flattened'), 'Should flatten nested object');
-        assert.ok(result.code.includes('Object.assign'), 'Should merge flattened fields');
+        assert.ok(
+            result.code.includes('__flattened'),
+            'Should flatten nested object'
+        );
+        assert.ok(
+            result.code.includes('Object.assign'),
+            'Should merge flattened fields'
+        );
     });
 
     test('handles Date serialization to ISO string', () => {
@@ -194,7 +225,10 @@ describe('Serialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('toISOString()'), 'Should serialize Date as ISO string');
+        assert.ok(
+            result.code.includes('toISOString()'),
+            'Should serialize Date as ISO string'
+        );
     });
 
     test('handles Array serialization with nested objects', () => {
@@ -222,8 +256,14 @@ describe('Serialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('Object.fromEntries'), 'Should convert Map to object');
-        assert.ok(result.code.includes('.entries()'), 'Should iterate over Map entries');
+        assert.ok(
+            result.code.includes('Object.fromEntries'),
+            'Should convert Map to object'
+        );
+        assert.ok(
+            result.code.includes('.entries()'),
+            'Should iterate over Map entries'
+        );
     });
 
     test('handles Set serialization', () => {
@@ -235,7 +275,10 @@ describe('Serialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('Array.from'), 'Should convert Set to array');
+        assert.ok(
+            result.code.includes('Array.from'),
+            'Should convert Set to array'
+        );
     });
 });
 
@@ -262,7 +305,10 @@ describe('Deserialize macro expansion', () => {
             result.code.includes('static deserializeWithContext('),
             'Should generate static deserializeWithContext'
         );
-        assert.ok(result.code.includes('DeserializeContext'), 'Should use DeserializeContext');
+        assert.ok(
+            result.code.includes('DeserializeContext'),
+            'Should use DeserializeContext'
+        );
     });
 
     test('handles __ref for cycle detection', () => {
@@ -275,8 +321,14 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('__ref'), 'Should handle __ref for forward references');
-        assert.ok(result.code.includes('getOrDefer'), 'Should use getOrDefer for cycle handling');
+        assert.ok(
+            result.code.includes('__ref'),
+            'Should handle __ref for forward references'
+        );
+        assert.ok(
+            result.code.includes('getOrDefer'),
+            'Should use getOrDefer for cycle handling'
+        );
     });
 
     test('validates required fields', () => {
@@ -306,7 +358,10 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('default_value'), 'Should use default value');
+        assert.ok(
+            result.code.includes('default_value'),
+            'Should use default value'
+        );
     });
 
     test('handles Date deserialization from ISO string', () => {
@@ -318,7 +373,10 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('new Date('), 'Should parse Date from string');
+        assert.ok(
+            result.code.includes('new Date('),
+            'Should parse Date from string'
+        );
     });
 
     test('handles Array deserialization', () => {
@@ -330,7 +388,10 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('Array.isArray'), 'Should check for array type');
+        assert.ok(
+            result.code.includes('Array.isArray'),
+            'Should check for array type'
+        );
     });
 
     test('handles Map deserialization', () => {
@@ -342,8 +403,14 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('new Map('), 'Should construct Map from object');
-        assert.ok(result.code.includes('Object.entries'), 'Should use Object.entries');
+        assert.ok(
+            result.code.includes('new Map('),
+            'Should construct Map from object'
+        );
+        assert.ok(
+            result.code.includes('Object.entries'),
+            'Should use Object.entries'
+        );
     });
 
     test('handles Set deserialization', () => {
@@ -355,7 +422,10 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('new Set('), 'Should construct Set from array');
+        assert.ok(
+            result.code.includes('new Set('),
+            'Should construct Set from array'
+        );
     });
 
     test('rejects classes with custom constructors', () => {
@@ -370,7 +440,10 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.diagnostics.length > 0, 'Should report error for custom constructor');
+        assert.ok(
+            result.diagnostics.length > 0,
+            'Should report error for custom constructor'
+        );
         assert.ok(
             result.diagnostics.some((d) => d.message.includes('constructor')),
             'Error should mention constructor'
@@ -389,7 +462,10 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('unknown field'), 'Should check for unknown fields');
+        assert.ok(
+            result.code.includes('unknown field'),
+            'Should check for unknown fields'
+        );
         assert.ok(result.code.includes('knownKeys'), 'Should track known keys');
     });
 
@@ -402,7 +478,10 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('ctx.register('), 'Should register with context');
+        assert.ok(
+            result.code.includes('ctx.register('),
+            'Should register with context'
+        );
     });
 
     test('supports freeze option in deserialize', () => {
@@ -414,7 +493,10 @@ describe('Deserialize macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('opts?.freeze'), 'Should check freeze option');
+        assert.ok(
+            result.code.includes('opts?.freeze'),
+            'Should check freeze option'
+        );
         assert.ok(result.code.includes('freezeAll'), 'Should call freezeAll');
     });
 
@@ -481,7 +563,9 @@ describe('External type function imports', () => {
             'Should import metadataDeserializeWithContext from metadata module'
         );
         assert.ok(
-            result.code.includes('import { metadataDefaultValue } from "./metadata.svelte";'),
+            result.code.includes(
+                'import { metadataDefaultValue } from "./metadata.svelte";'
+            ),
             'Should import metadataDefaultValue from metadata module'
         );
     });
@@ -513,7 +597,10 @@ describe('Combined Serialize + Deserialize', () => {
         );
 
         // Deserialize methods
-        assert.ok(result.code.includes('static deserialize('), 'Should have deserialize');
+        assert.ok(
+            result.code.includes('static deserialize('),
+            'Should have deserialize'
+        );
         assert.ok(
             result.code.includes('static deserializeWithContext('),
             'Should have deserializeWithContext'
@@ -537,12 +624,16 @@ describe('Combined Serialize + Deserialize', () => {
         const result = expandSync(code, 'test.ts');
 
         // Both types should have serde methods
-        assert.ok(result.code.includes('class Address'), 'Should have Address class');
+        assert.ok(
+            result.code.includes('class Address'),
+            'Should have Address class'
+        );
         assert.ok(result.code.includes('class Person'), 'Should have Person class');
 
         // Person should call Address's serializeWithContext
         assert.ok(
-            result.code.includes('SerializeWithContext') && result.code.includes('address'),
+            result.code.includes('SerializeWithContext') &&
+                result.code.includes('address'),
             'Should serialize nested address'
         );
     });
@@ -610,7 +701,10 @@ describe('Type alias serialization', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('function pointSerialize('), 'Should have pointSerialize');
+        assert.ok(
+            result.code.includes('function pointSerialize('),
+            'Should have pointSerialize'
+        );
         assert.ok(
             result.code.includes('function pointSerializeWithContext('),
             'Should have pointSerializeWithContext'
@@ -624,7 +718,10 @@ describe('Type alias serialization', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('function resultSerialize('), 'Should have resultSerialize');
+        assert.ok(
+            result.code.includes('function resultSerialize('),
+            'Should have resultSerialize'
+        );
         assert.ok(
             result.code.includes('function resultSerializeWithContext('),
             'Should have resultSerializeWithContext'
@@ -667,7 +764,10 @@ describe('Import handling', () => {
             result.code.includes('import { DeserializeContext'),
             'Should add DeserializeContext import'
         );
-        assert.ok(result.code.includes('PendingRef'), 'Should add PendingRef import');
+        assert.ok(
+            result.code.includes('PendingRef'),
+            'Should add PendingRef import'
+        );
     });
 });
 
@@ -688,8 +788,14 @@ describe('Edge cases', () => {
             result.code.includes('static serialize(value: Empty)'),
             'Should generate static serialize'
         );
-        assert.ok(result.code.includes('static deserialize'), 'Should generate static deserialize');
-        assert.ok(result.code.includes('__type: "Empty"'), 'Should have type marker');
+        assert.ok(
+            result.code.includes('static deserialize'),
+            'Should generate static deserialize'
+        );
+        assert.ok(
+            result.code.includes('__type: "Empty"'),
+            'Should have type marker'
+        );
     });
 
     test('nullable field handling', () => {
@@ -715,7 +821,10 @@ describe('Edge cases', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('__ref'), 'Should handle self-reference with __ref');
+        assert.ok(
+            result.code.includes('__ref'),
+            'Should handle self-reference with __ref'
+        );
         assert.ok(result.code.includes('ctx.getId'), 'Should check for cycles');
     });
 
@@ -728,7 +837,10 @@ describe('Edge cases', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(result.code.includes('Object.fromEntries'), 'Should handle Map serialization');
+        assert.ok(
+            result.code.includes('Object.fromEntries'),
+            'Should handle Map serialization'
+        );
         assert.ok(result.code.includes('.entries()'), 'Should iterate Map entries');
     });
 });
@@ -752,8 +864,14 @@ describe('renameAll container option', () => {
         const result = expandSync(code, 'test.ts');
 
         // Direct property access: result.userName instead of result["userName"]
-        assert.ok(result.code.includes('result.userName'), 'Should convert to camelCase');
-        assert.ok(result.code.includes('result.createdAt'), 'Should convert to camelCase');
+        assert.ok(
+            result.code.includes('result.userName'),
+            'Should convert to camelCase'
+        );
+        assert.ok(
+            result.code.includes('result.createdAt'),
+            'Should convert to camelCase'
+        );
     });
 
     test('snake_case rename', () => {
@@ -770,7 +888,13 @@ describe('renameAll container option', () => {
         const result = expandSync(code, 'test.ts');
 
         // Direct property access: result.user_name instead of result["user_name"]
-        assert.ok(result.code.includes('result.user_name'), 'Should convert to snake_case');
-        assert.ok(result.code.includes('result.created_at'), 'Should convert to snake_case');
+        assert.ok(
+            result.code.includes('result.user_name'),
+            'Should convert to snake_case'
+        );
+        assert.ok(
+            result.code.includes('result.created_at'),
+            'Should convert to snake_case'
+        );
     });
 });

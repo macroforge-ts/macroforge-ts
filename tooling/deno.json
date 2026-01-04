@@ -1,0 +1,53 @@
+{
+    "fmt": {
+        "useTabs": false,
+        "indentWidth": 4,
+        "lineWidth": 100,
+        "singleQuote": true,
+        "semiColons": true,
+        "trailingCommas": "never",
+        "exclude": [
+            "**/dist",
+            "**/build",
+            "**/node_modules",
+            "**/*.expanded.svelte.ts",
+            "**/*.expanded.ts",
+            "**/target",
+            "**/*.node",
+            "**/fixtures/**"
+        ]
+    },
+    "lint": {
+        "include": ["**/*.ts", "**/*.js", "**/*.mjs", "**/*.tsx", "**/*.jsx"],
+        "exclude": [
+            "**/dist",
+            "**/build",
+            "**/node_modules",
+            "**/*.expanded.svelte.ts",
+            "**/*.expanded.ts",
+            "**/target",
+            "**/*.d.ts",
+            "**/fixtures/**",
+            "**/svelte-language-server/**"
+        ],
+        "rules": {
+            "tags": ["recommended"],
+            "include": [
+                "eqeqeq",
+                "no-eval",
+                "no-throw-literal"
+            ],
+            "exclude": [
+                "no-explicit-any",
+                "no-unused-vars",
+                "require-await",
+                "no-process-global",
+                "no-node-globals",
+                "no-window",
+                "ban-ts-comment",
+                "no-namespace",
+                "ban-types"
+            ]
+        }
+    }
+}

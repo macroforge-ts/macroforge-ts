@@ -31,7 +31,10 @@ const FILES = [
 
 function encode(msg) {
     const body = Buffer.from(JSON.stringify(msg), 'utf8');
-    return Buffer.concat([Buffer.from(`Content-Length: ${body.length}\r\n\r\n`, 'utf8'), body]);
+    return Buffer.concat([
+        Buffer.from(`Content-Length: ${body.length}\r\n\r\n`, 'utf8'),
+        body
+    ]);
 }
 
 function lspMessage(id, method, params) {
@@ -275,7 +278,11 @@ test('vtsls playground switch', async (t) => {
     const stderrOutput = server.stderr();
 
     // Wait for hover response
-    const hoverResponse = await waitForResponse(server.messages, hoverToJSONId, 5000).catch(
+    const hoverResponse = await waitForResponse(
+        server.messages,
+        hoverToJSONId,
+        5000
+    ).catch(
         (err) => ({ error: err.message })
     );
 
@@ -316,7 +323,11 @@ test('vtsls playground switch', async (t) => {
     );
 
     // Surface stderr from the server as a failure
-    assert.strictEqual(stderrOutput.trim(), '', `vtsls wrote to stderr: ${stderrOutput}`);
+    assert.strictEqual(
+        stderrOutput.trim(),
+        '',
+        `vtsls wrote to stderr: ${stderrOutput}`
+    );
 
     // Emit log file hint if present
     if (fs.existsSync(LOG_DIR)) {

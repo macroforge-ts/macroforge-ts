@@ -7,7 +7,7 @@ use anyhow::Result;
 use clap::Parser;
 use crossterm::{
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::prelude::*;
 
@@ -44,24 +44,12 @@ fn run_cli(cli: Cli) -> Result<()> {
             // Already handled above
             unreachable!()
         }
-        Some(Commands::Prep(args)) => {
-            cli::commands::prep::run(args)
-        }
-        Some(Commands::Commit(args)) => {
-            cli::commands::commit::run(args)
-        }
-        Some(Commands::Manifest(args)) => {
-            cli::commands::manifests::run(args)
-        }
-        Some(Commands::Versions(args)) => {
-            cli::commands::versions::run(args)
-        }
-        Some(Commands::Diagnostics(args)) => {
-            cli::commands::diagnostics::run(args)
-        }
-        Some(Commands::Build(args)) => {
-            cli::commands::build::run(args)
-        }
+        Some(Commands::Prep(args)) => cli::commands::prep::run(args),
+        Some(Commands::Commit(args)) => cli::commands::commit::run(args),
+        Some(Commands::Manifest(args)) => cli::commands::manifests::run(args),
+        Some(Commands::Versions(args)) => cli::commands::versions::run(args),
+        Some(Commands::Diagnostics(args)) => cli::commands::diagnostics::run(args),
+        Some(Commands::Build(args)) => cli::commands::build::run(args),
         Some(Commands::Docs(args)) => {
             match args.command {
                 DocsCommands::ExtractRust { output_dir } => {
@@ -73,33 +61,27 @@ fn run_cli(cli: Cli) -> Result<()> {
                 DocsCommands::BuildBook { output_path } => {
                     cli::commands::docs::build_book::run(&output_path)
                 }
-                DocsCommands::GenerateReadmes => {
-                    cli::commands::docs::generate_readmes::run()
-                }
-                DocsCommands::CheckFreshness => {
-                    cli::commands::docs::check_freshness::run()
-                }
+                DocsCommands::GenerateReadmes => cli::commands::docs::generate_readmes::run(),
+                DocsCommands::CheckFreshness => cli::commands::docs::check_freshness::run(),
                 DocsCommands::All => {
                     utils::format::header("Generating all documentation");
                     // Run all doc generation steps
                     let root = std::env::current_dir()?;
-                    cli::commands::docs::extract_rust::run(&root.join("website/static/api-data/rust"))?;
-                    cli::commands::docs::extract_ts::run(&root.join("website/static/api-data/typescript"))?;
+                    cli::commands::docs::extract_rust::run(
+                        &root.join("website/static/api-data/rust"),
+                    )?;
+                    cli::commands::docs::extract_ts::run(
+                        &root.join("website/static/api-data/typescript"),
+                    )?;
                     cli::commands::docs::generate_readmes::run()?;
                     utils::format::success("All documentation generated");
                     Ok(())
                 }
             }
         }
-        Some(Commands::Expand(args)) => {
-            cli::commands::expand::run(args)
-        }
-        Some(Commands::Check(args)) => {
-            cli::commands::check::run(args)
-        }
-        Some(Commands::Test(args)) => {
-            cli::commands::test::run(args)
-        }
+        Some(Commands::Expand(args)) => cli::commands::expand::run(args),
+        Some(Commands::Check(args)) => cli::commands::check::run(args),
+        Some(Commands::Test(args)) => cli::commands::test::run(args),
         None => {
             // No command: show help
             use clap::CommandFactory;
@@ -130,8 +112,14 @@ fn run_tui_inner() -> Result<()> {
     // Create app state
     let mut app = tui::App::new();
     app.init_default_tasks();
-    app.log(tui::app::LogLevel::Info, "Welcome to Macroforge Tooling Dashboard");
-    app.log(tui::app::LogLevel::Info, "Press 'q' to quit, j/k to navigate, Enter to run task");
+    app.log(
+        tui::app::LogLevel::Info,
+        "Welcome to Macroforge Tooling Dashboard",
+    );
+    app.log(
+        tui::app::LogLevel::Info,
+        "Press 'q' to quit, j/k to navigate, Enter to run task",
+    );
 
     // Event handler
     let events = tui::event::EventHandler::new(250);

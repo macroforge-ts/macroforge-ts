@@ -30,11 +30,11 @@ impl VersionsCache {
             return Ok(Self::default());
         }
 
-        let content = std::fs::read_to_string(&versions_path)
-            .context("Failed to read versions.json")?;
+        let content =
+            std::fs::read_to_string(&versions_path).context("Failed to read versions.json")?;
 
-        let cache: Self = serde_json::from_str(&content)
-            .context("Failed to parse versions.json")?;
+        let cache: Self =
+            serde_json::from_str(&content).context("Failed to parse versions.json")?;
 
         Ok(cache)
     }
@@ -43,11 +43,9 @@ impl VersionsCache {
     pub fn save(&self, root: &Path) -> Result<()> {
         let versions_path = root.join("tooling/versions.json");
 
-        let content = serde_json::to_string_pretty(self)
-            .context("Failed to serialize versions")?;
+        let content = serde_json::to_string_pretty(self).context("Failed to serialize versions")?;
 
-        std::fs::write(&versions_path, content)
-            .context("Failed to write versions.json")?;
+        std::fs::write(&versions_path, content).context("Failed to write versions.json")?;
 
         Ok(())
     }
@@ -108,9 +106,7 @@ pub fn increment_patch(version: &str) -> Result<String> {
 
     let major = parts[0];
     let minor = parts[1];
-    let patch: u32 = parts[2]
-        .parse()
-        .context("Invalid patch version number")?;
+    let patch: u32 = parts[2].parse().context("Invalid patch version number")?;
 
     Ok(format!("{}.{}.{}", major, minor, patch + 1))
 }
@@ -118,10 +114,7 @@ pub fn increment_patch(version: &str) -> Result<String> {
 /// Compare two semver versions, returns true if a > b
 pub fn version_gt(a: &str, b: &str) -> bool {
     let parse = |v: &str| -> (u32, u32, u32) {
-        let parts: Vec<u32> = v
-            .split('.')
-            .filter_map(|p| p.parse().ok())
-            .collect();
+        let parts: Vec<u32> = v.split('.').filter_map(|p| p.parse().ok()).collect();
         (
             parts.first().copied().unwrap_or(0),
             parts.get(1).copied().unwrap_or(0),

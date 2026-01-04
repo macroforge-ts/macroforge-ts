@@ -182,13 +182,17 @@ pub struct DiagnosticsArgs {
     #[arg(long)]
     pub log: bool,
 
-    /// Only run specific tools (comma-separated: biome,clippy,tsc,svelte)
+    /// Only run specific tools (comma-separated: deno-lint,clippy,tsc,svelte)
     #[arg(long)]
     pub tools: Option<String>,
 
     /// Output as JSON
     #[arg(long)]
     pub json: bool,
+
+    /// Also format each project (deno fmt for JS/TS, cargo fmt for Rust)
+    #[arg(long)]
+    pub format: bool,
 }
 
 #[derive(clap::Args)]

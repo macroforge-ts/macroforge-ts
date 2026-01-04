@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { repoRoot, svelteRoot, vanillaRoot, withViteServer } from './test-utils.mjs';
 
 // Use dynamic import for TypeScript to work in both Node and Deno
-const ts = await import('npm:typescript').then(m => m.default ?? m);
+const ts = await import('npm:typescript').then((m) => m.default ?? m);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,7 +43,10 @@ function createMockLanguageService(_ts) {
 }
 
 test('TS Language Plugin augments types', async () => {
-    const pluginPath = path.resolve(repoRoot, 'packages/typescript-plugin/dist/index.js');
+    const pluginPath = path.resolve(
+        repoRoot,
+        'packages/typescript-plugin/dist/index.js'
+    );
     const pluginModule = await import(pathToFileURL(pluginPath).href);
     const tsPluginInit = pluginModule.default;
 
@@ -51,7 +54,10 @@ test('TS Language Plugin augments types', async () => {
     const mockHost = {
         getScriptSnapshot: (fileName) => {
             if (fileName.endsWith('user.ts')) {
-                const content = fs.readFileSync(path.join(vanillaRoot, 'src/user.ts'), 'utf-8');
+                const content = fs.readFileSync(
+                    path.join(vanillaRoot, 'src/user.ts'),
+                    'utf-8'
+                );
                 return ts.ScriptSnapshot.fromString(content);
             }
             return undefined;
@@ -85,11 +91,17 @@ test('TS Language Plugin augments types', async () => {
         console.log('Snapshot text content:', text);
     }
 
-    assert.ok(text.includes('static toString(value:'), 'Should include static toString() method');
+    assert.ok(
+        text.includes('static toString(value:'),
+        'Should include static toString() method'
+    );
     // The @Debug decorator generates toString(), not toJSON()
     // /** @derive(Debug) */ => static toString(value)
     // /** @derive(JSON) */ => toJSON()
-    assert.ok(text.includes('toString('), 'Should include generated toString method');
+    assert.ok(
+        text.includes('toString('),
+        'Should include generated toString method'
+    );
     // The @derive decorator should be removed from the expanded output
     assert.ok(
         !text.includes('/** @derive(Debug) */'),
@@ -98,7 +110,10 @@ test('TS Language Plugin augments types', async () => {
 });
 
 test('TS Language Plugin detects external macro packages', async () => {
-    const pluginPath = path.resolve(repoRoot, 'packages/typescript-plugin/dist/index.js');
+    const pluginPath = path.resolve(
+        repoRoot,
+        'packages/typescript-plugin/dist/index.js'
+    );
     const pluginModule = await import(pathToFileURL(pluginPath).href);
     const tsPluginInit = pluginModule.default;
 
@@ -164,7 +179,10 @@ class TestForm {
 });
 
 test('TS Language Plugin filters diagnostics for available external macros', async () => {
-    const pluginPath = path.resolve(repoRoot, 'packages/typescript-plugin/dist/index.js');
+    const pluginPath = path.resolve(
+        repoRoot,
+        'packages/typescript-plugin/dist/index.js'
+    );
 
     // Test the internal helper functions exported for testing
     // These are the functions we added for external macro package support
@@ -175,7 +193,10 @@ test('TS Language Plugin filters diagnostics for available external macros', asy
 
     // Verify the plugin initializes without errors
     const pluginFactory = tsPluginInit({ typescript: ts });
-    assert.ok(typeof pluginFactory.create === 'function', 'Plugin should have create method');
+    assert.ok(
+        typeof pluginFactory.create === 'function',
+        'Plugin should have create method'
+    );
 });
 
 test('Macro expansion formats code correctly', async () => {
@@ -184,7 +205,10 @@ test('Macro expansion formats code correctly', async () => {
     const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
     const { expandSync } = require(swcMacrosPath);
 
-    const userContent = fs.readFileSync(path.join(vanillaRoot, 'src/user.ts'), 'utf8');
+    const userContent = fs.readFileSync(
+        path.join(vanillaRoot, 'src/user.ts'),
+        'utf8'
+    );
     const result = expandSync(userContent, 'user.ts');
 
     assert.ok(result.types, 'Should generate type output');
@@ -242,87 +266,100 @@ test('Macro Host reports diagnostics for invalid usage', async () => {
     );
 });
 
-test('vanilla playground macros emit runtime helpers', { timeout: 30000 }, async () => {
-    await withViteServer(vanillaRoot, async (server) => {
-        const mod = await server.ssrLoadModule('/src/user.ts');
-        assert.ok(
-            mod && typeof mod.User === 'function',
-            'User class should be exported from vanilla playground'
-        );
+test(
+    'vanilla playground macros emit runtime helpers',
+    { timeout: 30000 },
+    async () => {
+        await withViteServer(vanillaRoot, async (server) => {
+            const mod = await server.ssrLoadModule('/src/user.ts');
+            assert.ok(
+                mod && typeof mod.User === 'function',
+                'User class should be exported from vanilla playground'
+            );
 
-        const vanillaUser = new mod.User(
-            9,
-            'Integration Tester',
-            'qa@example.com',
-            'tok_live_secret'
-        );
+            const vanillaUser = new mod.User(
+                9,
+                'Integration Tester',
+                'qa@example.com',
+                'tok_live_secret'
+            );
 
-        assert.equal(
-            typeof mod.User.toString,
-            'function',
-            'Debug derive should add static toString'
-        );
-        const summary = mod.User.toString(vanillaUser);
-        assert.ok(summary.startsWith('User {'), 'Derived toString() should include class label');
-        assert.ok(
-            summary.includes('identifier: 9'),
-            'Derived toString() should respect rename option'
-        );
-        assert.ok(
-            !summary.includes('authToken'),
-            'Derived toString() should skip sensitive fields'
-        );
-    });
-});
+            assert.equal(
+                typeof mod.User.toString,
+                'function',
+                'Debug derive should add static toString'
+            );
+            const summary = mod.User.toString(vanillaUser);
+            assert.ok(
+                summary.startsWith('User {'),
+                'Derived toString() should include class label'
+            );
+            assert.ok(
+                summary.includes('identifier: 9'),
+                'Derived toString() should respect rename option'
+            );
+            assert.ok(
+                !summary.includes('authToken'),
+                'Derived toString() should skip sensitive fields'
+            );
+        });
+    }
+);
 
 test(
     'svelte playground macros inline markdown and derive helpers',
     { timeout: 30000 },
     async () => {
-        await withViteServer(svelteRoot, { useProjectCwd: true }, async (server) => {
-            const mod = await server.ssrLoadModule('/src/lib/demo/macro-user.ts');
-            const { MacroUser, showcaseUserJson, showcaseUserSummary } = mod;
+        await withViteServer(
+            svelteRoot,
+            { useProjectCwd: true },
+            async (server) => {
+                const mod = await server.ssrLoadModule('/src/lib/demo/macro-user.ts');
+                const { MacroUser, showcaseUserJson, showcaseUserSummary } = mod;
 
-            assert.ok(MacroUser, 'MacroUser export should exist');
-            const svelteUser = new MacroUser({
-                id: 'usr_55',
-                name: 'Rin Tester',
-                role: 'Macro QA',
-                favoriteMacro: 'Derive',
-                since: '2025-02-01',
-                apiToken: 'token_qa'
-            });
-            assert.deepEqual(JSON.parse(MacroUser.serialize(svelteUser)), {
-                __type: 'MacroUser',
-                __id: 0,
-                id: 'usr_55',
-                name: 'Rin Tester',
-                role: 'Macro QA',
-                favoriteMacro: 'Derive',
-                since: '2025-02-01',
-                apiToken: 'token_qa'
-            });
+                assert.ok(MacroUser, 'MacroUser export should exist');
+                const svelteUser = new MacroUser({
+                    id: 'usr_55',
+                    name: 'Rin Tester',
+                    role: 'Macro QA',
+                    favoriteMacro: 'Derive',
+                    since: '2025-02-01',
+                    apiToken: 'token_qa'
+                });
+                assert.deepEqual(JSON.parse(MacroUser.serialize(svelteUser)), {
+                    __type: 'MacroUser',
+                    __id: 0,
+                    id: 'usr_55',
+                    name: 'Rin Tester',
+                    role: 'Macro QA',
+                    favoriteMacro: 'Derive',
+                    since: '2025-02-01',
+                    apiToken: 'token_qa'
+                });
 
-            assert.equal(
-                typeof showcaseUserSummary,
-                'string',
-                'Derived summary should be a string'
-            );
-            assert.equal(
-                showcaseUserJson.favoriteMacro,
-                'Derive',
-                'Showcase JSON should include derived helpers'
-            );
-            assert.ok(
-                showcaseUserSummary.includes('userId'),
-                'Showcase summary should use renamed field label'
-            );
+                assert.equal(
+                    typeof showcaseUserSummary,
+                    'string',
+                    'Derived summary should be a string'
+                );
+                assert.equal(
+                    showcaseUserJson.favoriteMacro,
+                    'Derive',
+                    'Showcase JSON should include derived helpers'
+                );
+                assert.ok(
+                    showcaseUserSummary.includes('userId'),
+                    'Showcase summary should use renamed field label'
+                );
 
-            const transformed = await server.transformRequest('/src/lib/demo/macro-user.ts');
-            assert.ok(
-                transformed?.code.includes('static serialize('),
-                'Derived static methods should appear in transformed code'
-            );
-        });
+                const transformed = await server.transformRequest(
+                    '/src/lib/demo/macro-user.ts'
+                );
+                assert.ok(
+                    transformed?.code.includes('static serialize('),
+                    'Derived static methods should appear in transformed code'
+                );
+            }
+        );
     }
 );

@@ -91,7 +91,11 @@ impl<'a> Shell<'a> {
         if self.inherit_stdio {
             cmd.stdout(Stdio::inherit()).stderr(Stdio::inherit());
             let status = cmd.status().with_context(|| {
-                format!("Failed to execute: {} {}", self.program, self.args.join(" "))
+                format!(
+                    "Failed to execute: {} {}",
+                    self.program,
+                    self.args.join(" ")
+                )
             })?;
             Ok(CommandResult {
                 success: status.success(),
@@ -101,7 +105,11 @@ impl<'a> Shell<'a> {
             })
         } else {
             let output = cmd.output().with_context(|| {
-                format!("Failed to execute: {} {}", self.program, self.args.join(" "))
+                format!(
+                    "Failed to execute: {} {}",
+                    self.program,
+                    self.args.join(" ")
+                )
             })?;
             Ok(CommandResult {
                 success: output.status.success(),
@@ -133,7 +141,10 @@ impl<'a> Shell<'a> {
                 program,
                 args,
                 cwd_str,
-                result.exit_code.map(|c| c.to_string()).unwrap_or("unknown".to_string()),
+                result
+                    .exit_code
+                    .map(|c| c.to_string())
+                    .unwrap_or("unknown".to_string()),
                 result.last_lines(25)
             )
         }
@@ -149,10 +160,7 @@ pub mod cargo {
 
     /// Run cargo fmt to fix formatting
     pub fn fmt_check(cwd: &Path) -> Result<CommandResult> {
-        Shell::new("cargo")
-            .args(&["fmt"])
-            .dir(cwd)
-            .run_checked()
+        Shell::new("cargo").args(&["fmt"]).dir(cwd).run_checked()
     }
 
     /// Run cargo clippy with warnings as errors
@@ -161,6 +169,14 @@ pub mod cargo {
             .args(&["clippy", "--", "-D", "warnings"])
             .dir(cwd)
             .run_checked()
+    }
+
+    /// Run cargo clippy with JSON output for diagnostics parsing
+    pub fn clippy_json(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("cargo")
+            .args(&["clippy", "--all-targets", "--message-format=json"])
+            .dir(cwd)
+            .run()
     }
 
     /// Run cargo test, automatically detecting workspace
@@ -215,6 +231,35 @@ pub mod deno {
             .args(&["fmt", "."])
             .dir(cwd)
             .run_checked()
+    }
+
+    /// Run deno lint with JSON output
+    pub fn lint_json(cwd: &Path, config: Option<&Path>) -> Result<CommandResult> {
+        let mut shell = Shell::new("deno");
+        shell = shell.args(&["lint", "--json"]);
+
+        if let Some(config_path) = config {
+            // We need to convert to string and leak it for the lifetime
+            let config_str: &'static str =
+                Box::leak(config_path.to_string_lossy().into_owned().into_boxed_str());
+            shell = shell.args(&["--config", config_str]);
+        }
+
+        shell.arg(".").dir(cwd).run()
+    }
+
+    /// Run svelte-check via deno
+    pub fn svelte_check(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("deno")
+            .args(&[
+                "run",
+                "-A",
+                "npm:svelte-check",
+                "--tsconfig",
+                "./tsconfig.json",
+            ])
+            .dir(cwd)
+            .run()
     }
 }
 
@@ -352,6 +397,85 @@ pub mod git {
             .dir(cwd)
             .run_checked()?;
         Ok(())
+    }
+}
+
+// ============================================================================
+// macroforge commands
+// ============================================================================
+
+pub mod macroforge {
+    use super::*;
+
+    /// Load environment variables from tooling/.env file
+    pub fn load_env(root: &Path) -> Vec<(String, String)> {
+        let env_path = root.join("tooling/.env");
+        let mut vars = Vec::new();
+
+        if let Ok(content) = std::fs::read_to_string(&env_path) {
+            for line in content.lines() {
+                let line = line.trim();
+                // Skip comments and empty lines
+                if line.is_empty() || line.starts_with('#') {
+                    continue;
+                }
+                // Parse KEY=value or export KEY=value
+                let line = line.strip_prefix("export ").unwrap_or(line);
+                if let Some((key, value)) = line.split_once('=') {
+                    // Remove quotes from value
+                    let value = value.trim_matches('"').trim_matches('\'');
+                    vars.push((key.to_string(), value.to_string()));
+                }
+            }
+        }
+
+        vars
+    }
+
+    /// Get the local macroforge crate path from env vars
+    pub fn get_crate_path(root: &Path, env_vars: &[(String, String)]) -> String {
+        env_vars
+            .iter()
+            .find(|(k, _)| k == "MACROFORGE_TS_CRATE")
+            .map(|(_, v)| v.clone())
+            .unwrap_or_else(|| {
+                root.join("crates/macroforge_ts")
+                    .to_string_lossy()
+                    .to_string()
+            })
+    }
+
+    /// Run macroforge tsc on a tsconfig file
+    pub fn tsc(root: &Path, tsconfig: &Path) -> Result<CommandResult> {
+        let env_vars = load_env(root);
+        let crate_path = get_crate_path(root, &env_vars);
+
+        let mut cmd = Command::new("deno");
+        cmd.args([
+            "run",
+            "-A",
+            &crate_path,
+            "tsc",
+            "-p",
+            &tsconfig.to_string_lossy(),
+        ])
+        .current_dir(root);
+
+        // Pass env vars to the command
+        for (key, value) in &env_vars {
+            cmd.env(key, value);
+        }
+
+        let output = cmd
+            .output()
+            .with_context(|| format!("Failed to run macroforge tsc on {}", tsconfig.display()))?;
+
+        Ok(CommandResult {
+            success: output.status.success(),
+            exit_code: output.status.code(),
+            stdout: String::from_utf8_lossy(&output.stdout).to_string(),
+            stderr: String::from_utf8_lossy(&output.stderr).to_string(),
+        })
     }
 }
 

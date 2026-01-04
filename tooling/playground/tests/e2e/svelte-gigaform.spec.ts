@@ -12,7 +12,8 @@ test.describe('Gigaform E2E Tests', () => {
             await expect(page).toHaveTitle(/Basic Fields/);
             await expect(page.locator('[data-testid="phone-form"]')).toBeVisible();
             await expect(page.locator('[data-testid="gradient-form"]')).toBeVisible();
-            await expect(page.locator('[data-testid="coordinates-form"]')).toBeVisible();
+            await expect(page.locator('[data-testid="coordinates-form"]'))
+                .toBeVisible();
         });
 
         test('PhoneNumber form creates with defaults', async ({ page }) => {
@@ -26,7 +27,9 @@ test.describe('Gigaform E2E Tests', () => {
         test('field.set() updates input value reactively', async ({ page }) => {
             // Programmatically set via window object
             await page.evaluate(() => {
-                (window as any).gigaformResults.phoneNumber.fields.phoneType.set('Mobile');
+                (window as any).gigaformResults.phoneNumber.fields.phoneType.set(
+                    'Mobile'
+                );
             });
             await page.waitForTimeout(50);
 
@@ -36,30 +39,36 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('getTainted() returns false initially', async ({ page }) => {
             const tainted = await page.evaluate(() =>
-                (window as any).gigaformResults.phoneNumber.fields.phoneType.getTainted()
+                (window as any).gigaformResults.phoneNumber.fields.phoneType
+                    .getTainted()
             );
             expect(tainted).toBe(false);
         });
 
         test('setTainted() marks field as touched', async ({ page }) => {
             await page.evaluate(() => {
-                (window as any).gigaformResults.phoneNumber.fields.phoneType.setTainted(true);
+                (window as any).gigaformResults.phoneNumber.fields.phoneType.setTainted(
+                    true
+                );
             });
 
             const tainted = await page.evaluate(() =>
-                (window as any).gigaformResults.phoneNumber.fields.phoneType.getTainted()
+                (window as any).gigaformResults.phoneNumber.fields.phoneType
+                    .getTainted()
             );
             expect(tainted).toBe(true);
 
             // Verify UI updates
-            await expect(page.locator('[data-testid="phone-type-tainted"]')).toContainText('true');
+            await expect(page.locator('[data-testid="phone-type-tainted"]'))
+                .toContainText('true');
         });
 
         test('UI input triggers tainted via oninput handler', async ({ page }) => {
             await page.fill('[data-testid="phone-type"]', 'Work');
 
             const tainted = await page.evaluate(() =>
-                (window as any).gigaformResults.phoneNumber.fields.phoneType.getTainted()
+                (window as any).gigaformResults.phoneNumber.fields.phoneType
+                    .getTainted()
             );
             expect(tainted).toBe(true);
         });
@@ -72,9 +81,10 @@ test.describe('Gigaform E2E Tests', () => {
             });
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="phone-type-error"]')).toContainText(
-                'Phone type is required'
-            );
+            await expect(page.locator('[data-testid="phone-type-error"]'))
+                .toContainText(
+                    'Phone type is required'
+                );
         });
 
         test('validate() returns field-specific errors', async ({ page }) => {
@@ -83,7 +93,9 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             // Check if error appears
-            const errorVisible = await page.locator('[data-testid="phone-type-error"]').isVisible();
+            const errorVisible = await page.locator(
+                '[data-testid="phone-type-error"]'
+            ).isVisible();
             // Note: validation depends on @serde validators which may or may not be strict
             expect(typeof errorVisible).toBe('boolean');
         });
@@ -143,7 +155,9 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('nested defaults are initialized', async ({ page }) => {
             // Check settings.scheduleSettings.daysPerWeek has a value
-            const daysPerWeek = await page.inputValue('[data-testid="settings-daysPerWeek"]');
+            const daysPerWeek = await page.inputValue(
+                '[data-testid="settings-daysPerWeek"]'
+            );
             expect(Number(daysPerWeek)).toBeGreaterThanOrEqual(0);
         });
 
@@ -153,7 +167,8 @@ test.describe('Gigaform E2E Tests', () => {
 
             const data = await page.evaluate(
                 () =>
-                    (window as any).gigaformResults.user.data.settings.scheduleSettings.daysPerWeek
+                    (window as any).gigaformResults.user.data.settings.scheduleSettings
+                        .daysPerWeek
             );
             expect(data).toBe(5);
         });
@@ -163,7 +178,9 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const data = await page.evaluate(
-                () => (window as any).gigaformResults.user.data.settings.scheduleSettings.rowHeight
+                () =>
+                    (window as any).gigaformResults.user.data.settings.scheduleSettings
+                        .rowHeight
             );
             expect(data).toBe('Large');
         });
@@ -191,7 +208,9 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="set-nested-wholesale"]');
             await page.waitForTimeout(50);
 
-            const daysPerWeek = await page.inputValue('[data-testid="settings-daysPerWeek"]');
+            const daysPerWeek = await page.inputValue(
+                '[data-testid="settings-daysPerWeek"]'
+            );
             // Default value should be restored
             expect(Number(daysPerWeek)).toBeLessThan(7);
         });
@@ -205,7 +224,9 @@ test.describe('Gigaform E2E Tests', () => {
         });
 
         test('displays initial phones count', async ({ page }) => {
-            await expect(page.locator('[data-testid="phones-count"]')).toContainText('Count:');
+            await expect(page.locator('[data-testid="phones-count"]')).toContainText(
+                'Count:'
+            );
         });
 
         test('push() adds new phone to array', async ({ page }) => {
@@ -255,7 +276,8 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const phoneAt0 = await page.evaluate(() => {
-                const controller = (window as any).gigaformResults.account.fields.phones.at(0);
+                const controller = (window as any).gigaformResults.account.fields.phones
+                    .at(0);
                 return controller.get();
             });
 
@@ -318,12 +340,16 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="add-tag"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="tags-count"]')).toContainText('1');
+            await expect(page.locator('[data-testid="tags-count"]')).toContainText(
+                '1'
+            );
 
             await page.click('[data-testid="tag-remove-0"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="tags-count"]')).toContainText('0');
+            await expect(page.locator('[data-testid="tags-count"]')).toContainText(
+                '0'
+            );
         });
 
         test('customFields tuple array operations', async ({ page }) => {
@@ -332,7 +358,8 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="add-customField"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="customFields-count"]')).toContainText('1');
+            await expect(page.locator('[data-testid="customFields-count"]'))
+                .toContainText('1');
 
             // Verify tuple structure
             const customField = await page.evaluate(
@@ -350,14 +377,16 @@ test.describe('Gigaform E2E Tests', () => {
         });
 
         test('defaults to CompanyName variant', async ({ page }) => {
-            await expect(page.locator('[data-testid="current-variant"]')).toContainText('company');
+            await expect(page.locator('[data-testid="current-variant"]'))
+                .toContainText('company');
         });
 
         test('can switch to PersonName variant', async ({ page }) => {
             await page.click('[data-testid="select-person-variant"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="current-variant"]')).toContainText('person');
+            await expect(page.locator('[data-testid="current-variant"]'))
+                .toContainText('person');
             await expect(page.locator('[data-testid="person-form"]')).toBeVisible();
         });
 
@@ -409,18 +438,20 @@ test.describe('Gigaform E2E Tests', () => {
         });
 
         test('email initialized as null', async ({ page }) => {
-            await expect(page.locator('[data-testid="email-nullable-status"]')).toContainText(
-                'null'
-            );
+            await expect(page.locator('[data-testid="email-nullable-status"]'))
+                .toContainText(
+                    'null'
+                );
         });
 
         test('can set email from null to value', async ({ page }) => {
             await page.fill('[data-testid="user-email"]', 'test@example.com');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="email-nullable-status"]')).toContainText(
-                'test@example.com'
-            );
+            await expect(page.locator('[data-testid="email-nullable-status"]'))
+                .toContainText(
+                    'test@example.com'
+                );
         });
 
         test('can set email back to null', async ({ page }) => {
@@ -428,24 +459,27 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="set-email-null"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="email-nullable-status"]')).toContainText(
-                'null'
-            );
+            await expect(page.locator('[data-testid="email-nullable-status"]'))
+                .toContainText(
+                    'null'
+                );
         });
 
         test('metadata initialized as null', async ({ page }) => {
-            await expect(page.locator('[data-testid="metadata-nullable-status"]')).toContainText(
-                'null'
-            );
+            await expect(page.locator('[data-testid="metadata-nullable-status"]'))
+                .toContainText(
+                    'null'
+                );
         });
 
         test('can enable metadata (null to object)', async ({ page }) => {
             await page.click('[data-testid="metadata-toggle"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="metadata-nullable-status"]')).toContainText(
-                'Metadata object'
-            );
+            await expect(page.locator('[data-testid="metadata-nullable-status"]'))
+                .toContainText(
+                    'Metadata object'
+                );
             await expect(page.locator('[data-testid="metadata-form"]')).toBeVisible();
         });
 
@@ -455,9 +489,10 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="set-metadata-null"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="metadata-nullable-status"]')).toContainText(
-                'null'
-            );
+            await expect(page.locator('[data-testid="metadata-nullable-status"]'))
+                .toContainText(
+                    'null'
+                );
         });
     });
 
@@ -469,15 +504,18 @@ test.describe('Gigaform E2E Tests', () => {
         });
 
         test('displays initial tax components', async ({ page }) => {
-            await expect(page.locator('[data-testid="taxComponents-summary"]')).toContainText(
-                'Entries:'
-            );
+            await expect(page.locator('[data-testid="taxComponents-summary"]'))
+                .toContainText(
+                    'Entries:'
+                );
         });
 
         test('can add new record entry', async ({ page }) => {
             const initialCount = await page.evaluate(
                 () =>
-                    Object.keys((window as any).gigaformResults.taxRate.fields.taxComponents.get())
+                    Object.keys(
+                        (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                    )
                         .length
             );
 
@@ -488,7 +526,9 @@ test.describe('Gigaform E2E Tests', () => {
 
             const newCount = await page.evaluate(
                 () =>
-                    Object.keys((window as any).gigaformResults.taxRate.fields.taxComponents.get())
+                    Object.keys(
+                        (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                    )
                         .length
             );
 
@@ -505,7 +545,9 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const stateValue = await page.evaluate(
-                () => (window as any).gigaformResults.taxRate.fields.taxComponents.get().state
+                () =>
+                    (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                        .state
             );
 
             expect(stateValue).toBeCloseTo(0.08);
@@ -519,7 +561,9 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const hasCity = await page.evaluate(
-                () => 'city' in (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                () =>
+                    'city' in
+                        (window as any).gigaformResults.taxRate.fields.taxComponents.get()
             );
 
             expect(hasCity).toBe(false);
@@ -533,7 +577,9 @@ test.describe('Gigaform E2E Tests', () => {
 
             const count = await page.evaluate(
                 () =>
-                    Object.keys((window as any).gigaformResults.taxRate.fields.taxComponents.get())
+                    Object.keys(
+                        (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                    )
                         .length
             );
 
@@ -590,10 +636,12 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="set-site-string"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="site-string-reference"]')).toBeVisible();
-            await expect(page.locator('[data-testid="site-string-reference"]')).toContainText(
-                'site-ref-123'
-            );
+            await expect(page.locator('[data-testid="site-string-reference"]'))
+                .toBeVisible();
+            await expect(page.locator('[data-testid="site-string-reference"]'))
+                .toContainText(
+                    'site-ref-123'
+                );
         });
 
         test('can switch site back to object', async ({ page }) => {
@@ -616,30 +664,35 @@ test.describe('Gigaform E2E Tests', () => {
         });
 
         test('status enum has default value', async ({ page }) => {
-            await expect(page.locator('[data-testid="status-current"]')).toContainText('Scheduled');
+            await expect(page.locator('[data-testid="status-current"]'))
+                .toContainText('Scheduled');
         });
 
         test('can change status via buttons', async ({ page }) => {
             await page.click('[data-testid="status-OnDeck"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="status-current"]')).toContainText('OnDeck');
+            await expect(page.locator('[data-testid="status-current"]'))
+                .toContainText('OnDeck');
         });
 
         test('can change status via select', async ({ page }) => {
             await page.selectOption('[data-testid="status-select"]', 'Waiting');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="status-current"]')).toContainText('Waiting');
+            await expect(page.locator('[data-testid="status-current"]'))
+                .toContainText('Waiting');
         });
 
         test('tainted tracking works for enum', async ({ page }) => {
-            await expect(page.locator('[data-testid="status-tainted"]')).toContainText('false');
+            await expect(page.locator('[data-testid="status-tainted"]'))
+                .toContainText('false');
 
             await page.click('[data-testid="status-OnDeck"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="status-tainted"]')).toContainText('true');
+            await expect(page.locator('[data-testid="status-tainted"]'))
+                .toContainText('true');
         });
 
         test('submit valid appointment with enum', async ({ page }) => {
@@ -660,18 +713,23 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('Employee form loads with all features', async ({ page }) => {
             await expect(page.locator('[data-testid="employee-form"]')).toBeVisible();
-            await expect(page.locator('[data-testid="emp-phones-count"]')).toContainText('1');
+            await expect(page.locator('[data-testid="emp-phones-count"]'))
+                .toContainText('1');
         });
 
         test('Employee phone array operations', async ({ page }) => {
             await page.click('[data-testid="emp-add-phone"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="emp-phones-count"]')).toContainText('2');
+            await expect(page.locator('[data-testid="emp-phones-count"]'))
+                .toContainText('2');
         });
 
         test('Employee nullable fields work', async ({ page }) => {
-            await page.fill('[data-testid="emp-imageUrl"]', 'https://example.com/image.jpg');
+            await page.fill(
+                '[data-testid="emp-imageUrl"]',
+                'https://example.com/image.jpg'
+            );
             await page.waitForTimeout(50);
 
             const imageUrl = await page.evaluate(() =>
@@ -690,36 +748,42 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('Order form loads with complex nested data', async ({ page }) => {
             await expect(page.locator('[data-testid="order-form"]')).toBeVisible();
-            await expect(page.locator('[data-testid="order-billedItems-count"]')).toContainText(
-                '2'
-            );
+            await expect(page.locator('[data-testid="order-billedItems-count"]'))
+                .toContainText(
+                    '2'
+                );
         });
 
         test('Order billedItems array operations', async ({ page }) => {
             await page.click('[data-testid="order-add-billedItem"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="order-billedItems-count"]')).toContainText(
-                '3'
-            );
+            await expect(page.locator('[data-testid="order-billedItems-count"]'))
+                .toContainText(
+                    '3'
+                );
         });
 
         test('Order commissions number array', async ({ page }) => {
-            await expect(page.locator('[data-testid="order-commissions"]')).toContainText('10%');
+            await expect(page.locator('[data-testid="order-commissions"]'))
+                .toContainText('10%');
 
             await page.click('[data-testid="order-add-commission"]');
             await page.waitForTimeout(50);
 
-            await expect(page.locator('[data-testid="order-commissions"]')).toContainText('5%');
+            await expect(page.locator('[data-testid="order-commissions"]'))
+                .toContainText('5%');
         });
 
         test('Order deep site nesting', async ({ page }) => {
-            await expect(page.locator('[data-testid="order-site-summary"]')).toContainText(
-                'Chicago'
-            );
-            await expect(page.locator('[data-testid="order-site-summary"]')).toContainText(
-                'Coordinates'
-            );
+            await expect(page.locator('[data-testid="order-site-summary"]'))
+                .toContainText(
+                    'Chicago'
+                );
+            await expect(page.locator('[data-testid="order-site-summary"]'))
+                .toContainText(
+                    'Coordinates'
+                );
         });
     });
 
@@ -737,8 +801,12 @@ test.describe('Gigaform E2E Tests', () => {
             });
             await page.waitForTimeout(50);
 
-            expect(await page.inputValue('[data-testid="phone-type"]')).toBe('Programmatic');
-            expect(await page.inputValue('[data-testid="phone-number"]')).toBe('999-888-7777');
+            expect(await page.inputValue('[data-testid="phone-type"]')).toBe(
+                'Programmatic'
+            );
+            expect(await page.inputValue('[data-testid="phone-number"]')).toBe(
+                '999-888-7777'
+            );
             expect(await page.isChecked('[data-testid="phone-main"]')).toBe(true);
         });
 
@@ -754,7 +822,9 @@ test.describe('Gigaform E2E Tests', () => {
             }
             await page.waitForTimeout(100);
 
-            const finalValue = await page.inputValue('[data-testid="gradient-startHue"]');
+            const finalValue = await page.inputValue(
+                '[data-testid="gradient-startHue"]'
+            );
             expect(Number(finalValue)).toBe(324); // 9 * 36
         });
     });

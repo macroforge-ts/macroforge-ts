@@ -7,7 +7,7 @@ use crate::core::config::{self, Config, INTERNAL_CRATES, PLATFORMS};
 use crate::core::versions::VersionsCache;
 use crate::utils::format;
 use anyhow::{Context, Result};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::fs;
 use std::path::Path;
 
@@ -26,12 +26,11 @@ pub fn is_using_local_paths(root: &Path) -> bool {
     for (crate_name, _, _) in INTERNAL_CRATES {
         for line in content.lines() {
             let trimmed = line.trim();
-            if trimmed.starts_with(&format!("{} = {{", crate_name))
-                || trimmed.starts_with(&format!("{} = {{ ", crate_name))
+            if (trimmed.starts_with(&format!("{} = {{", crate_name))
+                || trimmed.starts_with(&format!("{} = {{ ", crate_name)))
+                && (trimmed.contains("path =") || trimmed.contains("path="))
             {
-                if trimmed.contains("path =") || trimmed.contains("path=") {
-                    return true;
-                }
+                return true;
             }
         }
     }
@@ -130,16 +129,22 @@ pub fn swap_npm_local(config: &Config, repos_to_build: &[&str]) -> Result<()> {
                 // Update dependencies
                 if let Some(deps) = pkg.get_mut("dependencies").and_then(|v| v.as_object_mut())
                     && deps.contains_key(*npm_name)
-                    && !deps[*npm_name].as_str().is_some_and(|s| s.starts_with("file:"))
+                    && !deps[*npm_name]
+                        .as_str()
+                        .is_some_and(|s| s.starts_with("file:"))
                 {
                     deps[*npm_name] = file_ref.clone();
                     modified = true;
                 }
 
                 // Update peerDependencies
-                if let Some(deps) = pkg.get_mut("peerDependencies").and_then(|v| v.as_object_mut())
+                if let Some(deps) = pkg
+                    .get_mut("peerDependencies")
+                    .and_then(|v| v.as_object_mut())
                     && deps.contains_key(*npm_name)
-                    && !deps[*npm_name].as_str().is_some_and(|s| s.starts_with("file:"))
+                    && !deps[*npm_name]
+                        .as_str()
+                        .is_some_and(|s| s.starts_with("file:"))
                 {
                     deps[*npm_name] = file_ref.clone();
                     modified = true;
@@ -184,16 +189,22 @@ pub fn swap_npm_registry(config: &Config, versions: &VersionsCache) -> Result<()
             // Update dependencies
             if let Some(deps) = pkg.get_mut("dependencies").and_then(|v| v.as_object_mut())
                 && deps.contains_key(*npm_name)
-                && deps[*npm_name].as_str().is_some_and(|s| s.starts_with("file:"))
+                && deps[*npm_name]
+                    .as_str()
+                    .is_some_and(|s| s.starts_with("file:"))
             {
                 deps[*npm_name] = version_ref.clone();
                 modified = true;
             }
 
             // Update peerDependencies
-            if let Some(deps) = pkg.get_mut("peerDependencies").and_then(|v| v.as_object_mut())
+            if let Some(deps) = pkg
+                .get_mut("peerDependencies")
+                .and_then(|v| v.as_object_mut())
                 && deps.contains_key(*npm_name)
-                && deps[*npm_name].as_str().is_some_and(|s| s.starts_with("file:"))
+                && deps[*npm_name]
+                    .as_str()
+                    .is_some_and(|s| s.starts_with("file:"))
             {
                 deps[*npm_name] = version_ref.clone();
                 modified = true;
@@ -242,7 +253,9 @@ pub fn link_local_deps(config: &Config, repo: &str, deps: &[String]) -> Result<(
             {
                 d[*npm_name] = file_ref.clone();
             }
-            if let Some(d) = pkg.get_mut("peerDependencies").and_then(|v| v.as_object_mut())
+            if let Some(d) = pkg
+                .get_mut("peerDependencies")
+                .and_then(|v| v.as_object_mut())
                 && d.contains_key(*npm_name)
             {
                 d[*npm_name] = file_ref.clone();
@@ -437,7 +450,10 @@ fn update_cargo_toml(
 /// Update platform-specific npm packages in core crate
 fn update_core_platform_packages(root: &Path, version: &str) -> Result<()> {
     for platform in PLATFORMS {
-        let path = root.join(format!("crates/macroforge_ts/npm/{}/package.json", platform));
+        let path = root.join(format!(
+            "crates/macroforge_ts/npm/{}/package.json",
+            platform
+        ));
         if path.exists() {
             let content = fs::read_to_string(&path)?;
             let mut pkg: Value = serde_json::from_str(&content)?;

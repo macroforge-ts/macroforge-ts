@@ -77,7 +77,11 @@ describe('Foreign types configuration', () => {
 
         const result = loadConfig(configContent, 'macroforge.config.js');
 
-        assert.equal(result.hasForeignTypes, false, 'Should not have foreign types');
+        assert.equal(
+            result.hasForeignTypes,
+            false,
+            'Should not have foreign types'
+        );
         assert.equal(result.foreignTypeCount, 0, 'Should have 0 foreign types');
     });
 });
@@ -363,8 +367,11 @@ describe('Foreign type import matching', () => {
         );
         // Should not have any errors - just ignore and let tsc catch issues downstream
         assert.ok(
-            !result.diagnostics || !result.diagnostics.some((d) => d.level === 'error'),
-            `Should not error for types from other libraries. Got: ${JSON.stringify(result.diagnostics)}`
+            !result.diagnostics ||
+                !result.diagnostics.some((d) => d.level === 'error'),
+            `Should not error for types from other libraries. Got: ${
+                JSON.stringify(result.diagnostics)
+            }`
         );
     });
 
@@ -390,8 +397,11 @@ describe('Foreign type import matching', () => {
         );
         // Should not have any errors either
         assert.ok(
-            !result.diagnostics || !result.diagnostics.some((d) => d.level === 'error'),
-            `Should not have errors for unimported types. Got: ${JSON.stringify(result.diagnostics)}`
+            !result.diagnostics ||
+                !result.diagnostics.some((d) => d.level === 'error'),
+            `Should not have errors for unimported types. Got: ${
+                JSON.stringify(result.diagnostics)
+            }`
         );
     });
 });
@@ -973,7 +983,9 @@ describe('Type-only import namespace generation', () => {
       }
     `;
 
-        const result = expandSync(code, 'test.ts', { configPath: mixedExprConfigPath });
+        const result = expandSync(code, 'test.ts', {
+            configPath: mixedExprConfigPath
+        });
 
         // Should generate import for DateTime (type-only)
         assert.ok(
@@ -1087,7 +1099,9 @@ describe('Type-only import namespace generation', () => {
       }
     `;
 
-        const result = expandSync(code, 'test.ts', { configPath: complexConfigPath });
+        const result = expandSync(code, 'test.ts', {
+            configPath: complexConfigPath
+        });
 
         // === Import generation checks ===
 
@@ -1175,7 +1189,8 @@ describe('Type-only import namespace generation', () => {
 
         // JSON.stringify and JSON.parse are globals, should not be prefixed
         assert.ok(
-            result.code.includes('JSON.stringify') && !result.code.includes('__mf_JSON'),
+            result.code.includes('JSON.stringify') &&
+                !result.code.includes('__mf_JSON'),
             `Should NOT alias JSON global. Got: ${result.code}`
         );
         assert.ok(
@@ -1208,10 +1223,15 @@ describe('Type-only import namespace generation', () => {
 
         // Check that unrewritten namespace patterns don't exist (except in type annotations)
         // The serialize/deserialize code should not have bare Effect., Option., Duration.
-        const codeWithoutTypes = result.code.replace(/:\s*\w+(\.\w+)*(<[^>]+>)?/g, ''); // Remove type annotations
+        const codeWithoutTypes = result.code.replace(
+            /:\s*\w+(\.\w+)*(<[^>]+>)?/g,
+            ''
+        ); // Remove type annotations
 
         // This is a rough check - the expressions should use __mf_ prefixed versions
-        const hasUnrewrittenEffect = /[^_]Effect\.Data\.DateTime\.Zoned\./.test(codeWithoutTypes);
+        const hasUnrewrittenEffect = /[^_]Effect\.Data\.DateTime\.Zoned\./.test(
+            codeWithoutTypes
+        );
         assert.ok(
             !hasUnrewrittenEffect,
             `Should not have unrewritten Effect.Data.DateTime.Zoned in code. Got: ${result.code}`

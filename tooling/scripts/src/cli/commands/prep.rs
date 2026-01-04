@@ -2,8 +2,8 @@
 //!
 //! Bumps versions, builds packages, runs tests, and generates documentation.
 
-use crate::cli::commands::docs::{build_book, extract_rust, extract_ts};
 use crate::cli::PrepArgs;
+use crate::cli::commands::docs::{build_book, extract_rust, extract_ts};
 use crate::core::config::{self, Config};
 use crate::core::deps;
 use crate::core::manifests;
@@ -16,8 +16,8 @@ use anyhow::{Context, Result};
 use colored::Colorize;
 use std::collections::{HashMap, HashSet};
 use std::io::{self, Write};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// Step configuration for the prep workflow
 struct Step {
@@ -77,14 +77,10 @@ fn cascade_to_dependents(
 
     // Return in topological order
     match deps::topo_order(deps_map) {
-        Ok(sorted) => sorted
-            .into_iter()
-            .filter(|r| result.contains(r))
-            .collect(),
+        Ok(sorted) => sorted.into_iter().filter(|r| result.contains(r)).collect(),
         Err(_) => result.into_iter().collect(),
     }
 }
-
 
 /// Build a single repository
 /// Note: npm dependencies are globally swapped to local paths before this is called
@@ -93,7 +89,11 @@ fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
         RepoType::Rust => {
             if repo.name == "core" {
                 // Set NAPI_BUILD_SKIP_WATCHER to prevent build.rs from spawning another napi build
-                shell::run("NAPI_BUILD_SKIP_WATCHER=1 deno task cleanbuild", &repo.abs_path, verbose)?;
+                shell::run(
+                    "NAPI_BUILD_SKIP_WATCHER=1 deno task cleanbuild",
+                    &repo.abs_path,
+                    verbose,
+                )?;
             }
         }
         RepoType::Ts => {
@@ -252,7 +252,12 @@ pub fn run(args: PrepArgs) -> Result<()> {
     }
     println!(
         "Repos: {}",
-        repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>().join(", ").cyan()
+        repos
+            .iter()
+            .map(|r| r.name.as_str())
+            .collect::<Vec<_>>()
+            .join(", ")
+            .cyan()
     );
     println!("{}", "=".repeat(60));
 
@@ -307,14 +312,10 @@ pub fn run(args: PrepArgs) -> Result<()> {
                 if args.sync_versions {
                     target_version.clone()
                 } else {
-                    args.version
-                        .clone()
-                        .unwrap_or_else(|| {
-                            let current = versions_cache
-                                .get_local(&repo.name)
-                                .unwrap_or("0.1.0");
-                            versions::increment_patch(current).unwrap_or("0.1.0".to_string())
-                        })
+                    args.version.clone().unwrap_or_else(|| {
+                        let current = versions_cache.get_local(&repo.name).unwrap_or("0.1.0");
+                        versions::increment_patch(current).unwrap_or("0.1.0".to_string())
+                    })
                 }
             } else {
                 // Keep current version, but still update dependencies
@@ -482,7 +483,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // [6.5/10] Run tooling checks (fmt, clippy, biome)
+        // [6.5/10] Run tooling checks (fmt, clippy, deno lint)
         let step = Step {
             number: 6.5,
             total: 10,
@@ -719,12 +720,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
     .into_iter()
     .collect();
 
-    let name_width = repos
-        .iter()
-        .map(|r| r.name.len())
-        .max()
-        .unwrap_or(8)
-        .max(8);
+    let name_width = repos.iter().map(|r| r.name.len()).max().unwrap_or(8).max(8);
     let pub_width = repos
         .iter()
         .filter_map(|r| pub_names.get(r.name.as_str()).map(|s| s.len()))
@@ -742,9 +738,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
                 .get(&repo.name)
                 .map(|s| s.as_str())
                 .unwrap_or("(new)");
-            let after = final_versions
-                .get_local(&repo.name)
-                .unwrap_or("?");
+            let after = final_versions.get_local(&repo.name).unwrap_or("?");
             let changed = before != after;
 
             println!(

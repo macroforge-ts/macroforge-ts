@@ -15,7 +15,9 @@ export default {
         Option: {
             from: ['effect/Option'],
             serialize: (v: Option.Option<unknown>) => Option.getOrNull(v),
-            deserialize: (raw: unknown) => (raw === null ? Option.none() : Option.some(raw)),
+            deserialize: (
+                raw: unknown
+            ) => (raw === null ? Option.none() : Option.some(raw)),
             default: () => Option.none()
         }
     }

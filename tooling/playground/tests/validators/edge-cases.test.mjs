@@ -35,7 +35,9 @@ describe('Edge Cases', () => {
         });
 
         test('rejects empty string (fails nonEmpty)', () => {
-            const result = mod.MultipleValidatorsTest.deserialize(JSON.stringify({ text: '' }));
+            const result = mod.MultipleValidatorsTest.deserialize(
+                JSON.stringify({ text: '' })
+            );
             assertValidationError(result, 'text', 'must not be empty');
         });
 
@@ -69,7 +71,11 @@ describe('Edge Cases', () => {
             const result = mod.CustomMessageTest.deserialize(
                 JSON.stringify({ email: 'not-an-email' })
             );
-            assertValidationError(result, 'email', 'Please enter a valid email address');
+            assertValidationError(
+                result,
+                'email',
+                'Please enter a valid email address'
+            );
         });
     });
 
@@ -85,7 +91,9 @@ describe('Edge Cases', () => {
         });
 
         test('rejects empty string', () => {
-            const result = mod.MixedValidatorsTest.deserialize(JSON.stringify({ email: '' }));
+            const result = mod.MixedValidatorsTest.deserialize(
+                JSON.stringify({ email: '' })
+            );
             assertValidationError(result, 'email', 'must not be empty');
         });
 
@@ -126,14 +134,22 @@ describe('Edge Cases', () => {
             const result = mod.CombinedStringValidatorsTest.deserialize(
                 JSON.stringify({ username: 'ab' })
             );
-            assertValidationError(result, 'username', 'must have at least 3 characters');
+            assertValidationError(
+                result,
+                'username',
+                'must have at least 3 characters'
+            );
         });
 
         test('rejects too long username', () => {
             const result = mod.CombinedStringValidatorsTest.deserialize(
                 JSON.stringify({ username: 'a'.repeat(21) })
             );
-            assertValidationError(result, 'username', 'must have at most 20 characters');
+            assertValidationError(
+                result,
+                'username',
+                'must have at most 20 characters'
+            );
         });
 
         test('rejects uppercase username', () => {

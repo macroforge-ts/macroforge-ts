@@ -2,19 +2,23 @@
 
 /** @derive(FieldController, Debug) */
 export interface FormModel {
-    /** @fieldController(textAreaController)*/
-    memo: string | null;
-    username: string;
-    /** @fieldController(textAreaController)*/
-    description: string;
+  /** @fieldController(textAreaController)*/
+  memo: string | null;
+  username: string;
+  /** @fieldController(textAreaController)*/
+  description: string;
 }
 
 export namespace FormModel {
-    export function make(memo: string | null, username: string, description: string) {
-        return {
-            memo,
-            username,
-            description
-        };
-    }
+  export function make(
+    memo: string | null,
+    username: string,
+    description: string,
+  ) {
+    return {
+      memo,
+      username,
+      description,
+    };
+  }
 }

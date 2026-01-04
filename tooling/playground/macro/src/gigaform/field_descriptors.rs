@@ -653,10 +653,7 @@ fn generate_simple_field_assignment(field: &ParsedField, interface_name: &str) -
 
     // Generate array methods if this is an array field
     let array_methods = if field.is_array {
-        let element_type = field
-            .array_element_type
-            .as_deref()
-            .unwrap_or("unknown");
+        let element_type = field.array_element_type.as_deref().unwrap_or("unknown");
         ts_template! {
             at: (index: number) => ({
                 get: () => data.@{name}[index],

@@ -90,7 +90,10 @@ pub fn npm_package_names() -> HashMap<&'static str, &'static str> {
         ("shared", "@macroforge/shared"),
         ("vite-plugin", "@macroforge/vite-plugin"),
         ("typescript-plugin", "@macroforge/typescript-plugin"),
-        ("svelte-language-server", "@macroforge/svelte-language-server"),
+        (
+            "svelte-language-server",
+            "@macroforge/svelte-language-server",
+        ),
         ("svelte-preprocessor", "@macroforge/svelte-preprocessor"),
         ("mcp-server", "@macroforge/mcp-server"),
     ]

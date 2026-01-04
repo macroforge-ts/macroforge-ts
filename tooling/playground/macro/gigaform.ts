@@ -6,7 +6,7 @@ import type { Option } from 'effect/Option';
 import { isNone as optionIsNone, none as optionNone, some as optionSome } from 'effect/Option';
 
 // Re-export for Gigaform consumers
-export { exitSucceed, exitFail, exitIsSuccess, optionSome, optionNone, optionIsNone };
+export { exitFail, exitIsSuccess, exitSucceed, optionIsNone, optionNone, optionSome };
 export type { Exit, Option };
 
 /** Vanilla result type from builtin macros */
@@ -136,7 +136,10 @@ export interface PhoneFieldController extends FieldController<unknown> {
 /** Enum/Variant field controller */
 export interface EnumFieldController<TVariant extends string = string>
     extends FieldController<{ type: TVariant; [key: string]: unknown } | null> {
-    readonly variants: Record<TVariant, { label: string; fields?: Record<string, unknown> }>;
+    readonly variants: Record<
+        TVariant,
+        { label: string; fields?: Record<string, unknown> }
+    >;
     readonly defaultVariant?: TVariant;
     readonly legend?: string;
 }
@@ -202,13 +205,20 @@ export interface BaseGigaform<TData, TErrors, TTainted, TFields> {
     readonly errors: TErrors;
     readonly tainted: TTainted;
     readonly fields: TFields;
-    validate(): Promise<Exit<TData, ReadonlyArray<{ field: string; message: string }>>>;
+    validate(): Promise<
+        Exit<TData, ReadonlyArray<{ field: string; message: string }>>
+    >;
     reset(overrides: Partial<TData> | null): void;
 }
 
 /** Gigaform with variant support (for unions/enums) */
-export interface VariantGigaform<TData, TErrors, TTainted, TFields, TVariant extends string>
-    extends BaseGigaform<TData, TErrors, TTainted, TFields> {
+export interface VariantGigaform<
+    TData,
+    TErrors,
+    TTainted,
+    TFields,
+    TVariant extends string
+> extends BaseGigaform<TData, TErrors, TTainted, TFields> {
     readonly currentVariant: TVariant;
     switchVariant(variant: TVariant): void;
 }

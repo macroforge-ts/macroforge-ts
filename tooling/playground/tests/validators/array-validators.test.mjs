@@ -28,12 +28,16 @@ describe('Array Validators', () => {
         });
 
         test('accepts array below max items', () => {
-            const result = mod.MaxItemsValidator.deserialize(JSON.stringify({ items: ['a', 'b'] }));
+            const result = mod.MaxItemsValidator.deserialize(
+                JSON.stringify({ items: ['a', 'b'] })
+            );
             assertValidationSuccess(result, 'items');
         });
 
         test('accepts empty array', () => {
-            const result = mod.MaxItemsValidator.deserialize(JSON.stringify({ items: [] }));
+            const result = mod.MaxItemsValidator.deserialize(
+                JSON.stringify({ items: [] })
+            );
             assertValidationSuccess(result, 'items');
         });
 
@@ -50,7 +54,9 @@ describe('Array Validators', () => {
     // ============================================================================
     describe('MinItems', () => {
         test('accepts array at min items', () => {
-            const result = mod.MinItemsValidator.deserialize(JSON.stringify({ items: ['a', 'b'] }));
+            const result = mod.MinItemsValidator.deserialize(
+                JSON.stringify({ items: ['a', 'b'] })
+            );
             assertValidationSuccess(result, 'items');
         });
 
@@ -62,12 +68,16 @@ describe('Array Validators', () => {
         });
 
         test('rejects array below min items', () => {
-            const result = mod.MinItemsValidator.deserialize(JSON.stringify({ items: ['a'] }));
+            const result = mod.MinItemsValidator.deserialize(
+                JSON.stringify({ items: ['a'] })
+            );
             assertValidationError(result, 'items', 'must have at least 2 items');
         });
 
         test('rejects empty array', () => {
-            const result = mod.MinItemsValidator.deserialize(JSON.stringify({ items: [] }));
+            const result = mod.MinItemsValidator.deserialize(
+                JSON.stringify({ items: [] })
+            );
             assertValidationError(result, 'items', 'must have at least 2 items');
         });
     });
@@ -98,7 +108,9 @@ describe('Array Validators', () => {
         });
 
         test('rejects empty array', () => {
-            const result = mod.ItemsCountValidator.deserialize(JSON.stringify({ items: [] }));
+            const result = mod.ItemsCountValidator.deserialize(
+                JSON.stringify({ items: [] })
+            );
             assertValidationError(result, 'items', 'must have exactly 3 items');
         });
     });

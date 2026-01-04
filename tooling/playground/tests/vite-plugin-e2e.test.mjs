@@ -18,38 +18,51 @@ const _playgroundRoot = path.resolve(__dirname, '..');
 
 // Check if Svelte project has dependencies installed
 const svelteNodeModules = path.join(svelteRoot, 'node_modules');
-const svelteHasDeps = fs.existsSync(path.join(svelteNodeModules, '@sveltejs/kit'));
+const svelteHasDeps = fs.existsSync(
+    path.join(svelteNodeModules, '@sveltejs/kit')
+);
 
 // =============================================================================
 // Plugin Initialization Tests
 // =============================================================================
 
 describe('Vite Plugin Initialization', () => {
-    test('plugin loads correctly in vanilla project', { timeout: 30000 }, async () => {
-        await withViteServer(vanillaRoot, async (server) => {
-            assert.ok(server, 'Vite server should be created');
-            assert.ok(server.config, 'Server should have config');
+    test(
+        'plugin loads correctly in vanilla project',
+        { timeout: 30000 },
+        async () => {
+            await withViteServer(vanillaRoot, async (server) => {
+                assert.ok(server, 'Vite server should be created');
+                assert.ok(server.config, 'Server should have config');
 
-            // Find the macroforge plugin in the resolved config
-            const macroforgePlugin = server.config.plugins.find(
-                (p) => p.name === '@macroforge/vite-plugin'
-            );
-            assert.ok(macroforgePlugin, 'Macroforge plugin should be loaded');
-        });
-    });
+                // Find the macroforge plugin in the resolved config
+                const macroforgePlugin = server.config.plugins.find(
+                    (p) => p.name === '@macroforge/vite-plugin'
+                );
+                assert.ok(macroforgePlugin, 'Macroforge plugin should be loaded');
+            });
+        }
+    );
 
     test(
         'plugin loads correctly in svelte project',
         { timeout: 30000, skip: !svelteHasDeps },
         async () => {
-            await withViteServer(svelteRoot, { useProjectCwd: true }, async (server) => {
-                assert.ok(server, 'Vite server should be created');
+            await withViteServer(
+                svelteRoot,
+                { useProjectCwd: true },
+                async (server) => {
+                    assert.ok(server, 'Vite server should be created');
 
-                const macroforgePlugin = server.config.plugins.find(
-                    (p) => p.name === '@macroforge/vite-plugin'
-                );
-                assert.ok(macroforgePlugin, 'Macroforge plugin should be loaded in Svelte project');
-            });
+                    const macroforgePlugin = server.config.plugins.find(
+                        (p) => p.name === '@macroforge/vite-plugin'
+                    );
+                    assert.ok(
+                        macroforgePlugin,
+                        'Macroforge plugin should be loaded in Svelte project'
+                    );
+                }
+            );
         }
     );
 });
@@ -59,40 +72,51 @@ describe('Vite Plugin Initialization', () => {
 // =============================================================================
 
 describe('Transform Pipeline', () => {
-    test('transforms TypeScript files with @derive macro', { timeout: 30000 }, async () => {
-        await withViteServer(vanillaRoot, async (server) => {
-            const result = await server.transformRequest('/src/user.ts');
+    test(
+        'transforms TypeScript files with @derive macro',
+        { timeout: 30000 },
+        async () => {
+            await withViteServer(vanillaRoot, async (server) => {
+                const result = await server.transformRequest('/src/user.ts');
 
-            assert.ok(result, 'Transform should return a result');
-            assert.ok(result.code, 'Result should have code');
+                assert.ok(result, 'Transform should return a result');
+                assert.ok(result.code, 'Result should have code');
 
-            // Verify macro expansion happened - Debug macro now generates static method
-            // Note: Vite strips type annotations, so check for JavaScript output
-            assert.ok(
-                result.code.includes('static toString(value)'),
-                'Should include generated static toString method'
-            );
-            // vanilla uses @derive(JSON) which generates toJSON()
-            assert.ok(result.code.includes('toJSON()'), 'Should include generated toJSON method');
+                // Verify macro expansion happened - Debug macro now generates static method
+                // Note: Vite strips type annotations, so check for JavaScript output
+                assert.ok(
+                    result.code.includes('static toString(value)'),
+                    'Should include generated static toString method'
+                );
+                // vanilla uses @derive(JSON) which generates toJSON()
+                assert.ok(
+                    result.code.includes('toJSON()'),
+                    'Should include generated toJSON method'
+                );
 
-            // Verify decorator comments are processed
-            assert.ok(
-                !result.code.includes('/** @derive(Debug, JSON) */') ||
-                    result.code.includes('static toString'),
-                'Macro should be expanded'
-            );
-        });
-    });
+                // Verify decorator comments are processed
+                assert.ok(
+                    !result.code.includes('/** @derive(Debug, JSON) */') ||
+                        result.code.includes('static toString'),
+                    'Macro should be expanded'
+                );
+            });
+        }
+    );
 
-    test('transforms files without macros without errors', { timeout: 30000 }, async () => {
-        await withViteServer(vanillaRoot, async (server) => {
-            const result = await server.transformRequest('/src/main.ts');
+    test(
+        'transforms files without macros without errors',
+        { timeout: 30000 },
+        async () => {
+            await withViteServer(vanillaRoot, async (server) => {
+                const result = await server.transformRequest('/src/main.ts');
 
-            assert.ok(result, 'Transform should return a result for main.ts');
-            assert.ok(result.code, 'Result should have code');
-            assert.ok(result.code.includes('User'), 'Should contain User import');
-        });
-    });
+                assert.ok(result, 'Transform should return a result for main.ts');
+                assert.ok(result.code, 'Result should have code');
+                assert.ok(result.code.includes('User'), 'Should contain User import');
+            });
+        }
+    );
 
     test('skips non-TypeScript files', { timeout: 30000 }, async () => {
         await withViteServer(vanillaRoot, async (server) => {
@@ -109,24 +133,28 @@ describe('Transform Pipeline', () => {
         });
     });
 
-    test('transforms multiple files independently', { timeout: 30000 }, async () => {
-        await withViteServer(vanillaRoot, async (server) => {
-            const [userResult, mainResult] = await Promise.all([
-                server.transformRequest('/src/user.ts'),
-                server.transformRequest('/src/main.ts')
-            ]);
+    test(
+        'transforms multiple files independently',
+        { timeout: 30000 },
+        async () => {
+            await withViteServer(vanillaRoot, async (server) => {
+                const [userResult, mainResult] = await Promise.all([
+                    server.transformRequest('/src/user.ts'),
+                    server.transformRequest('/src/main.ts')
+                ]);
 
-            assert.ok(userResult?.code, 'user.ts should be transformed');
-            assert.ok(mainResult?.code, 'main.ts should be transformed');
+                assert.ok(userResult?.code, 'user.ts should be transformed');
+                assert.ok(mainResult?.code, 'main.ts should be transformed');
 
-            // Each file should be transformed correctly - Debug now generates static method
-            // Note: Vite strips type annotations, so check for JavaScript output
-            assert.ok(
-                userResult.code.includes('static toString(value)'),
-                'user.ts should have generated static toString method'
-            );
-        });
-    });
+                // Each file should be transformed correctly - Debug now generates static method
+                // Note: Vite strips type annotations, so check for JavaScript output
+                assert.ok(
+                    userResult.code.includes('static toString(value)'),
+                    'user.ts should have generated static toString method'
+                );
+            });
+        }
+    );
 });
 
 // =============================================================================
@@ -134,34 +162,52 @@ describe('Transform Pipeline', () => {
 // =============================================================================
 
 describe('SSR Module Loading', () => {
-    test('loads User class with generated methods', { timeout: 30000 }, async () => {
-        await withViteServer(vanillaRoot, async (server) => {
-            const mod = await server.ssrLoadModule('/src/user.ts');
+    test(
+        'loads User class with generated methods',
+        { timeout: 30000 },
+        async () => {
+            await withViteServer(vanillaRoot, async (server) => {
+                const mod = await server.ssrLoadModule('/src/user.ts');
 
-            assert.ok(mod.User, 'User class should be exported');
-            assert.equal(typeof mod.User, 'function', 'User should be a constructor');
+                assert.ok(mod.User, 'User class should be exported');
+                assert.equal(
+                    typeof mod.User,
+                    'function',
+                    'User should be a constructor'
+                );
 
-            const user = new mod.User(1, 'Test User', 'test@example.com', 'secret');
+                const user = new mod.User(1, 'Test User', 'test@example.com', 'secret');
 
-            // Verify Debug macro generated static toString
-            assert.equal(
-                typeof mod.User.toString,
-                'function',
-                'Should have static toString method'
-            );
-            const str = mod.User.toString(user);
-            assert.ok(str.includes('User {'), 'toString should include class name');
-            assert.ok(str.includes('identifier: 1'), 'Should respect @debug rename');
-            assert.ok(!str.includes('authToken'), 'Should skip fields marked with skip: true');
+                // Verify Debug macro generated static toString
+                assert.equal(
+                    typeof mod.User.toString,
+                    'function',
+                    'Should have static toString method'
+                );
+                const str = mod.User.toString(user);
+                assert.ok(str.includes('User {'), 'toString should include class name');
+                assert.ok(
+                    str.includes('identifier: 1'),
+                    'Should respect @debug rename'
+                );
+                assert.ok(
+                    !str.includes('authToken'),
+                    'Should skip fields marked with skip: true'
+                );
 
-            // Verify JSON macro generated toJSON (vanilla uses @derive(JSON))
-            assert.equal(typeof user.toJSON, 'function', 'Should have toJSON method');
-            const json = user.toJSON();
-            assert.equal(json.id, 1);
-            assert.equal(json.name, 'Test User');
-            assert.equal(json.email, 'test@example.com');
-        });
-    });
+                // Verify JSON macro generated toJSON (vanilla uses @derive(JSON))
+                assert.equal(
+                    typeof user.toJSON,
+                    'function',
+                    'Should have toJSON method'
+                );
+                const json = user.toJSON();
+                assert.equal(json.id, 1);
+                assert.equal(json.name, 'Test User');
+                assert.equal(json.email, 'test@example.com');
+            });
+        }
+    );
 
     test('loads derived exports correctly', { timeout: 30000 }, async () => {
         await withViteServer(vanillaRoot, async (server) => {
@@ -170,8 +216,16 @@ describe('SSR Module Loading', () => {
             assert.ok(mod.derivedSummary, 'derivedSummary should be exported');
             assert.ok(mod.derivedJson, 'derivedJson should be exported');
 
-            assert.equal(typeof mod.derivedSummary, 'string', 'derivedSummary should be a string');
-            assert.equal(typeof mod.derivedJson, 'object', 'derivedJson should be an object');
+            assert.equal(
+                typeof mod.derivedSummary,
+                'string',
+                'derivedSummary should be a string'
+            );
+            assert.equal(
+                typeof mod.derivedJson,
+                'object',
+                'derivedJson should be an object'
+            );
         });
     });
 
@@ -179,28 +233,32 @@ describe('SSR Module Loading', () => {
         'loads Svelte macro-user with generated methods',
         { timeout: 30000, skip: !svelteHasDeps },
         async () => {
-            await withViteServer(svelteRoot, { useProjectCwd: true }, async (server) => {
-                const mod = await server.ssrLoadModule('/src/lib/demo/macro-user.ts');
+            await withViteServer(
+                svelteRoot,
+                { useProjectCwd: true },
+                async (server) => {
+                    const mod = await server.ssrLoadModule('/src/lib/demo/macro-user.ts');
 
-                assert.ok(mod.MacroUser, 'MacroUser should be exported');
+                    assert.ok(mod.MacroUser, 'MacroUser should be exported');
 
-                const user = new mod.MacroUser({
-                    id: 'usr_1',
-                    name: 'Svelte Tester',
-                    role: 'Developer',
-                    favoriteMacro: 'Derive',
-                    since: '2025-01-01',
-                    apiToken: 'token_secret'
-                });
+                    const user = new mod.MacroUser({
+                        id: 'usr_1',
+                        name: 'Svelte Tester',
+                        role: 'Developer',
+                        favoriteMacro: 'Derive',
+                        since: '2025-01-01',
+                        apiToken: 'token_secret'
+                    });
 
-                // Verify static methods work
-                assert.equal(typeof mod.MacroUser.toString, 'function');
-                assert.equal(typeof mod.MacroUser.serialize, 'function');
+                    // Verify static methods work
+                    assert.equal(typeof mod.MacroUser.toString, 'function');
+                    assert.equal(typeof mod.MacroUser.serialize, 'function');
 
-                const json = JSON.parse(mod.MacroUser.serialize(user));
-                assert.equal(json.id, 'usr_1');
-                assert.equal(json.name, 'Svelte Tester');
-            });
+                    const json = JSON.parse(mod.MacroUser.serialize(user));
+                    assert.equal(json.id, 'usr_1');
+                    assert.equal(json.name, 'Svelte Tester');
+                }
+            );
         }
     );
 });
@@ -210,58 +268,72 @@ describe('SSR Module Loading', () => {
 // =============================================================================
 
 describe('Type Generation', () => {
-    test('generates .d.ts files for macro files', { timeout: 30000 }, async () => {
-        await withViteServer(vanillaRoot, async (server) => {
-            // Trigger transformation
-            await server.transformRequest('/src/user.ts');
+    test(
+        'generates .d.ts files for macro files',
+        { timeout: 30000 },
+        async () => {
+            await withViteServer(vanillaRoot, async (server) => {
+                // Trigger transformation
+                await server.transformRequest('/src/user.ts');
 
-            // Check if types were generated
-            const typesDir = path.join(vanillaRoot, '.macroforge/types');
+                // Check if types were generated
+                const typesDir = path.join(vanillaRoot, '.macroforge/types');
 
-            // Types directory should exist (created by previous runs or this test)
-            if (fs.existsSync(typesDir)) {
-                const files = fs.readdirSync(typesDir, { recursive: true });
-                const hasDtsFile = files.some((f) => f.toString().endsWith('.d.ts'));
+                // Types directory should exist (created by previous runs or this test)
+                if (fs.existsSync(typesDir)) {
+                    const files = fs.readdirSync(typesDir, { recursive: true });
+                    const hasDtsFile = files.some((f) => f.toString().endsWith('.d.ts'));
 
-                if (hasDtsFile) {
-                    // Find and verify the user.d.ts content
-                    const userDtsPath = path.join(typesDir, 'src/user.d.ts');
-                    if (fs.existsSync(userDtsPath)) {
-                        const content = fs.readFileSync(userDtsPath, 'utf-8');
-                        assert.ok(content.includes('User'), '.d.ts should declare User class');
+                    if (hasDtsFile) {
+                        // Find and verify the user.d.ts content
+                        const userDtsPath = path.join(typesDir, 'src/user.d.ts');
+                        if (fs.existsSync(userDtsPath)) {
+                            const content = fs.readFileSync(userDtsPath, 'utf-8');
+                            assert.ok(
+                                content.includes('User'),
+                                '.d.ts should declare User class'
+                            );
+                        }
                     }
                 }
-            }
 
-            // The test passes if no errors occurred during transformation
-            assert.ok(true, 'Type generation completed without errors');
-        });
-    });
+                // The test passes if no errors occurred during transformation
+                assert.ok(true, 'Type generation completed without errors');
+            });
+        }
+    );
 
     test(
         'preserves directory structure in types output',
         { timeout: 30000, skip: !svelteHasDeps },
         async () => {
-            await withViteServer(svelteRoot, { useProjectCwd: true }, async (server) => {
-                // Trigger transformation of a nested file
-                await server.transformRequest('/src/lib/demo/macro-user.ts');
+            await withViteServer(
+                svelteRoot,
+                { useProjectCwd: true },
+                async (server) => {
+                    // Trigger transformation of a nested file
+                    await server.transformRequest('/src/lib/demo/macro-user.ts');
 
-                const typesDir = path.join(svelteRoot, '.macroforge/types');
+                    const typesDir = path.join(svelteRoot, '.macroforge/types');
 
-                if (fs.existsSync(typesDir)) {
-                    // The nested structure should be preserved
-                    const nestedPath = path.join(typesDir, 'src/lib/demo/macro-user.d.ts');
-                    if (fs.existsSync(nestedPath)) {
-                        const content = fs.readFileSync(nestedPath, 'utf-8');
-                        assert.ok(
-                            content.includes('MacroUser'),
-                            'Nested .d.ts should include MacroUser'
+                    if (fs.existsSync(typesDir)) {
+                        // The nested structure should be preserved
+                        const nestedPath = path.join(
+                            typesDir,
+                            'src/lib/demo/macro-user.d.ts'
                         );
+                        if (fs.existsSync(nestedPath)) {
+                            const content = fs.readFileSync(nestedPath, 'utf-8');
+                            assert.ok(
+                                content.includes('MacroUser'),
+                                'Nested .d.ts should include MacroUser'
+                            );
+                        }
                     }
-                }
 
-                assert.ok(true, 'Directory structure handling completed');
-            });
+                    assert.ok(true, 'Directory structure handling completed');
+                }
+            );
         }
     );
 });
@@ -310,7 +382,10 @@ describe('Metadata Emission', () => {
         await withViteServer(vanillaRoot, async (server) => {
             await server.transformRequest('/src/user.ts');
 
-            const metaPath = path.join(vanillaRoot, '.macroforge/meta/src/user.macro-ir.json');
+            const metaPath = path.join(
+                vanillaRoot,
+                '.macroforge/meta/src/user.macro-ir.json'
+            );
 
             if (fs.existsSync(metaPath)) {
                 const content = fs.readFileSync(metaPath, 'utf-8');
@@ -367,23 +442,28 @@ describe('FieldController Macro', () => {
         'svelte field-controller transforms correctly',
         { timeout: 30000, skip: !svelteHasDeps },
         async () => {
-            await withViteServer(svelteRoot, { useProjectCwd: true }, async (server) => {
-                const fcPath = '/src/lib/demo/field-controller.ts';
+            await withViteServer(
+                svelteRoot,
+                { useProjectCwd: true },
+                async (server) => {
+                    const fcPath = '/src/lib/demo/field-controller.ts';
 
-                try {
-                    const result = await server.transformRequest(fcPath);
+                    try {
+                        const result = await server.transformRequest(fcPath);
 
-                    if (result?.code) {
-                        assert.ok(
-                            result.code.includes('class') || result.code.includes('interface'),
-                            'Should contain class or interface definition'
-                        );
+                        if (result?.code) {
+                            assert.ok(
+                                result.code.includes('class') ||
+                                    result.code.includes('interface'),
+                                'Should contain class or interface definition'
+                            );
+                        }
+                    } catch (_e) {
+                        // File might not exist or have different structure
+                        assert.ok(true, 'field-controller.ts handling completed');
                     }
-                } catch (_e) {
-                    // File might not exist or have different structure
-                    assert.ok(true, 'field-controller.ts handling completed');
                 }
-            });
+            );
         }
     );
 });
@@ -420,27 +500,35 @@ describe('Error Handling', () => {
 // =============================================================================
 
 describe('Concurrent Transformations', () => {
-    test('handles concurrent transform requests', { timeout: 30000 }, async () => {
-        await withViteServer(vanillaRoot, async (server) => {
-            // Make multiple concurrent requests
-            const requests = [
-                server.transformRequest('/src/user.ts'),
-                server.transformRequest('/src/main.ts'),
-                server.transformRequest('/src/user.ts') // Same file again
-            ];
+    test(
+        'handles concurrent transform requests',
+        { timeout: 30000 },
+        async () => {
+            await withViteServer(vanillaRoot, async (server) => {
+                // Make multiple concurrent requests
+                const requests = [
+                    server.transformRequest('/src/user.ts'),
+                    server.transformRequest('/src/main.ts'),
+                    server.transformRequest('/src/user.ts') // Same file again
+                ];
 
-            const results = await Promise.all(requests);
+                const results = await Promise.all(requests);
 
-            assert.equal(results.length, 3, 'Should complete all requests');
+                assert.equal(results.length, 3, 'Should complete all requests');
 
-            results.forEach((result, i) => {
-                assert.ok(result?.code, `Request ${i} should have code`);
+                results.forEach((result, i) => {
+                    assert.ok(result?.code, `Request ${i} should have code`);
+                });
+
+                // Same file should produce consistent results
+                assert.equal(
+                    results[0].code,
+                    results[2].code,
+                    'Same file should produce same output'
+                );
             });
-
-            // Same file should produce consistent results
-            assert.equal(results[0].code, results[2].code, 'Same file should produce same output');
-        });
-    });
+        }
+    );
 });
 
 // =============================================================================
@@ -448,41 +536,65 @@ describe('Concurrent Transformations', () => {
 // =============================================================================
 
 describe('Svelte Integration', () => {
-    test('works alongside svelte plugin', { timeout: 30000, skip: !svelteHasDeps }, async () => {
-        await withViteServer(svelteRoot, { useProjectCwd: true }, async (server) => {
-            // Verify both plugins are loaded
-            const plugins = server.config.plugins;
+    test('works alongside svelte plugin', {
+        timeout: 30000,
+        skip: !svelteHasDeps
+    }, async () => {
+        await withViteServer(
+            svelteRoot,
+            { useProjectCwd: true },
+            async (server) => {
+                // Verify both plugins are loaded
+                const plugins = server.config.plugins;
 
-            const hasMacroforge = plugins.some((p) => p.name === '@macroforge/vite-plugin');
-            const _hasSvelte = plugins.some(
-                (p) => p.name?.includes('svelte') || p.name?.includes('vite-plugin-svelte')
-            );
+                const hasMacroforge = plugins.some((p) => p.name === '@macroforge/vite-plugin');
+                const _hasSvelte = plugins.some(
+                    (p) =>
+                        p.name?.includes('svelte') ||
+                        p.name?.includes('vite-plugin-svelte')
+                );
 
-            assert.ok(hasMacroforge, 'Should have macroforge plugin');
-            // Svelte plugin should also be present
+                assert.ok(hasMacroforge, 'Should have macroforge plugin');
+                // Svelte plugin should also be present
 
-            // Transform a macro file
-            const result = await server.transformRequest('/src/lib/demo/macro-user.ts');
-            assert.ok(result?.code, 'Should transform macro files in Svelte project');
-        });
+                // Transform a macro file
+                const result = await server.transformRequest(
+                    '/src/lib/demo/macro-user.ts'
+                );
+                assert.ok(
+                    result?.code,
+                    'Should transform macro files in Svelte project'
+                );
+            }
+        );
     });
 
     test(
         'macro exports are usable in svelte components',
         { timeout: 30000, skip: !svelteHasDeps },
         async () => {
-            await withViteServer(svelteRoot, { useProjectCwd: true }, async (server) => {
-                const mod = await server.ssrLoadModule('/src/lib/demo/macro-user.ts');
+            await withViteServer(
+                svelteRoot,
+                { useProjectCwd: true },
+                async (server) => {
+                    const mod = await server.ssrLoadModule('/src/lib/demo/macro-user.ts');
 
-                // These exports should be available for Svelte components
-                assert.ok(mod.MacroUser, 'MacroUser should be exported');
-                assert.ok(mod.showcaseUserJson, 'showcaseUserJson should be exported');
-                assert.ok(mod.showcaseUserSummary, 'showcaseUserSummary should be exported');
+                    // These exports should be available for Svelte components
+                    assert.ok(mod.MacroUser, 'MacroUser should be exported');
+                    assert.ok(
+                        mod.showcaseUserJson,
+                        'showcaseUserJson should be exported'
+                    );
+                    assert.ok(
+                        mod.showcaseUserSummary,
+                        'showcaseUserSummary should be exported'
+                    );
 
-                // Verify the exports work correctly
-                assert.equal(typeof mod.showcaseUserSummary, 'string');
-                assert.equal(typeof mod.showcaseUserJson, 'object');
-            });
+                    // Verify the exports work correctly
+                    assert.equal(typeof mod.showcaseUserSummary, 'string');
+                    assert.equal(typeof mod.showcaseUserJson, 'object');
+                }
+            );
         }
     );
 });

@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { repoRoot } from './test-utils.mjs';
 
 // Use dynamic import for TypeScript to work in both Node and Deno
-const ts = await import('npm:typescript').then(m => m.default ?? m);
+const ts = await import('npm:typescript').then((m) => m.default ?? m);
 
 function createMockLanguageService(tsModule, fileName, fileText) {
     const sourceFile = tsModule.createSourceFile(
@@ -17,7 +17,9 @@ function createMockLanguageService(tsModule, fileName, fileText) {
 
     return {
         getProgram: () => ({
-            getSourceFile: (requested) => (requested === fileName ? sourceFile : undefined)
+            getSourceFile: (
+                requested
+            ) => (requested === fileName ? sourceFile : undefined)
         }),
         getSemanticDiagnostics: () => [],
         getSyntacticDiagnostics: () => [],
@@ -34,7 +36,12 @@ function createMockLanguageService(tsModule, fileName, fileText) {
         getDocumentHighlights: () => undefined,
         getImplementationAtPosition: () => undefined,
         getCodeFixesAtPosition: () => [],
-        getNavigationTree: () => ({ text: '', kind: '', spans: [], childItems: [] }),
+        getNavigationTree: () => ({
+            text: '',
+            kind: '',
+            spans: [],
+            childItems: []
+        }),
         getOutliningSpans: () => []
     };
 }
@@ -50,7 +57,9 @@ function createHost(tsModule, fileName, fileText, cwd) {
         }),
         getScriptFileNames: () => [fileName],
         getScriptVersion: () => '1',
-        getScriptSnapshot: (requested) => (requested === fileName ? snapshot : undefined),
+        getScriptSnapshot: (
+            requested
+        ) => (requested === fileName ? snapshot : undefined),
         getCurrentDirectory: () => cwd,
         getDefaultLibFileName: (opts) => tsModule.getDefaultLibFilePath(opts),
         fileExists: (p) => p === fileName,
@@ -60,7 +69,10 @@ function createHost(tsModule, fileName, fileText, cwd) {
 }
 
 async function initPluginForFile({ fileName, fileText }) {
-    const pluginPath = path.resolve(repoRoot, 'packages/typescript-plugin/dist/index.js');
+    const pluginPath = path.resolve(
+        repoRoot,
+        'packages/typescript-plugin/dist/index.js'
+    );
     const pluginModule = await import(pathToFileURL(pluginPath).href);
     const tsPluginInit = pluginModule.default;
     const pluginFactory = tsPluginInit({ typescript: ts });
@@ -91,7 +103,10 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
         id: string;
       }
     `;
-        const fileName = path.join(repoRoot, 'playground/tests/.tmp-macro-hover.ts');
+        const fileName = path.join(
+            repoRoot,
+            'playground/tests/.tmp-macro-hover.ts'
+        );
         const ls = await initPluginForFile({ fileName, fileText });
 
         const pos = fileText.indexOf('Serialize') + 1;
@@ -105,7 +120,10 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
             `expected Serialize documentation, got: ${docText}`
         );
         assert.equal(
-            fileText.slice(info.textSpan.start, info.textSpan.start + info.textSpan.length),
+            fileText.slice(
+                info.textSpan.start,
+                info.textSpan.start + info.textSpan.length
+            ),
             'Serialize'
         );
     });
@@ -118,7 +136,10 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
         email: string;
       }
     `;
-        const fileName = path.join(repoRoot, 'playground/tests/.tmp-decorator-hover.ts');
+        const fileName = path.join(
+            repoRoot,
+            'playground/tests/.tmp-decorator-hover.ts'
+        );
         const ls = await initPluginForFile({ fileName, fileText });
 
         const pos = fileText.indexOf('@serde') + 2;
@@ -133,7 +154,10 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
             `expected serde documentation, got: ${docText}`
         );
         assert.equal(
-            fileText.slice(info.textSpan.start, info.textSpan.start + info.textSpan.length),
+            fileText.slice(
+                info.textSpan.start,
+                info.textSpan.start + info.textSpan.length
+            ),
             '@serde'
         );
     });
@@ -151,7 +175,10 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
 
         const diags = ls.getSemanticDiagnostics(fileName);
         const macroDiags = diags.filter((d) => d.source === 'macroforge');
-        assert.ok(macroDiags.length >= 1, 'expected at least one macroforge diagnostic');
+        assert.ok(
+            macroDiags.length >= 1,
+            'expected at least one macroforge diagnostic'
+        );
 
         const message = String(macroDiags[0].messageText);
         assert.ok(
@@ -166,8 +193,11 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
         const serdeStart = fileText.indexOf('@serde');
         assert.ok(serdeStart >= 0, 'sanity: expected @serde in file');
         assert.ok(
-            macroDiags[0].start >= serdeStart - 4 && macroDiags[0].start <= serdeStart + 4,
-            `expected diagnostic near @serde (got start=${macroDiags[0].start}, serdeStart=${serdeStart})`
+            macroDiags[0].start >= serdeStart - 4 &&
+                macroDiags[0].start <= serdeStart + 4,
+            `expected diagnostic near @serde (got start=${
+                macroDiags[0].start
+            }, serdeStart=${serdeStart})`
         );
     });
 });
