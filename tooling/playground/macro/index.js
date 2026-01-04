@@ -536,17 +536,13 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
       wasiBindingError = err
     }
   }
-  if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
+  if (!nativeBinding) {
     try {
       wasiBinding = require('@playground/macro-wasm32-wasi')
       nativeBinding = wasiBinding
     } catch (err) {
       if (process.env.NAPI_RS_FORCE_WASI) {
-        if (!wasiBindingError) {
-          wasiBindingError = err
-        } else {
-          wasiBindingError.cause = err
-        }
+        wasiBindingError.cause = err
         loadErrors.push(err)
       }
     }
@@ -576,6 +572,9 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
+module.exports.__macroforgeRunGigaform = nativeBinding.__macroforgeRunGigaform
+module.exports.__macroforgeRunInspect = nativeBinding.__macroforgeRunInspect
+module.exports.__macroforgeRunJSON = nativeBinding.__macroforgeRunJSON
 module.exports.NativeMapper = nativeBinding.NativeMapper
 module.exports.NativePlugin = nativeBinding.NativePlugin
 module.exports.PositionMapper = nativeBinding.PositionMapper
@@ -602,6 +601,3 @@ module.exports.expandSync = nativeBinding.expandSync
 module.exports.loadConfig = nativeBinding.loadConfig
 module.exports.parseImportSources = nativeBinding.parseImportSources
 module.exports.transformSync = nativeBinding.transformSync
-module.exports.__macroforgeRunGigaform = nativeBinding.__macroforgeRunGigaform
-module.exports.__macroforgeRunInspect = nativeBinding.__macroforgeRunInspect
-module.exports.__macroforgeRunJSON = nativeBinding.__macroforgeRunJSON

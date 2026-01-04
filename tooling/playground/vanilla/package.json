@@ -1,0 +1,23 @@
+{
+	"name": "@playground/vanilla",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "node ./node_modules/.bin/vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"clean": "rm -rf node_modules"
+	},
+	"dependencies": {
+		"@playground/macro": "file:../macro",
+		"macroforge": "file:../../../crates/macroforge_ts",
+		"effect": "^3.19.4"
+	},
+	"devDependencies": {
+		"@macroforge/vite-plugin": "file:../../../packages/vite-plugin",
+		"@types/node": "^22.10.2",
+		"typescript": "^5.9.3",
+		"vite": "^7.2.4"
+	}
+}

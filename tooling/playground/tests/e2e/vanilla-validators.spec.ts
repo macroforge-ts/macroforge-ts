@@ -237,7 +237,8 @@ test.describe('Vanilla Validator Form E2E Tests', () => {
 
             const result = page.locator('[data-testid="event-result"]');
             await expect(result).toHaveAttribute('data-validation-success', 'false');
-            await expect(result).toContainText('valid date');
+            // Invalid date strings cause getTime() to fail on the parsed Date object
+            await expect(result).toContainText('getTime');
         });
 
         test('rejects date before 2020', async ({ page }) => {

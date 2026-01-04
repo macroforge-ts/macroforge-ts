@@ -7,6 +7,9 @@ export default defineConfig({
     ssr: {
         noExternal: ['effect', '@playground/macro']
     },
+    optimizeDeps: {
+        exclude: ['@playground/macro']
+    },
     resolve: {
         dedupe: ['effect']
     }

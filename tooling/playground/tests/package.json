@@ -1,0 +1,27 @@
+{
+    "name": "@playground/tests",
+    "version": "0.0.1",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "test": "deno test --allow-all --no-check --unstable-detect-cjs --node-modules-dir=manual --env-file=../../.env *.test.mjs",
+        "test:validators": "deno test --allow-all --no-check --unstable-detect-cjs --node-modules-dir=manual validators/*.test.mjs",
+        "test:e2e": "node ./node_modules/.bin/playwright test",
+        "test:e2e:vanilla": "node ./node_modules/.bin/playwright test --config=playwright.config.ts",
+        "test:e2e:svelte": "node ./node_modules/.bin/playwright test --config=playwright.svelte.config.ts",
+        "playwright:install": "playwright install chromium"
+    },
+    "dependencies": {
+        "@playground/macro": "file:../macro",
+        "macroforge": "file:../../../crates/macroforge_ts"
+    },
+    "devDependencies": {
+        "@macroforge/typescript-plugin": "file:../../../packages/typescript-plugin",
+        "@macroforge/vite-plugin": "file:../../../packages/vite-plugin",
+        "@macroforge/shared": "file:../../../packages/shared",
+        "@vtsls/language-server": "^0.2.9",
+        "@playwright/test": "^1.49.0",
+        "typescript": "^5",
+        "vite": "^7.2.6"
+    }
+}
