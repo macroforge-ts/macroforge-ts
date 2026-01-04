@@ -6,13 +6,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
+import macroforge from '@macroforge/vite-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const playgroundRoot = path.resolve(__dirname, '..');
-// tooling/playground -> tooling -> repo root
-export const repoRoot = path.resolve(playgroundRoot, '../..');
+// Use MACROFORGE_ROOT env var for repo root
+if (!process.env.MACROFORGE_ROOT) {
+    throw new Error('MACROFORGE_ROOT environment variable must be set');
+}
+export const repoRoot = process.env.MACROFORGE_ROOT;
 export const vanillaRoot = path.join(playgroundRoot, 'vanilla');
 export const svelteRoot = path.join(playgroundRoot, 'svelte');
 export const rootConfigPath = path.join(repoRoot, 'macroforge.json');
@@ -64,12 +68,26 @@ export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
 
         const _uniquePort = getNextPort();
 
+        // Use the macroforge plugin directly instead of loading from config file
+        // This avoids Deno's module resolution issues with dynamic imports
+        const userConfig = {
+            plugins: [macroforge()],
+            ssr: {
+                noExternal: ['effect', '@playground/macro']
+            },
+            resolve: {
+                dedupe: ['effect']
+            }
+        };
+
         server = await createServer({
             root: rootDir,
-            configFile,
+            configFile: false, // Disable Vite's config loading
+            ...userConfig,
             logLevel: 'error',
             appType: 'custom',
             server: {
+                ...userConfig.server,
                 middlewareMode: true,
                 hmr: false,
                 // Disable WebSocket server entirely for SSR-only tests

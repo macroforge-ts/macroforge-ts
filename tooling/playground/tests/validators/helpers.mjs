@@ -1,42 +1,34 @@
-// Early declarations using var for hoisting
-var moduleCache = new Map();
-var expandSync;
-var loadConfig;
-var configPath;
-
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import fs from 'node:fs';
+import { assertEquals, assertStrictEquals, assert as assertTrue } from 'jsr:@std/assert';
+import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
-import path from 'node:path';
+import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const playgroundRoot = path.resolve(__dirname, '..', '..');
-// playground -> tooling -> macroforge-ts (actual repo root)
 const repoRoot = path.resolve(playgroundRoot, '..', '..');
 const vanillaRoot = path.join(playgroundRoot, 'vanilla');
 
-// Use require for synchronous loading
+// Use require for synchronous loading of native module
 const require = createRequire(import.meta.url);
 const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
-
-// Initialize after imports
 const macroforge = require(swcMacrosPath);
-expandSync = macroforge.expandSync;
-loadConfig = macroforge.loadConfig;
+const expandSync = macroforge.expandSync;
+const loadConfig = macroforge.loadConfig;
 
 // Load and cache the config for the vanilla playground
-configPath = path.join(vanillaRoot, 'macroforge.config.ts');
+const configPath = path.join(vanillaRoot, 'macroforge.config.ts');
 if (fs.existsSync(configPath)) {
     const configContent = fs.readFileSync(configPath, 'utf8');
     loadConfig(configContent, configPath);
 }
 
+// Module cache for compiled files
+const moduleCache = new Map();
+
 /**
- * Expand macros in a TypeScript file and compile it using Bun's transpiler
- * @param {string} filePath - Absolute path to the TypeScript file
- * @returns {object} Module exports
+ * Expand macros in a TypeScript file and compile it
  */
 export async function expandAndCompile(filePath) {
     if (moduleCache.has(filePath)) {
@@ -53,7 +45,6 @@ export async function expandAndCompile(filePath) {
         }
     }
 
-    // Write expanded code to a temp file and import it
     const tempDir = path.join(__dirname, '.temp');
     if (!fs.existsSync(tempDir)) {
         fs.mkdirSync(tempDir, { recursive: true });
@@ -63,7 +54,6 @@ export async function expandAndCompile(filePath) {
     fs.writeFileSync(tempFile, result.code);
 
     try {
-        // Bun natively handles TypeScript imports
         const mod = await import(tempFile);
         moduleCache.set(filePath, mod);
         return mod;
@@ -76,8 +66,6 @@ export async function expandAndCompile(filePath) {
 
 /**
  * Load a validator test module
- * @param {string} moduleName - Name of the module in validators directory (e.g., "string-validator-tests")
- * @returns {object} Module exports
  */
 export async function loadValidatorModule(moduleName) {
     const filePath = path.join(vanillaRoot, 'src/validators', `${moduleName}.ts`);
@@ -86,30 +74,23 @@ export async function loadValidatorModule(moduleName) {
 
 /**
  * Assert that fromStringifiedJSON returns an error result with expected message substring
- * @param {object} result - Result from fromStringifiedJSON ({ success: boolean, errors?: Array })
- * @param {string} fieldName - Field name for error context
- * @param {string} messageSubstring - Expected substring in error message
  */
 export function assertValidationError(result, _fieldName, messageSubstring) {
-    expect(result.success).toBe(false);
+    assertStrictEquals(result.success, false, 'Expected validation to fail');
     const errors = result.errors;
-    // Errors are structured as {field, message} objects
     const hasExpectedError = errors.some((e) => {
         const msg = typeof e === 'string' ? e : e.message;
         return msg.includes(messageSubstring);
     });
-    expect(hasExpectedError).toBe(true);
+    assertTrue(hasExpectedError, `Expected error containing "${messageSubstring}"`);
 }
 
 /**
  * Assert that fromStringifiedJSON returns a successful result
- * @param {object} result - Result from fromStringifiedJSON ({ success: boolean, value?: T, errors?: Array })
- * @param {string} fieldName - Field name for error context
  */
 export function assertValidationSuccess(result, fieldName) {
     if (!result.success) {
         const errors = result.errors;
-        // Errors are structured as {field, message} objects
         const errorMsgs = errors.map((e) =>
             typeof e === 'string' ? e : `${e.field}: ${e.message}`
         );
@@ -117,29 +98,91 @@ export function assertValidationSuccess(result, fieldName) {
             `Expected validation to succeed for "${fieldName}", but got errors: ${errorMsgs.join('; ')}`
         );
     }
-    expect(result.success).toBe(true);
+    assertStrictEquals(result.success, true);
 }
 
 /**
  * Assert that fromStringifiedJSON returns specific error count
- * @param {object} result - Result from fromStringifiedJSON ({ success: boolean, errors?: Array })
- * @param {number} expectedCount - Expected number of errors
  */
 export function assertErrorCount(result, expectedCount) {
-    expect(result.success).toBe(false);
+    assertStrictEquals(result.success, false, 'Expected validation to fail');
     const errors = result.errors;
-    expect(errors.length).toBe(expectedCount);
+    assertStrictEquals(errors.length, expectedCount, `Expected ${expectedCount} errors`);
 }
 
-// Re-export with node:test compatible names
-export {
-    test,
-    describe,
-    beforeAll as before,
-    afterAll as after,
-    beforeEach,
-    afterEach,
-    beforeAll,
-    afterAll,
-    expect
+// Deno test wrappers
+export function describe(name, fn) {
+    Deno.test(name, async (t) => {
+        // Collect tests and before hooks
+        const tests = [];
+        let beforeFn = null;
+
+        const testFn = (testName, testBody) => {
+            tests.push({ name: testName, fn: testBody });
+        };
+
+        const beforeFnWrapper = (fn) => {
+            beforeFn = fn;
+        };
+
+        // Temporarily override globals for collection
+        const origDescribe = globalThis._describe;
+        const origTest = globalThis._test;
+        const origBefore = globalThis._before;
+
+        globalThis._describe = (n, f) => describe(n, f);
+        globalThis._test = testFn;
+        globalThis._before = beforeFnWrapper;
+
+        // Run the describe body to collect tests
+        await fn();
+
+        // Restore
+        globalThis._describe = origDescribe;
+        globalThis._test = origTest;
+        globalThis._before = origBefore;
+
+        // Run before hook if present
+        if (beforeFn) {
+            await beforeFn();
+        }
+
+        // Run collected tests
+        for (const test of tests) {
+            await t.step(test.name, test.fn);
+        }
+    });
+}
+
+export function test(name, fn) {
+    if (globalThis._test) {
+        globalThis._test(name, fn);
+    } else {
+        Deno.test(name, fn);
+    }
+}
+
+export function before(fn) {
+    if (globalThis._before) {
+        globalThis._before(fn);
+    }
+}
+
+export function after(_fn) {
+    // No-op for now
+}
+
+export function beforeEach(_fn) {
+    // No-op for now
+}
+
+export function afterEach(_fn) {
+    // No-op for now
+}
+
+export const assert = {
+    ok: assertTrue,
+    strictEqual: assertStrictEquals,
+    deepStrictEqual: assertEquals,
+    equal: assertStrictEquals,
 };

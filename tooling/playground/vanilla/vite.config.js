@@ -1,6 +1,9 @@
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import macroforge from '@macroforge/vite-plugin';
 import { defineConfig } from 'vite';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
     plugins: [macroforge()],

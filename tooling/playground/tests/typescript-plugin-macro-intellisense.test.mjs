@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { describe, test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { repoRoot } from './test-utils.mjs';
 
-const require = createRequire(import.meta.url);
-const ts = require('typescript');
+// Use dynamic import for TypeScript to work in both Node and Deno
+const ts = await import('npm:typescript').then(m => m.default ?? m);
 
 function createMockLanguageService(tsModule, fileName, fileText) {
     const sourceFile = tsModule.createSourceFile(
@@ -59,9 +59,10 @@ function createHost(tsModule, fileName, fileText, cwd) {
     };
 }
 
-function initPluginForFile({ fileName, fileText }) {
+async function initPluginForFile({ fileName, fileText }) {
     const pluginPath = path.resolve(repoRoot, 'packages/typescript-plugin/dist/index.js');
-    const tsPluginInit = require(pluginPath).default;
+    const pluginModule = await import(pathToFileURL(pluginPath).href);
+    const tsPluginInit = pluginModule.default;
     const pluginFactory = tsPluginInit({ typescript: ts });
 
     const cwd = repoRoot;
@@ -83,7 +84,7 @@ function initPluginForFile({ fileName, fileText }) {
 }
 
 describe('TypeScript plugin macro hover + attribute diagnostics', () => {
-    test('hover over @derive macro name returns QuickInfo docs', () => {
+    test('hover over @derive macro name returns QuickInfo docs', async () => {
         const fileText = `
       /** @derive(Serialize, Deserialize) */
       export interface User {
@@ -91,7 +92,7 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
       }
     `;
         const fileName = path.join(repoRoot, 'playground/tests/.tmp-macro-hover.ts');
-        const ls = initPluginForFile({ fileName, fileText });
+        const ls = await initPluginForFile({ fileName, fileText });
 
         const pos = fileText.indexOf('Serialize') + 1;
         assert.ok(pos > 0, 'sanity: expected to find Serialize');
@@ -109,7 +110,7 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
         );
     });
 
-    test('hover over @serde decorator returns QuickInfo docs', () => {
+    test('hover over @serde decorator returns QuickInfo docs', async () => {
         const fileText = `
       /** @derive(Deserialize) */
       export interface User {
@@ -118,7 +119,7 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
       }
     `;
         const fileName = path.join(repoRoot, 'playground/tests/.tmp-decorator-hover.ts');
-        const ls = initPluginForFile({ fileName, fileText });
+        const ls = await initPluginForFile({ fileName, fileText });
 
         const pos = fileText.indexOf('@serde') + 2;
         assert.ok(pos > 1, 'sanity: expected to find @serde');
@@ -137,7 +138,7 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
         );
     });
 
-    test('invalid @serde validate attribute surfaces as semantic diagnostic', () => {
+    test('invalid @serde validate attribute surfaces as semantic diagnostic', async () => {
         const fileText = `
       /** @derive(Deserialize) */
       export interface User {
@@ -146,7 +147,7 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
       }
     `;
         const fileName = path.join(repoRoot, 'playground/tests/.tmp-serde-diag.ts');
-        const ls = initPluginForFile({ fileName, fileText });
+        const ls = await initPluginForFile({ fileName, fileText });
 
         const diags = ls.getSemanticDiagnostics(fileName);
         const macroDiags = diags.filter((d) => d.source === 'macroforge');

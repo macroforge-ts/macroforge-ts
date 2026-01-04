@@ -1,0 +1,4 @@
+{
+    "nodeModulesDir": "manual",
+    "unstable": ["detect-cjs"]
+}
