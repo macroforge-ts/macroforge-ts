@@ -37,8 +37,10 @@ impl Lexer {
             Ok(SyntaxKind::Text)
         } else if self.pos >= self.input.len() {
             // Reached EOF without finding |}
-            Err(LexError::new(LexErrorKind::UnterminatedIdentBlock, self.pos)
-                .with_context("ident block {|...|}"))
+            Err(
+                LexError::new(LexErrorKind::UnterminatedIdentBlock, self.pos)
+                    .with_context("ident block {|...|}"),
+            )
         } else {
             Ok(SyntaxKind::Error)
         }

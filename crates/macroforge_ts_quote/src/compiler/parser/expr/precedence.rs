@@ -208,8 +208,8 @@ pub fn infix_binding_power(kind: SyntaxKind, text: &str) -> Option<BindingPower>
         "=" => None,
 
         // Compound assignments (handled separately)
-        "+=" | "-=" | "*=" | "/=" | "%=" | "**=" | "<<=" | ">>=" | ">>>=" | "&=" | "|="
-        | "^=" | "&&=" | "||=" | "??=" => None,
+        "+=" | "-=" | "*=" | "/=" | "%=" | "**=" | "<<=" | ">>=" | ">>>=" | "&=" | "|=" | "^="
+        | "&&=" | "||=" | "??=" => None,
 
         // Equality
         "==" | "===" => Some(prec::EQUALITY),
@@ -248,8 +248,7 @@ pub fn infix_binding_power(kind: SyntaxKind, text: &str) -> Option<BindingPower>
 pub fn is_assignment_operator(text: &str) -> bool {
     matches!(
         text,
-        "="
-            | "+="
+        "=" | "+="
             | "-="
             | "*="
             | "/="
@@ -325,41 +324,110 @@ mod tests {
 
     #[test]
     fn test_infix_binding_power_arithmetic() {
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "+"), Some(prec::ADDITIVE));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "-"), Some(prec::ADDITIVE));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "*"), Some(prec::MULTIPLICATIVE));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "/"), Some(prec::MULTIPLICATIVE));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "%"), Some(prec::MULTIPLICATIVE));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "**"), Some(prec::EXPONENT));
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "+"),
+            Some(prec::ADDITIVE)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "-"),
+            Some(prec::ADDITIVE)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "*"),
+            Some(prec::MULTIPLICATIVE)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "/"),
+            Some(prec::MULTIPLICATIVE)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "%"),
+            Some(prec::MULTIPLICATIVE)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "**"),
+            Some(prec::EXPONENT)
+        );
     }
 
     #[test]
     fn test_infix_binding_power_comparison() {
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "=="), Some(prec::EQUALITY));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "==="), Some(prec::EQUALITY));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "!="), Some(prec::EQUALITY));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "!=="), Some(prec::EQUALITY));
-        assert_eq!(infix_binding_power(SyntaxKind::Lt, "<"), Some(prec::RELATIONAL));
-        assert_eq!(infix_binding_power(SyntaxKind::Gt, ">"), Some(prec::RELATIONAL));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "<="), Some(prec::RELATIONAL));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, ">="), Some(prec::RELATIONAL));
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "=="),
+            Some(prec::EQUALITY)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "==="),
+            Some(prec::EQUALITY)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "!="),
+            Some(prec::EQUALITY)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "!=="),
+            Some(prec::EQUALITY)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Lt, "<"),
+            Some(prec::RELATIONAL)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Gt, ">"),
+            Some(prec::RELATIONAL)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "<="),
+            Some(prec::RELATIONAL)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, ">="),
+            Some(prec::RELATIONAL)
+        );
     }
 
     #[test]
     fn test_infix_binding_power_logical() {
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "&&"), Some(prec::LOGICAL_AND));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "||"), Some(prec::LOGICAL_OR));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "??"), Some(prec::NULLISH));
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "&&"),
+            Some(prec::LOGICAL_AND)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "||"),
+            Some(prec::LOGICAL_OR)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "??"),
+            Some(prec::NULLISH)
+        );
     }
 
     #[test]
     fn test_infix_binding_power_bitwise() {
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "&"), Some(prec::BITWISE_AND));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "|"), Some(prec::BITWISE_OR));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "^"), Some(prec::BITWISE_XOR));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, "<<"), Some(prec::SHIFT));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, ">>"), Some(prec::SHIFT));
-        assert_eq!(infix_binding_power(SyntaxKind::Text, ">>>"), Some(prec::SHIFT));
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "&"),
+            Some(prec::BITWISE_AND)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "|"),
+            Some(prec::BITWISE_OR)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "^"),
+            Some(prec::BITWISE_XOR)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, "<<"),
+            Some(prec::SHIFT)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, ">>"),
+            Some(prec::SHIFT)
+        );
+        assert_eq!(
+            infix_binding_power(SyntaxKind::Text, ">>>"),
+            Some(prec::SHIFT)
+        );
     }
 
     #[test]

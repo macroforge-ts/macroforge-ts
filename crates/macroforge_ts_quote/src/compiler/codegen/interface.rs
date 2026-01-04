@@ -7,7 +7,10 @@ impl Codegen {
         let has_control_flow = body.iter().any(|n| {
             matches!(
                 n,
-                IrNode::For { .. } | IrNode::If { .. } | IrNode::While { .. } | IrNode::Match { .. }
+                IrNode::For { .. }
+                    | IrNode::If { .. }
+                    | IrNode::While { .. }
+                    | IrNode::Match { .. }
             )
         });
 
@@ -50,7 +53,10 @@ impl Codegen {
         }
     }
 
-    pub(super) fn generate_interface_member_stmt(&self, node: &IrNode) -> GenResult<Option<TokenStream>> {
+    pub(super) fn generate_interface_member_stmt(
+        &self,
+        node: &IrNode,
+    ) -> GenResult<Option<TokenStream>> {
         match node {
             IrNode::For {
                 pattern,
@@ -187,7 +193,10 @@ impl Codegen {
         }
     }
 
-    pub(super) fn generate_interface_member(&self, node: &IrNode) -> GenResult<Option<TokenStream>> {
+    pub(super) fn generate_interface_member(
+        &self,
+        node: &IrNode,
+    ) -> GenResult<Option<TokenStream>> {
         match node {
             IrNode::PropSignature {
                 readonly,
@@ -195,7 +204,12 @@ impl Codegen {
                 optional,
                 type_ann,
                 ..
-            } => Ok(Some(self.generate_prop_signature(*readonly, name, *optional, type_ann.as_deref())?)),
+            } => Ok(Some(self.generate_prop_signature(
+                *readonly,
+                name,
+                *optional,
+                type_ann.as_deref(),
+            )?)),
             IrNode::MethodSignature {
                 name,
                 optional,
@@ -215,7 +229,9 @@ impl Codegen {
                 params,
                 type_ann,
                 ..
-            } => Ok(Some(self.generate_index_signature(*readonly, params, type_ann)?)),
+            } => Ok(Some(
+                self.generate_index_signature(*readonly, params, type_ann)?,
+            )),
             _ => Ok(None),
         }
     }

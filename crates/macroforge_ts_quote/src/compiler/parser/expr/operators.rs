@@ -303,9 +303,18 @@ mod tests {
             Some(BinaryOp::InstanceOf)
         );
         assert_eq!(keyword_to_binary_op(SyntaxKind::EqEq), Some(BinaryOp::EqEq));
-        assert_eq!(keyword_to_binary_op(SyntaxKind::EqEqEq), Some(BinaryOp::EqEqEq));
-        assert_eq!(keyword_to_binary_op(SyntaxKind::NotEq), Some(BinaryOp::NotEq));
-        assert_eq!(keyword_to_binary_op(SyntaxKind::NotEqEq), Some(BinaryOp::NotEqEq));
+        assert_eq!(
+            keyword_to_binary_op(SyntaxKind::EqEqEq),
+            Some(BinaryOp::EqEqEq)
+        );
+        assert_eq!(
+            keyword_to_binary_op(SyntaxKind::NotEq),
+            Some(BinaryOp::NotEq)
+        );
+        assert_eq!(
+            keyword_to_binary_op(SyntaxKind::NotEqEq),
+            Some(BinaryOp::NotEqEq)
+        );
         assert_eq!(keyword_to_binary_op(SyntaxKind::Ident), None);
     }
 
@@ -376,9 +385,15 @@ mod tests {
     #[test]
     fn test_to_unary_op_text_keywords() {
         // Keywords might come as plain text in some contexts
-        assert_eq!(to_unary_op(SyntaxKind::Text, "typeof"), Some(UnaryOp::TypeOf));
+        assert_eq!(
+            to_unary_op(SyntaxKind::Text, "typeof"),
+            Some(UnaryOp::TypeOf)
+        );
         assert_eq!(to_unary_op(SyntaxKind::Text, "void"), Some(UnaryOp::Void));
-        assert_eq!(to_unary_op(SyntaxKind::Text, "delete"), Some(UnaryOp::Delete));
+        assert_eq!(
+            to_unary_op(SyntaxKind::Text, "delete"),
+            Some(UnaryOp::Delete)
+        );
     }
 
     #[test]
@@ -394,7 +409,10 @@ mod tests {
 
     #[test]
     fn test_to_update_op() {
-        assert_eq!(to_update_op(SyntaxKind::PlusPlus), Some(UpdateOp::Increment));
+        assert_eq!(
+            to_update_op(SyntaxKind::PlusPlus),
+            Some(UpdateOp::Increment)
+        );
         assert_eq!(
             to_update_op(SyntaxKind::MinusMinus),
             Some(UpdateOp::Decrement)

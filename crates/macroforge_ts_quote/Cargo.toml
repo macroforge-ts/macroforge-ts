@@ -36,7 +36,7 @@ anyhow = "1.0"
 rustc-hash = "2.1.1"
 smallvec = "1.13"
 swc_macros_common = "1.0"
-swc_core = { version = "52.0.0", default-features = false, features = [
+swc_core = { version = "54.0.0", default-features = false, features = [
   "common",
   "ecma_ast",
   "ecma_parser",

@@ -25,17 +25,22 @@ impl Parser {
 
         // Consume "enum"
         if !self.at(SyntaxKind::EnumKw) {
-            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "enum keyword"))
-                .map_err(|e| e.with_context("parsing enum declaration"));
+            return Err(ParseError::unexpected_eof(
+                self.current_byte_offset(),
+                "enum keyword",
+            ))
+            .map_err(|e| e.with_context("parsing enum declaration"));
         }
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "enum keyword"))?;
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "enum keyword")
+        })?;
         self.skip_whitespace();
 
         // Parse enum name
-        let name = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "enum name")
-                .with_context("parsing enum declaration"))?;
+        let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "enum name")
+                .with_context("parsing enum declaration")
+        })?;
         self.skip_whitespace();
 
         // Parse enum body
@@ -43,7 +48,8 @@ impl Parser {
             return Err(ParseError::new(
                 ParseErrorKind::UnexpectedToken,
                 self.current_byte_offset(),
-            ).with_context("expected '{' for enum body"));
+            )
+            .with_context("expected '{' for enum body"));
         }
         self.consume(); // consume {
         self.skip_whitespace();
@@ -126,9 +132,10 @@ impl Parser {
         let start_byte = self.current_byte_offset();
 
         // Parse member name (can be identifier or placeholder)
-        let name = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "enum member name")
-                .with_context("parsing enum member"))?;
+        let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "enum member name")
+                .with_context("parsing enum member")
+        })?;
         self.skip_whitespace();
 
         // Check for initializer

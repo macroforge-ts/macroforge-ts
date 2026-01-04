@@ -9,7 +9,7 @@ macroforge_ts_quote = { path = ".." }
 macroforge_ts_syn = { path = "../../macroforge_ts_syn" }
 macroforge_ts = { path = "../../macroforge_ts" }
 proc-macro2 = "1"
-swc_core = { version = "52.0.0", default-features = false, features = [
+swc_core = { version = "54.0.0", default-features = false, features = [
   "common",
   "ecma_ast",
   "ecma_codegen",

@@ -41,9 +41,11 @@ fn get_node_name(node: &IrNode) -> String {
 fn get_node_name_short(node: &IrNode) -> String {
     match node {
         IrNode::Ident { value, .. } => value.clone(),
-        IrNode::IdentBlock { parts, .. } => {
-            parts.iter().map(|p| get_node_name_short(p)).collect::<Vec<_>>().join("+")
-        }
+        IrNode::IdentBlock { parts, .. } => parts
+            .iter()
+            .map(|p| get_node_name_short(p))
+            .collect::<Vec<_>>()
+            .join("+"),
         IrNode::Placeholder { .. } => "@{..}".to_string(),
         _ => "?".to_string(),
     }
@@ -739,18 +741,12 @@ fn test_import_named_multiple() {
 
 #[test]
 fn test_import_default() {
-    test_template(
-        "import_default",
-        r#"import React from "react";"#,
-    );
+    test_template("import_default", r#"import React from "react";"#);
 }
 
 #[test]
 fn test_import_namespace() {
-    test_template(
-        "import_namespace",
-        r#"import * as fs from "fs";"#,
-    );
+    test_template("import_namespace", r#"import * as fs from "fs";"#);
 }
 
 #[test]
@@ -779,18 +775,12 @@ fn test_import_with_alias() {
 
 #[test]
 fn test_import_side_effect() {
-    test_template(
-        "import_side_effect",
-        r#"import "./polyfills";"#,
-    );
+    test_template("import_side_effect", r#"import "./polyfills";"#);
 }
 
 #[test]
 fn test_export_named() {
-    test_template(
-        "export_named",
-        r#"export { foo, bar };"#,
-    );
+    test_template("export_named", r#"export { foo, bar };"#);
 }
 
 #[test]
@@ -803,18 +793,12 @@ fn test_export_named_with_alias() {
 
 #[test]
 fn test_export_from() {
-    test_template(
-        "export_from",
-        r#"export { foo, bar } from "./other";"#,
-    );
+    test_template("export_from", r#"export { foo, bar } from "./other";"#);
 }
 
 #[test]
 fn test_export_all() {
-    test_template(
-        "export_all",
-        r#"export * from "./module";"#,
-    );
+    test_template("export_all", r#"export * from "./module";"#);
 }
 
 #[test]
@@ -851,20 +835,14 @@ fn test_export_default_class() {
 
 #[test]
 fn test_export_type() {
-    test_template(
-        "export_type",
-        r#"export type { User, Config };"#,
-    );
+    test_template("export_type", r#"export type { User, Config };"#);
 }
 
 // ==================== Enum Tests ====================
 
 #[test]
 fn test_enum_simple() {
-    test_template(
-        "enum_simple",
-        r#"enum Status { Active, Inactive }"#,
-    );
+    test_template("enum_simple", r#"enum Status { Active, Inactive }"#);
 }
 
 #[test]
@@ -885,10 +863,7 @@ fn test_enum_string_values() {
 
 #[test]
 fn test_const_enum() {
-    test_template(
-        "const_enum",
-        r#"const enum Color { Red, Green, Blue }"#,
-    );
+    test_template("const_enum", r#"const enum Color { Red, Green, Blue }"#);
 }
 
 #[test]

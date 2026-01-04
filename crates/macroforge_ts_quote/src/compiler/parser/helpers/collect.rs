@@ -3,7 +3,10 @@ use super::ParseResult;
 
 impl Parser {
     /// Helper to collect a brace-delimited block with placeholder support.
-    pub(in super::super) fn collect_block_with_placeholders(&mut self, parts: &mut Vec<IrNode>) -> ParseResult<()> {
+    pub(in super::super) fn collect_block_with_placeholders(
+        &mut self,
+        parts: &mut Vec<IrNode>,
+    ) -> ParseResult<()> {
         if !self.at(SyntaxKind::LBrace) {
             return Ok(());
         }

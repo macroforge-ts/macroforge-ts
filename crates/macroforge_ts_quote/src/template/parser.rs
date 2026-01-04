@@ -10,8 +10,8 @@ use super::control_flow::{
 use super::interpolation::{
     interpolate_string_literal, is_backtick_template, is_string_literal, process_backtick_template,
 };
-use super::spacing::{spacing_between, Pos};
-use super::tag::{analyze_tag, TagType};
+use super::spacing::{Pos, spacing_between};
+use super::tag::{TagType, analyze_tag};
 
 /// Terminators tell the parser when to stop current recursion level.
 #[derive(Debug, Clone)]
@@ -341,11 +341,8 @@ pub fn parse_fragment_with_ctx(
                 ctx.set_prev_end(Pos::from_span_end(g.span_open()));
 
                 // Parse inner content
-                let (inner_parsed, _) = parse_fragment_with_ctx(
-                    &mut g.stream().into_iter().peekable(),
-                    None,
-                    ctx,
-                )?;
+                let (inner_parsed, _) =
+                    parse_fragment_with_ctx(&mut g.stream().into_iter().peekable(), None, ctx)?;
                 output.extend(inner_parsed);
 
                 // Emit spacing before closing delimiter
@@ -395,7 +392,7 @@ pub fn parse_fragment_with_ctx(
                         let mut inner = g.stream().into_iter().peekable();
                         // Check for `doc = "content"`
                         if let Some(TokenTree::Ident(ident)) = inner.next() {
-                            if ident.to_string() == "doc" {
+                            if ident == "doc" {
                                 // Skip optional whitespace and match `=`
                                 if let Some(TokenTree::Punct(eq)) = inner.next() {
                                     if eq.as_char() == '=' {

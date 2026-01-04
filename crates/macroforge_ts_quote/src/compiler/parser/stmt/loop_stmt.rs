@@ -12,9 +12,13 @@ impl Parser {
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
-        let keyword = self.current()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "loop statement"))?
-            .text.clone();
+        let keyword = self
+            .current()
+            .ok_or_else(|| {
+                ParseError::unexpected_eof(self.current_byte_offset(), "loop statement")
+            })?
+            .text
+            .clone();
 
         #[cfg(debug_assertions)]
         if debug_parser {
@@ -32,10 +36,10 @@ impl Parser {
             }
             "while" => self.parse_ts_while_stmt(),
             "do" => self.parse_ts_do_while_stmt(),
-            _ => Err(ParseError::new(
-                ParseErrorKind::UnexpectedToken,
-                self.current_byte_offset(),
-            ).with_context("expected 'for', 'while', or 'do'")),
+            _ => Err(
+                ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                    .with_context("expected 'for', 'while', or 'do'"),
+            ),
         }
     }
 
@@ -54,18 +58,26 @@ impl Parser {
         }
 
         self.expect(SyntaxKind::LParen).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
-                .with_context("expected '(' after 'for'")
+            ParseError::new(
+                ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+            )
+            .with_context("expected '(' after 'for'")
         })?;
         self.skip_whitespace();
 
         // Parse init (optional: VarDecl or expression)
         let init = if self.at(SyntaxKind::Semicolon) {
             None
-        } else if self.at(SyntaxKind::ConstKw) || self.at(SyntaxKind::LetKw) || self.at(SyntaxKind::VarKw) {
+        } else if self.at(SyntaxKind::ConstKw)
+            || self.at(SyntaxKind::LetKw)
+            || self.at(SyntaxKind::VarKw)
+        {
             Some(Box::new(self.parse_for_init_var_decl()?))
         } else {
-            Some(Box::new(self.parse_ts_expr_until(&[SyntaxKind::Semicolon])?))
+            Some(Box::new(
+                self.parse_ts_expr_until(&[SyntaxKind::Semicolon])?,
+            ))
         };
         self.skip_whitespace();
         self.expect(SyntaxKind::Semicolon).ok_or_else(|| {
@@ -78,7 +90,9 @@ impl Parser {
         let test = if self.at(SyntaxKind::Semicolon) {
             None
         } else {
-            Some(Box::new(self.parse_ts_expr_until(&[SyntaxKind::Semicolon])?))
+            Some(Box::new(
+                self.parse_ts_expr_until(&[SyntaxKind::Semicolon])?,
+            ))
         };
         self.skip_whitespace();
         self.expect(SyntaxKind::Semicolon).ok_or_else(|| {
@@ -95,8 +109,11 @@ impl Parser {
         };
         self.skip_whitespace();
         self.expect(SyntaxKind::RParen).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
-                .with_context("closing for loop header")
+            ParseError::new(
+                ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+            )
+            .with_context("closing for loop header")
         })?;
         self.skip_whitespace();
 
@@ -113,8 +130,12 @@ impl Parser {
 
         #[cfg(debug_assertions)]
         if debug_parser {
-            eprintln!("[MF_DEBUG] parse_ts_for_stmt: completed, init={}, test={}, update={}",
-                init.is_some(), test.is_some(), update.is_some());
+            eprintln!(
+                "[MF_DEBUG] parse_ts_for_stmt: completed, init={}, test={}, update={}",
+                init.is_some(),
+                test.is_some(),
+                update.is_some()
+            );
         }
 
         Ok(IrNode::TsForStmt {
@@ -141,19 +162,26 @@ impl Parser {
         }
 
         self.expect(SyntaxKind::LParen).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
-                .with_context("expected '(' after 'while'")
+            ParseError::new(
+                ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+            )
+            .with_context("expected '(' after 'while'")
         })?;
         self.skip_whitespace();
 
         // Parse test expression
-        let test = self.parse_ts_expr_until(&[SyntaxKind::RParen])
+        let test = self
+            .parse_ts_expr_until(&[SyntaxKind::RParen])
             .map_err(|e| e.with_context("parsing while loop condition"))?;
         self.skip_whitespace();
 
         self.expect(SyntaxKind::RParen).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
-                .with_context("closing while loop condition")
+            ParseError::new(
+                ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+            )
+            .with_context("closing while loop condition")
         })?;
         self.skip_whitespace();
 
@@ -209,25 +237,33 @@ impl Parser {
             return Err(ParseError::new(
                 ParseErrorKind::UnexpectedToken,
                 self.current_byte_offset(),
-            ).with_context("expected 'while' after do-while body"));
+            )
+            .with_context("expected 'while' after do-while body"));
         }
         self.consume(); // while
         self.skip_whitespace();
 
         self.expect(SyntaxKind::LParen).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
-                .with_context("expected '(' after 'while' in do-while")
+            ParseError::new(
+                ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+            )
+            .with_context("expected '(' after 'while' in do-while")
         })?;
         self.skip_whitespace();
 
         // Parse test expression
-        let test = self.parse_ts_expr_until(&[SyntaxKind::RParen])
+        let test = self
+            .parse_ts_expr_until(&[SyntaxKind::RParen])
             .map_err(|e| e.with_context("parsing do-while loop condition"))?;
         self.skip_whitespace();
 
         self.expect(SyntaxKind::RParen).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
-                .with_context("closing do-while loop condition")
+            ParseError::new(
+                ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+            )
+            .with_context("closing do-while loop condition")
         })?;
         self.skip_whitespace();
 
@@ -257,10 +293,13 @@ impl Parser {
             Some(SyntaxKind::ConstKw) => VarKind::Const,
             Some(SyntaxKind::LetKw) => VarKind::Let,
             Some(SyntaxKind::VarKw) => VarKind::Var,
-            _ => return Err(ParseError::new(
-                ParseErrorKind::UnexpectedToken,
-                self.current_byte_offset(),
-            ).with_context("expected 'const', 'let', or 'var'")),
+            _ => {
+                return Err(ParseError::new(
+                    ParseErrorKind::UnexpectedToken,
+                    self.current_byte_offset(),
+                )
+                .with_context("expected 'const', 'let', or 'var'"));
+            }
         };
         self.consume(); // const/let/var
         self.skip_whitespace();
@@ -271,7 +310,8 @@ impl Parser {
             let decl_start = self.current_byte_offset();
 
             // Parse binding name
-            let name = self.parse_for_loop_binding()
+            let name = self
+                .parse_for_loop_binding()
                 .map_err(|e| e.with_context("parsing for loop variable binding"))?;
             self.skip_whitespace();
 
@@ -291,7 +331,10 @@ impl Parser {
                 self.consume();
                 self.skip_whitespace();
                 // Parse until semicolon or comma (for multiple declarators)
-                Some(Box::new(self.parse_ts_expr_until(&[SyntaxKind::Semicolon, SyntaxKind::Comma])?))
+                Some(Box::new(self.parse_ts_expr_until(&[
+                    SyntaxKind::Semicolon,
+                    SyntaxKind::Comma,
+                ])?))
             } else {
                 None
             };
@@ -427,9 +470,9 @@ impl Parser {
     /// This can be a variable declaration (const/let/var x) or an expression.
     fn parse_for_loop_left(&mut self) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
-        let kind = self
-            .current_kind()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "for loop left-hand side"))?;
+        let kind = self.current_kind().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "for loop left-hand side")
+        })?;
 
         match kind {
             SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => {
@@ -485,9 +528,9 @@ impl Parser {
 
     /// Parse a simple binding for for-loop left-hand side
     fn parse_for_loop_binding(&mut self) -> ParseResult<IrNode> {
-        let kind = self
-            .current_kind()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "for loop binding"))?;
+        let kind = self.current_kind().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "for loop binding")
+        })?;
 
         match kind {
             SyntaxKind::LBracket => self
@@ -498,8 +541,11 @@ impl Parser {
                 .map_err(|e| e.with_context("parsing for loop object pattern")),
             SyntaxKind::At => self.parse_interpolation(),
             _ => self.parse_ts_ident_or_placeholder().ok_or_else(|| {
-                ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                    .with_context("parsing for loop binding identifier")
+                ParseError::new(
+                    ParseErrorKind::ExpectedIdentifier,
+                    self.current_byte_offset(),
+                )
+                .with_context("parsing for loop binding identifier")
             }),
         }
     }
@@ -552,8 +598,11 @@ impl Parser {
         }
 
         self.expect(SyntaxKind::RBracket).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingBracket, self.current_byte_offset())
-                .with_context("parsing array pattern")
+            ParseError::new(
+                ParseErrorKind::MissingClosingBracket,
+                self.current_byte_offset(),
+            )
+            .with_context("parsing array pattern")
         })?;
 
         let end_byte = self.current_byte_offset();
@@ -598,8 +647,11 @@ impl Parser {
                 // Regular property
                 let prop_start = self.current_byte_offset();
                 let key = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
-                    ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                        .with_context("parsing object pattern property key")
+                    ParseError::new(
+                        ParseErrorKind::ExpectedIdentifier,
+                        self.current_byte_offset(),
+                    )
+                    .with_context("parsing object pattern property key")
                 })?;
                 self.skip_whitespace();
 
@@ -634,8 +686,11 @@ impl Parser {
         }
 
         self.expect(SyntaxKind::RBrace).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
-                .with_context("parsing object pattern")
+            ParseError::new(
+                ParseErrorKind::MissingClosingBrace,
+                self.current_byte_offset(),
+            )
+            .with_context("parsing object pattern")
         })?;
 
         let end_byte = self.current_byte_offset();
@@ -646,5 +701,4 @@ impl Parser {
             optional: false,
         })
     }
-
 }

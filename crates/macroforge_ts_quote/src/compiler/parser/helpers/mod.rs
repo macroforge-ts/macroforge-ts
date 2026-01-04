@@ -90,9 +90,9 @@ impl Parser {
     pub(super) fn placeholder_kind(&self) -> PlaceholderKind {
         let ctx_kind = self.current_context_kind();
         let kind = match ctx_kind {
-            ContextKind::TypeAnnotation | ContextKind::TypeAssertion | ContextKind::GenericParams => {
-                PlaceholderKind::Type
-            }
+            ContextKind::TypeAnnotation
+            | ContextKind::TypeAssertion
+            | ContextKind::GenericParams => PlaceholderKind::Type,
             // In interface member context, placeholders are typically identifiers (property names)
             ContextKind::Identifier | ContextKind::InterfaceMember => PlaceholderKind::Ident,
             ContextKind::Statement => PlaceholderKind::Stmt,

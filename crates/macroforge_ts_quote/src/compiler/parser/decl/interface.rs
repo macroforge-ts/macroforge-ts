@@ -5,13 +5,15 @@ impl Parser {
     pub(in super::super) fn parse_interface_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
         // Consume "interface"
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "interface keyword"))?;
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "interface keyword")
+        })?;
         self.skip_whitespace();
 
-        let name = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_context("interface name"))?;
+        let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                .with_context("interface name")
+        })?;
         self.skip_whitespace();
 
         let type_params = self.parse_optional_type_params();
@@ -32,7 +34,8 @@ impl Parser {
             return Err(ParseError::new(
                 ParseErrorKind::UnexpectedToken,
                 self.current_byte_offset(),
-            ).with_context("expected '{' for interface body"));
+            )
+            .with_context("expected '{' for interface body"));
         }
         self.consume();
         self.skip_whitespace();
@@ -153,7 +156,8 @@ impl Parser {
                 return Err(ParseError::new(
                     ParseErrorKind::UnexpectedToken,
                     self.current_byte_offset(),
-                ).with_context("expected ':' for index signature type"));
+                )
+                .with_context("expected ':' for index signature type"));
             }
 
             self.consume(); // colon
@@ -221,7 +225,8 @@ impl Parser {
         // Check if method signature or property
         if self.at(SyntaxKind::LParen) || self.at(SyntaxKind::Lt) {
             let type_params = self.parse_optional_type_params();
-            let params = self.parse_param_list()
+            let params = self
+                .parse_param_list()
                 .map_err(|e| e.with_context("interface method signature"))?;
             self.skip_whitespace();
 
@@ -232,7 +237,8 @@ impl Parser {
                     SyntaxKind::Semicolon,
                     SyntaxKind::Comma,
                     SyntaxKind::RBrace,
-                ])?.map(Box::new)
+                ])?
+                .map(Box::new)
             } else {
                 None
             };
@@ -256,11 +262,8 @@ impl Parser {
         let type_ann = if self.at(SyntaxKind::Colon) {
             self.consume();
             self.skip_whitespace();
-            self.parse_type_until(&[
-                SyntaxKind::Semicolon,
-                SyntaxKind::Comma,
-                SyntaxKind::RBrace,
-            ])?.map(Box::new)
+            self.parse_type_until(&[SyntaxKind::Semicolon, SyntaxKind::Comma, SyntaxKind::RBrace])?
+                .map(Box::new)
         } else {
             None
         };
@@ -280,7 +283,11 @@ impl Parser {
     }
 
     /// Parse an index signature: [key: Type]: Type
-    fn parse_index_signature(&mut self, readonly: bool, start_byte: usize) -> ParseResult<Option<IrNode>> {
+    fn parse_index_signature(
+        &mut self,
+        readonly: bool,
+        start_byte: usize,
+    ) -> ParseResult<Option<IrNode>> {
         let Some(_) = self.consume() else {
             return Ok(None);
         }; // [
@@ -303,7 +310,9 @@ impl Parser {
             self.consume(); // :
             self.skip_whitespace();
 
-            let Some(param_type) = self.parse_type_until(&[SyntaxKind::RBracket, SyntaxKind::Comma])? else {
+            let Some(param_type) =
+                self.parse_type_until(&[SyntaxKind::RBracket, SyntaxKind::Comma])?
+            else {
                 return Ok(None);
             };
 
@@ -337,11 +346,9 @@ impl Parser {
         self.consume(); // :
         self.skip_whitespace();
 
-        let Some(type_ann) = self.parse_type_until(&[
-            SyntaxKind::Semicolon,
-            SyntaxKind::Comma,
-            SyntaxKind::RBrace,
-        ])? else {
+        let Some(type_ann) =
+            self.parse_type_until(&[SyntaxKind::Semicolon, SyntaxKind::Comma, SyntaxKind::RBrace])?
+        else {
             return Ok(None);
         };
 

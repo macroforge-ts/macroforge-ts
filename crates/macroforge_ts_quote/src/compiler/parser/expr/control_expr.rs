@@ -54,8 +54,11 @@ impl Parser {
         let condition_str = self.collect_rust_until(SyntaxKind::RBrace);
         if self.expect(SyntaxKind::RBrace).is_none() {
             self.pop_context(); // Clean up on error
-            return Err(ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
-                .with_context("if-expression condition"));
+            return Err(ParseError::new(
+                ParseErrorKind::MissingClosingBrace,
+                self.current_byte_offset(),
+            )
+            .with_context("if-expression condition"));
         }
 
         // Parse then expression
@@ -69,8 +72,11 @@ impl Parser {
 
             let cond_str = self.collect_rust_until(SyntaxKind::RBrace);
             self.expect(SyntaxKind::RBrace).ok_or_else(|| {
-                ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
-                    .with_context("else-if condition")
+                ParseError::new(
+                    ParseErrorKind::MissingClosingBrace,
+                    self.current_byte_offset(),
+                )
+                .with_context("else-if condition")
             })?;
 
             let expr = self.parse_expr_until_control_continuation()?;
@@ -100,9 +106,12 @@ impl Parser {
 
         // Expect {/if}
         if !self.at(SyntaxKind::BraceSlashIfBrace) {
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["{/if}"])
-                .with_context("if-expression"));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["{/if}"])
+            .with_context("if-expression"));
         }
         self.consume(); // {/if}
 
@@ -149,9 +158,12 @@ impl Parser {
         // Expect `in` keyword
         if self.expect(SyntaxKind::InKw).is_none() {
             self.pop_context(); // Clean up on error
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["in"])
-                .with_context("for-expression"));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["in"])
+            .with_context("for-expression"));
         }
 
         self.skip_whitespace();
@@ -160,8 +172,11 @@ impl Parser {
         let iterator_str = self.collect_rust_until(SyntaxKind::RBrace);
         if self.expect(SyntaxKind::RBrace).is_none() {
             self.pop_context(); // Clean up on error
-            return Err(ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
-                .with_context("for-expression iterator"));
+            return Err(ParseError::new(
+                ParseErrorKind::MissingClosingBrace,
+                self.current_byte_offset(),
+            )
+            .with_context("for-expression iterator"));
         }
 
         // Parse body expression
@@ -175,9 +190,12 @@ impl Parser {
 
         // Expect {/for}
         if !self.at(SyntaxKind::BraceSlashForBrace) {
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["{/for}"])
-                .with_context("for-expression"));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["{/for}"])
+            .with_context("for-expression"));
         }
         self.consume(); // {/for}
 
@@ -218,8 +236,11 @@ impl Parser {
         let condition_str = self.collect_rust_until(SyntaxKind::RBrace);
         if self.expect(SyntaxKind::RBrace).is_none() {
             self.pop_context(); // Clean up on error
-            return Err(ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
-                .with_context("while-expression condition"));
+            return Err(ParseError::new(
+                ParseErrorKind::MissingClosingBrace,
+                self.current_byte_offset(),
+            )
+            .with_context("while-expression condition"));
         }
 
         // Parse body expression
@@ -233,9 +254,12 @@ impl Parser {
 
         // Expect {/while}
         if !self.at(SyntaxKind::BraceSlashWhileBrace) {
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["{/while}"])
-                .with_context("while-expression"));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["{/while}"])
+            .with_context("while-expression"));
         }
         self.consume(); // {/while}
 
@@ -272,8 +296,11 @@ impl Parser {
         let expr_str = self.collect_rust_until(SyntaxKind::RBrace);
         if self.expect(SyntaxKind::RBrace).is_none() {
             self.pop_context(); // Clean up on error
-            return Err(ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
-                .with_context("match-expression scrutinee"));
+            return Err(ParseError::new(
+                ParseErrorKind::MissingClosingBrace,
+                self.current_byte_offset(),
+            )
+            .with_context("match-expression scrutinee"));
         }
 
         // Parse arms
@@ -287,8 +314,11 @@ impl Parser {
             // Parse pattern until }
             let pattern_str = self.collect_rust_until(SyntaxKind::RBrace);
             self.expect(SyntaxKind::RBrace).ok_or_else(|| {
-                ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
-                    .with_context("match arm pattern")
+                ParseError::new(
+                    ParseErrorKind::MissingClosingBrace,
+                    self.current_byte_offset(),
+                )
+                .with_context("match arm pattern")
             })?;
 
             // Parse body expression
@@ -312,9 +342,12 @@ impl Parser {
 
         // Expect {/match}
         if !self.at(SyntaxKind::BraceSlashMatchBrace) {
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["{/match}"])
-                .with_context("match-expression"));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["{/match}"])
+            .with_context("match-expression"));
         }
         self.consume(); // {/match}
 

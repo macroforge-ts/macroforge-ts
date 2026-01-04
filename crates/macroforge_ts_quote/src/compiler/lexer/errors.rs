@@ -70,8 +70,7 @@ impl LexErrorKind {
             Self::UnterminatedInterpolation => Some("add a closing brace } to @{...}"),
             Self::UnterminatedControlBlock => Some("add a closing brace } to control block"),
             Self::UnterminatedDirective => Some("add a closing brace } to directive {$...}"),
-            Self::UnterminatedIdentBlock => Some("add closing |} to ident block {|...|}")
-            ,
+            Self::UnterminatedIdentBlock => Some("add closing |} to ident block {|...|}"),
             Self::InvalidEscapeSequence => Some("use valid escape: \\n, \\t, \\r, \\\\, \\\", \\'"),
             Self::UnbalancedBraces => Some("ensure all { have matching }"),
             Self::InvalidControlBlock => Some("use {#if}, {#for}, {#while}, or {#match}"),
@@ -288,7 +287,12 @@ impl LexError {
 
     /// Formats the error with source context and a custom filename.
     /// `line_offset` is added to convert relative template lines to absolute file lines.
-    pub fn format_with_source_and_file(&self, source: &str, filename: &str, line_offset: usize) -> String {
+    pub fn format_with_source_and_file(
+        &self,
+        source: &str,
+        filename: &str,
+        line_offset: usize,
+    ) -> String {
         let loc = SourceLocation::from_offset(source, self.position);
         let absolute_line = loc.line + line_offset;
 
@@ -296,7 +300,10 @@ impl LexError {
         let mut msg = format!("error: {}\n", self.kind.description());
 
         // Location: --> file:line:column (UTF-16 column for editor compatibility)
-        msg.push_str(&format!(" --> {}:{}:{}\n", filename, absolute_line, loc.column));
+        msg.push_str(&format!(
+            " --> {}:{}:{}\n",
+            filename, absolute_line, loc.column
+        ));
 
         // Extract and show the problematic line with caret
         let lines: Vec<&str> = source.lines().collect();
@@ -357,7 +364,12 @@ impl LexError {
             let line_num_width = absolute_line.to_string().len();
 
             // Source line with line number and pipe
-            let source_line = format!("{:>width$} | {}", absolute_line, display_content, width = line_num_width);
+            let source_line = format!(
+                "{:>width$} | {}",
+                absolute_line,
+                display_content,
+                width = line_num_width
+            );
             // Caret line with pipe (no line number, just spaces)
             let caret_content = format!("{:>col$}^ {}", "", annotation, col = display_caret_col);
             let caret_line = format!("{:>width$} | {}", "", caret_content, width = line_num_width);
@@ -376,7 +388,9 @@ impl LexError {
             let opened_loc = SourceLocation::from_offset(source, opened_pos);
             msg.push_str(&format!(
                 "opened at: {}:{}:{}\n",
-                filename, opened_loc.line + line_offset, opened_loc.column
+                filename,
+                opened_loc.line + line_offset,
+                opened_loc.column
             ));
         }
 
@@ -412,10 +426,7 @@ impl LexError {
             if self.expected.len() == 1 {
                 msg.push_str(&format!(", expected {}", self.expected[0]));
             } else {
-                msg.push_str(&format!(
-                    ", expected one of: {}",
-                    self.expected.join(", ")
-                ));
+                msg.push_str(&format!(", expected one of: {}", self.expected.join(", ")));
             }
         }
 

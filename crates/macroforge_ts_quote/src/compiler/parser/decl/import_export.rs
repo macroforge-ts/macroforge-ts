@@ -219,14 +219,20 @@ impl Parser {
         match self.current_kind() {
             // Named export: `export { a, b as c }`
             Some(SyntaxKind::LBrace) => self.parse_named_export().ok_or_else(|| {
-                ParseError::new(ParseErrorKind::ExpectedExpression, self.current_byte_offset())
-                    .with_context("parsing named export")
+                ParseError::new(
+                    ParseErrorKind::ExpectedExpression,
+                    self.current_byte_offset(),
+                )
+                .with_context("parsing named export")
             }),
 
             // Export all: `export * from "module"`
             Some(SyntaxKind::Star) => self.parse_export_all().ok_or_else(|| {
-                ParseError::new(ParseErrorKind::ExpectedExpression, self.current_byte_offset())
-                    .with_context("parsing export all")
+                ParseError::new(
+                    ParseErrorKind::ExpectedExpression,
+                    self.current_byte_offset(),
+                )
+                .with_context("parsing export all")
             }),
 
             // Export default: `export default expr`
@@ -242,16 +248,22 @@ impl Parser {
                 if self.at(SyntaxKind::LBrace) {
                     // `export type { T }` - named type export
                     self.parse_named_export_inner(true).ok_or_else(|| {
-                        ParseError::new(ParseErrorKind::ExpectedExpression, self.current_byte_offset())
-                            .with_context("parsing named type export")
+                        ParseError::new(
+                            ParseErrorKind::ExpectedExpression,
+                            self.current_byte_offset(),
+                        )
+                        .with_context("parsing named type export")
                     })
                 } else {
                     // `export type Foo = ...` - type alias
                     // Don't consume again - parse_type_alias_decl expects "type" to be current
                     // But we already consumed it, so we need to parse the name directly here
                     let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
-                        ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                            .with_context("type alias name")
+                        ParseError::new(
+                            ParseErrorKind::ExpectedIdentifier,
+                            self.current_byte_offset(),
+                        )
+                        .with_context("type alias name")
                     })?;
                     self.skip_whitespace();
 
@@ -262,15 +274,20 @@ impl Parser {
                         return Err(ParseError::new(
                             ParseErrorKind::UnexpectedToken,
                             self.current_byte_offset(),
-                        ).with_context("expected '=' in export type alias"));
+                        )
+                        .with_context("expected '=' in export type alias"));
                     }
                     self.consume(); // consume =
                     self.skip_whitespace();
 
-                    let type_ann = self.parse_type_until(&[SyntaxKind::Semicolon])?
+                    let type_ann = self
+                        .parse_type_until(&[SyntaxKind::Semicolon])?
                         .ok_or_else(|| {
-                            ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
-                                .with_context("type alias definition")
+                            ParseError::new(
+                                ParseErrorKind::ExpectedTypeAnnotation,
+                                self.current_byte_offset(),
+                            )
+                            .with_context("type alias definition")
                         })?;
 
                     if self.at(SyntaxKind::Semicolon) {
@@ -289,9 +306,11 @@ impl Parser {
             }
 
             // Declaration exports handled by parse_export_decl
-            _ => Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_context("parsing export declaration")
-                .with_expected(&["{", "*", "default", "type"])),
+            _ => Err(
+                ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                    .with_context("parsing export declaration")
+                    .with_expected(&["{", "*", "default", "type"]),
+            ),
         }
     }
 
@@ -452,7 +471,8 @@ impl Parser {
             }
             Some(SyntaxKind::FunctionKw) => {
                 // export default function foo() { }
-                let fn_decl = self.parse_function_decl(true, false)
+                let fn_decl = self
+                    .parse_function_decl(true, false)
                     .map_err(|e| e.with_context("parsing export default function declaration"))?;
                 return Ok(IrNode::ExportDefaultExpr {
                     span: IrSpan::new(start_byte, self.current_byte_offset()),
@@ -461,8 +481,9 @@ impl Parser {
             }
             Some(SyntaxKind::AsyncKw) => {
                 // export default async function foo() { }
-                let fn_decl = self.parse_async_decl(true)
-                    .map_err(|e| e.with_context("parsing export default async function declaration"))?;
+                let fn_decl = self.parse_async_decl(true).map_err(|e| {
+                    e.with_context("parsing export default async function declaration")
+                })?;
                 return Ok(IrNode::ExportDefaultExpr {
                     span: IrSpan::new(start_byte, self.current_byte_offset()),
                     expr: Box::new(fn_decl),

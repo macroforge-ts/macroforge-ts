@@ -57,7 +57,10 @@ impl Parser {
             let (pattern_str, type_hint) = if let Some(colon_pos) = name_part.find(':') {
                 (
                     name_part[..colon_pos].trim(),
-                    Some(Self::str_to_token_stream_or_panic(name_part[colon_pos + 1..].trim(), "let directive type hint")),
+                    Some(Self::str_to_token_stream_or_panic(
+                        name_part[colon_pos + 1..].trim(),
+                        "let directive type hint",
+                    )),
                 )
             } else {
                 (name_part, None)

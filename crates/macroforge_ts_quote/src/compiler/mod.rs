@@ -54,9 +54,7 @@ impl SpanMap {
         Self::collect_spans(stream, &mut entries);
 
         // Sort by (line, col_start) for binary search
-        entries.sort_by(|a, b| {
-            a.line.cmp(&b.line).then(a.col_start.cmp(&b.col_start))
-        });
+        entries.sort_by(|a, b| a.line.cmp(&b.line).then(a.col_start.cmp(&b.col_start)));
 
         Self { entries, fallback }
     }
@@ -72,7 +70,11 @@ impl SpanMap {
             entries.push(SpanEntry {
                 line: start.line,
                 col_start: start.column,
-                col_end: if end.line == start.line { end.column } else { usize::MAX },
+                col_end: if end.line == start.line {
+                    end.column
+                } else {
+                    usize::MAX
+                },
                 span,
             });
 
@@ -142,7 +144,10 @@ impl SpanMap {
 
         best.unwrap_or_else(|| {
             // Use first entry on this line
-            line_entries.first().map(|e| e.span).unwrap_or(self.fallback)
+            line_entries
+                .first()
+                .map(|e| e.span)
+                .unwrap_or(self.fallback)
         })
     }
 
@@ -293,7 +298,11 @@ fn parse_position(input: TokenStream) -> syn::Result<ParsedInput> {
 
 /// Compiles a template string into Rust code that produces a TsStream.
 /// `line_offset` is added to error line numbers to show absolute file positions.
-pub fn compile_template(template: &str, position: Option<&str>, line_offset: usize) -> syn::Result<TokenStream> {
+pub fn compile_template(
+    template: &str,
+    position: Option<&str>,
+    line_offset: usize,
+) -> syn::Result<TokenStream> {
     // Create a dummy span map for tests/CLI usage
     let dummy_span_map = SpanMap {
         entries: Vec::new(),
@@ -344,20 +353,21 @@ fn compile_template_with_spans(
 
     // Generate code that builds Vec<ModuleItem>
     let config = CodegenConfig::default();
-    let stmts_code = Codegen::with_config(config)
-        .generate(&ir)
-        .map_err(|e| {
-            // Use span from error if available, otherwise fallback
-            let span = if let Some(ir_span) = e.span {
-                span_map.span_at(
-                    SourceLocation::from_offset(template, ir_span.start).line + line_offset,
-                    SourceLocation::from_offset(template, ir_span.start).column,
-                )
-            } else {
-                span_map.fallback
-            };
-            syn::Error::new(span, e.format_with_source_and_file(template, "template", line_offset))
-        })?;
+    let stmts_code = Codegen::with_config(config).generate(&ir).map_err(|e| {
+        // Use span from error if available, otherwise fallback
+        let span = if let Some(ir_span) = e.span {
+            span_map.span_at(
+                SourceLocation::from_offset(template, ir_span.start).line + line_offset,
+                SourceLocation::from_offset(template, ir_span.start).column,
+            )
+        } else {
+            span_map.fallback
+        };
+        syn::Error::new(
+            span,
+            e.format_with_source_and_file(template, "template", line_offset),
+        )
+    })?;
 
     // Wrap in TsStream construction
     let insert_pos = position_to_tokens(position);

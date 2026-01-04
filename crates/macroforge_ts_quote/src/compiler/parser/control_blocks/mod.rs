@@ -10,7 +10,10 @@ impl Parser {
     pub(super) fn parse_control_block(&mut self, kind: SyntaxKind) -> super::ParseResult<IrNode> {
         // Consume the opening token (e.g., {#if, {#for, etc.)
         if self.consume().is_none() {
-            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "control block opening"));
+            return Err(ParseError::unexpected_eof(
+                self.current_byte_offset(),
+                "control block opening",
+            ));
         }
         self.skip_whitespace();
 
@@ -22,19 +25,27 @@ impl Parser {
             _ => {
                 // Unknown control block - consume until }
                 self.consume_until_rbrace();
-                Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                    .with_context("control block")
-                    .with_help("expected {#if}, {#for}, {#while}, or {#match}"))
+                Err(
+                    ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                        .with_context("control block")
+                        .with_help("expected {#if}, {#for}, {#while}, or {#match}"),
+                )
             }
         }
     }
 
     /// Parse control flow inside type context - body content is collected as raw text with placeholders.
     /// Called when we see BraceHashIf, BraceHashFor, or BraceHashWhile in type position.
-    pub(super) fn parse_type_control_block(&mut self, kind: SyntaxKind) -> super::ParseResult<IrNode> {
+    pub(super) fn parse_type_control_block(
+        &mut self,
+        kind: SyntaxKind,
+    ) -> super::ParseResult<IrNode> {
         // Consume the opening token (e.g., {#if, {#for, etc.)
         if self.consume().is_none() {
-            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "type control block opening"));
+            return Err(ParseError::unexpected_eof(
+                self.current_byte_offset(),
+                "type control block opening",
+            ));
         }
         self.skip_whitespace();
 
@@ -44,9 +55,11 @@ impl Parser {
             SyntaxKind::BraceHashWhile => self.parse_type_while_block(),
             _ => {
                 self.consume_until_rbrace();
-                Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                    .with_context("type control block")
-                    .with_help("expected {#if}, {#for}, or {#while}"))
+                Err(
+                    ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                        .with_context("type control block")
+                        .with_help("expected {#if}, {#for}, or {#while}"),
+                )
             }
         }
     }
@@ -173,7 +186,10 @@ impl Parser {
     }
 
     /// Parse block body in type context - collects raw text with placeholders and nested control flow
-    fn parse_type_block_body(&mut self, terminators: &[SyntaxKind]) -> super::ParseResult<Vec<IrNode>> {
+    fn parse_type_block_body(
+        &mut self,
+        terminators: &[SyntaxKind],
+    ) -> super::ParseResult<Vec<IrNode>> {
         let mut nodes = Vec::new();
 
         while !self.at_eof() {
@@ -366,7 +382,10 @@ impl Parser {
             let pattern_str = self.collect_rust_until(SyntaxKind::RBrace);
             self.expect(SyntaxKind::RBrace);
 
-            let body = self.parse_block_body(&[SyntaxKind::BraceColonCase, SyntaxKind::BraceSlashMatchBrace])?;
+            let body = self.parse_block_body(&[
+                SyntaxKind::BraceColonCase,
+                SyntaxKind::BraceSlashMatchBrace,
+            ])?;
 
             arms.push(MatchArm {
                 span: IrSpan::empty(),

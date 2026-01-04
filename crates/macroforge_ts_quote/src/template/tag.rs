@@ -181,20 +181,17 @@ pub fn analyze_tag(g: &Group) -> TagType {
                 return TagType::LetMut(body);
             }
             // Format: {$let name = expr}
-            let body: TokenStream2 =
-                tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::Let(body);
         }
         if i == "do" {
             // Format: {$do expr}
-            let body: TokenStream2 =
-                tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::Do(body);
         }
         if i == "typescript" {
             // Format: {$typescript expr} - inject TsStream
-            let body: TokenStream2 =
-                tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::TypeScript(body);
         }
     }
@@ -209,12 +206,22 @@ pub fn analyze_tag(g: &Group) -> TagType {
         {
             // Extract content between >> and << (skip first 2 tokens, trim last 2)
             let content_end = tokens.len().saturating_sub(2);
-            let body: TokenStream2 = tokens.iter().skip(2).take(content_end.saturating_sub(2)).map(|t| t.to_token_stream()).collect();
+            let body: TokenStream2 = tokens
+                .iter()
+                .skip(2)
+                .take(content_end.saturating_sub(2))
+                .map(|t| t.to_token_stream())
+                .collect();
             return TagType::BlockComment(body);
         }
         // Line comment {> ... <} - extract content between > and <
         let content_end = tokens.len().saturating_sub(1);
-        let body: TokenStream2 = tokens.iter().skip(1).take(content_end.saturating_sub(1)).map(|t| t.to_token_stream()).collect();
+        let body: TokenStream2 = tokens
+            .iter()
+            .skip(1)
+            .take(content_end.saturating_sub(1))
+            .map(|t| t.to_token_stream())
+            .collect();
         return TagType::LineComment(body);
     }
 

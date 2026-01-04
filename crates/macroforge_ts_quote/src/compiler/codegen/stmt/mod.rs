@@ -1042,7 +1042,10 @@ impl Codegen {
     pub(in super::super) fn generate_stmt(&self, node: &IrNode) -> GenResult<TokenStream> {
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_AST").is_ok() {
-            eprintln!("[MF_DEBUG_AST] generate_stmt: {:?}", std::mem::discriminant(node));
+            eprintln!(
+                "[MF_DEBUG_AST] generate_stmt: {:?}",
+                std::mem::discriminant(node)
+            );
         }
 
         match node {

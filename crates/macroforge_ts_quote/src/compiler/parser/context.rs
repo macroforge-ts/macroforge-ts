@@ -274,7 +274,10 @@ impl Parser {
     /// can detect they're inside an object literal.
     pub(super) fn is_inside_object_literal(&self) -> bool {
         self.context_stack.iter().any(|ctx| {
-            matches!(ctx.kind, ContextKind::Expression(ExpressionKind::ObjectLiteral))
+            matches!(
+                ctx.kind,
+                ContextKind::Expression(ExpressionKind::ObjectLiteral)
+            )
         })
     }
 

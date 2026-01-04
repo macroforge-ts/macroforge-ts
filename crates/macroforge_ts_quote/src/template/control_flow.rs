@@ -4,7 +4,7 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use std::iter::Peekable;
 
-use super::parser::{parse_fragment, Terminator};
+use super::parser::{Terminator, parse_fragment};
 
 /// Parse an if/else-if/else chain starting from the condition.
 pub fn parse_if_chain(

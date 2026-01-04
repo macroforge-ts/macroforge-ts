@@ -7,9 +7,9 @@ use super::*;
 impl Parser {
     pub(super) fn parse_stmt(&mut self) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
-        let kind = self.current_kind().ok_or_else(|| {
-            ParseError::unexpected_eof(self.current_byte_offset(), "statement")
-        })?;
+        let kind = self
+            .current_kind()
+            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "statement"))?;
 
         match kind {
             // Empty statement: standalone ;
@@ -22,14 +22,18 @@ impl Parser {
             SyntaxKind::IfKw => self.parse_ts_if_stmt(),
             SyntaxKind::ForKw | SyntaxKind::WhileKw => self.parse_ts_loop_stmt(),
             SyntaxKind::TryKw => self.parse_ts_try_stmt(),
-            SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => self.parse_var_decl(false),
-            SyntaxKind::At => self.parse_interpolation()
+            SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => {
+                self.parse_var_decl(false)
+            }
+            SyntaxKind::At => self
+                .parse_interpolation()
                 .map_err(|e| e.with_context("statement placeholder")),
             // Block statement: { ... }
             SyntaxKind::LBrace => self.parse_block_stmt(),
             _ => {
                 // Expression statement - collect until semicolon or special tokens
-                let expr = self.parse_ts_expr_until(&[SyntaxKind::Semicolon])
+                let expr = self
+                    .parse_ts_expr_until(&[SyntaxKind::Semicolon])
                     .map_err(|e| e.with_context("expression statement"))?;
 
                 if self.at(SyntaxKind::Semicolon) {
@@ -49,8 +53,9 @@ impl Parser {
         #[cfg(debug_assertions)]
         let debug_parser = std::env::var("MF_DEBUG_PARSER").is_ok();
 
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "return keyword"))?; // return
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "return keyword")
+        })?; // return
         self.skip_whitespace();
 
         #[cfg(debug_assertions)]
@@ -98,8 +103,9 @@ impl Parser {
 
     pub(super) fn parse_throw_stmt(&mut self) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "throw keyword"))?; // throw
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "throw keyword")
+        })?; // throw
         self.skip_whitespace();
 
         let arg = self
@@ -126,12 +132,11 @@ impl Parser {
         self.skip_whitespace();
 
         // Parse condition in parens
-        self.expect(SyntaxKind::LParen)
-            .ok_or_else(|| {
-                ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                    .with_context("parsing if statement condition")
-                    .with_expected(&["("])
-            })?;
+        self.expect(SyntaxKind::LParen).ok_or_else(|| {
+            ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                .with_context("parsing if statement condition")
+                .with_expected(&["("])
+        })?;
         let test = self
             .parse_ts_expr_until(&[SyntaxKind::RParen])
             .map_err(|e| e.with_context("parsing if statement condition"))?;
@@ -141,11 +146,13 @@ impl Parser {
             eprintln!("[MF_DEBUG_PARSER] parse_ts_if_stmt: test = {:?}", test);
         }
 
-        self.expect(SyntaxKind::RParen)
-            .ok_or_else(|| {
-                ParseError::new(ParseErrorKind::MissingClosingParen, self.current_byte_offset())
-                    .with_context("parsing if statement condition")
-            })?;
+        self.expect(SyntaxKind::RParen).ok_or_else(|| {
+            ParseError::new(
+                ParseErrorKind::MissingClosingParen,
+                self.current_byte_offset(),
+            )
+            .with_context("parsing if statement condition")
+        })?;
         self.skip_whitespace();
 
         #[cfg(debug_assertions)]
@@ -188,10 +195,9 @@ impl Parser {
                         .map_err(|e| e.with_context("parsing else-if statement"))?,
                 ))
             } else {
-                Some(Box::new(
-                    self.parse_stmt()
-                        .map_err(|e| e.with_context("parsing else statement body"))?,
-                ))
+                Some(Box::new(self.parse_stmt().map_err(|e| {
+                    e.with_context("parsing else statement body")
+                })?))
             }
         } else {
             None

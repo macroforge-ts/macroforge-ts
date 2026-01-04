@@ -63,7 +63,10 @@ impl Parser {
                 // Check if this could be a postfix operator (no newline between)
                 if prec::POSTFIX >= min_bp {
                     let op = to_update_op(kind).ok_or_else(|| {
-                        ParseError::new(ParseErrorKind::InvalidPostfixOperator, self.current_byte_offset())
+                        ParseError::new(
+                            ParseErrorKind::InvalidPostfixOperator,
+                            self.current_byte_offset(),
+                        )
                     })?;
                     let start = left.span().start;
                     self.consume();
@@ -287,7 +290,8 @@ impl Parser {
                     self.skip_whitespace();
 
                     // Parse alternate with conditional precedence (right associative)
-                    let alternate = self.parse_expression_with_precedence(prec::CONDITIONAL.right)?;
+                    let alternate =
+                        self.parse_expression_with_precedence(prec::CONDITIONAL.right)?;
 
                     left = IrNode::CondExpr {
                         span: IrSpan::new(start, self.current_byte_offset()),
@@ -331,7 +335,9 @@ impl Parser {
 
             // Check for binary operator by SyntaxKind first
             // Note: Comma is handled separately below via parse_sequence_expr
-            if kind != SyntaxKind::Comma && let Some(bp) = infix_binding_power(kind, &text) {
+            if kind != SyntaxKind::Comma
+                && let Some(bp) = infix_binding_power(kind, &text)
+            {
                 if bp.left >= min_bp {
                     let start = left.span().start;
                     // Get the operator
@@ -341,8 +347,11 @@ impl Parser {
                         op
                     } else {
                         // Should not happen if infix_binding_power returned Some
-                        return Err(ParseError::new(ParseErrorKind::InvalidBinaryOperator, self.current_byte_offset())
-                            .with_found(&text));
+                        return Err(ParseError::new(
+                            ParseErrorKind::InvalidBinaryOperator,
+                            self.current_byte_offset(),
+                        )
+                        .with_found(&text));
                     };
 
                     self.consume();
@@ -393,7 +402,10 @@ impl Parser {
 
         // Determine what follows the ?.
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "optional chain"));
+            return Err(ParseError::unexpected_eof(
+                self.current_byte_offset(),
+                "optional chain",
+            ));
         };
 
         match token.kind {
@@ -475,25 +487,38 @@ impl Parser {
     /// Parses a property name after a dot.
     fn parse_member_property(&mut self) -> ParseResult<IrNode> {
         let Some(token) = self.current() else {
-            return Err(ParseError::new(ParseErrorKind::MissingPropertyName, self.current_byte_offset()));
+            return Err(ParseError::new(
+                ParseErrorKind::MissingPropertyName,
+                self.current_byte_offset(),
+            ));
         };
 
         match token.kind {
             SyntaxKind::Ident => {
-                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "identifier"))?;
+                let t = self.consume().ok_or_else(|| {
+                    ParseError::unexpected_eof(self.current_byte_offset(), "identifier")
+                })?;
                 Ok(IrNode::ident(&t))
             }
             // Private identifier: #name
             SyntaxKind::Hash => self.parse_private_name(),
             // Keywords can be used as property names
             _ if token.kind.is_ts_keyword() => {
-                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "keyword as property name"))?;
+                let t = self.consume().ok_or_else(|| {
+                    ParseError::unexpected_eof(
+                        self.current_byte_offset(),
+                        "keyword as property name",
+                    )
+                })?;
                 Ok(IrNode::ident(&t))
             }
             // Placeholder in property position
             SyntaxKind::At => self.parse_interpolation(),
-            _ => Err(ParseError::new(ParseErrorKind::MissingPropertyName, self.current_byte_offset())
-                .with_found(&token.text)),
+            _ => Err(ParseError::new(
+                ParseErrorKind::MissingPropertyName,
+                self.current_byte_offset(),
+            )
+            .with_found(&token.text)),
         }
     }
 

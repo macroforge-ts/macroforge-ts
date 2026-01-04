@@ -5,8 +5,8 @@ impl Lexer {
     pub(super) fn consume_text_until_special(&mut self) {
         while let Some(c) = self.peek() {
             match c {
-                '@' | '{' | '}' | '"' | '\'' | '`' | ':' | ';' | '(' | ')' | '[' | ']' | '<' | '>'
-                | ',' | '=' | '?' | '.' => break,
+                '@' | '{' | '}' | '"' | '\'' | '`' | ':' | ';' | '(' | ')' | '[' | ']' | '<'
+                | '>' | ',' | '=' | '?' | '.' => break,
                 _ if c.is_whitespace() => break,
                 _ if c.is_alphabetic() || c == '_' => break,
                 _ => self.advance(c.len_utf8()),

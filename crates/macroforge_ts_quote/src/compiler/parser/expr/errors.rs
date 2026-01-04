@@ -182,7 +182,9 @@ impl ParseErrorKind {
             Self::ReservedWordAsIdentifier => "reserved word cannot be used as identifier",
             Self::InvalidInterpolation => "invalid interpolation syntax",
             Self::InvalidRustExpression => "invalid Rust expression in interpolation",
-            Self::MissingElseBranch => "if-expression requires an {:else} branch to produce a value",
+            Self::MissingElseBranch => {
+                "if-expression requires an {:else} branch to produce a value"
+            }
         }
     }
 }
@@ -350,8 +352,13 @@ impl ParseError {
 
     /// Formats the error with source context and a custom filename.
     /// `line_offset` is added to convert relative template lines to absolute file lines.
-    pub fn format_with_source_and_file(&self, source: &str, filename: &str, line_offset: usize) -> String {
-        use crate::compiler::error_fmt::{build_annotation, ErrorFormat};
+    pub fn format_with_source_and_file(
+        &self,
+        source: &str,
+        filename: &str,
+        line_offset: usize,
+    ) -> String {
+        use crate::compiler::error_fmt::{ErrorFormat, build_annotation};
 
         let annotation = build_annotation(
             self.found.as_deref(),
@@ -390,10 +397,7 @@ impl ParseError {
             if self.expected.len() == 1 {
                 msg.push_str(&format!(", expected {}", self.expected[0]));
             } else {
-                msg.push_str(&format!(
-                    ", expected one of: {}",
-                    self.expected.join(", ")
-                ));
+                msg.push_str(&format!(", expected one of: {}", self.expected.join(", ")));
             }
         }
 
@@ -565,7 +569,10 @@ mod tests {
 
         // Verify the character at that position in the source
         let char_at_offset = source.chars().nth(rbracket.start).unwrap();
-        println!("Character at offset {}: '{}'", rbracket.start, char_at_offset);
+        println!(
+            "Character at offset {}: '{}'",
+            rbracket.start, char_at_offset
+        );
 
         // The character should be ']'
         assert_eq!(char_at_offset, ']', "Token start should point to ']'");

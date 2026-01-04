@@ -157,7 +157,8 @@ fn test_string_literal_interpolation() {
 
 #[test]
 fn test_backtick_template_literal_syntax() {
-    let input = TokenStream2::from_str("const html = \"'^<@{tag}>${content}</@{tag}>^'\";").unwrap();
+    let input =
+        TokenStream2::from_str("const html = \"'^<@{tag}>${content}</@{tag}>^'\";").unwrap();
     let s = compile(&input.to_string());
 
     // New codegen generates direct AST with __stmts vector
@@ -380,7 +381,9 @@ fn test_for_loop_generates_runtime_iteration() {
 fn test_within_position_extracts_body_correctly() {
     // Test that Within position wrapping works
     let wrapped = "class __MF_DUMMY__ { readonly foo: string; readonly bar: number; }";
-    let s = compile_template(wrapped, Some("Within"), 0).unwrap().to_string();
+    let s = compile_template(wrapped, Some("Within"), 0)
+        .unwrap()
+        .to_string();
 
     eprintln!("Generated code for Within body:\n{}", s);
 
@@ -394,7 +397,8 @@ fn test_within_position_extracts_body_correctly() {
 
 #[test]
 fn test_interpolation_in_object_property_position() {
-    let input = TokenStream2::from_str(r#"const obj = { @{field_name}: @{field_value} };"#).unwrap();
+    let input =
+        TokenStream2::from_str(r#"const obj = { @{field_name}: @{field_value} };"#).unwrap();
     let s = compile(&input.to_string());
 
     eprintln!("Generated code for object property interpolation:\n{}", s);
@@ -421,7 +425,10 @@ fn test_multiple_interpolations_same_variable() {
     .unwrap();
     let s = compile(&input.to_string());
 
-    eprintln!("Generated code for multiple same-variable interpolations:\n{}", s);
+    eprintln!(
+        "Generated code for multiple same-variable interpolations:\n{}",
+        s
+    );
 
     // Count occurrences of "name" - should appear multiple times with consistent handling
     let name_count = s.matches("name").count();
@@ -455,11 +462,7 @@ fn test_conditional_in_interface_member() {
         "Expected Rust if statement. Got:\n{}",
         s
     );
-    assert!(
-        s.contains("else"),
-        "Expected else branch. Got:\n{}",
-        s
-    );
+    assert!(s.contains("else"), "Expected else branch. Got:\n{}", s);
 }
 
 #[test]
@@ -479,7 +482,10 @@ fn test_for_loop_with_tuple_pattern_in_function_body() {
 
     let s = compile(input);
 
-    eprintln!("Generated code for for loop with tuple in function body:\n{}", s);
+    eprintln!(
+        "Generated code for for loop with tuple in function body:\n{}",
+        s
+    );
 
     // Should generate Rust for loop with tuple pattern
     assert!(

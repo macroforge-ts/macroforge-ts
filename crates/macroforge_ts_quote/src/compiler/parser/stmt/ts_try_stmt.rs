@@ -83,8 +83,9 @@ impl Parser {
         let start_byte = self.current_byte_offset();
 
         // Consume "catch"
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "catch keyword"))?;
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "catch keyword")
+        })?;
         self.skip_whitespace();
 
         // Parse optional catch parameter
@@ -97,8 +98,11 @@ impl Parser {
 
             // Parse the parameter name (could be a placeholder or identifier)
             let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
-                ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                    .with_context("catch parameter name")
+                ParseError::new(
+                    ParseErrorKind::ExpectedIdentifier,
+                    self.current_byte_offset(),
+                )
+                .with_context("catch parameter name")
             })?;
             self.skip_whitespace();
 

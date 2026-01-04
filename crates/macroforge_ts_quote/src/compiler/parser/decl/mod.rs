@@ -14,8 +14,9 @@ impl Parser {
     pub(super) fn parse_export_decl(&mut self) -> ParseResult<IrNode> {
         let _start_byte = self.current_byte_offset();
         // Consume "export"
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "export keyword"))?;
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "export keyword")
+        })?;
         self.skip_whitespace();
 
         // Check what follows
@@ -37,42 +38,48 @@ impl Parser {
             | Some(SyntaxKind::TypeKw) => self.parse_export_decl_full(),
 
             // Fallback - unexpected token after export
-            _ => Err(ParseError::new(
-                ParseErrorKind::UnexpectedToken,
-                self.current_byte_offset(),
-            ).with_context("expected declaration after 'export'")),
+            _ => Err(
+                ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                    .with_context("expected declaration after 'export'"),
+            ),
         }
     }
 
     pub(super) fn parse_async_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         let _start_byte = self.current_byte_offset();
         // Consume "async"
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "async keyword"))?;
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "async keyword")
+        })?;
         self.skip_whitespace();
 
         if self.at(SyntaxKind::FunctionKw) {
             self.parse_function_decl(exported, true)
         } else {
             // async must be followed by function
-            Err(ParseError::new(
-                ParseErrorKind::UnexpectedToken,
-                self.current_byte_offset(),
-            ).with_context("expected 'function' after 'async'"))
+            Err(
+                ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+                    .with_context("expected 'function' after 'async'"),
+            )
         }
     }
 
     pub(super) fn parse_class_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
         // Consume "class"
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "class keyword"))?;
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "class keyword")
+        })?;
         self.skip_whitespace();
 
         // Parse class name (may be placeholder)
-        let name = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                .with_context("class declaration name"))?;
+        let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+            ParseError::new(
+                ParseErrorKind::ExpectedIdentifier,
+                self.current_byte_offset(),
+            )
+            .with_context("class declaration name")
+        })?;
         self.skip_whitespace();
 
         // Parse optional type params
@@ -83,10 +90,10 @@ impl Parser {
         let extends = if self.at(SyntaxKind::ExtendsKw) {
             self.consume();
             self.skip_whitespace();
-            Some(Box::new(self.parse_ts_expr_until(&[
-                SyntaxKind::ImplementsKw,
-                SyntaxKind::LBrace,
-            ]).map_err(|e| e.with_context("class extends clause"))?))
+            Some(Box::new(
+                self.parse_ts_expr_until(&[SyntaxKind::ImplementsKw, SyntaxKind::LBrace])
+                    .map_err(|e| e.with_context("class extends clause"))?,
+            ))
         } else {
             None
         };
@@ -107,10 +114,12 @@ impl Parser {
             return Err(ParseError::new(
                 ParseErrorKind::UnexpectedToken,
                 self.current_byte_offset(),
-            ).with_context("expected '{' for class body"));
+            )
+            .with_context("expected '{' for class body"));
         }
 
-        let body = self.parse_class_body()
+        let body = self
+            .parse_class_body()
             .map_err(|e| e.with_context("class body"))?;
 
         // Take pending decorators
@@ -135,17 +144,21 @@ impl Parser {
     fn parse_constructor(&mut self, accessibility: Option<Accessibility>) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
         // Consume "constructor"
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "constructor keyword"))?;
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "constructor keyword")
+        })?;
         self.skip_whitespace();
 
-        let params = self.parse_param_list()
+        let params = self
+            .parse_param_list()
             .map_err(|e| e.with_context("constructor parameters"))?;
         self.skip_whitespace();
 
         let body = if self.at(SyntaxKind::LBrace) {
-            Some(Box::new(self.parse_block_stmt()
-                .map_err(|e| e.with_context("constructor body"))?))
+            Some(Box::new(
+                self.parse_block_stmt()
+                    .map_err(|e| e.with_context("constructor body"))?,
+            ))
         } else {
             None
         };
@@ -160,11 +173,16 @@ impl Parser {
         self.wrap_with_doc(node)
     }
 
-    pub(super) fn parse_function_decl(&mut self, exported: bool, async_: bool) -> ParseResult<IrNode> {
+    pub(super) fn parse_function_decl(
+        &mut self,
+        exported: bool,
+        async_: bool,
+    ) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
         // Consume "function"
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "function keyword"))?;
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "function keyword")
+        })?;
         self.skip_whitespace();
 
         // Check for generator (by checking for `*` text)
@@ -177,9 +195,13 @@ impl Parser {
         };
 
         // Parse function name
-        let name = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                .with_context("function declaration name"))?;
+        let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+            ParseError::new(
+                ParseErrorKind::ExpectedIdentifier,
+                self.current_byte_offset(),
+            )
+            .with_context("function declaration name")
+        })?;
         self.skip_whitespace();
 
         // Parse optional type params
@@ -187,7 +209,8 @@ impl Parser {
         self.skip_whitespace();
 
         // Parse params
-        let params = self.parse_param_list()
+        let params = self
+            .parse_param_list()
             .map_err(|e| e.with_context("function parameters"))?;
         self.skip_whitespace();
 
@@ -195,20 +218,27 @@ impl Parser {
         let return_type = if self.at(SyntaxKind::Colon) {
             self.consume();
             self.skip_whitespace();
-            Some(Box::new(self.parse_type_until(&[
-                SyntaxKind::LBrace,
-                SyntaxKind::Semicolon,
-            ]).map_err(|e| e.with_context("function return type"))?
-                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
-                    .with_context("function return type"))?))
+            Some(Box::new(
+                self.parse_type_until(&[SyntaxKind::LBrace, SyntaxKind::Semicolon])
+                    .map_err(|e| e.with_context("function return type"))?
+                    .ok_or_else(|| {
+                        ParseError::new(
+                            ParseErrorKind::ExpectedTypeAnnotation,
+                            self.current_byte_offset(),
+                        )
+                        .with_context("function return type")
+                    })?,
+            ))
         } else {
             None
         };
 
         // Parse body
         let body = if self.at(SyntaxKind::LBrace) {
-            Some(Box::new(self.parse_block_stmt()
-                .map_err(|e| e.with_context("function body"))?))
+            Some(Box::new(
+                self.parse_block_stmt()
+                    .map_err(|e| e.with_context("function body"))?,
+            ))
         } else {
             None
         };
@@ -235,9 +265,14 @@ impl Parser {
             Some(SyntaxKind::ConstKw) => VarKind::Const,
             Some(SyntaxKind::LetKw) => VarKind::Let,
             Some(SyntaxKind::VarKw) => VarKind::Var,
-            _ => return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
+            _ => {
+                return Err(ParseError::new(
+                    ParseErrorKind::UnexpectedToken,
+                    self.current_byte_offset(),
+                )
                 .with_context("variable declaration")
-                .with_expected(&["const", "let", "var"])),
+                .with_expected(&["const", "let", "var"]));
+            }
         };
         self.consume();
         self.skip_whitespace();
@@ -259,9 +294,13 @@ impl Parser {
                     SyntaxKind::Semicolon,
                     SyntaxKind::LParen,
                 ]));
-                let name = self.parse_ts_ident_or_placeholder()
-                    .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                        .with_context("variable declarator name"))?;
+                let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+                    ParseError::new(
+                        ParseErrorKind::ExpectedIdentifier,
+                        self.current_byte_offset(),
+                    )
+                    .with_context("variable declarator name")
+                })?;
                 self.pop_context();
                 self.skip_whitespace();
 
@@ -270,9 +309,19 @@ impl Parser {
                     let binding_span = name.span();
                     self.consume();
                     self.skip_whitespace();
-                    let type_ann = self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])?
-                        .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
-                            .with_context("variable type annotation"))?;
+                    let type_ann = self
+                        .parse_type_until(&[
+                            SyntaxKind::Eq,
+                            SyntaxKind::Comma,
+                            SyntaxKind::Semicolon,
+                        ])?
+                        .ok_or_else(|| {
+                            ParseError::new(
+                                ParseErrorKind::ExpectedTypeAnnotation,
+                                self.current_byte_offset(),
+                            )
+                            .with_context("variable type annotation")
+                        })?;
                     IrNode::BindingIdent {
                         span: IrSpan::new(binding_span.start, self.current_byte_offset()),
                         name: Box::new(name),
@@ -287,10 +336,10 @@ impl Parser {
             let init = if self.at(SyntaxKind::Eq) {
                 self.consume();
                 self.skip_whitespace();
-                Some(Box::new(self.parse_ts_expr_until(&[
-                    SyntaxKind::Comma,
-                    SyntaxKind::Semicolon,
-                ]).map_err(|e| e.with_context("variable initializer"))?))
+                Some(Box::new(
+                    self.parse_ts_expr_until(&[SyntaxKind::Comma, SyntaxKind::Semicolon])
+                        .map_err(|e| e.with_context("variable initializer"))?,
+                ))
             } else {
                 None
             };
@@ -336,8 +385,11 @@ impl Parser {
         } else if self.at(SyntaxKind::LBrace) {
             self.parse_var_decl_object_pattern()?
         } else {
-            return Err(ParseError::new(ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_context("expected destructuring pattern"));
+            return Err(ParseError::new(
+                ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_context("expected destructuring pattern"));
         };
 
         self.skip_whitespace();
@@ -349,8 +401,11 @@ impl Parser {
             Some(Box::new(
                 self.parse_type_until(&[SyntaxKind::Eq, SyntaxKind::Comma, SyntaxKind::Semicolon])?
                     .ok_or_else(|| {
-                        ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
-                            .with_context("destructuring pattern type annotation")
+                        ParseError::new(
+                            ParseErrorKind::ExpectedTypeAnnotation,
+                            self.current_byte_offset(),
+                        )
+                        .with_context("destructuring pattern type annotation")
                     })?,
             ))
         } else {
@@ -359,13 +414,17 @@ impl Parser {
 
         // Update pattern with type annotation if present
         match pattern {
-            IrNode::ArrayPat { elems, optional, .. } => Ok(IrNode::ArrayPat {
+            IrNode::ArrayPat {
+                elems, optional, ..
+            } => Ok(IrNode::ArrayPat {
                 span: IrSpan::new(start_byte, self.current_byte_offset()),
                 elems,
                 type_ann,
                 optional,
             }),
-            IrNode::ObjectPat { props, optional, .. } => Ok(IrNode::ObjectPat {
+            IrNode::ObjectPat {
+                props, optional, ..
+            } => Ok(IrNode::ObjectPat {
                 span: IrSpan::new(start_byte, self.current_byte_offset()),
                 props,
                 type_ann,
@@ -510,7 +569,8 @@ impl Parser {
 
         // Check for placeholder
         if self.at(SyntaxKind::At) {
-            let placeholder = self.parse_interpolation()
+            let placeholder = self
+                .parse_interpolation()
                 .map_err(|e| e.with_context("pattern element placeholder"))?;
             self.skip_whitespace();
 
@@ -535,9 +595,13 @@ impl Parser {
         }
 
         // Parse identifier
-        let ident = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                .with_context("pattern element"))?;
+        let ident = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+            ParseError::new(
+                ParseErrorKind::ExpectedIdentifier,
+                self.current_byte_offset(),
+            )
+            .with_context("pattern element")
+        })?;
         self.skip_whitespace();
 
         // Check for default value
@@ -569,9 +633,13 @@ impl Parser {
             self.parse_interpolation()
                 .map_err(|e| e.with_context("object pattern key placeholder"))?
         } else {
-            self.parse_ts_ident_or_placeholder()
-                .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                    .with_context("object pattern property key"))?
+            self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+                ParseError::new(
+                    ParseErrorKind::ExpectedIdentifier,
+                    self.current_byte_offset(),
+                )
+                .with_context("object pattern property key")
+            })?
         };
         self.skip_whitespace();
 
@@ -592,10 +660,7 @@ impl Parser {
             // Shorthand with default value: { a = default }
             self.consume();
             self.skip_whitespace();
-            let default_val = self.parse_ts_expr_until(&[
-                SyntaxKind::Comma,
-                SyntaxKind::RBrace,
-            ])?;
+            let default_val = self.parse_ts_expr_until(&[SyntaxKind::Comma, SyntaxKind::RBrace])?;
 
             Ok(IrNode::ObjectPatProp {
                 span: IrSpan::new(start_byte, self.current_byte_offset()),
@@ -619,13 +684,18 @@ impl Parser {
     pub(super) fn parse_type_alias_decl(&mut self, exported: bool) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
         // Consume "type"
-        self.consume()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "type keyword"))?;
+        self.consume().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "type keyword")
+        })?;
         self.skip_whitespace();
 
-        let name = self.parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                .with_context("type alias name"))?;
+        let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+            ParseError::new(
+                ParseErrorKind::ExpectedIdentifier,
+                self.current_byte_offset(),
+            )
+            .with_context("type alias name")
+        })?;
         self.skip_whitespace();
 
         let type_params = self.parse_optional_type_params();
@@ -635,15 +705,22 @@ impl Parser {
             return Err(ParseError::new(
                 ParseErrorKind::UnexpectedToken,
                 self.current_byte_offset(),
-            ).with_context("expected '=' in type alias"));
+            )
+            .with_context("expected '=' in type alias"));
         }
         self.consume();
         self.skip_whitespace();
 
-        let type_ann = self.parse_type_until(&[SyntaxKind::Semicolon])
+        let type_ann = self
+            .parse_type_until(&[SyntaxKind::Semicolon])
             .map_err(|e| e.with_context("type alias definition"))?
-            .ok_or_else(|| ParseError::new(ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
-                .with_context("type alias definition"))?;
+            .ok_or_else(|| {
+                ParseError::new(
+                    ParseErrorKind::ExpectedTypeAnnotation,
+                    self.current_byte_offset(),
+                )
+                .with_context("type alias definition")
+            })?;
 
         if self.at(SyntaxKind::Semicolon) {
             self.consume();

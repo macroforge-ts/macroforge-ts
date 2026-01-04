@@ -62,7 +62,10 @@ impl Lexer {
 
         // Check for unterminated escape at EOF
         if remaining.starts_with("\\") && remaining.len() < 2 {
-            let sequence = remaining.chars().nth(1).map_or(String::new(), |c| c.to_string());
+            let sequence = remaining
+                .chars()
+                .nth(1)
+                .map_or(String::new(), |c| c.to_string());
             return Err(LexError::invalid_escape(self.pos, &sequence));
         }
 
@@ -124,7 +127,10 @@ impl Lexer {
 
         // Check for unterminated escape at EOF
         if remaining.starts_with("\\") && remaining.len() < 2 {
-            let sequence = remaining.chars().nth(1).map_or(String::new(), |c| c.to_string());
+            let sequence = remaining
+                .chars()
+                .nth(1)
+                .map_or(String::new(), |c| c.to_string());
             return Err(LexError::invalid_escape(self.pos, &sequence));
         }
 
@@ -132,7 +138,11 @@ impl Lexer {
         let text_start = self.pos;
         while self.pos < self.input.len() {
             let r = self.remaining();
-            if r.starts_with("`") || r.starts_with("${") || r.starts_with("@{") || r.starts_with("\\") {
+            if r.starts_with("`")
+                || r.starts_with("${")
+                || r.starts_with("@{")
+                || r.starts_with("\\")
+            {
                 break;
             }
             if let Some(c) = self.peek() {

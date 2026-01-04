@@ -252,10 +252,19 @@ mod tests {
             .format();
 
         // Should have ellipsis at start (prefix)
-        assert!(formatted.contains("`1 | ..."), "should have prefix ellipsis, got:\n{}", formatted);
+        assert!(
+            formatted.contains("`1 | ..."),
+            "should have prefix ellipsis, got:\n{}",
+            formatted
+        );
         // Should have ellipsis at end (suffix)
         let ellipsis_count = formatted.matches("...").count();
-        assert!(ellipsis_count >= 2, "should have both prefix and suffix ellipsis (found {}), got:\n{}", ellipsis_count, formatted);
+        assert!(
+            ellipsis_count >= 2,
+            "should have both prefix and suffix ellipsis (found {}), got:\n{}",
+            ellipsis_count,
+            formatted
+        );
     }
 
     #[test]
@@ -267,9 +276,17 @@ mod tests {
             .format();
 
         // Should NOT have prefix ellipsis (error is near start)
-        assert!(!formatted.contains("`1 | ..."), "should NOT have prefix ellipsis for error near start, got:\n{}", formatted);
+        assert!(
+            !formatted.contains("`1 | ..."),
+            "should NOT have prefix ellipsis for error near start, got:\n{}",
+            formatted
+        );
         // Should have suffix ellipsis
-        assert!(formatted.contains("..."), "should have suffix ellipsis, got:\n{}", formatted);
+        assert!(
+            formatted.contains("..."),
+            "should have suffix ellipsis, got:\n{}",
+            formatted
+        );
     }
 
     #[test]
@@ -282,9 +299,17 @@ mod tests {
             .format();
 
         // Should have prefix ellipsis
-        assert!(formatted.contains("..."), "should have prefix ellipsis, got:\n{}", formatted);
+        assert!(
+            formatted.contains("..."),
+            "should have prefix ellipsis, got:\n{}",
+            formatted
+        );
         // The line should end with `);` not `...` (no suffix needed)
-        assert!(formatted.contains(");"), "line should show the actual end, got:\n{}", formatted);
+        assert!(
+            formatted.contains(");"),
+            "line should show the actual end, got:\n{}",
+            formatted
+        );
     }
 
     #[test]
@@ -297,9 +322,17 @@ mod tests {
             .format();
 
         // Should NOT have leading whitespace in display
-        assert!(formatted.contains("| let x"), "should strip leading whitespace, got:\n{}", formatted);
+        assert!(
+            formatted.contains("| let x"),
+            "should strip leading whitespace, got:\n{}",
+            formatted
+        );
         // Should NOT have ellipsis (line is short after trimming)
-        assert!(!formatted.contains("..."), "short line should not be truncated, got:\n{}", formatted);
+        assert!(
+            !formatted.contains("..."),
+            "short line should not be truncated, got:\n{}",
+            formatted
+        );
     }
 
     #[test]
@@ -312,9 +345,17 @@ mod tests {
             .format();
 
         // Should have ellipsis (content after trimming is > 80 chars)
-        assert!(formatted.contains("..."), "long content should be truncated, got:\n{}", formatted);
+        assert!(
+            formatted.contains("..."),
+            "long content should be truncated, got:\n{}",
+            formatted
+        );
         // Should start with code, not whitespace (after the line number and pipe)
         // The trimmed content starts with "let", and after truncation should show "...ngVariableName" or similar
-        assert!(formatted.contains("| ..."), "should show truncated content without leading spaces, got:\n{}", formatted);
+        assert!(
+            formatted.contains("| ..."),
+            "should show truncated content without leading spaces, got:\n{}",
+            formatted
+        );
     }
 }

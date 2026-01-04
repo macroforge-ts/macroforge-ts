@@ -4,7 +4,9 @@ use super::*;
 impl Codegen {
     pub(super) fn generate_param(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Param { decorators, pat, .. } => {
+            IrNode::Param {
+                decorators, pat, ..
+            } => {
                 let pat_code = self.generate_pat(pat)?;
                 let decorators_code: Vec<TokenStream> = decorators
                     .iter()

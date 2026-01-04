@@ -6,8 +6,11 @@ impl Codegen {
     /// Returns Ok(None) if the node is not an expression type.
     /// Returns Ok(Some(code)) if generation succeeds.
     /// Returns Err(e) if the node is an expression type but generation fails.
-    pub(in super::super::super) fn try_generate_as_expr(&self, node: &IrNode) -> GenResult<Option<TokenStream>> {
-    match node {
+    pub(in super::super::super) fn try_generate_as_expr(
+        &self,
+        node: &IrNode,
+    ) -> GenResult<Option<TokenStream>> {
+        match node {
         IrNode::Ident { .. }
         | IrNode::StrLit { .. }
         | IrNode::NumLit { .. }
@@ -47,5 +50,5 @@ impl Codegen {
         | IrNode::TaggedTpl { .. } => Ok(Some(self.generate_expr(node)?)),
         _ => Ok(None),
     }
-}
+    }
 }

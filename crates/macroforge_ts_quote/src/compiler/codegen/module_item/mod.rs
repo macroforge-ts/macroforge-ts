@@ -46,7 +46,9 @@ impl Codegen {
                 Ok(quote! { __s.push_str(#val); })
             }
             IrNode::NullLit { .. } => Ok(quote! { __s.push_str("null"); }),
-            IrNode::StringInterp { quote: q, parts, .. } => {
+            IrNode::StringInterp {
+                quote: q, parts, ..
+            } => {
                 let quote_char = match q {
                     '"' => "\"",
                     '\'' => "'",
@@ -72,20 +74,29 @@ impl Codegen {
                     __s.push_str(#quote_char);
                 })
             }
-            IrNode::Placeholder { expr, .. } => {
-                Ok(quote! { __s.push_str(&(#expr).to_string()); })
-            }
+            IrNode::Placeholder { expr, .. } => Ok(quote! { __s.push_str(&(#expr).to_string()); }),
             _ => Err(GenError::unexpected_node(
                 "decorator string part",
                 node,
-                &["StrLit", "Ident", "NumLit", "BoolLit", "NullLit", "StringInterp", "Placeholder"],
+                &[
+                    "StrLit",
+                    "Ident",
+                    "NumLit",
+                    "BoolLit",
+                    "NullLit",
+                    "StringInterp",
+                    "Placeholder",
+                ],
             )),
         }
     }
 
     /// Generate code for a list of module-level items.
     /// Groups adjacent fragment nodes (Raw, Placeholder, etc.) together and parses them as a combined string.
-    pub(in super::super) fn generate_module_items(&self, nodes: &[IrNode]) -> GenResult<TokenStream> {
+    pub(in super::super) fn generate_module_items(
+        &self,
+        nodes: &[IrNode],
+    ) -> GenResult<TokenStream> {
         let mut pushes = Vec::new();
         let mut pending_fragments: Vec<&IrNode> = Vec::new();
 
@@ -225,7 +236,10 @@ impl Codegen {
         // Debug: print node type for debugging
         #[cfg(debug_assertions)]
         if std::env::var("MF_DEBUG_CODEGEN").is_ok() {
-            eprintln!("[MF_DEBUG_CODEGEN] generate_module_item: {}", super::error::node_variant_name(node));
+            eprintln!(
+                "[MF_DEBUG_CODEGEN] generate_module_item: {}",
+                super::error::node_variant_name(node)
+            );
         }
 
         let output_var = format_ident!("{}", self.config.output_var);
@@ -721,24 +735,22 @@ impl Codegen {
                 }))
             }
 
-            IrNode::ExportAll { src, type_only, .. } => {
-                Ok(Some(quote! {
-                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
-                        macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportAll(
-                            macroforge_ts::swc_core::ecma::ast::ExportAll {
+            IrNode::ExportAll { src, type_only, .. } => Ok(Some(quote! {
+                #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::ModuleDecl(
+                    macroforge_ts::swc_core::ecma::ast::ModuleDecl::ExportAll(
+                        macroforge_ts::swc_core::ecma::ast::ExportAll {
+                            span: macroforge_ts::swc_core::common::DUMMY_SP,
+                            src: Box::new(macroforge_ts::swc_core::ecma::ast::Str {
                                 span: macroforge_ts::swc_core::common::DUMMY_SP,
-                                src: Box::new(macroforge_ts::swc_core::ecma::ast::Str {
-                                    span: macroforge_ts::swc_core::common::DUMMY_SP,
-                                    value: #src.into(),
-                                    raw: None,
-                                }),
-                                type_only: #type_only,
-                                with: None,
-                            }
-                        )
-                    ));
-                }))
-            }
+                                value: #src.into(),
+                                raw: None,
+                            }),
+                            type_only: #type_only,
+                            with: None,
+                        }
+                    )
+                ));
+            })),
 
             IrNode::ExportDefaultExpr { expr, .. } => {
                 // Check if it's a declaration that needs ExportDefaultDecl
@@ -1117,7 +1129,9 @@ impl Codegen {
                 }))
             }
 
-            IrNode::While { condition, body, .. } => {
+            IrNode::While {
+                condition, body, ..
+            } => {
                 let body_stmts = self.generate_module_items(body)?;
                 Ok(Some(quote! {
                     while #condition { #body_stmts }
@@ -1347,7 +1361,9 @@ impl Codegen {
                 }))
             }
 
-            IrNode::StringInterp { quote: _, parts, .. } => {
+            IrNode::StringInterp {
+                quote: _, parts, ..
+            } => {
                 let mut quasi_parts = Vec::new();
                 let mut expr_parts = Vec::new();
                 let mut current_text = String::new();
@@ -1402,16 +1418,21 @@ impl Codegen {
             }
 
             // TypeScript if statement at module level
-            IrNode::TsIfStmt { test, cons, alt, .. } => {
+            IrNode::TsIfStmt {
+                test, cons, alt, ..
+            } => {
                 let test_code = self.generate_expr_string_parts(test)?;
                 let cons_code = self.generate_stmt_as_string(cons)?;
-                let alt_code = alt.as_ref().map(|a| {
-                    let ac = self.generate_stmt_as_string(a)?;
-                    Ok(quote! {
-                        __stmt_str.push_str(" else ");
-                        #ac
+                let alt_code = alt
+                    .as_ref()
+                    .map(|a| {
+                        let ac = self.generate_stmt_as_string(a)?;
+                        Ok(quote! {
+                            __stmt_str.push_str(" else ");
+                            #ac
+                        })
                     })
-                }).transpose()?;
+                    .transpose()?;
                 Ok(Some(quote! {
                     {
                         let mut __stmt_str = String::new();

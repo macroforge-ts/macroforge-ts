@@ -24,8 +24,7 @@ pub use expr::errors::{
 };
 
 use super::ir::{
-    Accessibility, Ir, IrNode, IrSpan, MatchArm,
-    PlaceholderKind, VarDeclarator, VarKind,
+    Accessibility, Ir, IrNode, IrSpan, MatchArm, PlaceholderKind, VarDeclarator, VarKind,
 };
 use super::lexer::{Lexer, Token};
 use super::syntax::SyntaxKind;
@@ -290,12 +289,14 @@ impl Parser {
 
     /// Returns true if the current token is any `{#...` opening token (BraceHashIf, BraceHashFor, etc.)
     fn at_brace_hash_open(&self) -> bool {
-        self.current_kind().map_or(false, |k| k.is_brace_hash_open())
+        self.current_kind()
+            .map_or(false, |k| k.is_brace_hash_open())
     }
 
     /// Returns true if the current token is any `{/...}` closing token (BraceSlashIfBrace, BraceSlashForBrace, etc.)
     fn at_brace_slash_close(&self) -> bool {
-        self.current_kind().map_or(false, |k| k.is_brace_slash_close())
+        self.current_kind()
+            .map_or(false, |k| k.is_brace_slash_close())
     }
 
     /// Returns true if the current token is any `{:...` continuation token (BraceColonElseBrace, BraceColonElseIf, etc.)
@@ -401,8 +402,11 @@ impl Parser {
                         &self.source[..self.source.len().min(500)]
                     );
                 }
-                return Err(ParseError::new(ParseErrorKind::UnterminatedExpression, self.current_byte_offset())
-                    .with_context("parser exceeded maximum iterations (possible infinite loop)"));
+                return Err(ParseError::new(
+                    ParseErrorKind::UnterminatedExpression,
+                    self.current_byte_offset(),
+                )
+                .with_context("parser exceeded maximum iterations (possible infinite loop)"));
             }
 
             match self.parse_node()? {
@@ -442,8 +446,11 @@ impl Parser {
                 self.pos,
                 self.current()
             );
-            return Err(ParseError::new(ParseErrorKind::UnterminatedExpression, self.current_byte_offset())
-                .with_context("parser recursion depth exceeded"));
+            return Err(ParseError::new(
+                ParseErrorKind::UnterminatedExpression,
+                self.current_byte_offset(),
+            )
+            .with_context("parser recursion depth exceeded"));
         }
 
         // Check for doc comments first - store them for the next node
@@ -537,7 +544,9 @@ impl Parser {
                 return Ok(ParseOutcome::Skip);
             }
             // Template control flow continuation constructs - error at top level
-            SyntaxKind::BraceColonElseBrace | SyntaxKind::BraceColonElseIf | SyntaxKind::BraceColonCase => {
+            SyntaxKind::BraceColonElseBrace
+            | SyntaxKind::BraceColonElseIf
+            | SyntaxKind::BraceColonCase => {
                 // Else/case clause at top level - error, consume
                 self.consume();
                 return Ok(ParseOutcome::Skip);
@@ -571,9 +580,7 @@ impl Parser {
                     Some(self.parse_var_decl(false)?)
                 }
             }
-            SyntaxKind::LetKw | SyntaxKind::VarKw => {
-                Some(self.parse_var_decl(false)?)
-            }
+            SyntaxKind::LetKw | SyntaxKind::VarKw => Some(self.parse_var_decl(false)?),
             SyntaxKind::AsyncKw => Some(self.parse_async_decl(false)?),
             // Interface/type members (can appear in for-loop bodies inside interfaces)
             SyntaxKind::ReadonlyKw => self.parse_maybe_interface_member()?,
@@ -649,12 +656,19 @@ impl Parser {
                         break;
                     }
                 }
-                Some(SyntaxKind::Dot) | Some(SyntaxKind::Colon) | Some(SyntaxKind::Comma)
-                | Some(SyntaxKind::LBrace) | Some(SyntaxKind::RBrace)
-                | Some(SyntaxKind::LBracket) | Some(SyntaxKind::RBracket)
-                | Some(SyntaxKind::Lt) | Some(SyntaxKind::Gt)
-                | Some(SyntaxKind::DoubleQuote) | Some(SyntaxKind::SingleQuote)
-                | Some(SyntaxKind::Text) | Some(SyntaxKind::Eq) => {
+                Some(SyntaxKind::Dot)
+                | Some(SyntaxKind::Colon)
+                | Some(SyntaxKind::Comma)
+                | Some(SyntaxKind::LBrace)
+                | Some(SyntaxKind::RBrace)
+                | Some(SyntaxKind::LBracket)
+                | Some(SyntaxKind::RBracket)
+                | Some(SyntaxKind::Lt)
+                | Some(SyntaxKind::Gt)
+                | Some(SyntaxKind::DoubleQuote)
+                | Some(SyntaxKind::SingleQuote)
+                | Some(SyntaxKind::Text)
+                | Some(SyntaxKind::Eq) => {
                     if paren_depth > 0 {
                         // Inside parens, consume everything
                         if self.at(SyntaxKind::DoubleQuote) {

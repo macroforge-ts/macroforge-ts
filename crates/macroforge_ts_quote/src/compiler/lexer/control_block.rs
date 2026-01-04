@@ -57,7 +57,8 @@ impl Lexer {
                 // Single character operators/punctuation
                 match c {
                     '(' | ')' | '[' | ']' | '{' | ',' | '.' | ':' | ';' | '+' | '-' | '*' | '/'
-                    | '%' | '&' | '|' | '^' | '!' | '=' | '<' | '>' | '?' | '@' | '#' | '$' | '~' => {
+                    | '%' | '&' | '|' | '^' | '!' | '=' | '<' | '>' | '?' | '@' | '#' | '$'
+                    | '~' => {
                         self.advance(1);
                         Ok(SyntaxKind::Text)
                     }
@@ -103,7 +104,10 @@ impl Lexer {
                 }
             }
         } else {
-            Err(LexError::unexpected_eof(self.pos, "control block condition"))
+            Err(LexError::unexpected_eof(
+                self.pos,
+                "control block condition",
+            ))
         }
     }
 }

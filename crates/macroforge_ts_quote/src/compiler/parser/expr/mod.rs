@@ -170,12 +170,10 @@ impl Parser {
 
             // Check if it looks like a shorthand property (identifier without value)
             match &key {
-                IrNode::Ident { .. } | IrNode::Placeholder { .. } => {
-                    Ok(IrNode::ShorthandProp {
-                        span: key.span(),
-                        key: Box::new(key),
-                    })
-                }
+                IrNode::Ident { .. } | IrNode::Placeholder { .. } => Ok(IrNode::ShorthandProp {
+                    span: key.span(),
+                    key: Box::new(key),
+                }),
                 _ => Ok(key),
             }
         }
@@ -216,8 +214,11 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::LParen).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["("])
+            ParseError::new(
+                errors::ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["("])
         })?;
 
         let mut params = Vec::new();
@@ -300,7 +301,10 @@ impl Parser {
         self.skip_whitespace();
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "binding pattern"));
+            return Err(ParseError::unexpected_eof(
+                self.current_byte_offset(),
+                "binding pattern",
+            ));
         };
 
         match token.kind {
@@ -521,7 +525,10 @@ impl Parser {
         self.skip_whitespace();
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "object pattern property"));
+            return Err(ParseError::unexpected_eof(
+                self.current_byte_offset(),
+                "object pattern property",
+            ));
         };
 
         // Get the key
@@ -530,9 +537,7 @@ impl Parser {
                 let t = self.consume().expect("guarded by match arm");
                 IrNode::ident(&t)
             }
-            SyntaxKind::DoubleQuote | SyntaxKind::SingleQuote => {
-                self.parse_string_literal()?
-            }
+            SyntaxKind::DoubleQuote | SyntaxKind::SingleQuote => self.parse_string_literal()?,
             SyntaxKind::LBracket => {
                 // Computed property name
                 self.consume();
@@ -554,7 +559,7 @@ impl Parser {
                     errors::ParseErrorKind::InvalidPropertyName,
                     self.current_byte_offset(),
                 )
-                .with_found(&token.text))
+                .with_found(&token.text));
             }
         };
 
@@ -651,8 +656,11 @@ impl Parser {
     fn parse_type_params(&mut self) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
         self.expect(SyntaxKind::Lt).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["<"])
+            ParseError::new(
+                errors::ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["<"])
         })?;
 
         let mut params = Vec::new();
@@ -704,7 +712,10 @@ impl Parser {
             let placeholder = self.parse_interpolation()?;
             return Ok(placeholder);
         } else {
-            return Err(ParseError::new(errors::ParseErrorKind::ExpectedIdentifier, self.current_byte_offset()));
+            return Err(ParseError::new(
+                errors::ParseErrorKind::ExpectedIdentifier,
+                self.current_byte_offset(),
+            ));
         };
 
         self.skip_whitespace();
@@ -753,8 +764,11 @@ impl Parser {
     fn parse_type_args(&mut self) -> ParseResult<IrNode> {
         let start_byte = self.current_byte_offset();
         self.expect(SyntaxKind::Lt).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["<"])
+            ParseError::new(
+                errors::ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["<"])
         })?;
 
         let mut params = Vec::new();
@@ -830,17 +844,20 @@ impl Parser {
         }
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "type annotation"));
+            return Err(ParseError::unexpected_eof(
+                self.current_byte_offset(),
+                "type annotation",
+            ));
         };
 
         // Handle keyword types
         let base_type = match token.kind {
             SyntaxKind::TypeKw
-                if token.text == "string"
-                    || token.text == "number"
-                    || token.text == "boolean" =>
+                if token.text == "string" || token.text == "number" || token.text == "boolean" =>
             {
-                let t = self.consume().ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "expected type keyword"))?;
+                let t = self.consume().ok_or_else(|| {
+                    ParseError::unexpected_eof(self.current_byte_offset(), "expected type keyword")
+                })?;
                 IrNode::keyword_type(&t, self.text_to_ts_keyword(&t.text)?)
             }
             SyntaxKind::Ident => {
@@ -871,7 +888,8 @@ impl Parser {
                                 return Err(ParseError::new(
                                     errors::ParseErrorKind::ExpectedTypeAnnotation,
                                     self.current_byte_offset(),
-                                ).with_expected(&["identifier"]));
+                                )
+                                .with_expected(&["identifier"]));
                             }
 
                             let right_token = self.consume().expect("guarded by at() check");
@@ -942,7 +960,14 @@ impl Parser {
                 }
             }
             // Number literal type: 42, 3.14
-            SyntaxKind::Text if token.text.chars().next().map(|c| c.is_ascii_digit() || c == '-').unwrap_or(false) => {
+            SyntaxKind::Text
+                if token
+                    .text
+                    .chars()
+                    .next()
+                    .map(|c| c.is_ascii_digit() || c == '-')
+                    .unwrap_or(false) =>
+            {
                 let lit = self.parse_numeric_literal()?;
                 IrNode::LiteralType {
                     span: lit.span(),
@@ -976,7 +1001,8 @@ impl Parser {
                     return Err(ParseError::new(
                         errors::ParseErrorKind::MissingArrowBody,
                         self.current_byte_offset(),
-                    ).with_expected(&["=>"]));
+                    )
+                    .with_expected(&["=>"]));
                 }
                 self.consume();
                 self.skip_whitespace();
@@ -1018,7 +1044,8 @@ impl Parser {
                     return Err(ParseError::new(
                         errors::ParseErrorKind::ExpectedTypeAnnotation,
                         self.current_byte_offset(),
-                    ).with_expected(&["("]));
+                    )
+                    .with_expected(&["("]));
                 }
                 self.consume(); // consume '('
                 self.skip_whitespace();
@@ -1032,7 +1059,8 @@ impl Parser {
                     return Err(ParseError::new(
                         errors::ParseErrorKind::MissingClosingParen,
                         self.current_byte_offset(),
-                    ).with_expected(&[")"]));
+                    )
+                    .with_expected(&[")"]));
                 }
                 self.consume(); // consume ')'
                 self.skip_whitespace();
@@ -1058,10 +1086,11 @@ impl Parser {
                 }
             }
             _ => {
-                return Err(
-                    ParseError::new(errors::ParseErrorKind::ExpectedTypeAnnotation, self.current_byte_offset())
-                        .with_found(&token.text),
+                return Err(ParseError::new(
+                    errors::ParseErrorKind::ExpectedTypeAnnotation,
+                    self.current_byte_offset(),
                 )
+                .with_found(&token.text));
             }
         };
 
@@ -1082,7 +1111,11 @@ impl Parser {
                 // The current `ty` should be an identifier (param name)
                 // If it's wrapped in TypeRef, unwrap to get the inner Ident
                 let param_name = match ty {
-                    IrNode::TypeRef { name, type_params: None, .. } => *name,
+                    IrNode::TypeRef {
+                        name,
+                        type_params: None,
+                        ..
+                    } => *name,
                     other => other,
                 };
                 let start = param_name.span().start;
@@ -1156,7 +1189,8 @@ impl Parser {
                         return Err(ParseError::new(
                             errors::ParseErrorKind::UnexpectedToken,
                             self.current_byte_offset(),
-                        ).with_expected(&[":"]));
+                        )
+                        .with_expected(&[":"]));
                     }
                     self.consume(); // :
                     self.skip_whitespace();
@@ -1176,7 +1210,8 @@ impl Parser {
                 return Err(ParseError::new(
                     errors::ParseErrorKind::UnexpectedToken,
                     self.current_byte_offset(),
-                ).with_expected(&["?"]));
+                )
+                .with_expected(&["?"]));
             }
 
             // Union type: T | U
@@ -1214,8 +1249,11 @@ impl Parser {
         let start_byte = self.current_byte_offset();
 
         self.expect(SyntaxKind::LParen).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["("])
+            ParseError::new(
+                errors::ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["("])
         })?;
 
         self.skip_whitespace();
@@ -1230,7 +1268,8 @@ impl Parser {
                 return Err(ParseError::new(
                     errors::ParseErrorKind::MissingArrowBody,
                     self.current_byte_offset(),
-                ).with_expected(&["=>"]));
+                )
+                .with_expected(&["=>"]));
             }
             self.consume();
             self.skip_whitespace();
@@ -1297,7 +1336,8 @@ impl Parser {
                 return Err(ParseError::new(
                     errors::ParseErrorKind::MissingArrowBody,
                     self.current_byte_offset(),
-                ).with_expected(&["=>"]));
+                )
+                .with_expected(&["=>"]));
             }
             self.consume();
             self.skip_whitespace();
@@ -1592,7 +1632,11 @@ impl Parser {
     }
 
     /// Parse the body of a mapped type after the opening brace
-    fn parse_mapped_type_body(&mut self, start_pos: usize, start_byte: usize) -> ParseResult<IrNode> {
+    fn parse_mapped_type_body(
+        &mut self,
+        start_pos: usize,
+        start_byte: usize,
+    ) -> ParseResult<IrNode> {
         // Parse optional readonly modifier: readonly, +readonly, -readonly
         let readonly = if self.at_text("+") || self.at_text("-") {
             let sign = self.consume().unwrap();
@@ -1625,7 +1669,8 @@ impl Parser {
             return Err(ParseError::new(
                 errors::ParseErrorKind::ExpectedIdentifier,
                 self.current_byte_offset(),
-            ).with_context("mapped type parameter"));
+            )
+            .with_context("mapped type parameter"));
         };
         self.skip_whitespace();
 
@@ -1634,7 +1679,8 @@ impl Parser {
             return Err(ParseError::new(
                 errors::ParseErrorKind::ExpectedTypeAnnotation,
                 self.current_byte_offset(),
-            ).with_expected(&["in"]));
+            )
+            .with_expected(&["in"]));
         }
         self.consume();
         self.skip_whitespace();
@@ -1732,7 +1778,10 @@ impl Parser {
         };
 
         let Some(token) = self.current() else {
-            return Err(ParseError::unexpected_eof(self.current_byte_offset(), "type member"));
+            return Err(ParseError::unexpected_eof(
+                self.current_byte_offset(),
+                "type member",
+            ));
         };
 
         // Get the key
@@ -1749,10 +1798,11 @@ impl Parser {
                 let param_token = if self.at(SyntaxKind::Ident) {
                     self.consume().expect("guarded by at() check")
                 } else {
-                    return Err(
-                        ParseError::new(errors::ParseErrorKind::ExpectedIdentifier, self.current_byte_offset())
-                            .with_context("index signature"),
-                    );
+                    return Err(ParseError::new(
+                        errors::ParseErrorKind::ExpectedIdentifier,
+                        self.current_byte_offset(),
+                    )
+                    .with_context("index signature"));
                 };
                 let param_span = param_token.ir_span();
 
@@ -1788,10 +1838,11 @@ impl Parser {
                 IrNode::ident(&t)
             }
             _ => {
-                return Err(
-                    ParseError::new(errors::ParseErrorKind::InvalidPropertyName, self.current_byte_offset())
-                        .with_found(&token.text),
+                return Err(ParseError::new(
+                    errors::ParseErrorKind::InvalidPropertyName,
+                    self.current_byte_offset(),
                 )
+                .with_found(&token.text));
             }
         };
 
@@ -1858,7 +1909,20 @@ impl Parser {
                 self.current_byte_offset(),
             )
             .with_found(text)
-            .with_expected(&["string", "number", "boolean", "any", "unknown", "never", "void", "null", "undefined", "object", "symbol", "bigint"])),
+            .with_expected(&[
+                "string",
+                "number",
+                "boolean",
+                "any",
+                "unknown",
+                "never",
+                "void",
+                "null",
+                "undefined",
+                "object",
+                "symbol",
+                "bigint",
+            ])),
         }
     }
 
@@ -1890,8 +1954,11 @@ impl Parser {
         let start_byte = self.current_byte_offset();
 
         self.expect(SyntaxKind::LBrace).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["{"])
+            ParseError::new(
+                errors::ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["{"])
         })?;
 
         // Parse statements using the proper statement list parser
@@ -1957,8 +2024,11 @@ impl Parser {
         let start_pos = self.pos;
 
         self.expect(SyntaxKind::LBrace).ok_or_else(|| {
-            ParseError::new(errors::ParseErrorKind::UnexpectedToken, self.current_byte_offset())
-                .with_expected(&["{"])
+            ParseError::new(
+                errors::ParseErrorKind::UnexpectedToken,
+                self.current_byte_offset(),
+            )
+            .with_expected(&["{"])
         })?;
 
         let mut body = Vec::new();
@@ -2205,7 +2275,9 @@ impl Parser {
         let value = if self.at_text("=") {
             self.consume();
             self.skip_whitespace();
-            Some(Box::new(self.parse_expression_with_precedence(prec::ASSIGN.right)?))
+            Some(Box::new(
+                self.parse_expression_with_precedence(prec::ASSIGN.right)?,
+            ))
         } else {
             None
         };

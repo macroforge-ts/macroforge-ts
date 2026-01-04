@@ -20,9 +20,12 @@ impl Parser {
         // The lexer puts all content until } in one RBrace token
         // So we just need to get the RBrace token and extract the content
         let rbrace_token = self.expect(SyntaxKind::RBrace).ok_or_else(|| {
-            ParseError::new(ParseErrorKind::MissingClosingBrace, self.current_byte_offset())
-                .with_context("interpolation")
-                .with_help("Interpolations must be closed with '}'")
+            ParseError::new(
+                ParseErrorKind::MissingClosingBrace,
+                self.current_byte_offset(),
+            )
+            .with_context("interpolation")
+            .with_help("Interpolations must be closed with '}'")
         })?;
 
         // Combine and extract the Rust expression
@@ -32,18 +35,24 @@ impl Parser {
             .and_then(|s| s.strip_suffix("}"))
             .map(|s| s.trim().to_string())
             .ok_or_else(|| {
-                ParseError::new(ParseErrorKind::InvalidInterpolation, self.current_byte_offset())
-                    .with_context("interpolation")
-                    .with_found(&full_text)
-                    .with_help("Interpolation must have format @{...}")
+                ParseError::new(
+                    ParseErrorKind::InvalidInterpolation,
+                    self.current_byte_offset(),
+                )
+                .with_context("interpolation")
+                .with_found(&full_text)
+                .with_help("Interpolation must have format @{...}")
             })?;
 
         // Parse as TokenStream
         let expr = TokenStream::from_str(&rust_expr_str).map_err(|e| {
-            ParseError::new(ParseErrorKind::InvalidRustExpression, self.current_byte_offset())
-                .with_context("interpolation")
-                .with_found(&rust_expr_str)
-                .with_help(&format!("Failed to parse as Rust expression: {}", e))
+            ParseError::new(
+                ParseErrorKind::InvalidRustExpression,
+                self.current_byte_offset(),
+            )
+            .with_context("interpolation")
+            .with_found(&rust_expr_str)
+            .with_help(&format!("Failed to parse as Rust expression: {}", e))
         })?;
 
         Ok(IrNode::Placeholder {

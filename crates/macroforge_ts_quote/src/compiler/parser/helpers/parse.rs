@@ -132,9 +132,9 @@ impl Parser {
             false
         };
 
-        let name = self
-            .parse_ts_ident_or_placeholder()
-            .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "parameter name"))?;
+        let name = self.parse_ts_ident_or_placeholder().ok_or_else(|| {
+            ParseError::unexpected_eof(self.current_byte_offset(), "parameter name")
+        })?;
         self.skip_whitespace();
 
         let optional = if self.at(SyntaxKind::Question) {
@@ -155,7 +155,12 @@ impl Parser {
             ]));
             let ty = self
                 .parse_type_until(&[SyntaxKind::Comma, SyntaxKind::RParen, SyntaxKind::Eq])?
-                .ok_or_else(|| ParseError::unexpected_eof(self.current_byte_offset(), "parameter type annotation"))?;
+                .ok_or_else(|| {
+                    ParseError::unexpected_eof(
+                        self.current_byte_offset(),
+                        "parameter type annotation",
+                    )
+                })?;
             self.pop_context();
             Some(Box::new(ty))
         } else {
@@ -210,7 +215,10 @@ impl Parser {
     /// Parses a type annotation until one of the terminator tokens is reached.
     /// Uses the structured parse_type function instead of collecting raw tokens.
     /// Also handles control flow blocks ({#for}, {#if}, etc.) that may appear in type contexts.
-    pub(in super::super) fn parse_type_until(&mut self, terminators: &[SyntaxKind]) -> ParseResult<Option<IrNode>> {
+    pub(in super::super) fn parse_type_until(
+        &mut self,
+        terminators: &[SyntaxKind],
+    ) -> ParseResult<Option<IrNode>> {
         self.skip_whitespace();
 
         // Check if we're already at a terminator or EOF
@@ -235,7 +243,10 @@ impl Parser {
         Ok(Some(ty))
     }
 
-    pub(in super::super) fn parse_type_list_until(&mut self, terminator: SyntaxKind) -> ParseResult<Vec<IrNode>> {
+    pub(in super::super) fn parse_type_list_until(
+        &mut self,
+        terminator: SyntaxKind,
+    ) -> ParseResult<Vec<IrNode>> {
         let mut types = Vec::new();
 
         while !self.at_eof() && !self.at(terminator) {
@@ -273,7 +284,10 @@ impl Parser {
         if debug_parser {
             match &result {
                 Ok(node) => {
-                    eprintln!("[MF_DEBUG_PARSER] parse_ts_expr_until: success, node={:?}", node);
+                    eprintln!(
+                        "[MF_DEBUG_PARSER] parse_ts_expr_until: success, node={:?}",
+                        node
+                    );
                 }
                 Err(err) => {
                     eprintln!("[MF_DEBUG_PARSER] parse_ts_expr_until: error={:?}", err);

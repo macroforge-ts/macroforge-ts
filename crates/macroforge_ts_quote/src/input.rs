@@ -111,8 +111,7 @@ mod tests {
 
     #[test]
     fn test_quote_input_with_multiple_vars() {
-        let input: QuoteInput =
-            syn::parse_quote!("$a + $b" as Expr, a = expr_a, b: Expr = expr_b);
+        let input: QuoteInput = syn::parse_quote!("$a + $b" as Expr, a = expr_a, b: Expr = expr_b);
         assert!(input.vars.is_some());
 
         let (_, vars) = input.vars.unwrap();
@@ -172,7 +171,10 @@ mod tests {
         assert!(var.ty.is_some());
 
         if let Some(syn::Type::Path(path)) = &var.ty {
-            assert_eq!(path.path.segments.last().unwrap().ident.to_string(), "Ident");
+            assert_eq!(
+                path.path.segments.last().unwrap().ident.to_string(),
+                "Ident"
+            );
         } else {
             panic!("Expected Type::Path");
         }
@@ -239,7 +241,12 @@ mod tests {
 
     #[test]
     fn test_quote_var_block_value() {
-        let var: QuoteVar = syn::parse_quote!(result = { let x = 1; x });
+        let var: QuoteVar = syn::parse_quote!(
+            result = {
+                let x = 1;
+                x
+            }
+        );
         assert_eq!(var.name.to_string(), "result");
     }
 

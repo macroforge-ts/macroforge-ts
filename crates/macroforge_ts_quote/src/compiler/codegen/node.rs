@@ -12,5 +12,4 @@ impl Codegen {
                 | IrNode::Placeholder { .. }
         )
     }
-
 }

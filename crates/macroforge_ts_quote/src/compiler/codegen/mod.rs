@@ -109,27 +109,23 @@ impl Codegen {
 
     fn generate_entity_name(&self, node: &IrNode) -> GenResult<TokenStream> {
         match node {
-            IrNode::Ident { value: name, .. } => {
-                Ok(quote! {
-                    macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
-                        macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
-                            #name.into(),
-                            macroforge_ts::swc_core::common::DUMMY_SP,
-                        )
+            IrNode::Ident { value: name, .. } => Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
+                    macroforge_ts::swc_core::ecma::ast::Ident::new_no_ctxt(
+                        #name.into(),
+                        macroforge_ts::swc_core::common::DUMMY_SP,
                     )
-                })
-            }
+                )
+            }),
             IrNode::Placeholder {
                 kind: PlaceholderKind::Ident,
                 expr,
                 ..
-            } => {
-                Ok(quote! {
-                    macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
-                        macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
-                    )
-                })
-            }
+            } => Ok(quote! {
+                macroforge_ts::swc_core::ecma::ast::TsEntityName::Ident(
+                    macroforge_ts::ts_syn::ToTsIdent::to_ts_ident((#expr).clone())
+                )
+            }),
             // Handle Placeholder with Expr kind - try to convert expression to entity name
             IrNode::Placeholder {
                 kind: PlaceholderKind::Expr,
@@ -171,9 +167,7 @@ impl Codegen {
                 })
             }
             // Handle TypeScript injection node - the stream produces an entity name directly
-            IrNode::TypeScript { stream, .. } => {
-                Ok(quote! { #stream })
-            }
+            IrNode::TypeScript { stream, .. } => Ok(quote! { #stream }),
             other => Err(GenError::unexpected_node(
                 "entity name",
                 other,
@@ -222,11 +216,7 @@ impl Codegen {
                     }
                 })
             }
-            _ => Err(GenError::unexpected_node(
-                "decorator",
-                node,
-                &["Decorator"],
-            )),
+            _ => Err(GenError::unexpected_node("decorator", node, &["Decorator"])),
         }
     }
 }
@@ -337,7 +327,10 @@ mod tests {
     fn test_generate_with_ident_node() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let ir = Ir::with_nodes(vec![IrNode::Ident { span: IrSpan::empty(), value: "test".to_string() }]);
+        let ir = Ir::with_nodes(vec![IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "test".to_string(),
+        }]);
         let output = codegen.generate(&ir).unwrap();
         let output_str = output.to_string();
 
@@ -349,7 +342,10 @@ mod tests {
     fn test_generate_with_string_literal() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let ir = Ir::with_nodes(vec![IrNode::StrLit { span: IrSpan::empty(), value: "hello".to_string() }]);
+        let ir = Ir::with_nodes(vec![IrNode::StrLit {
+            span: IrSpan::empty(),
+            value: "hello".to_string(),
+        }]);
         let output = codegen.generate(&ir).unwrap();
         let output_str = output.to_string();
 
@@ -374,7 +370,10 @@ mod tests {
         let codegen = Codegen::new();
         let decls = vec![VarDeclarator {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
             type_ann: None,
             init: None,
             definite: false,
@@ -391,9 +390,15 @@ mod tests {
         let codegen = Codegen::new();
         let decls = vec![VarDeclarator {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
             type_ann: None,
-            init: Some(Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "42".to_string() })),
+            init: Some(Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "42".to_string(),
+            })),
             definite: false,
         }];
         let output = codegen.generate_var_declarators(&decls).unwrap();
@@ -407,7 +412,10 @@ mod tests {
     fn test_generate_entity_name_ident() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::Ident { span: IrSpan::empty(), value: "MyType".to_string() };
+        let node = IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "MyType".to_string(),
+        };
         let output = codegen.generate_entity_name(&node).unwrap();
         let output_str = output.to_string();
 
@@ -435,7 +443,10 @@ mod tests {
     fn test_generate_entity_name_invalid_returns_error() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::NumLit { span: IrSpan::empty(), value: "123".to_string() }; // Not a valid entity name
+        let node = IrNode::NumLit {
+            span: IrSpan::empty(),
+            value: "123".to_string(),
+        }; // Not a valid entity name
         let output = codegen.generate_entity_name(&node);
 
         // Should now return an error instead of silently producing invalid code
@@ -792,7 +803,10 @@ mod tests {
     fn test_generate_expr_ident() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::Ident { span: IrSpan::empty(), value: "myVar".to_string() };
+        let node = IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "myVar".to_string(),
+        };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
@@ -804,7 +818,10 @@ mod tests {
     fn test_generate_expr_str_lit() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::StrLit { span: IrSpan::empty(), value: "hello world".to_string() };
+        let node = IrNode::StrLit {
+            span: IrSpan::empty(),
+            value: "hello world".to_string(),
+        };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
@@ -817,7 +834,10 @@ mod tests {
     fn test_generate_expr_num_lit() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::NumLit { span: IrSpan::empty(), value: "42".to_string() };
+        let node = IrNode::NumLit {
+            span: IrSpan::empty(),
+            value: "42".to_string(),
+        };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
@@ -830,7 +850,10 @@ mod tests {
     fn test_generate_expr_bool_lit_true() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::BoolLit { span: IrSpan::empty(), value: true };
+        let node = IrNode::BoolLit {
+            span: IrSpan::empty(),
+            value: true,
+        };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
@@ -842,7 +865,10 @@ mod tests {
     fn test_generate_expr_bool_lit_false() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::BoolLit { span: IrSpan::empty(), value: false };
+        let node = IrNode::BoolLit {
+            span: IrSpan::empty(),
+            value: false,
+        };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
@@ -854,7 +880,9 @@ mod tests {
     fn test_generate_expr_null_lit() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::NullLit { span: IrSpan::empty() };
+        let node = IrNode::NullLit {
+            span: IrSpan::empty(),
+        };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
@@ -865,7 +893,9 @@ mod tests {
     fn test_generate_expr_this() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::ThisExpr { span: IrSpan::empty() };
+        let node = IrNode::ThisExpr {
+            span: IrSpan::empty(),
+        };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
 
@@ -878,9 +908,15 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::CallExpr {
             span: IrSpan::empty(),
-            callee: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "foo".to_string() }),
+            callee: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "foo".to_string(),
+            }),
             type_args: None,
-            args: vec![IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() }],
+            args: vec![IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "1".to_string(),
+            }],
         };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
@@ -895,8 +931,14 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::MemberExpr {
             span: IrSpan::empty(),
-            obj: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "obj".to_string() }),
-            prop: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "prop".to_string() }),
+            obj: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "obj".to_string(),
+            }),
+            prop: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "prop".to_string(),
+            }),
             computed: false,
         };
         let output = codegen.generate_expr(&node).unwrap();
@@ -912,8 +954,14 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::MemberExpr {
             span: IrSpan::empty(),
-            obj: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "arr".to_string() }),
-            prop: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "0".to_string() }),
+            obj: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "arr".to_string(),
+            }),
+            prop: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "0".to_string(),
+            }),
             computed: true,
         };
         let output = codegen.generate_expr(&node).unwrap();
@@ -931,8 +979,14 @@ mod tests {
             span: IrSpan::empty(),
             props: vec![IrNode::KeyValueProp {
                 span: IrSpan::empty(),
-                key: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
-                value: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() }),
+                key: Box::new(IrNode::Ident {
+                    span: IrSpan::empty(),
+                    value: "x".to_string(),
+                }),
+                value: Box::new(IrNode::NumLit {
+                    span: IrSpan::empty(),
+                    value: "1".to_string(),
+                }),
             }],
         };
         let output = codegen.generate_expr(&node).unwrap();
@@ -949,8 +1003,14 @@ mod tests {
         let node = IrNode::ArrayLit {
             span: IrSpan::empty(),
             elems: vec![
-                IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() },
-                IrNode::NumLit { span: IrSpan::empty(), value: "2".to_string() },
+                IrNode::NumLit {
+                    span: IrSpan::empty(),
+                    value: "1".to_string(),
+                },
+                IrNode::NumLit {
+                    span: IrSpan::empty(),
+                    value: "2".to_string(),
+                },
             ],
         };
         let output = codegen.generate_expr(&node).unwrap();
@@ -966,9 +1026,15 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::BinExpr {
             span: IrSpan::empty(),
-            left: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() }),
+            left: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "1".to_string(),
+            }),
             op: BinaryOp::Add,
-            right: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "2".to_string() }),
+            right: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "2".to_string(),
+            }),
         };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
@@ -983,9 +1049,15 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::AssignExpr {
             span: IrSpan::empty(),
-            left: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            left: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
             op: AssignOp::Assign,
-            right: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "5".to_string() }),
+            right: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "5".to_string(),
+            }),
         };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
@@ -1000,9 +1072,18 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::CondExpr {
             span: IrSpan::empty(),
-            test: Box::new(IrNode::BoolLit { span: IrSpan::empty(), value: true }),
-            consequent: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() }),
-            alternate: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "0".to_string() }),
+            test: Box::new(IrNode::BoolLit {
+                span: IrSpan::empty(),
+                value: true,
+            }),
+            consequent: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "1".to_string(),
+            }),
+            alternate: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "0".to_string(),
+            }),
         };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
@@ -1017,7 +1098,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::NewExpr {
             span: IrSpan::empty(),
-            callee: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "Date".to_string() }),
+            callee: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "Date".to_string(),
+            }),
             type_args: None,
             args: vec![],
         };
@@ -1036,9 +1120,15 @@ mod tests {
             span: IrSpan::empty(),
             async_: false,
             type_params: None,
-            params: vec![IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }],
+            params: vec![IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }],
             return_type: None,
-            body: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            body: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
         };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
@@ -1057,7 +1147,9 @@ mod tests {
             type_params: None,
             params: vec![],
             return_type: None,
-            body: Box::new(IrNode::NullLit { span: IrSpan::empty() }),
+            body: Box::new(IrNode::NullLit {
+                span: IrSpan::empty(),
+            }),
         };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
@@ -1073,7 +1165,10 @@ mod tests {
         let node = IrNode::TplLit {
             span: IrSpan::empty(),
             quasis: vec!["hello ".to_string(), "!".to_string()],
-            exprs: vec![IrNode::Ident { span: IrSpan::empty(), value: "name".to_string() }],
+            exprs: vec![IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "name".to_string(),
+            }],
         };
         let output = codegen.generate_expr(&node).unwrap();
         let output_str = output.to_string();
@@ -1088,7 +1183,10 @@ mod tests {
     fn test_generate_pat_ident() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() };
+        let node = IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "x".to_string(),
+        };
         let output = codegen.generate_pat(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1102,7 +1200,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::BindingIdent {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
             type_ann: None,
             optional: false,
         };
@@ -1119,8 +1220,14 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::BindingIdent {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
-            type_ann: Some(Box::new(IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String })),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
+            type_ann: Some(Box::new(IrNode::KeywordType {
+                span: IrSpan::empty(),
+                keyword: TsKeyword::String,
+            })),
             optional: false,
         };
         let output = codegen.generate_pat(&node).unwrap();
@@ -1152,7 +1259,10 @@ mod tests {
     fn test_generate_type_keyword_string() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::String,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1164,7 +1274,10 @@ mod tests {
     fn test_generate_type_keyword_number() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Number };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Number,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1175,7 +1288,10 @@ mod tests {
     fn test_generate_type_keyword_boolean() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Boolean };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Boolean,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1186,7 +1302,10 @@ mod tests {
     fn test_generate_type_keyword_any() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Any };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Any,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1197,7 +1316,10 @@ mod tests {
     fn test_generate_type_keyword_unknown() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Unknown };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Unknown,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1208,7 +1330,10 @@ mod tests {
     fn test_generate_type_keyword_void() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Void };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Void,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1219,7 +1344,10 @@ mod tests {
     fn test_generate_type_keyword_null() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Null };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Null,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1230,7 +1358,10 @@ mod tests {
     fn test_generate_type_keyword_undefined() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Undefined };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Undefined,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1241,7 +1372,10 @@ mod tests {
     fn test_generate_type_keyword_never() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Never };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Never,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1252,7 +1386,10 @@ mod tests {
     fn test_generate_type_keyword_object() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Object };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Object,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1263,7 +1400,10 @@ mod tests {
     fn test_generate_type_keyword_bigint() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::BigInt };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::BigInt,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1274,7 +1414,10 @@ mod tests {
     fn test_generate_type_keyword_symbol() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Symbol };
+        let node = IrNode::KeywordType {
+            span: IrSpan::empty(),
+            keyword: TsKeyword::Symbol,
+        };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1287,7 +1430,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::TypeRef {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "MyType".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "MyType".to_string(),
+            }),
             type_params: None,
         };
         let output = codegen.generate_type(&node).unwrap();
@@ -1303,8 +1449,14 @@ mod tests {
         let node = IrNode::UnionType {
             span: IrSpan::empty(),
             types: vec![
-                IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String },
-                IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::Number },
+                IrNode::KeywordType {
+                    span: IrSpan::empty(),
+                    keyword: TsKeyword::String,
+                },
+                IrNode::KeywordType {
+                    span: IrSpan::empty(),
+                    keyword: TsKeyword::Number,
+                },
             ],
         };
         let output = codegen.generate_type(&node).unwrap();
@@ -1319,7 +1471,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::ArrayType {
             span: IrSpan::empty(),
-            elem: Box::new(IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String }),
+            elem: Box::new(IrNode::KeywordType {
+                span: IrSpan::empty(),
+                keyword: TsKeyword::String,
+            }),
         };
         let output = codegen.generate_type(&node).unwrap();
         let output_str = output.to_string();
@@ -1335,7 +1490,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::ExprStmt {
             span: IrSpan::empty(),
-            expr: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "foo".to_string() }),
+            expr: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "foo".to_string(),
+            }),
         };
         let output = codegen.generate_stmt(&node).unwrap();
         let output_str = output.to_string();
@@ -1349,7 +1507,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::ReturnStmt {
             span: IrSpan::empty(),
-            arg: Some(Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "42".to_string() })),
+            arg: Some(Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "42".to_string(),
+            })),
         };
         let output = codegen.generate_stmt(&node).unwrap();
         let output_str = output.to_string();
@@ -1360,7 +1521,10 @@ mod tests {
     fn test_generate_stmt_return_void() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::ReturnStmt { span: IrSpan::empty(), arg: None };
+        let node = IrNode::ReturnStmt {
+            span: IrSpan::empty(),
+            arg: None,
+        };
         let output = codegen.generate_stmt(&node).unwrap();
         let output_str = output.to_string();
         assert!(output_str.contains("Return"));
@@ -1371,7 +1535,10 @@ mod tests {
     fn test_generate_stmt_block() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::BlockStmt { span: IrSpan::empty(), stmts: vec![] };
+        let node = IrNode::BlockStmt {
+            span: IrSpan::empty(),
+            stmts: vec![],
+        };
         let output = codegen.generate_stmt(&node).unwrap();
         let output_str = output.to_string();
         assert!(output_str.contains("Block"));
@@ -1389,9 +1556,15 @@ mod tests {
             kind: VarKind::Const,
             decls: vec![VarDeclarator {
                 span: IrSpan::empty(),
-                name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+                name: Box::new(IrNode::Ident {
+                    span: IrSpan::empty(),
+                    value: "x".to_string(),
+                }),
                 type_ann: None,
-                init: Some(Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() })),
+                init: Some(Box::new(IrNode::NumLit {
+                    span: IrSpan::empty(),
+                    value: "1".to_string(),
+                })),
                 definite: false,
             }],
         };
@@ -1478,7 +1651,10 @@ mod tests {
             async_: false,
             generator: false,
             kind: MethodKind::Method,
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "myMethod".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "myMethod".to_string(),
+            }),
             optional: false,
             type_params: None,
             params: vec![],
@@ -1502,7 +1678,10 @@ mod tests {
             async_: false,
             generator: false,
             kind: MethodKind::Getter,
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "value".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "value".to_string(),
+            }),
             optional: false,
             type_params: None,
             params: vec![],
@@ -1526,7 +1705,10 @@ mod tests {
             async_: false,
             generator: false,
             kind: MethodKind::Setter,
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "value".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "value".to_string(),
+            }),
             optional: false,
             type_params: None,
             params: vec![],
@@ -1550,7 +1732,10 @@ mod tests {
             declare: false,
             optional: false,
             definite: false,
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "myProp".to_string() }),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "myProp".to_string(),
+            }),
             type_ann: None,
             value: None,
         };
@@ -1565,21 +1750,30 @@ mod tests {
     fn test_is_fragment_node_str_lit_as_fragment() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        assert!(codegen.is_fragment_node(&IrNode::StrLit { span: IrSpan::empty(), value: "text".to_string() }));
+        assert!(codegen.is_fragment_node(&IrNode::StrLit {
+            span: IrSpan::empty(),
+            value: "text".to_string()
+        }));
     }
 
     #[test]
     fn test_is_fragment_node_ident() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        assert!(codegen.is_fragment_node(&IrNode::Ident { span: IrSpan::empty(), value: "name".to_string() }));
+        assert!(codegen.is_fragment_node(&IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "name".to_string()
+        }));
     }
 
     #[test]
     fn test_is_fragment_node_str_lit() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        assert!(codegen.is_fragment_node(&IrNode::StrLit { span: IrSpan::empty(), value: "hello".to_string() }));
+        assert!(codegen.is_fragment_node(&IrNode::StrLit {
+            span: IrSpan::empty(),
+            value: "hello".to_string()
+        }));
     }
 
     #[test]
@@ -1614,7 +1808,10 @@ mod tests {
     fn test_generate_ident_basic() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::Ident { span: IrSpan::empty(), value: "myVar".to_string() };
+        let node = IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "myVar".to_string(),
+        };
         let output = codegen.generate_ident(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1641,7 +1838,10 @@ mod tests {
     fn test_generate_ident_name_basic() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::Ident { span: IrSpan::empty(), value: "propName".to_string() };
+        let node = IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "propName".to_string(),
+        };
         let output = codegen.generate_ident_name(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1656,8 +1856,14 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::KeyValueProp {
             span: IrSpan::empty(),
-            key: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
-            value: Box::new(IrNode::NumLit { span: IrSpan::empty(), value: "1".to_string() }),
+            key: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
+            value: Box::new(IrNode::NumLit {
+                span: IrSpan::empty(),
+                value: "1".to_string(),
+            }),
         };
         let output = codegen.generate_prop(&node).unwrap();
 
@@ -1672,7 +1878,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::ShorthandProp {
             span: IrSpan::empty(),
-            key: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
+            key: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
         };
         let output = codegen.generate_prop(&node).unwrap();
 
@@ -1687,7 +1896,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::SpreadElement {
             span: IrSpan::empty(),
-            expr: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "obj".to_string() }),
+            expr: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "obj".to_string(),
+            }),
         };
         let output = codegen.generate_prop(&node).unwrap();
 
@@ -1700,7 +1912,10 @@ mod tests {
     fn test_generate_prop_name_ident() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::Ident { span: IrSpan::empty(), value: "propName".to_string() };
+        let node = IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "propName".to_string(),
+        };
         let output = codegen.generate_prop_name(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1712,7 +1927,10 @@ mod tests {
     fn test_generate_prop_name_str() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::StrLit { span: IrSpan::empty(), value: "prop-name".to_string() };
+        let node = IrNode::StrLit {
+            span: IrSpan::empty(),
+            value: "prop-name".to_string(),
+        };
         let output = codegen.generate_prop_name(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1726,7 +1944,10 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::ComputedPropName {
             span: IrSpan::empty(),
-            expr: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "key".to_string() }),
+            expr: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "key".to_string(),
+            }),
         };
         let output = codegen.generate_prop_name(&node).unwrap();
         let output_str = output.to_string();
@@ -1741,7 +1962,10 @@ mod tests {
     fn test_generate_param_ident() {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
-        let node = IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() };
+        let node = IrNode::Ident {
+            span: IrSpan::empty(),
+            value: "x".to_string(),
+        };
         let output = codegen.generate_param(&node).unwrap();
         let output_str = output.to_string();
 
@@ -1755,8 +1979,14 @@ mod tests {
         let codegen = Codegen::new();
         let node = IrNode::BindingIdent {
             span: IrSpan::empty(),
-            name: Box::new(IrNode::Ident { span: IrSpan::empty(), value: "x".to_string() }),
-            type_ann: Some(Box::new(IrNode::KeywordType { span: IrSpan::empty(), keyword: TsKeyword::String })),
+            name: Box::new(IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "x".to_string(),
+            }),
+            type_ann: Some(Box::new(IrNode::KeywordType {
+                span: IrSpan::empty(),
+                keyword: TsKeyword::String,
+            })),
             optional: false,
         };
         let output = codegen.generate_param(&node).unwrap();
@@ -1781,8 +2011,14 @@ mod tests {
         use crate::compiler::ir::IrSpan;
         let codegen = Codegen::new();
         let params = vec![
-            IrNode::Ident { span: IrSpan::empty(), value: "a".to_string() },
-            IrNode::Ident { span: IrSpan::empty(), value: "b".to_string() },
+            IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "a".to_string(),
+            },
+            IrNode::Ident {
+                span: IrSpan::empty(),
+                value: "b".to_string(),
+            },
         ];
         let output = codegen.generate_params(&params).unwrap();
         let output_str = output.to_string();
