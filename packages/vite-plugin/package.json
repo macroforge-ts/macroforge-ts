@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@macroforge/shared": "^0.1.65",
-    "macroforge": "^0.1.65"
+    "@macroforge/shared": "file:../shared",
+    "macroforge": "file:../../crates/macroforge_ts"
   },
   "devDependencies": {
     "@types/node": "^22.0.0"
