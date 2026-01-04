@@ -1,29 +1,30 @@
 # Installation
 
-Get started with Macroforge in just a few minutes. Install the package and configure your project to start using TypeScript macros.
+Get started with Macroforge in just a few minutes. Install the package and configure your project to
+start using TypeScript macros.
 
 ## Requirements
 
-*   Node.js 24.0 or later
-*   TypeScript 5.9 or later
+- Node.js 24.0 or later
+- TypeScript 5.9 or later
 
 ## Install the Package
 
 Install Macroforge using your preferred package manager:
 
-npm 
+npm
 
 ```
 npm install macroforge
 ```
 
-bun 
+bun
 
 ```
 bun add macroforge
 ```
 
-pnpm 
+pnpm
 
 ```
 pnpm add macroforge
@@ -31,13 +32,15 @@ pnpm add macroforge
 
 Info
 
-Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64).
+Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and
+Windows (x64, arm64).
 
 ## Basic Usage
 
-The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
+The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment
+decorator to your class:
 
-user.ts 
+user.ts
 
 ```
 /** @derive(Debug, Clone, PartialEq) */
@@ -61,7 +64,7 @@ class User {
 
 For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
 
-tsconfig.json 
+tsconfig.json
 
 ```
 {
@@ -77,15 +80,15 @@ tsconfig.json
 
 This enables features like:
 
-*   Accurate error positions in your source code
-*   Autocompletion for generated methods
-*   Type checking for expanded code
+- Accurate error positions in your source code
+- Autocompletion for generated methods
+- Type checking for expanded code
 
 ## Build Integration (Vite)
 
 If you're using Vite, add the plugin to your config for automatic macro expansion during build:
 
-vite.config.ts 
+vite.config.ts
 
 ```
 import macroforge from "@macroforge/vite-plugin";
@@ -105,6 +108,6 @@ export default defineConfig({
 
 Now that you have Macroforge installed, learn how to use it:
 
-*   [Create your first macro](../docs/getting-started/first-macro)
-*   [Understand how macros work](../docs/concepts)
-*   [Explore built-in macros](../docs/builtin-macros)
+- [Create your first macro](../docs/getting-started/first-macro)
+- [Understand how macros work](../docs/concepts)
+- [Explore built-in macros](../docs/builtin-macros)

@@ -30,27 +30,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -77,27 +73,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -122,27 +114,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -169,27 +157,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -214,27 +198,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -261,27 +241,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -306,27 +282,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -353,27 +325,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -398,27 +366,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -445,27 +409,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }
@@ -490,27 +450,23 @@ class User {
 
     hashCode(): number {
         let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.id) ? this.id | 0 : this.id
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        hash = (hash * 31 +
+            (this.name ?? '').split('').reduce(
+                (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                0
+            )) |
             0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.cachedScore)
-                    ? this.cachedScore | 0
-                    : this.cachedScore
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        hash = (hash * 31 +
+            (Number.isInteger(this.cachedScore) ? this.cachedScore | 0 : this.cachedScore
+                .toString()
+                .split('')
+                .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
             0;
         return hash;
     }

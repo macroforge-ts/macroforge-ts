@@ -1,6 +1,7 @@
 # TypeScript Plugin
 
-The TypeScript plugin provides IDE integration for Macroforge, including error reporting, completions, and type checking for generated code.
+The TypeScript plugin provides IDE integration for Macroforge, including error reporting,
+completions, and type checking for generated code.
 
 ## Installation
 
@@ -14,7 +15,7 @@ npm install -D @macroforge/typescript-plugin
 
 Add the plugin to your `tsconfig.json`:
 
-tsconfig.json 
+tsconfig.json
 
 ```
 {
@@ -30,17 +31,18 @@ tsconfig.json
 
 ## VS Code Setup
 
-VS Code uses its own TypeScript version by default. To use the workspace version (which includes plugins):
+VS Code uses its own TypeScript version by default. To use the workspace version (which includes
+plugins):
 
-1.  Open the Command Palette (`Cmd/Ctrl + Shift + P`)
-2.  Search for "TypeScript: Select TypeScript Version"
-3.  Choose "Use Workspace Version"
+1. Open the Command Palette (`Cmd/Ctrl + Shift + P`)
+2. Search for "TypeScript: Select TypeScript Version"
+3. Choose "Use Workspace Version"
 
 Tip
 
 Add this setting to your `.vscode/settings.json` to make it permanent:
 
-.vscode/settings.json 
+.vscode/settings.json
 
 ```
 {
@@ -90,13 +92,13 @@ const copy = user.clone();
 
 ### Plugin Not Loading
 
-1.  Ensure you're using the workspace TypeScript version
-2.  Restart the TypeScript server (Command Palette → "TypeScript: Restart TS Server")
-3.  Check that the plugin is listed in `tsconfig.json`
+1. Ensure you're using the workspace TypeScript version
+2. Restart the TypeScript server (Command Palette → "TypeScript: Restart TS Server")
+3. Check that the plugin is listed in `tsconfig.json`
 
 ### Errors Not Showing
 
 If errors from macros aren't appearing:
 
-1.  Make sure the Vite plugin is also installed (for source file watching)
-2.  Check that your file is saved (plugins process on save)
+1. Make sure the Vite plugin is also installed (for source file watching)
+2. Check that your file is saved (plugins process on save)

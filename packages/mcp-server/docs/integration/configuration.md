@@ -6,7 +6,7 @@ Macroforge can be configured with a `macroforge.json` file in your project root.
 
 Create a `macroforge.json` file:
 
-macroforge.json 
+macroforge.json
 
 ```
 {
@@ -26,15 +26,13 @@ macroforge.json
 
 ### allowNativeMacros
 
-| Type    | `boolean` |
-| Default | `true`    |
+| Type | `boolean` | | Default | `true` |
 
 Enable or disable native (Rust) macro packages. Set to `false` to only allow built-in macros.
 
 ### macroPackages
 
-| Type    | `string[]` |
-| Default | `[]`       |
+| Type | `string[]` | | Default | `[]` |
 
 List of npm packages that provide macros. Macroforge will look for macros in these packages.
 
@@ -51,8 +49,7 @@ JSON
 
 ### keepDecorators
 
-| Type    | `boolean` |
-| Default | `false`   |
+| Type | `boolean` | | Default | `false` |
 
 Keep `@derive` decorators in the output. Useful for debugging.
 
@@ -98,7 +95,8 @@ JSON
 
 Warning
 
-Be careful when increasing limits, as this could allow malicious macros to consume excessive resources.
+Be careful when increasing limits, as this could allow malicious macros to consume excessive
+resources.
 
 ## Environment Variables
 

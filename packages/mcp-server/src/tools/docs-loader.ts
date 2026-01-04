@@ -23,7 +23,7 @@
  * ```
  */
 
-import { readFileSync, existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -55,16 +55,16 @@ const docsDir = join(__dirname, '..', '..', 'docs');
  * @property chunk_ids - For chunked parents, ordered list of child chunk IDs
  */
 export interface Section {
-  id: string;
-  title: string;
-  category: string;
-  category_title: string;
-  path: string;
-  use_cases: string;
-  content?: string;
-  is_chunked?: boolean;
-  parent_id?: string;
-  chunk_ids?: string[];
+    id: string;
+    title: string;
+    category: string;
+    category_title: string;
+    path: string;
+    use_cases: string;
+    content?: string;
+    is_chunked?: boolean;
+    parent_id?: string;
+    chunk_ids?: string[];
 }
 
 /**
@@ -84,31 +84,35 @@ export interface Section {
  * ```
  */
 export function loadSections(): Section[] {
-  const sectionsPath = join(docsDir, 'sections.json');
+    const sectionsPath = join(docsDir, 'sections.json');
 
-  if (!existsSync(sectionsPath)) {
-    console.error('Warning: sections.json not found. Run "npm run build:docs" to generate documentation.');
-    return [];
-  }
-
-  const sectionsData = JSON.parse(readFileSync(sectionsPath, 'utf-8')) as Section[];
-
-  // Load content for each non-chunked section from its markdown file
-  for (const section of sectionsData) {
-    // Chunked parent sections don't have direct content - content is in child chunks
-    if (section.is_chunked) {
-      continue;
+    if (!existsSync(sectionsPath)) {
+        console.error(
+            'Warning: sections.json not found. Run "npm run build:docs" to generate documentation.'
+        );
+        return [];
     }
 
-    const contentPath = join(docsDir, section.path);
-    if (existsSync(contentPath)) {
-      section.content = readFileSync(contentPath, 'utf-8');
-    } else {
-      section.content = `Documentation file not found: ${section.path}`;
-    }
-  }
+    const sectionsData = JSON.parse(
+        readFileSync(sectionsPath, 'utf-8')
+    ) as Section[];
 
-  return sectionsData;
+    // Load content for each non-chunked section from its markdown file
+    for (const section of sectionsData) {
+        // Chunked parent sections don't have direct content - content is in child chunks
+        if (section.is_chunked) {
+            continue;
+        }
+
+        const contentPath = join(docsDir, section.path);
+        if (existsSync(contentPath)) {
+            section.content = readFileSync(contentPath, 'utf-8');
+        } else {
+            section.content = `Documentation file not found: ${section.path}`;
+        }
+    }
+
+    return sectionsData;
 }
 
 /**
@@ -131,26 +135,29 @@ export function loadSections(): Section[] {
  * const partial = getSection(sections, 'valid');      // Partial match on "validators"
  * ```
  */
-export function getSection(sections: Section[], query: string): Section | undefined {
-  const normalizedQuery = query.toLowerCase().trim();
+export function getSection(
+    sections: Section[],
+    query: string
+): Section | undefined {
+    const normalizedQuery = query.toLowerCase().trim();
 
-  // Priority 1: Exact ID match (most specific)
-  let match = sections.find((s) => s.id.toLowerCase() === normalizedQuery);
-  if (match) return match;
+    // Priority 1: Exact ID match (most specific)
+    let match = sections.find((s) => s.id.toLowerCase() === normalizedQuery);
+    if (match) return match;
 
-  // Priority 2: Exact title match
-  match = sections.find((s) => s.title.toLowerCase() === normalizedQuery);
-  if (match) return match;
+    // Priority 2: Exact title match
+    match = sections.find((s) => s.title.toLowerCase() === normalizedQuery);
+    if (match) return match;
 
-  // Priority 3: Partial ID match (query is substring of ID)
-  match = sections.find((s) => s.id.toLowerCase().includes(normalizedQuery));
-  if (match) return match;
+    // Priority 3: Partial ID match (query is substring of ID)
+    match = sections.find((s) => s.id.toLowerCase().includes(normalizedQuery));
+    if (match) return match;
 
-  // Priority 4: Partial title match (query is substring of title)
-  match = sections.find((s) => s.title.toLowerCase().includes(normalizedQuery));
-  if (match) return match;
+    // Priority 4: Partial title match (query is substring of title)
+    match = sections.find((s) => s.title.toLowerCase().includes(normalizedQuery));
+    if (match) return match;
 
-  return undefined;
+    return undefined;
 }
 
 /**
@@ -170,17 +177,17 @@ export function getSection(sections: Section[], query: string): Section | undefi
  * ```
  */
 export function getSections(sections: Section[], queries: string[]): Section[] {
-  const results: Section[] = [];
+    const results: Section[] = [];
 
-  for (const query of queries) {
-    const section = getSection(sections, query);
-    // Deduplicate: only add if not already in results
-    if (section && !results.includes(section)) {
-      results.push(section);
+    for (const query of queries) {
+        const section = getSection(sections, query);
+        // Deduplicate: only add if not already in results
+        if (section && !results.includes(section)) {
+            results.push(section);
+        }
     }
-  }
 
-  return results;
+    return results;
 }
 
 /**
@@ -214,49 +221,49 @@ export function getSections(sections: Section[], queries: string[]): Section[] {
  * ```
  */
 export function searchSections(sections: Section[], query: string): Section[] {
-  const normalizedQuery = query.toLowerCase().trim();
-  const keywords = normalizedQuery.split(/\s+/);
+    const normalizedQuery = query.toLowerCase().trim();
+    const keywords = normalizedQuery.split(/\s+/);
 
-  // Score each section based on where query/keywords match
-  const scored = sections.map((section) => {
-    let score = 0;
+    // Score each section based on where query/keywords match
+    const scored = sections.map((section) => {
+        let score = 0;
 
-    // High priority: ID contains full query (+10)
-    if (section.id.toLowerCase().includes(normalizedQuery)) {
-      score += 10;
-    }
-
-    // High priority: Title contains full query (+10)
-    if (section.title.toLowerCase().includes(normalizedQuery)) {
-      score += 10;
-    }
-
-    // Medium priority: Each keyword in use_cases (+5 each)
-    const useCases = section.use_cases.toLowerCase();
-    for (const keyword of keywords) {
-      if (useCases.includes(keyword)) {
-        score += 5;
-      }
-    }
-
-    // Low priority: Each keyword in content (+1 each)
-    if (section.content) {
-      const content = section.content.toLowerCase();
-      for (const keyword of keywords) {
-        if (content.includes(keyword)) {
-          score += 1;
+        // High priority: ID contains full query (+10)
+        if (section.id.toLowerCase().includes(normalizedQuery)) {
+            score += 10;
         }
-      }
-    }
 
-    return { section, score };
-  });
+        // High priority: Title contains full query (+10)
+        if (section.title.toLowerCase().includes(normalizedQuery)) {
+            score += 10;
+        }
 
-  // Return matching sections sorted by score (highest first)
-  return scored
-    .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .map((s) => s.section);
+        // Medium priority: Each keyword in use_cases (+5 each)
+        const useCases = section.use_cases.toLowerCase();
+        for (const keyword of keywords) {
+            if (useCases.includes(keyword)) {
+                score += 5;
+            }
+        }
+
+        // Low priority: Each keyword in content (+1 each)
+        if (section.content) {
+            const content = section.content.toLowerCase();
+            for (const keyword of keywords) {
+                if (content.includes(keyword)) {
+                    score += 1;
+                }
+            }
+        }
+
+        return { section, score };
+    });
+
+    // Return matching sections sorted by score (highest first)
+    return scored
+        .filter((s) => s.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map((s) => s.section);
 }
 
 /**
@@ -278,11 +285,14 @@ export function searchSections(sections: Section[], query: string): Section[] {
  * const guides = getSectionsByCategory(sections, 'Getting Started');
  * ```
  */
-export function getSectionsByCategory(sections: Section[], category: string): Section[] {
-  const normalizedCategory = category.toLowerCase().trim();
-  return sections.filter(
-    (s) =>
-      s.category.toLowerCase() === normalizedCategory ||
-      s.category_title.toLowerCase() === normalizedCategory
-  );
+export function getSectionsByCategory(
+    sections: Section[],
+    category: string
+): Section[] {
+    const normalizedCategory = category.toLowerCase().trim();
+    return sections.filter(
+        (s) =>
+            s.category.toLowerCase() === normalizedCategory ||
+            s.category_title.toLowerCase() === normalizedCategory
+    );
 }

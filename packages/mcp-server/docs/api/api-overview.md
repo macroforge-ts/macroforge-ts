@@ -66,7 +66,7 @@ if (result.diagnostics.length > 0) {
 
 ## Detailed Reference
 
-*   [`expandSync()`](../docs/api/expand-sync) - Full options and return types
-*   [`transformSync()`](../docs/api/transform-sync) - Transform with source maps
-*   [`NativePlugin`](../docs/api/native-plugin) - Caching for language servers
-*   [`PositionMapper`](../docs/api/position-mapper) - Position mapping utilities
+- [`expandSync()`](../docs/api/expand-sync) - Full options and return types
+- [`transformSync()`](../docs/api/transform-sync) - Transform with source maps
+- [`NativePlugin`](../docs/api/native-plugin) - Caching for language servers
+- [`PositionMapper`](../docs/api/position-mapper) - Position mapping utilities

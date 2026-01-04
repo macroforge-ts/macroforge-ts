@@ -1,12 +1,13 @@
 # Rust Setup
 
-Create a new Rust crate that will contain your custom macros. This crate compiles to a native Node.js addon.
+Create a new Rust crate that will contain your custom macros. This crate compiles to a native
+Node.js addon.
 
 ## Prerequisites
 
-*   Rust toolchain (1.88 or later)
-*   Node.js 24 or later
-*   NAPI-RS CLI: `cargo install macroforge_ts`
+- Rust toolchain (1.88 or later)
+- Node.js 24 or later
+- NAPI-RS CLI: `cargo install macroforge_ts`
 
 ## Create the Project
 
@@ -25,7 +26,7 @@ napi new --platform --name my-macros
 
 Update your `Cargo.toml` with the required dependencies:
 
-Cargo.toml 
+Cargo.toml
 
 ```
 [package]
@@ -51,7 +52,7 @@ strip = true
 
 ## Create build.rs
 
-build.rs 
+build.rs
 
 ```
 fn main() {
@@ -61,7 +62,7 @@ fn main() {
 
 ## Create src/lib.rs
 
-src/lib.rs 
+src/lib.rs
 
 ```
 use macroforge_ts::macros::{ts_macro_derive, body};
@@ -98,7 +99,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
 ## Create package.json
 
-package.json 
+package.json
 
 ```
 {
@@ -147,5 +148,5 @@ For cross-platform builds, use GitHub Actions with the NAPI-RS CI template.
 
 ## Next Steps
 
-*   [Learn the #\[ts\_macro\_derive\] attribute](../../docs/custom-macros/ts-macro-derive)
-*   [Master the template syntax](../../docs/custom-macros/ts-quote)
+- [Learn the #\[ts\_macro\_derive\] attribute](../../docs/custom-macros/ts-macro-derive)
+- [Master the template syntax](../../docs/custom-macros/ts-quote)

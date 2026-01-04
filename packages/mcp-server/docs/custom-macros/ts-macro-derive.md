@@ -1,6 +1,7 @@
 # ts\_macro\_derive
 
-The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.
+The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a
+Macroforge derive macro.
 
 ## Basic Syntax
 
@@ -230,7 +231,8 @@ struct DecoratorIR {
 
 Note
 
-To check for decorators, iterate through `field.decorators` and check `decorator.name`. For parsing options, you can write helper functions like the built-in macros do.
+To check for decorators, iterate through `field.decorators` and check `decorator.name`. For parsing
+options, you can write helper functions like the built-in macros do.
 
 ## Adding Imports
 
@@ -255,7 +257,8 @@ Ok(output)
 
 Note
 
-Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again.
+Imports are automatically deduplicated. If the same import already exists in the file, it won't be
+added again.
 
 ## Returning Errors
 
@@ -333,4 +336,4 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, Macroforg
 
 ## Next Steps
 
-*   [Learn the template syntax](../../docs/custom-macros/ts-quote)
+- [Learn the template syntax](../../docs/custom-macros/ts-quote)

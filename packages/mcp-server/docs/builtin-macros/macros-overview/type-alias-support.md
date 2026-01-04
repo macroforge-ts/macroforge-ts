@@ -1,6 +1,7 @@
 ## Type Alias Support
 
-All built-in macros work with type aliases. For object type aliases, field-aware methods are generated in a namespace:
+All built-in macros work with type aliases. For object type aliases, field-aware methods are
+generated in a namespace:
 
 TypeScript
 

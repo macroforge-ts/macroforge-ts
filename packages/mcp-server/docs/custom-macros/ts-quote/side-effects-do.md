@@ -1,6 +1,7 @@
 ## Side Effects: `{$do}`
 
-Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
+Execute an expression for its side effects without producing output. This is commonly used with
+mutable variables:
 
 Rust
 
@@ -16,7 +17,7 @@ let code = ts_template! {
 
 Common uses for `{$do}`:
 
-*   Incrementing counters: `{$do i += 1}`
-*   Building collections: `{$do vec.push(item)}`
-*   Setting flags: `{$do found = true}`
-*   Any mutating operation
+- Incrementing counters: `{$do i += 1}`
+- Building collections: `{$do vec.push(item)}`
+- Setting flags: `{$do found = true}`
+- Any mutating operation

@@ -1,18 +1,16 @@
 # Clone
 
-The `Clone` macro generates a `clone()` method for deep copying objects.
-This is analogous to Rust's `Clone` trait, providing a way to create
-independent copies of values.
+The `Clone` macro generates a `clone()` method for deep copying objects. This is analogous to Rust's
+`Clone` trait, providing a way to create independent copies of values.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `classNameClone(value)` + `static clone(value)` | Standalone function + static wrapper method |
-| Enum | `enumNameClone(value: EnumName): EnumName` | Standalone function (enums are primitives, returns value as-is) |
-| Interface | `interfaceNameClone(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
-| Type Alias | `typeNameClone(value: TypeName): TypeName` | Standalone function with spread copy for objects |
-
+| Type       | Generated Code                                            | Description                                                     |
+| ---------- | --------------------------------------------------------- | --------------------------------------------------------------- |
+| Class      | `classNameClone(value)` + `static clone(value)`           | Standalone function + static wrapper method                     |
+| Enum       | `enumNameClone(value: EnumName): EnumName`                | Standalone function (enums are primitives, returns value as-is) |
+| Interface  | `interfaceNameClone(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal               |
+| Type Alias | `typeNameClone(value: TypeName): TypeName`                | Standalone function with spread copy for objects                |
 
 ## Cloning Strategy
 
@@ -22,8 +20,8 @@ The generated clone performs a **shallow copy** of all fields:
 - **Objects**: Reference is copied (not deep cloned)
 - **Arrays**: Reference is copied (not deep cloned)
 
-For deep cloning of nested objects, those objects should also derive `Clone`
-and the caller should clone them explicitly.
+For deep cloning of nested objects, those objects should also derive `Clone` and the caller should
+clone them explicitly.
 
 ## Example
 
@@ -55,8 +53,8 @@ export function pointClone(value: Point): Point {
 
 ## Implementation Notes
 
-- **Classes**: Uses `Object.create(Object.getPrototypeOf(value))` to preserve
-  the prototype chain, ensuring `instanceof` checks work correctly
+- **Classes**: Uses `Object.create(Object.getPrototypeOf(value))` to preserve the prototype chain,
+  ensuring `instanceof` checks work correctly
 - **Enums**: Simply returns the value (enums are primitives in TypeScript)
-- **Interfaces/Type Aliases**: Creates new object literals with spread operator
-  for union/tuple types, or field-by-field copy for object types
+- **Interfaces/Type Aliases**: Creates new object literals with spread operator for union/tuple
+  types, or field-by-field copy for object types

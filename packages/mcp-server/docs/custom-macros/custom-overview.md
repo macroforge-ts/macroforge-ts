@@ -1,15 +1,16 @@
 # Custom Macros
 
-Macroforge allows you to create custom derive macros in Rust. Your macros have full access to the class AST and can generate any TypeScript code.
+Macroforge allows you to create custom derive macros in Rust. Your macros have full access to the
+class AST and can generate any TypeScript code.
 
 ## Overview
 
 Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
 
-1.  Creating a Rust crate with NAPI bindings
-2.  Defining macro functions with `#[ts_macro_derive]`
-3.  Using `macroforge_ts_quote` to generate TypeScript code
-4.  Building and publishing as an npm package
+1. Creating a Rust crate with NAPI bindings
+2. Defining macro functions with `#[ts_macro_derive]`
+3. Using `macroforge_ts_quote` to generate TypeScript code
+4. Building and publishing as an npm package
 
 ## Quick Example
 
@@ -78,6 +79,6 @@ The `import macro` comment tells Macroforge which package provides the macro.
 
 Follow these guides to create your own macros:
 
-*   [Set up a Rust macro crate](../docs/custom-macros/rust-setup)
-*   [Learn the #\[ts\_macro\_derive\] attribute](../docs/custom-macros/ts-macro-derive)
-*   [Learn the template syntax](../docs/custom-macros/ts-quote)
+- [Set up a Rust macro crate](../docs/custom-macros/rust-setup)
+- [Learn the #\[ts\_macro\_derive\] attribute](../docs/custom-macros/ts-macro-derive)
+- [Learn the template syntax](../docs/custom-macros/ts-quote)

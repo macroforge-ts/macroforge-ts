@@ -4,16 +4,17 @@
 
 Developer Installation Required
 
-This package is not yet published as an official extension. You'll need to build and install it manually.
+This package is not yet published as an official extension. You'll need to build and install it
+manually.
 
 ## Features
 
-*   **Svelte syntax diagnostics** - Errors and warnings in .svelte files
-*   **HTML support** - Hover info, autocompletions, Emmet, outline symbols
-*   **CSS/SCSS/LESS** - Diagnostics, hover, completions, formatting, Emmet, color picking
-*   **TypeScript/JavaScript** - Full language features with macroforge macro expansion
-*   **Go-to-definition** - Navigate to macro-generated code
-*   **Code actions** - Quick fixes and refactorings
+- **Svelte syntax diagnostics** - Errors and warnings in .svelte files
+- **HTML support** - Hover info, autocompletions, Emmet, outline symbols
+- **CSS/SCSS/LESS** - Diagnostics, hover, completions, formatting, Emmet, color picking
+- **TypeScript/JavaScript** - Full language features with macroforge macro expansion
+- **Go-to-definition** - Navigate to macro-generated code
+- **Code actions** - Quick fixes and refactorings
 
 ## Installation
 
@@ -41,7 +42,8 @@ npm run build
 
 ### 3\. Configure Your Editor
 
-The language server exposes a `svelteserver` binary that implements the Language Server Protocol (LSP). Configure your editor to use it:
+The language server exposes a `svelteserver` binary that implements the Language Server Protocol
+(LSP). Configure your editor to use it:
 
 Bash
 
@@ -52,20 +54,19 @@ Bash
 
 ## Package Info
 
-| Package      | `@macroforge/svelte-language-server` |
-| Version      | 0.1.7                                |
-| CLI Command  | `svelteserver`                       |
-| Node Version | \>= 18.0.0                           |
+| Package | `@macroforge/svelte-language-server` | | Version | 0.1.7 | | CLI Command |
+`svelteserver` | | Node Version | \>= 18.0.0 |
 
 ## How It Works
 
 The Svelte language server extends the standard Svelte language tooling with macroforge integration:
 
-1.  Parses `.svelte` files and extracts TypeScript/JavaScript blocks
-2.  Expands macros using the `@macroforge/typescript-plugin`
-3.  Maps diagnostics back to original source positions
-4.  Provides completions for macro-generated methods
+1. Parses `.svelte` files and extracts TypeScript/JavaScript blocks
+2. Expands macros using the `@macroforge/typescript-plugin`
+3. Maps diagnostics back to original source positions
+4. Provides completions for macro-generated methods
 
 ## Using with Zed
 
-For Zed editor, see the [Zed Extensions](../../docs/language-servers/zed) page for the dedicated `svelte-macroforge` extension.
+For Zed editor, see the [Zed Extensions](../../docs/language-servers/zed) page for the dedicated
+`svelte-macroforge` extension.

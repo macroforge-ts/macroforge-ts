@@ -2,7 +2,10 @@
 
 macroforge v0.1.48
 
-Bidirectional position mapper for translating between original and expanded source positions. This mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with macro-expanded code by translating positions between the original source (what the user wrote) and the expanded source (what the compiler sees).
+Bidirectional position mapper for translating between original and expanded source positions. This
+mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with
+macro-expanded code by translating positions between the original source (what the user wrote) and
+the expanded source (what the compiler sees).
 
 ## Getting a Mapper
 
@@ -140,6 +143,6 @@ function mapError(filepath: string, expandedPos: number, message: string) {
 
 Position mapping uses binary search with O(log n) complexity:
 
-*   Fast lookups even for large files
-*   Minimal memory overhead
-*   Thread-safe access
+- Fast lookups even for large files
+- Minimal memory overhead
+- Thread-safe access

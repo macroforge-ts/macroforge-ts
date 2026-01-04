@@ -38,7 +38,10 @@ class User {
 @param value - The value to serialize
 @param ctx - The serialization context  */
 
-    static serializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown> {
+    static serializeWithContext(
+        value: User,
+        ctx: SerializeContext
+    ): Record<string, unknown> {
         return userSerializeWithContext(value, ctx);
     }
 }
@@ -53,6 +56,7 @@ class User {
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
+
 export function userSerializeWithContext(
     value: User,
     ctx: SerializeContext
@@ -98,7 +102,10 @@ class User {
 @param value - The value to serialize
 @param ctx - The serialization context  */
 
-    static serializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown> {
+    static serializeWithContext(
+        value: User,
+        ctx: SerializeContext
+    ): Record<string, unknown> {
         return userSerializeWithContext(value, ctx);
     }
 }
@@ -113,6 +120,7 @@ class User {
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
+
 export function userSerializeWithContext(
     value: User,
     ctx: SerializeContext

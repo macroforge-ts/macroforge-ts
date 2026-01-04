@@ -15,8 +15,8 @@ let code = ts_template! {
 **Generates:**
 
 ```typescript
-console.log("Hello World!");
-console.log("Count: 42, doubled: 84");
+console.log('Hello World!');
+console.log('Count: 42, doubled: 84');
 ```
 
 This also works with method calls and complex expressions:

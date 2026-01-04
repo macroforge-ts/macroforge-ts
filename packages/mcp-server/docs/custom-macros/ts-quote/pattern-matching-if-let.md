@@ -17,7 +17,7 @@ let code = ts_template! {
 **Generates:**
 
 ```typescript
-console.log("Hello, Alice!");
+console.log('Hello, Alice!');
 ```
 
 This is useful when working with optional values from your IR:

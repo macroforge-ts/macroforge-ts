@@ -1,20 +1,21 @@
 # Built-in Macros
 
-Macroforge comes with built-in derive macros that cover the most common code generation needs. All macros work with classes, interfaces, enums, and type aliases.
+Macroforge comes with built-in derive macros that cover the most common code generation needs. All
+macros work with classes, interfaces, enums, and type aliases.
 
 ## Overview
 
-| Macro                                               | Generates                                 | Description                             |
-| --------------------------------------------------- | ----------------------------------------- | --------------------------------------- |
-| [`Debug`](../docs/builtin-macros/debug)             | `toString(): string`                      | Human-readable string representation    |
-| [`Clone`](../docs/builtin-macros/clone)             | `clone(): T`                              | Creates a deep copy of the object       |
-| [`Default`](../docs/builtin-macros/default)         | `static default(): T`                     | Creates an instance with default values |
-| [`Hash`](../docs/builtin-macros/hash)               | `hashCode(): number`                      | Generates a hash code for the object    |
-| [`PartialEq`](../docs/builtin-macros/partial-eq)    | `equals(other: T): boolean`               | Value equality comparison               |
-| [`Ord`](../docs/builtin-macros/ord)                 | `compare(other: T): number`               | Total ordering comparison (-1, 0, 1)    |
+| Macro                                               | Generates                                      | Description                             |
+| --------------------------------------------------- | ---------------------------------------------- | --------------------------------------- |
+| [`Debug`](../docs/builtin-macros/debug)             | `toString(): string`                           | Human-readable string representation    |
+| [`Clone`](../docs/builtin-macros/clone)             | `clone(): T`                                   | Creates a deep copy of the object       |
+| [`Default`](../docs/builtin-macros/default)         | `static default(): T`                          | Creates an instance with default values |
+| [`Hash`](../docs/builtin-macros/hash)               | `hashCode(): number`                           | Generates a hash code for the object    |
+| [`PartialEq`](../docs/builtin-macros/partial-eq)    | `equals(other: T): boolean`                    | Value equality comparison               |
+| [`Ord`](../docs/builtin-macros/ord)                 | `compare(other: T): number`                    | Total ordering comparison (-1, 0, 1)    |
 | [`PartialOrd`](../docs/builtin-macros/partial-ord)  | `partialCompare(other: T): number &#124; null` | Partial ordering comparison             |
-| [`Serialize`](../docs/builtin-macros/serialize)     | `toJSON(): Record<string, unknown>`       | JSON serialization with type handling   |
-| [`Deserialize`](../docs/builtin-macros/deserialize) | `static fromJSON(data: unknown): T`       | JSON deserialization with validation    |
+| [`Serialize`](../docs/builtin-macros/serialize)     | `toJSON(): Record<string, unknown>`            | JSON serialization with type handling   |
+| [`Deserialize`](../docs/builtin-macros/deserialize) | `static fromJSON(data: unknown): T`            | JSON deserialization with validation    |
 
 ## Using Built-in Macros
 
@@ -37,7 +38,8 @@ class User {
 
 ## Interface Support
 
-All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
+All built-in macros work with interfaces. For interfaces, methods are generated as functions in a
+namespace with the same name, using `self` as the first parameter:
 
 TypeScript
 
@@ -66,7 +68,8 @@ console.log(Point.equals(point, copy)); // true
 
 ## Enum Support
 
-All built-in macros work with enums. For enums, methods are generated as functions in a namespace with the same name:
+All built-in macros work with enums. For enums, methods are generated as functions in a namespace
+with the same name:
 
 TypeScript
 
@@ -97,7 +100,8 @@ const parsed = Status.fromJSON("active");        // Status.Active
 
 ## Type Alias Support
 
-All built-in macros work with type aliases. For object type aliases, field-aware methods are generated in a namespace:
+All built-in macros work with type aliases. For object type aliases, field-aware methods are
+generated in a namespace:
 
 TypeScript
 
@@ -162,12 +166,12 @@ console.log(user.equals(copy)); // true
 
 Each macro has its own options and behaviors:
 
-*   [**Debug**](../docs/builtin-macros/debug) - Customizable field renaming and skipping
-*   [**Clone**](../docs/builtin-macros/clone) - Deep copying for all field types
-*   [**Default**](../docs/builtin-macros/default) - Default value generation with field attributes
-*   [**Hash**](../docs/builtin-macros/hash) - Hash code generation for use in maps and sets
-*   [**PartialEq**](../docs/builtin-macros/partial-eq) - Value-based equality comparison
-*   [**Ord**](../docs/builtin-macros/ord) - Total ordering for sorting
-*   [**PartialOrd**](../docs/builtin-macros/partial-ord) - Partial ordering comparison
-*   [**Serialize**](../docs/builtin-macros/serialize) - JSON serialization with serde-style options
-*   [**Deserialize**](../docs/builtin-macros/deserialize) - JSON deserialization with validation
+- [**Debug**](../docs/builtin-macros/debug) - Customizable field renaming and skipping
+- [**Clone**](../docs/builtin-macros/clone) - Deep copying for all field types
+- [**Default**](../docs/builtin-macros/default) - Default value generation with field attributes
+- [**Hash**](../docs/builtin-macros/hash) - Hash code generation for use in maps and sets
+- [**PartialEq**](../docs/builtin-macros/partial-eq) - Value-based equality comparison
+- [**Ord**](../docs/builtin-macros/ord) - Total ordering for sorting
+- [**PartialOrd**](../docs/builtin-macros/partial-ord) - Partial ordering comparison
+- [**Serialize**](../docs/builtin-macros/serialize) - JSON serialization with serde-style options
+- [**Deserialize**](../docs/builtin-macros/deserialize) - JSON deserialization with validation

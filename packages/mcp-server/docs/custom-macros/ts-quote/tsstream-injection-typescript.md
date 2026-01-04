@@ -1,6 +1,7 @@
 ## TsStream Injection: `{$typescript}`
 
-Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
+Inject another TsStream into your template, preserving both its source code and runtime patches
+(like imports added via `add_import()`):
 
 Rust
 

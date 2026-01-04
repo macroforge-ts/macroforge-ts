@@ -50,4 +50,4 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, Macroforg
 
 ## Next Steps
 
-*   [Learn the template syntax](../../docs/custom-macros/ts-quote)
+- [Learn the template syntax](../../docs/custom-macros/ts-quote)

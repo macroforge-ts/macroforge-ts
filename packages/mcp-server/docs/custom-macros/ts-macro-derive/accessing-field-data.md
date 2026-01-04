@@ -59,4 +59,5 @@ struct DecoratorIR {
 
 Note
 
-To check for decorators, iterate through `field.decorators` and check `decorator.name`. For parsing options, you can write helper functions like the built-in macros do.
+To check for decorators, iterate through `field.decorators` and check `decorator.name`. For parsing
+options, you can write helper functions like the built-in macros do.

@@ -2,7 +2,8 @@
 
 Handle deserialization errors gracefully:
 
-<InteractiveMacro code={`/** @derive(Deserialize) */
+<InteractiveMacro
+code={`/** @derive(Deserialize) */
 class User {
   name: string;
   email: string;
@@ -10,15 +11,15 @@ class User {
 
 ```typescript
 function parseUser(json: unknown): User | null {
-  try {
-    return User.fromJSON(json);
-  } catch (error) {
-    console.error("Failed to parse user:", error.message);
-    return null;
-  }
+    try {
+        return User.fromJSON(json);
+    } catch (error) {
+        console.error('Failed to parse user:', error.message);
+        return null;
+    }
 }
 
-const user = parseUser({ name: "Alice" });
+const user = parseUser({ name: 'Alice' });
 // Logs: Failed to parse user: User.fromJSON: missing required field "email"
 // Returns: null
 ```

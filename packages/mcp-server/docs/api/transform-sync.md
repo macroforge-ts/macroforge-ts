@@ -2,7 +2,9 @@
 
 macroforge v0.1.48
 
-Synchronously transforms TypeScript code through the macro expansion system. This is similar to \[\`expand\_sync\`\] but returns a \[\`TransformResult\`\] which includes source map information (when available).
+Synchronously transforms TypeScript code through the macro expansion system. This is similar to
+\[\`expand\_sync\`\] but returns a \[\`TransformResult\`\] which includes source map information
+(when available).
 
 ## Signature
 
@@ -85,8 +87,8 @@ if (result.metadata) {
 
 Use `transformSync` when:
 
-*   Building custom integrations
-*   You need raw output without diagnostics
-*   You're implementing a build tool plugin
+- Building custom integrations
+- You need raw output without diagnostics
+- You're implementing a build tool plugin
 
 Use `expandSync` for most other use cases, as it provides better error handling.

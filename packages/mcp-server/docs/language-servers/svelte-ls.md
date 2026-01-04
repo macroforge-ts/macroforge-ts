@@ -1,6 +1,6 @@
 # Svelte Language Server
 
-*`@macroforge/svelte-language-server` provides full Svelte IDE support with macroforge integration.*
+_`@macroforge/svelte-language-server` provides full Svelte IDE support with macroforge integration._
 
 <Alert type="warning" title="Developer Installation Required">
 This package is not yet published as an official extension. You'll need to build and install it manually.
@@ -42,7 +42,8 @@ npm run build
 
 ### 3. Configure Your Editor
 
-The language server exposes a `svelteserver` binary that implements the Language Server Protocol (LSP). Configure your editor to use it:
+The language server exposes a `svelteserver` binary that implements the Language Server Protocol
+(LSP). Configure your editor to use it:
 
 ```bash
 # The binary is located at:
@@ -51,17 +52,13 @@ The language server exposes a `svelteserver` binary that implements the Language
 
 ## Package Info
 
-| Package 
-| `@macroforge/svelte-language-server` 
+| Package | `@macroforge/svelte-language-server`
 
-| Version 
-| 0.1.7 
+| Version | 0.1.7
 
-| CLI Command 
-| `svelteserver` 
+| CLI Command | `svelteserver`
 
-| Node Version 
-| >= 18.0.0
+| Node Version | >= 18.0.0
 
 ## How It Works
 
@@ -77,4 +74,5 @@ The Svelte language server extends the standard Svelte language tooling with mac
 
 ## Using with Zed
 
-For Zed editor, see the [Zed Extensions]({base}/docs/language-servers/zed) page for the dedicated `svelte-macroforge` extension.
+For Zed editor, see the [Zed Extensions]({base}/docs/language-servers/zed) page for the dedicated
+`svelte-macroforge` extension.

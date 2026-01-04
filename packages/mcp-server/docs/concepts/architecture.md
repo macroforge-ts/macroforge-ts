@@ -1,6 +1,7 @@
 # Architecture
 
-Macroforge is built as a native Node.js module using Rust and NAPI-RS. It leverages SWC for fast TypeScript parsing and code generation.
+Macroforge is built as a native Node.js module using Rust and NAPI-RS. It leverages SWC for fast
+TypeScript parsing and code generation.
 
 ## Overview
 
@@ -26,41 +27,41 @@ TypeScript parsing & codegen
 
 The foundation layer provides:
 
-*   Fast TypeScript/JavaScript parsing
-*   AST representation
-*   Code generation (AST → source code)
+- Fast TypeScript/JavaScript parsing
+- AST representation
+- Code generation (AST → source code)
 
 ### macroforge\_ts\_syn
 
 A Rust crate that provides:
 
-*   TypeScript-specific AST types
-*   Parsing utilities for macro input
-*   Derive input structures (class fields, decorators, etc.)
+- TypeScript-specific AST types
+- Parsing utilities for macro input
+- Derive input structures (class fields, decorators, etc.)
 
 ### macroforge\_ts\_quote
 
 Template-based code generation similar to Rust's `quote!`:
 
-*   `ts_template!` - Generate TypeScript code from templates
-*   `body!` - Generate class body members
-*   Control flow: `{"{#for}"}`, `{"{#if}"}`, `{"{$let}"}`
+- `ts_template!` - Generate TypeScript code from templates
+- `body!` - Generate class body members
+- Control flow: `{"{#for}"}`, `{"{#if}"}`, `{"{$let}"}`
 
 ### macroforge\_ts\_macros
 
 The procedural macro attribute for defining derive macros:
 
-*   `#[ts_macro_derive(Name)]` attribute
-*   Automatic registration with the macro system
-*   Error handling and span tracking
+- `#[ts_macro_derive(Name)]` attribute
+- Automatic registration with the macro system
+- Error handling and span tracking
 
 ### NAPI-RS Bindings
 
 Bridges Rust and Node.js:
 
-*   Exposes `expandSync`, `transformSync`, etc.
-*   Provides the `NativePlugin` class for caching
-*   Handles data marshaling between Rust and JavaScript
+- Exposes `expandSync`, `transformSync`, etc.
+- Provides the `NativePlugin` class for caching
+- Handles data marshaling between Rust and JavaScript
 
 ## Data Flow
 
@@ -98,10 +99,10 @@ to JavaScript with source mapping
 
 ## Performance Characteristics
 
-*   **Thread-safe**: Each expansion runs in an isolated thread with a 32MB stack
-*   **Caching**: `NativePlugin` caches results by file version
-*   **Binary search**: Position mapping uses O(log n) lookups
-*   **Zero-copy**: SWC's arena allocator minimizes allocations
+- **Thread-safe**: Each expansion runs in an isolated thread with a 32MB stack
+- **Caching**: `NativePlugin` caches results by file version
+- **Binary search**: Position mapping uses O(log n) lookups
+- **Zero-copy**: SWC's arena allocator minimizes allocations
 
 ## Re-exported Crates
 
@@ -122,5 +123,5 @@ use macroforge_ts::swc_ecma_ast;
 
 ## Next Steps
 
-*   [Write custom macros](../../docs/custom-macros)
-*   [Explore the API reference](../../docs/api)
+- [Write custom macros](../../docs/custom-macros)
+- [Explore the API reference](../../docs/api)

@@ -68,14 +68,15 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 
 ## How It Works
 
-1.  **Compile-Time:** The template is parsed during macro expansion
-2.  **String Building:** Generates Rust code that builds a TypeScript string at runtime
-3.  **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
-4.  **Result:** Returns `Stmt` that can be used in `MacroResult` patches
+1. **Compile-Time:** The template is parsed during macro expansion
+2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
+3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
+4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
 
 ## Return Type
 
-`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
+`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and
+provides helpful error messages showing the generated TypeScript code if parsing fails:
 
 Text
 
@@ -92,8 +93,8 @@ This shows you exactly what was generated, making debugging easy!
 
 You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
 
-*   **Template tags** if they start with `#`, `$`, `:`, or `/`
-*   **Regular TypeScript blocks** otherwise
+- **Template tags** if they start with `#`, `$`, `:`, or `/`
+- **Regular TypeScript blocks** otherwise
 
 Rust
 
@@ -120,7 +121,7 @@ ts_template! {
 
 ## Best Practices
 
-1.  Use `ts_template!` for complex code generation with loops/conditions
-2.  Use `ts_quote!` for simple, static statements
-3.  Keep templates readable - extract complex logic into variables
-4.  Don't nest templates too deeply - split into helper functions
+1. Use `ts_template!` for complex code generation with loops/conditions
+2. Use `ts_quote!` for simple, static statements
+3. Keep templates readable - extract complex logic into variables
+4. Don't nest templates too deeply - split into helper functions

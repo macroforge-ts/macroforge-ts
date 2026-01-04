@@ -4,7 +4,8 @@ Let's create a class that uses Macroforge's derive macros to automatically gener
 
 ## Creating a Class with Derive Macros
 
-Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate methods.
+Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate
+methods.
 
 Before (Your Code)
 
@@ -163,6 +164,6 @@ Field-level decorators let you control exactly how each field is handled by the 
 
 ## Next Steps
 
-*   [Learn how macros work under the hood](../../docs/concepts)
-*   [Explore all Debug options](../../docs/builtin-macros/debug)
-*   [Create your own custom macros](../../docs/custom-macros)
+- [Learn how macros work under the hood](../../docs/concepts)
+- [Explore all Debug options](../../docs/builtin-macros/debug)
+- [Create your own custom macros](../../docs/custom-macros)

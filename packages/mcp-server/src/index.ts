@@ -42,7 +42,9 @@ import { registerTools } from './tools/index.js';
 // Get package info for server metadata
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
+const pkg = JSON.parse(
+    readFileSync(join(__dirname, '..', 'package.json'), 'utf8')
+);
 const { name, version } = pkg;
 
 /**
@@ -62,41 +64,41 @@ const { name, version } = pkg;
  * @throws Will exit the process with code 1 if server initialization fails
  */
 async function main(): Promise<void> {
-  // Create server instance with metadata
-  const server = new Server(
-    {
-      name,
-      version,
-    },
-    {
-      capabilities: {
-        tools: {},
-      },
-    }
-  );
+    // Create server instance with metadata
+    const server = new Server(
+        {
+            name,
+            version
+        },
+        {
+            capabilities: {
+                tools: {}
+            }
+        }
+    );
 
-  // Register all tools
-  registerTools(server);
+    // Register all tools
+    registerTools(server);
 
-  // Set up error handling
-  server.onerror = (error) => {
-    console.error('[MCP Error]', error);
-  };
+    // Set up error handling
+    server.onerror = (error) => {
+        console.error('[MCP Error]', error);
+    };
 
-  // Handle process termination
-  process.on('SIGINT', async () => {
-    await server.close();
-    process.exit(0);
-  });
+    // Handle process termination
+    process.on('SIGINT', async () => {
+        await server.close();
+        process.exit(0);
+    });
 
-  // Connect to transport
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error('Macroforge MCP server running on stdio');
+    // Connect to transport
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.error('Macroforge MCP server running on stdio');
 }
 
 // Run the server
 main().catch((error) => {
-  console.error('Failed to start MCP server:', error);
-  process.exit(1);
+    console.error('Failed to start MCP server:', error);
+    process.exit(1);
 });

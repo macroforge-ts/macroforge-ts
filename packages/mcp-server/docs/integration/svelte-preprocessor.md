@@ -1,6 +1,7 @@
 # Svelte Preprocessor
 
-The Svelte preprocessor expands Macroforge macros in `<script>` blocks before Svelte compilation, enabling seamless macro usage in Svelte components.
+The Svelte preprocessor expands Macroforge macros in `<script>` blocks before Svelte compilation,
+enabling seamless macro usage in Svelte components.
 
 ## Installation
 
@@ -14,7 +15,7 @@ npm install -D @macroforge/svelte-preprocessor
 
 Add the preprocessor to your `svelte.config.js`:
 
-svelte.config.js 
+svelte.config.js
 
 ```
 import adapter from '@sveltejs/adapter-auto';
@@ -38,13 +39,14 @@ export default config;
 
 Warning
 
-Always place `macroforgePreprocess()` **before** other preprocessors like `vitePreprocess()`. This ensures macros are expanded before TypeScript compilation.
+Always place `macroforgePreprocess()` **before** other preprocessors like `vitePreprocess()`. This
+ensures macros are expanded before TypeScript compilation.
 
 ## Usage
 
 Use `@derive` decorators directly in your Svelte component scripts:
 
-UserCard.svelte 
+UserCard.svelte
 
 ```
 <script lang="ts">
@@ -91,10 +93,10 @@ macroforgePreprocess({
 
 The preprocessor:
 
-1.  Intercepts `<script lang="ts">` blocks in `.svelte` files
-2.  Checks for `@derive` decorators (skips files without them)
-3.  Expands macros using the native Macroforge binary
-4.  Returns the transformed code for Svelte compilation
+1. Intercepts `<script lang="ts">` blocks in `.svelte` files
+2. Checks for `@derive` decorators (skips files without them)
+3. Expands macros using the native Macroforge binary
+4. Returns the transformed code for Svelte compilation
 
 Tip
 
@@ -102,9 +104,10 @@ Files without `@derive` decorators are passed through unchanged with zero overhe
 
 ## SvelteKit Integration
 
-For SvelteKit projects, you can use both the preprocessor (for `.svelte` files) and the Vite plugin (for standalone `.ts` files):
+For SvelteKit projects, you can use both the preprocessor (for `.svelte` files) and the Vite plugin
+(for standalone `.ts` files):
 
-svelte.config.js 
+svelte.config.js
 
 ```
 // svelte.config.js
@@ -119,7 +122,7 @@ export default {
 };
 ```
 
-vite.config.ts 
+vite.config.ts
 
 ```
 // vite.config.ts
@@ -139,7 +142,7 @@ export default defineConfig({
 
 The preprocessor works seamlessly with Vitest for testing Svelte components:
 
-vitest.config.ts 
+vitest.config.ts
 
 ```
 // vitest.config.ts
@@ -163,7 +166,8 @@ export default defineConfig({
 
 ## Svelte 5 Runes Compatibility
 
-The preprocessor is fully compatible with Svelte 5 runes (`$state`, `$derived`, `$props`, etc.). Files using runes but without `@derive` decorators are skipped entirely.
+The preprocessor is fully compatible with Svelte 5 runes (`$state`, `$derived`, `$props`, etc.).
+Files using runes but without `@derive` decorators are skipped entirely.
 
 Svelte
 

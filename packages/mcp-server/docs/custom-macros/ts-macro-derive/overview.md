@@ -1,6 +1,7 @@
 # ts\_macro\_derive
 
-The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.
+The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a
+Macroforge derive macro.
 
 ## Basic Syntax
 

@@ -2,7 +2,8 @@
 
 macroforge v0.1.48
 
-Synchronously expands macros in TypeScript code. This is the standalone macro expansion function that doesn't use caching. For cached expansion, use \[\`NativePlugin::process\_file\`\] instead.
+Synchronously expands macros in TypeScript code. This is the standalone macro expansion function
+that doesn't use caching. For cached expansion, use \[\`NativePlugin::process\_file\`\] instead.
 
 ## Signature
 

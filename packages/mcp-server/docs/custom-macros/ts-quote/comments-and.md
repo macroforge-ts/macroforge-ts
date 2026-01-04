@@ -1,6 +1,7 @@
 ## Comments: `{> "..." <}` and `{>> "..." <<}`
 
-Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
+Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve
+exact spacing in comments:
 
 ### Block Comments
 

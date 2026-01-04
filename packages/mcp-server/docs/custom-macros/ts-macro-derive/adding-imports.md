@@ -21,4 +21,5 @@ Ok(output)
 
 Note
 
-Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again.
+Imports are automatically deduplicated. If the same import already exists in the file, it won't be
+added again.

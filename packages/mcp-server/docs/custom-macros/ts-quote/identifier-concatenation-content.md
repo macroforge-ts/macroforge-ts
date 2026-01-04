@@ -1,6 +1,7 @@
-## Identifier Concatenation: ` content `
+## Identifier Concatenation: `content`
 
-When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside ` ` is concatenated without spaces:
+When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block
+syntax. Everything inside `` is concatenated without spaces:
 
 Rust
 
@@ -24,7 +25,8 @@ function getUser() {
 }
 ```
 
-Without ident blocks, `@{}` always adds a space after for readability. Use ` ` when you explicitly want concatenation:
+Without ident blocks, `@{}` always adds a space after for readability. Use `` when you explicitly
+want concatenation:
 
 Rust
 

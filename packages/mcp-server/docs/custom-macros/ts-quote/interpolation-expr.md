@@ -17,7 +17,7 @@ let code = ts_template! {
 
 ```typescript
 User.prototype.toString = function () {
-    return "User instance";
+    return 'User instance';
 };
 ```
 
@@ -25,7 +25,8 @@ User.prototype.toString = function () {
     Identifier Concatenation: `&#123;| content |&#125;`
 </h2>
 
-When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `&#123;| |&#125;` is concatenated without spaces:
+When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block
+syntax. Everything inside `&#123;| |&#125;` is concatenated without spaces:
 
 ```rust
 let field_name = "User";
@@ -45,7 +46,8 @@ function getUser() {
 }
 ```
 
-Without ident blocks, `@&#123;&#125;` always adds a space after for readability. Use `&#123;| |&#125;` when you explicitly want concatenation:
+Without ident blocks, `@&#123;&#125;` always adds a space after for readability. Use
+`&#123;| |&#125;` when you explicitly want concatenation:
 
 ```rust
 let name = "Status";
@@ -71,7 +73,8 @@ ts_template! { @{entity}_@{action} }  // → "user_create"
     `&#123;>> "..." <<&#125;`
 </h2>
 
-Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
+Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve
+exact spacing in comments:
 
 ### Block Comments
 
@@ -111,7 +114,7 @@ let code = ts_template! {
 /** @param {string} name - The user's name */
 /** @returns {string} A greeting message */
 function greet(name: string): string {
-    return "Hello, " + name;
+    return 'Hello, ' + name;
 }
 ```
 
@@ -141,7 +144,8 @@ function getUser(userId: number) {}
     String Interpolation: `"text @&#123;expr&#125;"`
 </h2>
 
-Interpolation works automatically inside string literals - no <code >format!()</code > needed:
+Interpolation works automatically inside string literals - no
+<code >format!()</code > needed:
 
 ```rust
 let name = "World";
@@ -156,8 +160,8 @@ let code = ts_template! {
 **Generates:**
 
 ```typescript
-console.log("Hello World!");
-console.log("Count: 42, doubled: 84");
+console.log('Hello World!');
+console.log('Count: 42, doubled: 84');
 ```
 
 This also works with method calls and complex expressions:
@@ -174,7 +178,9 @@ let code = ts_template! {
     Backtick Template Literals: `"'^...^'"`
 </h2>
 
-For JavaScript template literals (backtick strings), use the <code >'^...^'</code > syntax. This outputs actual backticks and passes through `${"${}"}` for JS interpolation:
+For JavaScript template literals (backtick strings), use the
+<code >'^...^'</code > syntax. This outputs actual backticks and passes through `${"${}"}` for JS
+interpolation:
 
 ```rust
 let tag_name = "div";
@@ -188,7 +194,8 @@ let code = ts_template! {
 
 <CodeBlock code={"const html = `${content}`;"} lang="typescript" />
 
-You can mix Rust `@&#123;&#125;` interpolation (evaluated at macro expansion time) with JS `${"${}"}` interpolation (evaluated at runtime):
+You can mix Rust `@&#123;&#125;` interpolation (evaluated at macro expansion time) with JS
+`${"${}"}` interpolation (evaluated at runtime):
 
 ```rust
 let class_name = "User";
@@ -272,7 +279,7 @@ let code = ts_template! {
 **Generates:**
 
 ```typescript
-console.log("Hello, Alice!");
+console.log('Hello, Alice!');
 ```
 
 This is useful when working with optional values from your IR:

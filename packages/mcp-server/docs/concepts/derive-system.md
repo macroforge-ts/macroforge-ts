@@ -1,10 +1,12 @@
 # The Derive System
 
-The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`.
+The derive system is inspired by Rust's derive macros. It allows you to automatically implement
+common patterns by annotating your classes with `@derive`.
 
 ## Syntax Reference
 
-Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
+Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard
+TypeScript tooling.
 
 ### The @derive Statement
 
@@ -23,10 +25,10 @@ class MyClass {
 
 Syntax rules:
 
-*   Must be inside a JSDoc comment (`/** */`)
-*   Must appear immediately before the class/interface declaration
-*   Multiple macros can be comma-separated: `@derive(A, B, C)`
-*   Multiple `@derive` statements can be stacked
+- Must be inside a JSDoc comment (`/** */`)
+- Must appear immediately before the class/interface declaration
+- Multiple macros can be comma-separated: `@derive(A, B, C)`
+- Multiple `@derive` statements can be stacked
 
 Source
 
@@ -52,10 +54,10 @@ TypeScript
 
 Syntax rules:
 
-*   Must be inside a JSDoc comment (`/** */`)
-*   Can appear anywhere in the file (typically at the top)
-*   Multiple macros can be imported: `import macro { A, B } from "pkg";`
-*   Multiple import statements can be used for different packages
+- Must be inside a JSDoc comment (`/** */`)
+- Can appear anywhere in the file (typically at the top)
+- Multiple macros can be imported: `import macro { A, B } from "pkg";`
+- Multiple import statements can be used for different packages
 
 TypeScript
 
@@ -72,7 +74,8 @@ class User {
 
 Built-in macros
 
-Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement.
+Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do
+not require an import statement.
 
 ### Field Attributes
 
@@ -167,11 +170,11 @@ export function userSerializeWithContext(
 
 Syntax rules:
 
-*   Must be inside a JSDoc comment immediately before the field
-*   Options use object literal syntax: `@attr({ key: value })`
-*   Boolean options: `@attr({ skip: true })`
-*   String options: `@attr({ rename: "newName" })`
-*   Multiple attributes can be on separate lines or combined
+- Must be inside a JSDoc comment immediately before the field
+- Options use object literal syntax: `@attr({ key: value })`
+- Boolean options: `@attr({ skip: true })`
+- String options: `@attr({ rename: "newName" })`
+- Multiple attributes can be on separate lines or combined
 
 Common field attributes by macro:
 
@@ -185,23 +188,24 @@ Common field attributes by macro:
 
 ## How It Works
 
-1.  **Declaration**: You write `@derive(MacroName)` before a class
-2.  **Discovery**: Macroforge finds all derive decorators in your code
-3.  **Expansion**: Each named macro receives the class AST and generates code
-4.  **Injection**: Generated methods/properties are added to the class
+1. **Declaration**: You write `@derive(MacroName)` before a class
+2. **Discovery**: Macroforge finds all derive decorators in your code
+3. **Expansion**: Each named macro receives the class AST and generates code
+4. **Injection**: Generated methods/properties are added to the class
 
 ## What Can Be Derived
 
 The derive system works on:
 
-*   **Classes**: The primary target for derive macros
-*   **Interfaces**: Macros generate companion namespace functions
-*   **Enums**: Macros generate namespace functions for enum values
-*   **Type aliases**: Both object types and union types are supported
+- **Classes**: The primary target for derive macros
+- **Interfaces**: Macros generate companion namespace functions
+- **Enums**: Macros generate namespace functions for enum values
+- **Type aliases**: Both object types and union types are supported
 
 ## Built-in vs Custom Macros
 
-Macroforge comes with built-in macros that work out of the box. You can also create custom macros in Rust and use them via the `import macro` statement.
+Macroforge comes with built-in macros that work out of the box. You can also create custom macros in
+Rust and use them via the `import macro` statement.
 
 | Type     | Import Required | Examples                                                                        |
 | -------- | --------------- | ------------------------------------------------------------------------------- |
@@ -210,5 +214,5 @@ Macroforge comes with built-in macros that work out of the box. You can also cre
 
 ## Next Steps
 
-*   [Explore built-in macros](../../docs/builtin-macros)
-*   [Create custom macros](../../docs/custom-macros)
+- [Explore built-in macros](../../docs/builtin-macros)
+- [Create custom macros](../../docs/custom-macros)

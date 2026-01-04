@@ -2,7 +2,9 @@
 
 macroforge v0.1.48
 
-The main plugin class for macro expansion with caching support. \`NativePlugin\` is designed to be instantiated once and reused across multiple file processing operations. It maintains a cache of expansion results keyed by filepath and version, enabling efficient incremental processing.
+The main plugin class for macro expansion with caching support. \`NativePlugin\` is designed to be
+instantiated once and reused across multiple file processing operations. It maintains a cache of
+expansion results keyed by filepath and version, enabling efficient incremental processing.
 
 ## Constructor
 
@@ -121,4 +123,5 @@ class MacroforgeLanguageService {
 
 ## Thread Safety
 
-The `NativePlugin` class is thread-safe and can be used from multiple async contexts. Each file is processed in an isolated thread with its own stack space.
+The `NativePlugin` class is thread-safe and can be used from multiple async contexts. Each file is
+processed in an isolated thread with its own stack space.

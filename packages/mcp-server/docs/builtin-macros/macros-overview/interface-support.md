@@ -1,6 +1,7 @@
 ## Interface Support
 
-All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
+All built-in macros work with interfaces. For interfaces, methods are generated as functions in a
+namespace with the same name, using `self` as the first parameter:
 
 TypeScript
 

@@ -13,8 +13,8 @@ Macroforge integrates with your development workflow through IDE plugins and bui
 
 For the best development experience, use both integrations:
 
-1.  **TypeScript Plugin**: Provides real-time feedback in your IDE
-2.  **Vite Plugin**: Expands macros during development and production builds
+1. **TypeScript Plugin**: Provides real-time feedback in your IDE
+2. **Vite Plugin**: Expands macros during development and production builds
 
 Bash
 
@@ -51,6 +51,6 @@ Optimized output
 
 ## Detailed Guides
 
-*   [TypeScript Plugin setup](../docs/integration/typescript-plugin)
-*   [Vite Plugin configuration](../docs/integration/vite-plugin)
-*   [Configuration options](../docs/integration/configuration)
+- [TypeScript Plugin setup](../docs/integration/typescript-plugin)
+- [Vite Plugin configuration](../docs/integration/vite-plugin)
+- [Configuration options](../docs/integration/configuration)

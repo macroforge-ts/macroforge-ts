@@ -1,6 +1,7 @@
 ## Enum Support
 
-All built-in macros work with enums. For enums, methods are generated as functions in a namespace with the same name:
+All built-in macros work with enums. For enums, methods are generated as functions in a namespace
+with the same name:
 
 TypeScript
 

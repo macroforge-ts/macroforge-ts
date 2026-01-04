@@ -1,6 +1,7 @@
 # Vite Plugin
 
-The Vite plugin provides build-time macro expansion, transforming your code during development and production builds.
+The Vite plugin provides build-time macro expansion, transforming your code during development and
+production builds.
 
 ## Installation
 
@@ -14,7 +15,7 @@ npm install -D @macroforge/vite-plugin
 
 Add the plugin to your `vite.config.ts`:
 
-vite.config.ts 
+vite.config.ts
 
 ```
 import macroforge from "@macroforge/vite-plugin";
@@ -64,7 +65,7 @@ macroforge({
 
 ### React (Vite)
 
-vite.config.ts 
+vite.config.ts
 
 ```
 import macroforge from "@macroforge/vite-plugin";
@@ -81,7 +82,7 @@ export default defineConfig({
 
 ### SvelteKit
 
-vite.config.ts 
+vite.config.ts
 
 ```
 import macroforge from "@macroforge/vite-plugin";
@@ -98,20 +99,21 @@ export default defineConfig({
 
 Note
 
-Always place the Macroforge plugin before other framework plugins to ensure macros are expanded first.
+Always place the Macroforge plugin before other framework plugins to ensure macros are expanded
+first.
 
 ## Development Server
 
 During development, the plugin:
 
-*   Watches for file changes
-*   Expands macros on save
-*   Provides HMR support for expanded code
+- Watches for file changes
+- Expands macros on save
+- Provides HMR support for expanded code
 
 ## Production Build
 
 During production builds, the plugin:
 
-*   Expands all macros in the source files
-*   Generates type declaration files
-*   Strips `@derive` decorators from output
+- Expands all macros in the source files
+- Generates type declaration files
+- Strips `@derive` decorators from output

@@ -2,7 +2,9 @@
 
 macroforge v0.1.48
 
-This binary provides command-line utilities for working with Macroforge TypeScript macros. It is designed for development workflows, enabling macro expansion and type checking without requiring Node.js integration.
+This binary provides command-line utilities for working with Macroforge TypeScript macros. It is
+designed for development workflows, enabling macro expansion and type checking without requiring
+Node.js integration.
 
 ## Installation
 
@@ -89,11 +91,14 @@ macroforge expand src/user.ts --builtin-only
 
 Note
 
-By default, the CLI uses Node.js for full macro support (including external macros). It must be run from your project's root directory where `macroforge` and any external macro packages are installed in `node_modules`.
+By default, the CLI uses Node.js for full macro support (including external macros). It must be run
+from your project's root directory where `macroforge` and any external macro packages are installed
+in `node_modules`.
 
 ### macroforge tsc
 
-Runs TypeScript type checking with macro expansion. This wraps `tsc --noEmit` and expands macros before type checking, so your generated methods are properly type-checked.
+Runs TypeScript type checking with macro expansion. This wraps `tsc --noEmit` and expands macros
+before type checking, so your generated methods are properly type-checked.
 
 Bash
 
@@ -220,7 +225,8 @@ done
 
 ## Built-in vs Full Mode
 
-By default, the CLI uses Node.js for full macro support including external macros. Use `--builtin-only` for faster expansion when you only need built-in macros:
+By default, the CLI uses Node.js for full macro support including external macros. Use
+`--builtin-only` for faster expansion when you only need built-in macros:
 
 | Feature         | Default (Node.js)                      | `--builtin-only` (Rust) |
 | --------------- | -------------------------------------- | ----------------------- |
