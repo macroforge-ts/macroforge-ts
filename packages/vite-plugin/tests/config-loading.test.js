@@ -8,12 +8,12 @@ import fs from "fs";
 import path from "path";
 import macroforge from "../src/index.js";
 import {
+  cleanupTempDir,
+  createTempDir,
+  FIXTURES_DIR,
   initializePlugin,
   invokeTransform,
-  createTempDir,
-  cleanupTempDir,
   writeTestFile,
-  FIXTURES_DIR,
 } from "./test-utils.js";
 
 test("loads macroforge.json from project root", async (t) => {
@@ -22,7 +22,11 @@ test("loads macroforge.json from project root", async (t) => {
   t.after(() => cleanupTempDir(tempDir));
 
   // Create macroforge.json with keepDecorators: true
-  writeTestFile(tempDir, "macroforge.json", JSON.stringify({ keepDecorators: true }));
+  writeTestFile(
+    tempDir,
+    "macroforge.json",
+    JSON.stringify({ keepDecorators: true }),
+  );
 
   // Create a source file with macro
   writeTestFile(
@@ -32,7 +36,7 @@ test("loads macroforge.json from project root", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const plugin = await macroforge();
@@ -65,7 +69,7 @@ test("falls back to default config when macroforge.json not found", async (t) =>
     `class PlainClass {
   value: number;
 }
-export { PlainClass };`
+export { PlainClass };`,
   );
 
   const plugin = await macroforge();
@@ -95,7 +99,7 @@ test("handles malformed macroforge.json gracefully", async (t) => {
     `class PlainClass {
   value: number;
 }
-export { PlainClass };`
+export { PlainClass };`,
   );
 
   const plugin = await macroforge();
@@ -125,7 +129,7 @@ test("handles empty macroforge.json gracefully", async (t) => {
     `class PlainClass {
   value: number;
 }
-export { PlainClass };`
+export { PlainClass };`,
   );
 
   const plugin = await macroforge();
@@ -146,7 +150,11 @@ test("searches parent directories for macroforge.json", async (t) => {
   t.after(() => cleanupTempDir(tempDir));
 
   // Create macroforge.json in parent directory
-  writeTestFile(tempDir, "macroforge.json", JSON.stringify({ keepDecorators: true }));
+  writeTestFile(
+    tempDir,
+    "macroforge.json",
+    JSON.stringify({ keepDecorators: true }),
+  );
 
   // Create nested project structure
   writeTestFile(
@@ -155,7 +163,7 @@ test("searches parent directories for macroforge.json", async (t) => {
     `class PlainClass {
   value: number;
 }
-export { PlainClass };`
+export { PlainClass };`,
   );
 
   const projectRoot = path.join(tempDir, "packages/my-package");
@@ -186,7 +194,7 @@ test("loads tsconfig.json from project root", async (t) => {
         module: "ESNext",
         strict: true,
       },
-    })
+    }),
   );
 
   // Create a source file with macro (for type generation)
@@ -197,7 +205,7 @@ test("loads tsconfig.json from project root", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const plugin = await macroforge();
@@ -226,7 +234,7 @@ test("works without tsconfig.json", async (t) => {
     `class PlainClass {
   value: number;
 }
-export { PlainClass };`
+export { PlainClass };`,
   );
 
   const plugin = await macroforge();
@@ -256,7 +264,7 @@ test("handles malformed tsconfig.json gracefully", async (t) => {
     `class PlainClass {
   value: number;
 }
-export { PlainClass };`
+export { PlainClass };`,
   );
 
   const plugin = await macroforge();

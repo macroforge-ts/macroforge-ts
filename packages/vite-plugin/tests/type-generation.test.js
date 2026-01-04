@@ -8,13 +8,13 @@ import fs from "fs";
 import path from "path";
 import macroforge from "../src/index.js";
 import {
+  cleanupTempDir,
+  createTempDir,
   initializePlugin,
   invokeTransform,
-  createTempDir,
-  cleanupTempDir,
-  writeTestFile,
-  readFileOrNull,
   listFilesRecursively,
+  readFileOrNull,
+  writeTestFile,
 } from "./test-utils.js";
 
 test("generates .d.ts when generateTypes is true", async (t) => {
@@ -34,7 +34,7 @@ test("generates .d.ts when generateTypes is true", async (t) => {
         strict: true,
         skipLibCheck: true,
       },
-    })
+    }),
   );
 
   // Create a source file with macro
@@ -46,7 +46,7 @@ class User {
   id: string;
   name: string;
 }
-export { User };`
+export { User };`,
   );
 
   const typesDir = "generated-types";
@@ -68,7 +68,7 @@ export { User };`
   if (result && result.code) {
     assert.ok(
       typesContent === null || typesContent.includes("User"),
-      "Types should contain User class declaration or not be generated if TS unavailable"
+      "Types should contain User class declaration or not be generated if TS unavailable",
     );
   }
 });
@@ -86,7 +86,7 @@ test("skips .d.ts generation when generateTypes is false", async (t) => {
         target: "ES2022",
         module: "ESNext",
       },
-    })
+    }),
   );
 
   writeTestFile(
@@ -96,7 +96,7 @@ test("skips .d.ts generation when generateTypes is false", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const typesDir = "no-types";
@@ -112,7 +112,11 @@ export { User };`
 
   // Types directory should not be created
   const typesPath = path.join(tempDir, typesDir);
-  assert.equal(fs.existsSync(typesPath), false, "Types directory should not exist");
+  assert.equal(
+    fs.existsSync(typesPath),
+    false,
+    "Types directory should not exist",
+  );
 });
 
 test("uses default typesOutputDir when not specified", async (t) => {
@@ -128,7 +132,7 @@ test("uses default typesOutputDir when not specified", async (t) => {
         target: "ES2022",
         module: "ESNext",
       },
-    })
+    }),
   );
 
   writeTestFile(
@@ -138,7 +142,7 @@ test("uses default typesOutputDir when not specified", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   // Don't specify typesOutputDir - should default to ".macroforge/types"
@@ -174,7 +178,7 @@ test("preserves directory structure in types output", async (t) => {
         target: "ES2022",
         module: "ESNext",
       },
-    })
+    }),
   );
 
   // Create nested source file
@@ -185,14 +189,17 @@ test("preserves directory structure in types output", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const typesDir = "types";
   const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/models/entities/user.ts"), "utf-8");
+  const code = fs.readFileSync(
+    path.join(tempDir, "src/models/entities/user.ts"),
+    "utf-8",
+  );
   const id = path.join(tempDir, "src/models/entities/user.ts");
 
   const { result, error } = await invokeTransform(plugin, code, id);
@@ -200,7 +207,11 @@ export { User };`
   assert.equal(error, null);
 
   // Check if directory structure is preserved
-  const expectedPath = path.join(tempDir, typesDir, "src/models/entities/user.d.ts");
+  const expectedPath = path.join(
+    tempDir,
+    typesDir,
+    "src/models/entities/user.d.ts",
+  );
   if (result && result.code && fs.existsSync(expectedPath)) {
     const content = fs.readFileSync(expectedPath, "utf-8");
     assert.ok(content.includes("User"));
@@ -220,7 +231,7 @@ test("skips write when .d.ts content unchanged", async (t) => {
         target: "ES2022",
         module: "ESNext",
       },
-    })
+    }),
   );
 
   writeTestFile(
@@ -230,7 +241,7 @@ test("skips write when .d.ts content unchanged", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const typesDir = "types";
@@ -241,7 +252,11 @@ export { User };`
   const id = path.join(tempDir, "src/user.ts");
 
   // First transform
-  const { result: result1, error: error1 } = await invokeTransform(plugin, code, id);
+  const { result: result1, error: error1 } = await invokeTransform(
+    plugin,
+    code,
+    id,
+  );
   assert.equal(error1, null);
 
   // Get mtime of types file if it exists
@@ -254,12 +269,20 @@ export { User };`
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Second transform with same content
-    const { result: result2, error: error2 } = await invokeTransform(plugin, code, id);
+    const { result: result2, error: error2 } = await invokeTransform(
+      plugin,
+      code,
+      id,
+    );
     assert.equal(error2, null);
 
     // mtime should not change (file not rewritten)
     const mtime2 = fs.statSync(typesPath).mtimeMs;
-    assert.equal(mtime1, mtime2, "File should not be rewritten when content is unchanged");
+    assert.equal(
+      mtime1,
+      mtime2,
+      "File should not be rewritten when content is unchanged",
+    );
   }
 });
 
@@ -277,7 +300,7 @@ test("handles TypeScript not being available gracefully", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const plugin = await macroforge();
@@ -305,7 +328,7 @@ test("creates output directory if it does not exist", async (t) => {
         target: "ES2022",
         module: "ESNext",
       },
-    })
+    }),
   );
 
   writeTestFile(
@@ -315,7 +338,7 @@ test("creates output directory if it does not exist", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   // Use deeply nested output directory that doesn't exist

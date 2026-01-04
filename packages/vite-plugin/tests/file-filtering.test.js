@@ -6,13 +6,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import macroforge from "../src/index.js";
 import {
+  cleanupTempDir,
+  createTempDir,
+  FIXTURES_DIR,
+  getFixturePath,
   initializePlugin,
   invokeTransform,
   loadFixture,
-  getFixturePath,
-  createTempDir,
-  cleanupTempDir,
-  FIXTURES_DIR,
 } from "./test-utils.js";
 
 test("transforms .ts files", async () => {

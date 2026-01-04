@@ -8,15 +8,15 @@ import fs from "fs";
 import path from "path";
 import macroforge from "../src/index.js";
 import {
+  cleanupTempDir,
+  createTempDir,
+  createTransformContext,
+  FIXTURES_DIR,
+  getFixturePath,
   initializePlugin,
   invokeTransform,
-  createTempDir,
-  cleanupTempDir,
-  writeTestFile,
-  createTransformContext,
   loadFixture,
-  getFixturePath,
-  FIXTURES_DIR,
+  writeTestFile,
 } from "./test-utils.js";
 
 test("successfully transforms valid macro code", async () => {
@@ -62,7 +62,7 @@ test("handles syntax errors gracefully", async (t) => {
     `class BrokenClass {
   // Missing closing brace
   value: number;
-`
+`,
   );
 
   const plugin = await macroforge();
@@ -92,7 +92,7 @@ test("transform context captures errors", async (t) => {
   // Test error throw
   assert.throws(
     () => context.error("test error"),
-    { message: "test error" }
+    { message: "test error" },
   );
   assert.deepEqual(context.getErrors(), ["test error"]);
 });
@@ -110,7 +110,7 @@ test("handles unknown macro gracefully", async (t) => {
 class Test {
   value: number;
 }
-export { Test };`
+export { Test };`,
   );
 
   const plugin = await macroforge();
@@ -154,7 +154,10 @@ test("handles whitespace-only file", async (t) => {
   const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/whitespace.ts"), "utf-8");
+  const code = fs.readFileSync(
+    path.join(tempDir, "src/whitespace.ts"),
+    "utf-8",
+  );
   const id = path.join(tempDir, "src/whitespace.ts");
 
   const { result, error } = await invokeTransform(plugin, code, id);
@@ -173,7 +176,7 @@ test("handles comment-only file", async (t) => {
     "src/comments.ts",
     `// This is a comment
 /* Another comment */
-/** JSDoc comment */`
+/** JSDoc comment */`,
   );
 
   const plugin = await macroforge();
@@ -240,7 +243,7 @@ class Comment {
   text: string;
 }
 
-export { User, Post, Comment };`
+export { User, Post, Comment };`,
   );
 
   const plugin = await macroforge();
@@ -272,13 +275,16 @@ test("strips macro-only import comments", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/with-import.ts"), "utf-8");
+  const code = fs.readFileSync(
+    path.join(tempDir, "src/with-import.ts"),
+    "utf-8",
+  );
   const id = path.join(tempDir, "src/with-import.ts");
 
   const { result, error } = await invokeTransform(plugin, code, id);
@@ -302,7 +308,7 @@ test("handles TypeScript generics", async (t) => {
 class Container<T> {
   value: T;
 }
-export { Container };`
+export { Container };`,
   );
 
   const plugin = await macroforge();
@@ -331,7 +337,7 @@ test("handles TypeScript interfaces", async (t) => {
   id: string;
   name: string;
 }
-export type { User };`
+export type { User };`,
   );
 
   const plugin = await macroforge();
@@ -361,7 +367,7 @@ test("handles decorators in code", async (t) => {
 class DecoratedClass {
   id: string;
 }
-export { DecoratedClass };`
+export { DecoratedClass };`,
   );
 
   const plugin = await macroforge();

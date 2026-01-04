@@ -8,12 +8,12 @@ import fs from "fs";
 import path from "path";
 import macroforge from "../src/index.js";
 import {
+  cleanupTempDir,
+  createTempDir,
   initializePlugin,
   invokeTransform,
-  createTempDir,
-  cleanupTempDir,
-  writeTestFile,
   readFileOrNull,
+  writeTestFile,
 } from "./test-utils.js";
 
 test("emits metadata JSON when emitMetadata is true", async (t) => {
@@ -29,7 +29,7 @@ class User {
   id: string;
   name: string;
 }
-export { User };`
+export { User };`,
   );
 
   const metadataDir = "metadata";
@@ -44,7 +44,12 @@ export { User };`
   assert.equal(error, null);
 
   // Check if metadata file was generated
-  const expectedMetadataPath = path.join(tempDir, metadataDir, "src", "user.macro-ir.json");
+  const expectedMetadataPath = path.join(
+    tempDir,
+    metadataDir,
+    "src",
+    "user.macro-ir.json",
+  );
   const metadataContent = readFileOrNull(expectedMetadataPath);
 
   if (result && result.code) {
@@ -65,7 +70,7 @@ test("skips metadata emission when emitMetadata is false", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const metadataDir = "no-metadata";
@@ -81,7 +86,11 @@ export { User };`
 
   // Metadata directory should not be created
   const metadataPath = path.join(tempDir, metadataDir);
-  assert.equal(fs.existsSync(metadataPath), false, "Metadata directory should not exist");
+  assert.equal(
+    fs.existsSync(metadataPath),
+    false,
+    "Metadata directory should not exist",
+  );
 });
 
 test("uses default metadataOutputDir when not specified", async (t) => {
@@ -96,7 +105,7 @@ test("uses default metadataOutputDir when not specified", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   // Don't specify metadataOutputDir - should default to ".macroforge/meta"
@@ -111,7 +120,12 @@ export { User };`
   assert.equal(error, null);
 
   // Metadata should be in default .macroforge/meta directory
-  const expectedMetadataPath = path.join(tempDir, ".macroforge/meta", "src", "user.macro-ir.json");
+  const expectedMetadataPath = path.join(
+    tempDir,
+    ".macroforge/meta",
+    "src",
+    "user.macro-ir.json",
+  );
   if (result && result.code && fs.existsSync(expectedMetadataPath)) {
     const content = fs.readFileSync(expectedMetadataPath, "utf-8");
     assert.ok(content.length > 0, "Metadata file should have content");
@@ -131,14 +145,17 @@ test("preserves directory structure in metadata output", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const metadataDir = "metadata";
   const plugin = await macroforge();
   initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/models/entities/user.ts"), "utf-8");
+  const code = fs.readFileSync(
+    path.join(tempDir, "src/models/entities/user.ts"),
+    "utf-8",
+  );
   const id = path.join(tempDir, "src/models/entities/user.ts");
 
   const { result, error } = await invokeTransform(plugin, code, id);
@@ -146,11 +163,18 @@ export { User };`
   assert.equal(error, null);
 
   // Check if directory structure is preserved
-  const expectedPath = path.join(tempDir, metadataDir, "src/models/entities/user.macro-ir.json");
+  const expectedPath = path.join(
+    tempDir,
+    metadataDir,
+    "src/models/entities/user.macro-ir.json",
+  );
   if (result && result.code && fs.existsSync(expectedPath)) {
     const content = fs.readFileSync(expectedPath, "utf-8");
     // Verify it's valid JSON
-    assert.doesNotThrow(() => JSON.parse(content), "Metadata should be valid JSON");
+    assert.doesNotThrow(
+      () => JSON.parse(content),
+      "Metadata should be valid JSON",
+    );
   }
 });
 
@@ -166,7 +190,7 @@ test("skips write when metadata content unchanged", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   const metadataDir = "metadata";
@@ -177,11 +201,19 @@ export { User };`
   const id = path.join(tempDir, "src/user.ts");
 
   // First transform
-  const { result: result1, error: error1 } = await invokeTransform(plugin, code, id);
+  const { result: result1, error: error1 } = await invokeTransform(
+    plugin,
+    code,
+    id,
+  );
   assert.equal(error1, null);
 
   // Get mtime of metadata file if it exists
-  const metadataPath = path.join(tempDir, metadataDir, "src/user.macro-ir.json");
+  const metadataPath = path.join(
+    tempDir,
+    metadataDir,
+    "src/user.macro-ir.json",
+  );
   if (fs.existsSync(metadataPath)) {
     const mtime1 = fs.statSync(metadataPath).mtimeMs;
 
@@ -189,12 +221,20 @@ export { User };`
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Second transform with same content
-    const { result: result2, error: error2 } = await invokeTransform(plugin, code, id);
+    const { result: result2, error: error2 } = await invokeTransform(
+      plugin,
+      code,
+      id,
+    );
     assert.equal(error2, null);
 
     // mtime should not change (file not rewritten)
     const mtime2 = fs.statSync(metadataPath).mtimeMs;
-    assert.equal(mtime1, mtime2, "File should not be rewritten when content is unchanged");
+    assert.equal(
+      mtime1,
+      mtime2,
+      "File should not be rewritten when content is unchanged",
+    );
   }
 });
 
@@ -210,7 +250,7 @@ test("handles files without macros for metadata", async (t) => {
     `class PlainClass {
   value: number;
 }
-export { PlainClass };`
+export { PlainClass };`,
   );
 
   const metadataDir = "metadata";
@@ -241,7 +281,7 @@ test("creates metadata output directory if it does not exist", async (t) => {
 class User {
   id: string;
 }
-export { User };`
+export { User };`,
   );
 
   // Use deeply nested output directory
@@ -278,7 +318,7 @@ class User {
   name: string;
   email: string;
 }
-export { User };`
+export { User };`,
   );
 
   const metadataDir = "metadata";
@@ -292,7 +332,11 @@ export { User };`
 
   assert.equal(error, null);
 
-  const metadataPath = path.join(tempDir, metadataDir, "src/user.macro-ir.json");
+  const metadataPath = path.join(
+    tempDir,
+    metadataDir,
+    "src/user.macro-ir.json",
+  );
   if (fs.existsSync(metadataPath)) {
     const content = fs.readFileSync(metadataPath, "utf-8");
     let parsed;

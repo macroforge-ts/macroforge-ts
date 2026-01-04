@@ -41,8 +41,10 @@
 import { createRequire } from "node:module";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { collectExternalDecoratorModules, loadMacroConfig } from "@macroforge/shared";
-
+import {
+  collectExternalDecoratorModules,
+  loadMacroConfig,
+} from "@macroforge/shared";
 
 const moduleRequire = createRequire(import.meta.url);
 
@@ -53,7 +55,7 @@ try {
 } catch (error) {
   tsModule = undefined;
   console.warn(
-    "[@macroforge/vite-plugin] TypeScript not found. Generated .d.ts files will be skipped."
+    "[@macroforge/vite-plugin] TypeScript not found. Generated .d.ts files will be skipped.",
   );
 }
 
@@ -75,7 +77,8 @@ async function ensureRequire() {
 
   if (!cachedRequire) {
     const { createRequire } = await import("node:module");
-    cachedRequire = /** @type {NodeJS.Require} */ (createRequire(process.cwd() + "/"));
+    cachedRequire =
+      /** @type {NodeJS.Require} */ (createRequire(process.cwd() + "/"));
     // @ts-ignore - Expose on globalThis so native runtime loaders can use it
     globalThis.require = cachedRequire;
   }
@@ -104,7 +107,7 @@ function getCompilerOptions(projectRoot) {
     configPath = tsModule.findConfigFile(
       projectRoot,
       tsModule.sys.fileExists,
-      "tsconfig.json"
+      "tsconfig.json",
     );
   } catch {
     configPath = undefined;
@@ -113,7 +116,10 @@ function getCompilerOptions(projectRoot) {
   /** @type {import('typescript').CompilerOptions} */
   let options;
   if (configPath) {
-    const configFile = tsModule.readConfigFile(configPath, tsModule.sys.readFile);
+    const configFile = tsModule.readConfigFile(
+      configPath,
+      tsModule.sys.readFile,
+    );
     if (configFile.error) {
       const formatted = tsModule.formatDiagnosticsWithColorAndContext(
         [configFile.error],
@@ -121,17 +127,17 @@ function getCompilerOptions(projectRoot) {
           getCurrentDirectory: () => projectRoot,
           getCanonicalFileName: (fileName) => fileName,
           getNewLine: () => tsModule.sys.newLine,
-        }
+        },
       );
       console.warn(
-        `[@macroforge/vite-plugin] Failed to read tsconfig at ${configPath}\n${formatted}`
+        `[@macroforge/vite-plugin] Failed to read tsconfig at ${configPath}\n${formatted}`,
       );
       options = {};
     } else {
       const parsed = tsModule.parseJsonConfigFileContent(
         configFile.config,
         tsModule.sys,
-        path.dirname(configPath)
+        path.dirname(configPath),
       );
       options = parsed.options;
     }
@@ -193,12 +199,17 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
         requestedFileName,
         sourceText,
         languageVersion,
-        true
+        true,
       );
     }
     const text = tsModule.sys.readFile(requestedFileName);
     return text !== undefined
-      ? tsModule.createSourceFile(requestedFileName, text, languageVersion, true)
+      ? tsModule.createSourceFile(
+        requestedFileName,
+        text,
+        languageVersion,
+        true,
+      )
       : undefined;
   };
 
@@ -220,7 +231,10 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
   // Capture emitted declaration content
   /** @type {string | undefined} */
   let output;
-  const writeFile = (/** @type {string} */ outputName, /** @type {string} */ text) => {
+  const writeFile = (
+    /** @type {string} */ outputName,
+    /** @type {string} */ text,
+  ) => {
     if (outputName.endsWith(".d.ts")) {
       output = text;
     }
@@ -229,7 +243,7 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
   const program = tsModule.createProgram(
     [normalizedFileName],
     compilerOptions,
-    compilerHost
+    compilerHost,
   );
   const emitResult = program.emit(undefined, writeFile, undefined, true);
 
@@ -241,13 +255,15 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
         getCurrentDirectory: () => projectRoot,
         getCanonicalFileName: (fileName) => fileName,
         getNewLine: () => tsModule.sys.newLine,
-      }
+      },
     );
     console.warn(
-      `[@macroforge/vite-plugin] Declaration emit failed for ${path.relative(
-        projectRoot,
-        fileName
-      )}\n${formatted}`
+      `[@macroforge/vite-plugin] Declaration emit failed for ${
+        path.relative(
+          projectRoot,
+          fileName,
+        )
+      }\n${formatted}`,
     );
     return undefined;
   }
@@ -299,18 +315,21 @@ export async function macroforge() {
     rustTransformer = moduleRequire("macroforge");
   } catch (error) {
     console.warn(
-      "[@macroforge/vite-plugin] Rust binary not found. Please run `npm run build:rust` first."
+      "[@macroforge/vite-plugin] Rust binary not found. Please run `npm run build:rust` first.",
     );
     console.warn(error);
   }
 
   // Load config upfront (passing Rust transformer for foreign type parsing)
-  const macroConfig = loadMacroConfig(process.cwd(), rustTransformer?.loadConfig);
+  const macroConfig = loadMacroConfig(
+    process.cwd(),
+    rustTransformer?.loadConfig,
+  );
 
   if (macroConfig.hasForeignTypes) {
     console.log(
       "[@macroforge/vite-plugin] Loaded config with foreign types from:",
-      macroConfig.configPath
+      macroConfig.configPath,
     );
   }
 
@@ -347,7 +366,7 @@ export async function macroforge() {
       }
     } catch (error) {
       throw new Error(
-        `[@macroforge/vite-plugin] Failed to load config from ${macroConfig.configPath}: ${error.message}`
+        `[@macroforge/vite-plugin] Failed to load config from ${macroConfig.configPath}: ${error.message}`,
       );
     }
   }
@@ -384,13 +403,15 @@ export async function macroforge() {
       if (existing !== types) {
         fs.writeFileSync(targetPath, types, "utf-8");
         console.log(
-          `[@macroforge/vite-plugin] Wrote types for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`
+          `[@macroforge/vite-plugin] Wrote types for ${relativePath} -> ${
+            path.relative(projectRoot, targetPath)
+          }`,
         );
       }
     } catch (error) {
       console.error(
         `[@macroforge/vite-plugin] Failed to write type definitions for ${id}:`,
-        error
+        error,
       );
     }
   }
@@ -414,13 +435,15 @@ export async function macroforge() {
       if (existing !== metadata) {
         fs.writeFileSync(targetPath, metadata, "utf-8");
         console.log(
-          `[@macroforge/vite-plugin] Wrote metadata for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`
+          `[@macroforge/vite-plugin] Wrote metadata for ${relativePath} -> ${
+            path.relative(projectRoot, targetPath)
+          }`,
         );
       }
     } catch (error) {
       console.error(
         `[@macroforge/vite-plugin] Failed to write metadata for ${id}:`,
-        error
+        error,
       );
     }
   }
@@ -434,13 +457,15 @@ export async function macroforge() {
   function formatTransformError(error, id) {
     const relative = projectRoot ? path.relative(projectRoot, id) || id : id;
     if (error instanceof Error) {
-      const details =
-        error.stack && error.stack.includes(error.message)
-          ? error.stack
-          : `${error.message}\n${error.stack ?? ""}`;
-      return `[@macroforge/vite-plugin] Failed to transform ${relative}\n${details}`.trim();
+      const details = error.stack && error.stack.includes(error.message)
+        ? error.stack
+        : `${error.message}\n${error.stack ?? ""}`;
+      return `[@macroforge/vite-plugin] Failed to transform ${relative}\n${details}`
+        .trim();
     }
-    return `[@macroforge/vite-plugin] Failed to transform ${relative}: ${String(error)}`;
+    return `[@macroforge/vite-plugin] Failed to transform ${relative}: ${
+      String(error)
+    }`;
   }
 
   /** @type {import('vite').Plugin} */
@@ -461,7 +486,8 @@ export async function macroforge() {
      */
     async transform(code, id) {
       // Ensure require() is available for native module loading
-      await ensureRequire();
+      // Use the project's CWD-based require for resolving external macro packages
+      const projectRequire = await ensureRequire();
 
       // Only transform TypeScript files
       if (!id.endsWith(".ts") && !id.endsWith(".tsx")) {
@@ -485,9 +511,10 @@ export async function macroforge() {
 
       try {
         // Collect external decorator modules from macro imports
+        // Use projectRequire to resolve packages from the project's CWD, not the plugin's location
         const externalDecoratorModules = collectExternalDecoratorModules(
           code,
-          moduleRequire
+          projectRequire,
         );
 
         // Perform macro expansion via the Rust binary
@@ -500,11 +527,13 @@ export async function macroforge() {
         // Report diagnostics from macro expansion
         for (const diag of result.diagnostics) {
           if (diag.level === "error") {
-            const message = `Macro error at ${id}:${diag.start ?? "?"}-${diag.end ?? "?"}: ${diag.message}`;
+            const message = `Macro error at ${id}:${diag.start ?? "?"}-${
+              diag.end ?? "?"
+            }: ${diag.message}`;
             /** @type {any} */ (this).error(message);
           } else {
             console.warn(
-              `[@macroforge/vite-plugin] ${diag.level}: ${diag.message}`
+              `[@macroforge/vite-plugin] ${diag.level}: ${diag.message}`,
             );
           }
         }
@@ -513,7 +542,7 @@ export async function macroforge() {
           // Remove macro-only imports so SSR output doesn't load native bindings
           result.code = result.code.replace(
             /\/\*\*\s*import\s+macro[\s\S]*?\*\/\s*/gi,
-            ""
+            "",
           );
 
           // Generate type definitions if enabled
@@ -521,7 +550,7 @@ export async function macroforge() {
             const emitted = emitDeclarationsFromCode(
               result.code,
               id,
-              projectRoot
+              projectRoot,
             );
             if (emitted) {
               writeTypeDefinitions(id, emitted);

@@ -110,7 +110,10 @@ export function initializePlugin(plugin, root = process.cwd()) {
  * @param {string} root - Project root path
  * @returns {Promise<object>} Initialized plugin
  */
-export async function createAndInitializePlugin(pluginFactory, root = process.cwd()) {
+export async function createAndInitializePlugin(
+  pluginFactory,
+  root = process.cwd(),
+) {
   const plugin = await pluginFactory();
   initializePlugin(plugin, root);
   return plugin;
@@ -185,7 +188,9 @@ export function listFilesRecursively(dir, prefix = "") {
   for (const entry of entries) {
     const relativePath = path.join(prefix, entry.name);
     if (entry.isDirectory()) {
-      files.push(...listFilesRecursively(path.join(dir, entry.name), relativePath));
+      files.push(
+        ...listFilesRecursively(path.join(dir, entry.name), relativePath),
+      );
     } else {
       files.push(relativePath);
     }

@@ -8,23 +8,25 @@
 
 Vite plugin for Macroforge compile-time TypeScript macro expansion.
 
-This plugin integrates Macroforge's Rust-based macro expander into the Vite build pipeline,
-enabling compile-time code generation through `@derive` decorators. It processes TypeScript
-files during the build, expands macros, generates type definitions, and emits metadata.
+This plugin integrates Macroforge's Rust-based macro expander into the Vite
+build pipeline, enabling compile-time code generation through `@derive`
+decorators. It processes TypeScript files during the build, expands macros,
+generates type definitions, and emits metadata.
 
 @example
+
 ```typescript
-import { defineConfig } from 'vite';
-import macroforgePlugin from '@macroforge/vite-plugin';
+import { defineConfig } from "vite";
+import macroforgePlugin from "@macroforge/vite-plugin";
 
 export default defineConfig({
-plugins: [
-macroforgePlugin({
-generateTypes: true,
-typesOutputDir: '.macroforge/types',
-emitMetadata: true,
-}),
-],
+  plugins: [
+    macroforgePlugin({
+      generateTypes: true,
+      typesOutputDir: ".macroforge/types",
+      emitMetadata: true,
+    }),
+  ],
 });
 ```
 
@@ -38,37 +40,47 @@ npm install @macroforge/vite-plugin
 
 ### Functions
 
-- **`loadMacroConfig`** - Whether to preserve `@derive` decorators in the output code after macro expansion.
-- **`napiMacrosPlugin`** - Creates a Vite plugin for Macroforge compile-time macro expansion.
-- **`ensureDir`** - Ensures a directory exists, creating it recursively if necessary.
-- **`writeTypeDefinitions`** - Writes generated TypeScript declaration files to the configured output directory.
-- **`writeMetadata`** - Writes macro intermediate representation (IR) metadata to JSON files.
-- **`formatTransformError`** - Formats transformation errors into user-friendly messages.
+- **`loadMacroConfig`** - Whether to preserve `@derive` decorators in the output
+  code after macro expansion.
+- **`napiMacrosPlugin`** - Creates a Vite plugin for Macroforge compile-time
+  macro expansion.
+- **`ensureDir`** - Ensures a directory exists, creating it recursively if
+  necessary.
+- **`writeTypeDefinitions`** - Writes generated TypeScript declaration files to
+  the configured output directory.
+- **`writeMetadata`** - Writes macro intermediate representation (IR) metadata
+  to JSON files.
+- **`formatTransformError`** - Formats transformation errors into user-friendly
+  messages.
 
 ### Types
 
-- **`NapiMacrosPluginOptions`** - Configuration options for the Macroforge Vite plugin.
-- **`MacroConfig`** - Glob patterns, regular expressions, or arrays of either to specify which files
+- **`NapiMacrosPluginOptions`** - Configuration options for the Macroforge Vite
+  plugin.
+- **`MacroConfig`** - Glob patterns, regular expressions, or arrays of either to
+  specify which files
 
 ## Examples
 
 ```typescript
-import { defineConfig } from 'vite';
-import macroforgePlugin from '@macroforge/vite-plugin';
+import { defineConfig } from "vite";
+import macroforgePlugin from "@macroforge/vite-plugin";
 export default defineConfig({
-plugins: [
-macroforgePlugin({
-generateTypes: true,
-typesOutputDir: '.macroforge/types',
-emitMetadata: true,
-}),
-],
+  plugins: [
+    macroforgePlugin({
+      generateTypes: true,
+      typesOutputDir: ".macroforge/types",
+      emitMetadata: true,
+    }),
+  ],
 });
 ```
 
 ## Documentation
 
-See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/vite-plugin) on the Macroforge website.
+See the
+[full documentation](https://macroforge.dev/docs/api/reference/typescript/vite-plugin)
+on the Macroforge website.
 
 ## License
 
