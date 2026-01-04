@@ -595,21 +595,169 @@ fn generate_field_controllers_object(
     }
 }
 
-/// Generates a simple field controller assignment.
+/// Generates a full field controller assignment with closures.
 fn generate_simple_field_assignment(field: &ParsedField, interface_name: &str) -> TsStream {
     let name = &field.name;
-    let label = name.as_str(); // Use field name as label
+
+    // Get label from controller options if available, otherwise use field name
+    let label = field
+        .controller
+        .as_ref()
+        .and_then(|c| c.base().get_label())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| name.clone());
+
     let optional = field.optional;
     let is_array = field.is_array;
     let controller_type = get_field_controller_type(field, interface_name);
+    let ts_type = &field.ts_type;
+
+    // Generate constraints from validators if any
+    let constraints = generate_constraints(field);
+
+    // Generate validate function that uses validateField if available
+    let validate_fn_name = fn_name("validateField", interface_name, "");
+
+    // Get UI metadata from controller options
+    let description = field
+        .controller
+        .as_ref()
+        .and_then(|c| c.base().description.as_deref());
+    let placeholder = field
+        .controller
+        .as_ref()
+        .and_then(|c| c.base().placeholder.as_deref());
+    let disabled = field
+        .controller
+        .as_ref()
+        .and_then(|c| c.base().disabled)
+        .unwrap_or(false);
+    let readonly = field
+        .controller
+        .as_ref()
+        .and_then(|c| c.base().readonly)
+        .unwrap_or(false);
+
+    // Generate optional metadata fields
+    let description_field = if let Some(desc) = description {
+        ts_template! { description: "@{desc}", }
+    } else {
+        TsStream::from_string(String::new())
+    };
+
+    let placeholder_field = if let Some(ph) = placeholder {
+        ts_template! { placeholder: "@{ph}", }
+    } else {
+        TsStream::from_string(String::new())
+    };
+
+    // Generate array methods if this is an array field
+    let array_methods = if field.is_array {
+        let element_type = field
+            .array_element_type
+            .as_deref()
+            .unwrap_or("unknown");
+        ts_template! {
+            at: (index: number) => ({
+                get: () => data.@{name}[index],
+                set: (value: @{element_type}) => { data.@{name}[index] = value; },
+                getError: () => errors.@{name},
+                setError: (value: __gigaform_reexport_Option<Array<string>>) => { errors.@{name} = value; },
+            }),
+            push: (item: @{element_type}) => { data.@{name}.push(item); },
+            remove: (index: number) => { data.@{name}.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.@{name}[a];
+                data.@{name}[a] = data.@{name}[b];
+                data.@{name}[b] = temp;
+            },
+        }
+    } else {
+        TsStream::from_string(String::new())
+    };
 
     ts_template! {
         fields.@{name} = {
+            name: "@{name}",
             label: "@{label}",
             type: "@{controller_type}",
             optional: @{optional},
-            array: @{is_array}
+            array: @{is_array},
+            path: ["@{name}"],
+            get: () => data.@{name},
+            set: (value: @{ts_type}) => { data.@{name} = value; },
+            getError: () => errors.@{name},
+            setError: (value: __gigaform_reexport_Option<Array<string>>) => { errors.@{name} = value; },
+            getTainted: () => tainted.@{name},
+            setTainted: (value: __gigaform_reexport_Option<boolean>) => { tainted.@{name} = value; },
+            validate: () => @{validate_fn_name}("@{name}", data.@{name}).map((e: { field: string; message: string }) => e.message),
+            {$typescript array_methods}
+            {$typescript constraints}
+            {$typescript description_field}
+            {$typescript placeholder_field}
+            disabled: @{disabled},
+            readonly: @{readonly},
         };
+    }
+}
+
+/// Generates constraints object from field validators.
+fn generate_constraints(field: &ParsedField) -> TsStream {
+    // Extract constraints from @serde validators
+    let mut constraint_parts = Vec::new();
+
+    for validator in &field.validators {
+        let args_str = validator.args.join(", ");
+        match validator.name.as_str() {
+            "length" => {
+                // Parse length(min=N, max=M) or length(N, M)
+                if !args_str.is_empty() {
+                    if args_str.contains("min") || args_str.contains("max") {
+                        // Named args format - pass through
+                        constraint_parts.push(args_str.clone());
+                    } else if let Some((min, max)) = args_str.split_once(',') {
+                        let min = min.trim();
+                        let max = max.trim();
+                        if !min.is_empty() {
+                            constraint_parts.push(format!("minlength: {}", min));
+                        }
+                        if !max.is_empty() {
+                            constraint_parts.push(format!("maxlength: {}", max));
+                        }
+                    } else {
+                        // Single arg - treat as min
+                        constraint_parts.push(format!("minlength: {}", args_str.trim()));
+                    }
+                }
+            }
+            "email" => constraint_parts.push("type: \"email\"".to_string()),
+            "url" => constraint_parts.push("type: \"url\"".to_string()),
+            "positive" => constraint_parts.push("min: 1".to_string()),
+            "int" | "integer" => constraint_parts.push("step: 1".to_string()),
+            "min" | "minLength" => {
+                if !args_str.is_empty() {
+                    constraint_parts.push(format!("minlength: {}", args_str.trim()));
+                }
+            }
+            "max" | "maxLength" => {
+                if !args_str.is_empty() {
+                    constraint_parts.push(format!("maxlength: {}", args_str.trim()));
+                }
+            }
+            "pattern" | "regex" => {
+                if !args_str.is_empty() {
+                    constraint_parts.push(format!("pattern: {}", args_str.trim()));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    if constraint_parts.is_empty() {
+        ts_template! { constraints: {} }
+    } else {
+        let constraints_str = constraint_parts.join(", ");
+        ts_template! { constraints: { @{constraints_str} } }
     }
 }
 

@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { repoRoot, svelteRoot, vanillaRoot, withViteServer } from './test-utils.mjs';
+
+// Use dynamic import for TypeScript to work in both Node and Deno
+const ts = await import('npm:typescript').then(m => m.default ?? m);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,9 +44,8 @@ function createMockLanguageService(_ts) {
 
 test('TS Language Plugin augments types', async () => {
     const pluginPath = path.resolve(repoRoot, 'packages/typescript-plugin/dist/index.js');
-    const require = createRequire(import.meta.url);
-    const tsPluginInit = require(pluginPath).default;
-    const ts = require('typescript');
+    const pluginModule = await import(pathToFileURL(pluginPath).href);
+    const tsPluginInit = pluginModule.default;
 
     // Mock Info for TS Server Plugin with all required methods
     const mockHost = {
@@ -98,9 +99,8 @@ test('TS Language Plugin augments types', async () => {
 
 test('TS Language Plugin detects external macro packages', async () => {
     const pluginPath = path.resolve(repoRoot, 'packages/typescript-plugin/dist/index.js');
-    const require = createRequire(import.meta.url);
-    const tsPluginInit = require(pluginPath).default;
-    const ts = require('typescript');
+    const pluginModule = await import(pathToFileURL(pluginPath).href);
+    const tsPluginInit = pluginModule.default;
 
     // Code that imports from an external macro package
     const codeWithExternalMacro = `
@@ -165,15 +165,13 @@ class TestForm {
 
 test('TS Language Plugin filters diagnostics for available external macros', async () => {
     const pluginPath = path.resolve(repoRoot, 'packages/typescript-plugin/dist/index.js');
-    const require = createRequire(import.meta.url);
 
     // Test the internal helper functions exported for testing
     // These are the functions we added for external macro package support
-    const pluginModule = require(pluginPath);
+    const pluginModule = await import(pathToFileURL(pluginPath).href);
 
     // The plugin exports these for the language service
     const tsPluginInit = pluginModule.default || pluginModule;
-    const ts = require('typescript');
 
     // Verify the plugin initializes without errors
     const pluginFactory = tsPluginInit({ typescript: ts });
@@ -181,6 +179,7 @@ test('TS Language Plugin filters diagnostics for available external macros', asy
 });
 
 test('Macro expansion formats code correctly', async () => {
+    const { createRequire } = await import('node:module');
     const require = createRequire(import.meta.url);
     const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
     const { expandSync } = require(swcMacrosPath);
@@ -221,6 +220,7 @@ test('Macro expansion formats code correctly', async () => {
 
 test('Macro Host reports diagnostics for invalid usage', async () => {
     // Test the core macro host logic used by both plugins and language server
+    const { createRequire } = await import('node:module');
     const require = createRequire(import.meta.url);
     const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
     const { expandSync } = require(swcMacrosPath);

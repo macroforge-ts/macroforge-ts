@@ -48,21 +48,21 @@ describe('Gigaform type generation', () => {
             result.code.includes('export type UserFormErrors'),
             'Should generate UserFormErrors type'
         );
-        // Implementation uses __gf_Option<Array<string>> instead of Array<string> | undefined
+        // Implementation uses __gigaform_reexport_Option<Array<string>> instead of Array<string> | undefined
         assert.ok(
-            result.code.includes('_errors: __gf_Option<Array<string>>'),
+            result.code.includes('_errors: __gigaform_reexport_Option<Array<string>>'),
             'Should have root _errors'
         );
         assert.ok(
-            result.code.includes('name: __gf_Option<Array<string>>'),
+            result.code.includes('name: __gigaform_reexport_Option<Array<string>>'),
             'Should have name error array'
         );
         assert.ok(
-            result.code.includes('email: __gf_Option<Array<string>>'),
+            result.code.includes('email: __gigaform_reexport_Option<Array<string>>'),
             'Should have email error array'
         );
         assert.ok(
-            result.code.includes('age: __gf_Option<Array<string>>'),
+            result.code.includes('age: __gigaform_reexport_Option<Array<string>>'),
             'Should have age error array'
         );
     });
@@ -81,13 +81,13 @@ describe('Gigaform type generation', () => {
             result.code.includes('export type UserFormTainted'),
             'Should generate UserFormTainted type'
         );
-        // Implementation uses __gf_Option<boolean> instead of boolean | undefined
+        // Implementation uses __gigaform_reexport_Option<boolean> instead of boolean | undefined
         assert.ok(
-            result.code.includes('name: __gf_Option<boolean>'),
+            result.code.includes('name: __gigaform_reexport_Option<boolean>'),
             'Should have name tainted flag'
         );
         assert.ok(
-            result.code.includes('email: __gf_Option<boolean>'),
+            result.code.includes('email: __gigaform_reexport_Option<boolean>'),
             'Should have email tainted flag'
         );
     });
@@ -249,7 +249,7 @@ describe('Gigaform createForm factory', () => {
             result.code.includes('let errors = $state<StateFormErrors>({'),
             'Should use $state for errors'
         );
-        assert.ok(result.code.includes('optionNone()'), 'Should initialize with optionNone()');
+        assert.ok(result.code.includes('__gigaform_reexport_Option.none()'), 'Should initialize with Option.none()');
         assert.ok(
             result.code.includes('let tainted = $state<StateFormTainted>({'),
             'Should use $state for tainted'
@@ -354,7 +354,7 @@ describe('Gigaform field controllers', () => {
         assert.ok(
             includesNormalized(
                 result.code,
-                'setError: (value: __gf_Option<Array<string>>) => { errors.email = value; }'
+                'setError: (value: __gigaform_reexport_Option<Array<string>>) => { errors.email = value; }'
             ),
             'Should generate setError closure'
         );
@@ -377,7 +377,7 @@ describe('Gigaform field controllers', () => {
         assert.ok(
             includesNormalized(
                 result.code,
-                'setTainted: (value: __gf_Option<boolean>) => { tainted.field = value; }'
+                'setTainted: (value: __gigaform_reexport_Option<boolean>) => { tainted.field = value; }'
             ),
             'Should generate setTainted closure'
         );

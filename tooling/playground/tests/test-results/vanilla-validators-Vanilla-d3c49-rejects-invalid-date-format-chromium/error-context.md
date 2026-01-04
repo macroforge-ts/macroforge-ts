@@ -1,0 +1,97 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - heading "Validator Form Testing" [level=1] [ref=e3]
+  - paragraph [ref=e4]: Test deserializer validators with real form data.
+  - generic [ref=e5]:
+    - heading "User Registration" [level=3] [ref=e6]
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - generic [ref=e10]: Email
+          - textbox "Email" [ref=e11]:
+            - /placeholder: user@example.com
+          - generic [ref=e12]: Must be a valid email address
+        - generic [ref=e13]:
+          - generic [ref=e14]: Username
+          - textbox "Username" [ref=e15]:
+            - /placeholder: johndoe
+          - generic [ref=e16]: 3-20 chars, lowercase, start with letter, only letters/numbers/underscore
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]: Password
+          - textbox "Password" [ref=e20]:
+            - /placeholder: "********"
+          - generic [ref=e21]: 8-50 characters
+        - generic [ref=e22]:
+          - generic [ref=e23]: Age
+          - spinbutton "Age" [ref=e24]
+          - generic [ref=e25]: Integer between 18 and 120
+      - generic [ref=e26]:
+        - generic [ref=e27]: Website
+        - textbox "Website" [ref=e28]:
+          - /placeholder: https://example.com
+        - generic [ref=e29]: Must be a valid URL
+      - button "Submit Registration" [ref=e30] [cursor=pointer]
+  - generic [ref=e32]:
+    - heading "Product Entry" [level=3] [ref=e33]
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]: Product Name
+          - textbox "Product Name" [ref=e38]:
+            - /placeholder: Widget
+          - generic [ref=e39]: 1-100 characters, non-empty
+        - generic [ref=e40]:
+          - generic [ref=e41]: SKU (UUID)
+          - textbox "SKU (UUID)" [ref=e42]:
+            - /placeholder: 123e4567-e89b-12d3-a456-426614174000
+          - generic [ref=e43]: Must be a valid UUID
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]: Price
+          - spinbutton "Price" [ref=e47]
+          - generic [ref=e48]: Positive number, less than 1,000,000
+        - generic [ref=e49]:
+          - generic [ref=e50]: Quantity
+          - spinbutton "Quantity" [ref=e51]
+          - generic [ref=e52]: Non-negative integer
+      - generic [ref=e53]:
+        - generic [ref=e54]: Tags (comma-separated)
+        - textbox "Tags (comma-separated)" [ref=e55]:
+          - /placeholder: electronics, gadget, new
+        - generic [ref=e56]: 1-5 tags
+      - button "Submit Product" [ref=e57] [cursor=pointer]
+  - generic [ref=e59]:
+    - heading "Event Creation" [level=3] [ref=e60]
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - generic [ref=e63]: Event Title
+        - textbox "Event Title" [ref=e64]:
+          - /placeholder: Annual Conference
+          - text: Annual Conference
+        - generic [ref=e65]: Non-empty, no leading/trailing whitespace
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - generic [ref=e68]: Start Date
+          - textbox "Start Date" [ref=e69]:
+            - /placeholder: 2025-06-15
+            - text: not-a-date
+          - generic [ref=e70]: Valid date after 2020-01-01
+        - generic [ref=e71]:
+          - generic [ref=e72]: End Date
+          - textbox "End Date" [ref=e73]:
+            - /placeholder: 2025-06-17
+            - text: 2025-06-17
+          - generic [ref=e74]: Valid date
+      - generic [ref=e75]:
+        - generic [ref=e76]: Max Attendees
+        - spinbutton "Max Attendees" [ref=e77]: "200"
+        - generic [ref=e78]: Integer between 1 and 1000
+      - button "Submit Event" [active] [ref=e79] [cursor=pointer]
+    - list [ref=e81]:
+      - listitem [ref=e82]:
+        - strong [ref=e83]: "_root:"
+        - text: $MfPh116 is not defined
+```
