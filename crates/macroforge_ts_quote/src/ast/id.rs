@@ -6,10 +6,14 @@ use crate::ctxt::{Ctx, VarPos};
 
 impl ToCode for swc_core::ecma::ast::Ident {
     fn to_code(&self, cx: &Ctx) -> syn::Expr {
-        if let Some(var_name) = self.sym.strip_prefix('$')
-            && let Some(var) = cx.var(VarPos::Ident, var_name)
-        {
-            return var.get_expr();
+        if let Some(var_name) = self.sym.strip_prefix('$') {
+            if let Some(var) = cx.var(VarPos::Ident, var_name) {
+                return var.get_expr();
+            }
+            panic!(
+                "Unresolved placeholder identifier: ${} - no matching variable in context",
+                var_name
+            );
         }
 
         let sym_value = self.sym.to_code(cx);
@@ -25,11 +29,15 @@ impl ToCode for swc_core::ecma::ast::Ident {
 
 impl ToCode for swc_core::ecma::ast::IdentName {
     fn to_code(&self, cx: &Ctx) -> syn::Expr {
-        if let Some(var_name) = self.sym.strip_prefix('$')
-            && let Some(var) = cx.var(VarPos::Ident, var_name)
-        {
-            let var_expr = var.get_expr();
-            return parse_quote!(#var_expr.into());
+        if let Some(var_name) = self.sym.strip_prefix('$') {
+            if let Some(var) = cx.var(VarPos::Ident, var_name) {
+                let var_expr = var.get_expr();
+                return parse_quote!(#var_expr.into());
+            }
+            panic!(
+                "Unresolved placeholder IdentName: ${} - no matching variable in context",
+                var_name
+            );
         }
 
         let span_value = self.span.to_code(cx);
@@ -91,8 +99,10 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "Unresolved placeholder identifier")]
     fn test_ident_to_code_dollar_prefix_without_var() {
         // Test behavior when a $-prefixed identifier doesn't have a matching var
+        // Should panic to surface the bug early rather than emitting broken code
         let cx = empty_ctx();
         let ident = swc_core::ecma::ast::Ident {
             span: Span::default(),
@@ -100,10 +110,7 @@ mod tests {
             sym: Atom::from("$noSuchVar"),
             optional: false,
         };
-        let code = ident.to_code(&cx);
-        let code_str = code.to_token_stream().to_string();
-        // Should still generate code (but may panic during actual use if var not found)
-        assert!(!code_str.is_empty());
+        let _ = ident.to_code(&cx);
     }
 
     #[test]
@@ -138,17 +145,16 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "Unresolved placeholder IdentName")]
     fn test_ident_name_to_code_with_dollar_prefix() {
         // Test IdentName with $-prefix without actual var mapping
+        // Should panic to surface the bug early rather than emitting broken code
         let cx = empty_ctx();
         let ident_name = swc_core::ecma::ast::IdentName {
             span: Span::default(),
             sym: Atom::from("$someProp"),
         };
-        let code = ident_name.to_code(&cx);
-        let code_str = code.to_token_stream().to_string();
-        // Should generate code even without mapping
-        assert!(!code_str.is_empty());
+        let _ = ident_name.to_code(&cx);
     }
 
     // ==================== PrivateName Tests ====================

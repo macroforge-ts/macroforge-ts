@@ -43,17 +43,19 @@ pub fn compile_template(input: TokenStream2) -> syn::Result<TokenStream2> {
         quote! {
             {
                 let mut __out = String::new();
+                let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
                 __out.push_str("/* @macroforge:body */");
                 #body
-                macroforge_ts::ts_syn::TsStream::with_insert_pos(__out, #insert_pos)
+                macroforge_ts::ts_syn::TsStream::with_insert_pos_and_patches(__out, #insert_pos, __patches)
             }
         }
     } else {
         quote! {
             {
                 let mut __out = String::new();
+                let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
                 #body
-                macroforge_ts::ts_syn::TsStream::with_insert_pos(__out, #insert_pos)
+                macroforge_ts::ts_syn::TsStream::with_insert_pos_and_patches(__out, #insert_pos, __patches)
             }
         }
     };

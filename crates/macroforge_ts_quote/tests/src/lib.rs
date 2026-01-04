@@ -115,6 +115,45 @@ mod tests {
     }
 
     #[test]
+    fn test_for_loop_object_property_key() {
+        // Test that string interpolation in property key position produces unquoted identifiers
+        struct Field {
+            name: String,
+            ts_type: String,
+        }
+        let fields = vec![
+            Field {
+                name: "name".to_string(),
+                ts_type: "string".to_string(),
+            },
+            Field {
+                name: "email".to_string(),
+                ts_type: "string".to_string(),
+            },
+        ];
+        let stream = ts_template! {
+            export type Errors = {
+                {#for field in &fields}
+                    @{&field.name}: Option<Array<@{&field.ts_type}>>;
+                {/for}
+            };
+        };
+        let source = stream.source();
+        println!("Generated source:\n{}", source);
+        // Field names should NOT be quoted in property key position
+        assert!(
+            source.contains("name: Option<Array<string>>"),
+            "Expected 'name:' without quotes. Got:\n{}",
+            source
+        );
+        assert!(
+            source.contains("email: Option<Array<string>>"),
+            "Expected 'email:' without quotes. Got:\n{}",
+            source
+        );
+    }
+
+    #[test]
     fn test_for_loop_empty_collection() {
         let items: Vec<&str> = vec![];
         let stream = ts_template! {
@@ -887,15 +926,9 @@ mod tests {
 
         assert!(source.contains("export interface UserFormFieldControllers"));
         // Field names are output as unquoted identifiers
-        assert!(
-            source.contains("readonly username: FieldController<string>")
-        );
-        assert!(
-            source.contains("readonly email: FieldController<string>")
-        );
-        assert!(
-            source.contains("readonly tags: ArrayFieldController<string>")
-        );
+        assert!(source.contains("readonly username: FieldController<string>"));
+        assert!(source.contains("readonly email: FieldController<string>"));
+        assert!(source.contains("readonly tags: ArrayFieldController<string>"));
 
         assert!(source.contains("export interface UserFormGigaform"));
         assert!(source.contains("readonly data: UserForm"));

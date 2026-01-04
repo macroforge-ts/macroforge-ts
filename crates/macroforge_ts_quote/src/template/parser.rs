@@ -278,9 +278,13 @@ pub fn parse_fragment_with_ctx(
                     TagType::TypeScript(body) => {
                         iter.next(); // Consume {$typescript ...}
                         output.extend(ctx.emit_spacing_to(span));
-                        // The body is a TsStream - use ToTsString to get its source
+                        // The body is a TsStream - extract source and collect patches
                         output.extend(quote! {
-                            __out.push_str(&macroforge_ts::ts_syn::ToTsString::to_ts_string(&#body));
+                            {
+                                let __ts_stream = #body;
+                                __out.push_str(&macroforge_ts::ts_syn::ToTsString::to_ts_string(&__ts_stream));
+                                __patches.extend(__ts_stream.runtime_patches);
+                            }
                         });
                         ctx.advance_past(span);
                     }
@@ -379,7 +383,77 @@ pub fn parse_fragment_with_ctx(
                 ctx.advance_past(span);
             }
 
-            // Case 5: Plain tokens (identifiers, punctuation, literals)
+            // Case 5: Rust doc attribute #[doc = "..."] -> JSDoc /** ... */
+            // Rust's tokenizer converts /** ... */ to #[doc = "..."] attributes
+            TokenTree::Punct(p) if p.as_char() == '#' => {
+                let hash_span = p.span();
+                iter.next(); // Consume '#'
+
+                // Check if next token is a bracket group [doc = "..."]
+                let doc_content = if let Some(TokenTree::Group(g)) = iter.peek() {
+                    if g.delimiter() == Delimiter::Bracket {
+                        let mut inner = g.stream().into_iter().peekable();
+                        // Check for `doc = "content"`
+                        if let Some(TokenTree::Ident(ident)) = inner.next() {
+                            if ident.to_string() == "doc" {
+                                // Skip optional whitespace and match `=`
+                                if let Some(TokenTree::Punct(eq)) = inner.next() {
+                                    if eq.as_char() == '=' {
+                                        // Get the string content
+                                        if let Some(TokenTree::Literal(lit)) = inner.next() {
+                                            let lit_str = lit.to_string();
+                                            // Remove surrounding quotes and unescape
+                                            if lit_str.starts_with('"') && lit_str.ends_with('"') {
+                                                let content = &lit_str[1..lit_str.len() - 1];
+                                                let unescaped = content
+                                                    .replace("\\\"", "\"")
+                                                    .replace("\\\\", "\\");
+                                                Some(unescaped)
+                                            } else {
+                                                None
+                                            }
+                                        } else {
+                                            None
+                                        }
+                                    } else {
+                                        None
+                                    }
+                                } else {
+                                    None
+                                }
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
+
+                if let Some(unescaped) = doc_content {
+                    // Consume the bracket group and emit as JSDoc
+                    let g = iter.next().unwrap();
+                    let group_span = g.span();
+                    output.extend(ctx.emit_spacing_to(hash_span));
+                    output.extend(quote! {
+                        __out.push_str("/**");
+                        __out.push_str(#unescaped);
+                        __out.push_str(" */");
+                    });
+                    ctx.advance_past(group_span);
+                } else {
+                    // Not a doc attribute - just emit the '#' as-is
+                    output.extend(ctx.emit_spacing_to(hash_span));
+                    output.extend(quote! { __out.push_str("#"); });
+                    ctx.advance_past(hash_span);
+                }
+            }
+
+            // Case 6: Plain tokens (identifiers, punctuation, literals)
             _ => {
                 let t = iter.next().unwrap();
                 let span = t.span();
