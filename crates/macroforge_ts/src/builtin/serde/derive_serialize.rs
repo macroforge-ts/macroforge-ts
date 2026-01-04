@@ -140,8 +140,8 @@ use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts_ident, parse_ts_expr,
-    parse_ts_macro_input,
+    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_expr,
+    parse_ts_macro_input, ts_ident,
 };
 
 use convert_case::{Case, Casing};

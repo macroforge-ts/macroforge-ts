@@ -10,7 +10,7 @@ var SerializeContext;
         const id = nextId++;
         ids.set(obj, id);
         return id;
-      }
+      },
     };
   }
   SerializeContext2.create = create;
@@ -57,7 +57,7 @@ var DeserializeContext;
         for (const obj of toFreeze) {
           Object.freeze(obj);
         }
-      }
+      },
     };
   }
   DeserializeContext2.create = create;
@@ -69,7 +69,8 @@ var PendingRef;
   }
   PendingRef2.create = create;
   function is(value) {
-    return value !== null && typeof value === "object" && value.__pendingRef === true && typeof value.id === "number";
+    return value !== null && typeof value === "object" &&
+      value.__pendingRef === true && typeof value.id === "number";
   }
   PendingRef2.is = is;
 })(PendingRef || (PendingRef = {}));
@@ -89,9 +90,4 @@ var DeserializeError = class extends Error {
     this.errors = errors;
   }
 };
-export {
-  DeserializeContext,
-  DeserializeError,
-  PendingRef,
-  SerializeContext
-};
+export { DeserializeContext, DeserializeError, PendingRef, SerializeContext };

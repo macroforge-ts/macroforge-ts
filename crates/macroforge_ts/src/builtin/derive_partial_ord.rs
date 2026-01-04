@@ -109,8 +109,8 @@ use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_pri
 use crate::builtin::return_types::{is_none_check, partial_ord_return_type, unwrap_option_or_null};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 use crate::ts_syn::ts_ident;
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Contains field information needed for partial ordering comparison generation.
 ///
