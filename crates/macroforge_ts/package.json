@@ -1,4 +1,5 @@
 {
+  "type": "commonjs",
   "author": "macroforge contributors",
   "bugs": {
     "url": "https://github.com/macroforge-ts/core/issues"
