@@ -244,32 +244,39 @@ pub fn to_ts_expr<T: ToTsExpr>(value: T) -> swc_core::ecma::ast::Expr {
 /// annotation is expected.
 #[cfg(feature = "swc")]
 pub trait ToTsType {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType;
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType;
 }
 
 #[cfg(feature = "swc")]
 impl ToTsType for swc_core::ecma::ast::TsType {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
-        self.clone()
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
+        self
     }
 }
 
 #[cfg(feature = "swc")]
 impl ToTsType for Box<swc_core::ecma::ast::TsType> {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
-        (**self).clone()
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
+        *self
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsType for &swc_core::ecma::ast::TsType {
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
+        self.clone()
     }
 }
 
 /// Convert a string to a TsTypeRef (type reference by name).
 #[cfg(feature = "swc")]
 impl ToTsType for String {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
         swc_core::ecma::ast::TsType::TsTypeRef(swc_core::ecma::ast::TsTypeRef {
             span: swc_core::common::DUMMY_SP,
             type_name: swc_core::ecma::ast::TsEntityName::Ident(
                 swc_core::ecma::ast::Ident::new_no_ctxt(
-                    self.clone().into(),
+                    self.into(),
                     swc_core::common::DUMMY_SP,
                 ),
             ),
@@ -279,65 +286,55 @@ impl ToTsType for String {
 }
 
 #[cfg(feature = "swc")]
-impl ToTsType for str {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
-        self.to_string().to_ts_type()
+impl ToTsType for &String {
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
+        self.clone().to_ts_type()
     }
 }
 
 #[cfg(feature = "swc")]
 impl ToTsType for &str {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
-        (*self).to_ts_type()
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
+        self.to_string().to_ts_type()
     }
 }
 
 /// Convert an Ident to a TsTypeRef.
 #[cfg(feature = "swc")]
 impl ToTsType for swc_core::ecma::ast::Ident {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
         swc_core::ecma::ast::TsType::TsTypeRef(swc_core::ecma::ast::TsTypeRef {
             span: swc_core::common::DUMMY_SP,
-            type_name: swc_core::ecma::ast::TsEntityName::Ident(self.clone()),
+            type_name: swc_core::ecma::ast::TsEntityName::Ident(self),
             type_params: None,
         })
     }
 }
 
-/// Convert a reference to Ident to a TsTypeRef.
 #[cfg(feature = "swc")]
 impl ToTsType for &swc_core::ecma::ast::Ident {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
-        (*self).to_ts_type()
-    }
-}
-
-/// Convert a reference to String to a TsType.
-#[cfg(feature = "swc")]
-impl ToTsType for &String {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
-        (*self).to_ts_type()
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
+        self.clone().to_ts_type()
     }
 }
 
 /// Convert a bool to a TsLiteralType (true or false literal type).
 #[cfg(feature = "swc")]
 impl ToTsType for bool {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
         swc_core::ecma::ast::TsType::TsLitType(swc_core::ecma::ast::TsLitType {
             span: swc_core::common::DUMMY_SP,
             lit: swc_core::ecma::ast::TsLit::Bool(swc_core::ecma::ast::Bool {
                 span: swc_core::common::DUMMY_SP,
-                value: *self,
+                value: self,
             }),
         })
     }
 }
 
-/// Convert a reference to bool to a TsType.
 #[cfg(feature = "swc")]
 impl ToTsType for &bool {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
         (*self).to_ts_type()
     }
 }
@@ -345,7 +342,7 @@ impl ToTsType for &bool {
 /// Convert an Expr to a TsType. Only works for identifier expressions.
 #[cfg(feature = "swc")]
 impl ToTsType for swc_core::ecma::ast::Expr {
-    fn to_ts_type(&self) -> swc_core::ecma::ast::TsType {
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
         match self {
             swc_core::ecma::ast::Expr::Ident(ident) => ident.to_ts_type(),
             // For other expressions, create a typeof type
@@ -365,11 +362,18 @@ impl ToTsType for swc_core::ecma::ast::Expr {
     }
 }
 
+#[cfg(feature = "swc")]
+impl ToTsType for &swc_core::ecma::ast::Expr {
+    fn to_ts_type(self) -> swc_core::ecma::ast::TsType {
+        self.clone().to_ts_type()
+    }
+}
+
 /// Convert a value into a TypeScript [`TsType`](swc_core::ecma::ast::TsType).
 ///
 /// This is a convenience wrapper for [`ToTsType`].
 #[cfg(feature = "swc")]
-pub fn to_ts_type<T: ToTsType>(value: &T) -> swc_core::ecma::ast::TsType {
+pub fn to_ts_type<T: ToTsType>(value: T) -> swc_core::ecma::ast::TsType {
     value.to_ts_type()
 }
 
@@ -383,50 +387,50 @@ pub fn to_ts_type<T: ToTsType>(value: &T) -> swc_core::ecma::ast::TsType {
 /// is expected.
 #[cfg(feature = "swc")]
 pub trait ToTsIdent {
-    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident;
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident;
 }
 
 #[cfg(feature = "swc")]
 impl ToTsIdent for swc_core::ecma::ast::Ident {
-    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
+        self
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsIdent for &swc_core::ecma::ast::Ident {
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
         self.clone()
     }
 }
 
 #[cfg(feature = "swc")]
 impl ToTsIdent for String {
-    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
-        swc_core::ecma::ast::Ident::new_no_ctxt(self.clone().into(), swc_core::common::DUMMY_SP)
-    }
-}
-
-#[cfg(feature = "swc")]
-impl ToTsIdent for str {
-    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
         swc_core::ecma::ast::Ident::new_no_ctxt(self.into(), swc_core::common::DUMMY_SP)
     }
 }
 
 #[cfg(feature = "swc")]
-impl ToTsIdent for &str {
-    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
-        (*self).to_ts_ident()
+impl ToTsIdent for &String {
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
+        self.clone().to_ts_ident()
     }
 }
 
 #[cfg(feature = "swc")]
-impl ToTsIdent for &String {
-    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
-        self.as_str().to_ts_ident()
+impl ToTsIdent for &str {
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
+        swc_core::ecma::ast::Ident::new_no_ctxt(self.into(), swc_core::common::DUMMY_SP)
     }
 }
 
 /// Convert an Expr to an Ident. Only works for identifier expressions.
 #[cfg(feature = "swc")]
 impl ToTsIdent for swc_core::ecma::ast::Expr {
-    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
         match self {
-            swc_core::ecma::ast::Expr::Ident(ident) => ident.clone(),
+            swc_core::ecma::ast::Expr::Ident(ident) => ident,
             // For non-ident expressions, create a placeholder identifier
             _ => swc_core::ecma::ast::Ident::new_no_ctxt(
                 "__expr__".into(),
@@ -436,15 +440,22 @@ impl ToTsIdent for swc_core::ecma::ast::Expr {
     }
 }
 
+#[cfg(feature = "swc")]
+impl ToTsIdent for &swc_core::ecma::ast::Expr {
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
+        self.clone().to_ts_ident()
+    }
+}
+
 /// Convert a TsType to an Ident. Only works for type references with simple names.
 #[cfg(feature = "swc")]
 impl ToTsIdent for swc_core::ecma::ast::TsType {
-    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
         match self {
             swc_core::ecma::ast::TsType::TsTypeRef(swc_core::ecma::ast::TsTypeRef {
                 type_name: swc_core::ecma::ast::TsEntityName::Ident(ident),
                 ..
-            }) => ident.clone(),
+            }) => ident,
             // For other types, create a placeholder
             _ => swc_core::ecma::ast::Ident::new_no_ctxt(
                 "__type__".into(),
@@ -455,9 +466,16 @@ impl ToTsIdent for swc_core::ecma::ast::TsType {
 }
 
 #[cfg(feature = "swc")]
+impl ToTsIdent for &swc_core::ecma::ast::TsType {
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
+        self.clone().to_ts_ident()
+    }
+}
+
+#[cfg(feature = "swc")]
 impl ToTsIdent for Box<swc_core::ecma::ast::TsType> {
-    fn to_ts_ident(&self) -> swc_core::ecma::ast::Ident {
-        (**self).to_ts_ident()
+    fn to_ts_ident(self) -> swc_core::ecma::ast::Ident {
+        (*self).to_ts_ident()
     }
 }
 
@@ -465,7 +483,7 @@ impl ToTsIdent for Box<swc_core::ecma::ast::TsType> {
 ///
 /// This is a convenience wrapper for [`ToTsIdent`].
 #[cfg(feature = "swc")]
-pub fn to_ts_ident<T: ToTsIdent>(value: &T) -> swc_core::ecma::ast::Ident {
+pub fn to_ts_ident<T: ToTsIdent>(value: T) -> swc_core::ecma::ast::Ident {
     value.to_ts_ident()
 }
 
@@ -1435,6 +1453,363 @@ pub fn emit_stmt(stmt: &swc_core::ecma::ast::Stmt) -> String {
         let _ = emitter.emit_module(&module);
     }
     String::from_utf8(buf).unwrap_or_default()
+}
+
+// =============================================================================
+// ToTsString trait for string-based template interpolation
+// =============================================================================
+
+/// Trait for converting values to TypeScript string representations.
+///
+/// This trait is used by `ts_template!` macro for interpolating values into
+/// string-based templates. It provides a unified way to convert both standard
+/// Rust types and SWC AST types to their TypeScript string form.
+///
+/// # Implementations
+///
+/// - Primitive types (`String`, `&str`, numbers, `bool`) use their standard string representation
+/// - SWC AST types (`Expr`, `Ident`, `TsType`, `Stmt`) use the appropriate emit functions
+/// - Wrapper types (`TsExpr`, `TsIdent`, etc.) delegate to their inner type
+pub trait ToTsString {
+    /// Convert this value to a TypeScript string representation.
+    fn to_ts_string(&self) -> String;
+}
+
+// Implementations for common Rust types
+// Note: Strings are output as-is (without quotes) for identifier concatenation.
+// For string literals in expressions, use expr_str() or similar helper.
+impl ToTsString for String {
+    fn to_ts_string(&self) -> String {
+        self.clone()
+    }
+}
+
+impl ToTsString for str {
+    fn to_ts_string(&self) -> String {
+        self.to_owned()
+    }
+}
+
+impl ToTsString for bool {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for i8 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for i16 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for i32 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for i64 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for i128 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for isize {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for u8 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for u16 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for u32 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for u64 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for u128 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for usize {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for f32 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for f64 {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToTsString for char {
+    fn to_ts_string(&self) -> String {
+        self.to_string()
+    }
+}
+
+// Implementation for SWC AST types
+#[cfg(feature = "swc")]
+impl ToTsString for swc_core::ecma::ast::Expr {
+    fn to_ts_string(&self) -> String {
+        emit_expr(self)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsString for swc_core::ecma::ast::Ident {
+    fn to_ts_string(&self) -> String {
+        self.sym.to_string()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsString for swc_core::ecma::ast::TsType {
+    fn to_ts_string(&self) -> String {
+        emit_ts_type(self)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsString for swc_core::ecma::ast::Stmt {
+    fn to_ts_string(&self) -> String {
+        emit_stmt(self)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ToTsString for crate::TsStream {
+    fn to_ts_string(&self) -> String {
+        self.source().to_string()
+    }
+}
+
+// Reference implementations
+impl<T: ToTsString + ?Sized> ToTsString for &T {
+    fn to_ts_string(&self) -> String {
+        (*self).to_ts_string()
+    }
+}
+
+impl<T: ToTsString + ?Sized> ToTsString for &mut T {
+    fn to_ts_string(&self) -> String {
+        (**self).to_ts_string()
+    }
+}
+
+impl<T: ToTsString + ?Sized> ToTsString for Box<T> {
+    fn to_ts_string(&self) -> String {
+        (**self).to_ts_string()
+    }
+}
+
+impl<T: ToTsString + Clone> ToTsString for std::borrow::Cow<'_, T> {
+    fn to_ts_string(&self) -> String {
+        self.as_ref().to_ts_string()
+    }
+}
+
+impl<T: ToTsString> ToTsString for std::rc::Rc<T> {
+    fn to_ts_string(&self) -> String {
+        (**self).to_ts_string()
+    }
+}
+
+impl<T: ToTsString> ToTsString for std::sync::Arc<T> {
+    fn to_ts_string(&self) -> String {
+        (**self).to_ts_string()
+    }
+}
+
+/// Wrapper for [`swc_core::ecma::ast::Expr`] that implements [`Display`] and [`ToTsString`].
+///
+/// This allows expressions to be interpolated into string-based templates
+/// using `@{expr}` syntax, where the expression will be emitted as TypeScript code.
+///
+/// # Example
+/// ```ignore
+/// use macroforge_ts_syn::{TsExpr, swc_ecma_ast::Expr};
+///
+/// let expr: Expr = /* ... */;
+/// let wrapped = TsExpr(expr);
+/// println!("const x = {};", wrapped); // Emits: const x = <expr>;
+/// ```
+#[cfg(feature = "swc")]
+#[derive(Debug, Clone)]
+pub struct TsExpr(pub swc_core::ecma::ast::Expr);
+
+#[cfg(feature = "swc")]
+impl std::fmt::Display for TsExpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", emit_expr(&self.0))
+    }
+}
+
+#[cfg(feature = "swc")]
+impl From<swc_core::ecma::ast::Expr> for TsExpr {
+    fn from(expr: swc_core::ecma::ast::Expr) -> Self {
+        TsExpr(expr)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl std::ops::Deref for TsExpr {
+    type Target = swc_core::ecma::ast::Expr;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+/// Wrapper for [`swc_core::ecma::ast::Ident`] that implements [`Display`].
+///
+/// This allows identifiers to be interpolated into string-based templates.
+/// The identifier's symbol (name) is emitted directly.
+///
+/// # Example
+/// ```ignore
+/// use macroforge_ts_syn::{TsIdent, ident};
+///
+/// let id = TsIdent(ident!("myVariable"));
+/// println!("const {} = 42;", id); // Emits: const myVariable = 42;
+/// ```
+#[cfg(feature = "swc")]
+#[derive(Debug, Clone)]
+pub struct TsIdent(pub swc_core::ecma::ast::Ident);
+
+#[cfg(feature = "swc")]
+impl std::fmt::Display for TsIdent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0.sym)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl From<swc_core::ecma::ast::Ident> for TsIdent {
+    fn from(ident: swc_core::ecma::ast::Ident) -> Self {
+        TsIdent(ident)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl std::ops::Deref for TsIdent {
+    type Target = swc_core::ecma::ast::Ident;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+/// Wrapper for [`swc_core::ecma::ast::TsType`] that implements [`Display`].
+///
+/// This allows TypeScript types to be interpolated into string-based templates.
+///
+/// # Example
+/// ```ignore
+/// use macroforge_ts_syn::TsTypeWrapper;
+///
+/// let ty: TsType = /* ... */;
+/// let wrapped = TsTypeWrapper(ty);
+/// println!("type Alias = {};", wrapped); // Emits: type Alias = <type>;
+/// ```
+#[cfg(feature = "swc")]
+#[derive(Debug, Clone)]
+pub struct TsTypeWrapper(pub swc_core::ecma::ast::TsType);
+
+#[cfg(feature = "swc")]
+impl std::fmt::Display for TsTypeWrapper {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", emit_ts_type(&self.0))
+    }
+}
+
+#[cfg(feature = "swc")]
+impl From<swc_core::ecma::ast::TsType> for TsTypeWrapper {
+    fn from(ty: swc_core::ecma::ast::TsType) -> Self {
+        TsTypeWrapper(ty)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl std::ops::Deref for TsTypeWrapper {
+    type Target = swc_core::ecma::ast::TsType;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+/// Wrapper for [`swc_core::ecma::ast::Stmt`] that implements [`Display`].
+///
+/// This allows statements to be interpolated into string-based templates.
+///
+/// # Example
+/// ```ignore
+/// use macroforge_ts_syn::TsStmt;
+///
+/// let stmt: Stmt = /* ... */;
+/// let wrapped = TsStmt(stmt);
+/// println!("{}", wrapped); // Emits the statement
+/// ```
+#[cfg(feature = "swc")]
+#[derive(Debug, Clone)]
+pub struct TsStmt(pub swc_core::ecma::ast::Stmt);
+
+#[cfg(feature = "swc")]
+impl std::fmt::Display for TsStmt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", emit_stmt(&self.0))
+    }
+}
+
+#[cfg(feature = "swc")]
+impl From<swc_core::ecma::ast::Stmt> for TsStmt {
+    fn from(stmt: swc_core::ecma::ast::Stmt) -> Self {
+        TsStmt(stmt)
+    }
+}
+
+#[cfg(feature = "swc")]
+impl std::ops::Deref for TsStmt {
+    type Target = swc_core::ecma::ast::Stmt;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 // =============================================================================

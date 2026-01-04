@@ -744,6 +744,28 @@ pub fn parse_ts_module(code: &str) -> Result<Module, TsSynError> {
     parse_ts_str(code)
 }
 
+/// Parse a snippet of TypeScript code as a type annotation.
+#[cfg(feature = "swc")]
+pub fn parse_ts_type(code: &str) -> Result<TsType, TsSynError> {
+    use swc_core::ecma::ast::{Decl, ModuleItem, Stmt};
+
+    // Wrap as `type __T = <type>;` for parsing
+    let wrapped = format!("type __T = {};", code);
+    let module: Module = parse_ts_str(&wrapped)?;
+
+    // Extract the type from the alias declaration
+    for item in module.body {
+        if let ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(alias))) = item {
+            return Ok(*alias.type_ann);
+        }
+    }
+
+    Err(TsSynError::Parse(format!(
+        "Failed to parse type: {}",
+        code
+    )))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
