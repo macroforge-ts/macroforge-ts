@@ -25,6 +25,8 @@ impl Parser {
             SyntaxKind::ConstKw | SyntaxKind::LetKw | SyntaxKind::VarKw => self.parse_var_decl(false),
             SyntaxKind::At => self.parse_interpolation()
                 .map_err(|e| e.with_context("statement placeholder")),
+            // Block statement: { ... }
+            SyntaxKind::LBrace => self.parse_block_stmt(),
             _ => {
                 // Expression statement - collect until semicolon or special tokens
                 let expr = self.parse_ts_expr_until(&[SyntaxKind::Semicolon])

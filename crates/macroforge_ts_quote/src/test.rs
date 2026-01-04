@@ -1,3 +1,9 @@
+//! Tests for the compiler module (AST-based template compilation).
+//!
+//! These tests only run when the `compiler` feature is enabled.
+
+#![cfg(feature = "compiler")]
+
 use crate::compiler::compile_template;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;

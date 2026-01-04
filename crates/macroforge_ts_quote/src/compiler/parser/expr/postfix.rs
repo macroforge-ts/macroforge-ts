@@ -330,7 +330,8 @@ impl Parser {
             // =========================================================================
 
             // Check for binary operator by SyntaxKind first
-            if let Some(bp) = infix_binding_power(kind, &text) {
+            // Note: Comma is handled separately below via parse_sequence_expr
+            if kind != SyntaxKind::Comma && let Some(bp) = infix_binding_power(kind, &text) {
                 if bp.left >= min_bp {
                     let start = left.span().start;
                     // Get the operator

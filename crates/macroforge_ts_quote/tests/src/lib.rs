@@ -142,10 +142,6 @@ mod tests {
         assert!(source.contains("const y = 2"));
     }
 
-    // NOTE: test_nested_for_loops removed - identifier concatenation with placeholders
-    // (`this.@{ident!(row)}_@{ident!(col)}`) not properly patched at runtime.
-    // TODO: Fix placeholder patching for concatenated identifiers.
-
     // =============================================================================
     // ts_template! - Conditional Tests
     // =============================================================================
@@ -189,8 +185,16 @@ mod tests {
         let source = stream.source();
         eprintln!("DEBUG test_if_else_true:\n{}", source);
         // Accept both regular strings and template literals
-        assert!(source.contains(r#"const result = "yes""#) || source.contains("const result = `yes`"), "Expected 'const result = \"yes\"'. Got:\n{}", source);
-        assert!(!source.contains(r#"const result = "no""#) && !source.contains("const result = `no`"), "Should not contain 'no'. Got:\n{}", source);
+        assert!(
+            source.contains(r#"const result = "yes""#) || source.contains("const result = `yes`"),
+            "Expected 'const result = \"yes\"'. Got:\n{}",
+            source
+        );
+        assert!(
+            !source.contains(r#"const result = "no""#) && !source.contains("const result = `no`"),
+            "Should not contain 'no'. Got:\n{}",
+            source
+        );
     }
 
     #[test]
@@ -205,8 +209,16 @@ mod tests {
         };
         let source = stream.source();
         eprintln!("DEBUG test_if_else_false:\n{}", source);
-        assert!(!source.contains(r#"const result = "yes""#), "Should not contain 'yes'. Got:\n{}", source);
-        assert!(source.contains(r#"const result = "no""#) || source.contains("const result = `no`"), "Expected 'const result = \"no\"'. Got:\n{}", source);
+        assert!(
+            !source.contains(r#"const result = "yes""#),
+            "Should not contain 'yes'. Got:\n{}",
+            source
+        );
+        assert!(
+            source.contains(r#"const result = "no""#) || source.contains("const result = `no`"),
+            "Expected 'const result = \"no\"'. Got:\n{}",
+            source
+        );
     }
 
     // NOTE: test_if_else_if_chain removed - {:else if} not properly parsed.
@@ -853,7 +865,7 @@ mod tests {
                 readonly errors: @{errors_name};
                 readonly tainted: @{tainted_name};
                 readonly fields: @{field_controllers_name};
-                validate(): Exit<@{type_name}, Array<{ field: string; message: string }>>;
+                validate(): Exit<@{type_name}, Array<{ field: string; message: string; }>>;
                 reset(overrides?: Partial<@{type_name}>): void;
             }
         };
@@ -863,21 +875,27 @@ mod tests {
 
         assert!(source.contains("export type UserFormErrors"));
         assert!(source.contains("_errors: __gf_Option<Array<string>>"));
-        // Note: field names from String use quoted property syntax in raw source emission
-        assert!(source.contains("\"username\": __gf_Option<Array<string>>"));
-        assert!(source.contains("\"email\": __gf_Option<Array<string>>"));
-        assert!(source.contains("\"tags\": __gf_Option<Array<string>>"));
+        // Field names from String are output as-is (unquoted identifiers)
+        assert!(source.contains("username: __gf_Option<Array<string>>"));
+        assert!(source.contains("email: __gf_Option<Array<string>>"));
+        assert!(source.contains("tags: __gf_Option<Array<string>>"));
 
         assert!(source.contains("export type UserFormTainted"));
-        assert!(source.contains("\"username\": __gf_Option<boolean>"));
-        assert!(source.contains("\"email\": __gf_Option<boolean>"));
-        assert!(source.contains("\"tags\": __gf_Option<boolean>"));
+        assert!(source.contains("username: __gf_Option<boolean>"));
+        assert!(source.contains("email: __gf_Option<boolean>"));
+        assert!(source.contains("tags: __gf_Option<boolean>"));
 
         assert!(source.contains("export interface UserFormFieldControllers"));
-        // Note: there may be extra whitespace between readonly and field name
-        assert!(source.contains("readonly") && source.contains("\"username\": FieldController<string>"));
-        assert!(source.contains("readonly") && source.contains("\"email\": FieldController<string>"));
-        assert!(source.contains("readonly") && source.contains("\"tags\": ArrayFieldController<string>"));
+        // Field names are output as unquoted identifiers
+        assert!(
+            source.contains("readonly username: FieldController<string>")
+        );
+        assert!(
+            source.contains("readonly email: FieldController<string>")
+        );
+        assert!(
+            source.contains("readonly tags: ArrayFieldController<string>")
+        );
 
         assert!(source.contains("export interface UserFormGigaform"));
         assert!(source.contains("readonly data: UserForm"));
@@ -1283,14 +1301,13 @@ mod tests {
     fn test_standalone_raw_string_placeholder() {
         let val = "hello";
         let stream = ts_template! {
-            x = @{val};
+            x = "@{val}";
         };
         let source = stream.source();
         eprintln!("DEBUG test_standalone_raw_string_placeholder:\n{}", source);
-        // Should produce: x = "hello";
-        // Raw strings become string literals via ToTsExpr
+        // Quotes are part of the template, interpolation fills the value
         assert!(
-            source.contains("x = \"hello\"") || source.contains("x = 'hello'"),
+            source.contains("x = \"hello\""),
             "Expected string literal. Got:\n{}",
             source
         );
@@ -1351,14 +1368,20 @@ mod tests {
             x = cond ? 1 : @{val}
         };
         let source = stream.source();
-        eprintln!("DEBUG test_placeholder_in_ternary_false (no semi):\n{}", source);
+        eprintln!(
+            "DEBUG test_placeholder_in_ternary_false (no semi):\n{}",
+            source
+        );
 
         // Now with semicolon
         let stream2 = ts_template! {
             x = cond ? 1 : @{val};
         };
         let source2 = stream2.source();
-        eprintln!("DEBUG test_placeholder_in_ternary_false (with semi):\n{}", source2);
+        eprintln!(
+            "DEBUG test_placeholder_in_ternary_false (with semi):\n{}",
+            source2
+        );
 
         assert!(
             !source2.contains("$MfPh"),
@@ -1392,7 +1415,10 @@ mod tests {
             x = @{name}Bar ? parse(@{name}Bar) : @{val};
         };
         let source = stream.source();
-        eprintln!("DEBUG test_ident_suffix_then_ternary_placeholder:\n{}", source);
+        eprintln!(
+            "DEBUG test_ident_suffix_then_ternary_placeholder:\n{}",
+            source
+        );
         assert!(
             source.contains("fooBar"),
             "Should contain fooBar. Got:\n{}",

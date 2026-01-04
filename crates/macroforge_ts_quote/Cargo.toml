@@ -17,6 +17,12 @@ readme = "README.md"
 [lib]
 proc-macro = true
 
+[features]
+default = []
+# Enable the AST-based compiler for ts_template! macro
+# This provides compile-time AST validation but has more complex parsing
+compiler = []
+
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(swc_ast_unknown)'] }
 

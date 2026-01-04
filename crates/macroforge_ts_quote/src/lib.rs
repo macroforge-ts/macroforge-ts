@@ -47,10 +47,12 @@ use self::{
 
 mod ast;
 mod builder;
+#[cfg(feature = "compiler")]
 mod compiler;
 mod ctxt;
 mod input;
 mod ret_type;
+mod template;
 #[cfg(test)]
 mod test;
 
@@ -145,8 +147,19 @@ fn ts_quote_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2::To
 /// - `Bottom` - Insert at the bottom of the file
 #[proc_macro]
 pub fn ts_template(input: TokenStream) -> TokenStream {
-    match compiler::compile_template_tokens(input.into()) {
-        Ok(tokens) => tokens.into(),
-        Err(err) => err.to_compile_error().into(),
+    #[cfg(feature = "compiler")]
+    {
+        match compiler::compile_template_tokens(input.into()) {
+            Ok(tokens) => tokens.into(),
+            Err(err) => err.to_compile_error().into(),
+        }
+    }
+
+    #[cfg(not(feature = "compiler"))]
+    {
+        match template::compile_template(input.into()) {
+            Ok(tokens) => tokens.into(),
+            Err(err) => err.to_compile_error().into(),
+        }
     }
 }
