@@ -1,4 +1,25 @@
 {
     "nodeModulesDir": "manual",
-    "unstable": ["detect-cjs"]
+    "unstable": ["detect-cjs"],
+    "tasks": {
+        "test": "deno test --allow-all --no-check --env-file=../../.env *.test.mjs",
+        "test:validators": "deno test --allow-all --no-check validators/*.test.mjs",
+        "test:e2e": "npx playwright test",
+        "test:e2e:vanilla": "npx playwright test --config=playwright.config.ts",
+        "test:e2e:svelte": "npx playwright test --config=playwright.svelte.config.ts",
+        "playwright:install": "npx playwright install chromium",
+        "clean": "rm -rf node_modules",
+        "install": "deno install"
+    },
+    "imports": {
+        "macroforge": "../../../crates/macroforge_ts",
+        "@playground/macro": "../macro",
+        "@macroforge/typescript-plugin": "../../../packages/typescript-plugin",
+        "@macroforge/vite-plugin": "../../../packages/vite-plugin",
+        "@macroforge/shared": "../../../packages/shared",
+        "@vtsls/language-server": "npm:@vtsls/language-server@^0.2.9",
+        "@playwright/test": "npm:@playwright/test@^1.49.0",
+        "typescript": "npm:typescript@^5",
+        "vite": "npm:vite@^7.2.6"
+    }
 }

@@ -1,4 +1,4 @@
-import { macroforge } from '@macroforge/vite-plugin';
+import { macroforge } from '../../../packages/vite-plugin/src/index.js';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 

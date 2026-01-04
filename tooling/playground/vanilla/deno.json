@@ -1,3 +1,27 @@
 {
-    "nodeModulesDir": "auto"
+    "nodeModulesDir": "auto",
+    "unstable": ["detect-cjs"],
+    "tasks": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "clean": "rm -rf node_modules",
+        "cleanbuild": "deno task clean && deno install && deno task build"
+    },
+    "imports": {
+        "macroforge": "../../../crates/macroforge_ts",
+        "macroforge/serde": "../../../crates/macroforge_ts/js/serde/index.mjs",
+        "macroforge/traits": "../../../crates/macroforge_ts/js/traits/index.mjs",
+        "macroforge/reexports": "../../../crates/macroforge_ts/js/reexports/index.mjs",
+        "macroforge/reexports/effect": "../../../crates/macroforge_ts/js/reexports/effect.mjs",
+        "@playground/macro": "../macro",
+        "@macroforge/vite-plugin": "../../../packages/vite-plugin",
+        "@macroforge/typescript-plugin": "../../../packages/typescript-plugin",
+        "@macroforge/shared": "../../../packages/shared",
+        "effect": "npm:effect@^3.19.4",
+        "@types/node": "npm:@types/node@^22.10.2",
+        "typescript": "npm:typescript@^5.9.3",
+        "vite": "npm:vite@^7.2.4",
+        "@deno-plc/vite-plugin-deno": "jsr:@deno-plc/vite-plugin-deno"
+    }
 }
