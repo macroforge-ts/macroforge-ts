@@ -1,3 +1,46 @@
 {
-    "nodeModulesDir": "auto"
+    "nodeModulesDir": "auto",
+    "unstable": ["detect-cjs"],
+    "tasks": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "preview": "vite preview",
+        "prepare": "svelte-kit sync || echo ''",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "clean": "rm -rf node_modules .svelte-kit",
+        "cleanbuild": "deno task clean && deno install && deno task build",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "imports": {
+        "macroforge": "../../../crates/macroforge_ts",
+        "@playground/macro": "../macro",
+        "@macroforge/svelte-preprocessor": "../../../packages/svelte-preprocessor",
+        "@macroforge/typescript-plugin": "../../../packages/typescript-plugin",
+        "@macroforge/vite-plugin": "../../../packages/vite-plugin",
+        "@macroforge/shared": "../../../packages/shared",
+        "@emotion/weak-memoize": "npm:@emotion/weak-memoize@^0.4.0",
+        "effect": "npm:effect@^3.19.4",
+        "runed": "npm:runed@^0.36.0",
+        "svelte-toolbelt": "npm:svelte-toolbelt@^0.10.6",
+        "ts-deepmerge": "npm:ts-deepmerge@^7.0.3",
+        "@inlang/paraglide-js": "npm:@inlang/paraglide-js@^2.6.0",
+        "@sveltejs/adapter-auto": "npm:@sveltejs/adapter-auto@^7.0.0",
+        "@sveltejs/kit": "npm:@sveltejs/kit@^2.49.0",
+        "@sveltejs/vite-plugin-svelte": "npm:@sveltejs/vite-plugin-svelte@^6.2.1",
+        "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.1.10",
+        "@testing-library/jest-dom": "npm:@testing-library/jest-dom@^6.6.3",
+        "@testing-library/svelte": "npm:@testing-library/svelte@^5.2.7",
+        "@types/node": "npm:@types/node@^25.0.3",
+        "jsdom": "npm:jsdom@^26.1.0",
+        "json-schema": "npm:json-schema@^0.4.0",
+        "svelte": "npm:svelte@^5.43.8",
+        "svelte-check": "npm:svelte-check@^4.3.4",
+        "tailwind-merge": "npm:tailwind-merge@^3.4.0",
+        "tailwindcss": "npm:tailwindcss@^4.1.10",
+        "typescript": "npm:typescript@^5.9.3",
+        "vite": "npm:vite@^7.2.2",
+        "vitest": "npm:vitest@^3.2.4"
+    }
 }
