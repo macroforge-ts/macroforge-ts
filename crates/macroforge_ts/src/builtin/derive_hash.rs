@@ -113,7 +113,7 @@ use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, ts_ident, parse_ts_expr, parse_ts_macro_input,
+    Data, DeriveInput, MacroforgeError, TsStream, parse_ts_expr, parse_ts_macro_input, ts_ident,
 };
 
 /// Contains field information needed for hash code generation.

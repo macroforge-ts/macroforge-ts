@@ -40,12 +40,12 @@
  * ```
  */
 export interface Clone<T> {
-    /**
-     * Creates a deep copy of the value.
-     * @param self - The value to clone
-     * @returns A new independent copy of the value
-     */
-    readonly clone: (self: T) => T;
+  /**
+   * Creates a deep copy of the value.
+   * @param self - The value to clone
+   * @returns A new independent copy of the value
+   */
+  readonly clone: (self: T) => T;
 }
 /**
  * Trait for types with a human-readable string representation.
@@ -62,12 +62,12 @@ export interface Clone<T> {
  * ```
  */
 export interface Debug<T> {
-    /**
-     * Returns a debug string representation of the value.
-     * @param self - The value to format
-     * @returns A human-readable string for debugging
-     */
-    readonly toString: (self: T) => string;
+  /**
+   * Returns a debug string representation of the value.
+   * @param self - The value to format
+   * @returns A human-readable string for debugging
+   */
+  readonly toString: (self: T) => string;
 }
 /**
  * Trait for types with a default value.
@@ -84,11 +84,11 @@ export interface Debug<T> {
  * ```
  */
 export interface Default<T> {
-    /**
-     * Creates a new instance with default values for all fields.
-     * @returns A new instance with default field values
-     */
-    readonly defaultValue: () => T;
+  /**
+   * Creates a new instance with default values for all fields.
+   * @returns A new instance with default field values
+   */
+  readonly defaultValue: () => T;
 }
 /**
  * Trait for types that support equality comparison.
@@ -106,13 +106,13 @@ export interface Default<T> {
  * ```
  */
 export interface PartialEq<T> {
-    /**
-     * Compares two values for equality.
-     * @param self - The first value
-     * @param other - The second value (accepts unknown for flexibility)
-     * @returns `true` if the values are equal, `false` otherwise
-     */
-    readonly equals: (self: T, other: unknown) => boolean;
+  /**
+   * Compares two values for equality.
+   * @param self - The first value
+   * @param other - The second value (accepts unknown for flexibility)
+   * @returns `true` if the values are equal, `false` otherwise
+   */
+  readonly equals: (self: T, other: unknown) => boolean;
 }
 /**
  * Trait for types that can produce a hash code.
@@ -132,12 +132,12 @@ export interface PartialEq<T> {
  * ```
  */
 export interface Hash<T> {
-    /**
-     * Computes a hash code for the value.
-     * @param self - The value to hash
-     * @returns A 32-bit integer hash code
-     */
-    readonly hashCode: (self: T) => number;
+  /**
+   * Computes a hash code for the value.
+   * @param self - The value to hash
+   * @returns A 32-bit integer hash code
+   */
+  readonly hashCode: (self: T) => number;
 }
 /**
  * Trait for types with partial ordering.
@@ -160,13 +160,13 @@ export interface Hash<T> {
  * ```
  */
 export interface PartialOrd<T> {
-    /**
-     * Compares two values for ordering.
-     * @param self - The first value
-     * @param other - The second value
-     * @returns `-1` if self < other, `0` if equal, `1` if self > other, or `null` if incomparable
-     */
-    readonly compareTo: (self: T, other: unknown) => number | null;
+  /**
+   * Compares two values for ordering.
+   * @param self - The first value
+   * @param other - The second value
+   * @returns `-1` if self < other, `0` if equal, `1` if self > other, or `null` if incomparable
+   */
+  readonly compareTo: (self: T, other: unknown) => number | null;
 }
 /**
  * Trait for types with total ordering.
@@ -183,13 +183,13 @@ export interface PartialOrd<T> {
  * ```
  */
 export interface Ord<T> {
-    /**
-     * Compares two values for ordering (total order).
-     * @param self - The first value
-     * @param other - The second value
-     * @returns `-1` if self < other, `0` if equal, `1` if self > other
-     */
-    readonly compareTo: (self: T, other: T) => number;
+  /**
+   * Compares two values for ordering (total order).
+   * @param self - The first value
+   * @param other - The second value
+   * @returns `-1` if self < other, `0` if equal, `1` if self > other
+   */
+  readonly compareTo: (self: T, other: T) => number;
 }
 /**
  * Trait for types that can be serialized to JSON.
@@ -209,18 +209,18 @@ export interface Ord<T> {
  * ```
  */
 export interface Serialize<T> {
-    /**
-     * Serializes the value to a JSON string.
-     * @param self - The value to serialize
-     * @returns JSON string with `__type` and `__id` markers
-     */
-    readonly toStringifiedJSON: (self: T) => string;
-    /**
-     * Converts the value to a plain JavaScript object.
-     * @param self - The value to convert
-     * @returns Plain object suitable for JSON.stringify
-     */
-    readonly toObject: (self: T) => Record<string, unknown>;
+  /**
+   * Serializes the value to a JSON string.
+   * @param self - The value to serialize
+   * @returns JSON string with `__type` and `__id` markers
+   */
+  readonly toStringifiedJSON: (self: T) => string;
+  /**
+   * Converts the value to a plain JavaScript object.
+   * @param self - The value to convert
+   * @returns Plain object suitable for JSON.stringify
+   */
+  readonly toObject: (self: T) => Record<string, unknown>;
 }
 /**
  * Trait for types that can be deserialized from JSON.
@@ -241,16 +241,16 @@ export interface Serialize<T> {
  * ```
  */
 export interface Deserialize<T> {
-    /**
-     * Deserializes a value from a JSON string.
-     * @param json - JSON string to parse
-     * @returns The deserialized value (may throw on invalid input)
-     */
-    readonly fromStringifiedJSON: (json: string) => T;
-    /**
-     * Deserializes a value from a plain JavaScript object.
-     * @param obj - Object to deserialize from
-     * @returns The deserialized value (may throw on invalid input)
-     */
-    readonly fromObject: (obj: unknown) => T;
+  /**
+   * Deserializes a value from a JSON string.
+   * @param json - JSON string to parse
+   * @returns The deserialized value (may throw on invalid input)
+   */
+  readonly fromStringifiedJSON: (json: string) => T;
+  /**
+   * Deserializes a value from a plain JavaScript object.
+   * @param obj - Object to deserialize from
+   * @returns The deserialized value (may throw on invalid input)
+   */
+  readonly fromObject: (obj: unknown) => T;
 }

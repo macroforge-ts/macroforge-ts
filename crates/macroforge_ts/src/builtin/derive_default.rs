@@ -122,11 +122,10 @@ use convert_case::{Case, Casing};
 use crate::builtin::derive_common::{DefaultFieldOptions, get_type_default, has_known_default};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
-use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, emit_expr, parse_ts_expr,
-    parse_ts_macro_input,
-};
 use crate::ts_syn::ts_ident;
+use crate::ts_syn::{
+    Data, DeriveInput, MacroforgeError, TsStream, emit_expr, parse_ts_expr, parse_ts_macro_input,
+};
 
 /// Contains field information needed for default value generation.
 ///

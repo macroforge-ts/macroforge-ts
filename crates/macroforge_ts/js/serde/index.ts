@@ -217,7 +217,9 @@ export namespace DeserializeContext {
    */
   export function create(): DeserializeContext {
     const registry = new Map<number, any>();
-    const patches: Array<{ target: any; prop: string | number; refId: number }> = [];
+    const patches: Array<
+      { target: any; prop: string | number; refId: number }
+    > = [];
     const toFreeze: object[] = [];
 
     return {
