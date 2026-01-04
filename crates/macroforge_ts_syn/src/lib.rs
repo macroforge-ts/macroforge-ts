@@ -885,7 +885,7 @@ macro_rules! stmt_block_from_vec {
 /// Function with parameters:
 ///
 /// ```rust,ignore
-/// use macroforge_ts_syn::{fn_expr, ident};
+/// use macroforge_ts_syn::{fn_expr, ts_ident};
 /// use swc_core::ecma::ast::{Param, Pat, Stmt};
 /// use swc_core::common::DUMMY_SP;
 ///
@@ -893,7 +893,7 @@ macro_rules! stmt_block_from_vec {
 ///     Param {
 ///         span: DUMMY_SP,
 ///         decorators: vec![],
-///         pat: Pat::Ident(ident!("x").into()),
+///         pat: Pat::Ident(ts_ident!("x").into()),
 ///     }
 /// ];
 /// let body: Vec<Stmt> = vec![];
@@ -961,7 +961,7 @@ macro_rules! fn_expr {
 /// Accessing a property:
 ///
 /// ```rust,ignore
-/// use macroforge_ts_syn::{member_expr, ident};
+/// use macroforge_ts_syn::{member_expr, ts_ident};
 /// use swc_core::ecma::ast::{Expr, ThisExpr};
 /// use swc_core::common::DUMMY_SP;
 ///
@@ -973,10 +973,10 @@ macro_rules! fn_expr {
 /// Chaining member access:
 ///
 /// ```rust
-/// use macroforge_ts_syn::{member_expr, ident};
+/// use macroforge_ts_syn::{member_expr, ts_ident};
 /// use macroforge_ts_syn::swc_ecma_ast::Expr;
 ///
-/// let obj = Expr::Ident(ident!("obj"));
+/// let obj = Expr::Ident(ts_ident!("obj"));
 /// let _nested = member_expr!(member_expr!(obj, "foo"), "bar");
 /// // Generates: obj.foo.bar
 /// ```
@@ -984,10 +984,10 @@ macro_rules! fn_expr {
 /// Accessing prototype:
 ///
 /// ```rust
-/// use macroforge_ts_syn::{member_expr, ident};
+/// use macroforge_ts_syn::{member_expr, ts_ident};
 /// use macroforge_ts_syn::swc_ecma_ast::Expr;
 ///
-/// let class = Expr::Ident(ident!("MyClass"));
+/// let class = Expr::Ident(ts_ident!("MyClass"));
 /// let _proto = member_expr!(class, "prototype");
 /// // Generates: MyClass.prototype
 /// ```
@@ -1023,11 +1023,11 @@ macro_rules! member_expr {
 /// Simple variable assignment:
 ///
 /// ```rust,ignore
-/// use macroforge_ts_syn::{assign_stmt, ident};
+/// use macroforge_ts_syn::{assign_stmt, ts_ident};
 /// use swc_core::ecma::ast::{AssignTarget, SimpleAssignTarget, Expr, Lit, Number};
 /// use swc_core::common::DUMMY_SP;
 ///
-/// let target = AssignTarget::Simple(SimpleAssignTarget::Ident(ident!("x").into()));
+/// let target = AssignTarget::Simple(SimpleAssignTarget::Ident(ts_ident!("x").into()));
 /// let value = Expr::Lit(Lit::Num(Number { span: DUMMY_SP, value: 42.0, raw: None }));
 ///
 /// let stmt = assign_stmt!(target, value);
@@ -1037,7 +1037,7 @@ macro_rules! member_expr {
 /// Property assignment:
 ///
 /// ```rust,ignore
-/// use macroforge_ts_syn::{assign_stmt, member_expr, ident};
+/// use macroforge_ts_syn::{assign_stmt, member_expr, ts_ident};
 /// use swc_core::ecma::ast::{AssignTarget, SimpleAssignTarget, Expr, Lit, ThisExpr};
 /// use swc_core::common::DUMMY_SP;
 ///
@@ -1089,10 +1089,10 @@ macro_rules! assign_stmt {
 /// Adding a method to a prototype (no params):
 ///
 /// ```rust
-/// use macroforge_ts_syn::{fn_assign, ident, member_expr};
+/// use macroforge_ts_syn::{fn_assign, ts_ident, member_expr};
 /// use macroforge_ts_syn::swc_ecma_ast::{Expr, Stmt};
 ///
-/// let class_expr = Expr::Ident(ident!("MyClass"));
+/// let class_expr = Expr::Ident(ts_ident!("MyClass"));
 /// let proto = member_expr!(class_expr, "prototype");
 ///
 /// let body: Vec<Stmt> = vec![];
@@ -1103,15 +1103,15 @@ macro_rules! assign_stmt {
 /// Adding a method with parameters:
 ///
 /// ```rust,ignore
-/// use macroforge_ts_syn::{fn_assign, ident, member_expr};
+/// use macroforge_ts_syn::{fn_assign, ts_ident, member_expr};
 /// use swc_core::ecma::ast::{Expr, Param, Pat, Stmt};
 /// use swc_core::common::DUMMY_SP;
 ///
-/// let class_expr = Expr::Ident(ident!("MyClass"));
+/// let class_expr = Expr::Ident(ts_ident!("MyClass"));
 /// let proto = member_expr!(class_expr, "prototype");
 ///
 /// let params = vec![
-///     Param { span: DUMMY_SP, decorators: vec![], pat: Pat::Ident(ident!("value").into()) }
+///     Param { span: DUMMY_SP, decorators: vec![], pat: Pat::Ident(ts_ident!("value").into()) }
 /// ];
 /// let body: Vec<Stmt> = vec![];
 ///
@@ -1705,9 +1705,9 @@ impl std::ops::Deref for TsExpr {
 ///
 /// # Example
 /// ```ignore
-/// use macroforge_ts_syn::{TsIdent, ident};
+/// use macroforge_ts_syn::{TsIdent, ts_ident};
 ///
-/// let id = TsIdent(ident!("myVariable"));
+/// let id = TsIdent(ts_ident!("myVariable"));
 /// println!("const {} = 42;", id); // Emits: const myVariable = 42;
 /// ```
 #[cfg(feature = "swc")]

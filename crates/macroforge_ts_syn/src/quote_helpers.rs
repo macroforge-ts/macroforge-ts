@@ -17,11 +17,11 @@
 //! Use `proto_method!` to generate `Class.prototype.method = function() {...}`:
 //!
 //! ```rust
-//! use macroforge_ts_syn::{proto_method, ident};
+//! use macroforge_ts_syn::{proto_method, ts_ident};
 //! use macroforge_ts_syn::swc_ecma_ast::Stmt;
 //!
 //! // Generate: User.prototype.toJSON = function() { return {...}; }
-//! let class_name = ident!("User");
+//! let class_name = ts_ident!("User");
 //! let body: Vec<Stmt> = vec![];
 //!
 //! let _stmt = proto_method!(class_name, "toJSON", body);
@@ -54,13 +54,13 @@
 /// # Example: Basic Usage
 ///
 /// ```rust
-/// use macroforge_ts_syn::{proto_method, ident};
+/// use macroforge_ts_syn::{proto_method, ts_ident};
 /// use macroforge_ts_syn::swc_ecma_ast::Stmt;
 ///
 /// // Generate: MyClass.prototype.toString = function() { return "MyClass"; }
 /// let body_stmts: Vec<Stmt> = vec![];
 ///
-/// let _stmt = proto_method!(ident!("MyClass"), "toString", body_stmts);
+/// let _stmt = proto_method!(ts_ident!("MyClass"), "toString", body_stmts);
 /// ```
 ///
 /// # Example: In a Derive Macro
@@ -68,7 +68,7 @@
 /// ```rust,ignore
 /// fn derive_debug(input: &DeriveInput) -> MacroResult {
 ///     let class = input.as_class().expect("Expected class");
-///     let class_name = ident!(&input.name());
+///     let class_name = ts_ident!(&input.name());
 ///
 ///     // Build the debug() method body
 ///     let body = vec![

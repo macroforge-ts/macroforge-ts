@@ -368,6 +368,23 @@ impl TsStream {
         }
     }
 
+    /// Create a new parsing stream with a specific insert position and runtime patches.
+    /// Used by `ts_template!` to collect patches from embedded TsStreams.
+    pub fn with_insert_pos_and_patches(
+        source: String,
+        insert_pos: crate::abi::InsertPos,
+        runtime_patches: Vec<crate::abi::Patch>,
+    ) -> Self {
+        TsStream {
+            source_map: Lrc::new(Default::default()),
+            source,
+            file_name: "macro_output.ts".to_string(),
+            ctx: None,
+            runtime_patches,
+            insert_pos,
+        }
+    }
+
     /// Get the source code of the stream.
     pub fn source(&self) -> &str {
         &self.source

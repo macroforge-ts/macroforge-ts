@@ -104,14 +104,14 @@ pub fn insert_into_class(class_span: SpanIR, code: impl Into<PatchCode>) -> Patc
 /// # Example
 ///
 /// ```rust,ignore
-/// use macroforge_ts_syn::{insert_class_member, ident, ClassIR};
+/// use macroforge_ts_syn::{insert_class_member, ts_ident, ClassIR};
 /// use swc_core::ecma::ast::*;
 /// use swc_core::common::DUMMY_SP;
 ///
 /// fn add_property(class: &ClassIR) -> Patch {
 ///     let prop = ClassMember::ClassProp(ClassProp {
 ///         span: DUMMY_SP,
-///         key: PropName::Ident(ident!("generated")),
+///         key: PropName::Ident(ts_ident!("generated")),
 ///         value: Some(Box::new(Expr::Lit(Lit::Bool(Bool {
 ///             span: DUMMY_SP,
 ///             value: true,
