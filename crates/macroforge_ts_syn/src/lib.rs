@@ -275,10 +275,7 @@ impl ToTsType for String {
         swc_core::ecma::ast::TsType::TsTypeRef(swc_core::ecma::ast::TsTypeRef {
             span: swc_core::common::DUMMY_SP,
             type_name: swc_core::ecma::ast::TsEntityName::Ident(
-                swc_core::ecma::ast::Ident::new_no_ctxt(
-                    self.into(),
-                    swc_core::common::DUMMY_SP,
-                ),
+                swc_core::ecma::ast::Ident::new_no_ctxt(self.into(), swc_core::common::DUMMY_SP),
             ),
             type_params: None,
         })
@@ -998,10 +995,12 @@ macro_rules! member_expr {
         $crate::swc_core::ecma::ast::Expr::Member($crate::swc_core::ecma::ast::MemberExpr {
             span: $crate::swc_core::common::DUMMY_SP,
             obj: Box::new($obj),
-            prop: $crate::swc_core::ecma::ast::MemberProp::Ident($crate::swc_core::ecma::ast::IdentName {
-                span: $crate::swc_core::common::DUMMY_SP,
-                sym: $prop.into(),
-            }),
+            prop: $crate::swc_core::ecma::ast::MemberProp::Ident(
+                $crate::swc_core::ecma::ast::IdentName {
+                    span: $crate::swc_core::common::DUMMY_SP,
+                    sym: $prop.into(),
+                },
+            ),
         })
     };
 }

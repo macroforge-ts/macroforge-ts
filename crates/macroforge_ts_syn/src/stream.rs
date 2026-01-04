@@ -777,10 +777,7 @@ pub fn parse_ts_type(code: &str) -> Result<TsType, TsSynError> {
         }
     }
 
-    Err(TsSynError::Parse(format!(
-        "Failed to parse type: {}",
-        code
-    )))
+    Err(TsSynError::Parse(format!("Failed to parse type: {}", code)))
 }
 
 #[cfg(test)]
