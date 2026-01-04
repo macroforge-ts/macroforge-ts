@@ -1,36 +1,36 @@
 {
-  "dependencies": {
-    "macroforge": "^0.1.65"
-  },
-  "description": "Shared utilities for Macroforge plugins",
-  "devDependencies": {
-    "@types/node": "^22.10.2",
-    "typescript": "^5.9.3"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "main": "./dist/index.js",
-  "name": "@macroforge/shared",
-  "peerDependencies": {
-    "typescript": ">=5.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/macroforge-ts/shared.git"
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "clean": "rm -rf dist",
-    "cleanbuild": "deno task clean && deno task build"
-  },
-  "type": "module",
-  "types": "./dist/index.d.ts",
-  "version": "0.1.65"
+    "dependencies": {
+        "macroforge": "^0.1.65"
+    },
+    "description": "Shared utilities for Macroforge plugins",
+    "devDependencies": {
+        "@types/node": "^22.10.2",
+        "typescript": "^5.9.3"
+    },
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "main": "./dist/index.js",
+    "name": "@macroforge/shared",
+    "peerDependencies": {
+        "typescript": ">=5.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/macroforge-ts/shared.git"
+    },
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "clean": "rm -rf dist",
+        "cleanbuild": "deno task clean && deno task build"
+    },
+    "type": "module",
+    "types": "./dist/index.d.ts",
+    "version": "0.1.65"
 }

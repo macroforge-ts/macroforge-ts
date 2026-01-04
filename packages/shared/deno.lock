@@ -2,7 +2,6 @@
   "version": "5",
   "specifiers": {
     "npm:@types/node@^22.10.2": "22.19.3",
-    "npm:macroforge@~0.1.65": "0.1.65",
     "npm:typescript@^5.9.3": "5.9.3"
   },
   "npm": {
@@ -42,17 +41,6 @@
         "undici-types"
       ]
     },
-    "macroforge@0.1.65": {
-      "integrity": "sha512-glsFLuIZR1QMVkV8bwdseuwQ/3THwwZaNY73qfXpDlx52ddXb16VEkOK6/K7P+NikI8JDSoLgBk1YB6s40xfaw==",
-      "optionalDependencies": [
-        "@macroforge/bin-darwin-arm64",
-        "@macroforge/bin-darwin-x64",
-        "@macroforge/bin-linux-arm64-gnu",
-        "@macroforge/bin-linux-x64-gnu",
-        "@macroforge/bin-win32-arm64-msvc",
-        "@macroforge/bin-win32-x64-msvc"
-      ]
-    },
     "typescript@5.9.3": {
       "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
       "bin": true
@@ -65,7 +53,6 @@
     "packageJson": {
       "dependencies": [
         "npm:@types/node@^22.10.2",
-        "npm:macroforge@~0.1.65",
         "npm:typescript@^5.9.3"
       ]
     }

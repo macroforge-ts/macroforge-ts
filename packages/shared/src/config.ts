@@ -4,18 +4,18 @@
  * Utilities for loading Macroforge configuration files.
  */
 
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 /**
  * Supported config file names in order of precedence.
  */
 export const CONFIG_FILES = [
-  "macroforge.config.ts",
-  "macroforge.config.mts",
-  "macroforge.config.js",
-  "macroforge.config.mjs",
-  "macroforge.config.cjs",
+    'macroforge.config.ts',
+    'macroforge.config.mts',
+    'macroforge.config.js',
+    'macroforge.config.mjs',
+    'macroforge.config.cjs'
 ] as const;
 
 /**
@@ -33,18 +33,18 @@ export const CONFIG_FILES = [
  *   - Deserialize: `Exit<FieldError[], T>`
  *   - PartialOrd: `Option.Option<number>`
  */
-export type ReturnTypesMode = "vanilla" | "custom" | "effect";
+export type ReturnTypesMode = 'vanilla' | 'custom' | 'effect';
 
 /**
  * Result from parsing a config file.
  */
 export interface ConfigLoadResult {
-  keepDecorators: boolean;
-  generateConvenienceConst: boolean;
-  hasForeignTypes: boolean;
-  foreignTypeCount: number;
-  /** Return types mode as a string. Will be "vanilla", "custom", or "effect". */
-  returnTypes: string;
+    keepDecorators: boolean;
+    generateConvenienceConst: boolean;
+    hasForeignTypes: boolean;
+    foreignTypeCount: number;
+    /** Return types mode as a string. Will be "vanilla", "custom", or "effect". */
+    returnTypes: string;
 }
 
 /**
@@ -54,29 +54,29 @@ export interface ConfigLoadResult {
  * These options control the Vite plugin behavior for type generation and metadata emission.
  */
 export interface VitePluginConfig {
-  /**
-   * Whether to generate `.d.ts` type definition files from expanded code.
-   * @default true
-   */
-  generateTypes?: boolean;
+    /**
+     * Whether to generate `.d.ts` type definition files from expanded code.
+     * @default true
+     */
+    generateTypes?: boolean;
 
-  /**
-   * Output directory for generated type definitions, relative to project root.
-   * @default ".macroforge/types"
-   */
-  typesOutputDir?: string;
+    /**
+     * Output directory for generated type definitions, relative to project root.
+     * @default ".macroforge/types"
+     */
+    typesOutputDir?: string;
 
-  /**
-   * Whether to emit macro IR metadata as JSON files.
-   * @default true
-   */
-  emitMetadata?: boolean;
+    /**
+     * Whether to emit macro IR metadata as JSON files.
+     * @default true
+     */
+    emitMetadata?: boolean;
 
-  /**
-   * Output directory for metadata JSON files, relative to project root.
-   * @default ".macroforge/meta"
-   */
-  metadataOutputDir?: string;
+    /**
+     * Output directory for metadata JSON files, relative to project root.
+     * @default ".macroforge/meta"
+     */
+    metadataOutputDir?: string;
 }
 
 /**
@@ -87,54 +87,54 @@ export interface VitePluginConfig {
  * are preserved in the output.
  */
 export interface MacroConfig {
-  /**
-   * Whether to preserve `@derive` decorators in the output code after macro expansion.
-   *
-   * @remarks
-   * When `false` (default), decorators are removed after expansion since they serve
-   * only as compile-time directives. When `true`, decorators are kept in the output,
-   * which can be useful for debugging or when using runtime reflection.
-   */
-  keepDecorators: boolean;
+    /**
+     * Whether to preserve `@derive` decorators in the output code after macro expansion.
+     *
+     * @remarks
+     * When `false` (default), decorators are removed after expansion since they serve
+     * only as compile-time directives. When `true`, decorators are kept in the output,
+     * which can be useful for debugging or when using runtime reflection.
+     */
+    keepDecorators: boolean;
 
-  /**
-   * Whether to generate a convenience const for non-class types.
-   *
-   * @remarks
-   * When `true` (default), generates an `export const TypeName = { ... } as const;`
-   * that groups all generated functions for a type into a single namespace-like object.
-   * For example: `export const User = { clone: userClone, serialize: userSerialize } as const;`
-   *
-   * When `false`, only the standalone functions are generated without the grouping const.
-   */
-  generateConvenienceConst?: boolean;
+    /**
+     * Whether to generate a convenience const for non-class types.
+     *
+     * @remarks
+     * When `true` (default), generates an `export const TypeName = { ... } as const;`
+     * that groups all generated functions for a type into a single namespace-like object.
+     * For example: `export const User = { clone: userClone, serialize: userSerialize } as const;`
+     *
+     * When `false`, only the standalone functions are generated without the grouping const.
+     */
+    generateConvenienceConst?: boolean;
 
-  /**
-   * Path to the config file (used to cache and retrieve foreign types).
-   */
-  configPath?: string;
+    /**
+     * Path to the config file (used to cache and retrieve foreign types).
+     */
+    configPath?: string;
 
-  /**
-   * Whether the config has foreign type handlers defined.
-   */
-  hasForeignTypes?: boolean;
+    /**
+     * Whether the config has foreign type handlers defined.
+     */
+    hasForeignTypes?: boolean;
 
-  /**
-   * Return type style for generated macro code.
-   *
-   * - `'vanilla'` (default): Plain TypeScript discriminated unions
-   * - `'custom'`: Uses `@rydshift/mirror` Result/Option types
-   * - `'effect'`: Uses Effect library Exit/Option types
-   */
-  returnTypes?: ReturnTypesMode;
+    /**
+     * Return type style for generated macro code.
+     *
+     * - `'vanilla'` (default): Plain TypeScript discriminated unions
+     * - `'custom'`: Uses `@rydshift/mirror` Result/Option types
+     * - `'effect'`: Uses Effect library Exit/Option types
+     */
+    returnTypes?: ReturnTypesMode;
 
-  /**
-   * Vite plugin configuration options.
-   *
-   * @remarks
-   * These options configure the `@macroforge/vite-plugin` behavior.
-   */
-  vite?: VitePluginConfig;
+    /**
+     * Vite plugin configuration options.
+     *
+     * @remarks
+     * These options configure the `@macroforge/vite-plugin` behavior.
+     */
+    vite?: VitePluginConfig;
 }
 
 /**
@@ -142,8 +142,8 @@ export interface MacroConfig {
  * This allows plugins to inject their own config loading mechanism.
  */
 export type ConfigLoader = (
-  content: string,
-  filepath: string,
+    content: string,
+    filepath: string
 ) => ConfigLoadResult;
 
 /**
@@ -165,27 +165,27 @@ export type ConfigLoader = (
  * ```
  */
 export function findConfigFile(startDir: string): string | null {
-  let current = startDir;
+    let current = startDir;
 
-  while (true) {
-    for (const filename of CONFIG_FILES) {
-      const candidate = path.join(current, filename);
-      if (fs.existsSync(candidate)) {
-        return candidate;
-      }
+    while (true) {
+        for (const filename of CONFIG_FILES) {
+            const candidate = path.join(current, filename);
+            if (fs.existsSync(candidate)) {
+                return candidate;
+            }
+        }
+
+        // Stop at package.json boundary
+        if (fs.existsSync(path.join(current, 'package.json'))) {
+            break;
+        }
+
+        const parent = path.dirname(current);
+        if (parent === current) break;
+        current = parent;
     }
 
-    // Stop at package.json boundary
-    if (fs.existsSync(path.join(current, "package.json"))) {
-      break;
-    }
-
-    const parent = path.dirname(current);
-    if (parent === current) break;
-    current = parent;
-  }
-
-  return null;
+    return null;
 }
 
 /**
@@ -216,37 +216,37 @@ export function findConfigFile(startDir: string): string | null {
  * ```
  */
 export function loadMacroConfig(
-  startDir: string,
-  loadConfigFn?: ConfigLoader,
+    startDir: string,
+    loadConfigFn?: ConfigLoader
 ): MacroConfig {
-  const fallback: MacroConfig = { keepDecorators: false };
+    const fallback: MacroConfig = { keepDecorators: false };
 
-  const configPath = findConfigFile(startDir);
-  if (!configPath) {
-    return fallback;
-  }
-
-  // If a loader function is provided, use it to parse the config
-  if (loadConfigFn) {
-    try {
-      const content = fs.readFileSync(configPath, "utf8");
-      const result = loadConfigFn(content, configPath);
-
-      return {
-        keepDecorators: result.keepDecorators,
-        generateConvenienceConst: result.generateConvenienceConst,
-        configPath,
-        hasForeignTypes: result.hasForeignTypes,
-        returnTypes: result.returnTypes as ReturnTypesMode,
-      };
-    } catch {
-      // Fall through to fallback
+    const configPath = findConfigFile(startDir);
+    if (!configPath) {
+        return fallback;
     }
-  }
 
-  // Fallback: just mark the path but use defaults
-  return {
-    ...fallback,
-    configPath,
-  };
+    // If a loader function is provided, use it to parse the config
+    if (loadConfigFn) {
+        try {
+            const content = fs.readFileSync(configPath, 'utf8');
+            const result = loadConfigFn(content, configPath);
+
+            return {
+                keepDecorators: result.keepDecorators,
+                generateConvenienceConst: result.generateConvenienceConst,
+                configPath,
+                hasForeignTypes: result.hasForeignTypes,
+                returnTypes: result.returnTypes as ReturnTypesMode
+            };
+        } catch {
+            // Fall through to fallback
+        }
+    }
+
+    // Fallback: just mark the path but use defaults
+    return {
+        ...fallback,
+        configPath
+    };
 }

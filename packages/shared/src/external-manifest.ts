@@ -4,14 +4,14 @@
  * Utilities for loading and caching external macro package manifests.
  */
 
-import { createRequire } from "module";
-import type { MacroManifest, MacroManifestEntry, DecoratorManifestEntry } from "macroforge";
+import { createRequire } from 'node:module';
+import type { DecoratorManifestEntry, MacroManifest, MacroManifestEntry } from 'macroforge';
 
 /**
  * Function type for requiring modules.
  * Accepts any function that can load a module by path.
  */
-export type RequireFunction = (id: string) => any;
+export type RequireFunction = (id: string) => unknown;
 
 /**
  * Cache for external macro package manifests.
@@ -24,7 +24,7 @@ const externalManifestCache = new Map<string, MacroManifest | null>();
  * Useful for testing or when packages may have been updated.
  */
 export function clearExternalManifestCache(): void {
-  externalManifestCache.clear();
+    externalManifestCache.clear();
 }
 
 /**
@@ -44,34 +44,34 @@ export function clearExternalManifestCache(): void {
  * const manifest = getExternalManifest("@playground/macro");
  *
  * // With custom require function (e.g., from vite-plugin)
- * import { createRequire } from "module";
+ * import { createRequire } from "node:module";
  * const moduleRequire = createRequire(import.meta.url);
  * const manifest = getExternalManifest("@playground/macro", moduleRequire);
  * ```
  */
 export function getExternalManifest(
-  modulePath: string,
-  requireFn?: RequireFunction,
+    modulePath: string,
+    requireFn?: RequireFunction
 ): MacroManifest | null {
-  if (externalManifestCache.has(modulePath)) {
-    return externalManifestCache.get(modulePath) ?? null;
-  }
-
-  try {
-    // Use provided require function or create one
-    const req = requireFn ?? createRequire(import.meta.url);
-    const pkg = req(modulePath);
-    if (typeof pkg.__macroforgeGetManifest === "function") {
-      const manifest: MacroManifest = pkg.__macroforgeGetManifest();
-      externalManifestCache.set(modulePath, manifest);
-      return manifest;
+    if (externalManifestCache.has(modulePath)) {
+        return externalManifestCache.get(modulePath) ?? null;
     }
-  } catch {
-    // Package not found or doesn't export manifest
-  }
 
-  externalManifestCache.set(modulePath, null);
-  return null;
+    try {
+        // Use provided require function or create one
+        const req = requireFn ?? createRequire(import.meta.url);
+        const pkg = req(modulePath);
+        if (typeof pkg.__macroforgeGetManifest === 'function') {
+            const manifest: MacroManifest = pkg.__macroforgeGetManifest();
+            externalManifestCache.set(modulePath, manifest);
+            return manifest;
+        }
+    } catch {
+        // Package not found or doesn't export manifest
+    }
+
+    externalManifestCache.set(modulePath, null);
+    return null;
 }
 
 /**
@@ -91,18 +91,18 @@ export function getExternalManifest(
  * ```
  */
 export function getExternalMacroInfo(
-  macroName: string,
-  modulePath: string,
-  requireFn?: RequireFunction,
+    macroName: string,
+    modulePath: string,
+    requireFn?: RequireFunction
 ): MacroManifestEntry | null {
-  const manifest = getExternalManifest(modulePath, requireFn);
-  if (!manifest) return null;
+    const manifest = getExternalManifest(modulePath, requireFn);
+    if (!manifest) return null;
 
-  return (
-    manifest.macros.find(
-      (m) => m.name.toLowerCase() === macroName.toLowerCase(),
-    ) ?? null
-  );
+    return (
+        manifest.macros.find(
+            (m) => m.name.toLowerCase() === macroName.toLowerCase()
+        ) ?? null
+    );
 }
 
 /**
@@ -122,19 +122,19 @@ export function getExternalMacroInfo(
  * ```
  */
 export function getExternalDecoratorInfo(
-  decoratorName: string,
-  modulePath: string,
-  requireFn?: RequireFunction,
+    decoratorName: string,
+    modulePath: string,
+    requireFn?: RequireFunction
 ): DecoratorManifestEntry | null {
-  const manifest = getExternalManifest(modulePath, requireFn);
-  if (!manifest) return null;
+    const manifest = getExternalManifest(modulePath, requireFn);
+    if (!manifest) return null;
 
-  return (
-    manifest.decorators.find(
-      (d) => d.export.toLowerCase() === decoratorName.toLowerCase(),
-    ) ?? null
-  );
+    return (
+        manifest.decorators.find(
+            (d) => d.export.toLowerCase() === decoratorName.toLowerCase()
+        ) ?? null
+    );
 }
 
 // Re-export types for convenience
-export type { MacroManifest, MacroManifestEntry, DecoratorManifestEntry };
+export type { DecoratorManifestEntry, MacroManifest, MacroManifestEntry };

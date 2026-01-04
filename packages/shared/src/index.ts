@@ -11,32 +11,32 @@
  */
 
 // Re-export all utilities
-export { parseMacroImportComments } from "./macro-imports.js";
+export { parseMacroImportComments } from './macro-imports.js';
 
 export {
-  getExternalManifest,
-  getExternalMacroInfo,
-  getExternalDecoratorInfo,
-  clearExternalManifestCache,
-  type MacroManifest,
-  type MacroManifestEntry,
-  type DecoratorManifestEntry,
-  type RequireFunction,
-} from "./external-manifest.js";
+    clearExternalManifestCache,
+    type DecoratorManifestEntry,
+    getExternalDecoratorInfo,
+    getExternalMacroInfo,
+    getExternalManifest,
+    type MacroManifest,
+    type MacroManifestEntry,
+    type RequireFunction
+} from './external-manifest.js';
 
 export {
-  CONFIG_FILES,
-  findConfigFile,
-  loadMacroConfig,
-  type MacroConfig,
-  type VitePluginConfig,
-  type ConfigLoader,
-  type ConfigLoadResult,
-} from "./config.js";
+    CONFIG_FILES,
+    type ConfigLoader,
+    type ConfigLoadResult,
+    findConfigFile,
+    loadMacroConfig,
+    type MacroConfig,
+    type VitePluginConfig
+} from './config.js';
 
 // Import for composite functions
-import { parseMacroImportComments } from "./macro-imports.js";
-import { getExternalManifest, type RequireFunction } from "./external-manifest.js";
+import { parseMacroImportComments } from './macro-imports.js';
+import { getExternalManifest, type RequireFunction } from './external-manifest.js';
 
 /**
  * Collects decorator modules from external macro packages referenced in the code.
@@ -59,14 +59,14 @@ import { getExternalManifest, type RequireFunction } from "./external-manifest.j
  * ```
  */
 export function collectExternalDecoratorModules(
-  code: string,
-  requireFn?: RequireFunction,
+    code: string,
+    requireFn?: RequireFunction
 ): string[] {
-  const imports = parseMacroImportComments(code);
-  const modulePaths = [...new Set(imports.values())];
+    const imports = parseMacroImportComments(code);
+    const modulePaths = [...new Set(imports.values())];
 
-  return modulePaths.flatMap((modulePath) => {
-    const manifest = getExternalManifest(modulePath, requireFn);
-    return manifest?.decorators.map((d) => d.module) ?? [];
-  });
+    return modulePaths.flatMap((modulePath) => {
+        const manifest = getExternalManifest(modulePath, requireFn);
+        return manifest?.decorators.map((d) => d.module) ?? [];
+    });
 }
