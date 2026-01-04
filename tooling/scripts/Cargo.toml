@@ -35,7 +35,7 @@ proc-macro2 = "1"
 
 
 # SWC Core for TypeScript parsing and transformation
-swc_core = { version = "52.0.0", features = [
+swc_core = { version = "54.0.0", features = [
     "ecma_ast",
     "ecma_parser",
     "common"

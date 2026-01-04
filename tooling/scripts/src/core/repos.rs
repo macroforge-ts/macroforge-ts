@@ -59,10 +59,7 @@ impl EnvConfig {
 
     /// Get a path from config, falling back to default
     fn path(&self, key: &str, default: PathBuf) -> PathBuf {
-        self.vars
-            .get(key)
-            .map(PathBuf::from)
-            .unwrap_or(default)
+        self.vars.get(key).map(PathBuf::from).unwrap_or(default)
     }
 }
 
@@ -72,10 +69,30 @@ pub fn build_repos_map(root: &Path, env: &EnvConfig) -> HashMap<String, Repo> {
 
     // Rust crates - use env vars for paths
     let crate_configs = [
-        ("core", "MACROFORGE_TS_CRATE", "macroforge_ts", "crates/macroforge_ts"),
-        ("macros", "MACROFORGE_TS_MACROS_CRATE", "macroforge_ts_macros", "crates/macroforge_ts_macros"),
-        ("syn", "MACROFORGE_TS_SYN_CRATE", "macroforge_ts_syn", "crates/macroforge_ts_syn"),
-        ("template", "MACROFORGE_TS_QUOTE_CRATE", "macroforge_ts_quote", "crates/macroforge_ts_quote"),
+        (
+            "core",
+            "MACROFORGE_TS_CRATE",
+            "macroforge_ts",
+            "crates/macroforge_ts",
+        ),
+        (
+            "macros",
+            "MACROFORGE_TS_MACROS_CRATE",
+            "macroforge_ts_macros",
+            "crates/macroforge_ts_macros",
+        ),
+        (
+            "syn",
+            "MACROFORGE_TS_SYN_CRATE",
+            "macroforge_ts_syn",
+            "crates/macroforge_ts_syn",
+        ),
+        (
+            "template",
+            "MACROFORGE_TS_QUOTE_CRATE",
+            "macroforge_ts_quote",
+            "crates/macroforge_ts_quote",
+        ),
     ];
 
     for (name, env_var, crate_name, default_path) in crate_configs {
@@ -106,12 +123,42 @@ pub fn build_repos_map(root: &Path, env: &EnvConfig) -> HashMap<String, Repo> {
 
     // TypeScript packages - use env vars for paths
     let pkg_configs = [
-        ("shared", "SHARED_PKG", "@macroforge/shared", "packages/shared"),
-        ("typescript-plugin", "TYPESCRIPT_PLUGIN_PKG", "@macroforge/typescript-plugin", "packages/typescript-plugin"),
-        ("vite-plugin", "VITE_PLUGIN_PKG", "@macroforge/vite-plugin", "packages/vite-plugin"),
-        ("svelte-preprocessor", "SVELTE_PREPROCESSOR_PKG", "@macroforge/svelte-preprocessor", "packages/svelte-preprocessor"),
-        ("svelte-language-server", "SVELTE_LANGUAGE_SERVER_PKG", "@macroforge/svelte-language-server", "packages/svelte-language-server"),
-        ("mcp-server", "MCP_SERVER_PKG", "@macroforge/mcp-server", "packages/mcp-server"),
+        (
+            "shared",
+            "SHARED_PKG",
+            "@macroforge/shared",
+            "packages/shared",
+        ),
+        (
+            "typescript-plugin",
+            "TYPESCRIPT_PLUGIN_PKG",
+            "@macroforge/typescript-plugin",
+            "packages/typescript-plugin",
+        ),
+        (
+            "vite-plugin",
+            "VITE_PLUGIN_PKG",
+            "@macroforge/vite-plugin",
+            "packages/vite-plugin",
+        ),
+        (
+            "svelte-preprocessor",
+            "SVELTE_PREPROCESSOR_PKG",
+            "@macroforge/svelte-preprocessor",
+            "packages/svelte-preprocessor",
+        ),
+        (
+            "svelte-language-server",
+            "SVELTE_LANGUAGE_SERVER_PKG",
+            "@macroforge/svelte-language-server",
+            "packages/svelte-language-server",
+        ),
+        (
+            "mcp-server",
+            "MCP_SERVER_PKG",
+            "@macroforge/mcp-server",
+            "packages/mcp-server",
+        ),
     ];
 
     for (name, env_var, npm_name, default_path) in pkg_configs {

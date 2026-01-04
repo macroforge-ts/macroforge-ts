@@ -2,6 +2,7 @@
 
 use super::aggregator::DiagnosticAggregator;
 use super::{clippy, deno_lint, svelte, tsc};
+use crate::core::shell;
 use anyhow::Result;
 use std::path::Path;
 
@@ -12,16 +13,18 @@ pub struct DiagnosticOptions {
     pub clippy: bool,
     pub tsc: bool,
     pub svelte: bool,
+    pub format: bool,
 }
 
 impl DiagnosticOptions {
-    /// Enable all tools
+    /// Enable all tools (format is controlled separately)
     pub fn all() -> Self {
         Self {
             deno_lint: true,
             clippy: true,
             tsc: true,
             svelte: true,
+            format: false,
         }
     }
 
@@ -61,19 +64,36 @@ impl DiagnosticsRunner {
     pub fn run(&self) -> Result<DiagnosticAggregator> {
         let mut aggregator = DiagnosticAggregator::new();
 
+        // Run formatting first if enabled
+        if self.options.format {
+            self.run_formatting();
+        }
+
         if self.options.deno_lint {
             eprintln!("Running deno lint...");
-            match deno_lint::run(&self.root) {
-                Ok(diags) => aggregator.add_all(diags),
-                Err(e) => eprintln!("deno lint failed: {}", e),
+            match deno_lint::find_js_projects(&self.root) {
+                Ok(projects) => {
+                    let project_refs: Vec<&Path> = projects.iter().map(|p| p.as_path()).collect();
+                    match deno_lint::run(&self.root, &project_refs) {
+                        Ok(diags) => aggregator.add_all(diags),
+                        Err(e) => eprintln!("deno lint failed: {}", e),
+                    }
+                }
+                Err(e) => eprintln!("Failed to find JS/TS projects: {}", e),
             }
         }
 
         if self.options.clippy {
             eprintln!("Running clippy...");
-            match clippy::run(&self.root) {
-                Ok(diags) => aggregator.add_all(diags),
-                Err(e) => eprintln!("Clippy failed: {}", e),
+            match clippy::find_rust_projects(&self.root) {
+                Ok(projects) => {
+                    let project_refs: Vec<&Path> = projects.iter().map(|p| p.as_path()).collect();
+                    match clippy::run(&self.root, &project_refs) {
+                        Ok(diags) => aggregator.add_all(diags),
+                        Err(e) => eprintln!("Clippy failed: {}", e),
+                    }
+                }
+                Err(e) => eprintln!("Failed to find Rust projects: {}", e),
             }
         }
 
@@ -106,6 +126,39 @@ impl DiagnosticsRunner {
         }
 
         Ok(aggregator)
+    }
+
+    /// Run formatting on all projects
+    fn run_formatting(&self) {
+        eprintln!("Formatting projects...");
+
+        // Format JS/TS projects with deno fmt
+        match deno_lint::find_js_projects(&self.root) {
+            Ok(projects) => {
+                for project in &projects {
+                    let rel_path = project.strip_prefix(&self.root).unwrap_or(project);
+                    eprintln!("  deno fmt: {:?}", rel_path);
+                    if let Err(e) = shell::deno::deno_fmt(project) {
+                        eprintln!("    Failed: {}", e);
+                    }
+                }
+            }
+            Err(e) => eprintln!("Failed to find JS/TS projects for formatting: {}", e),
+        }
+
+        // Format Rust projects with cargo fmt
+        match clippy::find_rust_projects(&self.root) {
+            Ok(projects) => {
+                for project in &projects {
+                    let rel_path = project.strip_prefix(&self.root).unwrap_or(project);
+                    eprintln!("  cargo fmt: {:?}", rel_path);
+                    if let Err(e) = shell::cargo::fmt_check(project) {
+                        eprintln!("    Failed: {}", e);
+                    }
+                }
+            }
+            Err(e) => eprintln!("Failed to find Rust projects for formatting: {}", e),
+        }
     }
 }
 
@@ -317,7 +370,10 @@ mod tests {
         let opts1 = DiagnosticOptions::parse("typescript");
         let opts2 = DiagnosticOptions::parse("tsc");
 
-        assert_eq!(opts1.tsc, opts2.tsc, "typescript and tsc should both enable tsc");
+        assert_eq!(
+            opts1.tsc, opts2.tsc,
+            "typescript and tsc should both enable tsc"
+        );
         assert!(opts1.tsc, "typescript should enable tsc");
         assert!(opts2.tsc, "tsc should enable tsc");
     }

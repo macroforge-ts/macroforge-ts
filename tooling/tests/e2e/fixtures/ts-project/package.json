@@ -1,13 +1,13 @@
 {
-    "name": "e2e-test-project",
-    "version": "1.0.0",
-    "type": "module",
-    "dependencies": {
-        "@macroforge/macros": "file:../../../../packages/macros",
-        "@macroforge/typescript-plugin": "file:../../../../packages/typescript-plugin",
-        "macroforge": "file:../../../../crates/macroforge_ts"
-    },
-    "devDependencies": {
-        "typescript": "^5.0.0"
-    }
+  "name": "e2e-test-project",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@macroforge/macros": "file:../../../../packages/macros",
+    "@macroforge/typescript-plugin": "file:../../../../packages/typescript-plugin",
+    "macroforge": "file:../../../../crates/macroforge_ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
 }

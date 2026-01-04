@@ -7,7 +7,11 @@ import { test } from 'node:test';
 const require = createRequire(import.meta.url);
 const { expandSync } = require('macroforge');
 
-const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+const repoRoot = path.resolve(
+    path.dirname(new URL(import.meta.url).pathname),
+    '..',
+    '..'
+);
 
 function expandFile(relPath) {
     const filePath = path.join(repoRoot, relPath);
@@ -22,7 +26,11 @@ function assertDecoratorsStripped(output, fileLabel) {
     );
 }
 
-function assertMethodsGenerated(output, fileLabel, serializeMethod = 'serialize') {
+function assertMethodsGenerated(
+    output,
+    fileLabel,
+    serializeMethod = 'serialize'
+) {
     // Debug macro now generates static toString method
     assert.ok(
         /static\s+toString\s*\(value:/.test(output),
@@ -39,7 +47,9 @@ function assertMethodsGenerated(output, fileLabel, serializeMethod = 'serialize'
         );
     } else {
         // Serialize macro generates static method
-        const methodPattern = new RegExp(`static\\s+${serializeMethod}\\s*\\(value:`);
+        const methodPattern = new RegExp(
+            `static\\s+${serializeMethod}\\s*\\(value:`
+        );
         assert.ok(
             methodPattern.test(output),
             `${fileLabel}: expected generated static ${serializeMethod}(value:) method`

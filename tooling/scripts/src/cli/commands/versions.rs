@@ -143,11 +143,7 @@ pub fn run(args: VersionsArgs) -> Result<()> {
     }
 
     if !unchanged.is_empty() {
-        println!(
-            "\n{}: {}",
-            "Unchanged".dimmed(),
-            unchanged.join(", ")
-        );
+        println!("\n{}: {}", "Unchanged".dimmed(), unchanged.join(", "));
     }
 
     if !failed.is_empty() {

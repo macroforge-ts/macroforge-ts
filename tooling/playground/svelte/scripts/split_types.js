@@ -5,7 +5,10 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SOURCE_FILE = path.join(__dirname, '../src/lib/demo/types/types.svelte.ts');
+const SOURCE_FILE = path.join(
+    __dirname,
+    '../src/lib/demo/types/types.svelte.ts'
+);
 const OUTPUT_DIR = path.dirname(SOURCE_FILE);
 
 // Read source file
@@ -38,14 +41,19 @@ function isStartOfDeclaration(line) {
 }
 
 // Global imports/macros that need to be in every file or handled specially
-const globalImports = ['/** import macro {Gigaform} from "@playground/macro"; */'];
+const globalImports = [
+    '/** import macro {Gigaform} from "@playground/macro"; */'
+];
 
 for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
     // Check if this line marks the start of a new type definition
     // We assume mostly standard formatting where @derive starts the block
-    if (isStartOfDeclaration(line) && currentBlockLines.length > 0 && currentTypeName) {
+    if (
+        isStartOfDeclaration(line) && currentBlockLines.length > 0 &&
+        currentTypeName
+    ) {
         // Save previous block
         blocks.push({
             name: currentTypeName,

@@ -4,11 +4,7 @@ use colored::Colorize;
 
 /// Print a step message
 pub fn step(number: usize, total: usize, message: &str) {
-    println!(
-        "{} {}",
-        format!("[{}/{}]", number, total).cyan(),
-        message
-    );
+    println!("{} {}", format!("[{}/{}]", number, total).cyan(), message);
 }
 
 /// Print a success message

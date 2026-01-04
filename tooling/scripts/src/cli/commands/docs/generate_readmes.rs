@@ -11,7 +11,11 @@ use std::fs;
 const PACKAGES: &[(&str, &str, &str)] = &[
     ("core", "crates/macroforge_ts", "macroforge"),
     ("shared", "packages/shared", "@macroforge/shared"),
-    ("vite-plugin", "packages/vite-plugin", "@macroforge/vite-plugin"),
+    (
+        "vite-plugin",
+        "packages/vite-plugin",
+        "@macroforge/vite-plugin",
+    ),
     (
         "typescript-plugin",
         "packages/typescript-plugin",
@@ -27,7 +31,11 @@ const PACKAGES: &[(&str, &str, &str)] = &[
         "packages/svelte-preprocessor",
         "@macroforge/svelte-preprocessor",
     ),
-    ("mcp-server", "packages/mcp-server", "@macroforge/mcp-server"),
+    (
+        "mcp-server",
+        "packages/mcp-server",
+        "@macroforge/mcp-server",
+    ),
 ];
 
 pub fn run() -> Result<()> {

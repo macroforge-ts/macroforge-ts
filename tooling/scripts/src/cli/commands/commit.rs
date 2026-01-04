@@ -162,11 +162,7 @@ pub fn run(args: CommitArgs) -> Result<()> {
                 .map(|s| s.to_string())
                 .unwrap_or_else(|| "0.1.0".to_string());
 
-            let dependencies = config
-                .deps
-                .get(name)
-                .cloned()
-                .unwrap_or_default();
+            let dependencies = config.deps.get(name).cloned().unwrap_or_default();
 
             queue.push(CommitItem {
                 name: repo.name.clone(),
@@ -188,11 +184,7 @@ pub fn run(args: CommitArgs) -> Result<()> {
                 .map(|s| s.to_string())
                 .unwrap_or_else(|| "0.1.0".to_string());
 
-            let dependencies = config
-                .deps
-                .get(&repo.name)
-                .cloned()
-                .unwrap_or_default();
+            let dependencies = config.deps.get(&repo.name).cloned().unwrap_or_default();
 
             queue.push(CommitItem {
                 name: repo.name.clone(),
@@ -227,7 +219,10 @@ pub fn run(args: CommitArgs) -> Result<()> {
         let deps_display = if item.dependencies.is_empty() {
             String::new()
         } else {
-            format!(" {}", format!("(deps: {})", item.dependencies.join(", ")).dimmed())
+            format!(
+                " {}",
+                format!("(deps: {})", item.dependencies.join(", ")).dimmed()
+            )
         };
 
         println!(
@@ -273,7 +268,11 @@ pub fn run(args: CommitArgs) -> Result<()> {
                 println!("  {} Would stage changes with git add -A", "→".blue());
             }
             if should_create_tag(item, &interrupted)? {
-                println!("  {} Would create tag: v{}", "→".blue(), item.version.dimmed());
+                println!(
+                    "  {} Would create tag: v{}",
+                    "→".blue(),
+                    item.version.dimmed()
+                );
             }
             println!("  {} Would push to remote", "→".blue());
         }
@@ -289,16 +288,23 @@ pub fn run(args: CommitArgs) -> Result<()> {
     let mut skip_items: Vec<bool> = vec![false; queue.len()];
 
     println!("\n{}", "Collecting commit messages...".bold());
-    println!("{}", "(Background processing will start as you enter messages)".dimmed());
+    println!(
+        "{}",
+        "(Background processing will start as you enter messages)".dimmed()
+    );
     println!();
 
     // Channels for communication with worker thread
-    let (tx_to_worker, rx_from_main): (Sender<WorkerMessage>, Receiver<WorkerMessage>) = mpsc::channel();
-    let (tx_to_main, rx_from_worker): (Sender<WorkerStatus>, Receiver<WorkerStatus>) = mpsc::channel();
+    let (tx_to_worker, rx_from_main): (Sender<WorkerMessage>, Receiver<WorkerMessage>) =
+        mpsc::channel();
+    let (tx_to_main, rx_from_worker): (Sender<WorkerStatus>, Receiver<WorkerStatus>) =
+        mpsc::channel();
 
     // Shared state
-    let committed_packages: Arc<Mutex<HashMap<String, String>>> = Arc::new(Mutex::new(HashMap::new()));
-    let registry_ready: Arc<Mutex<std::collections::HashSet<String>>> = Arc::new(Mutex::new(std::collections::HashSet::new()));
+    let committed_packages: Arc<Mutex<HashMap<String, String>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+    let registry_ready: Arc<Mutex<std::collections::HashSet<String>>> =
+        Arc::new(Mutex::new(std::collections::HashSet::new()));
     let current_processing: Arc<AtomicUsize> = Arc::new(AtomicUsize::new(usize::MAX));
     let messages_done = Arc::new(AtomicBool::new(false));
     let failed_packages: Arc<Mutex<HashMap<String, String>>> = Arc::new(Mutex::new(HashMap::new()));
@@ -313,8 +319,14 @@ pub fn run(args: CommitArgs) -> Result<()> {
     let ctx = WorkerContext {
         queue: queue.clone(),
         versions: versions.clone(),
-        npm_names: npm_names.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect(),
-        crate_names: crate_names.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect(),
+        npm_names: npm_names
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect(),
+        crate_names: crate_names
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect(),
         interrupted: Arc::clone(&interrupted),
         committed_packages: Arc::clone(&committed_packages),
         registry_ready: Arc::clone(&registry_ready),
@@ -327,42 +339,46 @@ pub fn run(args: CommitArgs) -> Result<()> {
 
     // Spawn worker thread
     let worker_handle = thread::spawn(move || {
-        worker_thread(
-            rx_from_main,
-            tx_to_main,
-            ctx,
-            current_processing_clone,
-        )
+        worker_thread(rx_from_main, tx_to_main, ctx, current_processing_clone)
     });
 
     // Helper to display background status
-    let display_background_status = |committed: &Arc<Mutex<HashMap<String, String>>>,
-                                      failed: &Arc<Mutex<HashMap<String, String>>>,
-                                      processing: &Arc<Mutex<Option<String>>>| {
-        let committed = committed.lock().unwrap();
-        let failed = failed.lock().unwrap();
-        let processing = processing.lock().unwrap();
+    let display_background_status =
+        |committed: &Arc<Mutex<HashMap<String, String>>>,
+         failed: &Arc<Mutex<HashMap<String, String>>>,
+         processing: &Arc<Mutex<Option<String>>>| {
+            let committed = committed.lock().unwrap();
+            let failed = failed.lock().unwrap();
+            let processing = processing.lock().unwrap();
 
-        if committed.is_empty() && failed.is_empty() && processing.is_none() {
-            return;
-        }
+            if committed.is_empty() && failed.is_empty() && processing.is_none() {
+                return;
+            }
 
-        println!("{}", "─".repeat(50).dimmed());
-        print!("  {} ", "background:".dimmed());
+            println!("{}", "─".repeat(50).dimmed());
+            print!("  {} ", "background:".dimmed());
 
-        let mut parts: Vec<String> = Vec::new();
-        if !committed.is_empty() {
-            parts.push(format!("{} {}", committed.len().to_string().green(), "done".green()));
-        }
-        if let Some(ref name) = *processing {
-            parts.push(format!("{} {}", "→".yellow(), name.yellow()));
-        }
-        if !failed.is_empty() {
-            parts.push(format!("{} {}", failed.len().to_string().red(), "failed".red()));
-        }
-        println!("{}", parts.join(" │ "));
-        println!("{}", "─".repeat(50).dimmed());
-    };
+            let mut parts: Vec<String> = Vec::new();
+            if !committed.is_empty() {
+                parts.push(format!(
+                    "{} {}",
+                    committed.len().to_string().green(),
+                    "done".green()
+                ));
+            }
+            if let Some(ref name) = *processing {
+                parts.push(format!("{} {}", "→".yellow(), name.yellow()));
+            }
+            if !failed.is_empty() {
+                parts.push(format!(
+                    "{} {}",
+                    failed.len().to_string().red(),
+                    "failed".red()
+                ));
+            }
+            println!("{}", parts.join(" │ "));
+            println!("{}", "─".repeat(50).dimmed());
+        };
 
     // Main thread: collect all commit messages
     for (i, item) in queue.iter().enumerate() {
@@ -385,11 +401,15 @@ pub fn run(args: CommitArgs) -> Result<()> {
         let changed_files: Vec<&str> = status.lines().collect();
 
         // Display background status
-        display_background_status(&committed_for_display, &failed_for_display, &processing_for_display);
+        display_background_status(
+            &committed_for_display,
+            &failed_for_display,
+            &processing_for_display,
+        );
 
         // Display verbose info for this repo
         println!();
-        println!("{}", format!("[{}/{}] {}", i + 1, queue.len(), item.name.cyan().bold()));
+        println!("[{}/{}] {}", i + 1, queue.len(), item.name.cyan().bold());
         println!("  {} {}", "version:".dimmed(), item.version.green());
         if let Some(ref npm) = item.npm_name {
             println!("  {} {}", "npm:".dimmed(), npm);
@@ -400,10 +420,19 @@ pub fn run(args: CommitArgs) -> Result<()> {
         if !item.dependencies.is_empty() {
             println!("  {} {}", "deps:".dimmed(), item.dependencies.join(", "));
         }
-        println!("  {} {}, {} unpushed",
+        println!(
+            "  {} {}, {} unpushed",
             "status:".dimmed(),
-            if has_changes { format!("{} changed", changed_files.len()).yellow() } else { "clean".green() },
-            if unpushed_count > 0 { unpushed_count.to_string().yellow() } else { "0".green() }
+            if has_changes {
+                format!("{} changed", changed_files.len()).yellow()
+            } else {
+                "clean".green()
+            },
+            if unpushed_count > 0 {
+                unpushed_count.to_string().yellow()
+            } else {
+                "0".green()
+            }
         );
         if has_changes && changed_files.len() <= 5 {
             for file in &changed_files {
@@ -416,10 +445,11 @@ pub fn run(args: CommitArgs) -> Result<()> {
             let tag = format!("v{}", item.version);
             let can_retag = can_retag_item(item);
 
-            if can_retag && Confirm::new()
-                .with_prompt(format!("  No changes. Retag {}?", tag.cyan()))
-                .default(false)
-                .interact()?
+            if can_retag
+                && Confirm::new()
+                    .with_prompt(format!("  No changes. Retag {}?", tag.cyan()))
+                    .default(false)
+                    .interact()?
             {
                 let _ = tx_to_worker.send(WorkerMessage::Retag { index: i });
             } else {
@@ -435,10 +465,15 @@ pub fn run(args: CommitArgs) -> Result<()> {
         if !has_changes && unpushed_count > 0 {
             // No uncommitted changes, but has unpushed commits - just confirm push
             let tag = format!("v{}", item.version);
-            if args.yes || Confirm::new()
-                .with_prompt(format!("  Push {} commits and tag {}?", unpushed_count, tag.cyan()))
-                .default(true)
-                .interact()?
+            if args.yes
+                || Confirm::new()
+                    .with_prompt(format!(
+                        "  Push {} commits and tag {}?",
+                        unpushed_count,
+                        tag.cyan()
+                    ))
+                    .default(true)
+                    .interact()?
             {
                 let _ = tx_to_worker.send(WorkerMessage::PushOnly { index: i });
             } else {
@@ -453,7 +488,8 @@ pub fn run(args: CommitArgs) -> Result<()> {
             msg.clone()
         } else {
             // Interactive prompt
-            let default_msg = default_commit_message(&item.name, &item.version, &status, has_package(item));
+            let default_msg =
+                default_commit_message(&item.name, &item.version, &status, has_package(item));
             Input::new()
                 .with_prompt("  commit message")
                 .default(default_msg)
@@ -477,7 +513,11 @@ pub fn run(args: CommitArgs) -> Result<()> {
     let mut completed_count = 0;
     let mut failed_count = 0;
     let total_items = messages.iter().filter(|m| m.is_some()).count()
-        + skip_items.iter().filter(|&&s| !s).count().saturating_sub(messages.iter().filter(|m| m.is_some()).count());
+        + skip_items
+            .iter()
+            .filter(|&&s| !s)
+            .count()
+            .saturating_sub(messages.iter().filter(|m| m.is_some()).count());
 
     // Check for items that completed during message collection (show summary)
     {
@@ -486,7 +526,12 @@ pub fn run(args: CommitArgs) -> Result<()> {
             println!("{}", "Background processing completed:".dimmed());
             for (name, _version) in committed.iter() {
                 if let Some(item) = queue.iter().find(|i| &i.name == name) {
-                    println!("  {} {} {}", "✓".green(), item.name.bold(), "complete".green());
+                    println!(
+                        "  {} {} {}",
+                        "✓".green(),
+                        item.name.bold(),
+                        "complete".green()
+                    );
                     completed_count += 1;
                 }
             }
@@ -498,14 +543,23 @@ pub fn run(args: CommitArgs) -> Result<()> {
         match rx_from_worker.recv_timeout(Duration::from_millis(100)) {
             Ok(WorkerStatus::Started(idx, deps_info)) => {
                 let item = &queue[idx];
-                format::step(completed_count + 1, total_items, &format!("Processing {}", item.name));
+                format::step(
+                    completed_count + 1,
+                    total_items,
+                    &format!("Processing {}", item.name),
+                );
                 if !deps_info.is_empty() {
                     println!("  {} {}", "→".blue(), deps_info.dimmed());
                 }
             }
             Ok(WorkerStatus::Completed(idx)) => {
                 let item = &queue[idx];
-                println!("  {} {} {}", "✓".green(), item.name.bold(), "complete".green());
+                println!(
+                    "  {} {} {}",
+                    "✓".green(),
+                    item.name.bold(),
+                    "complete".green()
+                );
                 completed_count += 1;
             }
             Ok(WorkerStatus::Failed(idx, err)) => {
@@ -538,7 +592,10 @@ pub fn run(args: CommitArgs) -> Result<()> {
 
     println!();
     if failed_count > 0 {
-        format::error(&format!("{} packages failed, {} succeeded", failed_count, completed_count));
+        format::error(&format!(
+            "{} packages failed, {} succeeded",
+            failed_count, completed_count
+        ));
         anyhow::bail!("{} packages failed to commit/publish", failed_count);
     } else {
         format::success("All commits complete");
@@ -627,7 +684,10 @@ fn worker_thread(
             };
 
             // Check if any dependency failed - if so, fail this item too
-            let failed_dep = item.dependencies.iter().find(|dep| failed_names.contains(*dep));
+            let failed_dep = item
+                .dependencies
+                .iter()
+                .find(|dep| failed_names.contains(*dep));
             if let Some(dep) = failed_dep {
                 processed[i] = true;
                 pending_items.remove(&i);
@@ -647,24 +707,29 @@ fn worker_thread(
             current_processing.store(i, Ordering::SeqCst);
 
             // Build deps info for display (only show when messages are done)
-            let deps_info = if item.dependencies.is_empty() || !ctx.messages_done.load(Ordering::SeqCst) {
-                String::new()
-            } else {
-                let committed = ctx.committed_packages.lock().unwrap();
-                let ready = ctx.registry_ready.lock().unwrap();
-                let dep_status: Vec<String> = item.dependencies.iter().map(|dep| {
-                    if ready.contains(dep) {
-                        format!("{} ✓", dep)
-                    } else if committed.contains_key(dep) {
-                        format!("{} (waiting)", dep)
-                    } else if skipped_names.contains(dep) {
-                        format!("{} (skipped)", dep)
-                    } else {
-                        format!("{} (pending)", dep)
-                    }
-                }).collect();
-                format!("deps: {}", dep_status.join(", "))
-            };
+            let deps_info =
+                if item.dependencies.is_empty() || !ctx.messages_done.load(Ordering::SeqCst) {
+                    String::new()
+                } else {
+                    let committed = ctx.committed_packages.lock().unwrap();
+                    let ready = ctx.registry_ready.lock().unwrap();
+                    let dep_status: Vec<String> = item
+                        .dependencies
+                        .iter()
+                        .map(|dep| {
+                            if ready.contains(dep) {
+                                format!("{} ✓", dep)
+                            } else if committed.contains_key(dep) {
+                                format!("{} (waiting)", dep)
+                            } else if skipped_names.contains(dep) {
+                                format!("{} (skipped)", dep)
+                            } else {
+                                format!("{} (pending)", dep)
+                            }
+                        })
+                        .collect();
+                    format!("deps: {}", dep_status.join(", "))
+                };
             // Only send Started status when messages are done (avoid interrupting user input)
             if ctx.messages_done.load(Ordering::SeqCst) {
                 let _ = tx.send(WorkerStatus::Started(i, deps_info));
@@ -741,7 +806,11 @@ fn worker_thread(
 fn wait_and_sync(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
     // Wait for ALL dependencies to appear on registries at expected versions
     if !item.dependencies.is_empty() {
-        ctx.log(&format!("    {} Waiting for {} dependencies...", "⏳".yellow(), item.dependencies.len()));
+        ctx.log(&format!(
+            "    {} Waiting for {} dependencies...",
+            "⏳".yellow(),
+            item.dependencies.len()
+        ));
     }
 
     for dep_name in &item.dependencies {
@@ -749,13 +818,19 @@ fn wait_and_sync(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
         {
             let ready = ctx.registry_ready.lock().unwrap();
             if ready.contains(dep_name) {
-                ctx.log(&format!("    {} {} already verified", "✓".green(), dep_name));
+                ctx.log(&format!(
+                    "    {} {} already verified",
+                    "✓".green(),
+                    dep_name
+                ));
                 continue;
             }
         }
 
         // Get expected version for this dependency
-        let dep_version = ctx.versions.get_local(dep_name)
+        let dep_version = ctx
+            .versions
+            .get_local(dep_name)
             .map(|s| s.to_string())
             .unwrap_or_else(|| "latest".to_string());
 
@@ -764,7 +839,6 @@ fn wait_and_sync(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
             &dep_version,
             &ctx.npm_names,
             &ctx.crate_names,
-            &ctx.interrupted,
             ctx,
         )?;
 
@@ -791,11 +865,7 @@ fn wait_and_sync(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
 }
 
 /// Process a single commit item
-fn process_item(
-    item: &CommitItem,
-    message: &str,
-    ctx: &WorkerContext,
-) -> Result<()> {
+fn process_item(item: &CommitItem, message: &str, ctx: &WorkerContext) -> Result<()> {
     ctx.log(&format!("  {} Processing {}", "→".blue(), item.name.bold()));
 
     // Wait for deps and sync lockfiles
@@ -807,7 +877,11 @@ fn process_item(
 
     // Stage and commit changes (only if there are changes)
     if has_changes {
-        ctx.log(&format!("    {} Committing: {}", "📝".cyan(), message.dimmed()));
+        ctx.log(&format!(
+            "    {} Committing: {}",
+            "📝".cyan(),
+            message.dimmed()
+        ));
         shell::git::add_all(&item.path)?;
         shell::git::commit(&item.path, message)?;
     } else {
@@ -879,15 +953,26 @@ fn can_retag_item(item: &CommitItem) -> bool {
 /// Retag an item (force recreate tag and push)
 /// Also syncs lockfiles in case that's why CI failed
 fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
-    ctx.log(&format!("  {} Processing {} (retag)", "→".blue(), item.name.bold()));
+    ctx.log(&format!(
+        "  {} Processing {} (retag)",
+        "→".blue(),
+        item.name.bold()
+    ));
 
     // Wait for deps and sync lockfiles
     wait_and_sync(item, ctx)?;
 
     // Check if lockfile sync created changes - if so, commit them
     let status = shell::git::status(&item.path)?;
-    ctx.log(&format!("    {} Git status: {}", "📋".dimmed(),
-        if status.trim().is_empty() { "no changes".dimmed().to_string() } else { format!("{} files changed", status.lines().count()) }));
+    ctx.log(&format!(
+        "    {} Git status: {}",
+        "📋".dimmed(),
+        if status.trim().is_empty() {
+            "no changes".dimmed().to_string()
+        } else {
+            format!("{} files changed", status.lines().count())
+        }
+    ));
 
     if !status.trim().is_empty() {
         ctx.log(&format!("    {} Committing lockfile changes", "📝".cyan()));
@@ -895,7 +980,10 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
             ctx.log(&format!("      {}", line.dimmed()));
         }
         shell::git::add_all(&item.path)?;
-        shell::git::commit(&item.path, &format!("Update lockfile for v{}", item.version))?;
+        shell::git::commit(
+            &item.path,
+            &format!("Update lockfile for v{}", item.version),
+        )?;
         ctx.log(&format!("    {} Committed", "✓".green()));
     }
 
@@ -916,7 +1004,10 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
     }
 
     // Delete remote tag first, then push - this ensures GitHub sees it as new and re-triggers CI
-    ctx.log(&format!("    {} Deleting remote tag to force re-trigger...", "🗑".cyan()));
+    ctx.log(&format!(
+        "    {} Deleting remote tag to force re-trigger...",
+        "🗑".cyan()
+    ));
     let _ = shell::git::delete_remote_tag(&item.path, &tag); // Ignore error if tag doesn't exist
     shell::git::push_tag_force(&item.path, &tag)?;
     ctx.log(&format!("    {} Done", "✓".green()));
@@ -926,7 +1017,11 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
 
 /// Push existing unpushed commits, tag, and push (no new commit)
 fn push_only_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
-    ctx.log(&format!("  {} Processing {} (push only)", "→".blue(), item.name.bold()));
+    ctx.log(&format!(
+        "  {} Processing {} (push only)",
+        "→".blue(),
+        item.name.bold()
+    ));
 
     // Wait for deps and sync lockfiles
     wait_and_sync(item, ctx)?;
@@ -936,7 +1031,10 @@ fn push_only_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
     if !status.trim().is_empty() {
         ctx.log(&format!("    {} Committing lockfile changes", "📝".cyan()));
         shell::git::add_all(&item.path)?;
-        shell::git::commit(&item.path, &format!("Update lockfile for v{}", item.version))?;
+        shell::git::commit(
+            &item.path,
+            &format!("Update lockfile for v{}", item.version),
+        )?;
     }
 
     // Create tag if needed
@@ -976,7 +1074,12 @@ fn has_package(item: &CommitItem) -> bool {
 }
 
 /// Generate default commit message
-fn default_commit_message(_repo_name: &str, version: &str, status: &str, has_package: bool) -> String {
+fn default_commit_message(
+    _repo_name: &str,
+    version: &str,
+    status: &str,
+    has_package: bool,
+) -> String {
     if has_package {
         format!("Bump to {}", version)
     } else {
@@ -1026,7 +1129,6 @@ fn cascade_to_dependents(deps: &HashMap<String, Vec<String>>, initial: &[String]
     }
 }
 
-
 /// Determine if we should create a tag for this repo/version
 /// Tag if version is NOT on registry (even if tag exists - retag to retry CI)
 fn should_create_tag(item: &CommitItem, _interrupted: &Arc<AtomicBool>) -> Result<bool> {
@@ -1038,7 +1140,10 @@ fn should_create_tag(item: &CommitItem, _interrupted: &Arc<AtomicBool>) -> Resul
         match registry::npm_version(npm_name) {
             Ok(Some(v)) if v == item.version => {
                 if debug {
-                    eprintln!("  [debug] {} version {} already on npm, skipping tag", item.name, item.version);
+                    eprintln!(
+                        "  [debug] {} version {} already on npm, skipping tag",
+                        item.name, item.version
+                    );
                 }
                 true
             }
@@ -1052,7 +1157,10 @@ fn should_create_tag(item: &CommitItem, _interrupted: &Arc<AtomicBool>) -> Resul
         match registry::crates_version(crate_name) {
             Ok(Some(v)) if v == item.version => {
                 if debug {
-                    eprintln!("  [debug] {} version {} already on crates.io, skipping tag", item.name, item.version);
+                    eprintln!(
+                        "  [debug] {} version {} already on crates.io, skipping tag",
+                        item.name, item.version
+                    );
                 }
                 true
             }
@@ -1071,7 +1179,10 @@ fn should_create_tag(item: &CommitItem, _interrupted: &Arc<AtomicBool>) -> Resul
     let tag_exists = shell::git::tag_exists_remote(&item.path, &tag);
     if debug {
         if tag_exists {
-            eprintln!("  [debug] {} tag {} exists but not on registry, will retag", item.name, tag);
+            eprintln!(
+                "  [debug] {} tag {} exists but not on registry, will retag",
+                item.name, tag
+            );
         } else {
             eprintln!("  [debug] {} will create tag {}", item.name, tag);
         }
@@ -1085,7 +1196,6 @@ fn wait_for_package(
     version: &str,
     npm_names: &HashMap<String, String>,
     crate_names: &HashMap<String, String>,
-    interrupted: &Arc<AtomicBool>,
     ctx: &WorkerContext,
 ) -> Result<()> {
     let npm_name = npm_names.get(repo_name);
@@ -1102,10 +1212,15 @@ fn wait_for_package(
             crate_name,
             version,
             "crates.io",
-            || registry::crates_version(crate_name).ok().flatten().as_deref() == Some(version),
+            || {
+                registry::crates_version(crate_name)
+                    .ok()
+                    .flatten()
+                    .as_deref()
+                    == Some(version)
+            },
             Duration::from_secs(600),
             Duration::from_secs(10),
-            interrupted,
             ctx,
         )?;
     }
@@ -1119,7 +1234,6 @@ fn wait_for_package(
             || registry::npm_version(npm_name).ok().flatten().as_deref() == Some(version),
             Duration::from_secs(600),
             Duration::from_secs(10),
-            interrupted,
             ctx,
         )?;
     }
@@ -1135,7 +1249,6 @@ fn wait_for_registry<F>(
     check_fn: F,
     timeout: Duration,
     poll_interval: Duration,
-    interrupted: &Arc<AtomicBool>,
     ctx: &WorkerContext,
 ) -> Result<()>
 where
@@ -1165,7 +1278,7 @@ where
     ));
 
     loop {
-        if interrupted.load(Ordering::SeqCst) {
+        if ctx.interrupted.load(Ordering::SeqCst) {
             ctx.log(&format!("    {} Interrupted", "✗".red()));
             anyhow::bail!("Interrupted by user");
         }
@@ -1183,7 +1296,12 @@ where
         }
 
         if start.elapsed() > timeout {
-            ctx.log(&format!("    {} Timeout waiting for {}@{}", "✗".red(), package_name, version));
+            ctx.log(&format!(
+                "    {} Timeout waiting for {}@{}",
+                "✗".red(),
+                package_name,
+                version
+            ));
             anyhow::bail!(
                 "Timeout waiting for {}@{} on {}",
                 package_name,
@@ -1202,18 +1320,30 @@ fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
     let node_modules = item.path.join("node_modules");
     let deno_lock = item.path.join("deno.lock");
 
-    ctx.log(&format!("      {} Path: {}", "📁".dimmed(), item.path.display()));
+    ctx.log(&format!(
+        "      {} Path: {}",
+        "📁".dimmed(),
+        item.path.display()
+    ));
 
     if node_modules.exists() {
         ctx.log(&format!("      {} Removing node_modules...", "🗑".dimmed()));
         if let Err(e) = std::fs::remove_dir_all(&node_modules) {
-            ctx.log(&format!("      {} Failed to remove node_modules: {}", "⚠".yellow(), e));
+            ctx.log(&format!(
+                "      {} Failed to remove node_modules: {}",
+                "⚠".yellow(),
+                e
+            ));
         }
     }
     if deno_lock.exists() {
         ctx.log(&format!("      {} Removing deno.lock...", "🗑".dimmed()));
         if let Err(e) = std::fs::remove_file(&deno_lock) {
-            ctx.log(&format!("      {} Failed to remove deno.lock: {}", "⚠".yellow(), e));
+            ctx.log(&format!(
+                "      {} Failed to remove deno.lock: {}",
+                "⚠".yellow(),
+                e
+            ));
         }
     }
 
@@ -1228,27 +1358,50 @@ fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
         // Wait before retry (not on first attempt)
         if attempt > 1 {
             let wait_secs = 10 * attempt;
-            ctx.log(&format!("      {} Retry {}/{} in {}s (waiting for npm CDN)...",
-                "⏳".yellow(), attempt, max_retries, wait_secs));
+            ctx.log(&format!(
+                "      {} Retry {}/{} in {}s (waiting for npm CDN)...",
+                "⏳".yellow(),
+                attempt,
+                max_retries,
+                wait_secs
+            ));
             thread::sleep(Duration::from_secs(wait_secs as u64));
         }
 
-        ctx.log(&format!("      {} Running deno install (attempt {})...", "📦".cyan(), attempt));
+        ctx.log(&format!(
+            "      {} Running deno install (attempt {})...",
+            "📦".cyan(),
+            attempt
+        ));
         match shell::deno::install(&item.path) {
             Ok(_) => {
                 // Verify lockfile was created
                 if deno_lock.exists() {
-                    ctx.log(&format!("      {} deno.lock regenerated successfully", "✓".green()));
+                    ctx.log(&format!(
+                        "      {} deno.lock regenerated successfully",
+                        "✓".green()
+                    ));
                 } else {
-                    ctx.log(&format!("      {} Warning: deno.lock not created!", "⚠".yellow()));
+                    ctx.log(&format!(
+                        "      {} Warning: deno.lock not created!",
+                        "⚠".yellow()
+                    ));
                 }
                 return Ok(());
             }
             Err(e) => {
                 let err_str = e.to_string();
-                ctx.log(&format!("      {} deno install failed: {}", "✗".red(), err_str));
+                ctx.log(&format!(
+                    "      {} deno install failed: {}",
+                    "✗".red(),
+                    err_str
+                ));
                 // Only retry on "notarget" errors (package not found yet)
-                if err_str.contains("ETARGET") || err_str.contains("notarget") || err_str.contains("No matching version") || err_str.contains("Could not find npm package") {
+                if err_str.contains("ETARGET")
+                    || err_str.contains("notarget")
+                    || err_str.contains("No matching version")
+                    || err_str.contains("Could not find npm package")
+                {
                     last_error = Some(e);
                     continue;
                 }
@@ -1258,7 +1411,8 @@ fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
         }
     }
 
-    Err(last_error.unwrap_or_else(|| anyhow::anyhow!("deno install failed after {} retries", max_retries)))
+    Err(last_error
+        .unwrap_or_else(|| anyhow::anyhow!("deno install failed after {} retries", max_retries)))
 }
 
 /// Sync Cargo.lock after dependencies are published to crates.io

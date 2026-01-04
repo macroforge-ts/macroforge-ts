@@ -53,10 +53,7 @@ pub fn run() -> Result<()> {
 
         if source_mtime > doc_mtime {
             println!("STALE");
-            format::warning(&format!(
-                "  {} is newer than {}",
-                source_path, doc_path
-            ));
+            format::warning(&format!("  {} is newer than {}", source_path, doc_path));
             stale += 1;
             all_fresh = false;
         } else {

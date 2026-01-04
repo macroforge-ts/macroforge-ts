@@ -49,7 +49,9 @@ describe('String Validators', () => {
         });
 
         test('rejects email without domain', () => {
-            const result = mod.EmailValidator.deserialize(JSON.stringify({ email: 'test@' }));
+            const result = mod.EmailValidator.deserialize(
+                JSON.stringify({ email: 'test@' })
+            );
             assertValidationError(result, 'email', 'must be a valid email');
         });
 
@@ -108,12 +110,16 @@ describe('String Validators', () => {
         });
 
         test('rejects string without protocol', () => {
-            const result = mod.UrlValidator.deserialize(JSON.stringify({ url: 'example.com' }));
+            const result = mod.UrlValidator.deserialize(
+                JSON.stringify({ url: 'example.com' })
+            );
             assertValidationError(result, 'url', 'must be a valid URL');
         });
 
         test('rejects plain text', () => {
-            const result = mod.UrlValidator.deserialize(JSON.stringify({ url: 'not-a-url' }));
+            const result = mod.UrlValidator.deserialize(
+                JSON.stringify({ url: 'not-a-url' })
+            );
             assertValidationError(result, 'url', 'must be a valid URL');
         });
     });
@@ -151,7 +157,9 @@ describe('String Validators', () => {
         });
 
         test('rejects invalid UUID format', () => {
-            const result = mod.UuidValidator.deserialize(JSON.stringify({ id: 'not-a-uuid' }));
+            const result = mod.UuidValidator.deserialize(
+                JSON.stringify({ id: 'not-a-uuid' })
+            );
             assertValidationError(result, 'id', 'must be a valid UUID');
         });
 
@@ -189,7 +197,9 @@ describe('String Validators', () => {
         });
 
         test('accepts empty string', () => {
-            const result = mod.MaxLengthValidator.deserialize(JSON.stringify({ shortText: '' }));
+            const result = mod.MaxLengthValidator.deserialize(
+                JSON.stringify({ shortText: '' })
+            );
             assertValidationSuccess(result, 'shortText');
         });
 
@@ -197,7 +207,11 @@ describe('String Validators', () => {
             const result = mod.MaxLengthValidator.deserialize(
                 JSON.stringify({ shortText: '12345678901' })
             );
-            assertValidationError(result, 'shortText', 'must have at most 10 characters');
+            assertValidationError(
+                result,
+                'shortText',
+                'must have at most 10 characters'
+            );
         });
     });
 
@@ -220,13 +234,25 @@ describe('String Validators', () => {
         });
 
         test('rejects string below min length', () => {
-            const result = mod.MinLengthValidator.deserialize(JSON.stringify({ longText: '1234' }));
-            assertValidationError(result, 'longText', 'must have at least 5 characters');
+            const result = mod.MinLengthValidator.deserialize(
+                JSON.stringify({ longText: '1234' })
+            );
+            assertValidationError(
+                result,
+                'longText',
+                'must have at least 5 characters'
+            );
         });
 
         test('rejects empty string', () => {
-            const result = mod.MinLengthValidator.deserialize(JSON.stringify({ longText: '' }));
-            assertValidationError(result, 'longText', 'must have at least 5 characters');
+            const result = mod.MinLengthValidator.deserialize(
+                JSON.stringify({ longText: '' })
+            );
+            assertValidationError(
+                result,
+                'longText',
+                'must have at least 5 characters'
+            );
         });
     });
 
@@ -245,14 +271,22 @@ describe('String Validators', () => {
             const result = mod.LengthValidator.deserialize(
                 JSON.stringify({ fixedText: '1234567' })
             );
-            assertValidationError(result, 'fixedText', 'must have exactly 8 characters');
+            assertValidationError(
+                result,
+                'fixedText',
+                'must have exactly 8 characters'
+            );
         });
 
         test('rejects string above length', () => {
             const result = mod.LengthValidator.deserialize(
                 JSON.stringify({ fixedText: '123456789' })
             );
-            assertValidationError(result, 'fixedText', 'must have exactly 8 characters');
+            assertValidationError(
+                result,
+                'fixedText',
+                'must have exactly 8 characters'
+            );
         });
     });
 
@@ -285,14 +319,22 @@ describe('String Validators', () => {
             const result = mod.LengthRangeValidator.deserialize(
                 JSON.stringify({ rangedText: '1234' })
             );
-            assertValidationError(result, 'rangedText', 'must have between 5 and 10 characters');
+            assertValidationError(
+                result,
+                'rangedText',
+                'must have between 5 and 10 characters'
+            );
         });
 
         test('rejects string above max', () => {
             const result = mod.LengthRangeValidator.deserialize(
                 JSON.stringify({ rangedText: '12345678901' })
             );
-            assertValidationError(result, 'rangedText', 'must have between 5 and 10 characters');
+            assertValidationError(
+                result,
+                'rangedText',
+                'must have between 5 and 10 characters'
+            );
         });
     });
 
@@ -301,27 +343,37 @@ describe('String Validators', () => {
     // ============================================================================
     describe('Pattern', () => {
         test('accepts string matching pattern', () => {
-            const result = mod.PatternValidator.deserialize(JSON.stringify({ code: 'ABC' }));
+            const result = mod.PatternValidator.deserialize(
+                JSON.stringify({ code: 'ABC' })
+            );
             assertValidationSuccess(result, 'code');
         });
 
         test('accepts another matching pattern', () => {
-            const result = mod.PatternValidator.deserialize(JSON.stringify({ code: 'XYZ' }));
+            const result = mod.PatternValidator.deserialize(
+                JSON.stringify({ code: 'XYZ' })
+            );
             assertValidationSuccess(result, 'code');
         });
 
         test('rejects lowercase letters', () => {
-            const result = mod.PatternValidator.deserialize(JSON.stringify({ code: 'abc' }));
+            const result = mod.PatternValidator.deserialize(
+                JSON.stringify({ code: 'abc' })
+            );
             assertValidationError(result, 'code', 'must match pattern');
         });
 
         test('rejects wrong length', () => {
-            const result = mod.PatternValidator.deserialize(JSON.stringify({ code: 'ABCD' }));
+            const result = mod.PatternValidator.deserialize(
+                JSON.stringify({ code: 'ABCD' })
+            );
             assertValidationError(result, 'code', 'must match pattern');
         });
 
         test('rejects numbers', () => {
-            const result = mod.PatternValidator.deserialize(JSON.stringify({ code: '123' }));
+            const result = mod.PatternValidator.deserialize(
+                JSON.stringify({ code: '123' })
+            );
             assertValidationError(result, 'code', 'must match pattern');
         });
     });
@@ -331,22 +383,30 @@ describe('String Validators', () => {
     // ============================================================================
     describe('NonEmpty', () => {
         test('accepts non-empty string', () => {
-            const result = mod.NonEmptyValidator.deserialize(JSON.stringify({ required: 'hello' }));
+            const result = mod.NonEmptyValidator.deserialize(
+                JSON.stringify({ required: 'hello' })
+            );
             assertValidationSuccess(result, 'required');
         });
 
         test('accepts single character', () => {
-            const result = mod.NonEmptyValidator.deserialize(JSON.stringify({ required: 'x' }));
+            const result = mod.NonEmptyValidator.deserialize(
+                JSON.stringify({ required: 'x' })
+            );
             assertValidationSuccess(result, 'required');
         });
 
         test('rejects whitespace only (nonEmpty trims before checking)', () => {
-            const result = mod.NonEmptyValidator.deserialize(JSON.stringify({ required: '   ' }));
+            const result = mod.NonEmptyValidator.deserialize(
+                JSON.stringify({ required: '   ' })
+            );
             assertValidationError(result, 'required', 'must not be empty');
         });
 
         test('rejects empty string', () => {
-            const result = mod.NonEmptyValidator.deserialize(JSON.stringify({ required: '' }));
+            const result = mod.NonEmptyValidator.deserialize(
+                JSON.stringify({ required: '' })
+            );
             assertValidationError(result, 'required', 'must not be empty');
         });
     });
@@ -356,7 +416,9 @@ describe('String Validators', () => {
     // ============================================================================
     describe('Trimmed', () => {
         test('accepts trimmed string', () => {
-            const result = mod.TrimmedValidator.deserialize(JSON.stringify({ trimmed: 'hello' }));
+            const result = mod.TrimmedValidator.deserialize(
+                JSON.stringify({ trimmed: 'hello' })
+            );
             assertValidationSuccess(result, 'trimmed');
         });
 
@@ -368,22 +430,30 @@ describe('String Validators', () => {
         });
 
         test('accepts empty string', () => {
-            const result = mod.TrimmedValidator.deserialize(JSON.stringify({ trimmed: '' }));
+            const result = mod.TrimmedValidator.deserialize(
+                JSON.stringify({ trimmed: '' })
+            );
             assertValidationSuccess(result, 'trimmed');
         });
 
         test('rejects leading whitespace', () => {
-            const result = mod.TrimmedValidator.deserialize(JSON.stringify({ trimmed: ' hello' }));
+            const result = mod.TrimmedValidator.deserialize(
+                JSON.stringify({ trimmed: ' hello' })
+            );
             assertValidationError(result, 'trimmed', 'must be trimmed');
         });
 
         test('rejects trailing whitespace', () => {
-            const result = mod.TrimmedValidator.deserialize(JSON.stringify({ trimmed: 'hello ' }));
+            const result = mod.TrimmedValidator.deserialize(
+                JSON.stringify({ trimmed: 'hello ' })
+            );
             assertValidationError(result, 'trimmed', 'must be trimmed');
         });
 
         test('rejects both leading and trailing whitespace', () => {
-            const result = mod.TrimmedValidator.deserialize(JSON.stringify({ trimmed: ' hello ' }));
+            const result = mod.TrimmedValidator.deserialize(
+                JSON.stringify({ trimmed: ' hello ' })
+            );
             assertValidationError(result, 'trimmed', 'must be trimmed');
         });
     });
@@ -393,7 +463,9 @@ describe('String Validators', () => {
     // ============================================================================
     describe('Lowercase', () => {
         test('accepts lowercase string', () => {
-            const result = mod.LowercaseValidator.deserialize(JSON.stringify({ lower: 'hello' }));
+            const result = mod.LowercaseValidator.deserialize(
+                JSON.stringify({ lower: 'hello' })
+            );
             assertValidationSuccess(result, 'lower');
         });
 
@@ -405,17 +477,23 @@ describe('String Validators', () => {
         });
 
         test('accepts empty string', () => {
-            const result = mod.LowercaseValidator.deserialize(JSON.stringify({ lower: '' }));
+            const result = mod.LowercaseValidator.deserialize(
+                JSON.stringify({ lower: '' })
+            );
             assertValidationSuccess(result, 'lower');
         });
 
         test('rejects uppercase letters', () => {
-            const result = mod.LowercaseValidator.deserialize(JSON.stringify({ lower: 'Hello' }));
+            const result = mod.LowercaseValidator.deserialize(
+                JSON.stringify({ lower: 'Hello' })
+            );
             assertValidationError(result, 'lower', 'must be lowercase');
         });
 
         test('rejects all uppercase', () => {
-            const result = mod.LowercaseValidator.deserialize(JSON.stringify({ lower: 'HELLO' }));
+            const result = mod.LowercaseValidator.deserialize(
+                JSON.stringify({ lower: 'HELLO' })
+            );
             assertValidationError(result, 'lower', 'must be lowercase');
         });
     });
@@ -425,7 +503,9 @@ describe('String Validators', () => {
     // ============================================================================
     describe('Uppercase', () => {
         test('accepts uppercase string', () => {
-            const result = mod.UppercaseValidator.deserialize(JSON.stringify({ upper: 'HELLO' }));
+            const result = mod.UppercaseValidator.deserialize(
+                JSON.stringify({ upper: 'HELLO' })
+            );
             assertValidationSuccess(result, 'upper');
         });
 
@@ -437,17 +517,23 @@ describe('String Validators', () => {
         });
 
         test('accepts empty string', () => {
-            const result = mod.UppercaseValidator.deserialize(JSON.stringify({ upper: '' }));
+            const result = mod.UppercaseValidator.deserialize(
+                JSON.stringify({ upper: '' })
+            );
             assertValidationSuccess(result, 'upper');
         });
 
         test('rejects lowercase letters', () => {
-            const result = mod.UppercaseValidator.deserialize(JSON.stringify({ upper: 'Hello' }));
+            const result = mod.UppercaseValidator.deserialize(
+                JSON.stringify({ upper: 'Hello' })
+            );
             assertValidationError(result, 'upper', 'must be uppercase');
         });
 
         test('rejects all lowercase', () => {
-            const result = mod.UppercaseValidator.deserialize(JSON.stringify({ upper: 'hello' }));
+            const result = mod.UppercaseValidator.deserialize(
+                JSON.stringify({ upper: 'hello' })
+            );
             assertValidationError(result, 'upper', 'must be uppercase');
         });
     });
@@ -457,23 +543,31 @@ describe('String Validators', () => {
     // ============================================================================
     describe('Capitalized', () => {
         test('accepts capitalized string', () => {
-            const result = mod.CapitalizedValidator.deserialize(JSON.stringify({ cap: 'Hello' }));
+            const result = mod.CapitalizedValidator.deserialize(
+                JSON.stringify({ cap: 'Hello' })
+            );
             assertValidationSuccess(result, 'cap');
         });
 
         test('rejects all uppercase (capitalized means first upper, rest lower)', () => {
-            const result = mod.CapitalizedValidator.deserialize(JSON.stringify({ cap: 'HELLO' }));
+            const result = mod.CapitalizedValidator.deserialize(
+                JSON.stringify({ cap: 'HELLO' })
+            );
             assertValidationError(result, 'cap', 'must be capitalized');
         });
 
         test('rejects lowercase first letter', () => {
-            const result = mod.CapitalizedValidator.deserialize(JSON.stringify({ cap: 'hello' }));
+            const result = mod.CapitalizedValidator.deserialize(
+                JSON.stringify({ cap: 'hello' })
+            );
             assertValidationError(result, 'cap', 'must be capitalized');
         });
 
         test('accepts number first character', () => {
             // Numbers don't have uppercase, so this should pass (1 === 1.toUpperCase())
-            const result = mod.CapitalizedValidator.deserialize(JSON.stringify({ cap: '1hello' }));
+            const result = mod.CapitalizedValidator.deserialize(
+                JSON.stringify({ cap: '1hello' })
+            );
             assertValidationSuccess(result, 'cap');
         });
     });
@@ -556,7 +650,9 @@ describe('String Validators', () => {
         });
 
         test('accepts exact suffix', () => {
-            const result = mod.EndsWithValidator.deserialize(JSON.stringify({ filename: '.json' }));
+            const result = mod.EndsWithValidator.deserialize(
+                JSON.stringify({ filename: '.json' })
+            );
             assertValidationSuccess(result, 'filename');
         });
 
@@ -587,7 +683,9 @@ describe('String Validators', () => {
         });
 
         test('accepts exact substring', () => {
-            const result = mod.IncludesValidator.deserialize(JSON.stringify({ emailLike: '@' }));
+            const result = mod.IncludesValidator.deserialize(
+                JSON.stringify({ emailLike: '@' })
+            );
             assertValidationSuccess(result, 'emailLike');
         });
 
@@ -606,7 +704,9 @@ describe('String Validators', () => {
         });
 
         test('rejects empty string', () => {
-            const result = mod.IncludesValidator.deserialize(JSON.stringify({ emailLike: '' }));
+            const result = mod.IncludesValidator.deserialize(
+                JSON.stringify({ emailLike: '' })
+            );
             assertValidationError(result, 'emailLike', 'must include');
         });
     });

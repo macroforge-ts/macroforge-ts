@@ -4,8 +4,8 @@
 
 use crate::cli::DiagnosticsArgs;
 use crate::core::config::Config;
-use crate::diagnostics::{DiagnosticsRunner, DiagnosticLevel, DiagnosticTool};
 use crate::diagnostics::runner::DiagnosticOptions;
+use crate::diagnostics::{DiagnosticLevel, DiagnosticTool, DiagnosticsRunner};
 use crate::utils::format;
 use anyhow::Result;
 use colored::Colorize;
@@ -23,11 +23,12 @@ pub fn run(args: DiagnosticsArgs) -> Result<()> {
     }
 
     // Parse tool options
-    let options = if let Some(tools) = &args.tools {
+    let mut options = if let Some(tools) = &args.tools {
         DiagnosticOptions::parse(tools)
     } else {
         DiagnosticOptions::all()
     };
+    options.format = args.format;
 
     // Run diagnostics
     let runner = DiagnosticsRunner::new(&config.root, options);
@@ -55,10 +56,16 @@ pub fn run(args: DiagnosticsArgs) -> Result<()> {
 
         if args.log {
             // Write to log file
-            let log_file = logs_dir.join(format!("{}.log", code.replace("::", "_").replace("/", "_")));
+            let log_file =
+                logs_dir.join(format!("{}.log", code.replace("::", "_").replace("/", "_")));
             let content: Vec<String> = diags.iter().map(|d| d.raw.clone()).collect();
             fs::write(&log_file, content.join("\n") + "\n")?;
-            println!("  {}: {} errors -> {}", code.cyan(), count, log_file.display());
+            println!(
+                "  {}: {} errors -> {}",
+                code.cyan(),
+                count,
+                log_file.display()
+            );
         } else {
             println!("  {}: {} errors", code.cyan(), count);
         }
@@ -111,8 +118,7 @@ pub fn run(args: DiagnosticsArgs) -> Result<()> {
     if total > 0 {
         format::error(&format!(
             "Diagnostics completed with {} errors, {} warnings",
-            error_count,
-            warning_count
+            error_count, warning_count
         ));
         std::process::exit(1);
     } else {

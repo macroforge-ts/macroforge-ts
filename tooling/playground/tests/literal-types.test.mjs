@@ -101,8 +101,14 @@ describe('Default macro with string literal types', () => {
             result.code.includes('__brand: "Duration"'),
             'Should generate __brand: "Duration"'
         );
-        assert.ok(result.code.includes('__brand: "Utc"'), 'Should generate __brand: "Utc"');
-        assert.ok(result.code.includes('__brand: "Zoned"'), 'Should generate __brand: "Zoned"');
+        assert.ok(
+            result.code.includes('__brand: "Utc"'),
+            'Should generate __brand: "Utc"'
+        );
+        assert.ok(
+            result.code.includes('__brand: "Zoned"'),
+            'Should generate __brand: "Zoned"'
+        );
 
         // None should generate invalid function calls
         assert.ok(
@@ -255,12 +261,24 @@ describe('Default macro with mixed literal types', () => {
 
         // All literal types should be handled correctly
         assert.ok(result.code.includes('version: 2'), 'Should generate version: 2');
-        assert.ok(result.code.includes('status: "active"'), 'Should generate status: "active"');
-        assert.ok(result.code.includes('enabled: true'), 'Should generate enabled: true');
-        assert.ok(result.code.includes('__brand: "Config"'), 'Should generate __brand: "Config"');
+        assert.ok(
+            result.code.includes('status: "active"'),
+            'Should generate status: "active"'
+        );
+        assert.ok(
+            result.code.includes('enabled: true'),
+            'Should generate enabled: true'
+        );
+        assert.ok(
+            result.code.includes('__brand: "Config"'),
+            'Should generate __brand: "Config"'
+        );
 
         // None should generate invalid function calls for literals
-        assert.ok(!result.code.includes('2DefaultValue()'), 'Should NOT generate 2DefaultValue()');
+        assert.ok(
+            !result.code.includes('2DefaultValue()'),
+            'Should NOT generate 2DefaultValue()'
+        );
         assert.ok(
             !result.code.includes('"active"DefaultValue()'),
             'Should NOT generate "active"DefaultValue()'
@@ -275,7 +293,10 @@ describe('Default macro with mixed literal types', () => {
         );
 
         // Standard types should still use their defaults
-        assert.ok(result.code.includes('name: ""'), 'Should generate name: "" for string type');
+        assert.ok(
+            result.code.includes('name: ""'),
+            'Should generate name: "" for string type'
+        );
     });
 
     test('generates correct defaults for class with literal types', () => {
@@ -290,7 +311,10 @@ describe('Default macro with mixed literal types', () => {
         const result = expandSync(code, 'test.ts');
 
         // Literal types should be handled correctly in classes too
-        assert.ok(result.code.includes('__brand: "Entity"'), 'Should generate __brand: "Entity"');
+        assert.ok(
+            result.code.includes('__brand: "Entity"'),
+            'Should generate __brand: "Entity"'
+        );
         assert.ok(result.code.includes('version: 1'), 'Should generate version: 1');
     });
 });

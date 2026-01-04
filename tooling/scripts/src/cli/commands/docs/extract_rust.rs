@@ -38,10 +38,26 @@ const BUILTIN_MACROS: &[(&str, &str, &str)] = &[
     ("default", "src/builtin/derive_default.rs", "Default"),
     ("hash", "src/builtin/derive_hash.rs", "Hash"),
     ("ord", "src/builtin/derive_ord.rs", "Ord"),
-    ("partial_eq", "src/builtin/derive_partial_eq.rs", "PartialEq"),
-    ("partial_ord", "src/builtin/derive_partial_ord.rs", "PartialOrd"),
-    ("serialize", "src/builtin/serde/derive_serialize.rs", "Serialize"),
-    ("deserialize", "src/builtin/serde/derive_deserialize.rs", "Deserialize"),
+    (
+        "partial_eq",
+        "src/builtin/derive_partial_eq.rs",
+        "PartialEq",
+    ),
+    (
+        "partial_ord",
+        "src/builtin/derive_partial_ord.rs",
+        "PartialOrd",
+    ),
+    (
+        "serialize",
+        "src/builtin/serde/derive_serialize.rs",
+        "Serialize",
+    ),
+    (
+        "deserialize",
+        "src/builtin/serde/derive_deserialize.rs",
+        "Deserialize",
+    ),
 ];
 
 pub fn run(output_dir: &Path) -> Result<()> {
@@ -147,7 +163,8 @@ fn extract_crate_docs(crate_path: &Path, entry_file: &str) -> Result<CrateDoc> {
 
     // Parse Cargo.toml for version
     let cargo_content = fs::read_to_string(&cargo_path).unwrap_or_default();
-    let cargo: toml::Value = toml::from_str(&cargo_content).unwrap_or(toml::Value::Table(Default::default()));
+    let cargo: toml::Value =
+        toml::from_str(&cargo_content).unwrap_or(toml::Value::Table(Default::default()));
 
     let name = cargo
         .get("package")

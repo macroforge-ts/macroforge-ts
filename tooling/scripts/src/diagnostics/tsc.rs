@@ -1,10 +1,10 @@
 //! TypeScript diagnostic runner
 
 use super::{DiagnosticLevel, DiagnosticTool, UnifiedDiagnostic};
+use crate::core::shell;
 use anyhow::{Context, Result};
 use regex::Regex;
 use std::path::Path;
-use std::process::Command;
 
 /// Run TypeScript type checking and collect diagnostics
 pub fn run(root: &Path, tsconfig_paths: &[&Path]) -> Result<Vec<UnifiedDiagnostic>> {
@@ -15,14 +15,10 @@ pub fn run(root: &Path, tsconfig_paths: &[&Path]) -> Result<Vec<UnifiedDiagnosti
         .context("Failed to compile error regex")?;
 
     for tsconfig in tsconfig_paths {
-        let output = Command::new("deno")
-            .args(["run", "-A", "npm:macroforge", "tsc", "-p", &tsconfig.to_string_lossy()])
-            .current_dir(root)
-            .output()
-            .context("Failed to run macroforge tsc")?;
+        let result = shell::macroforge::tsc(root, tsconfig)?;
 
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stdout = &result.stdout;
+        let stderr = &result.stderr;
 
         // Parse both stdout and stderr
         for line in stdout.lines().chain(stderr.lines()) {
@@ -36,7 +32,11 @@ pub fn run(root: &Path, tsconfig_paths: &[&Path]) -> Result<Vec<UnifiedDiagnosti
                     .get(3)
                     .and_then(|m| m.as_str().parse().ok())
                     .unwrap_or(1);
-                let code = caps.get(4).map(|m| m.as_str()).unwrap_or("TS0000").to_string();
+                let code = caps
+                    .get(4)
+                    .map(|m| m.as_str())
+                    .unwrap_or("TS0000")
+                    .to_string();
                 let message = caps.get(5).map(|m| m.as_str()).unwrap_or("").to_string();
 
                 diagnostics.push(UnifiedDiagnostic {
@@ -56,17 +56,22 @@ pub fn run(root: &Path, tsconfig_paths: &[&Path]) -> Result<Vec<UnifiedDiagnosti
     Ok(diagnostics)
 }
 
-/// Find all tsconfig.json files in the project
+/// Find all tsconfig.json files in the project (respects .gitignore)
 pub fn find_tsconfigs(root: &Path) -> Result<Vec<std::path::PathBuf>> {
+    use ignore::WalkBuilder;
+
     let mut tsconfigs = Vec::new();
 
-    for entry in walkdir::WalkDir::new(root)
-        .into_iter()
+    for entry in WalkBuilder::new(root)
+        .hidden(true) // Skip hidden files/dirs
+        .git_ignore(true) // Respect .gitignore
+        .git_exclude(true) // Respect .git/info/exclude
         .filter_entry(|e| {
             let name = e.file_name().to_string_lossy();
-            // Skip node_modules and hidden directories
-            !name.starts_with('.') && name != "node_modules" && name != "dist"
+            // Also skip common non-source directories
+            name != "node_modules" && name != "dist" && name != "target"
         })
+        .build()
     {
         let entry = entry?;
         if entry.file_name() == "tsconfig.json" {

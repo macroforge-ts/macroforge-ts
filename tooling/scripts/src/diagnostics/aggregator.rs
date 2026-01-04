@@ -141,18 +141,60 @@ mod tests {
     }
 
     // Helper function to create a test error diagnostic
-    fn create_error(file: &str, line: u32, column: u32, code: &str, message: &str) -> UnifiedDiagnostic {
-        create_diagnostic(file, line, column, code, message, DiagnosticTool::Clippy, DiagnosticLevel::Error)
+    fn create_error(
+        file: &str,
+        line: u32,
+        column: u32,
+        code: &str,
+        message: &str,
+    ) -> UnifiedDiagnostic {
+        create_diagnostic(
+            file,
+            line,
+            column,
+            code,
+            message,
+            DiagnosticTool::Clippy,
+            DiagnosticLevel::Error,
+        )
     }
 
     // Helper function to create a test warning diagnostic
-    fn create_warning(file: &str, line: u32, column: u32, code: &str, message: &str) -> UnifiedDiagnostic {
-        create_diagnostic(file, line, column, code, message, DiagnosticTool::DenoLint, DiagnosticLevel::Warning)
+    fn create_warning(
+        file: &str,
+        line: u32,
+        column: u32,
+        code: &str,
+        message: &str,
+    ) -> UnifiedDiagnostic {
+        create_diagnostic(
+            file,
+            line,
+            column,
+            code,
+            message,
+            DiagnosticTool::DenoLint,
+            DiagnosticLevel::Warning,
+        )
     }
 
     // Helper function to create a test info diagnostic
-    fn create_info(file: &str, line: u32, column: u32, code: &str, message: &str) -> UnifiedDiagnostic {
-        create_diagnostic(file, line, column, code, message, DiagnosticTool::Tsc, DiagnosticLevel::Info)
+    fn create_info(
+        file: &str,
+        line: u32,
+        column: u32,
+        code: &str,
+        message: &str,
+    ) -> UnifiedDiagnostic {
+        create_diagnostic(
+            file,
+            line,
+            column,
+            code,
+            message,
+            DiagnosticTool::Tsc,
+            DiagnosticLevel::Info,
+        )
     }
 
     #[test]
@@ -210,9 +252,27 @@ mod tests {
     fn test_add_multiple_different_diagnostics() {
         let mut aggregator = DiagnosticAggregator::new();
 
-        aggregator.add(create_error("src/main.rs", 42, 10, "E0308", "mismatched types"));
-        aggregator.add(create_warning("src/lib.rs", 100, 5, "W1234", "unused variable"));
-        aggregator.add(create_info("src/util.rs", 15, 1, "I5678", "consider using as_ref"));
+        aggregator.add(create_error(
+            "src/main.rs",
+            42,
+            10,
+            "E0308",
+            "mismatched types",
+        ));
+        aggregator.add(create_warning(
+            "src/lib.rs",
+            100,
+            5,
+            "W1234",
+            "unused variable",
+        ));
+        aggregator.add(create_info(
+            "src/util.rs",
+            15,
+            1,
+            "I5678",
+            "consider using as_ref",
+        ));
 
         assert_eq!(aggregator.diagnostics().len(), 3);
     }
@@ -290,7 +350,7 @@ mod tests {
             10,
             "E0308",
             "mismatched types",
-            DiagnosticTool::Tsc, // Different tool, same dedup key
+            DiagnosticTool::Tsc,      // Different tool, same dedup key
             DiagnosticLevel::Warning, // Different level, same dedup key
         );
 
@@ -307,10 +367,34 @@ mod tests {
     fn test_deduplication_different_locations() {
         let mut aggregator = DiagnosticAggregator::new();
 
-        aggregator.add(create_error("src/main.rs", 42, 10, "E0308", "mismatched types"));
-        aggregator.add(create_error("src/main.rs", 43, 10, "E0308", "mismatched types")); // Different line
-        aggregator.add(create_error("src/main.rs", 42, 11, "E0308", "mismatched types")); // Different column
-        aggregator.add(create_error("src/lib.rs", 42, 10, "E0308", "mismatched types"));  // Different file
+        aggregator.add(create_error(
+            "src/main.rs",
+            42,
+            10,
+            "E0308",
+            "mismatched types",
+        ));
+        aggregator.add(create_error(
+            "src/main.rs",
+            43,
+            10,
+            "E0308",
+            "mismatched types",
+        )); // Different line
+        aggregator.add(create_error(
+            "src/main.rs",
+            42,
+            11,
+            "E0308",
+            "mismatched types",
+        )); // Different column
+        aggregator.add(create_error(
+            "src/lib.rs",
+            42,
+            10,
+            "E0308",
+            "mismatched types",
+        )); // Different file
 
         // All should be stored as they have different locations
         assert_eq!(aggregator.diagnostics().len(), 4);
@@ -468,7 +552,10 @@ mod tests {
         assert_eq!(grouped.len(), 1);
         assert_eq!(grouped.get("TS2304").unwrap().len(), 2);
         assert_eq!(grouped.get("TS2304").unwrap()[0].tool, DiagnosticTool::Tsc);
-        assert_eq!(grouped.get("TS2304").unwrap()[1].tool, DiagnosticTool::TsPlugin);
+        assert_eq!(
+            grouped.get("TS2304").unwrap()[1].tool,
+            DiagnosticTool::TsPlugin
+        );
     }
 
     #[test]
@@ -505,19 +592,70 @@ mod tests {
     fn test_all_diagnostic_tools() {
         let mut aggregator = DiagnosticAggregator::new();
 
-        aggregator.add(create_diagnostic("src/a.rs", 1, 1, "C1", "msg", DiagnosticTool::DenoLint, DiagnosticLevel::Error));
-        aggregator.add(create_diagnostic("src/b.rs", 2, 2, "C2", "msg", DiagnosticTool::Clippy, DiagnosticLevel::Error));
-        aggregator.add(create_diagnostic("src/c.rs", 3, 3, "C3", "msg", DiagnosticTool::Tsc, DiagnosticLevel::Error));
-        aggregator.add(create_diagnostic("src/d.rs", 4, 4, "C4", "msg", DiagnosticTool::TsPlugin, DiagnosticLevel::Error));
-        aggregator.add(create_diagnostic("src/e.rs", 5, 5, "C5", "msg", DiagnosticTool::SvelteCheck, DiagnosticLevel::Error));
-        aggregator.add(create_diagnostic("src/f.rs", 6, 6, "C6", "msg", DiagnosticTool::Macroforge, DiagnosticLevel::Error));
+        aggregator.add(create_diagnostic(
+            "src/a.rs",
+            1,
+            1,
+            "C1",
+            "msg",
+            DiagnosticTool::DenoLint,
+            DiagnosticLevel::Error,
+        ));
+        aggregator.add(create_diagnostic(
+            "src/b.rs",
+            2,
+            2,
+            "C2",
+            "msg",
+            DiagnosticTool::Clippy,
+            DiagnosticLevel::Error,
+        ));
+        aggregator.add(create_diagnostic(
+            "src/c.rs",
+            3,
+            3,
+            "C3",
+            "msg",
+            DiagnosticTool::Tsc,
+            DiagnosticLevel::Error,
+        ));
+        aggregator.add(create_diagnostic(
+            "src/d.rs",
+            4,
+            4,
+            "C4",
+            "msg",
+            DiagnosticTool::TsPlugin,
+            DiagnosticLevel::Error,
+        ));
+        aggregator.add(create_diagnostic(
+            "src/e.rs",
+            5,
+            5,
+            "C5",
+            "msg",
+            DiagnosticTool::SvelteCheck,
+            DiagnosticLevel::Error,
+        ));
+        aggregator.add(create_diagnostic(
+            "src/f.rs",
+            6,
+            6,
+            "C6",
+            "msg",
+            DiagnosticTool::Macroforge,
+            DiagnosticLevel::Error,
+        ));
 
         assert_eq!(aggregator.diagnostics().len(), 6);
         assert_eq!(aggregator.diagnostics()[0].tool, DiagnosticTool::DenoLint);
         assert_eq!(aggregator.diagnostics()[1].tool, DiagnosticTool::Clippy);
         assert_eq!(aggregator.diagnostics()[2].tool, DiagnosticTool::Tsc);
         assert_eq!(aggregator.diagnostics()[3].tool, DiagnosticTool::TsPlugin);
-        assert_eq!(aggregator.diagnostics()[4].tool, DiagnosticTool::SvelteCheck);
+        assert_eq!(
+            aggregator.diagnostics()[4].tool,
+            DiagnosticTool::SvelteCheck
+        );
         assert_eq!(aggregator.diagnostics()[5].tool, DiagnosticTool::Macroforge);
     }
 
@@ -525,15 +663,42 @@ mod tests {
     fn test_all_diagnostic_levels() {
         let mut aggregator = DiagnosticAggregator::new();
 
-        aggregator.add(create_diagnostic("src/a.rs", 1, 1, "C1", "msg", DiagnosticTool::Clippy, DiagnosticLevel::Error));
-        aggregator.add(create_diagnostic("src/b.rs", 2, 2, "C2", "msg", DiagnosticTool::Clippy, DiagnosticLevel::Warning));
-        aggregator.add(create_diagnostic("src/c.rs", 3, 3, "C3", "msg", DiagnosticTool::Clippy, DiagnosticLevel::Info));
+        aggregator.add(create_diagnostic(
+            "src/a.rs",
+            1,
+            1,
+            "C1",
+            "msg",
+            DiagnosticTool::Clippy,
+            DiagnosticLevel::Error,
+        ));
+        aggregator.add(create_diagnostic(
+            "src/b.rs",
+            2,
+            2,
+            "C2",
+            "msg",
+            DiagnosticTool::Clippy,
+            DiagnosticLevel::Warning,
+        ));
+        aggregator.add(create_diagnostic(
+            "src/c.rs",
+            3,
+            3,
+            "C3",
+            "msg",
+            DiagnosticTool::Clippy,
+            DiagnosticLevel::Info,
+        ));
 
         assert_eq!(aggregator.diagnostics().len(), 3);
         assert_eq!(aggregator.error_count(), 1);
         assert_eq!(aggregator.warning_count(), 1);
         // Note: there's no info_count method, but we verify it's stored
-        assert!(matches!(aggregator.diagnostics()[2].level, DiagnosticLevel::Info));
+        assert!(matches!(
+            aggregator.diagnostics()[2].level,
+            DiagnosticLevel::Info
+        ));
     }
 
     #[test]
@@ -541,12 +706,48 @@ mod tests {
         let mut aggregator = DiagnosticAggregator::new();
 
         // Add same diagnostic from different sources at different times
-        aggregator.add(create_error("src/main.rs", 42, 10, "E0308", "mismatched types"));
-        aggregator.add(create_warning("src/lib.rs", 100, 5, "W1234", "unused variable"));
-        aggregator.add(create_error("src/main.rs", 42, 10, "E0308", "mismatched types")); // Duplicate
-        aggregator.add(create_info("src/util.rs", 15, 1, "I5678", "consider using as_ref"));
-        aggregator.add(create_warning("src/lib.rs", 100, 5, "W1234", "unused variable")); // Duplicate
-        aggregator.add(create_error("src/main.rs", 43, 10, "E0308", "mismatched types")); // Different line, not duplicate
+        aggregator.add(create_error(
+            "src/main.rs",
+            42,
+            10,
+            "E0308",
+            "mismatched types",
+        ));
+        aggregator.add(create_warning(
+            "src/lib.rs",
+            100,
+            5,
+            "W1234",
+            "unused variable",
+        ));
+        aggregator.add(create_error(
+            "src/main.rs",
+            42,
+            10,
+            "E0308",
+            "mismatched types",
+        )); // Duplicate
+        aggregator.add(create_info(
+            "src/util.rs",
+            15,
+            1,
+            "I5678",
+            "consider using as_ref",
+        ));
+        aggregator.add(create_warning(
+            "src/lib.rs",
+            100,
+            5,
+            "W1234",
+            "unused variable",
+        )); // Duplicate
+        aggregator.add(create_error(
+            "src/main.rs",
+            43,
+            10,
+            "E0308",
+            "mismatched types",
+        )); // Different line, not duplicate
 
         assert_eq!(aggregator.diagnostics().len(), 4);
         assert_eq!(aggregator.error_count(), 2);

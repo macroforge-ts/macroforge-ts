@@ -34,7 +34,14 @@ pub fn run(args: CheckArgs) -> Result<()> {
 
     // Run TypeScript check using macroforge tsc
     let output = Command::new("deno")
-        .args(["run", "-A", "npm:macroforge", "tsc", "-p", &tsconfig.to_string_lossy()])
+        .args([
+            "run",
+            "-A",
+            "npm:macroforge",
+            "tsc",
+            "-p",
+            &tsconfig.to_string_lossy(),
+        ])
         .current_dir(&config.root)
         .output()
         .context("Failed to run macroforge tsc")?;
@@ -56,8 +63,14 @@ pub fn run(args: CheckArgs) -> Result<()> {
 
             // Check if error is for our file
             if err_file.contains(&*file_str) || file_str.contains(err_file) {
-                let line_num = caps.get(2).and_then(|m| m.as_str().parse::<u32>().ok()).unwrap_or(1);
-                let col = caps.get(3).and_then(|m| m.as_str().parse::<u32>().ok()).unwrap_or(1);
+                let line_num = caps
+                    .get(2)
+                    .and_then(|m| m.as_str().parse::<u32>().ok())
+                    .unwrap_or(1);
+                let col = caps
+                    .get(3)
+                    .and_then(|m| m.as_str().parse::<u32>().ok())
+                    .unwrap_or(1);
                 let code = caps.get(4).map(|m| m.as_str()).unwrap_or("TS0000");
                 let message = caps.get(5).map(|m| m.as_str()).unwrap_or("");
 
@@ -113,7 +126,9 @@ pub fn run(args: CheckArgs) -> Result<()> {
 
 /// Find tsconfig.json starting from a file's directory
 fn find_tsconfig(start_file: &Path) -> Result<std::path::PathBuf> {
-    let start_dir = start_file.parent().context("File has no parent directory")?;
+    let start_dir = start_file
+        .parent()
+        .context("File has no parent directory")?;
 
     let mut dir = start_dir;
     loop {

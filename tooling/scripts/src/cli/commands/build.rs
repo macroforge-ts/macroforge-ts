@@ -36,7 +36,11 @@ pub fn run(args: BuildArgs) -> Result<()> {
     if args.repos == "all" {
         steps.push(BuildStep {
             label: "Remove root node_modules".to_string(),
-            cmd: Some(vec!["rm".to_string(), "-rf".to_string(), "node_modules".to_string()]),
+            cmd: Some(vec![
+                "rm".to_string(),
+                "-rf".to_string(),
+                "node_modules".to_string(),
+            ]),
             cwd: Some(config.root.clone()),
             func: None,
         });
@@ -46,14 +50,25 @@ pub fn run(args: BuildArgs) -> Result<()> {
     if repo_names.contains(&"core") {
         steps.push(BuildStep {
             label: "Cleanbuild core (macroforge)".to_string(),
-            cmd: Some(vec!["deno".to_string(), "task".to_string(), "cleanbuild".to_string()]),
+            cmd: Some(vec![
+                "deno".to_string(),
+                "task".to_string(),
+                "cleanbuild".to_string(),
+            ]),
             cwd: Some(config.root.join("crates/macroforge_ts")),
             func: None,
         });
     }
 
     // TypeScript packages
-    let ts_packages = ["shared", "vite-plugin", "typescript-plugin", "svelte-language-server", "svelte-preprocessor", "mcp-server"];
+    let ts_packages = [
+        "shared",
+        "vite-plugin",
+        "typescript-plugin",
+        "svelte-language-server",
+        "svelte-preprocessor",
+        "mcp-server",
+    ];
     for pkg in ts_packages {
         if repo_names.contains(&pkg) {
             let pkg_dir = config.root.join(format!("packages/{}", pkg));
@@ -78,7 +93,11 @@ pub fn run(args: BuildArgs) -> Result<()> {
             if pg_dir.exists() {
                 steps.push(BuildStep {
                     label: format!("Cleanbuild playground/{}", pg),
-                    cmd: Some(vec!["deno".to_string(), "task".to_string(), "cleanbuild".to_string()]),
+                    cmd: Some(vec![
+                        "deno".to_string(),
+                        "task".to_string(),
+                        "cleanbuild".to_string(),
+                    ]),
                     cwd: Some(pg_dir),
                     func: None,
                 });
@@ -92,7 +111,11 @@ pub fn run(args: BuildArgs) -> Result<()> {
 
         steps.push(BuildStep {
             label: "Git pull website from origin".to_string(),
-            cmd: Some(vec!["git".to_string(), "pull".to_string(), "origin".to_string()]),
+            cmd: Some(vec![
+                "git".to_string(),
+                "pull".to_string(),
+                "origin".to_string(),
+            ]),
             cwd: Some(website_dir.clone()),
             func: None,
         });
@@ -120,7 +143,11 @@ pub fn run(args: BuildArgs) -> Result<()> {
 
         steps.push(BuildStep {
             label: "Build website".to_string(),
-            cmd: Some(vec!["deno".to_string(), "task".to_string(), "build".to_string()]),
+            cmd: Some(vec![
+                "deno".to_string(),
+                "task".to_string(),
+                "build".to_string(),
+            ]),
             cwd: Some(website_dir.clone()),
             func: None,
         });
@@ -159,10 +186,7 @@ pub fn run(args: BuildArgs) -> Result<()> {
             }
 
             let result = if cmd[0] == "sh" {
-                Command::new("sh")
-                    .args(&cmd[1..])
-                    .current_dir(cwd)
-                    .output()
+                Command::new("sh").args(&cmd[1..]).current_dir(cwd).output()
             } else {
                 Command::new(&cmd[0])
                     .args(&cmd[1..])
@@ -217,7 +241,7 @@ fn add_external_config(website_dir: &Path) -> Result<()> {
         if !content.contains("external: ['macroforge']") {
             content = content.replace(
                 "adapter: adapter({\n\t\t\tout: 'build'\n\t\t})",
-                "adapter: adapter({\n\t\t\tout: 'build',\n\t\t\texternal: ['macroforge']\n\t\t})"
+                "adapter: adapter({\n\t\t\tout: 'build',\n\t\t\texternal: ['macroforge']\n\t\t})",
             );
             fs::write(&svelte_config_path, content)?;
             println!("  {} Added external to svelte.config.js", "→".blue());
@@ -246,7 +270,7 @@ fn remove_external_config(website_dir: &Path) -> Result<()> {
         let content = fs::read_to_string(&svelte_config_path)?;
         let updated = content.replace(
             "adapter: adapter({\n\t\t\tout: 'build',\n\t\t\texternal: ['macroforge']\n\t\t})",
-            "adapter: adapter({\n\t\t\tout: 'build'\n\t\t})"
+            "adapter: adapter({\n\t\t\tout: 'build'\n\t\t})",
         );
         fs::write(&svelte_config_path, updated)?;
         println!("  {} Removed external from svelte.config.js", "→".blue());

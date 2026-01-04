@@ -23,6 +23,11 @@ export default defineConfig({
         globals: true,
         setupFiles: ['./vitest.setup.ts'],
         // Exclude demo/example files from tests
-        exclude: ['**/node_modules/**', '**/.svelte-kit/**', '**/*.expanded.ts', '**/demo/**']
+        exclude: [
+            '**/node_modules/**',
+            '**/.svelte-kit/**',
+            '**/*.expanded.ts',
+            '**/demo/**'
+        ]
     }
 });

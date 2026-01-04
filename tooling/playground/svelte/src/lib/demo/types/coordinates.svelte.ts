@@ -2,6 +2,6 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Coordinates {
-  lat: number;
-  lng: number;
+    lat: number;
+    lng: number;
 }

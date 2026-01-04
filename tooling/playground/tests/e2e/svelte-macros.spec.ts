@@ -63,9 +63,13 @@ test.describe('Svelte Playground Macro Tests', () => {
         await page.click('[data-testid="test-all-macros"]');
         await page.waitForSelector('[data-tests-complete="true"]');
 
-        const deserializeResult = page.locator('[data-testid="result-deserialize"]');
+        const deserializeResult = page.locator(
+            '[data-testid="result-deserialize"]'
+        );
         const content = await deserializeResult.textContent();
-        expect(content?.includes('Deserialized') || content?.includes('Not available')).toBe(true);
+        expect(
+            content?.includes('Deserialized') || content?.includes('Not available')
+        ).toBe(true);
     });
 
     test('all macro results are displayed after button click', async ({ page }) => {

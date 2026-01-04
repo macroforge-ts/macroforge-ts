@@ -26,7 +26,9 @@ pub fn run(args: ExpandArgs) -> Result<()> {
     // Default playground roots
     let default_roots = vec![
         config.root.join("tooling/playground/svelte/src/lib/demo"),
-        config.root.join("tooling/playground/svelte/src/lib/demo/types"),
+        config
+            .root
+            .join("tooling/playground/svelte/src/lib/demo/types"),
         config.root.join("tooling/playground/vanilla/src"),
     ];
 
@@ -120,7 +122,9 @@ pub fn run(args: ExpandArgs) -> Result<()> {
                 match result {
                     Ok(output) if output.status.success() => {
                         let rel_src = path.strip_prefix(&config.root).unwrap_or(&path);
-                        let rel_dst = expanded_path.strip_prefix(&config.root).unwrap_or(&expanded_path);
+                        let rel_dst = expanded_path
+                            .strip_prefix(&config.root)
+                            .unwrap_or(&expanded_path);
                         println!("expanded {} -> {}", rel_src.display(), rel_dst.display());
                     }
                     Ok(output) => {
@@ -144,7 +148,8 @@ pub fn run(args: ExpandArgs) -> Result<()> {
             continue;
         }
 
-        let playground_name = playground_root.file_name()
+        let playground_name = playground_root
+            .file_name()
             .and_then(|n| n.to_str())
             .unwrap_or("unknown");
 
@@ -218,9 +223,7 @@ fn find_config_file(start_dir: &Path) -> Option<PathBuf> {
 
 /// Check if a file is a source file (not already expanded)
 fn is_source_file(path: &Path) -> bool {
-    let name = path.file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or("");
+    let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
     name.ends_with(".ts") && !name.contains(".expanded.")
 }
@@ -228,9 +231,7 @@ fn is_source_file(path: &Path) -> bool {
 /// Get the expanded output path for a source file
 fn get_expanded_path(file: &Path) -> PathBuf {
     let dir = file.parent().unwrap_or(Path::new("."));
-    let basename = file.file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or("file");
+    let basename = file.file_name().and_then(|n| n.to_str()).unwrap_or("file");
 
     // Find first dot to split name from extensions
     if let Some(dot_idx) = basename.find('.') {

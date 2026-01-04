@@ -1,4 +1,4 @@
-import { assertEquals, assertStrictEquals, assert as assertTrue } from 'jsr:@std/assert';
+import { assert as assertTrue, assertEquals, assertStrictEquals } from 'jsr:@std/assert';
 import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
@@ -36,12 +36,16 @@ export async function expandAndCompile(filePath) {
     }
 
     const sourceCode = fs.readFileSync(filePath, 'utf8');
-    const result = expandSync(sourceCode, path.basename(filePath), { configPath });
+    const result = expandSync(sourceCode, path.basename(filePath), {
+        configPath
+    });
 
     if (result.diagnostics && result.diagnostics.length > 0) {
         const errors = result.diagnostics.filter((d) => d.severity === 'error');
         if (errors.length > 0) {
-            throw new Error(`Macro expansion errors:\n${errors.map((e) => e.message).join('\n')}`);
+            throw new Error(
+                `Macro expansion errors:\n${errors.map((e) => e.message).join('\n')}`
+            );
         }
     }
 
@@ -82,7 +86,10 @@ export function assertValidationError(result, _fieldName, messageSubstring) {
         const msg = typeof e === 'string' ? e : e.message;
         return msg.includes(messageSubstring);
     });
-    assertTrue(hasExpectedError, `Expected error containing "${messageSubstring}"`);
+    assertTrue(
+        hasExpectedError,
+        `Expected error containing "${messageSubstring}"`
+    );
 }
 
 /**
@@ -91,11 +98,11 @@ export function assertValidationError(result, _fieldName, messageSubstring) {
 export function assertValidationSuccess(result, fieldName) {
     if (!result.success) {
         const errors = result.errors;
-        const errorMsgs = errors.map((e) =>
-            typeof e === 'string' ? e : `${e.field}: ${e.message}`
-        );
+        const errorMsgs = errors.map((e) => typeof e === 'string' ? e : `${e.field}: ${e.message}`);
         throw new Error(
-            `Expected validation to succeed for "${fieldName}", but got errors: ${errorMsgs.join('; ')}`
+            `Expected validation to succeed for "${fieldName}", but got errors: ${
+                errorMsgs.join('; ')
+            }`
         );
     }
     assertStrictEquals(result.success, true);
@@ -107,7 +114,11 @@ export function assertValidationSuccess(result, fieldName) {
 export function assertErrorCount(result, expectedCount) {
     assertStrictEquals(result.success, false, 'Expected validation to fail');
     const errors = result.errors;
-    assertStrictEquals(errors.length, expectedCount, `Expected ${expectedCount} errors`);
+    assertStrictEquals(
+        errors.length,
+        expectedCount,
+        `Expected ${expectedCount} errors`
+    );
 }
 
 // Deno test wrappers
@@ -184,5 +195,5 @@ export const assert = {
     ok: assertTrue,
     strictEqual: assertStrictEquals,
     deepStrictEqual: assertEquals,
-    equal: assertStrictEquals,
+    equal: assertStrictEquals
 };

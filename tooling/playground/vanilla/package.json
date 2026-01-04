@@ -1,20 +1,20 @@
 {
-	"name": "@playground/vanilla",
-	"version": "0.0.1",
-	"private": true,
-	"type": "module",
-	"scripts": {
-		"dev": "node --env-file=../../.env ./node_modules/.bin/vite",
-		"build": "node --env-file=../../.env ./node_modules/.bin/vite build",
-		"preview": "node --env-file=../../.env ./node_modules/.bin/vite preview",
-		"clean": "rm -rf node_modules"
-	},
-	"dependencies": {
-		"effect": "^3.19.4"
-	},
-	"devDependencies": {
-		"@types/node": "^22.10.2",
-		"typescript": "^5.9.3",
-		"vite": "^7.2.4"
-	}
+    "name": "@playground/vanilla",
+    "version": "0.0.1",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "node --env-file=../../.env ./node_modules/.bin/vite",
+        "build": "node --env-file=../../.env ./node_modules/.bin/vite build",
+        "preview": "node --env-file=../../.env ./node_modules/.bin/vite preview",
+        "clean": "rm -rf node_modules"
+    },
+    "dependencies": {
+        "effect": "^3.19.4"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.2",
+        "typescript": "^5.9.3",
+        "vite": "^7.2.4"
+    }
 }

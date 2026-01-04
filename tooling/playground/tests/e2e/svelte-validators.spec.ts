@@ -11,7 +11,8 @@ test.describe('Svelte Validator Form E2E Tests', () => {
     test.describe('User Registration Form', () => {
         test('page loads with user registration form', async ({ page }) => {
             await expect(page).toHaveTitle(/Validator Form/);
-            await expect(page.locator('[data-testid="user-registration-form"]')).toBeVisible();
+            await expect(page.locator('[data-testid="user-registration-form"]'))
+                .toBeVisible();
         });
 
         test('validates valid user registration data', async ({ page }) => {
@@ -105,7 +106,10 @@ test.describe('Svelte Validator Form E2E Tests', () => {
     test.describe('Product Form', () => {
         test('validates valid product data', async ({ page }) => {
             await page.fill('[data-testid="product-name"]', 'Awesome Widget');
-            await page.fill('[data-testid="product-sku"]', '123e4567-e89b-12d3-a456-426614174000');
+            await page.fill(
+                '[data-testid="product-sku"]',
+                '123e4567-e89b-12d3-a456-426614174000'
+            );
             await page.fill('[data-testid="product-price"]', '29.99');
             await page.fill('[data-testid="product-quantity"]', '100');
             await page.fill('[data-testid="product-tags"]', 'electronics, gadget');
@@ -119,7 +123,10 @@ test.describe('Svelte Validator Form E2E Tests', () => {
 
         test('rejects empty product name', async ({ page }) => {
             await page.fill('[data-testid="product-name"]', '');
-            await page.fill('[data-testid="product-sku"]', '123e4567-e89b-12d3-a456-426614174000');
+            await page.fill(
+                '[data-testid="product-sku"]',
+                '123e4567-e89b-12d3-a456-426614174000'
+            );
             await page.fill('[data-testid="product-price"]', '29.99');
             await page.fill('[data-testid="product-quantity"]', '100');
             await page.fill('[data-testid="product-tags"]', 'electronics');
@@ -147,7 +154,10 @@ test.describe('Svelte Validator Form E2E Tests', () => {
 
         test('rejects negative price', async ({ page }) => {
             await page.fill('[data-testid="product-name"]', 'Awesome Widget');
-            await page.fill('[data-testid="product-sku"]', '123e4567-e89b-12d3-a456-426614174000');
+            await page.fill(
+                '[data-testid="product-sku"]',
+                '123e4567-e89b-12d3-a456-426614174000'
+            );
             await page.fill('[data-testid="product-price"]', '-10');
             await page.fill('[data-testid="product-quantity"]', '100');
             await page.fill('[data-testid="product-tags"]', 'electronics');
@@ -161,7 +171,10 @@ test.describe('Svelte Validator Form E2E Tests', () => {
 
         test('rejects negative quantity', async ({ page }) => {
             await page.fill('[data-testid="product-name"]', 'Awesome Widget');
-            await page.fill('[data-testid="product-sku"]', '123e4567-e89b-12d3-a456-426614174000');
+            await page.fill(
+                '[data-testid="product-sku"]',
+                '123e4567-e89b-12d3-a456-426614174000'
+            );
             await page.fill('[data-testid="product-price"]', '29.99');
             await page.fill('[data-testid="product-quantity"]', '-5');
             await page.fill('[data-testid="product-tags"]', 'electronics');
@@ -175,10 +188,16 @@ test.describe('Svelte Validator Form E2E Tests', () => {
 
         test('rejects too many tags', async ({ page }) => {
             await page.fill('[data-testid="product-name"]', 'Awesome Widget');
-            await page.fill('[data-testid="product-sku"]', '123e4567-e89b-12d3-a456-426614174000');
+            await page.fill(
+                '[data-testid="product-sku"]',
+                '123e4567-e89b-12d3-a456-426614174000'
+            );
             await page.fill('[data-testid="product-price"]', '29.99');
             await page.fill('[data-testid="product-quantity"]', '100');
-            await page.fill('[data-testid="product-tags"]', 'one, two, three, four, five, six'); // 6 tags, max is 5
+            await page.fill(
+                '[data-testid="product-tags"]',
+                'one, two, three, four, five, six'
+            ); // 6 tags, max is 5
 
             await page.click('[data-testid="submit-product"]');
 
@@ -189,7 +208,10 @@ test.describe('Svelte Validator Form E2E Tests', () => {
 
         test('rejects empty tags array', async ({ page }) => {
             await page.fill('[data-testid="product-name"]', 'Awesome Widget');
-            await page.fill('[data-testid="product-sku"]', '123e4567-e89b-12d3-a456-426614174000');
+            await page.fill(
+                '[data-testid="product-sku"]',
+                '123e4567-e89b-12d3-a456-426614174000'
+            );
             await page.fill('[data-testid="product-price"]', '29.99');
             await page.fill('[data-testid="product-quantity"]', '100');
             await page.fill('[data-testid="product-tags"]', ''); // No tags

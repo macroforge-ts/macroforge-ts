@@ -48,8 +48,8 @@ export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
     const configFile = fs.existsSync(configFileTs)
         ? configFileTs
         : fs.existsSync(configFileJs)
-          ? configFileJs
-          : undefined;
+        ? configFileJs
+        : undefined;
     const previousCwd = process.cwd();
     let server;
     let copiedConfig = false;
@@ -78,10 +78,22 @@ export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
             resolve: {
                 dedupe: ['effect'],
                 alias: {
-                    'macroforge/serde': path.resolve(repoRoot, 'crates/macroforge_ts/js/serde/index.mjs'),
-                    'macroforge/traits': path.resolve(repoRoot, 'crates/macroforge_ts/js/traits/index.mjs'),
-                    'macroforge/reexports': path.resolve(repoRoot, 'crates/macroforge_ts/js/reexports/index.mjs'),
-                    'macroforge/reexports/effect': path.resolve(repoRoot, 'crates/macroforge_ts/js/reexports/effect.mjs'),
+                    'macroforge/serde': path.resolve(
+                        repoRoot,
+                        'crates/macroforge_ts/js/serde/index.mjs'
+                    ),
+                    'macroforge/traits': path.resolve(
+                        repoRoot,
+                        'crates/macroforge_ts/js/traits/index.mjs'
+                    ),
+                    'macroforge/reexports': path.resolve(
+                        repoRoot,
+                        'crates/macroforge_ts/js/reexports/index.mjs'
+                    ),
+                    'macroforge/reexports/effect': path.resolve(
+                        repoRoot,
+                        'crates/macroforge_ts/js/reexports/effect.mjs'
+                    ),
                     'macroforge': path.resolve(repoRoot, 'crates/macroforge_ts')
                 }
             }
