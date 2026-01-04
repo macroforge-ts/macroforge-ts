@@ -1,0 +1,34 @@
+{
+    "fmt": {
+        "useTabs": false,
+        "indentWidth": 4,
+        "lineWidth": 100,
+        "singleQuote": true,
+        "semiColons": true,
+        "trailingCommas": "never",
+        "exclude": ["**/fixtures/**", "**/dist", "**/build", "**/node_modules"]
+    },
+    "lint": {
+        "exclude": [
+            "**/fixtures/**",
+            "**/tests/**",
+            "**/dist",
+            "**/build",
+            "**/node_modules",
+            "**/*.config.ts",
+            "**/*.config.js"
+        ],
+        "rules": {
+            "tags": ["recommended"],
+            "include": ["eqeqeq"],
+            "exclude": [
+                "require-await",
+                "no-process-global",
+                "no-node-globals",
+                "no-irregular-whitespace",
+                "no-explicit-any",
+                "no-inner-declarations"
+            ]
+        }
+    }
+}

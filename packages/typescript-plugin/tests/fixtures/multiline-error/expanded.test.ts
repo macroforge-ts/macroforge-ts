@@ -1,4 +1,3 @@
-
 /** @derive(Debug) */
 class User {
   id: string;

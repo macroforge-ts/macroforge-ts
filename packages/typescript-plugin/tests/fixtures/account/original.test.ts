@@ -1,15 +1,15 @@
 import { Schema } from "effect";
 import {
-  TaxRate,
-  Site,
-  Represents,
-  Ordered,
-  Did,
   AccountName,
-  Sector,
-  PhoneNumber,
-  Email,
   Colors,
+  Did,
+  Email,
+  Ordered,
+  PhoneNumber,
+  Represents,
+  Sector,
+  Site,
+  TaxRate,
 } from "../types/bindings";
 /** import macro { FieldController} from "@playground/macro"; */
 

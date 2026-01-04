@@ -8,7 +8,7 @@
  * @module @macroforge/typescript-plugin/source-map
  */
 
-import type { SourceMappingResult } from "macroforge";
+import type { SourceMappingResult } from 'macroforge';
 
 /**
  * Re-export of the core source mapping result type.
@@ -45,53 +45,53 @@ export type SourceMapping = SourceMappingResult;
  * ```
  */
 export interface PositionMapper {
-  /**
-   * Maps a position from original source to expanded code.
-   *
-   * @param pos - Position in the original source (0-indexed character offset)
-   * @returns Corresponding position in the expanded code
-   */
-  originalToExpanded(pos: number): number;
+    /**
+     * Maps a position from original source to expanded code.
+     *
+     * @param pos - Position in the original source (0-indexed character offset)
+     * @returns Corresponding position in the expanded code
+     */
+    originalToExpanded(pos: number): number;
 
-  /**
-   * Maps a position from expanded code back to original source.
-   *
-   * @param pos - Position in the expanded code (0-indexed character offset)
-   * @returns Corresponding position in the original source, or `null` if the
-   *          position falls within generated code (no original equivalent)
-   */
-  expandedToOriginal(pos: number): number | null;
+    /**
+     * Maps a position from expanded code back to original source.
+     *
+     * @param pos - Position in the expanded code (0-indexed character offset)
+     * @returns Corresponding position in the original source, or `null` if the
+     *          position falls within generated code (no original equivalent)
+     */
+    expandedToOriginal(pos: number): number | null;
 
-  /**
-   * Maps a text span from expanded code back to original source.
-   *
-   * @param start - Start position in expanded code
-   * @param length - Length of the span in expanded code
-   * @returns Object with mapped start and length, or `null` if the span
-   *          falls within generated code
-   */
-  mapSpanToOriginal(
-    start: number,
-    length: number,
-  ): { start: number; length: number } | null;
+    /**
+     * Maps a text span from expanded code back to original source.
+     *
+     * @param start - Start position in expanded code
+     * @param length - Length of the span in expanded code
+     * @returns Object with mapped start and length, or `null` if the span
+     *          falls within generated code
+     */
+    mapSpanToOriginal(
+        start: number,
+        length: number
+    ): { start: number; length: number } | null;
 
-  /**
-   * Maps a text span from original source to expanded code.
-   *
-   * @param start - Start position in original source
-   * @param length - Length of the span in original source
-   * @returns Object with mapped start and length in expanded code
-   */
-  mapSpanToExpanded(
-    start: number,
-    length: number,
-  ): { start: number; length: number };
+    /**
+     * Maps a text span from original source to expanded code.
+     *
+     * @param start - Start position in original source
+     * @param length - Length of the span in original source
+     * @returns Object with mapped start and length in expanded code
+     */
+    mapSpanToExpanded(
+        start: number,
+        length: number
+    ): { start: number; length: number };
 
-  /**
-   * Checks if this mapper has any mapping data.
-   *
-   * @returns `true` if no macro expansion occurred (original === expanded),
-   *          `false` if there are position differences to account for
-   */
-  isEmpty(): boolean;
+    /**
+     * Checks if this mapper has any mapping data.
+     *
+     * @returns `true` if no macro expansion occurred (original === expanded),
+     *          `false` if there are position differences to account for
+     */
+    isEmpty(): boolean;
 }
