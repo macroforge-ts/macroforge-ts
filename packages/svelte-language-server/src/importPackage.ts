@@ -24,7 +24,11 @@ function dynamicRequire(dynamicFileToRequire: string): any {
     return require(dynamicFileToRequire);
 }
 
-export function getPackageInfo(packageName: string, fromPath: string, use_fallback = true) {
+export function getPackageInfo(
+    packageName: string,
+    fromPath: string,
+    use_fallback = true
+) {
     const paths: string[] = [];
     if (isTrusted) {
         paths.push(fromPath);

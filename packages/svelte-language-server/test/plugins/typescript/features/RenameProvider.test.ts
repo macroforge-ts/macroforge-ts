@@ -43,9 +43,15 @@ describe('RenameProvider', function () {
         const renameDoc4 = await openDoc('rename4.svelte');
         const renameDoc5 = await openDoc('rename5.svelte');
         const renameDoc6 = await openDoc('rename6.svelte');
-        const renameDocIgnoreGenerated = await openDoc('rename-ignore-generated.svelte');
-        const renameDocSlotEventsImporter = await openDoc('rename-slot-events-importer.svelte');
-        const renameDocPropWithSlotEvents = await openDoc('rename-prop-with-slot-events.svelte');
+        const renameDocIgnoreGenerated = await openDoc(
+            'rename-ignore-generated.svelte'
+        );
+        const renameDocSlotEventsImporter = await openDoc(
+            'rename-slot-events-importer.svelte'
+        );
+        const renameDocPropWithSlotEvents = await openDoc(
+            'rename-prop-with-slot-events.svelte'
+        );
         const renameDocShorthand = await openDoc('rename-shorthand.svelte');
         const renameSlotLet = await openDoc('rename-slot-let.svelte');
         const renameRunes = await openDoc('rename-runes.svelte');
@@ -71,10 +77,12 @@ describe('RenameProvider', function () {
 
         async function openDoc(filename: string) {
             const filePath = getFullPath(filename);
-            const doc = docManager.openClientDocument(<any>{
-                uri: pathToUrl(filePath),
-                text: ts.sys.readFile(filePath) || ''
-            });
+            const doc = docManager.openClientDocument(
+                <any> {
+                    uri: pathToUrl(filePath),
+                    text: ts.sys.readFile(filePath) || ''
+                }
+            );
             // Do this to make the file known to the ts language service
             await provider.rename(doc, Position.create(0, 0), '');
             return doc;
@@ -83,7 +91,11 @@ describe('RenameProvider', function () {
 
     it('should rename variable that is scoped to component only', async () => {
         const { provider, renameDoc1 } = await setup();
-        const result = await provider.rename(renameDoc1, Position.create(2, 15), 'newName');
+        const result = await provider.rename(
+            renameDoc1,
+            Position.create(2, 15),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -221,22 +233,37 @@ describe('RenameProvider', function () {
 
     it('should do rename of prop of component A in component A', async () => {
         const { provider, renameDoc1 } = await setup();
-        const result = await provider.rename(renameDoc1, Position.create(1, 25), 'newName');
+        const result = await provider.rename(
+            renameDoc1,
+            Position.create(1, 25),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, expectedEditsForPropRename);
     });
 
     it('should do rename of prop of component A in component B', async () => {
         const { provider, renameDoc2 } = await setup();
-        const result = await provider.rename(renameDoc2, Position.create(5, 10), 'newName');
+        const result = await provider.rename(
+            renameDoc2,
+            Position.create(5, 10),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, expectedEditsForPropRename);
     });
 
     it('should not allow rename of intrinsic attribute', async () => {
         const { provider, renameDoc2 } = await setup();
-        const prepareResult = await provider.prepareRename(renameDoc2, Position.create(7, 7));
-        const renameResult = await provider.rename(renameDoc2, Position.create(7, 7), 'newName');
+        const prepareResult = await provider.prepareRename(
+            renameDoc2,
+            Position.create(7, 7)
+        );
+        const renameResult = await provider.rename(
+            renameDoc2,
+            Position.create(7, 7),
+            'newName'
+        );
 
         assert.deepStrictEqual(prepareResult, null);
         assert.deepStrictEqual(renameResult, null);
@@ -244,7 +271,11 @@ describe('RenameProvider', function () {
 
     it('should do rename of prop without type of component A in component A', async () => {
         const { provider, renameDoc3 } = await setup();
-        const result = await provider.rename(renameDoc3, Position.create(1, 25), 'newName');
+        const result = await provider.rename(
+            renameDoc3,
+            Position.create(1, 25),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -284,7 +315,11 @@ describe('RenameProvider', function () {
 
     it('should do rename of prop without type of component A in component A that is used with shorthands in component B', async () => {
         const { provider, renameDoc3 } = await setup();
-        const result = await provider.rename(renameDoc3, Position.create(2, 20), 'newName');
+        const result = await provider.rename(
+            renameDoc3,
+            Position.create(2, 20),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -363,7 +398,11 @@ describe('RenameProvider', function () {
 
     it('should do rename of prop without type of component A in component B', async () => {
         const { provider, renameDoc2 } = await setup();
-        const result = await provider.rename(renameDoc2, Position.create(6, 11), 'newName');
+        const result = await provider.rename(
+            renameDoc2,
+            Position.create(6, 11),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -403,7 +442,11 @@ describe('RenameProvider', function () {
 
     it('should do rename of svelte component', async () => {
         const { provider, renameDoc4 } = await setup();
-        const result = await provider.rename(renameDoc4, Position.create(1, 12), 'ChildNew');
+        const result = await provider.rename(
+            renameDoc4,
+            Position.create(1, 12),
+            'ChildNew'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -557,7 +600,10 @@ describe('RenameProvider', function () {
 
     it('should allow rename of variable', async () => {
         const { provider, renameDoc1 } = await setup();
-        const result = await provider.prepareRename(renameDoc1, Position.create(1, 25));
+        const result = await provider.prepareRename(
+            renameDoc1,
+            Position.create(1, 25)
+        );
 
         assert.deepStrictEqual(result, {
             start: {
@@ -573,21 +619,31 @@ describe('RenameProvider', function () {
 
     it('should not allow rename of html element', async () => {
         const { provider, renameDoc1 } = await setup();
-        const result = await provider.prepareRename(renameDoc1, Position.create(12, 1));
+        const result = await provider.prepareRename(
+            renameDoc1,
+            Position.create(12, 1)
+        );
 
         assert.deepStrictEqual(result, null);
     });
 
     it('should not allow rename of html attribute', async () => {
         const { provider, renameDoc1 } = await setup();
-        const result = await provider.prepareRename(renameDoc1, Position.create(12, 5));
+        const result = await provider.prepareRename(
+            renameDoc1,
+            Position.create(12, 5)
+        );
 
         assert.deepStrictEqual(result, null);
     });
 
     it('should rename with prefix', async () => {
         const { provider, renameDoc6 } = await setup();
-        const result = await provider.rename(renameDoc6, Position.create(3, 9), 'newName');
+        const result = await provider.rename(
+            renameDoc6,
+            Position.create(3, 9),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -759,7 +815,11 @@ describe('RenameProvider', function () {
     async function testShorthand(position: Position) {
         const { provider, renameDocShorthand } = await setup();
 
-        const result = await provider.rename(renameDocShorthand, position, 'newName');
+        const result = await provider.rename(
+            renameDocShorthand,
+            position,
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -837,7 +897,11 @@ describe('RenameProvider', function () {
     it('can rename slot let to an alias', async () => {
         const { provider, renameSlotLet } = await setup();
 
-        const result = await provider.rename(renameSlotLet, Position.create(4, 7), 'newName');
+        const result = await provider.rename(
+            renameSlotLet,
+            Position.create(4, 7),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -884,7 +948,11 @@ describe('RenameProvider', function () {
     it('renames $props() prop from inside component', async () => {
         const { provider, renameRunes } = await setup();
 
-        const result = await provider.rename(renameRunes, Position.create(1, 40), 'newName');
+        const result = await provider.rename(
+            renameRunes,
+            Position.create(1, 40),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -951,7 +1019,11 @@ describe('RenameProvider', function () {
     it('renames $props() binding from inside component', async () => {
         const { provider, renameRunes } = await setup();
 
-        const result = await provider.rename(renameRunes, Position.create(1, 54), 'newName');
+        const result = await provider.rename(
+            renameRunes,
+            Position.create(1, 54),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {
@@ -1019,7 +1091,11 @@ describe('RenameProvider', function () {
     it.skip('renames $props() prop inside consumer', async () => {
         const { provider, renameRunes } = await setup();
 
-        const result = await provider.rename(renameRunes, Position.create(7, 15), 'newName');
+        const result = await provider.rename(
+            renameRunes,
+            Position.create(7, 15),
+            'newName'
+        );
 
         assert.deepStrictEqual(result, {
             changes: {

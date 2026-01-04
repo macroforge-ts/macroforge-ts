@@ -1,14 +1,14 @@
 import { EOL } from 'os';
 import { SvelteDocument } from '../SvelteDocument';
 import {
-    Position,
-    CompletionList,
-    CompletionItemKind,
     CompletionItem,
+    CompletionItemKind,
+    CompletionList,
     InsertTextFormat,
-    MarkupKind
+    MarkupKind,
+    Position
 } from 'vscode-languageserver';
-import { SvelteTag, documentation, getLatestOpeningTag } from './SvelteTags';
+import { documentation, getLatestOpeningTag, SvelteTag } from './SvelteTags';
 import { Document } from '../../../lib/documents';
 import { AttributeContext, getAttributeContextAtPosition } from '../../../lib/documents/parseHtml';
 import { getModifierData } from './getModifierData';
@@ -19,8 +19,7 @@ const HTML_COMMENT_START = '<!--';
 const componentDocumentationCompletion: CompletionItem = {
     label: '@component',
     insertText: `component${EOL}$1${EOL}`,
-    documentation:
-        'Documentation for this component. ' +
+    documentation: 'Documentation for this component. ' +
         'It will show up on hover. You can use markdown and code blocks here',
     insertTextFormat: InsertTextFormat.Snippet,
     kind: CompletionItemKind.Snippet,
@@ -40,7 +39,9 @@ export function getCompletions(
         .getText()
         // use last 10 characters, should cover 99% of all cases
         .substr(Math.max(offset - 10, 0), Math.min(offset, 10));
-    const precededByOpeningBracket = /[\s\S]*{\s*[#:/@]\w*$/.test(lastCharactersBeforePosition);
+    const precededByOpeningBracket = /[\s\S]*{\s*[#:/@]\w*$/.test(
+        lastCharactersBeforePosition
+    );
     if (inStyleOrScript(svelteDoc, position)) {
         return null;
     }
@@ -63,7 +64,11 @@ export function getCompletions(
     function getTagCompletionsWithinMoustache() {
         const triggerCharacter = getTriggerCharacter(lastCharactersBeforePosition);
         // return all, filtering with regards to user input will be done client side
-        return getCompletionsWithRegardToTriggerCharacter(triggerCharacter, svelteDoc, offset);
+        return getCompletionsWithRegardToTriggerCharacter(
+            triggerCharacter,
+            svelteDoc,
+            offset
+        );
     }
 
     function getComponentDocumentationCompletions() {
@@ -71,7 +76,9 @@ export function getCompletions(
             return null;
         }
 
-        const commentStartIndex = lastCharactersBeforePosition.lastIndexOf(HTML_COMMENT_START);
+        const commentStartIndex = lastCharactersBeforePosition.lastIndexOf(
+            HTML_COMMENT_START
+        );
         const text = lastCharactersBeforePosition
             .substring(commentStartIndex + HTML_COMMENT_START.length)
             .trimLeft();
@@ -83,7 +90,9 @@ export function getCompletions(
     }
 }
 
-function getEventModifierCompletion(attributeContext: AttributeContext): CompletionList | null {
+function getEventModifierCompletion(
+    attributeContext: AttributeContext
+): CompletionList | null {
     const modifiers = getModifierData();
 
     if (!attributeContext || !attributeCanHaveEventModifier(attributeContext)) {
@@ -130,7 +139,11 @@ function getCompletionsWithRegardToTriggerCharacter(
     if (triggerCharacter === '#') {
         return createCompletionItems([
             { tag: 'if', label: 'if', insertText: 'if $1}\n\t$2\n{/if' },
-            { tag: 'each', label: 'each', insertText: 'each $1 as $2}\n\t$3\n{/each' },
+            {
+                tag: 'each',
+                label: 'each',
+                insertText: 'each $1 as $2}\n\t$3\n{/each'
+            },
             {
                 tag: 'await',
                 label: 'await :then',
@@ -142,7 +155,11 @@ function getCompletionsWithRegardToTriggerCharacter(
                 insertText: 'await $1 then $2}\n\t$3\n{/await'
             },
             { tag: 'key', label: 'key', insertText: 'key $1}\n\t$2\n{/key' },
-            { tag: 'snippet', label: 'snippet', insertText: 'snippet $1($2)}\n\t$3\n{/snippet' }
+            {
+                tag: 'snippet',
+                label: 'snippet',
+                insertText: 'snippet $1($2)}\n\t$3\n{/snippet'
+            }
         ]);
     }
 
@@ -237,7 +254,7 @@ function createCompletionItems(
         // add sortText/preselect so it is ranked higher than other completions and selected first
         items.map(
             (item) =>
-                <CompletionItem>{
+                <CompletionItem> {
                     insertTextFormat: InsertTextFormat.Snippet,
                     insertText: item.insertText,
                     label: item.label,

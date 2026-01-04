@@ -1,6 +1,9 @@
 [
     {
-        "range": { "start": { "line": 7, "character": 11 }, "end": { "line": 7, "character": 14 } },
+        "range": {
+            "start": { "line": 7, "character": 11 },
+            "end": { "line": 7, "character": 14 }
+        },
         "severity": 1,
         "source": "ts",
         "message": "Argument of type '\"bar\"' is not assignable to parameter of type 'keyof $$Events'.",
@@ -8,7 +11,10 @@
         "tags": []
     },
     {
-        "range": { "start": { "line": 7, "character": 37 }, "end": { "line": 7, "character": 54 } },
+        "range": {
+            "start": { "line": 7, "character": 37 },
+            "end": { "line": 7, "character": 54 }
+        },
         "severity": 1,
         "source": "ts",
         "message": "This comparison appears to be unintentional because the types 'string' and 'boolean' have no overlap.",

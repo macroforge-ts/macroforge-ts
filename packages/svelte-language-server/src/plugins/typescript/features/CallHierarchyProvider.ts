@@ -42,7 +42,8 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
         position: Position,
         cancellationToken?: CancellationToken
     ): Promise<CallHierarchyItem[] | null> {
-        const { lang, tsDoc, lsContainer } = await this.lsAndTsDocResolver.getLSAndTSDoc(document);
+        const { lang, tsDoc, lsContainer } = await this.lsAndTsDocResolver
+            .getLSAndTSDoc(document);
 
         if (cancellationToken?.isCancellationRequested) {
             return null;
@@ -67,7 +68,8 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
     private isSourceFileItem(item: ts.CallHierarchyItem) {
         return (
             item.kind === ts.ScriptElementKind.scriptElement ||
-            (item.kind === ts.ScriptElementKind.moduleElement && item.selectionSpan.start === 0)
+            (item.kind === ts.ScriptElementKind.moduleElement &&
+                item.selectionSpan.start === 0)
         );
     }
 
@@ -78,13 +80,20 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
     ): Promise<CallHierarchyItem | null> {
         const snapshot = await snapshots.retrieve(item.file);
 
-        const redirectedCallHierarchyItem = this.redirectCallHierarchyItem(snapshot, program, item);
+        const redirectedCallHierarchyItem = this.redirectCallHierarchyItem(
+            snapshot,
+            program,
+            item
+        );
 
         if (redirectedCallHierarchyItem) {
             return redirectedCallHierarchyItem;
         }
 
-        const { name, detail } = this.getNameAndDetailForItem(this.isSourceFileItem(item), item);
+        const { name, detail } = this.getNameAndDetailForItem(
+            this.isSourceFileItem(item),
+            item
+        );
 
         const selectionRange = mapRangeToOriginal(
             snapshot,
@@ -95,7 +104,10 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
             return null;
         }
 
-        const range = mapRangeToOriginal(snapshot, convertRange(snapshot, item.span));
+        const range = mapRangeToOriginal(
+            snapshot,
+            convertRange(snapshot, item.span)
+        );
 
         if (range.start.line < 0 || range.end.line < 0) {
             return null;
@@ -112,13 +124,17 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
         };
     }
 
-    private getNameAndDetailForItem(useFileName: boolean, item: ts.CallHierarchyItem) {
+    private getNameAndDetailForItem(
+        useFileName: boolean,
+        item: ts.CallHierarchyItem
+    ) {
         const nearestRootUri = getNearestWorkspaceUri(
             this.workspaceUris,
             item.file,
             createGetCanonicalFileName(ts.sys.useCaseSensitiveFileNames)
         );
-        const nearestRoot = nearestRootUri && (urlToPath(nearestRootUri) ?? undefined);
+        const nearestRoot = nearestRootUri &&
+            (urlToPath(nearestRootUri) ?? undefined);
 
         const name = useFileName ? basename(item.file) : item.name;
         const detail = useFileName
@@ -131,7 +147,10 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
         previousItem: CallHierarchyItem,
         cancellationToken?: CancellationToken | undefined
     ): Promise<CallHierarchyIncomingCall[] | null> {
-        const prepareResult = await this.prepareFurtherCalls(previousItem, cancellationToken);
+        const prepareResult = await this.prepareFurtherCalls(
+            previousItem,
+            cancellationToken
+        );
         if (!prepareResult) {
             return null;
         }
@@ -154,22 +173,31 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
 
         const incomingCalls: ts.CallHierarchyIncomingCall[] = lang
             .provideCallHierarchyIncomingCalls(filePath, offset)
-            .concat(this.getInComingCallsForComponent(lang, program, filePath, offset) ?? []);
+            .concat(
+                this.getInComingCallsForComponent(lang, program, filePath, offset) ??
+                    []
+            );
 
         const result = await Promise.all(
-            incomingCalls.map(async (item): Promise<CallHierarchyIncomingCall | null> => {
-                const snapshot = await snapshots.retrieve(item.from.file);
-                const from = await this.convertCallHierarchyItem(snapshots, item.from, program);
+            incomingCalls.map(
+                async (item): Promise<CallHierarchyIncomingCall | null> => {
+                    const snapshot = await snapshots.retrieve(item.from.file);
+                    const from = await this.convertCallHierarchyItem(
+                        snapshots,
+                        item.from,
+                        program
+                    );
 
-                if (!from) {
-                    return null;
+                    if (!from) {
+                        return null;
+                    }
+
+                    return {
+                        from,
+                        fromRanges: this.convertFromRanges(snapshot, item.fromSpans)
+                    };
                 }
-
-                return {
-                    from,
-                    fromRanges: this.convertFromRanges(snapshot, item.fromSpans)
-                };
-            })
+            )
         );
 
         return result.filter(isNotNullOrUndefined);
@@ -179,7 +207,10 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
         previousItem: CallHierarchyItem,
         cancellationToken?: CancellationToken | undefined
     ): Promise<CallHierarchyOutgoingCall[] | null> {
-        const prepareResult = await this.prepareFurtherCalls(previousItem, cancellationToken);
+        const prepareResult = await this.prepareFurtherCalls(
+            previousItem,
+            cancellationToken
+        );
         if (!prepareResult) {
             return null;
         }
@@ -196,19 +227,19 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
 
         const sourceFile = program?.getSourceFile(filePath);
         const renderFunctionOffset =
-            isComponentModulePosition && tsDoc instanceof SvelteDocumentSnapshot && sourceFile
+            isComponentModulePosition && tsDoc instanceof SvelteDocumentSnapshot &&
+                sourceFile
                 ? sourceFile.statements
-                      .find(
-                          (statement): statement is ts.FunctionDeclaration =>
-                              ts.isFunctionDeclaration(statement) &&
-                              statement.name?.getText() === internalHelpers.renderName
-                      )
-                      ?.name?.getStart()
+                    .find(
+                        (statement): statement is ts.FunctionDeclaration =>
+                            ts.isFunctionDeclaration(statement) &&
+                            statement.name?.getText() === internalHelpers.renderName
+                    )
+                    ?.name?.getStart()
                 : -1;
-        const offset =
-            renderFunctionOffset != null && renderFunctionOffset >= 0
-                ? renderFunctionOffset
-                : getNonComponentOffset();
+        const offset = renderFunctionOffset != null && renderFunctionOffset >= 0
+            ? renderFunctionOffset
+            : getNonComponentOffset();
 
         const outgoingCalls = lang
             .provideCallHierarchyOutgoingCalls(filePath, offset)
@@ -219,24 +250,30 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
             );
 
         const result = await Promise.all(
-            outgoingCalls.map(async (item): Promise<CallHierarchyOutgoingCall | null> => {
-                if (
-                    item.to.name.startsWith('__sveltets') ||
-                    item.to.containerName === 'svelteHTML'
-                ) {
-                    return null;
-                }
+            outgoingCalls.map(
+                async (item): Promise<CallHierarchyOutgoingCall | null> => {
+                    if (
+                        item.to.name.startsWith('__sveltets') ||
+                        item.to.containerName === 'svelteHTML'
+                    ) {
+                        return null;
+                    }
 
-                const to = await this.convertCallHierarchyItem(snapshots, item.to, program);
+                    const to = await this.convertCallHierarchyItem(
+                        snapshots,
+                        item.to,
+                        program
+                    );
 
-                if (!to) {
-                    return null;
+                    if (!to) {
+                        return null;
+                    }
+                    return {
+                        to,
+                        fromRanges: this.convertFromRanges(tsDoc, item.fromSpans)
+                    };
                 }
-                return {
-                    to,
-                    fromRanges: this.convertFromRanges(tsDoc, item.fromSpans)
-                };
-            })
+            )
         );
 
         return result.filter(isNotNullOrUndefined).filter((item) => item.fromRanges.length);
@@ -265,8 +302,7 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
         const snapshots = new SnapshotMap(this.lsAndTsDocResolver, lsContainer);
         snapshots.set(tsDoc.filePath, tsDoc);
 
-        const isComponentModulePosition =
-            isSvelteFilePath(item.name) &&
+        const isComponentModulePosition = isSvelteFilePath(item.name) &&
             item.selectionRange.start.line === 0 &&
             item.range.start.line === 0;
 
@@ -309,7 +345,8 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
             const end = item.selectionSpan.start + item.selectionSpan.length;
             const renderFunction = sourceFile.statements.find(
                 (statement) =>
-                    statement.getStart() <= item.selectionSpan.start && statement.getEnd() >= end
+                    statement.getStart() <= item.selectionSpan.start &&
+                    statement.getEnd() >= end
             );
 
             if (!renderFunction || !sourceFile.statements.includes(renderFunction)) {
@@ -394,7 +431,11 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
             return null;
         }
 
-        const node = findNodeAtSpan(sourceFile, ref.textSpan, this.isComponentStartTag);
+        const node = findNodeAtSpan(
+            sourceFile,
+            ref.textSpan,
+            this.isComponentStartTag
+        );
 
         if (node) {
             return ref;
@@ -403,7 +444,9 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
         return null;
     }
 
-    private isComponentStartTag(node: ts.Node | undefined): node is ts.Identifier {
+    private isComponentStartTag(
+        node: ts.Node | undefined
+    ): node is ts.Identifier {
         return (
             !!node &&
             node.parent &&
@@ -452,9 +495,15 @@ export class CallHierarchyProviderImpl implements CallHierarchyProvider {
             Array.from(groups).map(([declaration, group]) => {
                 const file = declaration.getSourceFile().fileName;
                 const name = declaration.name?.getText() ?? basename(file);
-                const span = { start: declaration.getStart(), length: declaration.getWidth() };
+                const span = {
+                    start: declaration.getStart(),
+                    length: declaration.getWidth()
+                };
                 const selectionSpan = declaration.name
-                    ? { start: declaration.name.getStart(), length: declaration.name.getWidth() }
+                    ? {
+                        start: declaration.name.getStart(),
+                        length: declaration.name.getWidth()
+                    }
                     : span;
 
                 return {

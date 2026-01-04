@@ -1,13 +1,13 @@
 import ts from 'typescript';
 import {
-    Position,
-    SignatureHelpContext,
-    SignatureHelp,
-    SignatureHelpTriggerKind,
-    SignatureInformation,
-    ParameterInformation,
+    CancellationToken,
     MarkupKind,
-    CancellationToken
+    ParameterInformation,
+    Position,
+    SignatureHelp,
+    SignatureHelpContext,
+    SignatureHelpTriggerKind,
+    SignatureInformation
 } from 'vscode-languageserver';
 import { SignatureHelpProvider } from '../..';
 import { Document } from '../../../lib/documents';
@@ -26,7 +26,9 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
         context: SignatureHelpContext | undefined,
         cancellationToken?: CancellationToken
     ): Promise<SignatureHelp | null> {
-        const { lang, tsDoc } = await this.lsAndTsDocResolver.getLSAndTSDoc(document);
+        const { lang, tsDoc } = await this.lsAndTsDocResolver.getLSAndTSDoc(
+            document
+        );
 
         if (cancellationToken?.isCancellationRequested) {
             return null;
@@ -62,14 +64,18 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
         return (
             isRetrigger &&
             (this.isTriggerCharacter(triggerCharacter) ||
-                SignatureHelpProviderImpl.retriggerCharacters.includes(triggerCharacter))
+                SignatureHelpProviderImpl.retriggerCharacters.includes(
+                    triggerCharacter
+                ))
         );
     }
 
     private isTriggerCharacter(
         triggerCharacter: string
     ): triggerCharacter is ts.SignatureHelpTriggerCharacter {
-        return SignatureHelpProviderImpl.triggerCharacters.includes(triggerCharacter);
+        return SignatureHelpProviderImpl.triggerCharacters.includes(
+            triggerCharacter
+        );
     }
 
     /**
@@ -82,7 +88,10 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
             case SignatureHelpTriggerKind.TriggerCharacter:
                 if (context.triggerCharacter) {
                     if (this.isReTrigger(context.isRetrigger, context.triggerCharacter)) {
-                        return { kind: 'retrigger', triggerCharacter: context.triggerCharacter };
+                        return {
+                            kind: 'retrigger',
+                            triggerCharacter: context.triggerCharacter
+                        };
                     }
                     if (this.isTriggerCharacter(context.triggerCharacter)) {
                         return {
@@ -104,7 +113,9 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
     /**
      * adopted from https://github.com/microsoft/vscode/blob/265a2f6424dfbd3a9788652c7d376a7991d049a3/extensions/typescript-language-features/src/languageFeatures/signatureHelp.ts#L73
      */
-    private toSignatureHelpInformation(item: ts.SignatureHelpItem): SignatureInformation {
+    private toSignatureHelpInformation(
+        item: ts.SignatureHelpItem
+    ): SignatureInformation {
         const [prefixLabel, separatorLabel, suffixLabel] = [
             item.prefixDisplayParts,
             item.separatorDisplayParts,
@@ -140,15 +151,17 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
             label: prefixLabel + signatureLabel + suffixLabel,
             documentation: signatureDocumentation
                 ? {
-                      value: signatureDocumentation,
-                      kind: MarkupKind.Markdown
-                  }
+                    value: signatureDocumentation,
+                    kind: MarkupKind.Markdown
+                }
                 : undefined,
             parameters
         };
     }
 
-    private isInSvelte2tsxGeneratedFunction(signatureHelpItem: ts.SignatureHelpItem) {
+    private isInSvelte2tsxGeneratedFunction(
+        signatureHelpItem: ts.SignatureHelpItem
+    ) {
         return signatureHelpItem.prefixDisplayParts.some((part) =>
             part.text.includes('__sveltets')
         );

@@ -21,7 +21,11 @@ const isSvelte5Plus = +VERSION.split('.')[0] >= 5;
 
 describe('CallHierarchyProvider', function () {
     const callHierarchyTestDirRelative = path.join('testfiles', 'call-hierarchy');
-    serviceWarmup(this, path.join(testDir, callHierarchyTestDirRelative), pathToUrl(testDir));
+    serviceWarmup(
+        this,
+        path.join(testDir, callHierarchyTestDirRelative),
+        pathToUrl(testDir)
+    );
 
     function getFullPath(filename: string) {
         return path.join(testDir, 'testfiles', 'call-hierarchy', filename);
@@ -32,7 +36,10 @@ describe('CallHierarchyProvider', function () {
     }
 
     function harmonizeNewLines(input: string) {
-        return input.replace(/\r\n/g, '~:~').replace(/\n/g, '~:~').replace(/~:~/g, '\n');
+        return input.replace(/\r\n/g, '~:~').replace(/\n/g, '~:~').replace(
+            /~:~/g,
+            '\n'
+        );
     }
 
     function setup(filename: string) {
@@ -46,12 +53,17 @@ describe('CallHierarchyProvider', function () {
             workspaceUris,
             lsConfigManager
         );
-        const provider = new CallHierarchyProviderImpl(lsAndTsDocResolver, workspaceUris);
+        const provider = new CallHierarchyProviderImpl(
+            lsAndTsDocResolver,
+            workspaceUris
+        );
         const filePath = getFullPath(filename);
-        const document = docManager.openClientDocument(<any>{
-            uri: pathToUrl(filePath),
-            text: harmonizeNewLines(ts.sys.readFile(filePath) || '')
-        });
+        const document = docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(filePath),
+                text: harmonizeNewLines(ts.sys.readFile(filePath) || '')
+            }
+        );
         return { provider, document, docManager };
     }
 
@@ -87,7 +99,10 @@ describe('CallHierarchyProvider', function () {
     it('can prepare call hierarchy', async () => {
         const { provider, document } = setup(callHierarchyImportFileName);
 
-        const item = await provider.prepareCallHierarchy(document, { line: 9, character: 4 });
+        const item = await provider.prepareCallHierarchy(document, {
+            line: 9,
+            character: 4
+        });
 
         assert.deepStrictEqual(item, [fooInImportItem]);
     });
@@ -123,7 +138,10 @@ describe('CallHierarchyProvider', function () {
     it('can prepare call hierarchy for imported file', async () => {
         const { provider, document } = setup(callHierarchyImportFileName);
 
-        const item = await provider.prepareCallHierarchy(document, { line: 6, character: 8 });
+        const item = await provider.prepareCallHierarchy(document, {
+            line: 6,
+            character: 8
+        });
 
         assert.deepStrictEqual(item, [formatDateCallHierarchyItem]);
     });
@@ -131,157 +149,163 @@ describe('CallHierarchyProvider', function () {
     it('can provide incoming calls', async () => {
         const { provider, document } = setup(callHierarchyImportFileName);
 
-        const items = await provider.prepareCallHierarchy(document, { line: 6, character: 8 });
+        const items = await provider.prepareCallHierarchy(document, {
+            line: 6,
+            character: 8
+        });
         const incoming = await provider.getIncomingCalls(items![0]);
 
-        assert.deepStrictEqual(incoming, <CallHierarchyIncomingCall[]>[
-            {
-                from: {
-                    kind: SymbolKind.Function,
-                    name: 'formatDate2',
-                    range: {
-                        start: {
-                            line: 2,
-                            character: 0
+        assert.deepStrictEqual(
+            incoming,
+            <CallHierarchyIncomingCall[]> [
+                {
+                    from: {
+                        kind: SymbolKind.Function,
+                        name: 'formatDate2',
+                        range: {
+                            start: {
+                                line: 2,
+                                character: 0
+                            },
+                            end: {
+                                line: 4,
+                                character: 1
+                            }
                         },
-                        end: {
-                            line: 4,
-                            character: 1
-                        }
-                    },
-                    selectionRange: {
-                        start: {
-                            line: 2,
-                            character: 16
+                        selectionRange: {
+                            start: {
+                                line: 2,
+                                character: 16
+                            },
+                            end: {
+                                line: 2,
+                                character: 27
+                            }
                         },
-                        end: {
-                            line: 2,
-                            character: 27
-                        }
+                        detail: undefined,
+                        tags: undefined,
+                        uri: getUri('util.ts')
                     },
-                    detail: undefined,
-                    tags: undefined,
-                    uri: getUri('util.ts')
+                    fromRanges: [
+                        {
+                            end: {
+                                character: 14,
+                                line: 3
+                            },
+                            start: {
+                                character: 4,
+                                line: 3
+                            }
+                        }
+                    ]
                 },
-                fromRanges: [
-                    {
-                        end: {
-                            character: 14,
-                            line: 3
+                {
+                    from: {
+                        name: 'another-ref-format-date.svelte',
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 0
+                            },
+                            end: {
+                                line: 4,
+                                character: 9
+                            }
                         },
-                        start: {
-                            character: 4,
-                            line: 3
-                        }
-                    }
-                ]
-            },
-            {
-                from: {
-                    name: 'another-ref-format-date.svelte',
-                    range: {
-                        start: {
-                            line: 0,
-                            character: 0
+                        selectionRange: {
+                            start: {
+                                line: 0,
+                                character: 0
+                            },
+                            end: {
+                                line: 0,
+                                character: 0
+                            }
                         },
-                        end: {
-                            line: 4,
-                            character: 9
-                        }
+                        kind: SymbolKind.Module,
+                        uri: getUri('another-ref-format-date.svelte'),
+                        detail: callHierarchyTestDirRelative
                     },
-                    selectionRange: {
-                        start: {
-                            line: 0,
-                            character: 0
-                        },
-                        end: {
-                            line: 0,
-                            character: 0
+                    fromRanges: [
+                        {
+                            start: {
+                                line: 3,
+                                character: 4
+                            },
+                            end: {
+                                line: 3,
+                                character: 14
+                            }
                         }
-                    },
-                    kind: SymbolKind.Module,
-                    uri: getUri('another-ref-format-date.svelte'),
-                    detail: callHierarchyTestDirRelative
+                    ]
                 },
-                fromRanges: [
-                    {
-                        start: {
-                            line: 3,
-                            character: 4
+                {
+                    from: {
+                        name: callHierarchyImportFileName,
+                        kind: SymbolKind.Module,
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 0
+                            },
+                            end: {
+                                line: 12,
+                                character: 24
+                            }
                         },
-                        end: {
-                            line: 3,
-                            character: 14
-                        }
-                    }
-                ]
-            },
-            {
-                from: {
-                    name: callHierarchyImportFileName,
-                    kind: SymbolKind.Module,
-                    range: {
-                        start: {
-                            line: 0,
-                            character: 0
+                        selectionRange: {
+                            start: {
+                                line: 0,
+                                character: 0
+                            },
+                            end: {
+                                line: 0,
+                                character: 0
+                            }
                         },
-                        end: {
-                            line: 12,
-                            character: 24
-                        }
+                        detail: callHierarchyTestDirRelative,
+                        uri: getUri(callHierarchyImportFileName)
                     },
-                    selectionRange: {
-                        start: {
-                            line: 0,
-                            character: 0
+                    fromRanges: [
+                        {
+                            start: {
+                                line: 3,
+                                character: 4
+                            },
+                            end: {
+                                line: 3,
+                                character: 14
+                            }
                         },
-                        end: {
-                            line: 0,
-                            character: 0
+                        {
+                            start: {
+                                line: 12,
+                                character: 1
+                            },
+                            end: {
+                                line: 12,
+                                character: 11
+                            }
                         }
-                    },
-                    detail: callHierarchyTestDirRelative,
-                    uri: getUri(callHierarchyImportFileName)
+                    ]
                 },
-                fromRanges: [
-                    {
-                        start: {
-                            line: 3,
-                            character: 4
-                        },
-                        end: {
-                            line: 3,
-                            character: 14
+                {
+                    from: fooInImportItem,
+                    fromRanges: [
+                        {
+                            start: {
+                                character: 8,
+                                line: 6
+                            },
+                            end: {
+                                character: 18,
+                                line: 6
+                            }
                         }
-                    },
-                    {
-                        start: {
-                            line: 12,
-                            character: 1
-                        },
-                        end: {
-                            line: 12,
-                            character: 11
-                        }
-                    }
-                ]
-            },
-            {
-                from: fooInImportItem,
-                fromRanges: [
-                    {
-                        start: {
-                            character: 8,
-                            line: 6
-                        },
-                        end: {
-                            character: 18,
-                            line: 6
-                        }
-                    }
-                ]
-            }
-        ]);
+                    ]
+                }
+            ]
+        );
     });
 
     const outgoingComponentName = 'outgoing-component.svelte';
@@ -289,51 +313,57 @@ describe('CallHierarchyProvider', function () {
     it('can provide incoming calls for component file', async () => {
         const { provider, document } = setup('another-ref-format-date.svelte');
 
-        const items = await provider.prepareCallHierarchy(document, { line: 0, character: 2 });
+        const items = await provider.prepareCallHierarchy(document, {
+            line: 0,
+            character: 2
+        });
         const incoming = await provider.getIncomingCalls(items![0]);
 
-        assert.deepStrictEqual(incoming, <CallHierarchyIncomingCall[]>[
-            {
-                from: {
-                    detail: callHierarchyTestDirRelative,
-                    kind: SymbolKind.Module,
-                    name: outgoingComponentName,
-                    range: {
-                        start: {
-                            line: 0,
-                            character: 0
+        assert.deepStrictEqual(
+            incoming,
+            <CallHierarchyIncomingCall[]> [
+                {
+                    from: {
+                        detail: callHierarchyTestDirRelative,
+                        kind: SymbolKind.Module,
+                        name: outgoingComponentName,
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 0
+                            },
+                            end: {
+                                line: 10,
+                                character: 24
+                            }
                         },
-                        end: {
-                            line: 10,
-                            character: 24
-                        }
+                        selectionRange: {
+                            start: {
+                                line: 0,
+                                character: 0
+                            },
+                            end: {
+                                line: 0,
+                                character: 0
+                            }
+                        },
+                        uri: getUri(outgoingComponentName)
                     },
-                    selectionRange: {
-                        start: {
-                            line: 0,
-                            character: 0
-                        },
-                        end: {
-                            line: 0,
-                            character: 0
+                    fromRanges: [
+                        {
+                            start: {
+                                character: 1,
+                                line: 10
+                            },
+                            end: {
+                                character: 21,
+                                line: 10
+                            }
                         }
-                    },
-                    uri: getUri(outgoingComponentName)
-                },
-                fromRanges: [
-                    {
-                        start: {
-                            character: 1,
-                            line: 10
-                        },
-                        end: {
-                            character: 21,
-                            line: 10
-                        }
-                    }
-                ]
-            }
-        ]);
+                    ]
+                }
+            ]
+        );
     });
 
     const outgoingComponentHiFunctionCall: CallHierarchyOutgoingCall = {
@@ -381,7 +411,10 @@ describe('CallHierarchyProvider', function () {
     it('can provide outgoing calls', async () => {
         const { provider, document } = setup(outgoingComponentName);
 
-        const items = await provider.prepareCallHierarchy(document, { line: 3, character: 14 });
+        const items = await provider.prepareCallHierarchy(document, {
+            line: 3,
+            character: 14
+        });
         const incoming = await provider.getOutgoingCalls(items![0]);
 
         assert.deepStrictEqual(incoming, [outgoingComponentHiFunctionCall]);
@@ -395,26 +428,32 @@ describe('CallHierarchyProvider', function () {
 
         const { provider, document } = setup(outgoingComponentName);
 
-        const items = await provider.prepareCallHierarchy(document, { line: 10, character: 1 });
+        const items = await provider.prepareCallHierarchy(document, {
+            line: 10,
+            character: 1
+        });
         const outgoing = await provider.getOutgoingCalls(items![0]);
 
-        assert.deepStrictEqual(outgoing, <CallHierarchyOutgoingCall[]>[
-            {
-                to: formatDateCallHierarchyItem,
-                fromRanges: [
-                    {
-                        end: {
-                            character: 14,
-                            line: 3
-                        },
-                        start: {
-                            character: 4,
-                            line: 3
+        assert.deepStrictEqual(
+            outgoing,
+            <CallHierarchyOutgoingCall[]> [
+                {
+                    to: formatDateCallHierarchyItem,
+                    fromRanges: [
+                        {
+                            end: {
+                                character: 14,
+                                line: 3
+                            },
+                            start: {
+                                character: 4,
+                                line: 3
+                            }
                         }
-                    }
-                ]
-            }
-        ]);
+                    ]
+                }
+            ]
+        );
     });
 
     it('can provide outgoing calls for component tags', async () => {
@@ -425,51 +464,57 @@ describe('CallHierarchyProvider', function () {
 
         const { provider, document } = setup(outgoingComponentName);
 
-        const items = await provider.prepareCallHierarchy(document, { line: 0, character: 2 });
+        const items = await provider.prepareCallHierarchy(document, {
+            line: 0,
+            character: 2
+        });
         const outgoing = await provider.getOutgoingCalls(items![0]);
 
-        assert.deepStrictEqual(outgoing, <CallHierarchyOutgoingCall[]>[
-            {
-                fromRanges: [
-                    {
-                        end: {
-                            character: 21,
-                            line: 10
-                        },
-                        start: {
-                            character: 1,
-                            line: 10
+        assert.deepStrictEqual(
+            outgoing,
+            <CallHierarchyOutgoingCall[]> [
+                {
+                    fromRanges: [
+                        {
+                            end: {
+                                character: 21,
+                                line: 10
+                            },
+                            start: {
+                                character: 1,
+                                line: 10
+                            }
                         }
-                    }
-                ],
-                to: {
-                    detail: callHierarchyTestDirRelative,
-                    kind: SymbolKind.Module,
-                    name: 'another-ref-format-date.svelte',
-                    uri: getUri('another-ref-format-date.svelte'),
-                    range: {
-                        start: {
-                            line: 0,
-                            character: 0
+                    ],
+                    to: {
+                        detail: callHierarchyTestDirRelative,
+                        kind: SymbolKind.Module,
+                        name: 'another-ref-format-date.svelte',
+                        uri: getUri('another-ref-format-date.svelte'),
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 0
+                            },
+                            end: {
+                                line: 4,
+                                character: 9
+                            }
                         },
-                        end: {
-                            line: 4,
-                            character: 9
-                        }
-                    },
-                    selectionRange: {
-                        start: {
-                            line: 0,
-                            character: 0
-                        },
-                        end: {
-                            line: 0,
-                            character: 0
+                        selectionRange: {
+                            start: {
+                                line: 0,
+                                character: 0
+                            },
+                            end: {
+                                line: 0,
+                                character: 0
+                            }
                         }
                     }
                 }
-            }
-        ]);
+            ]
+        );
     });
 
     // Hacky, but it works. Needed due to testing both new and old transformation

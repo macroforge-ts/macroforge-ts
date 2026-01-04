@@ -14,14 +14,19 @@ export class SelectionRangeProviderImpl implements SelectionRangeProvider {
         document: Document,
         position: Position
     ): Promise<SelectionRange | null> {
-        const { tsDoc, lang } = await this.lsAndTsDocResolver.getLsForSyntheticOperations(document);
+        const { tsDoc, lang } = await this.lsAndTsDocResolver
+            .getLsForSyntheticOperations(document);
 
         const tsSelectionRange = lang.getSmartSelectionRange(
             tsDoc.filePath,
             tsDoc.offsetAt(tsDoc.getGeneratedPosition(position))
         );
         const selectionRange = this.toSelectionRange(tsDoc, tsSelectionRange);
-        const mappedRange = this.mapSelectionRangeToParent(tsDoc, document, selectionRange);
+        const mappedRange = this.mapSelectionRangeToParent(
+            tsDoc,
+            document,
+            selectionRange
+        );
 
         return this.filterOutUnmappedRange(mappedRange);
     }
@@ -56,7 +61,9 @@ export class SelectionRangeProviderImpl implements SelectionRangeProvider {
         );
     }
 
-    private filterOutUnmappedRange(selectionRange: SelectionRange): SelectionRange | null {
+    private filterOutUnmappedRange(
+        selectionRange: SelectionRange
+    ): SelectionRange | null {
         const flattened = this.flattenAndReverseSelectionRange(selectionRange);
         const filtered = flattened.filter((range) => range.start.line > 0 && range.end.line > 0);
         if (!filtered.length) {

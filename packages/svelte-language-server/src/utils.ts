@@ -68,7 +68,10 @@ export function getLastPartOfPath(path: string): string {
 
 export function flatten<T>(arr: Array<T | T[]>): T[] {
     return arr.reduce(
-        (all: T[], item) => (Array.isArray(item) ? [...all, ...item] : [...all, item]),
+        (
+            all: T[],
+            item
+        ) => (Array.isArray(item) ? [...all, ...item] : [...all, item]),
         []
     );
 }
@@ -97,7 +100,8 @@ export function isZeroLengthRange(range: Range): boolean {
 export function isRangeStartAfterEnd(range: Range): boolean {
     return (
         range.end.line < range.start.line ||
-        (range.end.line === range.start.line && range.end.character < range.start.character)
+        (range.end.line === range.start.line &&
+            range.end.character < range.start.character)
     );
 }
 
@@ -117,15 +121,23 @@ export function moveRangeStartToEndIfNecessary(range: Range): Range {
     return range;
 }
 
-export function isBeforeOrEqualToPosition(position: Position, positionToTest: Position): boolean {
+export function isBeforeOrEqualToPosition(
+    position: Position,
+    positionToTest: Position
+): boolean {
     return (
         positionToTest.line < position.line ||
-        (positionToTest.line === position.line && positionToTest.character <= position.character)
+        (positionToTest.line === position.line &&
+            positionToTest.character <= position.character)
     );
 }
 
-export function isPositionEqual(position1: Position, position2: Position): boolean {
-    return position1.line === position2.line && position1.character === position2.character;
+export function isPositionEqual(
+    position1: Position,
+    position2: Position
+): boolean {
+    return position1.line === position2.line &&
+        position1.character === position2.character;
 }
 
 export function isNotNullOrUndefined<T>(val: T | undefined | null): val is T {
@@ -169,7 +181,10 @@ export function debounceSameArg<T>(
  * @param fn The function
  * @param miliseconds Number of miliseconds to debounce/throttle
  */
-export function debounceThrottle(fn: () => void, miliseconds: number): () => void {
+export function debounceThrottle(
+    fn: () => void,
+    miliseconds: number
+): () => void {
     let timeout: any;
     let lastInvocation = Date.now() - miliseconds;
 
@@ -254,7 +269,8 @@ export function modifyLines(
 }
 
 export function isSamePosition(position: Position, another: Position) {
-    return position.line === another.line && position.character === another.character;
+    return position.line === another.line &&
+        position.character === another.character;
 }
 /**
  * Like array.filter, but asynchronous
@@ -266,7 +282,10 @@ export async function filterAsync<T>(
     const fail = Symbol();
     return (
         await Promise.all(
-            array.map(async (item, idx) => ((await predicate(item, idx)) ? item : fail))
+            array.map(async (
+                item,
+                idx
+            ) => ((await predicate(item, idx)) ? item : fail))
         )
     ).filter((i) => i !== fail) as T[];
 }
@@ -276,7 +295,6 @@ export function getIndent(text: string) {
 }
 
 /**
- *
  * The html language service is case insensitive, and would provide
  * hover/ completion info for Svelte components like `Option` which have
  * the same name like a html tag.
@@ -351,7 +369,11 @@ export function removeLineWithString(str: string, keyword: string) {
 /**
  * Traverses a string and returns the index of the end character, taking into account quotes, curlies and generic tags.
  */
-export function traverseTypeString(str: string, start: number, endChar: string): number {
+export function traverseTypeString(
+    str: string,
+    start: number,
+    endChar: string
+): number {
     let singleQuoteOpen = false;
     let doubleQuoteOpen = false;
     let countCurlyBrace = 0;

@@ -63,7 +63,13 @@ describe('SveltePlugin#getCompletions', () => {
     });
 
     it('should return completions for @', () => {
-        expectCompletionsFor('{@').toEqual(['html', 'debug', 'const', 'render', 'attach']);
+        expectCompletionsFor('{@').toEqual([
+            'html',
+            'debug',
+            'const',
+            'render',
+            'attach'
+        ]);
     });
 
     describe('should return no completions for :', () => {
@@ -104,7 +110,10 @@ describe('SveltePlugin#getCompletions', () => {
         });
 
         it('for last open tag', () => {
-            expectCompletionsFor('{#if}{/if}{#if}{#await}{:').toEqual(['then', 'catch']);
+            expectCompletionsFor('{#if}{/if}{#if}{#await}{:').toEqual([
+                'then',
+                'catch'
+            ]);
         });
     });
 
@@ -134,8 +143,15 @@ describe('SveltePlugin#getCompletions', () => {
         const content = '<!--@';
         const document = new Document('url', content);
         const svelteDoc = new SvelteDocument(document);
-        const completions = getCompletions(document, svelteDoc, Position.create(0, content.length));
-        assert.deepStrictEqual(completions?.items?.[0].insertText, `component${EOL}$1${EOL}`);
+        const completions = getCompletions(
+            document,
+            svelteDoc,
+            Position.create(0, content.length)
+        );
+        assert.deepStrictEqual(
+            completions?.items?.[0].insertText,
+            `component${EOL}$1${EOL}`
+        );
     });
 
     function expectCompletionsForModifier(

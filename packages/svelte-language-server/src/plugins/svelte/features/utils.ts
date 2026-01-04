@@ -4,7 +4,9 @@ import { AttributeContext } from '../../../lib/documents/parseHtml';
 import { possiblyComponent } from '../../../utils';
 import { SvelteDocument } from '../SvelteDocument';
 
-export function attributeCanHaveEventModifier(attributeContext: AttributeContext) {
+export function attributeCanHaveEventModifier(
+    attributeContext: AttributeContext
+) {
     return (
         !attributeContext.inValue &&
         !possiblyComponent(attributeContext.elementTag) &&

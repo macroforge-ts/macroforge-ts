@@ -3,7 +3,7 @@ import ts from 'typescript';
 import assert from 'assert';
 import { Document } from '../../../../src/lib/documents';
 import { pathToUrl } from '../../../../src/utils';
-import { Position, CompletionContext, CompletionTriggerKind } from 'vscode-languageserver';
+import { CompletionContext, CompletionTriggerKind, Position } from 'vscode-languageserver';
 import { getDirectiveCommentCompletions } from '../../../../src/plugins/typescript/features/getDirectiveCommentCompletions';
 import { serviceWarmup } from '../test-utils';
 
@@ -17,8 +17,14 @@ describe('can get typescript directive comment completions', function () {
         position: Position,
         context: CompletionContext = { triggerKind: CompletionTriggerKind.Invoked }
     ) {
-        const filePath = path.join(completionTestDir, 'ts-directive-comment.svelte');
-        const document = new Document(pathToUrl(filePath), ts.sys.readFile(filePath)!);
+        const filePath = path.join(
+            completionTestDir,
+            'ts-directive-comment.svelte'
+        );
+        const document = new Document(
+            pathToUrl(filePath),
+            ts.sys.readFile(filePath)!
+        );
         const result = getDirectiveCommentCompletions(position, document, context);
 
         return result;
@@ -30,7 +36,8 @@ describe('can get typescript directive comment completions', function () {
             isIncomplete: false,
             items: [
                 {
-                    detail: 'Enables semantic checking in a JavaScript file. Must be at the top of a file.',
+                    detail:
+                        'Enables semantic checking in a JavaScript file. Must be at the top of a file.',
                     kind: 15,
                     label: '@ts-check',
                     textEdit: {
@@ -48,7 +55,8 @@ describe('can get typescript directive comment completions', function () {
                     }
                 },
                 {
-                    detail: 'Disables semantic checking in a JavaScript file. Must be at the top of a file.',
+                    detail:
+                        'Disables semantic checking in a JavaScript file. Must be at the top of a file.',
                     kind: 15,
                     label: '@ts-nocheck',
                     textEdit: {
@@ -84,7 +92,8 @@ describe('can get typescript directive comment completions', function () {
                     }
                 },
                 {
-                    detail: 'Suppresses @ts-check errors on the next line of a file, expecting at least one to exist.',
+                    detail:
+                        'Suppresses @ts-check errors on the next line of a file, expecting at least one to exist.',
                     kind: 15,
                     label: '@ts-expect-error',
                     textEdit: {

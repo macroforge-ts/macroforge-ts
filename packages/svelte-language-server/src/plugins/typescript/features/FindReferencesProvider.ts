@@ -35,7 +35,9 @@ export class FindReferencesProviderImpl implements FindReferencesProvider {
             this.isPositionForComponentCodeLens(position) ||
             this.isScriptStartOrEndTag(position, document)
         ) {
-            return this.componentReferencesProvider.findComponentReferences(document.uri);
+            return this.componentReferencesProvider.findComponentReferences(
+                document.uri
+            );
         }
 
         const { lang, tsDoc, lsContainer } = await this.getLSAndTSDoc(document);
@@ -55,12 +57,15 @@ export class FindReferencesProviderImpl implements FindReferencesProvider {
         const snapshots = new SnapshotMap(this.lsAndTsDocResolver, lsContainer);
         snapshots.set(tsDoc.filePath, tsDoc);
 
-        if (rawReferences.some((ref) => ref.definition.kind === ts.ScriptElementKind.alias)) {
-            const componentReferences = await this.checkIfHasAliasedComponentReference(
-                offset,
-                tsDoc,
-                lang
-            );
+        if (
+            rawReferences.some((ref) => ref.definition.kind === ts.ScriptElementKind.alias)
+        ) {
+            const componentReferences = await this
+                .checkIfHasAliasedComponentReference(
+                    offset,
+                    tsDoc,
+                    lang
+                );
 
             if (componentReferences?.length) {
                 return componentReferences;
@@ -126,18 +131,22 @@ export class FindReferencesProviderImpl implements FindReferencesProvider {
             (ref) =>
                 normalizePath(ref.fileName) === tsDoc.filePath &&
                 isTextSpanInGeneratedCode(tsDoc.getFullText(), ref.textSpan) &&
-                is$storeVariableIn$storeDeclaration(tsDoc.getFullText(), ref.textSpan.start)
+                is$storeVariableIn$storeDeclaration(
+                    tsDoc.getFullText(),
+                    ref.textSpan.start
+                )
         );
         if (storeReference) {
-            const additionalReferences =
-                lang.findReferences(
-                    tsDoc.filePath,
-                    getStoreOffsetOf$storeDeclaration(
-                        tsDoc.getFullText(),
-                        storeReference.textSpan.start
-                    )
-                ) || [];
-            storeReferences = flatten(additionalReferences.map((ref) => ref.references));
+            const additionalReferences = lang.findReferences(
+                tsDoc.filePath,
+                getStoreOffsetOf$storeDeclaration(
+                    tsDoc.getFullText(),
+                    storeReference.textSpan.start
+                )
+            ) || [];
+            storeReferences = flatten(
+                additionalReferences.map((ref) => ref.references)
+            );
         }
 
         // If user started finding references at store, find references for $store, too
@@ -152,7 +161,10 @@ export class FindReferencesProviderImpl implements FindReferencesProvider {
             if (
                 !(
                     isTextSpanInGeneratedCode(snapshot.getFullText(), ref.textSpan) &&
-                    isStoreVariableIn$storeDeclaration(snapshot.getFullText(), ref.textSpan.start)
+                    isStoreVariableIn$storeDeclaration(
+                        snapshot.getFullText(),
+                        ref.textSpan.start
+                    )
                 )
             ) {
                 continue;
@@ -162,12 +174,16 @@ export class FindReferencesProviderImpl implements FindReferencesProvider {
                 continue;
             }
 
-            const additionalReferences =
-                lang.findReferences(
-                    snapshot.filePath,
-                    get$storeOffsetOf$storeDeclaration(snapshot.getFullText(), ref.textSpan.start)
-                ) || [];
-            $storeReferences.push(...flatten(additionalReferences.map((ref) => ref.references)));
+            const additionalReferences = lang.findReferences(
+                snapshot.filePath,
+                get$storeOffsetOf$storeDeclaration(
+                    snapshot.getFullText(),
+                    ref.textSpan.start
+                )
+            ) || [];
+            $storeReferences.push(
+                ...flatten(additionalReferences.map((ref) => ref.references))
+            );
         }
 
         return [...storeReferences, ...$storeReferences];
@@ -237,7 +253,10 @@ export class FindReferencesProviderImpl implements FindReferencesProvider {
         }
 
         // TODO we should deduplicate if we support finding references from multiple language service
-        const location = convertToLocationForReferenceOrDefinition(snapshot, ref.textSpan);
+        const location = convertToLocationForReferenceOrDefinition(
+            snapshot,
+            ref.textSpan
+        );
 
         // Some references are in generated code but not wrapped with explicit ignore comments.
         // These show up as zero-length ranges, so filter them out.
@@ -257,6 +276,6 @@ function sortLocationByFileAndRange(l1: Location, l2: Location): number {
     const localeCompare = l1.uri.localeCompare(l2.uri);
     return localeCompare === 0
         ? (l1.range.start.line - l2.range.start.line) * 10000 +
-              (l1.range.start.character - l2.range.start.character)
+            (l1.range.start.character - l2.range.start.character)
         : localeCompare;
 }

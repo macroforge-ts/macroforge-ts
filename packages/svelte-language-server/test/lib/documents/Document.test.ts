@@ -4,12 +4,18 @@ import { Position } from 'vscode-languageserver';
 
 describe('Document', () => {
     it('gets the correct text', () => {
-        const document = new Document('file:///hello.svelte', '<h1>Hello, world!</h1>');
+        const document = new Document(
+            'file:///hello.svelte',
+            '<h1>Hello, world!</h1>'
+        );
         assert.strictEqual(document.getText(), '<h1>Hello, world!</h1>');
     });
 
     it('sets the text', () => {
-        const document = new Document('file:///hello.svelte', '<h1>Hello, world!</h1>');
+        const document = new Document(
+            'file:///hello.svelte',
+            '<h1>Hello, world!</h1>'
+        );
         document.setText('<h1>Hello, svelte!</h1>');
         assert.strictEqual(document.getText(), '<h1>Hello, svelte!</h1>');
     });
@@ -25,7 +31,10 @@ describe('Document', () => {
     });
 
     it('recalculates the tag infos on edits', () => {
-        const document = new Document('file:///hello.svelte', '<script>a</script><style>b</style>');
+        const document = new Document(
+            'file:///hello.svelte',
+            '<script>a</script><style>b</style>'
+        );
         assert.deepEqual(document.scriptInfo, {
             content: 'a',
             attributes: {},

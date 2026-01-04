@@ -18,7 +18,9 @@ const CACHE_KEY_SEPARATOR = ':::';
 class ModuleResolutionCache {
     private cache = new FileMap<ts.ResolvedModuleWithFailedLookupLocations>();
     private pendingInvalidations = new FileSet();
-    private getCanonicalFileName = createGetCanonicalFileName(ts.sys.useCaseSensitiveFileNames);
+    private getCanonicalFileName = createGetCanonicalFileName(
+        ts.sys.useCaseSensitiveFileNames
+    );
 
     /**
      * Tries to get a cached module.
@@ -62,7 +64,9 @@ class ModuleResolutionCache {
                     resolvedModuleName
             ) {
                 this.cache.delete(key);
-                this.pendingInvalidations.add(key.split(CACHE_KEY_SEPARATOR).shift() || '');
+                this.pendingInvalidations.add(
+                    key.split(CACHE_KEY_SEPARATOR).shift() || ''
+                );
             }
         });
     }
@@ -80,7 +84,8 @@ class ModuleResolutionCache {
     }
 
     private getKey(moduleName: string, containingFile: string) {
-        return containingFile + CACHE_KEY_SEPARATOR + ensureRealSvelteFilePath(moduleName);
+        return containingFile + CACHE_KEY_SEPARATOR +
+            ensureRealSvelteFilePath(moduleName);
     }
 
     clearPendingInvalidations() {
@@ -108,7 +113,11 @@ class ImpliedNodeFormatResolver {
 
         let mode: ReturnType<typeof ts.getModeForResolutionAtIndex> = undefined;
         if (sourceFile) {
-            mode = ts.getModeForResolutionAtIndex(sourceFile, importIdxInFile, compilerOptions);
+            mode = ts.getModeForResolutionAtIndex(
+                sourceFile,
+                importIdxInFile,
+                compilerOptions
+            );
         }
         return mode;
     }
@@ -126,7 +135,9 @@ class ImpliedNodeFormatResolver {
 }
 
 // https://github.com/microsoft/TypeScript/blob/dddd0667f012c51582c2ac92c08b8e57f2456587/src/compiler/program.ts#L989
-function getTypeReferenceResolutionName<T extends ts.FileReference | string>(entry: T) {
+function getTypeReferenceResolutionName<T extends ts.FileReference | string>(
+    entry: T
+) {
     return typeof entry !== 'string' ? toFileNameLowerCase(entry.fileName) : entry;
 }
 
@@ -149,19 +160,22 @@ export function createSvelteModuleLoader(
     tsModule: typeof ts,
     getModuleResolutionHost: () => ts.ModuleResolutionHost | undefined
 ) {
-    const getCanonicalFileName = createGetCanonicalFileName(tsSystem.useCaseSensitiveFileNames);
+    const getCanonicalFileName = createGetCanonicalFileName(
+        tsSystem.useCaseSensitiveFileNames
+    );
     const svelteSys = createSvelteSys(tsSystem);
     // tsModuleCache caches package.json parsing and module resolution for directory
     const tsModuleCache = tsModule.createModuleResolutionCache(
         tsSystem.getCurrentDirectory(),
         createGetCanonicalFileName(tsSystem.useCaseSensitiveFileNames)
     );
-    const tsTypeReferenceDirectiveCache = tsModule.createTypeReferenceDirectiveResolutionCache(
-        tsSystem.getCurrentDirectory(),
-        getCanonicalFileName,
-        undefined,
-        tsModuleCache.getPackageJsonInfoCache()
-    );
+    const tsTypeReferenceDirectiveCache = tsModule
+        .createTypeReferenceDirectiveResolutionCache(
+            tsSystem.getCurrentDirectory(),
+            getCanonicalFileName,
+            undefined,
+            tsModuleCache.getPackageJsonInfoCache()
+        );
     const moduleCache = new ModuleResolutionCache();
     const typeReferenceCache = new Map<
         string,
@@ -174,8 +188,12 @@ export function createSvelteModuleLoader(
             files?: Set<string>;
         }
     >();
-    const failedLocationInvalidated = new FileSet(tsSystem.useCaseSensitiveFileNames);
-    const pendingFailedLocationCheck = new FileSet(tsSystem.useCaseSensitiveFileNames);
+    const failedLocationInvalidated = new FileSet(
+        tsSystem.useCaseSensitiveFileNames
+    );
+    const pendingFailedLocationCheck = new FileSet(
+        tsSystem.useCaseSensitiveFileNames
+    );
 
     return {
         svelteFileExists: svelteSys.svelteFileExists,
@@ -260,7 +278,10 @@ export function createSvelteModuleLoader(
 
         const resolvedModule = resolvedModuleWithFailedLookup.resolvedModule;
 
-        if (!resolvedModule || !isVirtualSvelteFilePath(resolvedModule.resolvedFileName)) {
+        if (
+            !resolvedModule ||
+            !isVirtualSvelteFilePath(resolvedModule.resolvedFileName)
+        ) {
             return resolvedModuleWithFailedLookup;
         }
 
@@ -285,7 +306,9 @@ export function createSvelteModuleLoader(
         };
     }
 
-    function resolveTypeReferenceDirectiveReferences<T extends ts.FileReference | string>(
+    function resolveTypeReferenceDirectiveReferences<
+        T extends ts.FileReference | string
+    >(
         typeDirectiveNames: readonly T[],
         containingFile: string,
         redirectedReference: ts.ResolvedProjectReference | undefined,

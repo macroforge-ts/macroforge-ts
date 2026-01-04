@@ -20,8 +20,7 @@ export function getModifierData(): ModifierData[] {
         },
         {
             modifier: 'passive',
-            documentation:
-                'improves scrolling performance on touch/wheel events ' +
+            documentation: 'improves scrolling performance on touch/wheel events ' +
                 "(Svelte will add it automatically where it's safe to do so)",
             modifiersInvalidWith: ['nopassive', 'preventDefault']
         },
@@ -45,8 +44,7 @@ export function getModifierData(): ModifierData[] {
         },
         {
             modifier: 'trusted',
-            documentation:
-                'only trigger handler if event.isTrusted is true. ' +
+            documentation: 'only trigger handler if event.isTrusted is true. ' +
                 'I.e. if the event is triggered by a user action'
         }
     ].map((item) => ({

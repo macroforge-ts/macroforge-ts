@@ -1,20 +1,20 @@
 import {
+    CodeAction,
+    ColorPresentation,
+    CompletionItem,
+    Diagnostic,
+    Hover,
+    InsertReplaceEdit,
+    Location,
+    LocationLink,
     Position,
     Range,
-    CompletionItem,
-    Hover,
-    Diagnostic,
-    ColorPresentation,
-    SymbolInformation,
-    LocationLink,
-    TextDocumentEdit,
-    CodeAction,
     SelectionRange,
-    TextEdit,
-    InsertReplaceEdit,
-    Location
+    SymbolInformation,
+    TextDocumentEdit,
+    TextEdit
 } from 'vscode-languageserver';
-import { TagInformation, offsetAt, positionAt, getLineOffsets } from './utils';
+import { getLineOffsets, offsetAt, positionAt, TagInformation } from './utils';
 import { Logger } from '../../logger';
 import { generatedPositionFor, originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
 
@@ -107,9 +107,17 @@ export class FragmentMapper implements DocumentMapper {
 
     getOriginalPosition(generatedPosition: Position): Position {
         const parentOffset = this.offsetInParent(
-            offsetAt(generatedPosition, this.tagInfo.content, this.lineOffsetsGenerated)
+            offsetAt(
+                generatedPosition,
+                this.tagInfo.content,
+                this.lineOffsetsGenerated
+            )
         );
-        return positionAt(parentOffset, this.originalText, this.lineOffsetsOriginal);
+        return positionAt(
+            parentOffset,
+            this.originalText,
+            this.lineOffsetsOriginal
+        );
     }
 
     private offsetInParent(offset: number): number {
@@ -120,7 +128,11 @@ export class FragmentMapper implements DocumentMapper {
         const fragmentOffset =
             offsetAt(originalPosition, this.originalText, this.lineOffsetsOriginal) -
             this.tagInfo.start;
-        return positionAt(fragmentOffset, this.tagInfo.content, this.lineOffsetsGenerated);
+        return positionAt(
+            fragmentOffset,
+            this.tagInfo.content,
+            this.lineOffsetsGenerated
+        );
     }
 
     isInGenerated(pos: Position): boolean {
@@ -159,7 +171,12 @@ export class SourceMapDocumentMapper implements DocumentMapper {
         }
 
         if (mapped.line === 0) {
-            Logger.debug('Got 0 mapped line from', generatedPosition, 'col was', mapped.column);
+            Logger.debug(
+                'Got 0 mapped line from',
+                generatedPosition,
+                'col was',
+                mapped.column
+            );
         }
 
         return {
@@ -228,7 +245,10 @@ export function mapRangeToOriginal(
 }
 
 /** Range may be mapped one character short - reverse that for "in the same line" cases*/
-function checkRangeLength(originalRange: { start: Position; end: Position }, range: Range) {
+function checkRangeLength(
+    originalRange: { start: Position; end: Position },
+    range: Range
+) {
     if (
         originalRange.start.line === originalRange.end.line &&
         range.start.line === range.end.line &&
@@ -240,12 +260,15 @@ function checkRangeLength(originalRange: { start: Position; end: Position }, ran
 }
 
 export function mapLocationToOriginal(
-    fragment: Pick<DocumentMapper, 'getOriginalPosition' | 'getURL' | 'getOriginalFilePosition'>,
+    fragment: Pick<
+        DocumentMapper,
+        'getOriginalPosition' | 'getURL' | 'getOriginalFilePosition'
+    >,
     range: Range
 ): Location {
     const map = (
         fragment.getOriginalFilePosition ??
-        (fragment.getOriginalPosition as (position: Position) => FilePosition)
+            (fragment.getOriginalPosition as (position: Position) => FilePosition)
     ).bind(fragment);
 
     const start = map(range.start);
@@ -264,7 +287,10 @@ export function mapLocationToOriginal(
     };
 }
 
-export function mapRangeToGenerated(fragment: DocumentMapper, range: Range): Range {
+export function mapRangeToGenerated(
+    fragment: DocumentMapper,
+    range: Range
+): Range {
     return Range.create(
         fragment.getGeneratedPosition(range.start),
         fragment.getGeneratedPosition(range.end)
@@ -300,7 +326,10 @@ export function mapObjWithRangeToOriginal<T extends { range: Range }>(
     fragment: Pick<DocumentMapper, 'getOriginalPosition'>,
     objWithRange: T
 ): T {
-    return { ...objWithRange, range: mapRangeToOriginal(fragment, objWithRange.range) };
+    return {
+        ...objWithRange,
+        range: mapRangeToOriginal(fragment, objWithRange.range)
+    };
 }
 
 export function mapInsertReplaceEditToOriginal(
@@ -327,7 +356,10 @@ export function mapDiagnosticToGenerated(
     fragment: DocumentMapper,
     diagnostic: Diagnostic
 ): Diagnostic {
-    return { ...diagnostic, range: mapRangeToGenerated(fragment, diagnostic.range) };
+    return {
+        ...diagnostic,
+        range: mapRangeToGenerated(fragment, diagnostic.range)
+    };
 }
 
 export function mapColorPresentationToOriginal(
@@ -355,7 +387,10 @@ export function mapSymbolInformationToOriginal(
     fragment: Pick<DocumentMapper, 'getOriginalPosition'>,
     info: SymbolInformation
 ): SymbolInformation {
-    return { ...info, location: mapObjWithRangeToOriginal(fragment, info.location) };
+    return {
+        ...info,
+        location: mapObjWithRangeToOriginal(fragment, info.location)
+    };
 }
 
 export function mapLocationLinkToOriginal(
@@ -376,7 +411,10 @@ export function mapLocationLinkToOriginal(
     );
 }
 
-export function mapTextDocumentEditToOriginal(fragment: DocumentMapper, edit: TextDocumentEdit) {
+export function mapTextDocumentEditToOriginal(
+    fragment: DocumentMapper,
+    edit: TextDocumentEdit
+) {
     if (edit.textDocument.uri !== fragment.getURL()) {
         return edit;
     }
@@ -387,7 +425,10 @@ export function mapTextDocumentEditToOriginal(fragment: DocumentMapper, edit: Te
     );
 }
 
-export function mapCodeActionToOriginal(fragment: DocumentMapper, codeAction: CodeAction) {
+export function mapCodeActionToOriginal(
+    fragment: DocumentMapper,
+    codeAction: CodeAction
+) {
     return CodeAction.create(
         codeAction.title,
         {

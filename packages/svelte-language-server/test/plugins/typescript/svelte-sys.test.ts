@@ -44,8 +44,14 @@ describe('Svelte Sys', () => {
 
             loader.fileExists('../file.d.svelte.ts');
 
-            assert.strictEqual(fileExistsStub.getCall(0).args[0], '../file.svelte.d.ts');
-            assert.strictEqual(fileExistsStub.getCall(1).args[0], '../file.d.svelte.ts');
+            assert.strictEqual(
+                fileExistsStub.getCall(0).args[0],
+                '../file.svelte.d.ts'
+            );
+            assert.strictEqual(
+                fileExistsStub.getCall(1).args[0],
+                '../file.d.svelte.ts'
+            );
             assert.strictEqual(fileExistsStub.getCall(2).args[0], '../file.svelte');
         });
     });

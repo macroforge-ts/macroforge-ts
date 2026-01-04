@@ -46,7 +46,10 @@ describe('CodeActionsProvider', function () {
     }
 
     function harmonizeNewLines(input: string) {
-        return input.replace(/\r\n/g, '~:~').replace(/\n/g, '~:~').replace(/~:~/g, '\n');
+        return input.replace(/\r\n/g, '~:~').replace(/\n/g, '~:~').replace(
+            /~:~/g,
+            '\n'
+        );
     }
 
     function setup(filename: string) {
@@ -59,17 +62,22 @@ describe('CodeActionsProvider', function () {
             [pathToUrl(testDir)],
             lsConfigManager
         );
-        const completionProvider = new CompletionsProviderImpl(lsAndTsDocResolver, lsConfigManager);
+        const completionProvider = new CompletionsProviderImpl(
+            lsAndTsDocResolver,
+            lsConfigManager
+        );
         const provider = new CodeActionsProviderImpl(
             lsAndTsDocResolver,
             completionProvider,
             lsConfigManager
         );
         const filePath = getFullPath(filename);
-        const document = docManager.openClientDocument(<any>{
-            uri: pathToUrl(filePath),
-            text: ts.sys.readFile(filePath) || ''
-        });
+        const document = docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(filePath),
+                text: ts.sys.readFile(filePath) || ''
+            }
+        );
         return { provider, document, docManager, lsAndTsDocResolver };
     }
 
@@ -189,7 +197,10 @@ describe('CodeActionsProvider', function () {
                     {
                         code: 2304,
                         message: "Cannot find name 'handleClick'.",
-                        range: Range.create(Position.create(13, 23), Position.create(13, 34)),
+                        range: Range.create(
+                            Position.create(13, 23),
+                            Position.create(13, 34)
+                        ),
                         source: 'ts'
                     }
                 ],
@@ -197,9 +208,10 @@ describe('CodeActionsProvider', function () {
             }
         );
 
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -265,9 +277,10 @@ describe('CodeActionsProvider', function () {
             }
         );
 
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -306,9 +319,10 @@ describe('CodeActionsProvider', function () {
     });
 
     function testFixMissingFunctionQuickFix(codeActions: CodeAction[]) {
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -317,8 +331,7 @@ describe('CodeActionsProvider', function () {
                         {
                             edits: [
                                 {
-                                    newText:
-                                        `\n\n${indent}function abc() {\n` +
+                                    newText: `\n\n${indent}function abc() {\n` +
                                         `${indent}${indent}throw new Error('Function not implemented.');\n` +
                                         `${indent}}\n`,
                                     range: {
@@ -357,7 +370,10 @@ describe('CodeActionsProvider', function () {
 
     it('provides quickfix for ts-checked-js', async () => {
         const { provider, document } = setup('codeaction-checkJs.svelte');
-        const errorRange = Range.create(Position.create(2, 21), Position.create(2, 26));
+        const errorRange = Range.create(
+            Position.create(2, 21),
+            Position.create(2, 26)
+        );
 
         const codeActions = await provider.getCodeActions(document, errorRange, {
             diagnostics: [
@@ -370,7 +386,7 @@ describe('CodeActionsProvider', function () {
         });
 
         for (const codeAction of codeActions) {
-            (<TextDocumentEdit>codeAction.edit?.documentChanges?.[0])?.edits.forEach(
+            (<TextDocumentEdit> codeAction.edit?.documentChanges?.[0])?.edits.forEach(
                 (edit) => (edit.newText = harmonizeNewLines(edit.newText))
             );
         }
@@ -390,74 +406,81 @@ describe('CodeActionsProvider', function () {
             }
         }
 
-        assert.deepStrictEqual(codeActions, <CodeAction[]>[
-            {
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: `\n${indent}import { blubb } from "../definitions";\n`,
-                                    range: Range.create(
-                                        Position.create(0, 8),
-                                        Position.create(0, 8)
-                                    )
-                                }
-                            ],
-                            textDocument
-                        }
-                    ]
+        assert.deepStrictEqual(
+            codeActions,
+            <CodeAction[]> [
+                {
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText:
+                                            `\n${indent}import { blubb } from "../definitions";\n`,
+                                        range: Range.create(
+                                            Position.create(0, 8),
+                                            Position.create(0, 8)
+                                        )
+                                    }
+                                ],
+                                textDocument
+                            }
+                        ]
+                    },
+                    kind: 'quickfix',
+                    title: 'Add import from "../definitions"'
                 },
-                kind: 'quickfix',
-                title: 'Add import from "../definitions"'
-            },
-            {
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: '// @ts-ignore\n    ',
-                                    range: Range.create(
-                                        Position.create(2, 4),
-                                        Position.create(2, 4)
-                                    )
-                                }
-                            ],
-                            textDocument
-                        }
-                    ]
+                {
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: '// @ts-ignore\n    ',
+                                        range: Range.create(
+                                            Position.create(2, 4),
+                                            Position.create(2, 4)
+                                        )
+                                    }
+                                ],
+                                textDocument
+                            }
+                        ]
+                    },
+                    kind: 'quickfix',
+                    title: 'Ignore this error message'
                 },
-                kind: 'quickfix',
-                title: 'Ignore this error message'
-            },
-            {
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: '\n// @ts-nocheck',
-                                    range: Range.create(
-                                        Position.create(0, 8),
-                                        Position.create(0, 8)
-                                    )
-                                }
-                            ],
-                            textDocument
-                        }
-                    ]
-                },
+                {
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: '\n// @ts-nocheck',
+                                        range: Range.create(
+                                            Position.create(0, 8),
+                                            Position.create(0, 8)
+                                        )
+                                    }
+                                ],
+                                textDocument
+                            }
+                        ]
+                    },
 
-                kind: 'quickfix',
-                title: 'Disable checking for this file'
-            }
-        ]);
+                    kind: 'quickfix',
+                    title: 'Disable checking for this file'
+                }
+            ]
+        );
     });
 
     it('provides quickfix for ts-checked-js in context=module', async () => {
         const { provider, document } = setup('codeaction-checkJs-module.svelte');
-        const errorRange = Range.create(Position.create(3, 4), Position.create(3, 5));
+        const errorRange = Range.create(
+            Position.create(3, 4),
+            Position.create(3, 5)
+        );
 
         const codeActions = await provider.getCodeActions(document, errorRange, {
             diagnostics: [
@@ -470,7 +493,7 @@ describe('CodeActionsProvider', function () {
         });
 
         for (const codeAction of codeActions) {
-            (<TextDocumentEdit>codeAction.edit?.documentChanges?.[0])?.edits.forEach(
+            (<TextDocumentEdit> codeAction.edit?.documentChanges?.[0])?.edits.forEach(
                 (edit) => (edit.newText = harmonizeNewLines(edit.newText))
             );
         }
@@ -479,63 +502,69 @@ describe('CodeActionsProvider', function () {
             uri: getUri('codeaction-checkJs-module.svelte'),
             version: null
         };
-        assert.deepStrictEqual(codeActions, <CodeAction[]>[
-            {
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: '// @ts-ignore\n    ',
-                                    range: Range.create(
-                                        Position.create(3, 4),
-                                        Position.create(3, 4)
-                                    )
-                                }
-                            ],
-                            textDocument
-                        }
-                    ]
+        assert.deepStrictEqual(
+            codeActions,
+            <CodeAction[]> [
+                {
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: '// @ts-ignore\n    ',
+                                        range: Range.create(
+                                            Position.create(3, 4),
+                                            Position.create(3, 4)
+                                        )
+                                    }
+                                ],
+                                textDocument
+                            }
+                        ]
+                    },
+                    kind: 'quickfix',
+                    title: 'Ignore this error message'
                 },
-                kind: 'quickfix',
-                title: 'Ignore this error message'
-            },
-            {
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: '\n// @ts-nocheck',
-                                    range: Range.create(
-                                        Position.create(0, 25),
-                                        Position.create(0, 25)
-                                    )
-                                }
-                            ],
-                            textDocument
-                        }
-                    ]
-                },
+                {
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: '\n// @ts-nocheck',
+                                        range: Range.create(
+                                            Position.create(0, 25),
+                                            Position.create(0, 25)
+                                        )
+                                    }
+                                ],
+                                textDocument
+                            }
+                        ]
+                    },
 
-                kind: 'quickfix',
-                title: 'Disable checking for this file'
-            },
-            {
-                data: {
-                    fixId: 'disableJsDiagnostics',
-                    fixName: 'disableJsDiagnostics',
-                    uri: getUri('codeaction-checkJs-module.svelte')
+                    kind: 'quickfix',
+                    title: 'Disable checking for this file'
                 },
-                kind: 'quickfix',
-                title: "Add '@ts-ignore' to all error messages"
-            }
-        ]);
+                {
+                    data: {
+                        fixId: 'disableJsDiagnostics',
+                        fixName: 'disableJsDiagnostics',
+                        uri: getUri('codeaction-checkJs-module.svelte')
+                    },
+                    kind: 'quickfix',
+                    title: "Add '@ts-ignore' to all error messages"
+                }
+            ]
+        );
     });
 
     it('provide quickfix for adding jsDoc type to props', async () => {
         const { provider, document } = setup('codeaction-add-jsdoc.svelte');
-        const errorRange = Range.create(Position.create(7, 8), Position.create(7, 11));
+        const errorRange = Range.create(
+            Position.create(7, 8),
+            Position.create(7, 11)
+        );
 
         const codeActions = await provider.getCodeActions(document, errorRange, {
             diagnostics: [
@@ -550,13 +579,13 @@ describe('CodeActionsProvider', function () {
 
         const addJsDoc = codeActions.find((fix) => fix.title === "Infer type of 'abc' from usage");
 
-        (<TextDocumentEdit>addJsDoc?.edit?.documentChanges?.[0])?.edits.forEach(
+        (<TextDocumentEdit> addJsDoc?.edit?.documentChanges?.[0])?.edits.forEach(
             (edit) => (edit.newText = harmonizeNewLines(edit.newText))
         );
 
         assert.deepStrictEqual(addJsDoc?.edit, {
             documentChanges: [
-                <TextDocumentEdit>{
+                <TextDocumentEdit> {
                     edits: [
                         {
                             newText: `/**\n${indent} * @type {any}\n${indent} */\n${indent}`,
@@ -577,7 +606,10 @@ describe('CodeActionsProvider', function () {
 
     it('provide quickfix for adding jsDoc type to non props when props exist', async () => {
         const { provider, document } = setup('codeaction-add-jsdoc.svelte');
-        const errorRange = Range.create(Position.create(9, 8), Position.create(9, 10));
+        const errorRange = Range.create(
+            Position.create(9, 8),
+            Position.create(9, 10)
+        );
 
         const codeActions = await provider.getCodeActions(document, errorRange, {
             diagnostics: [
@@ -592,13 +624,13 @@ describe('CodeActionsProvider', function () {
 
         const addJsDoc = codeActions.find((fix) => fix.title === "Infer type of 'ab' from usage");
 
-        (<TextDocumentEdit>addJsDoc?.edit?.documentChanges?.[0])?.edits.forEach(
+        (<TextDocumentEdit> addJsDoc?.edit?.documentChanges?.[0])?.edits.forEach(
             (edit) => (edit.newText = harmonizeNewLines(edit.newText))
         );
 
         assert.deepStrictEqual(addJsDoc?.edit, {
             documentChanges: [
-                <TextDocumentEdit>{
+                <TextDocumentEdit> {
                     edits: [
                         {
                             newText: `/**\n${indent} * @type {any}\n${indent} */\n${indent}`,
@@ -636,46 +668,50 @@ describe('CodeActionsProvider', function () {
             }
         );
 
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
-        assert.deepStrictEqual(codeActions, <CodeAction[]>[
-            {
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: harmonizeNewLines(
-                                        `${indent}import Empty from '../empty.svelte';\n`
-                                    ),
-                                    range: {
-                                        end: Position.create(5, 0),
-                                        start: Position.create(5, 0)
+        assert.deepStrictEqual(
+            codeActions,
+            <CodeAction[]> [
+                {
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: harmonizeNewLines(
+                                            `${indent}import Empty from '../empty.svelte';\n`
+                                        ),
+                                        range: {
+                                            end: Position.create(5, 0),
+                                            start: Position.create(5, 0)
+                                        }
                                     }
+                                ],
+                                textDocument: {
+                                    uri: getUri('codeactions.svelte'),
+                                    version: null
                                 }
-                            ],
-                            textDocument: {
-                                uri: getUri('codeactions.svelte'),
-                                version: null
                             }
-                        }
-                    ]
+                        ]
+                    },
+                    kind: 'quickfix',
+                    title: 'Add import from "../empty.svelte"'
                 },
-                kind: 'quickfix',
-                title: 'Add import from "../empty.svelte"'
-            },
-            {
-                data: {
-                    fixId: 'fixMissingImport',
-                    fixName: 'import',
-                    uri: getUri('codeactions.svelte')
-                },
-                kind: 'quickfix',
-                title: 'Add all missing imports'
-            }
-        ]);
+                {
+                    data: {
+                        fixId: 'fixMissingImport',
+                        fixName: 'import',
+                        uri: getUri('codeactions.svelte')
+                    },
+                    kind: 'quickfix',
+                    title: 'Add all missing imports'
+                }
+            ]
+        );
     });
 
     it('provides quickfix for component import with "did you mean" diagnostics', async () => {
@@ -697,60 +733,64 @@ describe('CodeActionsProvider', function () {
             }
         );
 
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
-        assert.deepStrictEqual(codeActions, <CodeAction[]>[
-            {
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: harmonizeNewLines(
-                                        `\n${indent}import Empty from "../empty.svelte";\n`
-                                    ),
-                                    range: {
-                                        end: Position.create(0, 18),
-                                        start: Position.create(0, 18)
+        assert.deepStrictEqual(
+            codeActions,
+            <CodeAction[]> [
+                {
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: harmonizeNewLines(
+                                            `\n${indent}import Empty from "../empty.svelte";\n`
+                                        ),
+                                        range: {
+                                            end: Position.create(0, 18),
+                                            start: Position.create(0, 18)
+                                        }
                                     }
+                                ],
+                                textDocument: {
+                                    uri: getUri('codeaction-component-import.svelte'),
+                                    version: null
                                 }
-                            ],
-                            textDocument: {
-                                uri: getUri('codeaction-component-import.svelte'),
-                                version: null
                             }
-                        }
-                    ]
+                        ]
+                    },
+                    kind: 'quickfix',
+                    title: 'Add import from "../empty.svelte"'
                 },
-                kind: 'quickfix',
-                title: 'Add import from "../empty.svelte"'
-            },
-            {
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: 'EMpty',
-                                    range: {
-                                        end: Position.create(4, 6),
-                                        start: Position.create(4, 1)
+                {
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: 'EMpty',
+                                        range: {
+                                            end: Position.create(4, 6),
+                                            start: Position.create(4, 1)
+                                        }
                                     }
+                                ],
+                                textDocument: {
+                                    uri: getUri('codeaction-component-import.svelte'),
+                                    version: null
                                 }
-                            ],
-                            textDocument: {
-                                uri: getUri('codeaction-component-import.svelte'),
-                                version: null
                             }
-                        }
-                    ]
-                },
-                kind: 'quickfix',
-                title: "Change spelling to 'EMpty'"
-            }
-        ]);
+                        ]
+                    },
+                    kind: 'quickfix',
+                    title: "Change spelling to 'EMpty'"
+                }
+            ]
+        );
     });
 
     it('remove import inline with script tag', async () => {
@@ -772,31 +812,34 @@ describe('CodeActionsProvider', function () {
             }
         );
 
-        assert.deepStrictEqual(codeActions, <CodeAction[]>[
-            {
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: '',
-                                    range: {
-                                        end: Position.create(0, 54),
-                                        start: Position.create(0, 8)
+        assert.deepStrictEqual(
+            codeActions,
+            <CodeAction[]> [
+                {
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: '',
+                                        range: {
+                                            end: Position.create(0, 54),
+                                            start: Position.create(0, 8)
+                                        }
                                     }
+                                ],
+                                textDocument: {
+                                    uri: getUri('remove-imports-inline.svelte'),
+                                    version: null
                                 }
-                            ],
-                            textDocument: {
-                                uri: getUri('remove-imports-inline.svelte'),
-                                version: null
                             }
-                        }
-                    ]
-                },
-                kind: 'quickfix',
-                title: "Remove import from './codeactions.svelte'"
-            }
-        ]);
+                        ]
+                    },
+                    kind: 'quickfix',
+                    title: "Remove import from './codeactions.svelte'"
+                }
+            ]
+        );
     });
 
     it('provides quickfix for convert const to let', async () => {
@@ -989,17 +1032,17 @@ describe('CodeActionsProvider', function () {
         const fixAll = codeActions.find((action) => action.data);
         const resolvedFixAll = await provider.resolveCodeAction(document, fixAll!);
 
-        (<TextDocumentEdit>resolvedFixAll?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> resolvedFixAll?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(resolvedFixAll.edit, {
             documentChanges: [
                 {
                     edits: [
                         {
-                            newText:
-                                `\n\n${indent}function abc() {\n` +
+                            newText: `\n\n${indent}function abc() {\n` +
                                 `${indent}${indent}throw new Error('Function not implemented.');\n` +
                                 `${indent}}\n`,
                             range: {
@@ -1060,9 +1103,10 @@ describe('CodeActionsProvider', function () {
         const fixAll = codeActions.find((action) => action.data);
         const resolvedFixAll = await provider.resolveCodeAction(document, fixAll!);
 
-        (<TextDocumentEdit>resolvedFixAll?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> resolvedFixAll?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(resolvedFixAll.edit, {
             documentChanges: [
@@ -1109,7 +1153,9 @@ describe('CodeActionsProvider', function () {
     });
 
     it('provide quick fix to fix all missing import component with "did you mean" diagnostics', async () => {
-        const { provider, document } = setup('codeaction-custom-fix-all-component4.svelte');
+        const { provider, document } = setup(
+            'codeaction-custom-fix-all-component4.svelte'
+        );
 
         const range = Range.create(Position.create(4, 1), Position.create(4, 15));
         const codeActions = await provider.getCodeActions(document, range, {
@@ -1127,9 +1173,10 @@ describe('CodeActionsProvider', function () {
         const fixAll = codeActions.find((action) => action.data);
         const resolvedFixAll = await provider.resolveCodeAction(document, fixAll!);
 
-        (<TextDocumentEdit>resolvedFixAll?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> resolvedFixAll?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(resolvedFixAll.edit, {
             documentChanges: [
@@ -1161,7 +1208,9 @@ describe('CodeActionsProvider', function () {
     });
 
     it('provide quick fix to fix all missing import component without duplicate (script)', async () => {
-        const { provider, document } = setup('codeaction-custom-fix-all-component2.svelte');
+        const { provider, document } = setup(
+            'codeaction-custom-fix-all-component2.svelte'
+        );
 
         const range = Range.create(Position.create(2, 4), Position.create(2, 19));
         const codeActions = await provider.getCodeActions(document, range, {
@@ -1179,9 +1228,10 @@ describe('CodeActionsProvider', function () {
         const fixAll = codeActions.find((action) => action.data);
         const resolvedFixAll = await provider.resolveCodeAction(document, fixAll!);
 
-        (<TextDocumentEdit>resolvedFixAll?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> resolvedFixAll?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(resolvedFixAll.edit, {
             documentChanges: [
@@ -1213,7 +1263,9 @@ describe('CodeActionsProvider', function () {
     });
 
     it('provide quick fix to fix all missing import component without duplicate (template)', async () => {
-        const { provider, document } = setup('codeaction-custom-fix-all-component3.svelte');
+        const { provider, document } = setup(
+            'codeaction-custom-fix-all-component3.svelte'
+        );
 
         const range = Range.create(Position.create(4, 1), Position.create(4, 16));
         const codeActions = await provider.getCodeActions(document, range, {
@@ -1231,9 +1283,10 @@ describe('CodeActionsProvider', function () {
         const fixAll = codeActions.find((action) => action.data);
         const resolvedFixAll = await provider.resolveCodeAction(document, fixAll!);
 
-        (<TextDocumentEdit>resolvedFixAll?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> resolvedFixAll?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(resolvedFixAll.edit, {
             documentChanges: [
@@ -1265,7 +1318,9 @@ describe('CodeActionsProvider', function () {
     });
 
     it('provide quick fix to fix all missing import stores', async () => {
-        const { provider, document } = setup('codeaction-custom-fix-all-store.svelte');
+        const { provider, document } = setup(
+            'codeaction-custom-fix-all-store.svelte'
+        );
 
         const range = Range.create(Position.create(1, 4), Position.create(1, 19));
         const codeActions = await provider.getCodeActions(document, range, {
@@ -1283,17 +1338,17 @@ describe('CodeActionsProvider', function () {
         const fixAll = codeActions.find((action) => action.data);
         const resolvedFixAll = await provider.resolveCodeAction(document, fixAll!);
 
-        (<TextDocumentEdit>resolvedFixAll?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> resolvedFixAll?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(resolvedFixAll.edit, {
             documentChanges: [
                 {
                     edits: [
                         {
-                            newText:
-                                `\n${indent}import { someStore } from \"./importing/a\";\n` +
+                            newText: `\n${indent}import { someStore } from \"./importing/a\";\n` +
                                 `${indent}import { someOtherStore } from \"./importing/b\";\n`,
                             range: {
                                 start: {
@@ -1337,17 +1392,17 @@ describe('CodeActionsProvider', function () {
         const fixAll = codeActions.find((action) => action.data);
         const resolvedFixAll = await provider.resolveCodeAction(document, fixAll!);
 
-        (<TextDocumentEdit>resolvedFixAll?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> resolvedFixAll?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(resolvedFixAll.edit, {
             documentChanges: [
                 {
                     edits: [
                         {
-                            newText:
-                                '<script>\n' +
+                            newText: '<script>\n' +
                                 `${indent}import FixAllImported from \"./importing/FixAllImported.svelte\";\n` +
                                 `${indent}import FixAllImported2 from \"./importing/FixAllImported2.svelte\";\n\n` +
                                 '</script>\n',
@@ -1383,9 +1438,10 @@ describe('CodeActionsProvider', function () {
                 only: [CodeActionKind.SourceOrganizeImports]
             }
         );
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -1471,9 +1527,10 @@ describe('CodeActionsProvider', function () {
                 only: [SORT_IMPORT_CODE_ACTION_KIND]
             }
         );
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -1482,8 +1539,7 @@ describe('CodeActionsProvider', function () {
                         {
                             edits: [
                                 {
-                                    newText:
-                                        "import { A, B } from 'bla';\n" +
+                                    newText: "import { A, B } from 'bla';\n" +
                                         "import { C } from 'blubb';\n" +
                                         "import { D } from 'd';\n",
 
@@ -1562,9 +1618,10 @@ describe('CodeActionsProvider', function () {
                 only: [REMOVE_UNUSED_IMPORTS_CODE_ACTION_KIND]
             }
         );
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -1573,8 +1630,7 @@ describe('CodeActionsProvider', function () {
                         {
                             edits: [
                                 {
-                                    newText:
-                                        "import { C } from 'blubb';\n" +
+                                    newText: "import { C } from 'blubb';\n" +
                                         "import { A } from 'bla';\n",
 
                                     range: {
@@ -1652,9 +1708,10 @@ describe('CodeActionsProvider', function () {
                 only: [CodeActionKind.SourceOrganizeImports]
             }
         );
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -1716,7 +1773,9 @@ describe('CodeActionsProvider', function () {
     });
 
     it('organizes imports with module script and store', async () => {
-        const { provider, document } = setup('organize-imports-module-store.svelte');
+        const { provider, document } = setup(
+            'organize-imports-module-store.svelte'
+        );
 
         const codeActions = await provider.getCodeActions(
             document,
@@ -1726,9 +1785,10 @@ describe('CodeActionsProvider', function () {
                 only: [CodeActionKind.SourceOrganizeImports]
             }
         );
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -1801,9 +1861,10 @@ describe('CodeActionsProvider', function () {
                 only: [CodeActionKind.SourceOrganizeImports]
             }
         );
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -1849,9 +1910,10 @@ describe('CodeActionsProvider', function () {
                 only: [CodeActionKind.SourceOrganizeImports]
             }
         );
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -1901,7 +1963,9 @@ describe('CodeActionsProvider', function () {
     });
 
     it('organizes imports and not remove the leading comment', async () => {
-        const { provider, document } = setup('organize-imports-leading-comment.svelte');
+        const { provider, document } = setup(
+            'organize-imports-leading-comment.svelte'
+        );
 
         const codeActions = await provider.getCodeActions(
             document,
@@ -1911,9 +1975,10 @@ describe('CodeActionsProvider', function () {
                 only: [CodeActionKind.SourceOrganizeImports]
             }
         );
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -1977,9 +2042,10 @@ describe('CodeActionsProvider', function () {
             }
         );
 
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -1988,8 +2054,7 @@ describe('CodeActionsProvider', function () {
                         {
                             edits: [
                                 {
-                                    newText:
-                                        "import { } from 'svelte/transition';\n" +
+                                    newText: "import { } from 'svelte/transition';\n" +
                                         `${indent}import { } from './codeaction-checkJs.svelte';\n`,
                                     range: {
                                         end: {
@@ -2075,7 +2140,7 @@ describe('CodeActionsProvider', function () {
             action.command?.arguments
         );
 
-        (<TextDocumentEdit>edit?.documentChanges?.[0])?.edits.forEach(
+        (<TextDocumentEdit> edit?.documentChanges?.[0])?.edits.forEach(
             (edit) => (edit.newText = harmonizeNewLines(edit.newText))
         );
 
@@ -2120,7 +2185,9 @@ describe('CodeActionsProvider', function () {
     });
 
     it('organize imports ignores generated __SvelteComponentTyped__', async () => {
-        const { provider, document } = setup('organize-imports-with-generics.svelte');
+        const { provider, document } = setup(
+            'organize-imports-with-generics.svelte'
+        );
 
         const codeActions = await provider.getCodeActions(
             document,
@@ -2333,7 +2400,7 @@ describe('CodeActionsProvider', function () {
             action.command?.arguments
         );
 
-        (<TextDocumentEdit>edit?.documentChanges?.[0])?.edits.forEach(
+        (<TextDocumentEdit> edit?.documentChanges?.[0])?.edits.forEach(
             (edit) => (edit.newText = harmonizeNewLines(edit.newText))
         );
 
@@ -2355,8 +2422,7 @@ describe('CodeActionsProvider', function () {
                             }
                         },
                         {
-                            newText:
-                                '\n' +
+                            newText: '\n' +
                                 '\n' +
                                 'function newFunction() {' +
                                 '\n' +
@@ -2433,7 +2499,9 @@ describe('CodeActionsProvider', function () {
     });
 
     it('provides source action for adding all missing imports', async () => {
-        const { provider, document } = setup('codeaction-custom-fix-all-component5.svelte');
+        const { provider, document } = setup(
+            'codeaction-custom-fix-all-component5.svelte'
+        );
 
         const range = Range.create(Position.create(4, 1), Position.create(4, 15));
 
@@ -2456,13 +2524,17 @@ describe('CodeActionsProvider', function () {
         );
 
         // Resolve the action to get the edits
-        const resolvedAction = await provider.resolveCodeAction(document, addImportsAction);
+        const resolvedAction = await provider.resolveCodeAction(
+            document,
+            addImportsAction
+        );
 
         // Assert the edits on the resolved action
         assert.ok(resolvedAction.edit, 'Resolved action should have an edit');
-        (<TextDocumentEdit>resolvedAction.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> resolvedAction.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(resolvedAction.edit, {
             documentChanges: [
@@ -2493,12 +2565,17 @@ describe('CodeActionsProvider', function () {
         });
 
         // Optional: Verify the kind and title remain correct on the resolved action
-        assert.strictEqual(resolvedAction.kind, ADD_MISSING_IMPORTS_CODE_ACTION_KIND);
+        assert.strictEqual(
+            resolvedAction.kind,
+            ADD_MISSING_IMPORTS_CODE_ACTION_KIND
+        );
         assert.strictEqual(resolvedAction.title, 'Add all missing imports');
     });
 
     it('provides source action for adding all missing imports only when imports are missing', async () => {
-        const { provider, document } = setup('codeaction-custom-fix-all-component6.svelte');
+        const { provider, document } = setup(
+            'codeaction-custom-fix-all-component6.svelte'
+        );
 
         const codeActions = await provider.getCodeActions(
             document,
@@ -2531,50 +2608,53 @@ describe('CodeActionsProvider', function () {
             }
         );
 
-        assert.deepStrictEqual(codeActions, <CodeAction[]>[
-            {
-                title: 'Add lang="ts" to <script> tag',
-                kind: CodeActionKind.QuickFix,
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: ' lang="ts"',
-                                    range: {
-                                        start: {
-                                            character: 7,
-                                            line: 0
-                                        },
-                                        end: {
-                                            character: 7,
-                                            line: 0
+        assert.deepStrictEqual(
+            codeActions,
+            <CodeAction[]> [
+                {
+                    title: 'Add lang="ts" to <script> tag',
+                    kind: CodeActionKind.QuickFix,
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: ' lang="ts"',
+                                        range: {
+                                            start: {
+                                                character: 7,
+                                                line: 0
+                                            },
+                                            end: {
+                                                character: 7,
+                                                line: 0
+                                            }
+                                        }
+                                    },
+                                    {
+                                        newText: ' lang="ts"',
+                                        range: {
+                                            start: {
+                                                character: 7,
+                                                line: 6
+                                            },
+                                            end: {
+                                                character: 7,
+                                                line: 6
+                                            }
                                         }
                                     }
-                                },
-                                {
-                                    newText: ' lang="ts"',
-                                    range: {
-                                        start: {
-                                            character: 7,
-                                            line: 6
-                                        },
-                                        end: {
-                                            character: 7,
-                                            line: 6
-                                        }
-                                    }
+                                ],
+                                textDocument: {
+                                    uri: getUri('codeaction-add-lang-ts.svelte'),
+                                    version: null
                                 }
-                            ],
-                            textDocument: {
-                                uri: getUri('codeaction-add-lang-ts.svelte'),
-                                version: null
                             }
-                        }
-                    ]
+                        ]
+                    }
                 }
-            }
-        ]);
+            ]
+        );
     });
 
     if (!isSvelte5Plus) {
@@ -2593,9 +2673,10 @@ describe('CodeActionsProvider', function () {
             }
         );
 
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
         assert.deepStrictEqual(codeActions, [
             {
@@ -2644,7 +2725,9 @@ describe('CodeActionsProvider', function () {
     });
 
     it('provides code action for adding <script lang="ts"', async () => {
-        const { provider, document } = setup('codeaction-add-lang-ts-no-script.svelte');
+        const { provider, document } = setup(
+            'codeaction-add-lang-ts-no-script.svelte'
+        );
 
         const codeActions = await provider.getCodeActions(
             document,
@@ -2662,40 +2745,44 @@ describe('CodeActionsProvider', function () {
             }
         );
 
-        (<TextDocumentEdit>codeActions[0]?.edit?.documentChanges?.[0])?.edits.forEach(
-            (edit) => (edit.newText = harmonizeNewLines(edit.newText))
-        );
+        (<TextDocumentEdit> codeActions[0]?.edit?.documentChanges?.[0])?.edits
+            .forEach(
+                (edit) => (edit.newText = harmonizeNewLines(edit.newText))
+            );
 
-        assert.deepStrictEqual(codeActions, <CodeAction[]>[
-            {
-                title: 'Add <script lang="ts"> tag',
-                kind: CodeActionKind.QuickFix,
-                edit: {
-                    documentChanges: [
-                        {
-                            edits: [
-                                {
-                                    newText: '<script lang="ts"></script>\n',
-                                    range: {
-                                        start: {
-                                            character: 0,
-                                            line: 0
-                                        },
-                                        end: {
-                                            character: 0,
-                                            line: 0
+        assert.deepStrictEqual(
+            codeActions,
+            <CodeAction[]> [
+                {
+                    title: 'Add <script lang="ts"> tag',
+                    kind: CodeActionKind.QuickFix,
+                    edit: {
+                        documentChanges: [
+                            {
+                                edits: [
+                                    {
+                                        newText: '<script lang="ts"></script>\n',
+                                        range: {
+                                            start: {
+                                                character: 0,
+                                                line: 0
+                                            },
+                                            end: {
+                                                character: 0,
+                                                line: 0
+                                            }
                                         }
                                     }
+                                ],
+                                textDocument: {
+                                    uri: getUri('codeaction-add-lang-ts-no-script.svelte'),
+                                    version: null
                                 }
-                            ],
-                            textDocument: {
-                                uri: getUri('codeaction-add-lang-ts-no-script.svelte'),
-                                version: null
                             }
-                        }
-                    ]
+                        ]
+                    }
                 }
-            }
-        ]);
+            ]
+        );
     });
 });

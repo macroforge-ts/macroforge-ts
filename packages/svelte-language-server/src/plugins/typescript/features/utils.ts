@@ -41,7 +41,11 @@ export function getComponentAtPosition(
         return null;
     }
 
-    const node = getNodeIfIsInComponentStartTag(doc.html, doc, doc.offsetAt(originalPosition));
+    const node = getNodeIfIsInComponentStartTag(
+        doc.html,
+        doc,
+        doc.offsetAt(originalPosition)
+    );
     if (!node) {
         return null;
     }
@@ -80,7 +84,11 @@ export function isComponentAtPosition(
         return false;
     }
 
-    return !!getNodeIfIsInComponentStartTag(doc.html, doc, doc.offsetAt(originalPosition));
+    return !!getNodeIfIsInComponentStartTag(
+        doc.html,
+        doc,
+        doc.offsetAt(originalPosition)
+    );
 }
 
 export const IGNORE_START_COMMENT = '/*Ωignore_startΩ*/';
@@ -99,7 +107,11 @@ export function surroundWithIgnoreComments(str: string): string {
  * Checks if this a section that should be completely ignored
  * because it's purely generated.
  */
-export function isInGeneratedCode(text: string, start: number, end: number = start) {
+export function isInGeneratedCode(
+    text: string,
+    start: number,
+    end: number = start
+) {
     const lastStart = text.lastIndexOf(IGNORE_START_COMMENT, start);
     const lastEnd = text.lastIndexOf(IGNORE_END_COMMENT, start);
     const nextEnd = text.indexOf(IGNORE_END_COMMENT, end);
@@ -120,27 +132,42 @@ export function isTextSpanInGeneratedCode(text: string, span: ts.TextSpan) {
     return isInGeneratedCode(text, span.start, span.start + span.length);
 }
 
-export function isPartOfImportStatement(text: string, position: Position): boolean {
+export function isPartOfImportStatement(
+    text: string,
+    position: Position
+): boolean {
     const line = getLineAtPosition(position, text);
     return /\s*from\s+["'][^"']*/.test(line.slice(0, position.character));
 }
 
-export function isStoreVariableIn$storeDeclaration(text: string, varStart: number) {
+export function isStoreVariableIn$storeDeclaration(
+    text: string,
+    varStart: number
+) {
     return (
         text.lastIndexOf('__sveltets_2_store_get(', varStart) ===
-        varStart - '__sveltets_2_store_get('.length
+            varStart - '__sveltets_2_store_get('.length
     );
 }
 
-export function get$storeOffsetOf$storeDeclaration(text: string, storePosition: number) {
+export function get$storeOffsetOf$storeDeclaration(
+    text: string,
+    storePosition: number
+) {
     return text.lastIndexOf(' =', storePosition) - 1;
 }
 
-export function is$storeVariableIn$storeDeclaration(text: string, varStart: number) {
+export function is$storeVariableIn$storeDeclaration(
+    text: string,
+    varStart: number
+) {
     return /^\$\w+ = __sveltets_2_store_get/.test(text.substring(varStart));
 }
 
-export function getStoreOffsetOf$storeDeclaration(text: string, $storeVarStart: number) {
+export function getStoreOffsetOf$storeDeclaration(
+    text: string,
+    $storeVarStart: number
+) {
     return text.indexOf(');', $storeVarStart) - 1;
 }
 
@@ -165,8 +192,7 @@ export class SnapshotMap {
             return snapshot;
         }
 
-        const snap =
-            this.sourceLs.snapshotManager.get(fileName) ??
+        const snap = this.sourceLs.snapshotManager.get(fileName) ??
             // should not happen in most cases,
             // the file should be in the project otherwise why would we know about it
             (await this.resolver.getOrCreateSnapshot(fileName));
@@ -221,7 +247,11 @@ export function findClosestContainingNode<T extends ts.Node>(
     let closest = current;
 
     while (current) {
-        const foundInChildren: T | undefined = findContainingNode(current, textSpan, predicate);
+        const foundInChildren: T | undefined = findContainingNode(
+            current,
+            textSpan,
+            predicate
+        );
 
         closest = current;
         current = foundInChildren;
@@ -302,7 +332,8 @@ const isRenderFunction = nodeAndParentsSatisfyRespectivePredicates<
     ts.FunctionDeclaration & { name: ts.Identifier }
 >(
     (node) =>
-        ts.isFunctionDeclaration(node) && node?.name?.getText() === internalHelpers.renderName,
+        ts.isFunctionDeclaration(node) &&
+        node?.name?.getText() === internalHelpers.renderName,
     ts.isSourceFile
 );
 
@@ -311,7 +342,9 @@ const isRenderFunctionBody = nodeAndParentsSatisfyRespectivePredicates(
     isRenderFunction
 );
 
-export const isReactiveStatement = nodeAndParentsSatisfyRespectivePredicates<ts.LabeledStatement>(
+export const isReactiveStatement = nodeAndParentsSatisfyRespectivePredicates<
+    ts.LabeledStatement
+>(
     (node) => ts.isLabeledStatement(node) && node.label.getText() === '$',
     or(
         // function $$render() {
@@ -362,13 +395,15 @@ export function isKitTypePath(path?: string): boolean {
     return !!path?.includes('.svelte-kit/types');
 }
 
-export function getFormatCodeBasis(formatCodeSetting: ts.FormatCodeSettings): FormatCodeBasis {
+export function getFormatCodeBasis(
+    formatCodeSetting: ts.FormatCodeSettings
+): FormatCodeBasis {
     const { baseIndentSize, indentSize, convertTabsToSpaces } = formatCodeSetting;
     const baseIndent = convertTabsToSpaces
         ? ' '.repeat(baseIndentSize ?? 4)
         : baseIndentSize
-          ? '\t'
-          : '';
+        ? '\t'
+        : '';
     const indent = convertTabsToSpaces ? ' '.repeat(indentSize ?? 4) : baseIndentSize ? '\t' : '';
     const semi = formatCodeSetting.semicolons === 'remove' ? '' : ';';
     const newLine = formatCodeSetting.newLineCharacter ?? ts.sys.newLine;
@@ -406,16 +441,18 @@ export function getQuotePreference(
             statement
         ): statement is Omit<ts.ImportDeclaration, 'moduleSpecifier'> & {
             moduleSpecifier: ts.StringLiteral;
-        } => ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)
+        } => ts.isImportDeclaration(statement) &&
+            ts.isStringLiteral(statement.moduleSpecifier)
     )?.moduleSpecifier;
 
     return firstModuleSpecifier
-        ? sourceFile.getText()[firstModuleSpecifier.pos] === '"'
-            ? double
-            : single
+        ? sourceFile.getText()[firstModuleSpecifier.pos] === '"' ? double : single
         : double;
 }
-export function findChildOfKind(node: ts.Node, kind: ts.SyntaxKind): ts.Node | undefined {
+export function findChildOfKind(
+    node: ts.Node,
+    kind: ts.SyntaxKind
+): ts.Node | undefined {
     for (const child of node.getChildren()) {
         if (child.kind === kind) {
             return child;
@@ -429,7 +466,10 @@ export function findChildOfKind(node: ts.Node, kind: ts.SyntaxKind): ts.Node | u
     }
 }
 
-export function getNewScriptStartTag(lsConfig: Readonly<LSConfig>, newLine: string) {
+export function getNewScriptStartTag(
+    lsConfig: Readonly<LSConfig>,
+    newLine: string
+) {
     const lang = lsConfig.svelte.defaultScriptLanguage;
     const scriptLang = lang === 'none' ? '' : ` lang="${lang}"`;
     return `<script${scriptLang}>${newLine}`;
@@ -440,8 +480,10 @@ export function checkRangeMappingWithGeneratedSemi(
     generatedRange: Range,
     tsDoc: SvelteDocumentSnapshot
 ) {
-    const originalLength = originalRange.end.character - originalRange.start.character;
-    const generatedLength = generatedRange.end.character - generatedRange.start.character;
+    const originalLength = originalRange.end.character -
+        originalRange.start.character;
+    const generatedLength = generatedRange.end.character -
+        generatedRange.start.character;
 
     // sourcemap off by one character issue + a generated semicolon
     if (

@@ -1,6 +1,6 @@
 import {
-    SemanticTokensLegend,
     SemanticTokenModifiers,
+    SemanticTokensLegend,
     SemanticTokenTypes
 } from 'vscode-languageserver';
 

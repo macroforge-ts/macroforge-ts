@@ -28,29 +28,35 @@ export class ComponentDef extends SvelteComponentTyped<
 export class ComponentDef2 extends SvelteComponentTyped<
     {},
     | {
-          event1: CustomEvent<number>;
-      }
+        event1: CustomEvent<number>;
+    }
     | {
-          event1: CustomEvent<string>;
-      },
+        event1: CustomEvent<string>;
+    },
     {}
 > {}
 
 export class ComponentDef3 extends SvelteComponentTyped<
-    { hi: string, hi2: string }
+    { hi: string; hi2: string }
 > {}
 
 class ComponentDef3_ext extends SvelteComponentTyped<
-    { hi: string, hi2: string, hi4: string }
+    { hi: string; hi2: string; hi4: string }
 > {}
 
 export declare const Namespace2: {
-    ComponentDef4: new (options: ConstructorParameters<typeof ComponentDef3>[0]) => ComponentDef3;
+    ComponentDef4: new (
+        options: ConstructorParameters<typeof ComponentDef3>[0]
+    ) => ComponentDef3;
     ComponentDef7: {
-        new (options: ConstructorParameters<typeof ComponentDef3>[0]): ComponentDef3
-        new (options: ConstructorParameters<typeof ComponentDef3_ext>[0]): ComponentDef3_ext
-    }
-}
+        new (
+            options: ConstructorParameters<typeof ComponentDef3>[0]
+        ): ComponentDef3;
+        new (
+            options: ConstructorParameters<typeof ComponentDef3_ext>[0]
+        ): ComponentDef3_ext;
+    };
+};
 
 export declare const ComponentDef5: Component<{ hi: string }>;
 

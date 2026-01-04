@@ -1,6 +1,6 @@
 import { clamp, isInRange, regexLastIndexOf } from '../../utils';
 import { Position, Range } from 'vscode-languageserver';
-import { Node, HTMLDocument } from 'vscode-html-languageservice';
+import { HTMLDocument, Node } from 'vscode-html-languageservice';
 import * as path from 'path';
 import { parseHtml } from './parseHtml';
 import { Document } from './Document';
@@ -116,7 +116,7 @@ function extractTags(
 
         return !(
             regexLastIndexOf(rootContentBeforeTag, regexHtml) >
-            rootContentBeforeTag.lastIndexOf('}')
+                rootContentBeforeTag.lastIndexOf('}')
         );
     }
 
@@ -161,7 +161,10 @@ export function extractScriptTags(
     return { script, moduleScript };
 }
 
-export function extractStyleTag(source: string, html?: HTMLDocument): TagInformation | null {
+export function extractStyleTag(
+    source: string,
+    html?: HTMLDocument
+): TagInformation | null {
     const styles = extractTags(source, 'style', html);
     if (!styles.length) {
         return null;
@@ -171,7 +174,10 @@ export function extractStyleTag(source: string, html?: HTMLDocument): TagInforma
     return styles[0];
 }
 
-export function extractTemplateTag(source: string, html?: HTMLDocument): TagInformation | null {
+export function extractTemplateTag(
+    source: string,
+    html?: HTMLDocument
+): TagInformation | null {
     const templates = extractTags(source, 'template', html);
     if (!templates.length) {
         return null;
@@ -237,8 +243,9 @@ export function offsetAt(
     }
 
     const lineOffset = lineOffsets[position.line];
-    const nextLineOffset =
-        position.line + 1 < lineOffsets.length ? lineOffsets[position.line + 1] : text.length;
+    const nextLineOffset = position.line + 1 < lineOffsets.length
+        ? lineOffsets[position.line + 1]
+        : text.length;
 
     return clamp(nextLineOffset, lineOffset, lineOffset + position.character);
 }
@@ -270,7 +277,8 @@ export function isInTag(
     position: Position,
     tagInfo: TagInformation | null
 ): tagInfo is TagInformation {
-    return !!tagInfo && isInRange(Range.create(tagInfo.startPos, tagInfo.endPos), position);
+    return !!tagInfo &&
+        isInRange(Range.create(tagInfo.startPos, tagInfo.endPos), position);
 }
 
 export function isRangeInTag(
@@ -306,7 +314,11 @@ export function isAtEndOfLine(line: string, offset: number): boolean {
  * @param newPath New absolute path
  * @param relativeImportPath Import relative to the old path
  */
-export function updateRelativeImport(oldPath: string, newPath: string, relativeImportPath: string) {
+export function updateRelativeImport(
+    oldPath: string,
+    newPath: string,
+    relativeImportPath: string
+) {
     let newImportPath = path
         .join(path.relative(newPath, oldPath), relativeImportPath)
         .replace(/\\/g, '/');
@@ -338,7 +350,10 @@ export function getNodeIfIsInComponentStartTag(
 /**
  * Returns the node if offset is inside a HTML starttag
  */
-export function getNodeIfIsInHTMLStartTag(html: HTMLDocument, offset: number): Node | undefined {
+export function getNodeIfIsInHTMLStartTag(
+    html: HTMLDocument,
+    offset: number
+): Node | undefined {
     const node = html.findNodeAt(offset);
     if (
         !!node.tag &&
@@ -352,7 +367,10 @@ export function getNodeIfIsInHTMLStartTag(html: HTMLDocument, offset: number): N
 /**
  * Returns the node if offset is inside a starttag (HTML or component)
  */
-export function getNodeIfIsInStartTag(html: HTMLDocument, offset: number): Node | undefined {
+export function getNodeIfIsInStartTag(
+    html: HTMLDocument,
+    offset: number
+): Node | undefined {
     const node = html.findNodeAt(offset);
     if (!!node.tag && (!node.startTagEnd || offset < node.startTagEnd)) {
         return node;
@@ -414,7 +432,11 @@ export function getWordAt(
  */
 export function toRange(str: string, start: number, end: number): Range;
 export function toRange(str: Document, start: number, end: number): Range;
-export function toRange(str: string | Document, start: number, end: number): Range {
+export function toRange(
+    str: string | Document,
+    start: number,
+    end: number
+): Range {
     if (typeof str === 'string') {
         return Range.create(positionAt(start, str), positionAt(end, str));
     }
@@ -426,7 +448,9 @@ export function toRange(str: string | Document, start: number, end: number): Ran
  * Returns the language from the given tags, return the first from which a language is found.
  * Searches inside lang and type and removes leading 'text/'
  */
-export function getLangAttribute(...tags: Array<TagInformation | null>): string | null {
+export function getLangAttribute(
+    ...tags: Array<TagInformation | null>
+): string | null {
     const tag = tags.find((tag) => tag?.attributes.lang || tag?.attributes.type);
     if (!tag) {
         return null;
@@ -445,7 +469,11 @@ export function getLangAttribute(...tags: Array<TagInformation | null>): string 
  * using a simple bracket matching heuristic which might fail under conditions like
  * `{#if {a: true}.a}`
  */
-export function isInsideMoustacheTag(html: string, tagStart: number | null, position: number) {
+export function isInsideMoustacheTag(
+    html: string,
+    tagStart: number | null,
+    position: number
+) {
     if (tagStart === null) {
         // Not inside <tag ... >
         const charactersBeforePosition = html.substring(0, position);
@@ -461,7 +489,8 @@ export function isInsideMoustacheTag(html: string, tagStart: number | null, posi
     } else {
         // Inside <tag ... >
         const charactersInNode = html.substring(tagStart, position);
-        return charactersInNode.lastIndexOf('{') > charactersInNode.lastIndexOf('}');
+        return charactersInNode.lastIndexOf('{') >
+            charactersInNode.lastIndexOf('}');
     }
 }
 

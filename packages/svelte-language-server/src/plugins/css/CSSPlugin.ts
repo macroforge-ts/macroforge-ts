@@ -4,31 +4,31 @@ import {
     ColorInformation,
     ColorPresentation,
     CompletionContext,
+    CompletionItem,
+    CompletionItemKind,
     CompletionList,
     CompletionTriggerKind,
     Diagnostic,
+    DocumentHighlight,
     Hover,
     Position,
     Range,
-    SymbolInformation,
-    CompletionItem,
-    CompletionItemKind,
     SelectionRange,
-    DocumentHighlight,
+    SymbolInformation,
     WorkspaceFolder
 } from 'vscode-languageserver';
 import {
     Document,
     DocumentManager,
+    isInTag,
     mapColorPresentationToOriginal,
     mapCompletionItemToOriginal,
-    mapRangeToGenerated,
-    mapSymbolInformationToOriginal,
-    mapObjWithRangeToOriginal,
     mapHoverToParent,
-    mapSelectionRangeToParent,
-    isInTag,
+    mapObjWithRangeToOriginal,
+    mapRangeToGenerated,
     mapRangeToOriginal,
+    mapSelectionRangeToParent,
+    mapSymbolInformationToOriginal,
     TagInformation
 } from '../../lib/documents';
 import { LSConfigManager, LSCSSConfig } from '../../ls-config';
@@ -68,8 +68,7 @@ export class CSSPlugin
         DocumentSymbolsProvider,
         SelectionRangeProvider,
         DocumentHighlightProvider,
-        FoldingRangeProvider
-{
+        FoldingRangeProvider {
     __name = 'css';
     private configManager: LSConfigManager;
     private cssDocuments = new WeakMap<Document, CSSDocument>();
@@ -100,24 +99,37 @@ export class CSSPlugin
         });
 
         const sync = (document: Document) => {
-            this.cssDocuments.set(document, new CSSDocument(document, this.cssLanguageServices));
+            this.cssDocuments.set(
+                document,
+                new CSSDocument(document, this.cssLanguageServices)
+            );
         };
         docManager.on('documentChange', sync);
         docManager.on('documentOpen', sync);
-        docManager.on('documentClose', (document) => this.cssDocuments.delete(document));
+        docManager.on(
+            'documentClose',
+            (document) => this.cssDocuments.delete(document)
+        );
     }
 
-    getSelectionRange(document: Document, position: Position): SelectionRange | null {
-        if (!this.featureEnabled('selectionRange') || !isInTag(position, document.styleInfo)) {
+    getSelectionRange(
+        document: Document,
+        position: Position
+    ): SelectionRange | null {
+        if (
+            !this.featureEnabled('selectionRange') ||
+            !isInTag(position, document.styleInfo)
+        ) {
             return null;
         }
 
         const cssDocument = this.getCSSDoc(document);
-        const [range] = this.getLanguageService(extractLanguage(cssDocument)).getSelectionRanges(
-            cssDocument,
-            [cssDocument.getGeneratedPosition(position)],
-            cssDocument.stylesheet
-        );
+        const [range] = this.getLanguageService(extractLanguage(cssDocument))
+            .getSelectionRanges(
+                cssDocument,
+                [cssDocument.getGeneratedPosition(position)],
+                cssDocument.stylesheet
+            );
 
         if (!range) {
             return null;
@@ -159,11 +171,19 @@ export class CSSPlugin
         const attributeContext = getAttributeContextAtPosition(document, position);
         if (
             attributeContext &&
-            this.inStyleAttributeWithoutInterpolation(attributeContext, document.getText())
+            this.inStyleAttributeWithoutInterpolation(
+                attributeContext,
+                document.getText()
+            )
         ) {
             const [start, end] = attributeContext.valueRange;
             return this.doHoverInternal(
-                new StyleAttributeDocument(document, start, end, this.cssLanguageServices),
+                new StyleAttributeDocument(
+                    document,
+                    start,
+                    end,
+                    this.cssLanguageServices
+                ),
                 position
             );
         }
@@ -171,11 +191,12 @@ export class CSSPlugin
         return null;
     }
     private doHoverInternal(cssDocument: CSSDocumentBase, position: Position) {
-        const hoverInfo = this.getLanguageService(extractLanguage(cssDocument)).doHover(
-            cssDocument,
-            cssDocument.getGeneratedPosition(position),
-            cssDocument.stylesheet
-        );
+        const hoverInfo = this.getLanguageService(extractLanguage(cssDocument))
+            .doHover(
+                cssDocument,
+                cssDocument.getGeneratedPosition(position),
+                cssDocument.stylesheet
+            );
         return hoverInfo ? mapHoverToParent(cssDocument, hoverInfo) : hoverInfo;
     }
 
@@ -211,12 +232,22 @@ export class CSSPlugin
             return null;
         }
 
-        if (this.inStyleAttributeWithoutInterpolation(attributeContext, document.getText())) {
+        if (
+            this.inStyleAttributeWithoutInterpolation(
+                attributeContext,
+                document.getText()
+            )
+        ) {
             const [start, end] = attributeContext.valueRange;
             return this.getCompletionsInternal(
                 document,
                 position,
-                new StyleAttributeDocument(document, start, end, this.cssLanguageServices)
+                new StyleAttributeDocument(
+                    document,
+                    start,
+                    end,
+                    this.cssLanguageServices
+                )
             );
         } else {
             return getIdClassCompletion(cssDocument, attributeContext);
@@ -230,7 +261,8 @@ export class CSSPlugin
         return (
             attrContext.name === 'style' &&
             !!attrContext.valueRange &&
-            !text.substring(attrContext.valueRange[0], attrContext.valueRange[1]).includes('{')
+            !text.substring(attrContext.valueRange[0], attrContext.valueRange[1])
+                .includes('{')
         );
     }
 
@@ -243,7 +275,12 @@ export class CSSPlugin
             // the css language service does not support sass, still we can use
             // the emmet helper directly to at least get emmet completions
             return (
-                doEmmetComplete(document, position, 'sass', this.configManager.getEmmetConfig()) ||
+                doEmmetComplete(
+                    document,
+                    position,
+                    'sass',
+                    this.configManager.getEmmetConfig()
+                ) ||
                 null
             );
         }
@@ -266,24 +303,22 @@ export class CSSPlugin
                 {
                     onCssProperty: (context) => {
                         if (context?.propertyName) {
-                            emmetResults =
-                                doEmmetComplete(
-                                    cssDocument,
-                                    cssDocument.getGeneratedPosition(position),
-                                    getLanguage(type),
-                                    this.configManager.getEmmetConfig()
-                                ) || emmetResults;
+                            emmetResults = doEmmetComplete(
+                                cssDocument,
+                                cssDocument.getGeneratedPosition(position),
+                                getLanguage(type),
+                                this.configManager.getEmmetConfig()
+                            ) || emmetResults;
                         }
                     },
                     onCssPropertyValue: (context) => {
                         if (context?.propertyValue) {
-                            emmetResults =
-                                doEmmetComplete(
-                                    cssDocument,
-                                    cssDocument.getGeneratedPosition(position),
-                                    getLanguage(type),
-                                    this.configManager.getEmmetConfig()
-                                ) || emmetResults;
+                            emmetResults = doEmmetComplete(
+                                cssDocument,
+                                cssDocument.getGeneratedPosition(position),
+                                getLanguage(type),
+                                this.configManager.getEmmetConfig()
+                            ) || emmetResults;
                         }
                     }
                 }
@@ -298,9 +333,9 @@ export class CSSPlugin
         );
         return CompletionList.create(
             this.appendGlobalVars(
-                [...(results ? results.items : []), ...emmetResults.items].map((completionItem) =>
-                    mapCompletionItemToOriginal(cssDocument, completionItem)
-                )
+                [...(results ? results.items : []), ...emmetResults.items].map((
+                    completionItem
+                ) => mapCompletionItemToOriginal(cssDocument, completionItem))
             ),
             // Emmet completions change on every keystroke, so they are never complete
             emmetResults.items.length > 0
@@ -341,14 +376,19 @@ export class CSSPlugin
             .map((colorInfo) => mapObjWithRangeToOriginal(cssDocument, colorInfo));
     }
 
-    getColorPresentations(document: Document, range: Range, color: Color): ColorPresentation[] {
+    getColorPresentations(
+        document: Document,
+        range: Range,
+        color: Color
+    ): ColorPresentation[] {
         if (!this.featureEnabled('colorPresentations')) {
             return [];
         }
 
         const cssDocument = this.getCSSDoc(document);
         if (
-            (!cssDocument.isInGenerated(range.start) && !cssDocument.isInGenerated(range.end)) ||
+            (!cssDocument.isInGenerated(range.start) &&
+                !cssDocument.isInGenerated(range.end)) ||
             shouldExcludeColor(cssDocument)
         ) {
             return [];
@@ -405,7 +445,10 @@ export class CSSPlugin
             .getFoldingRanges(cssDocument)
             .map((range) => {
                 const originalRange = mapRangeToOriginal(cssDocument, {
-                    start: { line: range.startLine, character: range.startCharacter ?? 0 },
+                    start: {
+                        line: range.startLine,
+                        character: range.startCharacter ?? 0
+                    },
                     end: { line: range.endLine, character: range.endCharacter ?? 0 }
                 });
 
@@ -417,7 +460,10 @@ export class CSSPlugin
             });
     }
 
-    private nonSyntacticFolding(document: Document, styleInfo: TagInformation): FoldingRange[] {
+    private nonSyntacticFolding(
+        document: Document,
+        styleInfo: TagInformation
+    ): FoldingRange[] {
         const ranges = indentBasedFoldingRangeForTag(document, styleInfo);
         const startRegion = /^\s*(\/\/|\/\*\*?)\s*#?region\b/;
         const endRegion = /^\s*(\/\/|\/\*\*?)\s*#?endregion\b/;
@@ -449,11 +495,19 @@ export class CSSPlugin
         return ranges.sort((a, b) => a.startLine - b.startLine);
     }
 
-    findDocumentHighlight(document: Document, position: Position): DocumentHighlight[] | null {
+    findDocumentHighlight(
+        document: Document,
+        position: Position
+    ): DocumentHighlight[] | null {
         const cssDocument = this.getCSSDoc(document);
         if (cssDocument.isInGenerated(position)) {
             if (shouldExcludeDocumentHighlights(cssDocument)) {
-                return wordHighlightForTag(document, position, document.styleInfo, wordPattern);
+                return wordHighlightForTag(
+                    document,
+                    position,
+                    document.styleInfo,
+                    wordPattern
+                );
             }
 
             return this.findDocumentHighlightInternal(cssDocument, position);
@@ -462,11 +516,19 @@ export class CSSPlugin
         const attributeContext = getAttributeContextAtPosition(document, position);
         if (
             attributeContext &&
-            this.inStyleAttributeWithoutInterpolation(attributeContext, document.getText())
+            this.inStyleAttributeWithoutInterpolation(
+                attributeContext,
+                document.getText()
+            )
         ) {
             const [start, end] = attributeContext.valueRange;
             return this.findDocumentHighlightInternal(
-                new StyleAttributeDocument(document, start, end, this.cssLanguageServices),
+                new StyleAttributeDocument(
+                    document,
+                    start,
+                    end,
+                    this.cssLanguageServices
+                ),
                 position
             );
         }
@@ -501,9 +563,15 @@ export class CSSPlugin
     }
 
     private updateConfigs() {
-        this.getLanguageService('css')?.configure(this.configManager.getCssConfig());
-        this.getLanguageService('scss')?.configure(this.configManager.getScssConfig());
-        this.getLanguageService('less')?.configure(this.configManager.getLessConfig());
+        this.getLanguageService('css')?.configure(
+            this.configManager.getCssConfig()
+        );
+        this.getLanguageService('scss')?.configure(
+            this.configManager.getScssConfig()
+        );
+        this.getLanguageService('less')?.configure(
+            this.configManager.getLessConfig()
+        );
     }
 
     private featureEnabled(feature: keyof LSCSSConfig) {

@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { Position, DocumentHighlight } from 'vscode-languageserver-protocol';
+import { DocumentHighlight, Position } from 'vscode-languageserver-protocol';
 import { DocumentHighlightKind, Range } from 'vscode-languageserver-types';
 import { Document, inStyleOrScript } from '../../../lib/documents';
 import { flatten, isSamePosition } from '../../../utils';
@@ -20,9 +20,15 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
         document: Document,
         position: Position
     ): Promise<DocumentHighlight[] | null> {
-        const { tsDoc } = await this.lsAndTsDocResolver.getLsForSyntheticOperations(document);
+        const { tsDoc } = await this.lsAndTsDocResolver.getLsForSyntheticOperations(
+            document
+        );
 
-        const svelteResult = await this.getSvelteDocumentHighlight(document, tsDoc, position);
+        const svelteResult = await this.getSvelteDocumentHighlight(
+            document,
+            tsDoc,
+            position
+        );
 
         if (svelteResult) {
             return svelteResult;
@@ -39,7 +45,9 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
             return null;
         }
 
-        const result = flatten(highlights.map((highlight) => highlight.highlightSpans))
+        const result = flatten(
+            highlights.map((highlight) => highlight.highlightSpans)
+        )
             .filter(this.notInGeneratedCode(tsDoc.getFullText()))
             .map((highlight) =>
                 DocumentHighlight.create(
@@ -56,7 +64,9 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
         return result;
     }
 
-    private convertHighlightKind(highlight: ts.HighlightSpan): DocumentHighlightKind | undefined {
+    private convertHighlightKind(
+        highlight: ts.HighlightSpan
+    ): DocumentHighlightKind | undefined {
         return highlight.kind === ts.HighlightSpanKind.writtenReference
             ? DocumentHighlightKind.Write
             : DocumentHighlightKind.Read;
@@ -104,7 +114,10 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
         return null;
     }
 
-    private findCandidateSvelteTag(tsDoc: SvelteDocumentSnapshot, offset: number) {
+    private findCandidateSvelteTag(
+        tsDoc: SvelteDocumentSnapshot,
+        offset: number
+    ) {
         let candidate: TemplateNode | undefined;
         const subBlocks = ['ThenBlock', 'CatchBlock', 'PendingBlock', 'ElseBlock'];
 
@@ -115,10 +128,10 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
                 }
 
                 const templateNode = node as TemplateNode;
-                const isWithin = templateNode.start <= offset && templateNode.end >= offset;
+                const isWithin = templateNode.start <= offset &&
+                    templateNode.end >= offset;
 
-                const canSkip =
-                    !isWithin ||
+                const canSkip = !isWithin ||
                     key === 'expression' ||
                     key === 'context' ||
                     ((parent.type === 'InlineComponent' || parent.type === 'Element') &&
@@ -158,15 +171,17 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
         document: Document,
         candidate: TemplateNode
     ): DocumentHighlight[] | null {
-        const name =
-            candidate.type === 'RawMustacheTag'
-                ? 'html'
-                : candidate.type.replace('Tag', '').toLocaleLowerCase();
+        const name = candidate.type === 'RawMustacheTag'
+            ? 'html'
+            : candidate.type.replace('Tag', '').toLocaleLowerCase();
 
         const startTag = '@' + name;
         const indexOfName = document.getText().indexOf(startTag, candidate.start);
 
-        if (indexOfName < 0 || indexOfName > offset || candidate.start + startTag.length < offset) {
+        if (
+            indexOfName < 0 || indexOfName > offset ||
+            candidate.start + startTag.length < offset
+        ) {
             return null;
         }
 
@@ -230,7 +245,10 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
         }));
     }
 
-    private getElseHighlightsForIfBlock(candidate: TemplateNode, content: string): RangeTupleArray {
+    private getElseHighlightsForIfBlock(
+        candidate: TemplateNode,
+        content: string
+    ): RangeTupleArray {
         if (candidate.type !== 'IfBlock' || !candidate.else) {
             return [];
         }
@@ -247,7 +265,10 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
                     );
 
                     if (elseIfStart > 0) {
-                        ranges.set(elseIfStart, [elseIfStart, elseIfStart + ':else if'.length]);
+                        ranges.set(elseIfStart, [
+                            elseIfStart,
+                            elseIfStart + ':else if'.length
+                        ]);
                     }
                 }
 
@@ -256,7 +277,8 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
 
                     if (
                         elseStart > 0 &&
-                        content.slice(elseStart, elseStart + ':else if'.length) !== ':else if'
+                        content.slice(elseStart, elseStart + ':else if'.length) !==
+                            ':else if'
                     ) {
                         ranges.set(elseStart, [elseStart, elseStart + ':else'.length]);
                     }
@@ -267,8 +289,14 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
         return Array.from(ranges.values());
     }
 
-    private getAwaitBlockHighlight(candidate: TemplateNode, content: string): RangeTupleArray {
-        if (candidate.type !== 'AwaitBlock' || (candidate.then.skip && candidate.catch.skip)) {
+    private getAwaitBlockHighlight(
+        candidate: TemplateNode,
+        content: string
+    ): RangeTupleArray {
+        if (
+            candidate.type !== 'AwaitBlock' ||
+            (candidate.then.skip && candidate.catch.skip)
+        ) {
             return [];
         }
 
@@ -286,7 +314,10 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
         if (candidate.error) {
             const catchKeyword = candidate.pending.skip && candidate.then.skip ? 'catch' : ':catch';
 
-            const catchStart = content.lastIndexOf(catchKeyword, candidate.error.start);
+            const catchStart = content.lastIndexOf(
+                catchKeyword,
+                candidate.error.start
+            );
 
             ranges.push([catchStart, catchStart + catchKeyword.length]);
         } else if (!candidate.catch.skip) {

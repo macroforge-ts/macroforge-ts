@@ -34,10 +34,12 @@ describe('ImplementationProvider', function () {
         );
         const provider = new ImplementationProviderImpl(lsAndTsDocResolver);
         const filePath = getFullPath(filename);
-        const document = docManager.openClientDocument(<any>{
-            uri: pathToUrl(filePath),
-            text: ts.sys.readFile(filePath) || ''
-        });
+        const document = docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(filePath),
+                text: ts.sys.readFile(filePath) || ''
+            }
+        );
         return { provider, document };
     }
 
@@ -49,34 +51,37 @@ describe('ImplementationProvider', function () {
             character: 25
         });
 
-        assert.deepStrictEqual(implementations, <Location[]>[
-            {
-                range: {
-                    start: {
-                        line: 5,
-                        character: 24
+        assert.deepStrictEqual(
+            implementations,
+            <Location[]> [
+                {
+                    range: {
+                        start: {
+                            line: 5,
+                            character: 24
+                        },
+                        end: {
+                            line: 7,
+                            character: 5
+                        }
                     },
-                    end: {
-                        line: 7,
-                        character: 5
-                    }
+                    uri: getUri('implementation.svelte')
                 },
-                uri: getUri('implementation.svelte')
-            },
-            {
-                range: {
-                    start: {
-                        line: 5,
-                        character: 11
+                {
+                    range: {
+                        start: {
+                            line: 5,
+                            character: 11
+                        },
+                        end: {
+                            line: 7,
+                            character: 5
+                        }
                     },
-                    end: {
-                        line: 7,
-                        character: 5
-                    }
-                },
-                uri: getUri('some-type.ts')
-            }
-        ]);
+                    uri: getUri('some-type.ts')
+                }
+            ]
+        );
     });
 
     it('map implementation result of dts with declarationMap to source ', async () => {
@@ -86,14 +91,17 @@ describe('ImplementationProvider', function () {
             line: 1,
             character: 13
         });
-        assert.deepStrictEqual(implementations, <Location[]>[
-            {
-                range: {
-                    end: { line: 0, character: 18 },
-                    start: { line: 0, character: 16 }
-                },
-                uri: getUri('../declaration-map/declaration-map-project/index.ts')
-            }
-        ]);
+        assert.deepStrictEqual(
+            implementations,
+            <Location[]> [
+                {
+                    range: {
+                        end: { line: 0, character: 18 },
+                        start: { line: 0, character: 16 }
+                    },
+                    uri: getUri('../declaration-map/declaration-map-project/index.ts')
+                }
+            ]
+        );
     });
 });

@@ -14,16 +14,18 @@ export function createSvelteSys(tsSystem: ts.System) {
 
             // First check if there's a `.svelte.d.ts` or `.d.svelte.ts` file, which should take precedence
             const dtsPath = sveltePath.slice(0, -7) + '.svelte.d.ts';
-            const dtsPathExists = fileExistsCache.get(dtsPath) ?? tsSystem.fileExists(dtsPath);
+            const dtsPathExists = fileExistsCache.get(dtsPath) ??
+                tsSystem.fileExists(dtsPath);
             fileExistsCache.set(dtsPath, dtsPathExists);
             if (dtsPathExists) return false;
 
-            const svelteDtsPathExists = fileExistsCache.get(path) ?? tsSystem.fileExists(path);
+            const svelteDtsPathExists = fileExistsCache.get(path) ??
+                tsSystem.fileExists(path);
             fileExistsCache.set(path, svelteDtsPathExists);
             if (svelteDtsPathExists) return false;
 
-            const sveltePathExists =
-                fileExistsCache.get(sveltePath) ?? tsSystem.fileExists(sveltePath);
+            const sveltePathExists = fileExistsCache.get(sveltePath) ??
+                tsSystem.fileExists(sveltePath);
             fileExistsCache.set(sveltePath, sveltePathExists);
             return sveltePathExists;
         } else {
@@ -59,7 +61,13 @@ export function createSvelteSys(tsSystem: ts.System) {
         readDirectory(path, extensions, exclude, include, depth) {
             const extensionsWithSvelte = extensions ? [...extensions, '.svelte'] : undefined;
 
-            return tsSystem.readDirectory(path, extensionsWithSvelte, exclude, include, depth);
+            return tsSystem.readDirectory(
+                path,
+                extensionsWithSvelte,
+                exclude,
+                include,
+                depth
+            );
         },
         deleteFile(path) {
             // assumption: never a foo.svelte.ts file next to a foo.svelte file

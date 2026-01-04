@@ -37,11 +37,15 @@ export interface EachBlock extends SvelteNode {
     children: SvelteNode[];
 }
 
-function matchesOnly(type: string | undefined, only?: 'Element' | 'InlineComponent'): boolean {
+function matchesOnly(
+    type: string | undefined,
+    only?: 'Element' | 'InlineComponent'
+): boolean {
     return (
         !only ||
         // We hide the detail that body/window are also like elements in the context of this usage
-        (only === 'Element' && ['Element', 'Body', 'Window'].includes(type as HTMLLike)) ||
+        (only === 'Element' &&
+            ['Element', 'Body', 'Window'].includes(type as HTMLLike)) ||
         (only === 'InlineComponent' && type === 'InlineComponent')
     );
 }
@@ -50,12 +54,16 @@ function matchesOnly(type: string | undefined, only?: 'Element' | 'InlineCompone
  * Returns true if given node is a component or html element, or if the offset is at the end of the node
  * and its parent is a component or html element.
  */
-export function isInTag(node: SvelteNode | null | undefined, offset: number): boolean {
+export function isInTag(
+    node: SvelteNode | null | undefined,
+    offset: number
+): boolean {
     return (
         node?.type === 'InlineComponent' ||
         node?.type === 'Element' ||
         (node?.end === offset &&
-            (node?.parent?.type === 'InlineComponent' || node?.parent?.type === 'Element'))
+            (node?.parent?.type === 'InlineComponent' ||
+                node?.parent?.type === 'Element'))
     );
 }
 
@@ -68,7 +76,8 @@ export function isAttributeName(
     node: SvelteNode | null | undefined,
     only?: 'Element' | 'InlineComponent'
 ): boolean {
-    return !!node && node.type === 'Attribute' && matchesOnly(node.parent?.type, only);
+    return !!node && node.type === 'Attribute' &&
+        matchesOnly(node.parent?.type, only);
 }
 
 /**
@@ -101,7 +110,8 @@ export function isEventHandler(
     node: SvelteNode | null | undefined,
     only?: 'Element' | 'InlineComponent'
 ) {
-    return !!node && node.type === 'EventHandler' && matchesOnly(node.parent?.type, only);
+    return !!node && node.type === 'EventHandler' &&
+        matchesOnly(node.parent?.type, only);
 }
 
 export function isElseBlockWithElseIf(node: SvelteNode | null | undefined) {
@@ -115,16 +125,30 @@ export function isElseBlockWithElseIf(node: SvelteNode | null | undefined) {
     );
 }
 
-export function hasElseBlock(node: SvelteNode): node is SvelteNode & { else: SvelteNode } {
+export function hasElseBlock(
+    node: SvelteNode
+): node is SvelteNode & { else: SvelteNode } {
     return 'else' in node && !!node.else;
 }
 
-export function findElseBlockTagStart(documentText: string, elseBlock: SvelteNode) {
-    return documentText.lastIndexOf('{', documentText.lastIndexOf(':else', elseBlock.start));
+export function findElseBlockTagStart(
+    documentText: string,
+    elseBlock: SvelteNode
+) {
+    return documentText.lastIndexOf(
+        '{',
+        documentText.lastIndexOf(':else', elseBlock.start)
+    );
 }
 
-export function findIfBlockEndTagStart(documentText: string, ifBlock: SvelteNode) {
-    return documentText.lastIndexOf('{', documentText.lastIndexOf('/if', ifBlock.end));
+export function findIfBlockEndTagStart(
+    documentText: string,
+    ifBlock: SvelteNode
+) {
+    return documentText.lastIndexOf(
+        '{',
+        documentText.lastIndexOf('/if', ifBlock.end)
+    );
 }
 
 type ESTreeWaker = Parameters<typeof walk>[1];
@@ -162,10 +186,22 @@ export interface SvelteNodeWalker {
 export function walkSvelteAst(htmlAst: TemplateNode, walker: SvelteNodeWalker) {
     walk(htmlAst as any, {
         enter(node, parent, key, index) {
-            walker.enter?.call(this as any, node as SvelteNode, parent as SvelteNode, key, index);
+            walker.enter?.call(
+                this as any,
+                node as SvelteNode,
+                parent as SvelteNode,
+                key,
+                index
+            );
         },
         leave(node, parent, key, index) {
-            walker.leave?.call(this as any, node as SvelteNode, parent as SvelteNode, key, index);
+            walker.leave?.call(
+                this as any,
+                node as SvelteNode,
+                parent as SvelteNode,
+                key,
+                index
+            );
         }
     });
 }

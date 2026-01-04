@@ -4,10 +4,10 @@ import {
     CompletionItemKind,
     DiagnosticSeverity,
     DiagnosticTag,
+    Location,
     Position,
     Range,
-    SymbolKind,
-    Location
+    SymbolKind
 } from 'vscode-languageserver';
 import { Document, isInTag, mapLocationToOriginal, mapRangeToOriginal } from '../../lib/documents';
 import { GetCanonicalFileName, pathToUrl } from '../../utils';
@@ -31,7 +31,9 @@ export function getScriptKindFromFileName(fileName: string): ts.ScriptKind {
     }
 }
 
-export function getExtensionFromScriptKind(kind: ts.ScriptKind | undefined): ts.Extension {
+export function getExtensionFromScriptKind(
+    kind: ts.ScriptKind | undefined
+): ts.Extension {
     switch (kind) {
         case ts.ScriptKind.JSX:
             return ts.Extension.Jsx;
@@ -97,7 +99,10 @@ export function convertRange(
     );
 }
 
-export function convertToLocationRange(snapshot: DocumentSnapshot, textSpan: ts.TextSpan): Range {
+export function convertToLocationRange(
+    snapshot: DocumentSnapshot,
+    textSpan: ts.TextSpan
+): Range {
     const range = mapRangeToOriginal(snapshot, convertRange(snapshot, textSpan));
 
     mapUnmappedToTheStartOfFile(range);
@@ -109,7 +114,10 @@ export function convertToLocationForReferenceOrDefinition(
     snapshot: DocumentSnapshot,
     textSpan: ts.TextSpan
 ): Location {
-    const location = mapLocationToOriginal(snapshot, convertRange(snapshot, textSpan));
+    const location = mapLocationToOriginal(
+        snapshot,
+        convertRange(snapshot, textSpan)
+    );
 
     mapUnmappedToTheStartOfFile(location.range);
 
@@ -130,7 +138,8 @@ function mapUnmappedToTheStartOfFile(range: Range) {
 export function hasNonZeroRange({ range }: { range?: Range }): boolean {
     return (
         !!range &&
-        (range.start.line !== range.end.line || range.start.character !== range.end.character)
+        (range.start.line !== range.end.line ||
+            range.start.character !== range.end.character)
     );
 }
 
@@ -151,18 +160,20 @@ export function findTsConfigPath(
 ) {
     const searchDir = dirname(fileName);
 
-    const tsconfig = ts.findConfigFile(searchDir, fileExists, 'tsconfig.json') || '';
-    const jsconfig = ts.findConfigFile(searchDir, fileExists, 'jsconfig.json') || '';
+    const tsconfig = ts.findConfigFile(searchDir, fileExists, 'tsconfig.json') ||
+        '';
+    const jsconfig = ts.findConfigFile(searchDir, fileExists, 'jsconfig.json') ||
+        '';
     // Prefer closest config file
     const config = tsconfig.length >= jsconfig.length ? tsconfig : jsconfig;
 
     // Don't return config files that exceed the current workspace context or cross a node_modules folder
     return !!config &&
-        rootUris.some((rootUri) => isSubPath(rootUri, config, getCanonicalFileName)) &&
-        !fileName
-            .substring(config.length - 13)
-            .split('/')
-            .includes('node_modules')
+            rootUris.some((rootUri) => isSubPath(rootUri, config, getCanonicalFileName)) &&
+            !fileName
+                .substring(config.length - 13)
+                .split('/')
+                .includes('node_modules')
         ? config
         : '';
 }
@@ -174,7 +185,9 @@ export function isSubPath(
 ): boolean {
     // URL escape codes are in upper-case
     // so getCanonicalFileName should be called after converting to file url
-    return getCanonicalFileName(pathToUrl(possibleSubPath)).startsWith(getCanonicalFileName(uri));
+    return getCanonicalFileName(pathToUrl(possibleSubPath)).startsWith(
+        getCanonicalFileName(uri)
+    );
 }
 
 export function getNearestWorkspaceUri(
@@ -282,7 +295,9 @@ export function scriptElementKindToCompletionItemKind(
     return CompletionItemKind.Property;
 }
 
-export function mapSeverity(category: ts.DiagnosticCategory): DiagnosticSeverity {
+export function mapSeverity(
+    category: ts.DiagnosticCategory
+): DiagnosticSeverity {
     switch (category) {
         case ts.DiagnosticCategory.Error:
             return DiagnosticSeverity.Error;
@@ -323,7 +338,10 @@ export function getTsCheckComment(str = ''): string | undefined {
     }
 }
 
-export function convertToTextSpan(range: Range, snapshot: DocumentSnapshot): ts.TextSpan {
+export function convertToTextSpan(
+    range: Range,
+    snapshot: DocumentSnapshot
+): ts.TextSpan {
     const start = snapshot.offsetAt(snapshot.getGeneratedPosition(range.start));
     const end = snapshot.offsetAt(snapshot.getGeneratedPosition(range.end));
 
@@ -333,8 +351,12 @@ export function convertToTextSpan(range: Range, snapshot: DocumentSnapshot): ts.
     };
 }
 
-export function isInScript(position: Position, snapshot: SvelteDocumentSnapshot | Document) {
-    return isInTag(position, snapshot.scriptInfo) || isInTag(position, snapshot.moduleScriptInfo);
+export function isInScript(
+    position: Position,
+    snapshot: SvelteDocumentSnapshot | Document
+) {
+    return isInTag(position, snapshot.scriptInfo) ||
+        isInTag(position, snapshot.moduleScriptInfo);
 }
 
 export function getDiagnosticTag(diagnostic: ts.Diagnostic): DiagnosticTag[] {
@@ -358,7 +380,9 @@ export function isGeneratedSvelteComponentName(className: string) {
     return className.endsWith(COMPONENT_SUFFIX);
 }
 
-export function offsetOfGeneratedComponentExport(snapshot: SvelteDocumentSnapshot) {
+export function offsetOfGeneratedComponentExport(
+    snapshot: SvelteDocumentSnapshot
+) {
     return snapshot.getFullText().lastIndexOf(COMPONENT_SUFFIX);
 }
 
@@ -375,7 +399,8 @@ export function hasTsExtensions(fileName: string) {
 }
 
 export function isSvelte2tsxShimFile(fileName: string | undefined) {
-    return fileName?.endsWith('svelte-shims.d.ts') || fileName?.endsWith('svelte-shims-v4.d.ts');
+    return fileName?.endsWith('svelte-shims.d.ts') ||
+        fileName?.endsWith('svelte-shims-v4.d.ts');
 }
 
 export function cloneRange(range: Range): Range {

@@ -6,7 +6,10 @@ import { createGetCanonicalFileName, GetCanonicalFileName, normalizePath } from 
 import { EventEmitter } from 'events';
 import { FileMap } from '../../lib/documents/fileCollection';
 
-type SnapshotChangeHandler = (fileName: string, newDocument: DocumentSnapshot | undefined) => void;
+type SnapshotChangeHandler = (
+    fileName: string,
+    newDocument: DocumentSnapshot | undefined
+) => void;
 
 /**
  * Every snapshot corresponds to a unique file on disk.
@@ -20,7 +23,9 @@ export class GlobalSnapshotsManager {
 
     constructor(private readonly tsSystem: ts.System) {
         this.documents = new FileMap(tsSystem.useCaseSensitiveFileNames);
-        this.getCanonicalFileName = createGetCanonicalFileName(tsSystem.useCaseSensitiveFileNames);
+        this.getCanonicalFileName = createGetCanonicalFileName(
+            tsSystem.useCaseSensitiveFileNames
+        );
     }
 
     get(fileName: string) {
@@ -62,7 +67,10 @@ export class GlobalSnapshotsManager {
             this.emitter.emit('change', fileName, previousSnapshot);
             return previousSnapshot;
         } else {
-            const newSnapshot = DocumentSnapshot.fromNonSvelteFilePath(fileName, this.tsSystem);
+            const newSnapshot = DocumentSnapshot.fromNonSvelteFilePath(
+                fileName,
+                this.tsSystem
+            );
 
             if (previousSnapshot) {
                 newSnapshot.version = previousSnapshot.version + 1;
@@ -99,7 +107,9 @@ export class SnapshotManager {
 
     private readonly projectFileToOriginalCasing: Map<string, string>;
     private getCanonicalFileName: GetCanonicalFileName;
-    private watchingCanonicalDirectories: Map<string, ts.WatchDirectoryFlags> | undefined;
+    private watchingCanonicalDirectories:
+        | Map<string, ts.WatchDirectoryFlags>
+        | undefined;
 
     private readonly watchExtensions = [
         ts.Extension.Dts,
@@ -129,7 +139,9 @@ export class SnapshotManager {
         this.globalSnapshotsManager.onChange(this.onSnapshotChange);
         this.documents = new FileMap(tsSystem.useCaseSensitiveFileNames);
         this.projectFileToOriginalCasing = new Map();
-        this.getCanonicalFileName = createGetCanonicalFileName(tsSystem.useCaseSensitiveFileNames);
+        this.getCanonicalFileName = createGetCanonicalFileName(
+            tsSystem.useCaseSensitiveFileNames
+        );
 
         projectFiles.forEach((originalCasing) =>
             this.projectFileToOriginalCasing.set(
@@ -146,7 +158,10 @@ export class SnapshotManager {
         );
     }
 
-    private onSnapshotChange(fileName: string, document: DocumentSnapshot | undefined) {
+    private onSnapshotChange(
+        fileName: string,
+        document: DocumentSnapshot | undefined
+    ) {
         // Only delete/update snapshots, don't add new ones,
         // as they could be from another TS service and this
         // snapshot manager can't reach this file.
@@ -154,7 +169,9 @@ export class SnapshotManager {
         // and set them "manually" in the set/update methods.
         if (!document) {
             this.documents.delete(fileName);
-            this.projectFileToOriginalCasing.delete(this.getCanonicalFileName(fileName));
+            this.projectFileToOriginalCasing.delete(
+                this.getCanonicalFileName(fileName)
+            );
         } else if (this.documents.has(fileName)) {
             this.documents.set(fileName, document);
         }
@@ -210,8 +227,14 @@ export class SnapshotManager {
         );
     }
 
-    updateTsOrJsFile(fileName: string, changes?: TextDocumentContentChangeEvent[]): void {
-        const snapshot = this.globalSnapshotsManager.updateTsOrJsFile(fileName, changes);
+    updateTsOrJsFile(
+        fileName: string,
+        changes?: TextDocumentContentChangeEvent[]
+    ): void {
+        const snapshot = this.globalSnapshotsManager.updateTsOrJsFile(
+            fileName,
+            changes
+        );
         // This isn't duplicated logic to the listener, because this could
         // be a new snapshot which the listener wouldn't add.
         if (snapshot) {
@@ -222,7 +245,9 @@ export class SnapshotManager {
     has(fileName: string): boolean {
         fileName = normalizePath(fileName);
         return (
-            this.projectFileToOriginalCasing.has(this.getCanonicalFileName(fileName)) ||
+            this.projectFileToOriginalCasing.has(
+                this.getCanonicalFileName(fileName)
+            ) ||
             this.documents.has(fileName)
         );
     }
@@ -264,7 +289,9 @@ export class SnapshotManager {
 
     isProjectFile(fileName: string): boolean {
         fileName = normalizePath(fileName);
-        return this.projectFileToOriginalCasing.has(this.getCanonicalFileName(fileName));
+        return this.projectFileToOriginalCasing.has(
+            this.getCanonicalFileName(fileName)
+        );
     }
 
     private logStatistics() {
@@ -274,7 +301,10 @@ export class SnapshotManager {
             this.lastLogged = date;
 
             const allFiles = Array.from(
-                new Set([...this.projectFileToOriginalCasing.keys(), ...this.documents.keys()])
+                new Set([
+                    ...this.projectFileToOriginalCasing.keys(),
+                    ...this.documents.keys()
+                ])
             );
             Logger.log(
                 'SnapshotManager File Statistics:\n' +
@@ -292,7 +322,10 @@ export class SnapshotManager {
 
     allFilesAreJsOrDts() {
         for (const doc of this.documents.values()) {
-            if (doc.scriptKind === ts.ScriptKind.TS || doc.scriptKind === ts.ScriptKind.TSX) {
+            if (
+                doc.scriptKind === ts.ScriptKind.TS ||
+                doc.scriptKind === ts.ScriptKind.TSX
+            ) {
                 return false;
             }
         }

@@ -1,11 +1,11 @@
 import * as assert from 'assert';
 import { SveltePlugin } from '../../../src/plugins';
-import { DocumentManager, Document } from '../../../src/lib/documents';
+import { Document, DocumentManager } from '../../../src/lib/documents';
 import {
+    CancellationTokenSource,
     Diagnostic,
-    Range,
     DiagnosticSeverity,
-    CancellationTokenSource
+    Range
 } from 'vscode-languageserver';
 import { LSConfigManager } from '../../../src/ls-config';
 import * as importPackage from '../../../src/importPackage';
@@ -28,12 +28,14 @@ describe('Svelte Plugin', () => {
         pluginManager.updateIsTrusted(trusted);
         pluginManager.updatePrettierConfig(prettierConfig);
         const plugin = new SveltePlugin(pluginManager);
-        docManager.openClientDocument(<any>'some doc');
+        docManager.openClientDocument(<any> 'some doc');
         return { plugin, document };
     }
 
     it('provides diagnostic warnings', async () => {
-        const { plugin, document } = setup('<h1>Hello, world!</h1>\n<img src="hello.png">');
+        const { plugin, document } = setup(
+            '<h1>Hello, world!</h1>\n<img src="hello.png">'
+        );
 
         const diagnostics = await plugin.getDiagnostics(document);
         const diagnostic = Diagnostic.create(
@@ -67,7 +69,9 @@ describe('Svelte Plugin', () => {
     });
 
     it('provides no diagnostic errors when untrusted', async () => {
-        const { plugin, document } = setup('<div bind:whatever></div>', {}, { trusted: false });
+        const { plugin, document } = setup('<div bind:whatever></div>', {}, {
+            trusted: false
+        });
 
         const diagnostics = await plugin.getDiagnostics(document);
 
@@ -78,13 +82,15 @@ describe('Svelte Plugin', () => {
         function stubPrettierV2(config: any) {
             const formatStub = sinon.stub().returns('formatted');
 
-            sinon.stub(importPackage, 'importPrettier').returns(<any>{
-                version: '2.8.0',
-                resolveConfig: () => Promise.resolve(config),
-                getFileInfo: () => ({ ignored: false }),
-                format: formatStub,
-                getSupportInfo: () => ({ languages: [{ name: 'svelte' }] })
-            });
+            sinon.stub(importPackage, 'importPrettier').returns(
+                <any> {
+                    version: '2.8.0',
+                    resolveConfig: () => Promise.resolve(config),
+                    getFileInfo: () => ({ ignored: false }),
+                    format: formatStub,
+                    getSupportInfo: () => ({ languages: [{ name: 'svelte' }] })
+                }
+            );
 
             return formatStub;
         }
@@ -95,7 +101,11 @@ describe('Svelte Plugin', () => {
             options?: Parameters<typeof setup>[2],
             stubPrettier = stubPrettierV2
         ) {
-            const { plugin, document } = setup('unformatted', fallbackPrettierConfig, options);
+            const { plugin, document } = setup(
+                'unformatted',
+                fallbackPrettierConfig,
+                options
+            );
             const formatStub = stubPrettier(config);
 
             const formatted = await plugin.formatDocument(document, {
@@ -126,7 +136,9 @@ describe('Svelte Plugin', () => {
         });
 
         it('should use config for formatting', async () => {
-            const formatStub = await testFormat({ fromConfig: true }, { fallbackConfig: true });
+            const formatStub = await testFormat({ fromConfig: true }, {
+                fallbackConfig: true
+            });
             sinon.assert.calledOnceWithExactly(formatStub, 'unformatted', {
                 fromConfig: true,
                 plugins: [],
@@ -135,7 +147,9 @@ describe('Svelte Plugin', () => {
         });
 
         it('can resolve plugin for formatting', async () => {
-            const documentUri = pathToUrl(join(__dirname, 'testFiles', 'do-not-exist.svelte'));
+            const documentUri = pathToUrl(
+                join(__dirname, 'testFiles', 'do-not-exist.svelte')
+            );
             const formatStub = await testFormat(
                 { fromConfig: true, plugins: ['prettier-plugin-svelte'] },
                 { fallbackConfig: true },
@@ -144,7 +158,9 @@ describe('Svelte Plugin', () => {
             sinon.assert.calledOnceWithExactly(formatStub, 'unformatted', {
                 fromConfig: true,
                 plugins: [
-                    require.resolve('prettier-plugin-svelte', { paths: [urlToPath(documentUri)!] })
+                    require.resolve('prettier-plugin-svelte', {
+                        paths: [urlToPath(documentUri)!]
+                    })
                 ],
                 parser: 'svelte'
             });
@@ -199,13 +215,15 @@ describe('Svelte Plugin', () => {
                 sinon
                     .stub(importPackage, 'importPrettier')
                     .onFirstCall()
-                    .returns(<any>{
-                        version: '2.8.0',
-                        resolveConfig: () => Promise.resolve(config),
-                        getFileInfo: () => ({ ignored: false }),
-                        format: formatStub,
-                        getSupportInfo: () => ({ languages: [{ name: 'svelte' }] })
-                    })
+                    .returns(
+                        <any> {
+                            version: '2.8.0',
+                            resolveConfig: () => Promise.resolve(config),
+                            getFileInfo: () => ({ ignored: false }),
+                            format: formatStub,
+                            getSupportInfo: () => ({ languages: [{ name: 'svelte' }] })
+                        }
+                    )
                     .onSecondCall()
                     .throws(new Error('should not be called'));
 
@@ -222,13 +240,15 @@ describe('Svelte Plugin', () => {
                 sinon
                     .stub(importPackage, 'importPrettier')
                     .onFirstCall()
-                    .returns(<any>{
-                        version: '2.8.0',
-                        resolveConfig: () => Promise.resolve(config),
-                        getFileInfo: () => ({ ignored: false }),
-                        format: formatStub,
-                        getSupportInfo: () => ({ languages: [{ name: 'svelte' }] })
-                    })
+                    .returns(
+                        <any> {
+                            version: '2.8.0',
+                            resolveConfig: () => Promise.resolve(config),
+                            getFileInfo: () => ({ ignored: false }),
+                            format: formatStub,
+                            getSupportInfo: () => ({ languages: [{ name: 'svelte' }] })
+                        }
+                    )
                     .onSecondCall()
                     .throws(new Error('should not be called'));
 
@@ -252,13 +272,15 @@ describe('Svelte Plugin', () => {
                 sinon
                     .stub(importPackage, 'importPrettier')
                     .onFirstCall()
-                    .returns(<any>{
-                        version: '2.0.0',
-                        resolveConfig: () => Promise.resolve(config),
-                        getFileInfo: () => ({ ignored: false }),
-                        format: formatStub,
-                        getSupportInfo: () => Promise.resolve({ languages: [] })
-                    })
+                    .returns(
+                        <any> {
+                            version: '2.0.0',
+                            resolveConfig: () => Promise.resolve(config),
+                            getFileInfo: () => ({ ignored: false }),
+                            format: formatStub,
+                            getSupportInfo: () => Promise.resolve({ languages: [] })
+                        }
+                    )
                     .onSecondCall()
                     .throws(new Error('should not be called'));
 
@@ -281,23 +303,27 @@ describe('Svelte Plugin', () => {
                 sinon
                     .stub(importPackage, 'importPrettier')
                     .onFirstCall()
-                    .returns(<any>{
-                        version: '2.8.0',
-                        resolveConfig: () => Promise.resolve(config),
-                        getFileInfo: () => ({ ignored: false }),
-                        format: () => {
-                            throw new Error('should not be called');
-                        },
-                        getSupportInfo: () => Promise.resolve({ languages: [] })
-                    })
+                    .returns(
+                        <any> {
+                            version: '2.8.0',
+                            resolveConfig: () => Promise.resolve(config),
+                            getFileInfo: () => ({ ignored: false }),
+                            format: () => {
+                                throw new Error('should not be called');
+                            },
+                            getSupportInfo: () => Promise.resolve({ languages: [] })
+                        }
+                    )
                     .onSecondCall()
-                    .returns(<any>{
-                        version: '3.1.0',
-                        resolveConfig: () => Promise.resolve(config),
-                        getFileInfo: () => ({ ignored: false }),
-                        format: formatStub,
-                        getSupportInfo: () => ({ languages: [] })
-                    })
+                    .returns(
+                        <any> {
+                            version: '3.1.0',
+                            resolveConfig: () => Promise.resolve(config),
+                            getFileInfo: () => ({ ignored: false }),
+                            format: formatStub,
+                            getSupportInfo: () => ({ languages: [] })
+                        }
+                    )
                     .onThirdCall()
                     .throws(new Error('should not be called'));
 
@@ -314,23 +340,27 @@ describe('Svelte Plugin', () => {
                 sinon
                     .stub(importPackage, 'importPrettier')
                     .onFirstCall()
-                    .returns(<any>{
-                        version: '2.8.0',
-                        resolveConfig: () => Promise.resolve(config),
-                        getFileInfo: () => ({ ignored: false }),
-                        format: () => {
-                            throw new Error('should not be called');
-                        },
-                        getSupportInfo: () => Promise.resolve({ languages: [] })
-                    })
+                    .returns(
+                        <any> {
+                            version: '2.8.0',
+                            resolveConfig: () => Promise.resolve(config),
+                            getFileInfo: () => ({ ignored: false }),
+                            format: () => {
+                                throw new Error('should not be called');
+                            },
+                            getSupportInfo: () => Promise.resolve({ languages: [] })
+                        }
+                    )
                     .onSecondCall()
-                    .returns(<any>{
-                        version: '3.0.0',
-                        resolveConfig: () => Promise.resolve(config),
-                        getFileInfo: () => ({ ignored: false }),
-                        format: formatStub,
-                        getSupportInfo: () => ({ languages: [] })
-                    })
+                    .returns(
+                        <any> {
+                            version: '3.0.0',
+                            resolveConfig: () => Promise.resolve(config),
+                            getFileInfo: () => ({ ignored: false }),
+                            format: formatStub,
+                            getSupportInfo: () => ({ languages: [] })
+                        }
+                    )
                     .onThirdCall()
                     .throws(new Error('should not be called'));
 

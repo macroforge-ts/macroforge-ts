@@ -17,9 +17,9 @@ import {
 } from '../../utils';
 import { DocumentSnapshot, SvelteDocumentSnapshot } from './DocumentSnapshot';
 import {
+    forAllServices,
     getService,
     getServiceForTsconfig,
-    forAllServices,
     LanguageServiceContainer,
     LanguageServiceDocumentContext
 } from './service';
@@ -87,7 +87,9 @@ export class LSAndTSDocResolver {
             (options?.tsSystem ?? ts.sys).useCaseSensitiveFileNames
         );
 
-        this.tsSystem = this.wrapWithPackageJsonMonitoring(this.options?.tsSystem ?? ts.sys);
+        this.tsSystem = this.wrapWithPackageJsonMonitoring(
+            this.options?.tsSystem ?? ts.sys
+        );
         this.globalSnapshotsManager = new GlobalSnapshotsManager(this.tsSystem);
         // Notify when new snapshots are created so external watchers (svelte-check)
         // can react dynamically (for example: add parent directories to file watchers).
@@ -103,13 +105,16 @@ export class LSAndTSDocResolver {
             });
         }
         this.userPreferencesAccessor = { preferences: this.getTsUserPreferences() };
-        const projectService = createProjectService(this.tsSystem, this.userPreferencesAccessor);
+        const projectService = createProjectService(
+            this.tsSystem,
+            this.userPreferencesAccessor
+        );
 
         configManager.onChange(() => {
             const newPreferences = this.getTsUserPreferences();
-            const autoImportConfigChanged =
-                newPreferences.includePackageJsonAutoImports !==
-                this.userPreferencesAccessor.preferences.includePackageJsonAutoImports;
+            const autoImportConfigChanged = newPreferences.includePackageJsonAutoImports !==
+                this.userPreferencesAccessor.preferences
+                    .includePackageJsonAutoImports;
 
             this.userPreferencesAccessor.preferences = newPreferences;
 
@@ -120,8 +125,12 @@ export class LSAndTSDocResolver {
             }
         });
 
-        this.packageJsonWatchers = new FileMap(this.tsSystem.useCaseSensitiveFileNames);
-        this.watchedDirectories = new FileSet(this.tsSystem.useCaseSensitiveFileNames);
+        this.packageJsonWatchers = new FileMap(
+            this.tsSystem.useCaseSensitiveFileNames
+        );
+        this.watchedDirectories = new FileSet(
+            this.tsSystem.useCaseSensitiveFileNames
+        );
 
         // workspaceUris are already watched during initialization
         for (const root of this.workspaceUris) {
@@ -183,7 +192,8 @@ export class LSAndTSDocResolver {
         userPreferences: ts.UserPreferences;
         lsContainer: LanguageServiceContainer;
     }> {
-        const { tsDoc, lsContainer, userPreferences } = await this.getLSAndTSDocWorker(document);
+        const { tsDoc, lsContainer, userPreferences } = await this
+            .getLSAndTSDocWorker(document);
 
         return {
             tsDoc,
@@ -202,9 +212,14 @@ export class LSAndTSDocResolver {
         lang: ts.LanguageService;
         userPreferences: ts.UserPreferences;
     }> {
-        const { tsDoc, lsContainer, userPreferences } = await this.getLSAndTSDocWorker(document);
+        const { tsDoc, lsContainer, userPreferences } = await this
+            .getLSAndTSDocWorker(document);
 
-        return { tsDoc, userPreferences, lang: lsContainer.getService(/* skipSynchronize */ true) };
+        return {
+            tsDoc,
+            userPreferences,
+            lang: lsContainer.getService(/* skipSynchronize */ true)
+        };
     }
 
     private async getLSAndTSDocWorker(document: Document) {
@@ -220,8 +235,12 @@ export class LSAndTSDocResolver {
      * the ts service it primarily belongs into.
      * The update is mirrored in all other services, too.
      */
-    async getOrCreateSnapshot(document: Document): Promise<SvelteDocumentSnapshot>;
-    async getOrCreateSnapshot(pathOrDoc: string | Document): Promise<DocumentSnapshot>;
+    async getOrCreateSnapshot(
+        document: Document
+    ): Promise<SvelteDocumentSnapshot>;
+    async getOrCreateSnapshot(
+        pathOrDoc: string | Document
+    ): Promise<DocumentSnapshot>;
     async getOrCreateSnapshot(pathOrDoc: string | Document) {
         const filePath = typeof pathOrDoc === 'string' ? pathOrDoc : pathOrDoc.getFilePath() || '';
         const tsService = await this.getTSService(filePath);
@@ -233,7 +252,10 @@ export class LSAndTSDocResolver {
             return;
         }
         // ensure no new service is created
-        await this.updateExistingFile(filePath, (service) => service.updateSnapshot(document));
+        await this.updateExistingFile(
+            filePath,
+            (service) => service.updateSnapshot(document)
+        );
     }
 
     /**
@@ -289,11 +311,17 @@ export class LSAndTSDocResolver {
         path: string,
         changes?: TextDocumentContentChangeEvent[]
     ): Promise<void> {
-        await this.updateExistingFile(path, (service) => service.updateTsOrJsFile(path, changes));
+        await this.updateExistingFile(
+            path,
+            (service) => service.updateTsOrJsFile(path, changes)
+        );
     }
 
     async updateExistingSvelteFile(path: string): Promise<void> {
-        const newDocument = this.createDocument(path, this.tsSystem.readFile(path) ?? '');
+        const newDocument = this.createDocument(
+            path,
+            this.tsSystem.readFile(path) ?? ''
+        );
         await this.updateExistingFile(path, (service) => {
             service.updateSnapshot(newDocument);
         });
@@ -324,7 +352,9 @@ export class LSAndTSDocResolver {
             );
         }
         if (!filePath) {
-            throw new Error('Cannot call getTSService without filePath and without tsconfigPath');
+            throw new Error(
+                'Cannot call getTSService without filePath and without tsconfigPath'
+            );
         }
         return getService(filePath, this.workspaceUris, this.lsDocumentContext);
     }
@@ -333,14 +363,18 @@ export class LSAndTSDocResolver {
         tsconfigPath: string,
         workspacePath: string
     ): Promise<LanguageServiceContainer> {
-        return getServiceForTsconfig(tsconfigPath, workspacePath, this.lsDocumentContext);
+        return getServiceForTsconfig(
+            tsconfigPath,
+            workspacePath,
+            this.lsDocumentContext
+        );
     }
 
     private getUserPreferences(tsDoc: DocumentSnapshot): ts.UserPreferences {
-        const configLang =
-            tsDoc.scriptKind === ts.ScriptKind.TS || tsDoc.scriptKind === ts.ScriptKind.TSX
-                ? 'typescript'
-                : 'javascript';
+        const configLang = tsDoc.scriptKind === ts.ScriptKind.TS ||
+                tsDoc.scriptKind === ts.ScriptKind.TSX
+            ? 'typescript'
+            : 'javascript';
 
         const nearestWorkspaceUri = this.workspaceUris.find((workspaceUri) =>
             isSubPath(workspaceUri, tsDoc.filePath, this.getCanonicalFileName)
@@ -365,7 +399,9 @@ export class LSAndTSDocResolver {
         return {
             ...sys,
             readFile: (path, encoding) => {
-                if (path.endsWith('package.json') && !this.packageJsonWatchers.has(path)) {
+                if (
+                    path.endsWith('package.json') && !this.packageJsonWatchers.has(path)
+                ) {
                     this.packageJsonWatchers.set(
                         path,
                         watchFile(path, this.onPackageJsonWatchChange.bind(this), 3_000)
@@ -377,7 +413,10 @@ export class LSAndTSDocResolver {
         };
     }
 
-    private onPackageJsonWatchChange(path: string, onWatchChange: ts.FileWatcherEventKind) {
+    private onPackageJsonWatchChange(
+        path: string,
+        onWatchChange: ts.FileWatcherEventKind
+    ) {
         const dir = dirname(path);
         const projectService = this.lsDocumentContext.projectService;
         const packageJsonCache = projectService?.packageJsonCache;
@@ -400,8 +439,7 @@ export class LSAndTSDocResolver {
 
         setTimeout(() => {
             this.updateSnapshotsInDirectory(dir);
-            const realPath =
-                this.tsSystem.realpath &&
+            const realPath = this.tsSystem.realpath &&
                 this.getCanonicalFileName(normalizePath(this.tsSystem.realpath?.(dir)));
 
             // pnpm

@@ -1,8 +1,8 @@
 import path, { dirname, isAbsolute, join } from 'path';
 import { existsSync, readdirSync, statSync, writeFileSync } from 'fs';
 import ts from 'typescript';
-import { resolveConfig, format } from 'prettier';
-import { DocumentManager, Document } from '../../../src/lib/documents';
+import { format, resolveConfig } from 'prettier';
+import { Document, DocumentManager } from '../../../src/lib/documents';
 import { FileMap } from '../../../src/lib/documents/fileCollection';
 import { LSConfigManager } from '../../../src/ls-config';
 import { LSAndTSDocResolver } from '../../../src/plugins';
@@ -22,7 +22,9 @@ export function createVirtualTsSystem(currentDirectory: string): ts.System {
     // array behave more similar to the actual fs event than Set
     const watchers = new FileMap<ts.FileWatcherCallback[]>();
     const watchTimeout = new FileMap<Array<ReturnType<typeof setTimeout>>>();
-    const getCanonicalFileName = createGetCanonicalFileName(ts.sys.useCaseSensitiveFileNames);
+    const getCanonicalFileName = createGetCanonicalFileName(
+        ts.sys.useCaseSensitiveFileNames
+    );
     const modifiedTime = new FileMap<Date>();
 
     function toAbsolute(path: string) {
@@ -51,7 +53,9 @@ export function createVirtualTsSystem(currentDirectory: string): ts.System {
             return virtualFs.has(normalizePath(toAbsolute(path)));
         },
         directoryExists(path) {
-            const normalizedPath = getCanonicalFileName(normalizePath(toAbsolute(path)));
+            const normalizedPath = getCanonicalFileName(
+                normalizePath(toAbsolute(path))
+            );
             return Array.from(virtualFs.keys()).some((fileName) =>
                 fileName.startsWith(normalizedPath)
             );
@@ -106,7 +110,9 @@ export function createVirtualTsSystem(currentDirectory: string): ts.System {
                 );
             }
 
-            const normalizedPath = getCanonicalFileName(normalizePath(toAbsolute(path)));
+            const normalizedPath = getCanonicalFileName(
+                normalizePath(toAbsolute(path))
+            );
             return Array.from(virtualFs.keys()).filter((fileName) =>
                 fileName.startsWith(normalizedPath)
             );
@@ -141,7 +147,10 @@ export function createVirtualTsSystem(currentDirectory: string): ts.System {
 }
 
 export function getRandomVirtualDirPath(testDir: string) {
-    return path.join(testDir, `virtual-path-${Math.floor(Math.random() * 100_000)}`);
+    return path.join(
+        testDir,
+        `virtual-path-${Math.floor(Math.random() * 100_000)}`
+    );
 }
 
 interface VirtualEnvironmentOptions {
@@ -173,10 +182,12 @@ export function setupVirtualEnvironment({
 
     const filePath = join(testDir, filename);
     virtualSystem.writeFile(filePath, fileContent);
-    const document = docManager.openClientDocument(<any>{
-        uri: pathToUrl(filePath),
-        text: virtualSystem.readFile(filePath) || ''
-    });
+    const document = docManager.openClientDocument(
+        <any> {
+            uri: pathToUrl(filePath),
+            text: virtualSystem.readFile(filePath) || ''
+        }
+    );
 
     return {
         lsAndTsDocResolver,
@@ -195,7 +206,11 @@ export function createSnapshotTester<
     }
 >(executeTest: (inputFile: string, testOptions: TestOptions) => Promise<void>) {
     return (testOptions: TestOptions) => {
-        serviceWarmup(testOptions.context, testOptions.dir, pathToUrl(testOptions.workspaceDir));
+        serviceWarmup(
+            testOptions.context,
+            testOptions.dir,
+            pathToUrl(testOptions.workspaceDir)
+        );
         executeTests(testOptions);
     };
 
@@ -212,13 +227,15 @@ export function createSnapshotTester<
         }
 
         if (existsSync(inputFile)) {
-            const _it =
-                dir.endsWith('.v5') && !isSvelte5Plus
-                    ? it.skip
-                    : dir.endsWith('.only')
-                      ? it.only
-                      : it;
-            _it(dir.substring(__dirname.length), () => executeTest(inputFile, testOptions));
+            const _it = dir.endsWith('.v5') && !isSvelte5Plus
+                ? it.skip
+                : dir.endsWith('.only')
+                ? it.only
+                : it;
+            _it(
+                dir.substring(__dirname.length),
+                () => executeTest(inputFile, testOptions)
+            );
         } else {
             const _describe = dir.endsWith('.only') ? describe.only : describe;
             _describe(dir.substring(__dirname.length), function () {
@@ -325,7 +342,9 @@ export function serviceWarmup(
         const projectReferences = ls.getResolvedProjectReferences();
 
         if (projectReferences.length) {
-            await Promise.all(projectReferences.map((ref) => warmup(ref.configFilePath)));
+            await Promise.all(
+                projectReferences.map((ref) => warmup(ref.configFilePath))
+            );
         }
 
         console.log(`Service warming up done in ${Date.now() - start}ms`);
@@ -359,7 +378,11 @@ function recursiveServiceWarmupNonRoot(
         }
 
         if (stat.isDirectory()) {
-            recursiveServiceWarmupNonRoot(suite, join(testDir, subDirOrFile), rootUri);
+            recursiveServiceWarmupNonRoot(
+                suite,
+                join(testDir, subDirOrFile),
+                rootUri
+            );
         }
     }
 }

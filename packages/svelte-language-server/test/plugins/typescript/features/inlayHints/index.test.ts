@@ -41,10 +41,12 @@ function setup(workspaceDir: string, filePath: string) {
         configManager
     );
     const plugin = new InlayHintProviderImpl(lsAndTsDocResolver);
-    const document = docManager.openClientDocument(<any>{
-        uri: pathToUrl(filePath),
-        text: ts.sys.readFile(filePath) || ''
-    });
+    const document = docManager.openClientDocument(
+        <any> {
+            uri: pathToUrl(filePath),
+            text: ts.sys.readFile(filePath) || ''
+        }
+    );
     return { plugin, document, docManager, lsAndTsDocResolver };
 }
 
@@ -101,13 +103,19 @@ async function executeTest(
 
             for (const label of inlayHint.label) {
                 if (label.location) {
-                    label.location.uri = label.location.uri.replace(workspaceUri, '<workspaceUri>');
+                    label.location.uri = label.location.uri.replace(
+                        workspaceUri,
+                        '<workspaceUri>'
+                    );
 
-                    const indexOfNodeModules = label.location.uri.lastIndexOf('node_modules');
+                    const indexOfNodeModules = label.location.uri.lastIndexOf(
+                        'node_modules'
+                    );
                     if (indexOfNodeModules !== -1) {
-                        label.location.uri =
-                            '<node_modules>' +
-                            label.location.uri.slice(indexOfNodeModules + 'node_modules'.length);
+                        label.location.uri = '<node_modules>' +
+                            label.location.uri.slice(
+                                indexOfNodeModules + 'node_modules'.length
+                            );
                     }
                 }
             }

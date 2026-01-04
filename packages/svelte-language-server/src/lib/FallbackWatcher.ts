@@ -25,7 +25,8 @@ export class FallbackWatcher {
         const gitOrNodeModules = /\.git|node_modules/;
         const ignoredExtensions = (fileName: string, stats?: Stats) => {
             return (
-                stats?.isFile() === true && !watchExtensions.some((ext) => fileName.endsWith(ext))
+                stats?.isFile() === true &&
+                !watchExtensions.some((ext) => fileName.endsWith(ext))
             );
         };
         this.watcher = watch(workspacePaths, {

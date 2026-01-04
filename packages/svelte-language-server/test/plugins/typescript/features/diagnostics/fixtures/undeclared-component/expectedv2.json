@@ -1,6 +1,9 @@
 [
     {
-        "range": { "start": { "line": 2, "character": 1 }, "end": { "line": 2, "character": 10 } },
+        "range": {
+            "start": { "line": 2, "character": 1 },
+            "end": { "line": 2, "character": 10 }
+        },
         "severity": 1,
         "source": "ts",
         "message": "Cannot find name 'Component'.",
@@ -8,7 +11,10 @@
         "tags": []
     },
     {
-        "range": { "start": { "line": 3, "character": 1 }, "end": { "line": 3, "character": 22 } },
+        "range": {
+            "start": { "line": 3, "character": 1 },
+            "end": { "line": 3, "character": 22 }
+        },
         "severity": 1,
         "source": "ts",
         "message": "Cannot find name 'SomeLongComponentName'.",

@@ -8,14 +8,19 @@ export type SvelteLogicTag = 'each' | 'if' | 'await' | 'key' | 'snippet';
 /**
  * Special svelte syntax tags.
  */
-export type SvelteTag = SvelteLogicTag | 'html' | 'debug' | 'const' | 'render' | 'attach';
+export type SvelteTag =
+    | SvelteLogicTag
+    | 'html'
+    | 'debug'
+    | 'const'
+    | 'render'
+    | 'attach';
 
 /**
  * For each tag, a documentation in markdown format.
  */
 export const documentation = {
-    await:
-        `\`{#await ...}\`\\
+    await: `\`{#await ...}\`\\
 Await blocks allow you to branch on the three possible states of a Promise — pending, ` +
         `fulfilled or rejected.
 #### Usage:
@@ -68,8 +73,7 @@ Renders a snippet with the given parameters.
 \\
 https://svelte.dev/docs/svelte/@render
 `,
-    html:
-        `\`{@html ...}\`\\
+    html: `\`{@html ...}\`\\
 In a text expression, characters like < and > are escaped; however, ` +
         `with HTML expressions, they're not.
 The expression should be valid standalone HTML.
@@ -82,8 +86,7 @@ If the data comes from an untrusted source, you must sanitize it, ` +
 \\
 https://svelte.dev/docs/svelte/@html
 `,
-    debug:
-        `\`{@debug ...}\`\\
+    debug: `\`{@debug ...}\`\\
 Offers an alternative to \`console.log(...)\`.
 It logs the values of specific variables whenever they change, ` +
         `and pauses code execution if you have devtools open.

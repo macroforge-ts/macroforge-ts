@@ -74,11 +74,17 @@ export interface CompletionsProvider<T extends TextDocumentIdentifier = any> {
 }
 
 export interface FormattingProvider {
-    formatDocument(document: Document, options: FormattingOptions): Resolvable<TextEdit[]>;
+    formatDocument(
+        document: Document,
+        options: FormattingOptions
+    ): Resolvable<TextEdit[]>;
 }
 
 export interface TagCompleteProvider {
-    doTagComplete(document: Document, position: Position): Resolvable<string | null>;
+    doTagComplete(
+        document: Document,
+        position: Position
+    ): Resolvable<string | null>;
 }
 
 export interface DocumentColorsProvider {
@@ -101,7 +107,10 @@ export interface DocumentSymbolsProvider {
 }
 
 export interface DefinitionsProvider {
-    getDefinitions(document: Document, position: Position): Resolvable<DefinitionLink[]>;
+    getDefinitions(
+        document: Document,
+        position: Position
+    ): Resolvable<DefinitionLink[]>;
 }
 
 export interface BackwardsCompatibleDefinitionsProvider {
@@ -146,7 +155,10 @@ export interface RenameProvider {
         position: Position,
         newName: string
     ): Resolvable<WorkspaceEdit | null>;
-    prepareRename(document: Document, position: Position): Resolvable<Range | null>;
+    prepareRename(
+        document: Document,
+        position: Position
+    ): Resolvable<Range | null>;
 }
 
 export interface FindReferencesProvider {
@@ -176,11 +188,17 @@ export interface SignatureHelpProvider {
 }
 
 export interface SelectionRangeProvider {
-    getSelectionRange(document: Document, position: Position): Resolvable<SelectionRange | null>;
+    getSelectionRange(
+        document: Document,
+        position: Position
+    ): Resolvable<SelectionRange | null>;
 }
 
 export interface SemanticTokensProvider {
-    getSemanticTokens(textDocument: Document, range?: Range): Resolvable<SemanticTokens | null>;
+    getSemanticTokens(
+        textDocument: Document,
+        range?: Range
+    ): Resolvable<SemanticTokens | null>;
 }
 
 export interface LinkedEditingRangesProvider {
@@ -199,7 +217,10 @@ export interface ImplementationProvider {
 }
 
 export interface TypeDefinitionProvider {
-    getTypeDefinition(document: Document, position: Position): Resolvable<Location[] | null>;
+    getTypeDefinition(
+        document: Document,
+        position: Position
+    ): Resolvable<Location[] | null>;
 }
 
 export interface CallHierarchyProvider {
@@ -264,34 +285,38 @@ export interface OnWatchFileChanges {
 }
 
 export interface UpdateTsOrJsFile {
-    updateTsOrJsFile(fileName: string, changes: TextDocumentContentChangeEvent[]): void;
+    updateTsOrJsFile(
+        fileName: string,
+        changes: TextDocumentContentChangeEvent[]
+    ): void;
 }
 
-type ProviderBase = DiagnosticsProvider &
-    HoverProvider &
-    CompletionsProvider &
-    FormattingProvider &
-    TagCompleteProvider &
-    DocumentColorsProvider &
-    ColorPresentationsProvider &
-    DocumentSymbolsProvider &
-    UpdateImportsProvider &
-    CodeActionsProvider &
-    FindReferencesProvider &
-    FileReferencesProvider &
-    FindComponentReferencesProvider &
-    RenameProvider &
-    SignatureHelpProvider &
-    SemanticTokensProvider &
-    LinkedEditingRangesProvider &
-    ImplementationProvider &
-    TypeDefinitionProvider &
-    InlayHintProvider &
-    CallHierarchyProvider &
-    FoldingRangeProvider &
-    CodeLensProvider &
-    DocumentHighlightProvider &
-    WorkspaceSymbolsProvider;
+type ProviderBase =
+    & DiagnosticsProvider
+    & HoverProvider
+    & CompletionsProvider
+    & FormattingProvider
+    & TagCompleteProvider
+    & DocumentColorsProvider
+    & ColorPresentationsProvider
+    & DocumentSymbolsProvider
+    & UpdateImportsProvider
+    & CodeActionsProvider
+    & FindReferencesProvider
+    & FileReferencesProvider
+    & FindComponentReferencesProvider
+    & RenameProvider
+    & SignatureHelpProvider
+    & SemanticTokensProvider
+    & LinkedEditingRangesProvider
+    & ImplementationProvider
+    & TypeDefinitionProvider
+    & InlayHintProvider
+    & CallHierarchyProvider
+    & FoldingRangeProvider
+    & CodeLensProvider
+    & DocumentHighlightProvider
+    & WorkspaceSymbolsProvider;
 
 export type LSProvider = ProviderBase & BackwardsCompatibleDefinitionsProvider;
 
@@ -307,10 +332,12 @@ export interface LSPProviderConfig {
     definitionLinkSupport: boolean;
 }
 
-export type Plugin = Partial<
-    ProviderBase &
-        DefinitionsProvider &
-        OnWatchFileChanges &
-        SelectionRangeProvider &
-        UpdateTsOrJsFile
-> & { __name: string };
+export type Plugin =
+    & Partial<
+        & ProviderBase
+        & DefinitionsProvider
+        & OnWatchFileChanges
+        & SelectionRangeProvider
+        & UpdateTsOrJsFile
+    >
+    & { __name: string };

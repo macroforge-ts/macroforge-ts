@@ -1,9 +1,9 @@
 import {
     getCSSLanguageService,
-    getSCSSLanguageService,
     getLESSLanguageService,
-    LanguageService,
+    getSCSSLanguageService,
     ICSSDataProvider,
+    LanguageService,
     LanguageServiceOptions
 } from 'vscode-css-languageservice';
 import { pseudoClass } from './features/svelte-selectors';
@@ -49,14 +49,22 @@ export function getLanguage(kind?: string) {
     }
 }
 
-export type CSSLanguageServices = Record<'css' | 'less' | 'scss', LanguageService>;
+export type CSSLanguageServices = Record<
+    'css' | 'less' | 'scss',
+    LanguageService
+>;
 
-export function getLanguageService(langs: CSSLanguageServices, kind?: string): LanguageService {
+export function getLanguageService(
+    langs: CSSLanguageServices,
+    kind?: string
+): LanguageService {
     const lang = getLanguage(kind);
     return langs[lang];
 }
 
-export function createLanguageServices(options?: LanguageServiceOptions): CSSLanguageServices {
+export function createLanguageServices(
+    options?: LanguageServiceOptions
+): CSSLanguageServices {
     const [css, less, scss] = [
         getCSSLanguageService,
         getLESSLanguageService,

@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import * as assert from 'assert';
-import { TextDocumentItem, Range } from 'vscode-languageserver-types';
-import { DocumentManager, Document } from '../../../src/lib/documents';
+import { Range, TextDocumentItem } from 'vscode-languageserver-types';
+import { Document, DocumentManager } from '../../../src/lib/documents';
 
 describe('Document Manager', () => {
     const textDocument: TextDocumentItem = {
@@ -11,8 +11,9 @@ describe('Document Manager', () => {
         text: 'Hello, world!'
     };
 
-    const createTextDocument = (textDocument: Pick<TextDocumentItem, 'uri' | 'text'>) =>
-        new Document(textDocument.uri, textDocument.text);
+    const createTextDocument = (
+        textDocument: Pick<TextDocumentItem, 'uri' | 'text'>
+    ) => new Document(textDocument.uri, textDocument.text);
 
     it('opens documents', () => {
         const createDocument = sinon.spy((_) => new Document('', ''));
@@ -34,7 +35,12 @@ describe('Document Manager', () => {
         manager.updateDocument(textDocument, [{ text: 'New content' }]);
 
         sinon.assert.calledOnce(update);
-        sinon.assert.calledWith(update.firstCall, 'New content', 0, textDocument.text.length);
+        sinon.assert.calledWith(
+            update.firstCall,
+            'New content',
+            0,
+            textDocument.text.length
+        );
     });
 
     it('updates the parts of the document', () => {

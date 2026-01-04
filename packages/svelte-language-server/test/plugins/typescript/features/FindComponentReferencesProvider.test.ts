@@ -35,27 +35,35 @@ describe('FindComponentReferencesProvider', function () {
             [pathToUrl(testDir)],
             lsConfigManager
         );
-        const provider = new FindComponentReferencesProviderImpl(lsAndTsDocResolver);
+        const provider = new FindComponentReferencesProviderImpl(
+            lsAndTsDocResolver
+        );
         const document = openDoc(filename);
         return { provider, document, openDoc, lsConfigManager };
 
         function openDoc(filename: string) {
             const filePath = getFullPath(filename);
-            const doc = docManager.openClientDocument(<any>{
-                uri: pathToUrl(filePath),
-                text: ts.sys.readFile(filePath) || ''
-            });
+            const doc = docManager.openClientDocument(
+                <any> {
+                    uri: pathToUrl(filePath),
+                    text: ts.sys.readFile(filePath) || ''
+                }
+            );
             return doc;
         }
     }
 
     it('finds component references', async () => {
-        const { provider, document, openDoc } = setup('find-component-references-child.svelte');
+        const { provider, document, openDoc } = setup(
+            'find-component-references-child.svelte'
+        );
         //Make known all the associated files
         openDoc('find-component-references-parent.svelte');
         openDoc('find-component-references-parent2.svelte');
 
-        const results = await provider.findComponentReferences(document.uri.toString());
+        const results = await provider.findComponentReferences(
+            document.uri.toString()
+        );
 
         const expected: Location[] = [
             {

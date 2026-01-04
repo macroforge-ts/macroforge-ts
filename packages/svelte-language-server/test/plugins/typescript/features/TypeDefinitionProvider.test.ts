@@ -34,10 +34,12 @@ describe('TypeDefinitionProvider', function () {
         );
         const provider = new TypeDefinitionProviderImpl(lsAndTsDocResolver);
         const filePath = getFullPath(filename);
-        const document = docManager.openClientDocument(<any>{
-            uri: pathToUrl(filePath),
-            text: ts.sys.readFile(filePath) || ''
-        });
+        const document = docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(filePath),
+                text: ts.sys.readFile(filePath) || ''
+            }
+        );
         return { provider, document };
     }
 
@@ -49,21 +51,24 @@ describe('TypeDefinitionProvider', function () {
             character: 15
         });
 
-        assert.deepStrictEqual(typeDefs, <Location[]>[
-            {
-                range: {
-                    start: {
-                        line: 0,
-                        character: 13
+        assert.deepStrictEqual(
+            typeDefs,
+            <Location[]> [
+                {
+                    range: {
+                        start: {
+                            line: 0,
+                            character: 13
+                        },
+                        end: {
+                            line: 0,
+                            character: 30
+                        }
                     },
-                    end: {
-                        line: 0,
-                        character: 30
-                    }
-                },
-                uri: getUri('some-class.ts')
-            }
-        ]);
+                    uri: getUri('some-class.ts')
+                }
+            ]
+        );
     });
 
     it('find type definition in same Svelte file', async () => {
@@ -74,35 +79,44 @@ describe('TypeDefinitionProvider', function () {
             character: 20
         });
 
-        assert.deepStrictEqual(typeDefs, <Location[]>[
-            {
-                range: {
-                    start: {
-                        line: 3,
-                        character: 10
+        assert.deepStrictEqual(
+            typeDefs,
+            <Location[]> [
+                {
+                    range: {
+                        start: {
+                            line: 3,
+                            character: 10
+                        },
+                        end: {
+                            line: 3,
+                            character: 19
+                        }
                     },
-                    end: {
-                        line: 3,
-                        character: 19
-                    }
-                },
-                uri: getUri('typedefinition.svelte')
-            }
-        ]);
+                    uri: getUri('typedefinition.svelte')
+                }
+            ]
+        );
     });
 
     it('map definition of dts with declarationMap to source ', async () => {
         const { provider, document } = setup('../declaration-map/importing.svelte');
 
-        const typeDefs = await provider.getTypeDefinition(document, { line: 1, character: 13 });
-        assert.deepStrictEqual(typeDefs, <Location[]>[
-            {
-                range: {
-                    end: { line: 0, character: 18 },
-                    start: { line: 0, character: 16 }
-                },
-                uri: getUri('../declaration-map/declaration-map-project/index.ts')
-            }
-        ]);
+        const typeDefs = await provider.getTypeDefinition(document, {
+            line: 1,
+            character: 13
+        });
+        assert.deepStrictEqual(
+            typeDefs,
+            <Location[]> [
+                {
+                    range: {
+                        end: { line: 0, character: 18 },
+                        start: { line: 0, character: 16 }
+                    },
+                    uri: getUri('../declaration-map/declaration-map-project/index.ts')
+                }
+            ]
+        );
     });
 });

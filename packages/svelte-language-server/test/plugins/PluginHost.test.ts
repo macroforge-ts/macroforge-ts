@@ -10,9 +10,9 @@ import {
     SymbolKind,
     TextDocumentItem
 } from 'vscode-languageserver-types';
-import { DocumentManager, Document } from '../../src/lib/documents';
+import { Document, DocumentManager } from '../../src/lib/documents';
 import { LSPProviderConfig, PluginHost } from '../../src/plugins';
-import { CompletionTriggerKind, CancellationToken } from 'vscode-languageserver';
+import { CancellationToken, CompletionTriggerKind } from 'vscode-languageserver';
 import assert from 'assert';
 
 describe('PluginHost', () => {
@@ -102,10 +102,13 @@ describe('PluginHost', () => {
                 {
                     getCompletions: sinon.stub().returns({
                         isIncomplete: true,
-                        items: <CompletionItem[]>[{ label: 'Hello' }, { label: 'foo' }]
+                        items: <CompletionItem[]> [{ label: 'Hello' }, { label: 'foo' }]
                     })
                 },
-                { definitionLinkSupport: true, filterIncompleteCompletions: filterServerSide }
+                {
+                    definitionLinkSupport: true,
+                    filterIncompleteCompletions: filterServerSide
+                }
             );
             docManager.openClientDocument(textDocument);
             return pluginHost;
@@ -118,10 +121,13 @@ describe('PluginHost', () => {
                 Position.create(0, 2)
             );
 
-            assert.deepStrictEqual(completions.items, <CompletionItem[]>[
-                { label: 'Hello' },
-                { label: 'foo' }
-            ]);
+            assert.deepStrictEqual(
+                completions.items,
+                <CompletionItem[]> [
+                    { label: 'Hello' },
+                    { label: 'foo' }
+                ]
+            );
         });
 
         it('filters server side', async () => {
@@ -131,7 +137,10 @@ describe('PluginHost', () => {
                 Position.create(0, 2)
             );
 
-            assert.deepStrictEqual(completions.items, <CompletionItem[]>[{ label: 'Hello' }]);
+            assert.deepStrictEqual(
+                completions.items,
+                <CompletionItem[]> [{ label: 'Hello' }]
+            );
         });
     });
 
@@ -140,8 +149,11 @@ describe('PluginHost', () => {
             const { pluginHost, docManager } = setup(
                 {
                     getDefinitions: sinon.stub().returns([
-                        <LocationLink>{
-                            targetRange: Range.create(Position.create(0, 0), Position.create(0, 2)),
+                        <LocationLink> {
+                            targetRange: Range.create(
+                                Position.create(0, 0),
+                                Position.create(0, 2)
+                            ),
                             targetSelectionRange: Range.create(
                                 Position.create(0, 0),
                                 Position.create(0, 1)
@@ -150,7 +162,10 @@ describe('PluginHost', () => {
                         }
                     ])
                 },
-                { definitionLinkSupport: linkSupport, filterIncompleteCompletions: false }
+                {
+                    definitionLinkSupport: linkSupport,
+                    filterIncompleteCompletions: false
+                }
             );
             docManager.openClientDocument(textDocument);
             return pluginHost;
@@ -164,8 +179,11 @@ describe('PluginHost', () => {
             );
 
             assert.deepStrictEqual(definitions, [
-                <LocationLink>{
-                    targetRange: Range.create(Position.create(0, 0), Position.create(0, 2)),
+                <LocationLink> {
+                    targetRange: Range.create(
+                        Position.create(0, 0),
+                        Position.create(0, 2)
+                    ),
                     targetSelectionRange: Range.create(
                         Position.create(0, 0),
                         Position.create(0, 1)
@@ -183,7 +201,7 @@ describe('PluginHost', () => {
             );
 
             assert.deepStrictEqual(definitions, [
-                <Location>{
+                <Location> {
                     range: Range.create(Position.create(0, 0), Position.create(0, 1)),
                     uri: 'uri'
                 }
@@ -261,8 +279,14 @@ describe('PluginHost', () => {
 
             // Check nested child (localVar inside myMethod)
             assert.strictEqual(result[0].children![0].children![0].name, 'localVar');
-            assert.strictEqual(result[0].children![0].children![0].kind, SymbolKind.Variable);
-            assert.strictEqual(result[0].children![0].children![0].children?.length, 0);
+            assert.strictEqual(
+                result[0].children![0].children![0].kind,
+                SymbolKind.Variable
+            );
+            assert.strictEqual(
+                result[0].children![0].children![0].children?.length,
+                0
+            );
 
             // Check second child of MyClass
             assert.strictEqual(result[0].children![1].name, 'anotherMethod');

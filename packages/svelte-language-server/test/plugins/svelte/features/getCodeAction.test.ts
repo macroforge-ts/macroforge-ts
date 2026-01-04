@@ -35,7 +35,10 @@ describe('SveltePlugin#getCodeAction', () => {
         return pathToUrl(getFullPath(filename));
     }
 
-    async function expectCodeActionFor(filename: string, context: CodeActionContext) {
+    async function expectCodeActionFor(
+        filename: string,
+        context: CodeActionContext
+    ) {
         const filePath = path.join(testDir, filename);
         const document = new Document(
             pathToUrl(filePath),
@@ -159,7 +162,8 @@ describe('SveltePlugin#getCodeAction', () => {
                             {
                                 edits: [
                                     {
-                                        newText: `<!-- svelte-ignore security-anchor-rel-noreferrer -->${EOL}`,
+                                        newText:
+                                            `<!-- svelte-ignore security-anchor-rel-noreferrer -->${EOL}`,
                                         range: {
                                             end: {
                                                 character: 0,
@@ -241,7 +245,8 @@ describe('SveltePlugin#getCodeAction', () => {
                             {
                                 edits: [
                                     {
-                                        newText: `<!-- svelte-ignore security-anchor-rel-noreferrer -->${EOL}`,
+                                        newText:
+                                            `<!-- svelte-ignore security-anchor-rel-noreferrer -->${EOL}`,
                                         range: {
                                             end: {
                                                 character: 0,
@@ -294,7 +299,8 @@ describe('SveltePlugin#getCodeAction', () => {
                             {
                                 edits: [
                                     {
-                                        newText: `<!-- svelte-ignore a11y-missing-attribute -->${EOL}`,
+                                        newText:
+                                            `<!-- svelte-ignore a11y-missing-attribute -->${EOL}`,
                                         range: {
                                             end: {
                                                 character: 0,
@@ -343,9 +349,11 @@ describe('SveltePlugin#getCodeAction', () => {
                             {
                                 edits: [
                                     {
-                                        newText: `${' '.repeat(
-                                            4
-                                        )}<!-- svelte-ignore a11y-missing-attribute -->${EOL}`,
+                                        newText: `${
+                                            ' '.repeat(
+                                                4
+                                            )
+                                        }<!-- svelte-ignore a11y-missing-attribute -->${EOL}`,
                                         range: {
                                             end: {
                                                 character: 0,
@@ -394,9 +402,11 @@ describe('SveltePlugin#getCodeAction', () => {
                             {
                                 edits: [
                                     {
-                                        newText: `${' '.repeat(
-                                            4
-                                        )}<!-- svelte-ignore a11y-invalid-attribute -->${EOL}`,
+                                        newText: `${
+                                            ' '.repeat(
+                                                4
+                                            )
+                                        }<!-- svelte-ignore a11y-invalid-attribute -->${EOL}`,
                                         range: {
                                             end: {
                                                 character: 0,
@@ -445,7 +455,8 @@ describe('SveltePlugin#getCodeAction', () => {
                             {
                                 edits: [
                                     {
-                                        newText: `\t// svelte-ignore state_referenced_locally${EOL}\t`,
+                                        newText:
+                                            `\t// svelte-ignore state_referenced_locally${EOL}\t`,
                                         range: {
                                             end: {
                                                 character: 0,
@@ -498,7 +509,8 @@ describe('SveltePlugin#getCodeAction', () => {
                             {
                                 edits: [
                                     {
-                                        newText: `<!-- svelte-ignore a11y-missing-attribute -->${EOL}`,
+                                        newText:
+                                            `<!-- svelte-ignore a11y-missing-attribute -->${EOL}`,
                                         range: {
                                             end: {
                                                 character: 0,
@@ -547,9 +559,11 @@ describe('SveltePlugin#getCodeAction', () => {
                             {
                                 edits: [
                                     {
-                                        newText: `${' '.repeat(
-                                            4
-                                        )}<!-- svelte-ignore a11y-missing-attribute -->${EOL}`,
+                                        newText: `${
+                                            ' '.repeat(
+                                                4
+                                            )
+                                        }<!-- svelte-ignore a11y-missing-attribute -->${EOL}`,
                                         range: {
                                             end: {
                                                 character: 0,
@@ -598,9 +612,11 @@ describe('SveltePlugin#getCodeAction', () => {
                             {
                                 edits: [
                                     {
-                                        newText: `${' '.repeat(
-                                            4
-                                        )}<!-- svelte-ignore a11y-invalid-attribute -->${EOL}`,
+                                        newText: `${
+                                            ' '.repeat(
+                                                4
+                                            )
+                                        }<!-- svelte-ignore a11y-invalid-attribute -->${EOL}`,
                                         range: {
                                             end: {
                                                 character: 0,
@@ -643,7 +659,7 @@ describe('SveltePlugin#getCodeAction', () => {
         async function extractComponent(filePath: string, range: Range) {
             return executeRefactoringCommand(doc, extractComponentCommand, [
                 '',
-                <ExtractComponentArgs>{
+                <ExtractComponentArgs> {
                     filePath,
                     range,
                     uri: ''
@@ -656,33 +672,36 @@ describe('SveltePlugin#getCodeAction', () => {
         ) {
             const range = Range.create(Position.create(5, 8), Position.create(5, 25));
             const result = await extractComponent(path, range);
-            assert.deepStrictEqual(result, <WorkspaceEdit>{
-                documentChanges: [
-                    TextDocumentEdit.create(
-                        OptionalVersionedTextDocumentIdentifier.create('someUrl', null),
-                        [
-                            TextEdit.replace(range, '<NewComp></NewComp>'),
-                            TextEdit.insert(
-                                doc.script?.startPos || Position.create(0, 0),
-                                "\n  import NewComp from './NewComp.svelte';\n"
-                            )
-                        ]
-                    ),
-                    CreateFile.create('file:///NewComp.svelte', { overwrite: true }),
-                    TextDocumentEdit.create(
-                        OptionalVersionedTextDocumentIdentifier.create(
-                            'file:///NewComp.svelte',
-                            null
+            assert.deepStrictEqual(
+                result,
+                <WorkspaceEdit> {
+                    documentChanges: [
+                        TextDocumentEdit.create(
+                            OptionalVersionedTextDocumentIdentifier.create('someUrl', null),
+                            [
+                                TextEdit.replace(range, '<NewComp></NewComp>'),
+                                TextEdit.insert(
+                                    doc.script?.startPos || Position.create(0, 0),
+                                    "\n  import NewComp from './NewComp.svelte';\n"
+                                )
+                            ]
                         ),
-                        [
-                            TextEdit.insert(
-                                Position.create(0, 0),
-                                `${scriptContent}\n\n<p>extract me</p>\n\n${styleContent}\n\n`
-                            )
-                        ]
-                    )
-                ]
-            });
+                        CreateFile.create('file:///NewComp.svelte', { overwrite: true }),
+                        TextDocumentEdit.create(
+                            OptionalVersionedTextDocumentIdentifier.create(
+                                'file:///NewComp.svelte',
+                                null
+                            ),
+                            [
+                                TextEdit.insert(
+                                    Position.create(0, 0),
+                                    `${scriptContent}\n\n<p>extract me</p>\n\n${styleContent}\n\n`
+                                )
+                            ]
+                        )
+                    ]
+                }
+            );
         }
 
         it('should extract component (no .svelte at the end)', async () => {
@@ -718,46 +737,59 @@ describe('SveltePlugin#getCodeAction', () => {
             </style>`;
             const existingFileUri = pathToUrl('C:/path/File.svelte');
             const doc = new SvelteDocument(new Document(existingFileUri, content));
-            const range = Range.create(Position.create(4, 12), Position.create(4, 21));
-            const result = await executeRefactoringCommand(doc, extractComponentCommand, [
-                '',
-                <ExtractComponentArgs>{
-                    filePath: '../NewComp',
-                    range,
-                    uri: ''
-                }
-            ]);
+            const range = Range.create(
+                Position.create(4, 12),
+                Position.create(4, 21)
+            );
+            const result = await executeRefactoringCommand(
+                doc,
+                extractComponentCommand,
+                [
+                    '',
+                    <ExtractComponentArgs> {
+                        filePath: '../NewComp',
+                        range,
+                        uri: ''
+                    }
+                ]
+            );
 
             const newFileUri = pathToUrl('C:/NewComp.svelte');
-            assert.deepStrictEqual(result, <WorkspaceEdit>{
-                documentChanges: [
-                    TextDocumentEdit.create(
-                        OptionalVersionedTextDocumentIdentifier.create(existingFileUri, null),
-                        [
-                            TextEdit.replace(range, '<NewComp></NewComp>'),
-                            TextEdit.insert(
-                                doc.script?.startPos || Position.create(0, 0),
-                                "\n  import NewComp from '../NewComp.svelte';\n"
-                            )
-                        ]
-                    ),
-                    CreateFile.create(newFileUri, { overwrite: true }),
-                    TextDocumentEdit.create(
-                        OptionalVersionedTextDocumentIdentifier.create(newFileUri, null),
-                        [
-                            TextEdit.insert(
-                                Position.create(0, 0),
-                                `<script>
+            assert.deepStrictEqual(
+                result,
+                <WorkspaceEdit> {
+                    documentChanges: [
+                        TextDocumentEdit.create(
+                            OptionalVersionedTextDocumentIdentifier.create(
+                                existingFileUri,
+                                null
+                            ),
+                            [
+                                TextEdit.replace(range, '<NewComp></NewComp>'),
+                                TextEdit.insert(
+                                    doc.script?.startPos || Position.create(0, 0),
+                                    "\n  import NewComp from '../NewComp.svelte';\n"
+                                )
+                            ]
+                        ),
+                        CreateFile.create(newFileUri, { overwrite: true }),
+                        TextDocumentEdit.create(
+                            OptionalVersionedTextDocumentIdentifier.create(newFileUri, null),
+                            [
+                                TextEdit.insert(
+                                    Position.create(0, 0),
+                                    `<script>
             import OtherComponent from './path/OtherComponent.svelte';
             import {test} from './test';
             </script>\n\ntoExtract\n\n<style>
             @import './path/style.css';
             </style>\n\n`
-                            )
-                        ]
-                    )
-                ]
-            });
+                                )
+                            ]
+                        )
+                    ]
+                }
+            );
         });
     });
 });

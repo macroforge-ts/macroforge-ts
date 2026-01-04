@@ -43,7 +43,10 @@ const NO_GENERATE: CompileOptions = {
  * that TypeScript does not transpile `import()`.
  * https://github.com/microsoft/TypeScript/issues/43329
  */
-const _dynamicImport = new Function('modulePath', 'return import(modulePath)') as (
+const _dynamicImport = new Function(
+    'modulePath',
+    'return import(modulePath)'
+) as (
     modulePath: URL
 ) => Promise<any>;
 
@@ -90,7 +93,8 @@ export class ConfigLoader {
                 .withPathSeparator('/')
                 .exclude((_, path) => {
                     // no / at the start, path could start with node_modules
-                    return path.includes('node_modules/') || path.includes('/.') || path[0] === '.';
+                    return path.includes('node_modules/') || path.includes('/.') ||
+                        path[0] === '.';
                 })
                 .filter((path, isDir) => {
                     return !isDir && configRegex.test(path);
@@ -99,8 +103,8 @@ export class ConfigLoader {
                 .crawl(directory)
                 .sync();
 
-            const someConfigIsImmediateFileInDirectory =
-                pathResults.length > 0 && pathResults.some((res) => !this.path.dirname(res));
+            const someConfigIsImmediateFileInDirectory = pathResults.length > 0 &&
+                pathResults.some((res) => !this.path.dirname(res));
             if (!someConfigIsImmediateFileInDirectory) {
                 const configPathUpwards = this.searchConfigPathUpwards(directory);
                 if (configPathUpwards) {
@@ -142,8 +146,8 @@ export class ConfigLoader {
                 const path = this.path.join(currentDir, `svelte.config.${ending}`);
                 return this.fs.existsSync(path) ? path : undefined;
             };
-            const configPath =
-                tryFindConfigPath('js') || tryFindConfigPath('cjs') || tryFindConfigPath('mjs');
+            const configPath = tryFindConfigPath('js') || tryFindConfigPath('cjs') ||
+                tryFindConfigPath('mjs');
             if (configPath) {
                 return configPath;
             }
@@ -219,8 +223,7 @@ export class ConfigLoader {
         let nextDir = this.path.dirname(file);
         while (currentDir !== nextDir) {
             currentDir = nextDir;
-            const config =
-                this.tryGetConfig(file, currentDir, 'js') ||
+            const config = this.tryGetConfig(file, currentDir, 'js') ||
                 this.tryGetConfig(file, currentDir, 'cjs') ||
                 this.tryGetConfig(file, currentDir, 'mjs');
             if (config) {
@@ -249,8 +252,15 @@ export class ConfigLoader {
         return this.getConfig(file);
     }
 
-    private tryGetConfig(file: string, fromDirectory: string, configFileEnding: string) {
-        const path = this.path.join(fromDirectory, `svelte.config.${configFileEnding}`);
+    private tryGetConfig(
+        file: string,
+        fromDirectory: string,
+        configFileEnding: string
+    ) {
+        const path = this.path.join(
+            fromDirectory,
+            `svelte.config.${configFileEnding}`
+        );
         const config = this.configFiles.get(path);
         if (config) {
             this.filePathToConfigPath.set(file, path);
@@ -258,7 +268,10 @@ export class ConfigLoader {
         }
     }
 
-    private useFallbackPreprocessor(path: string, foundConfig: boolean): SvelteConfig {
+    private useFallbackPreprocessor(
+        path: string,
+        foundConfig: boolean
+    ): SvelteConfig {
         try {
             const sveltePreprocess = importSveltePreprocess(path);
             Logger.log(

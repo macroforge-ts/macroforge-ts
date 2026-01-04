@@ -1,4 +1,4 @@
-import { dirname, basename } from 'path';
+import { basename, dirname } from 'path';
 import ts from 'typescript';
 import {
     DiagnosticSeverity,
@@ -47,7 +47,10 @@ export interface LanguageServiceContainer {
     invalidateModuleCache(filePath: string[]): void;
     scheduleProjectFileUpdate(watcherNewFiles: string[]): void;
     ensureProjectFileUpdates(newFile?: string): void;
-    updateTsOrJsFile(fileName: string, changes?: TextDocumentContentChangeEvent[]): void;
+    updateTsOrJsFile(
+        fileName: string,
+        changes?: TextDocumentContentChangeEvent[]
+    ): void;
     /**
      * Checks if a file is present in the project.
      * Unlike `fileBelongsToProject`, this doesn't run a file search on disk.
@@ -148,7 +151,9 @@ export interface LanguageServiceDocumentContext {
     notifyExceedSizeLimit: (() => void) | undefined;
     extendedConfigCache: Map<string, ts.ExtendedConfigCacheEntry>;
     onProjectReloaded: ((configFileNames: string[]) => void) | undefined;
-    reportConfigError: ((diagnostics: PublishDiagnosticsParams) => void) | undefined;
+    reportConfigError:
+        | ((diagnostics: PublishDiagnosticsParams) => void)
+        | undefined;
     watchTsConfig: boolean;
     tsSystem: ts.System;
     projectService: ProjectService | undefined;
@@ -172,9 +177,13 @@ export async function getService(
         );
     };
 
-    let tsconfigPath =
-        configFileForOpenFiles.get(path) ??
-        findTsConfigPath(path, workspaceUris, fileExistsWithCache, getCanonicalFileName);
+    let tsconfigPath = configFileForOpenFiles.get(path) ??
+        findTsConfigPath(
+            path,
+            workspaceUris,
+            fileExistsWithCache,
+            getCanonicalFileName
+        );
 
     if (tsconfigPath) {
         /**
@@ -188,7 +197,10 @@ export async function getService(
         }
 
         // First try to find a service whose includes config matches our file
-        const defaultService = await findDefaultServiceForFile(service, triedTsConfig);
+        const defaultService = await findDefaultServiceForFile(
+            service,
+            triedTsConfig
+        );
         if (defaultService) {
             configFileForOpenFiles.set(path, defaultService.tsconfigPath);
             return defaultService;
@@ -208,16 +220,19 @@ export async function getService(
     }
 
     // Find closer boundary: workspace uri or node_modules
-    const nearestWorkspaceUri = getNearestWorkspaceUri(workspaceUris, path, getCanonicalFileName);
+    const nearestWorkspaceUri = getNearestWorkspaceUri(
+        workspaceUris,
+        path,
+        getCanonicalFileName
+    );
     const lastNodeModulesIdx = path.split('/').lastIndexOf('node_modules') + 2;
-    const nearestNodeModulesBoundary =
-        lastNodeModulesIdx === 1
-            ? undefined
-            : path.split('/').slice(0, lastNodeModulesIdx).join('/');
-    const nearestBoundary =
-        (nearestNodeModulesBoundary?.length ?? 0) > (nearestWorkspaceUri?.length ?? 0)
-            ? nearestNodeModulesBoundary
-            : nearestWorkspaceUri;
+    const nearestNodeModulesBoundary = lastNodeModulesIdx === 1
+        ? undefined
+        : path.split('/').slice(0, lastNodeModulesIdx).join('/');
+    const nearestBoundary = (nearestNodeModulesBoundary?.length ?? 0) >
+            (nearestWorkspaceUri?.length ?? 0)
+        ? nearestNodeModulesBoundary
+        : nearestWorkspaceUri;
 
     return getServiceForTsconfig(
         tsconfigPath,
@@ -227,7 +242,11 @@ export async function getService(
     );
 
     function getConfiguredService(tsconfigPath: string) {
-        return getServiceForTsconfig(tsconfigPath, dirname(tsconfigPath), docContext);
+        return getServiceForTsconfig(
+            tsconfigPath,
+            dirname(tsconfigPath),
+            docContext
+        );
     }
 
     async function findDefaultServiceForFile(
@@ -270,7 +289,10 @@ export async function getService(
 
         for (const ref of possibleSubPaths) {
             const subService = await getConfiguredService(ref);
-            const defaultService = await findDefaultServiceForFile(subService, triedTsConfig);
+            const defaultService = await findDefaultServiceForFile(
+                subService,
+                triedTsConfig
+            );
             if (defaultService) {
                 return defaultService;
             }
@@ -287,7 +309,9 @@ export async function forAllServices(
     pendingForAllServices.delete(promise);
 }
 
-async function forAllServicesWorker(cb: (service: LanguageServiceContainer) => any): Promise<void> {
+async function forAllServicesWorker(
+    cb: (service: LanguageServiceContainer) => any
+): Promise<void> {
     for (const service of services.values()) {
         cb(await service);
     }
@@ -312,14 +336,22 @@ export async function getServiceForTsconfig(
 
     if (reloading || !services.has(tsconfigPathOrWorkspacePath)) {
         if (reloading) {
-            Logger.log('Reloading ts service at ', tsconfigPath, ' due to config updated');
+            Logger.log(
+                'Reloading ts service at ',
+                tsconfigPath,
+                ' due to config updated'
+            );
             parsedTsConfigInfo.delete(tsconfigPath);
         } else {
             Logger.log('Initialize new ts service at ', tsconfigPath);
         }
 
         pendingReloads.delete(tsconfigPath);
-        const newService = createLanguageService(tsconfigPath, workspacePath, docContext);
+        const newService = createLanguageService(
+            tsconfigPath,
+            workspacePath,
+            docContext
+        );
         services.set(tsconfigPathOrWorkspacePath, newService);
         service = await newService;
     } else {
@@ -344,12 +376,12 @@ async function createLanguageService(
     const projectConfig = getParsedConfig();
     Logger.log('createLanguageService: parsed config');
     const { options: compilerOptions, raw, errors: configErrors } = projectConfig;
-    const macroforgePluginSettings =
-        raw?.compilerOptions?.plugins?.find(
-            (plugin: { name?: string }) => plugin?.name === TS_MACROS_PLUGIN_NAME
-        ) ?? {};
+    const macroforgePluginSettings = raw?.compilerOptions?.plugins?.find(
+        (plugin: { name?: string }) => plugin?.name === TS_MACROS_PLUGIN_NAME
+    ) ?? {};
     const macroforgeConfig: MacroforgeAugmentationConfig = createMacroforgeAugmentationConfig(
-        macroforgePluginSettings && Object.keys(macroforgePluginSettings).length > 0
+        macroforgePluginSettings &&
+            Object.keys(macroforgePluginSettings).length > 0
             ? macroforgePluginSettings
             : (raw as Record<string, unknown>)?.['typescript-plugin']
     );
@@ -358,9 +390,13 @@ async function createLanguageService(
         tsconfigPath ? dirname(tsconfigPath) : workspacePath || process.cwd()
     );
     const allowJs = compilerOptions.allowJs ?? !!compilerOptions.checkJs;
-    const virtualDocuments = new FileMap<Document>(tsSystem.useCaseSensitiveFileNames);
+    const virtualDocuments = new FileMap<Document>(
+        tsSystem.useCaseSensitiveFileNames
+    );
 
-    const getCanonicalFileName = createGetCanonicalFileName(tsSystem.useCaseSensitiveFileNames);
+    const getCanonicalFileName = createGetCanonicalFileName(
+        tsSystem.useCaseSensitiveFileNames
+    );
     watchWildCardDirectories(projectConfig);
 
     Logger.log('createLanguageService: creating snapshot manager');
@@ -392,14 +428,16 @@ async function createLanguageService(
         // Fall back to dirname
         svelteTsPath = __dirname;
     }
-    const sveltePackageInfo = getPackageInfo('svelte', tsconfigPath || workspacePath);
+    const sveltePackageInfo = getPackageInfo(
+        'svelte',
+        tsconfigPath || workspacePath
+    );
     // Svelte 4 has some fixes with regards to parsing the generics attribute.
     // Svelte 5 has new features, but we don't want to add the new compiler into language-tools. In the future it's probably
     // best to shift more and more of this into user's node_modules for better handling of multiple Svelte versions.
-    const svelteCompiler =
-        sveltePackageInfo.version.major >= 4
-            ? importSvelte(tsconfigPath || workspacePath)
-            : undefined;
+    const svelteCompiler = sveltePackageInfo.version.major >= 4
+        ? importSvelte(tsconfigPath || workspacePath)
+        : undefined;
 
     const changedFilesForExportCache = new Set<string>();
     const svelteTsxFilesToOriginalCasing = getSvelteShimFiles();
@@ -529,8 +567,7 @@ async function createLanguageService(
             }
             patterns.push({
                 baseUri: pathToUrl(dir),
-                pattern:
-                    (flags & ts.WatchDirectoryFlags.Recursive ? `**/` : '') +
+                pattern: (flags & ts.WatchDirectoryFlags.Recursive ? `**/` : '') +
                     docContext.nonRecursiveWatchPattern
             });
         });
@@ -564,7 +601,9 @@ async function createLanguageService(
         }
     }
 
-    function updateSnapshot(documentOrFilePath: Document | string): DocumentSnapshot {
+    function updateSnapshot(
+        documentOrFilePath: Document | string
+    ): DocumentSnapshot {
         return typeof documentOrFilePath === 'string'
             ? updateSnapshotFromFilePath(documentOrFilePath)
             : updateSnapshotFromDocument(documentOrFilePath);
@@ -623,7 +662,8 @@ async function createLanguageService(
     function getSnapshotIfExists(fileName: string): DocumentSnapshot | undefined {
         const svelteFileName = ensureRealSvelteFilePath(fileName);
 
-        let doc = snapshotManager.get(fileName) ?? snapshotManager.get(svelteFileName);
+        let doc = snapshotManager.get(fileName) ??
+            snapshotManager.get(svelteFileName);
         if (doc) {
             return doc;
         }
@@ -642,7 +682,8 @@ async function createLanguageService(
     function getSnapshot(fileName: string): DocumentSnapshot {
         const svelteFileName = ensureRealSvelteFilePath(fileName);
 
-        let doc = snapshotManager.get(fileName) ?? snapshotManager.get(svelteFileName);
+        let doc = snapshotManager.get(fileName) ??
+            snapshotManager.get(svelteFileName);
         if (doc) {
             return doc;
         }
@@ -722,14 +763,16 @@ async function createLanguageService(
         const projectFiles = languageServiceReducedMode
             ? []
             : snapshotManager.getProjectFileNames();
-        const canonicalProjectFileNames = new Set(projectFiles.map(getCanonicalFileName));
+        const canonicalProjectFileNames = new Set(
+            projectFiles.map(getCanonicalFileName)
+        );
 
         // We only assign project files (i.e. those found through includes config) and virtual files to getScriptFileNames.
         // We don't to include other client files otherwise they stay in the program and are never removed
         const clientFiles = tsconfigPath
             ? Array.from(virtualDocuments.values())
-                  .map((v) => v.getFilePath())
-                  .filter(isNotNullOrUndefined)
+                .map((v) => v.getFilePath())
+                .filter(isNotNullOrUndefined)
             : snapshotManager.getClientFileNames();
 
         return Array.from(
@@ -764,7 +807,10 @@ async function createLanguageService(
         return snapshotManager.isProjectFile(filePath);
     }
 
-    function updateTsOrJsFile(fileName: string, changes?: TextDocumentContentChangeEvent[]): void {
+    function updateTsOrJsFile(
+        fileName: string,
+        changes?: TextDocumentContentChangeEvent[]
+    ): void {
         if (!snapshotManager.has(fileName)) {
             svelteModuleLoader.scheduleResolutionFailedLocationCheck(fileName);
         }
@@ -798,7 +844,8 @@ async function createLanguageService(
         ) {
             compilerOptions.moduleResolution =
                 // NodeJS: up to 4.9, Node10: since 5.0
-                (ts.ModuleResolutionKind as any).NodeJs ?? ts.ModuleResolutionKind.Node10;
+                (ts.ModuleResolutionKind as any).NodeJs ??
+                    ts.ModuleResolutionKind.Node10;
         }
 
         if (
@@ -822,16 +869,22 @@ async function createLanguageService(
         }
 
         // detect which JSX namespace to use (svelte | svelteNative) if not specified or not compatible
-        if (!compilerOptions.jsxFactory || !compilerOptions.jsxFactory.startsWith('svelte')) {
+        if (
+            !compilerOptions.jsxFactory ||
+            !compilerOptions.jsxFactory.startsWith('svelte')
+        ) {
             //override if we detect svelte-native
             if (workspacePath) {
                 try {
-                    const svelteNativePkgInfo =
-                        getPackageInfo('@nativescript-community/svelte-native', workspacePath) ||
+                    const svelteNativePkgInfo = getPackageInfo(
+                        '@nativescript-community/svelte-native',
+                        workspacePath
+                    ) ||
                         getPackageInfo('svelte-native', workspacePath);
                     if (svelteNativePkgInfo.path) {
                         // For backwards compatibility
-                        parsedConfig.raw.svelteOptions = parsedConfig.raw.svelteOptions || {};
+                        parsedConfig.raw.svelteOptions = parsedConfig.raw.svelteOptions ||
+                            {};
                         parsedConfig.raw.svelteOptions.namespace = 'svelteNative.JSX';
                     }
                 } catch (e) {
@@ -848,19 +901,23 @@ async function createLanguageService(
         };
     }
 
-    function checkSvelteInput(program: ts.Program | undefined, config: ts.ParsedCommandLine) {
+    function checkSvelteInput(
+        program: ts.Program | undefined,
+        config: ts.ParsedCommandLine
+    ) {
         if (!tsconfigPath || config.raw.references || config.raw.files) {
             return [];
         }
 
         const configFileName = basename(tsconfigPath);
         // Only report to possible nearest config file since referenced project might not be a svelte project
-        if (configFileName !== 'tsconfig.json' && configFileName !== 'jsconfig.json') {
+        if (
+            configFileName !== 'tsconfig.json' && configFileName !== 'jsconfig.json'
+        ) {
             return [];
         }
 
-        const hasSvelteFiles =
-            config.fileNames.some(isSvelteFilePath) ||
+        const hasSvelteFiles = config.fileNames.some(isSvelteFilePath) ||
             program?.getSourceFiles().some((file) => isSvelteFilePath(file.fileName));
 
         if (hasSvelteFiles) {
@@ -877,9 +934,10 @@ async function createLanguageService(
                 file: undefined,
                 start: undefined,
                 length: undefined,
-                messageText:
-                    `No svelte input files were found in config file '${tsconfigPath}'. ` +
-                    `Did you forget to add svelte files to the 'include' in your ${basename(tsconfigPath)}? ` +
+                messageText: `No svelte input files were found in config file '${tsconfigPath}'. ` +
+                    `Did you forget to add svelte files to the 'include' in your ${
+                        basename(tsconfigPath)
+                    }? ` +
                     `Specified 'include' paths were '${inputText}' and 'exclude' paths were '${excludeText}'`,
                 source: 'svelte'
             }
@@ -903,7 +961,11 @@ async function createLanguageService(
             include: []
         };
 
-        const parsedConfig = ts.parseJsonConfigFileContent(configJson, tsSystem, workspacePath);
+        const parsedConfig = ts.parseJsonConfigFileContent(
+            configJson,
+            tsSystem,
+            workspacePath
+        );
 
         const compilerOptions: ts.CompilerOptions = {
             ...parsedConfig.options,
@@ -970,7 +1032,10 @@ async function createLanguageService(
         }
 
         if (!configWatchers.has(tsconfigPath) && tsconfigPath) {
-            configFileModifiedTime.set(tsconfigPath, tsSystem.getModifiedTime?.(tsconfigPath));
+            configFileModifiedTime.set(
+                tsconfigPath,
+                tsSystem.getModifiedTime?.(tsconfigPath)
+            );
             configWatchers.set(
                 tsconfigPath,
                 // for some reason setting the polling interval is necessary, else some error in TS is thrown
@@ -987,7 +1052,11 @@ async function createLanguageService(
             dependedConfigWatchers.set(
                 config,
                 // for some reason setting the polling interval is necessary, else some error in TS is thrown
-                tsSystem.watchFile(config, createWatchDependedConfigCallback(docContext), 1000)
+                tsSystem.watchFile(
+                    config,
+                    createWatchDependedConfigCallback(docContext),
+                    1000
+                )
             );
         }
     }
@@ -1018,7 +1087,10 @@ async function createLanguageService(
         }
 
         docContext.onProjectReloaded?.([fileName]);
-        docContext.reportConfigError?.({ uri: pathToUrl(fileName), diagnostics: [] });
+        docContext.reportConfigError?.({
+            uri: pathToUrl(fileName),
+            diagnostics: []
+        });
     }
 
     function updateIfDirty() {
@@ -1054,7 +1126,10 @@ async function createLanguageService(
                 uri: pathToUrl(tsconfigPath),
                 diagnostics: svelteConfigDiagnostics.map((d) => ({
                     message: d.messageText as string,
-                    range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line: 0, character: 0 }
+                    },
                     severity: DiagnosticSeverity.Warning,
                     source: 'svelte'
                 }))
@@ -1062,7 +1137,11 @@ async function createLanguageService(
             const new_errors = projectConfig.errors
                 .filter((e) => !codes.includes(e.code))
                 .concat(svelteConfigDiagnostics);
-            projectConfig.errors.splice(0, projectConfig.errors.length, ...new_errors);
+            projectConfig.errors.splice(
+                0,
+                projectConfig.errors.length,
+                ...new_errors
+            );
         }
 
         // https://github.com/microsoft/TypeScript/blob/23faef92703556567ddbcb9afb893f4ba638fc20/src/server/project.ts#L1624
@@ -1120,8 +1199,9 @@ async function createLanguageService(
         }
 
         // Used by typescript-auto-import-cache to create a lean language service for package.json auto-import.
-        const createLanguageServiceForAutoImportProvider = (host: ts.LanguageServiceHost) =>
-            ts.createLanguageService(host, documentRegistry);
+        const createLanguageServiceForAutoImportProvider = (
+            host: ts.LanguageServiceHost
+        ) => ts.createLanguageService(host, documentRegistry);
 
         return createProject(host, createLanguageServiceForAutoImportProvider, {
             compilerOptions: compilerOptions,
@@ -1174,7 +1254,8 @@ async function createLanguageService(
             return cached;
         }
 
-        const content = tsSystem.fileExists(configFilePath) && tsSystem.readFile(configFilePath);
+        const content = tsSystem.fileExists(configFilePath) &&
+            tsSystem.readFile(configFilePath);
         if (!content) {
             parsedTsConfigInfo.set(configFilePath, null);
             return null;
@@ -1224,7 +1305,10 @@ async function createLanguageService(
 
         parsedCommandLine.options.allowNonTsExtensions = true;
 
-        const snapshotManager = createSnapshotManager(parsedCommandLine, configFilePath);
+        const snapshotManager = createSnapshotManager(
+            parsedCommandLine,
+            configFilePath
+        );
 
         const tsconfigInfo: TsConfigInfo = {
             parsedCommandLine,
@@ -1248,7 +1332,8 @@ async function createLanguageService(
         if (info?.pendingProjectFileUpdate) {
             info.pendingProjectFileUpdate = false;
             info.snapshotManager.updateProjectFiles();
-            info.parsedCommandLine.fileNames = info.snapshotManager.getProjectFileNames();
+            info.parsedCommandLine.fileNames = info.snapshotManager
+                .getProjectFileNames();
         }
     }
 
@@ -1284,14 +1369,19 @@ async function createLanguageService(
         const pathToOriginalCasing = new Map<string, string>();
         for (const file of svelteTsxFiles) {
             const normalizedPath = normalizePath(file);
-            pathToOriginalCasing.set(getCanonicalFileName(normalizedPath), normalizedPath);
+            pathToOriginalCasing.set(
+                getCanonicalFileName(normalizedPath),
+                normalizedPath
+            );
         }
 
         return pathToOriginalCasing;
     }
 
     function isShimFiles(filePath: string) {
-        return svelteTsxFilesToOriginalCasing.has(getCanonicalFileName(normalizePath(filePath)));
+        return svelteTsxFilesToOriginalCasing.has(
+            getCanonicalFileName(normalizePath(filePath))
+        );
     }
 
     function getProjectConfig() {
@@ -1299,7 +1389,10 @@ async function createLanguageService(
     }
 }
 
-function ensureMacroforgesPlugin(compilerOptions: ts.CompilerOptions, searchPath: string) {
+function ensureMacroforgesPlugin(
+    compilerOptions: ts.CompilerOptions,
+    searchPath: string
+) {
     const existing = compilerOptions.plugins;
     const plugins: ts.PluginImport[] = Array.isArray(existing)
         ? (existing as ts.PluginImport[])
@@ -1357,9 +1450,11 @@ function exceedsTotalSizeLimitForNonTsFiles(
 
             Logger.log(
                 `Non TS file size exceeded limit (${totalNonTsFileSize}). ` +
-                    `Largest files: ${top5LargestFiles
-                        .map((file) => `${file.name}:${file.size}`)
-                        .join(', ')}`
+                    `Largest files: ${
+                        top5LargestFiles
+                            .map((file) => `${file.name}:${file.size}`)
+                            .join(', ')
+                    }`
             );
 
             return true;
@@ -1375,7 +1470,9 @@ function exceedsTotalSizeLimitForNonTsFiles(
  * because it would reference the closure
  * So that GC won't drop it and cause memory leaks
  */
-function createWatchDependedConfigCallback(docContext: LanguageServiceDocumentContext) {
+function createWatchDependedConfigCallback(
+    docContext: LanguageServiceDocumentContext
+) {
     return async (
         fileName: string,
         kind: ts.FileWatcherEventKind,
@@ -1401,14 +1498,15 @@ function createWatchDependedConfigCallback(docContext: LanguageServiceDocumentCo
         docContext.extendedConfigCache.delete(fileName);
 
         const reloadingConfigs: string[] = [];
-        const promises = Array.from(configPathToDependedProject.get(fileName) ?? []).map(
-            async (config) => {
-                reloadingConfigs.push(config);
-                const oldService = services.get(config);
-                scheduleReload(config);
-                (await oldService)?.dispose();
-            }
-        );
+        const promises = Array.from(configPathToDependedProject.get(fileName) ?? [])
+            .map(
+                async (config) => {
+                    reloadingConfigs.push(config);
+                    const oldService = services.get(config);
+                    scheduleReload(config);
+                    (await oldService)?.dispose();
+                }
+            );
 
         await Promise.all(promises);
         docContext.onProjectReloaded?.(reloadingConfigs);
@@ -1434,8 +1532,7 @@ function configFileModified(
 
     configFileModifiedTime.set(fileName, modifiedTime);
 
-    const oldSourceFile =
-        parsedTsConfigInfo.get(fileName)?.parsedCommandLine?.options.configFile ??
+    const oldSourceFile = parsedTsConfigInfo.get(fileName)?.parsedCommandLine?.options.configFile ??
         docContext.extendedConfigCache.get(fileName)?.extendedResult;
 
     if (
@@ -1474,20 +1571,29 @@ function getOrCreateDocumentRegistry(
         return registry;
     }
 
-    registry = ts.createDocumentRegistry(useCaseSensitiveFileNames, currentDirectory);
+    registry = ts.createDocumentRegistry(
+        useCaseSensitiveFileNames,
+        currentDirectory
+    );
 
     const acquireDocumentWithKey = registry.acquireDocumentWithKey;
     registry.acquireDocumentWithKey = (
         fileName: string,
         path: ts.Path,
-        compilationSettingsOrHost: ts.CompilerOptions | ts.MinimalResolutionCacheHost,
+        compilationSettingsOrHost:
+            | ts.CompilerOptions
+            | ts.MinimalResolutionCacheHost,
         key: ts.DocumentRegistryBucketKey,
         scriptSnapshot: ts.IScriptSnapshot,
         version: string,
         scriptKind?: ts.ScriptKind,
         sourceFileOptions?: ts.CreateSourceFileOptions | ts.ScriptTarget
     ) => {
-        ensureImpliedNodeFormat(compilationSettingsOrHost, fileName, sourceFileOptions);
+        ensureImpliedNodeFormat(
+            compilationSettingsOrHost,
+            fileName,
+            sourceFileOptions
+        );
 
         return acquireDocumentWithKey(
             fileName,
@@ -1505,14 +1611,20 @@ function getOrCreateDocumentRegistry(
     registry.updateDocumentWithKey = (
         fileName: string,
         path: ts.Path,
-        compilationSettingsOrHost: ts.CompilerOptions | ts.MinimalResolutionCacheHost,
+        compilationSettingsOrHost:
+            | ts.CompilerOptions
+            | ts.MinimalResolutionCacheHost,
         key: ts.DocumentRegistryBucketKey,
         scriptSnapshot: ts.IScriptSnapshot,
         version: string,
         scriptKind?: ts.ScriptKind,
         sourceFileOptions?: ts.CreateSourceFileOptions | ts.ScriptTarget
     ) => {
-        ensureImpliedNodeFormat(compilationSettingsOrHost, fileName, sourceFileOptions);
+        ensureImpliedNodeFormat(
+            compilationSettingsOrHost,
+            fileName,
+            sourceFileOptions
+        );
 
         return updateDocumentWithKey(
             fileName,
@@ -1531,11 +1643,15 @@ function getOrCreateDocumentRegistry(
     return registry;
 
     function ensureImpliedNodeFormat(
-        compilationSettingsOrHost: ts.CompilerOptions | ts.MinimalResolutionCacheHost,
+        compilationSettingsOrHost:
+            | ts.CompilerOptions
+            | ts.MinimalResolutionCacheHost,
         fileName: string,
         sourceFileOptions: ts.CreateSourceFileOptions | ts.ScriptTarget | undefined
     ) {
-        const compilationSettings = getCompilationSettings(compilationSettingsOrHost);
+        const compilationSettings = getCompilationSettings(
+            compilationSettingsOrHost
+        );
         const host: ts.MinimalResolutionCacheHost | undefined =
             compilationSettingsOrHost === compilationSettings
                 ? undefined
@@ -1548,7 +1664,8 @@ function getOrCreateDocumentRegistry(
         ) {
             const format = ts.getImpliedNodeFormatForFile(
                 toVirtualSvelteFilePath(fileName),
-                host?.getCompilerHost?.()?.getModuleResolutionCache?.()?.getPackageJsonInfoCache(),
+                host?.getCompilerHost?.()?.getModuleResolutionCache?.()
+                    ?.getPackageJsonInfoCache(),
                 host,
                 compilationSettings
             );
@@ -1561,7 +1678,8 @@ function getOrCreateDocumentRegistry(
         settingsOrHost: ts.CompilerOptions | ts.MinimalResolutionCacheHost
     ) {
         if (typeof settingsOrHost.getCompilationSettings === 'function') {
-            return (settingsOrHost as ts.MinimalResolutionCacheHost).getCompilationSettings();
+            return (settingsOrHost as ts.MinimalResolutionCacheHost)
+                .getCompilationSettings();
         }
         return settingsOrHost as ts.CompilerOptions;
     }

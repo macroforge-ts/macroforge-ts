@@ -1,12 +1,12 @@
 import { Document, isInTag } from '../../../lib/documents';
 import {
-    Position,
-    CompletionItemKind,
+    CompletionContext,
     CompletionItem,
-    TextEdit,
-    Range,
+    CompletionItemKind,
     CompletionList,
-    CompletionContext
+    Position,
+    Range,
+    TextEdit
 } from 'vscode-languageserver';
 
 /**
@@ -60,7 +60,10 @@ export function getDirectiveCommentCompletions(
     if (!match) {
         return null;
     }
-    const startCharacter = Math.max(0, position.character - (match[1]?.length ?? 0));
+    const startCharacter = Math.max(
+        0,
+        position.character - (match[1]?.length ?? 0)
+    );
     const start = Position.create(position.line, startCharacter);
 
     const items = tsDirectives.map<CompletionItem>(({ value, description }) => ({
@@ -68,7 +71,10 @@ export function getDirectiveCommentCompletions(
         label: value,
         kind: CompletionItemKind.Snippet,
         textEdit: TextEdit.replace(
-            Range.create(start, Position.create(start.line, start.character + value.length)),
+            Range.create(
+                start,
+                Position.create(start.line, start.character + value.length)
+            ),
             value
         )
     }));

@@ -31,17 +31,24 @@ describe('WorkspaceSymbolsProvider', function () {
             [pathToUrl(testDir)],
             lsConfigManager
         );
-        const provider = new WorkspaceSymbolsProviderImpl(lsAndTsDocResolver, lsConfigManager);
+        const provider = new WorkspaceSymbolsProviderImpl(
+            lsAndTsDocResolver,
+            lsConfigManager
+        );
         const filePath = getFullPath(filename);
-        const document = docManager.openClientDocument(<any>{
-            uri: pathToUrl(filePath),
-            text: ts.sys.readFile(filePath)
-        });
+        const document = docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(filePath),
+                text: ts.sys.readFile(filePath)
+            }
+        );
         return { provider, document, docManager, lsAndTsDocResolver };
     }
 
     it('should return workspace symbols', async () => {
-        const { provider, document, lsAndTsDocResolver } = setup('workspace-symbols.svelte');
+        const { provider, document, lsAndTsDocResolver } = setup(
+            'workspace-symbols.svelte'
+        );
         await lsAndTsDocResolver.getLSAndTSDoc(document);
 
         const symbols = await provider.getWorkspaceSymbols('longName');
@@ -126,7 +133,9 @@ describe('WorkspaceSymbolsProvider', function () {
     });
 
     it('filter out generated symbols', async () => {
-        const { provider, document, lsAndTsDocResolver } = setup('workspace-symbols.svelte');
+        const { provider, document, lsAndTsDocResolver } = setup(
+            'workspace-symbols.svelte'
+        );
         await lsAndTsDocResolver.getLSAndTSDoc(document);
 
         const symbols = await provider.getWorkspaceSymbols('_');

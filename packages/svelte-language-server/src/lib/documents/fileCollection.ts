@@ -9,7 +9,9 @@ export class FileMap<T> implements Iterable<[string, T]> {
     private readonly map = new Map<string, T>();
 
     constructor(useCaseSensitiveFileNames = ts.sys.useCaseSensitiveFileNames) {
-        this.getCanonicalFileName = createGetCanonicalFileName(useCaseSensitiveFileNames);
+        this.getCanonicalFileName = createGetCanonicalFileName(
+            useCaseSensitiveFileNames
+        );
     }
 
     get(filePath: string) {
@@ -39,7 +41,6 @@ export class FileMap<T> implements Iterable<[string, T]> {
     }
 
     /**
-     *
      * @param callbackfn In case insensitive file system the key parameter for the callback is in lowercase
      */
     forEach(callbackfn: (value: T, key: string) => void) {
@@ -76,7 +77,9 @@ export class FileSet implements Iterable<string> {
     private readonly set = new Set<string>();
 
     constructor(useCaseSensitiveFileNames = ts.sys.useCaseSensitiveFileNames) {
-        this.getCanonicalFileName = createGetCanonicalFileName(useCaseSensitiveFileNames);
+        this.getCanonicalFileName = createGetCanonicalFileName(
+            useCaseSensitiveFileNames
+        );
     }
 
     add(filePath: string) {

@@ -1,8 +1,8 @@
 // abstracting the typescript-auto-import-cache package to support our use case
 
 import {
-    ProjectService,
-    createProjectService as createProjectService50
+    createProjectService as createProjectService50,
+    ProjectService
 } from 'typescript-auto-import-cache/out/5_0/projectService';
 import { createProject as createProject50 } from 'typescript-auto-import-cache/out/5_0/project';
 import { createProject as createProject53 } from 'typescript-auto-import-cache/out/5_3/project';
@@ -20,12 +20,16 @@ declare module 'typescript' {
         /** @internal */ getCachedExportInfoMap?(): ExportInfoMap;
         /** @internal */ getModuleSpecifierCache?(): ModuleSpecifierCache;
         /** @internal */ getGlobalTypingsCacheLocation?(): string | undefined;
-        /** @internal */ getSymlinkCache?(files: readonly ts.SourceFile[]): SymlinkCache;
+        /** @internal */ getSymlinkCache?(
+            files: readonly ts.SourceFile[]
+        ): SymlinkCache;
         /** @internal */ getPackageJsonsVisibleToFile?(
             fileName: string,
             rootDir?: string
         ): readonly ProjectPackageJsonInfo[];
-        /** @internal */ getPackageJsonAutoImportProvider?(): ts.Program | undefined;
+        /** @internal */ getPackageJsonAutoImportProvider?():
+            | ts.Program
+            | undefined;
         /** @internal */ useSourceOfProjectReferenceRedirect?(): boolean;
     }
 }
@@ -86,7 +90,9 @@ export function createProject(
         // so don't proxy this method and implement this directly in the ts.LanguageServiceHost
         // 'useSourceOfProjectReferenceRedirect'
     ];
-    proxyMethods.forEach((key) => ((host as any)[key] = project[key].bind(project)));
+    proxyMethods.forEach((
+        key
+    ) => ((host as any)[key] = project[key].bind(project)));
 
     if (host.log) {
         project.log = host.log.bind(host);

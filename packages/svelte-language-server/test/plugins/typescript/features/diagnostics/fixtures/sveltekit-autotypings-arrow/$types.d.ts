@@ -4,6 +4,8 @@ export interface PageLoadEvent<> {
     };
 }
 
-export type PageLoad<OutputData = Record<string, any>> = (event: PageLoadEvent) => OutputData;
+export type PageLoad<OutputData = Record<string, any>> = (
+    event: PageLoadEvent
+) => OutputData;
 
 export type PageData = ReturnType<typeof import('./+page').load>;

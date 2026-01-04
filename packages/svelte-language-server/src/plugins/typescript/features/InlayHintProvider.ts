@@ -1,11 +1,11 @@
 import ts, { ArrowFunction } from 'typescript';
 import { CancellationToken } from 'vscode-languageserver';
 import {
-    Position,
-    Range,
     InlayHint,
     InlayHintKind,
-    InlayHintLabelPart
+    InlayHintLabelPart,
+    Position,
+    Range
 } from 'vscode-languageserver-types';
 import { Document, isInTag, mapLocationToOriginal } from '../../../lib/documents';
 import { getAttributeContextAtPosition } from '../../../lib/documents/parseHtml';
@@ -13,10 +13,10 @@ import { InlayHintProvider } from '../../interfaces';
 import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot';
 import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
 import {
-    findContainingNode,
-    isInGeneratedCode,
     findChildOfKind,
+    findContainingNode,
     findRenderFunction,
+    isInGeneratedCode,
     SnapshotMap,
     startsWithIgnoredPosition
 } from './utils';
@@ -31,8 +31,8 @@ export class InlayHintProviderImpl implements InlayHintProvider {
         cancellationToken?: CancellationToken
     ): Promise<InlayHint[] | null> {
         // Don't sync yet so we can skip TypeScript's synchronizeHostData if inlay hints are disabled
-        const { userPreferences } =
-            await this.lsAndTsDocResolver.getLsForSyntheticOperations(document);
+        const { userPreferences } = await this.lsAndTsDocResolver
+            .getLsForSyntheticOperations(document);
 
         if (
             cancellationToken?.isCancellationRequested ||
@@ -41,7 +41,8 @@ export class InlayHintProviderImpl implements InlayHintProvider {
             return null;
         }
 
-        const { tsDoc, lang, lsContainer } = await this.lsAndTsDocResolver.getLSAndTSDoc(document);
+        const { tsDoc, lang, lsContainer } = await this.lsAndTsDocResolver
+            .getLSAndTSDoc(document);
 
         const inlayHints = lang.provideInlayHints(
             tsDoc.filePath,
@@ -56,8 +57,8 @@ export class InlayHintProviderImpl implements InlayHintProvider {
         }
 
         const renderFunction = findRenderFunction(sourceFile);
-        const renderFunctionReturnTypeLocation =
-            renderFunction && this.getTypeAnnotationPosition(renderFunction);
+        const renderFunctionReturnTypeLocation = renderFunction &&
+            this.getTypeAnnotationPosition(renderFunction);
 
         const snapshotMap = new SnapshotMap(this.lsAndTsDocResolver, lsContainer);
         snapshotMap.set(tsDoc.filePath, tsDoc);
@@ -105,10 +106,9 @@ export class InlayHintProviderImpl implements InlayHintProvider {
         const generatedEndOffset = snapshot.getGeneratedPosition(range.end);
 
         const start = generatedStartOffset.line < 0 ? 0 : snapshot.offsetAt(generatedStartOffset);
-        const end =
-            generatedEndOffset.line < 0
-                ? snapshot.getLength()
-                : snapshot.offsetAt(generatedEndOffset);
+        const end = generatedEndOffset.line < 0
+            ? snapshot.getLength()
+            : snapshot.offsetAt(generatedEndOffset);
 
         return {
             start,
@@ -116,7 +116,10 @@ export class InlayHintProviderImpl implements InlayHintProvider {
         };
     }
 
-    private async convertInlayHintLabelParts(inlayHint: ts.InlayHint, snapshotMap: SnapshotMap) {
+    private async convertInlayHintLabelParts(
+        inlayHint: ts.InlayHint,
+        snapshotMap: SnapshotMap
+    ) {
         if (!inlayHint.displayParts) {
             return inlayHint.text;
         }
@@ -158,7 +161,9 @@ export class InlayHintProviderImpl implements InlayHintProvider {
         tsDoc: SvelteDocumentSnapshot,
         inlayHint: ts.InlayHint
     ): Position {
-        let originalPosition = tsDoc.getOriginalPosition(tsDoc.positionAt(inlayHint.position));
+        let originalPosition = tsDoc.getOriginalPosition(
+            tsDoc.positionAt(inlayHint.position)
+        );
         if (inlayHint.kind === ts.InlayHintKind.Type) {
             const originalOffset = document.offsetAt(originalPosition);
             const source = document.getText();
@@ -178,7 +183,9 @@ export class InlayHintProviderImpl implements InlayHintProvider {
         return originalPosition;
     }
 
-    private convertInlayHintKind(kind: ts.InlayHintKind): InlayHintKind | undefined {
+    private convertInlayHintKind(
+        kind: ts.InlayHintKind
+    ): InlayHintKind | undefined {
         switch (kind) {
             case 'Parameter':
                 return InlayHintKind.Parameter;
@@ -191,7 +198,10 @@ export class InlayHintProviderImpl implements InlayHintProvider {
         }
     }
 
-    private isSvelte2tsxFunctionHints(sourceFile: ts.SourceFile, inlayHint: ts.InlayHint): boolean {
+    private isSvelte2tsxFunctionHints(
+        sourceFile: ts.SourceFile,
+        inlayHint: ts.InlayHint
+    ): boolean {
         if (inlayHint.kind !== ts.InlayHintKind.Parameter) {
             return false;
         }
@@ -200,8 +210,9 @@ export class InlayHintProviderImpl implements InlayHintProvider {
             return true;
         }
 
-        const hasParameterWithSamePosition = (node: ts.CallExpression | ts.NewExpression) =>
-            node.arguments !== undefined &&
+        const hasParameterWithSamePosition = (
+            node: ts.CallExpression | ts.NewExpression
+        ) => node.arguments !== undefined &&
             node.arguments.some((arg) => arg.getStart() === inlayHint.position);
 
         const node = findContainingNode(
@@ -256,7 +267,10 @@ export class InlayHintProviderImpl implements InlayHintProvider {
     }
 
     /** `true` if is one of the `async () => {...}` functions svelte2tsx generates */
-    private isGeneratedAsyncFunctionReturnType(sourceFile: ts.SourceFile, inlayHint: ts.InlayHint) {
+    private isGeneratedAsyncFunctionReturnType(
+        sourceFile: ts.SourceFile,
+        inlayHint: ts.InlayHint
+    ) {
         if (inlayHint.kind !== ts.InlayHintKind.Type) {
             return false;
         }
@@ -278,7 +292,10 @@ export class InlayHintProviderImpl implements InlayHintProvider {
         return this.getTypeAnnotationPosition(expression) === inlayHint.position;
     }
 
-    private isGeneratedFunctionReturnType(sourceFile: ts.SourceFile, inlayHint: ts.InlayHint) {
+    private isGeneratedFunctionReturnType(
+        sourceFile: ts.SourceFile,
+        inlayHint: ts.InlayHint
+    ) {
         if (inlayHint.kind !== ts.InlayHintKind.Type) {
             return false;
         }
@@ -300,7 +317,8 @@ export class InlayHintProviderImpl implements InlayHintProvider {
         return (
             expression.expression.text === '__sveltets_2_invalidate' &&
             ts.isArrowFunction(expression.arguments[0]) &&
-            this.getTypeAnnotationPosition(expression.arguments[0]) === inlayHint.position
+            this.getTypeAnnotationPosition(expression.arguments[0]) ===
+                inlayHint.position
         );
     }
 
@@ -312,14 +330,20 @@ export class InlayHintProviderImpl implements InlayHintProvider {
             | ts.MethodDeclaration
             | ts.GetAccessorDeclaration
     ) {
-        const closeParenToken = findChildOfKind(decl, ts.SyntaxKind.CloseParenToken);
+        const closeParenToken = findChildOfKind(
+            decl,
+            ts.SyntaxKind.CloseParenToken
+        );
         if (closeParenToken) {
             return closeParenToken.end;
         }
         return decl.parameters.end;
     }
 
-    private checkGeneratedFunctionHintWithSource(inlayHint: InlayHint, document: Document) {
+    private checkGeneratedFunctionHintWithSource(
+        inlayHint: InlayHint,
+        document: Document
+    ) {
         if (isInTag(inlayHint.position, document.moduleScriptInfo)) {
             return false;
         }
@@ -332,16 +356,24 @@ export class InlayHintProviderImpl implements InlayHintProvider {
                 .startsWith('$:');
         }
 
-        const attributeContext = getAttributeContextAtPosition(document, inlayHint.position);
+        const attributeContext = getAttributeContextAtPosition(
+            document,
+            inlayHint.position
+        );
 
-        if (!attributeContext || attributeContext.inValue || !attributeContext.name.includes(':')) {
+        if (
+            !attributeContext || attributeContext.inValue ||
+            !attributeContext.name.includes(':')
+        ) {
             return false;
         }
 
         const { name, elementTag } = attributeContext;
 
         // <div on:click>
-        if (name.startsWith('on:') && !elementTag.attributes?.[attributeContext.name]) {
+        if (
+            name.startsWith('on:') && !elementTag.attributes?.[attributeContext.name]
+        ) {
             return true;
         }
 

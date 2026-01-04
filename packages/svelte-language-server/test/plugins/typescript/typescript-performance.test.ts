@@ -25,11 +25,17 @@ describe('TypeScript Plugin Performance Tests', () => {
         docManager.openClientDocument({ uri, text: document.getText() });
         const append = (newText: string) =>
             docManager.updateDocument({ uri, version: 1 }, [
-                { range: Range.create(Position.create(9, 0), Position.create(9, 0)), text: newText }
+                {
+                    range: Range.create(Position.create(9, 0), Position.create(9, 0)),
+                    text: newText
+                }
             ]);
         const prepend = (newText: string) =>
             docManager.updateDocument({ uri, version: 1 }, [
-                { range: Range.create(Position.create(1, 0), Position.create(1, 0)), text: newText }
+                {
+                    range: Range.create(Position.create(1, 0), Position.create(1, 0)),
+                    text: newText
+                }
             ]);
         return { plugin, document, append, prepend };
     }
@@ -47,7 +53,9 @@ describe('TypeScript Plugin Performance Tests', () => {
         const newTimeout = benchmarkElapse * 7;
 
         if (newTimeout < performanceTimeout) {
-            console.log(`Benchmark took ${benchmarkElapse}ms. Setting timeout to ${newTimeout}ms`);
+            console.log(
+                `Benchmark took ${benchmarkElapse}ms. Setting timeout to ${newTimeout}ms`
+            );
             this.timeout(newTimeout);
         }
 

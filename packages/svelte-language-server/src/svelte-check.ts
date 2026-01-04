@@ -60,7 +60,9 @@ export class SvelteCheck {
 
     private async initialize(workspacePath: string, options: SvelteCheckOptions) {
         if (options.tsconfig && !isAbsolute(options.tsconfig)) {
-            throw new Error('tsconfigPath needs to be absolute, got ' + options.tsconfig);
+            throw new Error(
+                'tsconfigPath needs to be absolute, got ' + options.tsconfig
+            );
         }
 
         this.configManager.update({
@@ -83,7 +85,12 @@ export class SvelteCheck {
                 }
             ];
             this.pluginHost.register(
-                new CSSPlugin(this.docManager, this.configManager, workspaceFolders, services)
+                new CSSPlugin(
+                    this.docManager,
+                    this.configManager,
+                    workspaceFolders,
+                    services
+                )
             );
         }
         if (shouldRegister('js') || options.tsconfig) {
@@ -111,7 +118,8 @@ export class SvelteCheck {
         }
 
         function shouldRegister(source: SvelteCheckDiagnosticSource) {
-            return !options.diagnosticSources || options.diagnosticSources.includes(source);
+            return !options.diagnosticSources ||
+                options.diagnosticSources.includes(source);
         }
     }
 
@@ -121,7 +129,10 @@ export class SvelteCheck {
      * @param doc Text and Uri of the document
      * @param isNew Whether or not this is the creation of the document
      */
-    async upsertDocument(doc: { text: string; uri: string }, isNew: boolean): Promise<void> {
+    async upsertDocument(
+        doc: { text: string; uri: string },
+        isNew: boolean
+    ): Promise<void> {
         const filePath = urlToPath(doc.uri) || '';
 
         if (this.options.tsconfig) {
@@ -199,9 +210,9 @@ export class SvelteCheck {
             const file = diagnostic.file;
             range ??= file
                 ? convertRange(
-                      { positionAt: file.getLineAndCharacterOfPosition.bind(file) },
-                      diagnostic
-                  )
+                    { positionAt: file.getLineAndCharacterOfPosition.bind(file) },
+                    diagnostic
+                )
                 : { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } };
 
             return {
@@ -288,9 +299,9 @@ export class SvelteCheck {
                                             ...diagnostic,
                                             messageText:
                                                 typeof diagnostic.messageText === 'string' &&
-                                                diagnostic.messageText.includes('./$types')
+                                                    diagnostic.messageText.includes('./$types')
                                                     ? diagnostic.messageText +
-                                                      ` (this likely means that SvelteKit's type generation didn't run yet - try running it by executing 'npm run dev' or 'npm run build')`
+                                                        ` (this likely means that SvelteKit's type generation didn't run yet - try running it by executing 'npm run dev' or 'npm run build')`
                                                     : diagnostic.messageText
                                         };
                                     } else if (diagnostic.code === 2694) {
@@ -298,14 +309,14 @@ export class SvelteCheck {
                                             ...diagnostic,
                                             messageText:
                                                 typeof diagnostic.messageText === 'string' &&
-                                                diagnostic.messageText.includes('/$types')
+                                                    diagnostic.messageText.includes('/$types')
                                                     ? diagnostic.messageText +
-                                                      ` (this likely means that SvelteKit's generated types are out of date - try rerunning it by executing 'npm run dev' or 'npm run build')`
+                                                        ` (this likely means that SvelteKit's generated types are out of date - try rerunning it by executing 'npm run dev' or 'npm run build')`
                                                     : diagnostic.messageText
                                         };
                                     } else if (
                                         diagnostic.code !==
-                                        2355 /*  A function whose declared type is neither 'void' nor 'any' must return a value */
+                                            2355 /*  A function whose declared type is neither 'void' nor 'any' must return a value */
                                     ) {
                                         continue;
                                     }
@@ -356,7 +367,9 @@ export class SvelteCheck {
 
     private getLSContainer(tsconfigPath: string) {
         if (!this.lsAndTSDocResolver) {
-            throw new Error('Cannot run with tsconfig path without LS/TSdoc resolver');
+            throw new Error(
+                'Cannot run with tsconfig path without LS/TSdoc resolver'
+            );
         }
         return this.lsAndTSDocResolver.getTSService(tsconfigPath);
     }
@@ -365,7 +378,9 @@ export class SvelteCheck {
      * Gets the watch directories based on the tsconfig include patterns.
      * Returns null if no tsconfig is specified.
      */
-    async getWatchDirectories(): Promise<{ path: string; recursive: boolean }[] | null> {
+    async getWatchDirectories(): Promise<
+        { path: string; recursive: boolean }[] | null
+    > {
         if (!this.options.tsconfig) {
             return null;
         }
@@ -376,7 +391,9 @@ export class SvelteCheck {
             return null;
         }
 
-        return Object.entries(projectConfig.wildcardDirectories).map(([dir, flags]) => ({
+        return Object.entries(projectConfig.wildcardDirectories).map((
+            [dir, flags]
+        ) => ({
             path: dir,
             recursive: !!(flags & ts.WatchDirectoryFlags.Recursive)
         }));

@@ -23,7 +23,9 @@ export class UpdateImportsProviderImpl implements UpdateImportsProvider {
         private readonly lsAndTsDocResolver: LSAndTSDocResolver,
         useCaseSensitiveFileNames: boolean
     ) {
-        this.getCanonicalFileName = createGetCanonicalFileName(useCaseSensitiveFileNames);
+        this.getCanonicalFileName = createGetCanonicalFileName(
+            useCaseSensitiveFileNames
+        );
     }
 
     private getCanonicalFileName: GetCanonicalFileName;
@@ -43,7 +45,12 @@ export class UpdateImportsProviderImpl implements UpdateImportsProvider {
 
         const documentChanges = new Map<string, TextDocumentEdit>();
         for (const service of services) {
-            await this.updateImportForSingleService(oldPath, newPath, service, documentChanges);
+            await this.updateImportForSingleService(
+                oldPath,
+                newPath,
+                service,
+                documentChanges
+            );
         }
 
         return {
@@ -66,7 +73,9 @@ export class UpdateImportsProviderImpl implements UpdateImportsProvider {
         const canonicalOldPath = this.getCanonicalFileName(normalizePath(oldPath));
         const canonicalNewPath = this.getCanonicalFileName(normalizePath(newPath));
         const hasFile = program.getSourceFiles().some((sf) => {
-            const normalizedFileName = this.getCanonicalFileName(normalizePath(sf.fileName));
+            const normalizedFileName = this.getCanonicalFileName(
+                normalizePath(sf.fileName)
+            );
             return (
                 normalizedFileName.startsWith(canonicalOldPath) ||
                 normalizedFileName.startsWith(canonicalNewPath)
@@ -85,12 +94,16 @@ export class UpdateImportsProviderImpl implements UpdateImportsProvider {
             // who - for whatever reason - might be new ones.
             .filter((change) => !change.isNewFile || change.fileName === oldPathTsProgramCasing);
 
-        await this.lsAndTsDocResolver.updateSnapshotPath(oldPathTsProgramCasing, newPath);
+        await this.lsAndTsDocResolver.updateSnapshotPath(
+            oldPathTsProgramCasing,
+            newPath
+        );
 
         const editInOldPath = fileChanges.find(
             (change) =>
                 change.fileName.startsWith(oldPathTsProgramCasing) &&
-                (oldPathTsProgramCasing.includes(newPath) || !change.fileName.startsWith(newPath))
+                (oldPathTsProgramCasing.includes(newPath) ||
+                    !change.fileName.startsWith(newPath))
         );
         const editInNewPath = fileChanges.find(
             (change) =>
@@ -108,7 +121,8 @@ export class UpdateImportsProviderImpl implements UpdateImportsProvider {
                     return true;
                 }
                 // If both present, take the one that has more text changes to it (more likely to be the correct one)
-                return editInOldPath.textChanges.length > editInNewPath.textChanges.length
+                return editInOldPath.textChanges.length >
+                        editInNewPath.textChanges.length
                     ? change !== editInNewPath
                     : change !== editInOldPath;
             })
@@ -116,7 +130,10 @@ export class UpdateImportsProviderImpl implements UpdateImportsProvider {
                 if (change === editInOldPath) {
                     // The language service might want to do edits to the old path, not the new path -> rewire it.
                     // If there is a better solution for this, please file a PR :)
-                    change.fileName = change.fileName.replace(oldPathTsProgramCasing, newPath);
+                    change.fileName = change.fileName.replace(
+                        oldPathTsProgramCasing,
+                        newPath
+                    );
                 }
                 change.textChanges = change.textChanges.filter(
                     (textChange) =>
@@ -137,7 +154,10 @@ export class UpdateImportsProviderImpl implements UpdateImportsProvider {
                 const snapshot = await docs.retrieve(change.fileName);
 
                 const edit = TextDocumentEdit.create(
-                    OptionalVersionedTextDocumentIdentifier.create(snapshot.getURL(), null),
+                    OptionalVersionedTextDocumentIdentifier.create(
+                        snapshot.getURL(),
+                        null
+                    ),
                     change.textChanges.map((edit) => {
                         const range = mapRangeToOriginal(
                             snapshot,

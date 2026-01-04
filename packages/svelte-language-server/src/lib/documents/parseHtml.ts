@@ -1,11 +1,11 @@
 import {
     getLanguageService,
     HTMLDocument,
-    TokenType,
-    ScannerState,
-    Scanner,
     Node,
-    Position
+    Position,
+    Scanner,
+    ScannerState,
+    TokenType
 } from 'vscode-html-languageservice';
 import { Document } from './Document';
 import { isInsideMoustacheTag } from './utils';
@@ -19,7 +19,9 @@ export function parseHtml(text: string): HTMLDocument {
     const preprocessed = preprocess(text);
 
     // We can safely only set getText because only this is used for parsing
-    const parsedDoc = parser.parseHTMLDocument(<any>{ getText: () => preprocessed });
+    const parsedDoc = parser.parseHTMLDocument(
+        <any> { getText: () => preprocessed }
+    );
 
     return parsedDoc;
 }
@@ -150,8 +152,8 @@ export function getAttributeContextAtPosition(
     }
 
     const text = document.getText();
-    const beforeStartTagEnd =
-        text.substring(0, tag.start) + preprocess(text.substring(tag.start, tag.startTagEnd));
+    const beforeStartTagEnd = text.substring(0, tag.start) +
+        preprocess(text.substring(tag.start, tag.startTagEnd));
 
     const scanner = createScanner(beforeStartTagEnd, tag.start);
 
@@ -212,5 +214,6 @@ export function getAttributeContextAtPosition(
 }
 
 function inStartTag(offset: number, node: Node) {
-    return offset > node.start && node.startTagEnd != undefined && offset < node.startTagEnd;
+    return offset > node.start && node.startTagEnd != undefined &&
+        offset < node.startTagEnd;
 }

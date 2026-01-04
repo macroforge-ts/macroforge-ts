@@ -137,11 +137,14 @@ function createSvelteAnchorMissingAttributeQuickfixAction(
     const relAttribute = node.attributes.find((i: any) => i.name == 'rel');
 
     const codeActionTextEdit = relAttribute
-        ? TextEdit.insert(positionAt(relAttribute.end - 1, content, lineOffsets), ' noreferrer')
+        ? TextEdit.insert(
+            positionAt(relAttribute.end - 1, content, lineOffsets),
+            ' noreferrer'
+        )
         : TextEdit.insert(
-              positionAt(targetAttribute.end, content, lineOffsets),
-              ' rel="noreferrer"'
-          );
+            positionAt(targetAttribute.end, content, lineOffsets),
+            ' rel="noreferrer"'
+        );
 
     return CodeAction.create(
         '(svelte) Add missing attribute rel="noreferrer"',
@@ -170,7 +173,14 @@ function createSvelteIgnoreQuickfixAction(
         {
             documentChanges: [
                 TextDocumentEdit.create(textDocument, [
-                    getSvelteIgnoreEdit(transpiled, content, lineOffsets, node, diagnostic, isHtml)
+                    getSvelteIgnoreEdit(
+                        transpiled,
+                        content,
+                        lineOffsets,
+                        node,
+                        diagnostic,
+                        isHtml
+                    )
                 ])
             ]
         },
@@ -191,7 +201,7 @@ export function isIgnorableSvelteDiagnostic(diagnostic: Diagnostic) {
     const { source, severity, code } = diagnostic;
     return (
         code &&
-        !nonIgnorableWarnings.includes(<string>code) &&
+        !nonIgnorableWarnings.includes(<string> code) &&
         source === 'svelte' &&
         severity !== DiagnosticSeverity.Error
     );
@@ -231,7 +241,10 @@ function getSvelteIgnoreEdit(
     }
     const position = Position.create(nodeStartPosition.line, 0);
 
-    return mapObjWithRangeToOriginal(transpiled, TextEdit.insert(position, ignore));
+    return mapObjWithRangeToOriginal(
+        transpiled,
+        TextEdit.insert(position, ignore)
+    );
 }
 
 const elementOrComponent = ['Component', 'Element', 'InlineComponent'];
@@ -243,9 +256,11 @@ function findTagForRange(ast: BaseNode, range: ts.TextRange, isHtml: boolean) {
         enter(node, parent) {
             if (isHtml) {
                 const { type } = node;
-                const isBlock = 'block' in node || node.type.toLowerCase().includes('block');
+                const isBlock = 'block' in node ||
+                    node.type.toLowerCase().includes('block');
                 const isFragment = type === 'Fragment';
-                const keepLooking = isFragment || elementOrComponent.includes(type) || isBlock;
+                const keepLooking = isFragment || elementOrComponent.includes(type) ||
+                    isBlock;
                 if (!keepLooking) {
                     this.skip();
                     return;

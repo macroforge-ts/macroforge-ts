@@ -89,9 +89,9 @@ import { TypeDefinitionProviderImpl } from './features/TypeDefinitionProvider';
 import { UpdateImportsProviderImpl } from './features/UpdateImportsProvider';
 import { getDirectiveCommentCompletions } from './features/getDirectiveCommentCompletions';
 import {
-    SnapshotMap,
     is$storeVariableIn$storeDeclaration,
-    isTextSpanInGeneratedCode
+    isTextSpanInGeneratedCode,
+    SnapshotMap
 } from './features/utils';
 import { DocumentHighlightProviderImpl } from './features/DocumentHighlightProvider';
 import { isAttributeName, isAttributeShorthand, isEventHandler } from './svelte-ast-utils';
@@ -132,8 +132,7 @@ export class TypeScriptPlugin
         WorkspaceSymbolsProvider,
         OnWatchFileChanges,
         CompletionsProvider<CompletionResolveInfo>,
-        UpdateTsOrJsFile
-{
+        UpdateTsOrJsFile {
     __name = 'ts';
     private readonly configManager: LSConfigManager;
     private readonly documentManager: DocumentManager;
@@ -186,7 +185,10 @@ export class TypeScriptPlugin
             this.lsAndTsDocResolver,
             configManager
         );
-        this.renameProvider = new RenameProviderImpl(this.lsAndTsDocResolver, configManager);
+        this.renameProvider = new RenameProviderImpl(
+            this.lsAndTsDocResolver,
+            configManager
+        );
         this.hoverProvider = new HoverProviderImpl(this.lsAndTsDocResolver);
         this.findFileReferencesProvider = new FindFileReferencesProviderImpl(
             this.lsAndTsDocResolver
@@ -198,11 +200,21 @@ export class TypeScriptPlugin
             this.lsAndTsDocResolver,
             this.findComponentReferencesProvider
         );
-        this.selectionRangeProvider = new SelectionRangeProviderImpl(this.lsAndTsDocResolver);
-        this.signatureHelpProvider = new SignatureHelpProviderImpl(this.lsAndTsDocResolver);
-        this.semanticTokensProvider = new SemanticTokensProviderImpl(this.lsAndTsDocResolver);
-        this.implementationProvider = new ImplementationProviderImpl(this.lsAndTsDocResolver);
-        this.typeDefinitionProvider = new TypeDefinitionProviderImpl(this.lsAndTsDocResolver);
+        this.selectionRangeProvider = new SelectionRangeProviderImpl(
+            this.lsAndTsDocResolver
+        );
+        this.signatureHelpProvider = new SignatureHelpProviderImpl(
+            this.lsAndTsDocResolver
+        );
+        this.semanticTokensProvider = new SemanticTokensProviderImpl(
+            this.lsAndTsDocResolver
+        );
+        this.implementationProvider = new ImplementationProviderImpl(
+            this.lsAndTsDocResolver
+        );
+        this.typeDefinitionProvider = new TypeDefinitionProviderImpl(
+            this.lsAndTsDocResolver
+        );
         this.inlayHintProvider = new InlayHintProviderImpl(this.lsAndTsDocResolver);
         this.callHierarchyProvider = new CallHierarchyProviderImpl(
             this.lsAndTsDocResolver,
@@ -218,7 +230,9 @@ export class TypeScriptPlugin
             this.implementationProvider,
             this.configManager
         );
-        this.documentHeightProvider = new DocumentHighlightProviderImpl(this.lsAndTsDocResolver);
+        this.documentHeightProvider = new DocumentHighlightProviderImpl(
+            this.lsAndTsDocResolver
+        );
         this.workspaceSymbolsProvider = new WorkspaceSymbolsProviderImpl(
             this.lsAndTsDocResolver,
             configManager
@@ -252,7 +266,8 @@ export class TypeScriptPlugin
             return [];
         }
 
-        const { lang, tsDoc } = await this.lsAndTsDocResolver.getLsForSyntheticOperations(document);
+        const { lang, tsDoc } = await this.lsAndTsDocResolver
+            .getLsForSyntheticOperations(document);
 
         if (cancellationToken?.isCancellationRequested) {
             return [];
@@ -283,12 +298,15 @@ export class TypeScriptPlugin
             }
 
             if (
-                (symbol.kind === SymbolKind.Property || symbol.kind === SymbolKind.Method) &&
+                (symbol.kind === SymbolKind.Property ||
+                    symbol.kind === SymbolKind.Method) &&
                 !isInScript(symbol.location.range.start, document)
             ) {
                 if (
                     symbol.name === 'props' &&
-                    document.getText().charAt(document.offsetAt(symbol.location.range.start)) !==
+                    document.getText().charAt(
+                            document.offsetAt(symbol.location.range.start)
+                        ) !==
                         'p'
                 ) {
                     // This is the "props" of a generated component constructor
@@ -306,7 +324,8 @@ export class TypeScriptPlugin
             }
 
             if (symbol.name === '<function>') {
-                let name = getTextInRange(symbol.location.range, document.getText()).trimLeft();
+                let name = getTextInRange(symbol.location.range, document.getText())
+                    .trimLeft();
                 if (name.length > 50) {
                     name = name.substring(0, 50) + '...';
                 }
@@ -400,8 +419,12 @@ export class TypeScriptPlugin
         );
     }
 
-    async getDefinitions(document: Document, position: Position): Promise<DefinitionLink[]> {
-        const { lang, tsDoc, lsContainer } = await this.lsAndTsDocResolver.getLSAndTSDoc(document);
+    async getDefinitions(
+        document: Document,
+        position: Position
+    ): Promise<DefinitionLink[]> {
+        const { lang, tsDoc, lsContainer } = await this.lsAndTsDocResolver
+            .getLSAndTSDoc(document);
 
         const defs = lang.getDefinitionAndBoundSpan(
             tsDoc.filePath,
@@ -456,7 +479,10 @@ export class TypeScriptPlugin
         return result.filter(isNotNullOrUndefined);
     }
 
-    async prepareRename(document: Document, position: Position): Promise<Range | null> {
+    async prepareRename(
+        document: Document,
+        position: Position
+    ): Promise<Range | null> {
         return this.renameProvider.prepareRename(document, position);
     }
 
@@ -478,7 +504,12 @@ export class TypeScriptPlugin
             return [];
         }
 
-        return this.codeActionsProvider.getCodeActions(document, range, context, cancellationToken);
+        return this.codeActionsProvider.getCodeActions(
+            document,
+            range,
+            context,
+            cancellationToken
+        );
     }
 
     async resolveCodeAction(
@@ -486,7 +517,11 @@ export class TypeScriptPlugin
         codeAction: CodeAction,
         cancellationToken?: CancellationToken | undefined
     ): Promise<CodeAction> {
-        return this.codeActionsProvider.resolveCodeAction(document, codeAction, cancellationToken);
+        return this.codeActionsProvider.resolveCodeAction(
+            document,
+            codeAction,
+            cancellationToken
+        );
     }
 
     async executeCommand(
@@ -519,7 +554,11 @@ export class TypeScriptPlugin
         position: Position,
         context: ReferenceContext
     ): Promise<Location[] | null> {
-        return this.findReferencesProvider.findReferences(document, position, context);
+        return this.findReferencesProvider.findReferences(
+            document,
+            position,
+            context
+        );
     }
 
     async fileReferences(uri: string): Promise<Location[] | null> {
@@ -530,21 +569,27 @@ export class TypeScriptPlugin
         return this.findComponentReferencesProvider.findComponentReferences(uri);
     }
 
-    async onWatchFileChanges(onWatchFileChangesParas: OnWatchFileChangesPara[]): Promise<void> {
+    async onWatchFileChanges(
+        onWatchFileChangesParas: OnWatchFileChangesPara[]
+    ): Promise<void> {
         const newFiles: string[] = [];
 
         for (const { fileName, changeType } of onWatchFileChangesParas) {
             const pathParts = fileName.split(/\/|\\/);
             const dirPathParts = pathParts.slice(0, pathParts.length - 1);
-            const declarationExtensions = [ts.Extension.Dcts, ts.Extension.Dts, ts.Extension.Dmts];
-            const canSafelyIgnore =
-                declarationExtensions.every((ext) => !fileName.endsWith(ext)) &&
+            const declarationExtensions = [
+                ts.Extension.Dcts,
+                ts.Extension.Dts,
+                ts.Extension.Dmts
+            ];
+            const canSafelyIgnore = declarationExtensions.every((ext) => !fileName.endsWith(ext)) &&
                 ignoredBuildDirectories.some((dir) => {
                     const index = dirPathParts.indexOf(dir);
 
                     return (
                         // Files in .svelte-kit/types should always come through
-                        index > 0 && (dir !== '.svelte-kit' || dirPathParts[index + 1] !== 'types')
+                        index > 0 &&
+                        (dir !== '.svelte-kit' || dirPathParts[index + 1] !== 'types')
                     );
                 });
             if (canSafelyIgnore) {
@@ -552,8 +597,8 @@ export class TypeScriptPlugin
             }
 
             const isSvelteFile = isSvelteFilePath(fileName);
-            const isClientSvelteFile =
-                isSvelteFile && this.documentManager.get(pathToUrl(fileName))?.openedByClient;
+            const isClientSvelteFile = isSvelteFile &&
+                this.documentManager.get(pathToUrl(fileName))?.openedByClient;
 
             if (changeType === FileChangeType.Deleted) {
                 if (!isClientSvelteFile) {
@@ -642,10 +687,17 @@ export class TypeScriptPlugin
         position: Position,
         cancellationToken?: CancellationToken
     ): Promise<Location[] | null> {
-        return this.implementationProvider.getImplementation(document, position, cancellationToken);
+        return this.implementationProvider.getImplementation(
+            document,
+            position,
+            cancellationToken
+        );
     }
 
-    async getTypeDefinition(document: Document, position: Position): Promise<Location[] | null> {
+    async getTypeDefinition(
+        document: Document,
+        position: Position
+    ): Promise<Location[] | null> {
         return this.typeDefinitionProvider.getTypeDefinition(document, position);
     }
 
@@ -658,7 +710,11 @@ export class TypeScriptPlugin
             return null;
         }
 
-        return this.inlayHintProvider.getInlayHints(document, range, cancellationToken);
+        return this.inlayHintProvider.getInlayHints(
+            document,
+            range,
+            cancellationToken
+        );
     }
 
     prepareCallHierarchy(
@@ -700,14 +756,21 @@ export class TypeScriptPlugin
         codeLensToResolve: CodeLens,
         cancellationToken?: CancellationToken
     ): Promise<CodeLens> {
-        return this.codLensProvider.resolveCodeLens(document, codeLensToResolve, cancellationToken);
+        return this.codLensProvider.resolveCodeLens(
+            document,
+            codeLensToResolve,
+            cancellationToken
+        );
     }
 
     async findDocumentHighlight(
         document: Document,
         position: Position
     ): Promise<DocumentHighlight[] | null> {
-        return this.documentHeightProvider.findDocumentHighlight(document, position);
+        return this.documentHeightProvider.findDocumentHighlight(
+            document,
+            position
+        );
     }
 
     async getWorkspaceSymbols(
@@ -717,7 +780,10 @@ export class TypeScriptPlugin
         if (!this.featureEnabled('workspaceSymbols')) {
             return null;
         }
-        return this.workspaceSymbolsProvider.getWorkspaceSymbols(query, cancellationToken);
+        return this.workspaceSymbolsProvider.getWorkspaceSymbols(
+            query,
+            cancellationToken
+        );
     }
 
     private featureEnabled(feature: keyof LSTypescriptConfig) {

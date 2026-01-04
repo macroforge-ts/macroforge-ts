@@ -447,7 +447,10 @@ const addAttributes: Record<string, IAttributeData[]> = {
     select: [{ name: 'bind:value' }],
     input: [
         { name: 'bind:value' },
-        { name: 'bind:group', description: 'Available for type="radio" and type="checkbox"' },
+        {
+            name: 'bind:group',
+            description: 'Available for type="radio" and type="checkbox"'
+        },
         { name: 'bind:checked', description: 'Available for type="checkbox"' },
         { name: 'bind:files', description: 'Available for type="file" (readonly)' },
         indeterminateAttribute,
@@ -494,15 +497,15 @@ export const svelteHtmlDataProvider = newHTMLDataProvider('svelte-builtin', {
     tags: [...html5Tags, ...svelteTags],
 
     // TODO remove this after it's fixed in the html language service
-    valueSets:
-        htmlData.valueSets?.map((set) => ({
-            name: set.name,
-            values: unique(set.values)
-        })) ?? []
+    valueSets: htmlData.valueSets?.map((set) => ({
+        name: set.name,
+        values: unique(set.values)
+    })) ?? []
 });
 
-const originalProvideAttributes =
-    svelteHtmlDataProvider.provideAttributes.bind(svelteHtmlDataProvider);
+const originalProvideAttributes = svelteHtmlDataProvider.provideAttributes.bind(
+    svelteHtmlDataProvider
+);
 
 svelteHtmlDataProvider.provideAttributes = (tag: string) => {
     if (tag === 'svelte:boundary' || tag === 'svelte:options') {

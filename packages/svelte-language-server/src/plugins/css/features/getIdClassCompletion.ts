@@ -16,7 +16,9 @@ export function getIdClassCompletion(
     return CompletionList.create(items);
 }
 
-function getCollectingType(attributeContext: AttributeContext): number | undefined {
+function getCollectingType(
+    attributeContext: AttributeContext
+): number | undefined {
     if (attributeContext.inValue) {
         if (attributeContext.name === 'class') {
             return NodeType.ClassSelector;

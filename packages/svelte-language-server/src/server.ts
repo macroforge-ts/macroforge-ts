@@ -1,31 +1,31 @@
 import {
     ApplyWorkspaceEditParams,
     ApplyWorkspaceEditRequest,
+    CallHierarchyIncomingCallsRequest,
+    CallHierarchyOutgoingCallsRequest,
+    CallHierarchyPrepareRequest,
     CodeActionKind,
-    DocumentUri,
     Connection,
+    DidChangeWatchedFilesNotification,
+    DidChangeWatchedFilesParams,
+    DocumentUri,
+    InlayHintRefreshRequest,
+    InlayHintRequest,
+    LinkedEditingRangeRequest,
     MessageType,
+    RelativePattern,
     RenameFile,
     RequestType,
+    SemanticTokensRangeRequest,
+    SemanticTokensRefreshRequest,
+    SemanticTokensRequest,
     ShowMessageNotification,
     TextDocumentIdentifier,
     TextDocumentPositionParams,
     TextDocumentSyncKind,
-    WorkspaceEdit,
-    SemanticTokensRequest,
-    SemanticTokensRangeRequest,
-    DidChangeWatchedFilesParams,
-    LinkedEditingRangeRequest,
-    CallHierarchyPrepareRequest,
-    CallHierarchyIncomingCallsRequest,
-    CallHierarchyOutgoingCallsRequest,
-    InlayHintRequest,
-    SemanticTokensRefreshRequest,
-    InlayHintRefreshRequest,
-    DidChangeWatchedFilesNotification,
-    RelativePattern
+    WorkspaceEdit
 } from 'vscode-languageserver';
-import { IPCMessageReader, IPCMessageWriter, createConnection } from 'vscode-languageserver/node';
+import { createConnection, IPCMessageReader, IPCMessageWriter } from 'vscode-languageserver/node';
 import { DiagnosticsManager } from './lib/DiagnosticsManager';
 import { Document, DocumentManager } from './lib/documents';
 import { getSemanticTokenLegends } from './lib/semanticToken/semanticTokenLegend';
@@ -35,27 +35,30 @@ import {
     AppCompletionItem,
     CSSPlugin,
     HTMLPlugin,
+    LSAndTSDocResolver,
+    OnWatchFileChangesPara,
     PluginHost,
     SveltePlugin,
-    TypeScriptPlugin,
-    OnWatchFileChangesPara,
-    LSAndTSDocResolver
+    TypeScriptPlugin
 } from './plugins';
 import { debounceThrottle, isNotNullOrUndefined, normalizeUri, urlToPath } from './utils';
 import { FallbackWatcher } from './lib/FallbackWatcher';
 import { configLoader } from './lib/documents/configLoader';
 import { setIsTrusted } from './importPackage';
 import {
-    SORT_IMPORT_CODE_ACTION_KIND,
     ADD_MISSING_IMPORTS_CODE_ACTION_KIND,
-    REMOVE_UNUSED_IMPORTS_CODE_ACTION_KIND
+    REMOVE_UNUSED_IMPORTS_CODE_ACTION_KIND,
+    SORT_IMPORT_CODE_ACTION_KIND
 } from './plugins/typescript/features/CodeActionsProvider';
 import { createLanguageServices } from './plugins/css/service';
 import { FileSystemProvider } from './plugins/css/FileSystemProvider';
 
 namespace TagCloseRequest {
-    export const type: RequestType<TextDocumentPositionParams, string | null, any> =
-        new RequestType('html/tag');
+    export const type: RequestType<
+        TextDocumentPositionParams,
+        string | null,
+        any
+    > = new RequestType('html/tag');
 }
 
 export interface LSOptions {
@@ -110,9 +113,18 @@ export function startServer(options?: LSOptions) {
 
     // Include Svelte files to better deal with scenarios such as switching git branches
     // where files that are not opened in the client could change
-    const watchExtensions = ['.ts', '.js', '.mts', '.mjs', '.cjs', '.cts', '.json', '.svelte'];
-    const nonRecursiveWatchPattern =
-        '*.{' + watchExtensions.map((ext) => ext.slice(1)).join(',') + '}';
+    const watchExtensions = [
+        '.ts',
+        '.js',
+        '.mts',
+        '.mjs',
+        '.cjs',
+        '.cts',
+        '.json',
+        '.svelte'
+    ];
+    const nonRecursiveWatchPattern = '*.{' +
+        watchExtensions.map((ext) => ext.slice(1)).join(',') + '}';
     const recursiveWatchPattern = '**/' + nonRecursiveWatchPattern;
 
     connection.onInitialize((evt) => {
@@ -124,8 +136,12 @@ export function startServer(options?: LSOptions) {
             Logger.error('No workspace path set');
         }
 
-        if (!evt.capabilities.workspace?.didChangeWatchedFiles?.dynamicRegistration) {
-            const workspacePaths = workspaceUris.map(urlToPath).filter(isNotNullOrUndefined);
+        if (
+            !evt.capabilities.workspace?.didChangeWatchedFiles?.dynamicRegistration
+        ) {
+            const workspacePaths = workspaceUris.map(urlToPath).filter(
+                isNotNullOrUndefined
+            );
             watcher = new FallbackWatcher(watchExtensions, workspacePaths);
             watcher.onDidChangeWatchedFiles(onDidChangeWatchedFiles);
 
@@ -139,7 +155,9 @@ export function startServer(options?: LSOptions) {
         setIsTrusted(isTrusted);
         configManager.updateIsTrusted(isTrusted);
         if (!isTrusted) {
-            Logger.log('Workspace is not trusted, running with reduced capabilities.');
+            Logger.log(
+                'Workspace is not trusted, running with reduced capabilities.'
+            );
         }
 
         Logger.setDebug(
@@ -173,52 +191,74 @@ export function startServer(options?: LSOptions) {
                 {}
         );
         // no old style as these were added later
-        configManager.updateCssConfig(evt.initializationOptions?.configuration?.css);
-        configManager.updateScssConfig(evt.initializationOptions?.configuration?.scss);
-        configManager.updateLessConfig(evt.initializationOptions?.configuration?.less);
-        configManager.updateHTMLConfig(evt.initializationOptions?.configuration?.html);
+        configManager.updateCssConfig(
+            evt.initializationOptions?.configuration?.css
+        );
+        configManager.updateScssConfig(
+            evt.initializationOptions?.configuration?.scss
+        );
+        configManager.updateLessConfig(
+            evt.initializationOptions?.configuration?.less
+        );
+        configManager.updateHTMLConfig(
+            evt.initializationOptions?.configuration?.html
+        );
         configManager.updateClientCapabilities(evt.capabilities);
 
         pluginHost.initialize({
-            filterIncompleteCompletions:
-                !evt.initializationOptions?.dontFilterIncompleteCompletions,
-            definitionLinkSupport: !!evt.capabilities.textDocument?.definition?.linkSupport
+            filterIncompleteCompletions: !evt.initializationOptions
+                ?.dontFilterIncompleteCompletions,
+            definitionLinkSupport: !!evt.capabilities.textDocument?.definition
+                ?.linkSupport
         });
         // Order of plugin registration matters for FirstNonNull, which affects for example hover info
-        pluginHost.register((sveltePlugin = new SveltePlugin(configManager)));
+        pluginHost.register(sveltePlugin = new SveltePlugin(configManager));
         pluginHost.register(new HTMLPlugin(docManager, configManager));
 
         const cssLanguageServices = createLanguageServices({
             clientCapabilities: evt.capabilities,
             fileSystemProvider: new FileSystemProvider()
         });
-        const workspaceFolders = evt.workspaceFolders ?? [{ name: '', uri: evt.rootUri ?? '' }];
+        const workspaceFolders = evt.workspaceFolders ??
+            [{ name: '', uri: evt.rootUri ?? '' }];
         pluginHost.register(
-            new CSSPlugin(docManager, configManager, workspaceFolders, cssLanguageServices)
+            new CSSPlugin(
+                docManager,
+                configManager,
+                workspaceFolders,
+                cssLanguageServices
+            )
         );
         const normalizedWorkspaceUris = workspaceUris.map(normalizeUri);
         pluginHost.register(
             new TypeScriptPlugin(
                 configManager,
-                new LSAndTSDocResolver(docManager, normalizedWorkspaceUris, configManager, {
-                    notifyExceedSizeLimit: notifyTsServiceExceedSizeLimit,
-                    onProjectReloaded: refreshCrossFilesSemanticFeatures,
-                    watch: true,
-                    nonRecursiveWatchPattern,
-                    watchDirectory: (patterns) => watchDirectory(patterns),
-                    reportConfigError(diagnostic) {
-                        connection?.sendDiagnostics(diagnostic);
+                new LSAndTSDocResolver(
+                    docManager,
+                    normalizedWorkspaceUris,
+                    configManager,
+                    {
+                        notifyExceedSizeLimit: notifyTsServiceExceedSizeLimit,
+                        onProjectReloaded: refreshCrossFilesSemanticFeatures,
+                        watch: true,
+                        nonRecursiveWatchPattern,
+                        watchDirectory: (patterns) => watchDirectory(patterns),
+                        reportConfigError(diagnostic) {
+                            connection?.sendDiagnostics(diagnostic);
+                        }
                     }
-                }),
+                ),
                 normalizedWorkspaceUris,
                 docManager
             )
         );
 
-        const clientSupportApplyEditCommand = !!evt.capabilities.workspace?.applyEdit;
-        const clientCodeActionCapabilities = evt.capabilities.textDocument?.codeAction;
-        const clientSupportedCodeActionKinds =
-            clientCodeActionCapabilities?.codeActionLiteralSupport?.codeActionKind.valueSet;
+        const clientSupportApplyEditCommand = !!evt.capabilities.workspace
+            ?.applyEdit;
+        const clientCodeActionCapabilities = evt.capabilities.textDocument
+            ?.codeAction;
+        const clientSupportedCodeActionKinds = clientCodeActionCapabilities
+            ?.codeActionLiteralSupport?.codeActionKind.valueSet;
 
         return {
             capabilities: {
@@ -270,38 +310,38 @@ export function startServer(options?: LSOptions) {
                 definitionProvider: true,
                 codeActionProvider: clientCodeActionCapabilities?.codeActionLiteralSupport
                     ? {
-                          codeActionKinds: [
-                              CodeActionKind.QuickFix,
-                              CodeActionKind.SourceOrganizeImports,
-                              SORT_IMPORT_CODE_ACTION_KIND,
-                              ADD_MISSING_IMPORTS_CODE_ACTION_KIND,
-                              REMOVE_UNUSED_IMPORTS_CODE_ACTION_KIND,
-                              ...(clientSupportApplyEditCommand ? [CodeActionKind.Refactor] : [])
-                          ].filter(
-                              clientSupportedCodeActionKinds &&
-                                  evt.initializationOptions?.shouldFilterCodeActionKind
-                                  ? (kind) => clientSupportedCodeActionKinds.includes(kind)
-                                  : () => true
-                          ),
-                          resolveProvider: true
-                      }
+                        codeActionKinds: [
+                            CodeActionKind.QuickFix,
+                            CodeActionKind.SourceOrganizeImports,
+                            SORT_IMPORT_CODE_ACTION_KIND,
+                            ADD_MISSING_IMPORTS_CODE_ACTION_KIND,
+                            REMOVE_UNUSED_IMPORTS_CODE_ACTION_KIND,
+                            ...(clientSupportApplyEditCommand ? [CodeActionKind.Refactor] : [])
+                        ].filter(
+                            clientSupportedCodeActionKinds &&
+                                evt.initializationOptions?.shouldFilterCodeActionKind
+                                ? (kind) => clientSupportedCodeActionKinds.includes(kind)
+                                : () => true
+                        ),
+                        resolveProvider: true
+                    }
                     : true,
                 executeCommandProvider: clientSupportApplyEditCommand
                     ? {
-                          commands: [
-                              'function_scope_0',
-                              'function_scope_1',
-                              'function_scope_2',
-                              'function_scope_3',
-                              'constant_scope_0',
-                              'constant_scope_1',
-                              'constant_scope_2',
-                              'constant_scope_3',
-                              'extract_to_svelte_component',
-                              'migrate_to_svelte_5',
-                              'Infer function return type'
-                          ]
-                      }
+                        commands: [
+                            'function_scope_0',
+                            'function_scope_1',
+                            'function_scope_2',
+                            'function_scope_3',
+                            'constant_scope_0',
+                            'constant_scope_1',
+                            'constant_scope_2',
+                            'constant_scope_3',
+                            'extract_to_svelte_component',
+                            'migrate_to_svelte_5',
+                            'Infer function return type'
+                        ]
+                    }
                     : undefined,
                 renameProvider: evt.capabilities.textDocument?.rename?.prepareSupport
                     ? { prepareProvider: true }
@@ -339,8 +379,8 @@ export function startServer(options?: LSOptions) {
             return;
         }
 
-        const didChangeWatchedFiles =
-            configManager.getClientCapabilities()?.workspace?.didChangeWatchedFiles;
+        const didChangeWatchedFiles = configManager.getClientCapabilities()
+            ?.workspace?.didChangeWatchedFiles;
 
         if (!didChangeWatchedFiles?.dynamicRegistration) {
             return;
@@ -374,8 +414,7 @@ export function startServer(options?: LSOptions) {
 
     function notifyTsServiceExceedSizeLimit() {
         connection?.sendNotification(ShowMessageNotification.type, {
-            message:
-                'Svelte language server detected a large amount of JS/Svelte files. ' +
+            message: 'Svelte language server detected a large amount of JS/Svelte files. ' +
                 'To enable project-wide JavaScript/TypeScript language features for Svelte files, ' +
                 'exclude large folders in the tsconfig.json or jsconfig.json with source files that you do not work on.',
             type: MessageType.Warning
@@ -417,13 +456,19 @@ export function startServer(options?: LSOptions) {
     });
     connection.onHover((evt) => pluginHost.doHover(evt.textDocument, evt.position));
     connection.onCompletion((evt, cancellationToken) =>
-        pluginHost.getCompletions(evt.textDocument, evt.position, evt.context, cancellationToken)
+        pluginHost.getCompletions(
+            evt.textDocument,
+            evt.position,
+            evt.context,
+            cancellationToken
+        )
     );
     connection.onDocumentFormatting((evt) =>
         pluginHost.formatDocument(evt.textDocument, evt.options)
     );
-    connection.onRequest(TagCloseRequest.type, (evt) =>
-        pluginHost.doTagComplete(evt.textDocument, evt.position)
+    connection.onRequest(
+        TagCloseRequest.type,
+        (evt) => pluginHost.doTagComplete(evt.textDocument, evt.position)
     );
     connection.onDocumentColor((evt) => pluginHost.getDocumentColors(evt.textDocument));
     connection.onColorPresentation((evt) =>
@@ -434,18 +479,31 @@ export function startServer(options?: LSOptions) {
             configManager.getClientCapabilities()?.textDocument?.documentSymbol
                 ?.hierarchicalDocumentSymbolSupport
         ) {
-            return pluginHost.getHierarchicalDocumentSymbols(evt.textDocument, cancellationToken);
+            return pluginHost.getHierarchicalDocumentSymbols(
+                evt.textDocument,
+                cancellationToken
+            );
         } else {
             return pluginHost.getDocumentSymbols(evt.textDocument, cancellationToken);
         }
     });
     connection.onDefinition((evt) => pluginHost.getDefinitions(evt.textDocument, evt.position));
     connection.onReferences((evt, cancellationToken) =>
-        pluginHost.findReferences(evt.textDocument, evt.position, evt.context, cancellationToken)
+        pluginHost.findReferences(
+            evt.textDocument,
+            evt.position,
+            evt.context,
+            cancellationToken
+        )
     );
 
     connection.onCodeAction((evt, cancellationToken) =>
-        pluginHost.getCodeActions(evt.textDocument, evt.range, evt.context, cancellationToken)
+        pluginHost.getCodeActions(
+            evt.textDocument,
+            evt.range,
+            evt.context,
+            cancellationToken
+        )
     );
     connection.onExecuteCommand(async (evt) => {
         const result = await pluginHost.executeCommand(
@@ -469,17 +527,27 @@ export function startServer(options?: LSOptions) {
     });
 
     connection.onCompletionResolve((completionItem, cancellationToken) => {
-        const data = (completionItem as AppCompletionItem).data as TextDocumentIdentifier;
+        const data = (completionItem as AppCompletionItem)
+            .data as TextDocumentIdentifier;
 
         if (!data) {
             return completionItem;
         }
 
-        return pluginHost.resolveCompletion(data, completionItem, cancellationToken);
+        return pluginHost.resolveCompletion(
+            data,
+            completionItem,
+            cancellationToken
+        );
     });
 
     connection.onSignatureHelp((evt, cancellationToken) =>
-        pluginHost.getSignatureHelp(evt.textDocument, evt.position, evt.context, cancellationToken)
+        pluginHost.getSignatureHelp(
+            evt.textDocument,
+            evt.position,
+            evt.context,
+            cancellationToken
+        )
     );
 
     connection.onSelectionRanges((evt) =>
@@ -487,7 +555,11 @@ export function startServer(options?: LSOptions) {
     );
 
     connection.onImplementation((evt, cancellationToken) =>
-        pluginHost.getImplementation(evt.textDocument, evt.position, cancellationToken)
+        pluginHost.getImplementation(
+            evt.textDocument,
+            evt.position,
+            cancellationToken
+        )
     );
 
     connection.onTypeDefinition((evt) =>
@@ -519,13 +591,19 @@ export function startServer(options?: LSOptions) {
     );
 
     const refreshSemanticTokens = debounceThrottle(() => {
-        if (configManager?.getClientCapabilities()?.workspace?.semanticTokens?.refreshSupport) {
+        if (
+            configManager?.getClientCapabilities()?.workspace?.semanticTokens
+                ?.refreshSupport
+        ) {
             connection?.sendRequest(SemanticTokensRefreshRequest.method);
         }
     }, 1500);
 
     const refreshInlayHints = debounceThrottle(() => {
-        if (configManager?.getClientCapabilities()?.workspace?.inlayHint?.refreshSupport) {
+        if (
+            configManager?.getClientCapabilities()?.workspace?.inlayHint
+                ?.refreshSupport
+        ) {
             connection?.sendRequest(InlayHintRefreshRequest.method);
         }
     }, 1500);
@@ -550,7 +628,9 @@ export function startServer(options?: LSOptions) {
         refreshCrossFilesSemanticFeatures();
     }
 
-    connection.onDidSaveTextDocument(diagnosticsManager.scheduleUpdateAll.bind(diagnosticsManager));
+    connection.onDidSaveTextDocument(
+        diagnosticsManager.scheduleUpdateAll.bind(diagnosticsManager)
+    );
     connection.onNotification('$/onDidChangeTsOrJsFile', async (e: any) => {
         const path = urlToPath(e.uri);
         if (path) {
@@ -560,11 +640,23 @@ export function startServer(options?: LSOptions) {
         refreshCrossFilesSemanticFeatures();
     });
 
-    connection.onRequest(SemanticTokensRequest.type, (evt, cancellationToken) =>
-        pluginHost.getSemanticTokens(evt.textDocument, undefined, cancellationToken)
+    connection.onRequest(
+        SemanticTokensRequest.type,
+        (evt, cancellationToken) =>
+            pluginHost.getSemanticTokens(
+                evt.textDocument,
+                undefined,
+                cancellationToken
+            )
     );
-    connection.onRequest(SemanticTokensRangeRequest.type, (evt, cancellationToken) =>
-        pluginHost.getSemanticTokens(evt.textDocument, evt.range, cancellationToken)
+    connection.onRequest(
+        SemanticTokensRangeRequest.type,
+        (evt, cancellationToken) =>
+            pluginHost.getSemanticTokens(
+                evt.textDocument,
+                evt.range,
+                cancellationToken
+            )
     );
 
     connection.onRequest(
@@ -572,14 +664,20 @@ export function startServer(options?: LSOptions) {
         async (evt) => await pluginHost.getLinkedEditingRanges(evt.textDocument, evt.position)
     );
 
-    connection.onRequest(InlayHintRequest.type, (evt, cancellationToken) =>
-        pluginHost.getInlayHints(evt.textDocument, evt.range, cancellationToken)
+    connection.onRequest(
+        InlayHintRequest.type,
+        (evt, cancellationToken) =>
+            pluginHost.getInlayHints(evt.textDocument, evt.range, cancellationToken)
     );
 
     connection.onRequest(
         CallHierarchyPrepareRequest.type,
         async (evt, token) =>
-            await pluginHost.prepareCallHierarchy(evt.textDocument, evt.position, token)
+            await pluginHost.prepareCallHierarchy(
+                evt.textDocument,
+                evt.position,
+                token
+            )
     );
 
     connection.onRequest(
@@ -592,15 +690,20 @@ export function startServer(options?: LSOptions) {
         async (evt, token) => await pluginHost.getOutgoingCalls(evt.item, token)
     );
 
-    docManager.on('documentChange', diagnosticsManager.scheduleUpdate.bind(diagnosticsManager));
-    docManager.on('documentClose', (document: Document) =>
-        diagnosticsManager.removeDiagnostics(document)
+    docManager.on(
+        'documentChange',
+        diagnosticsManager.scheduleUpdate.bind(diagnosticsManager)
+    );
+    docManager.on(
+        'documentClose',
+        (document: Document) => diagnosticsManager.removeDiagnostics(document)
     );
 
     // The language server protocol does not have a specific "did rename/move files" event,
     // so we create our own in the extension client and handle it here
-    connection.onRequest('$/getEditsForFileRename', async (fileRename: RenameFile) =>
-        pluginHost.updateImports(fileRename)
+    connection.onRequest(
+        '$/getEditsForFileRename',
+        async (fileRename: RenameFile) => pluginHost.updateImports(fileRename)
     );
 
     connection.onRequest('$/getFileReferences', async (uri: string) => {

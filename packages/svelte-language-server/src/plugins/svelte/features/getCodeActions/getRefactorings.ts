@@ -50,9 +50,11 @@ async function executeExtractComponentCommand(
         filePath = './' + filePath;
     }
     const componentName = filePath.split('/').pop()?.split('.svelte')[0] || '';
-    const newFileUri = pathToUrl(path.join(path.dirname(svelteDoc.getFilePath()), filePath));
+    const newFileUri = pathToUrl(
+        path.join(path.dirname(svelteDoc.getFilePath()), filePath)
+    );
 
-    return <WorkspaceEdit>{
+    return <WorkspaceEdit> {
         documentChanges: [
             TextDocumentEdit.create(
                 OptionalVersionedTextDocumentIdentifier.create(svelteDoc.uri, null),
@@ -70,8 +72,10 @@ async function executeExtractComponentCommand(
         const text = svelteDoc.getText();
         const offsetStart = svelteDoc.offsetAt(range.start);
         const offsetEnd = svelteDoc.offsetAt(range.end);
-        const validStart = offsetStart === 0 || /[\s\W]/.test(text[offsetStart - 1]);
-        const validEnd = offsetEnd === text.length - 1 || /[\s\W]/.test(text[offsetEnd]);
+        const validStart = offsetStart === 0 ||
+            /[\s\W]/.test(text[offsetStart - 1]);
+        const validEnd = offsetEnd === text.length - 1 ||
+            /[\s\W]/.test(text[offsetEnd]);
         return (
             !validStart ||
             !validEnd ||
@@ -102,7 +106,8 @@ async function executeExtractComponentCommand(
         function getTemplate() {
             const startOffset = svelteDoc.offsetAt(range.start);
             return {
-                text: text.substring(startOffset, svelteDoc.offsetAt(range.end)) + '\n\n',
+                text: text.substring(startOffset, svelteDoc.offsetAt(range.end)) +
+                    '\n\n',
                 start: startOffset
             };
         }

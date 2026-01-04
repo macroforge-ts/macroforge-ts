@@ -21,7 +21,9 @@ export class DocumentManager {
     private deleteCandidates: FileSet;
 
     constructor(
-        private createDocument: (textDocument: Pick<TextDocumentItem, 'text' | 'uri'>) => Document,
+        private createDocument: (
+            textDocument: Pick<TextDocumentItem, 'text' | 'uri'>
+        ) => Document,
         options: { useCaseSensitiveFileNames: boolean } = {
             useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames
         }
@@ -31,7 +33,9 @@ export class DocumentManager {
         this.deleteCandidates = new FileSet(options.useCaseSensitiveFileNames);
     }
 
-    openClientDocument(textDocument: Pick<TextDocumentItem, 'text' | 'uri'>): Document {
+    openClientDocument(
+        textDocument: Pick<TextDocumentItem, 'text' | 'uri'>
+    ): Document {
         return this.openDocument(textDocument, /**openedByClient */ true);
     }
 

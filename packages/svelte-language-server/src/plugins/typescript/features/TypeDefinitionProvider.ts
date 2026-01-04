@@ -1,4 +1,4 @@
-import { Position, Location } from 'vscode-languageserver-protocol';
+import { Location, Position } from 'vscode-languageserver-protocol';
 import { Document, mapLocationToOriginal } from '../../../lib/documents';
 import { isNotNullOrUndefined } from '../../../utils';
 import { TypeDefinitionProvider } from '../../interfaces';
@@ -9,8 +9,12 @@ import { isTextSpanInGeneratedCode, SnapshotMap } from './utils';
 export class TypeDefinitionProviderImpl implements TypeDefinitionProvider {
     constructor(private readonly lsAndTsDocResolver: LSAndTSDocResolver) {}
 
-    async getTypeDefinition(document: Document, position: Position): Promise<Location[] | null> {
-        const { tsDoc, lang, lsContainer } = await this.lsAndTsDocResolver.getLSAndTSDoc(document);
+    async getTypeDefinition(
+        document: Document,
+        position: Position
+    ): Promise<Location[] | null> {
+        const { tsDoc, lang, lsContainer } = await this.lsAndTsDocResolver
+            .getLSAndTSDoc(document);
         const offset = tsDoc.offsetAt(tsDoc.getGeneratedPosition(position));
         const typeDefs = lang.getTypeDefinitionAtPosition(tsDoc.filePath, offset);
 
@@ -25,7 +29,9 @@ export class TypeDefinitionProviderImpl implements TypeDefinitionProvider {
             typeDefs.map(async (typeDef) => {
                 const snapshot = await snapshots.retrieve(typeDef.fileName);
 
-                if (isTextSpanInGeneratedCode(snapshot.getFullText(), typeDef.textSpan)) {
+                if (
+                    isTextSpanInGeneratedCode(snapshot.getFullText(), typeDef.textSpan)
+                ) {
                     return;
                 }
 

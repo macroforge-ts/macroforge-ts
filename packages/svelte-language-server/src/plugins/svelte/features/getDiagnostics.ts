@@ -36,7 +36,12 @@ export async function getDiagnostics(
     }
 
     try {
-        return await tryGetDiagnostics(document, svelteDoc, settings, cancellationToken);
+        return await tryGetDiagnostics(
+            document,
+            svelteDoc,
+            settings,
+            cancellationToken
+        );
     } catch (error) {
         return getPreprocessErrorDiagnostics(document, error);
     }
@@ -78,12 +83,16 @@ async function tryGetDiagnostics(
                 const start = warning.start || { line: 1, column: 0 };
                 const end = warning.end || start;
                 return {
-                    range: Range.create(start.line - 1, start.column, end.line - 1, end.column),
+                    range: Range.create(
+                        start.line - 1,
+                        start.column,
+                        end.line - 1,
+                        end.column
+                    ),
                     message: warning.message,
-                    severity:
-                        settings[warning.code] === 'error'
-                            ? DiagnosticSeverity.Error
-                            : DiagnosticSeverity.Warning,
+                    severity: settings[warning.code] === 'error'
+                        ? DiagnosticSeverity.Error
+                        : DiagnosticSeverity.Warning,
                     source: 'svelte',
                     code: warning.code
                 };
@@ -148,8 +157,7 @@ function createParserErrorDiagnostic(error: any, document: Document) {
                     '\nIf you use less/SCSS with `svelte-preprocess`, did you add `lang="scss"`/`lang="less"` to your `style` tag? ' +
                     scssNodeRuntimeHint;
             }
-            diagnostic.message +=
-                '\nDid you setup a `svelte.config.js`? ' +
+            diagnostic.message += '\nDid you setup a `svelte.config.js`? ' +
                 '\nSee https://github.com/sveltejs/language-tools/tree/master/docs#using-with-preprocessors for more info.';
         }
     }
@@ -160,7 +168,10 @@ function createParserErrorDiagnostic(error: any, document: Document) {
 /**
  * Try to infer a nice diagnostic error message from the transpilation error.
  */
-function getPreprocessErrorDiagnostics(document: Document, error: any): Diagnostic[] {
+function getPreprocessErrorDiagnostics(
+    document: Document,
+    error: any
+): Diagnostic[] {
     Logger.error('Preprocessing failed');
     Logger.error(error);
 
@@ -192,12 +203,15 @@ function getConfigLoadErrorDiagnostics(error: any): Diagnostic[] {
 /**
  * Try to infer a nice diagnostic error message from the transpilation error.
  */
-function getStyleErrorDiagnostics(error: any, document: Document): Diagnostic[] {
+function getStyleErrorDiagnostics(
+    error: any,
+    document: Document
+): Diagnostic[] {
     // Error could be from another file that was mixed into the Svelte file as part of preprocessing.
     // Some preprocessors set the file property from which we can infer that
-    const isErrorFromOtherFile =
-        typeof error?.file === 'string' &&
-        getLastPartOfPath(error.file) !== getLastPartOfPath(document.getFilePath() || '');
+    const isErrorFromOtherFile = typeof error?.file === 'string' &&
+        getLastPartOfPath(error.file) !==
+            getLastPartOfPath(document.getFilePath() || '');
 
     return [
         {
@@ -214,8 +228,7 @@ function getStyleErrorDiagnostics(error: any, document: Document): Diagnostic[] 
             return getErrorMessage(error.message, 'style', hint);
         }
 
-        const msg =
-            error.formatted /* sass error messages have this */ ||
+        const msg = error.formatted /* sass error messages have this */ ||
             error.message ||
             'Style error. Transpilation failed.';
         return isErrorFromOtherFile ? 'Error in referenced file\n\n' + msg : msg;
@@ -223,14 +236,13 @@ function getStyleErrorDiagnostics(error: any, document: Document): Diagnostic[] 
 
     function getStyleErrorRange() {
         const lineOffset = document.styleInfo?.startPos.line || 0;
-        const position =
-            !isErrorFromOtherFile &&
-            // Some preprocessors like sass or less return error objects with these attributes.
-            // Use it to display message at better position.
-            typeof error?.column === 'number' &&
-            typeof error?.line === 'number'
-                ? Position.create(lineOffset + error.line - 1, error.column)
-                : document.styleInfo?.startPos || Position.create(0, 0);
+        const position = !isErrorFromOtherFile &&
+                // Some preprocessors like sass or less return error objects with these attributes.
+                // Use it to display message at better position.
+                typeof error?.column === 'number' &&
+                typeof error?.line === 'number'
+            ? Position.create(lineOffset + error.line - 1, error.column)
+            : document.styleInfo?.startPos || Position.create(0, 0);
         return Range.create(position, position);
     }
 }
@@ -238,7 +250,10 @@ function getStyleErrorDiagnostics(error: any, document: Document): Diagnostic[] 
 /**
  * Try to infer a nice diagnostic error message from the transpilation error.
  */
-function getScriptErrorDiagnostics(error: any, document: Document): Diagnostic[] {
+function getScriptErrorDiagnostics(
+    error: any,
+    document: Document
+): Diagnostic[] {
     return [
         {
             message: getScriptErrorMessage(),
@@ -257,8 +272,7 @@ function getScriptErrorDiagnostics(error: any, document: Document): Diagnostic[]
     }
 
     function getScriptErrorRange() {
-        const position =
-            document.scriptInfo?.startPos ||
+        const position = document.scriptInfo?.startPos ||
             document.moduleScriptInfo?.startPos ||
             Position.create(0, 0);
         return Range.create(position, position);
@@ -292,7 +306,8 @@ function getOtherErrorDiagnostics(error: any): Diagnostic[] {
  * A warning about a broken svelte.configs.js/preprocessor setup should be added then.
  */
 function isSveltePreprocessCannotFindModulesError(error: any): error is Error {
-    return error instanceof Error && error.message.startsWith('Cannot find any of modules');
+    return error instanceof Error &&
+        error.message.startsWith('Cannot find any of modules');
 }
 
 function getErrorMessage(error: any, source: string, hint = '') {
@@ -365,7 +380,8 @@ function adjustMappings(diag: Diagnostic, doc: Document): Diagnostic {
     diag.range = moveRangeStartToEndIfNecessary(diag.range);
 
     if (
-        (diag.code === 'css-unused-selector' || diag.code === 'css_unused_selector') &&
+        (diag.code === 'css-unused-selector' ||
+            diag.code === 'css_unused_selector') &&
         doc.styleInfo &&
         !isInTag(diag.range.start, doc.styleInfo)
     ) {

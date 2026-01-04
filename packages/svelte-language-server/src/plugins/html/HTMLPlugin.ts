@@ -1,41 +1,41 @@
 import { doComplete as doEmmetComplete } from '@vscode/emmet-helper';
 import {
+    CompletionItem as HtmlCompletionItem,
     getLanguageService,
     HTMLDocument,
-    CompletionItem as HtmlCompletionItem,
-    Node,
-    newHTMLDataProvider
+    newHTMLDataProvider,
+    Node
 } from 'vscode-html-languageservice';
 import {
-    CompletionList,
-    Hover,
-    Position,
-    SymbolInformation,
+    CompletionContext,
     CompletionItem,
     CompletionItemKind,
-    TextEdit,
-    Range,
-    WorkspaceEdit,
-    LinkedEditingRanges,
-    CompletionContext,
+    CompletionList,
+    DocumentHighlight,
     FoldingRange,
-    DocumentHighlight
+    Hover,
+    LinkedEditingRanges,
+    Position,
+    Range,
+    SymbolInformation,
+    TextEdit,
+    WorkspaceEdit
 } from 'vscode-languageserver';
 import {
-    DocumentManager,
     Document,
-    isInTag,
-    getNodeIfIsInComponentStartTag
+    DocumentManager,
+    getNodeIfIsInComponentStartTag,
+    isInTag
 } from '../../lib/documents';
 import { LSConfigManager, LSHTMLConfig } from '../../ls-config';
 import { svelteHtmlDataProvider } from './dataProvider';
 import {
-    HoverProvider,
     CompletionsProvider,
-    RenameProvider,
-    LinkedEditingRangesProvider,
+    DocumentHighlightProvider,
     FoldingRangeProvider,
-    DocumentHighlightProvider
+    HoverProvider,
+    LinkedEditingRangesProvider,
+    RenameProvider
 } from '../interfaces';
 import { isInsideMoustacheTag, toRange } from '../../lib/documents/utils';
 import { isNotNullOrUndefined, possiblyComponent } from '../../utils';
@@ -56,8 +56,7 @@ export class HTMLPlugin
         RenameProvider,
         LinkedEditingRangesProvider,
         FoldingRangeProvider,
-        DocumentHighlightProvider
-{
+        DocumentHighlightProvider {
     __name = 'html';
     private lang = getLanguageService({
         customDataProviders: this.getCustomDataProviders(),
@@ -134,7 +133,12 @@ export class HTMLPlugin
             this.configManager.getEmmetConfig().showExpandedAbbreviation !== 'never'
         ) {
             doEmmetCompleteInner = () =>
-                doEmmetComplete(document, position, 'html', this.configManager.getEmmetConfig());
+                doEmmetComplete(
+                    document,
+                    position,
+                    'html',
+                    this.configManager.getEmmetConfig()
+                );
 
             this.lang.setCompletionParticipants([
                 {
@@ -161,22 +165,21 @@ export class HTMLPlugin
         }
 
         const results = this.isInComponentTag(html, document, position)
-            ? // Only allow emmet inside component element tags.
-              // Other attributes/events would be false positives.
-              CompletionList.create([])
+            // Only allow emmet inside component element tags.
+            // Other attributes/events would be false positives.
+            ? CompletionList.create([])
             : this.lang.doComplete(document, position, html);
         const items = this.toCompletionItems(results.items);
         const filePath = document.getFilePath();
 
-        const prettierConfig =
-            filePath &&
-            items.some((item) => item.label.startsWith('on:') || item.label.startsWith('bind:'))
-                ? this.configManager.getMergedPrettierConfig(
-                      await importPrettier(filePath).resolveConfig(filePath, {
-                          editorconfig: true
-                      })
-                  )
-                : null;
+        const prettierConfig = filePath &&
+                items.some((item) => item.label.startsWith('on:') || item.label.startsWith('bind:'))
+            ? this.configManager.getMergedPrettierConfig(
+                await importPrettier(filePath).resolveConfig(filePath, {
+                    editorconfig: true
+                })
+            )
+            : null;
 
         const svelteStrictMode = prettierConfig?.svelteStrictMode;
         const startQuote = svelteStrictMode ? '"{' : '{';
@@ -239,17 +242,28 @@ export class HTMLPlugin
     private toCompletionItems(items: HtmlCompletionItem[]): CompletionItem[] {
         return items.map((item) => {
             if (!item.textEdit || TextEdit.is(item.textEdit)) {
-                return <CompletionItem>item;
+                return <CompletionItem> item;
             }
             return {
                 ...item,
-                textEdit: TextEdit.replace(item.textEdit.replace, item.textEdit.newText)
+                textEdit: TextEdit.replace(
+                    item.textEdit.replace,
+                    item.textEdit.newText
+                )
             };
         });
     }
 
-    private isInComponentTag(html: HTMLDocument, document: Document, position: Position) {
-        return !!getNodeIfIsInComponentStartTag(html, document, document.offsetAt(position));
+    private isInComponentTag(
+        html: HTMLDocument,
+        document: Document,
+        position: Position
+    ) {
+        return !!getNodeIfIsInComponentStartTag(
+            html,
+            document,
+            document.offsetAt(position)
+        );
     }
 
     private getLangCompletions(completions: CompletionItem[]): CompletionItem[] {
@@ -276,16 +290,15 @@ export class HTMLPlugin
                 langCompletions.push({
                     ...existingCompletion,
                     label: `${tag} (lang="${lang}")`,
-                    insertText:
-                        existingCompletion.insertText &&
+                    insertText: existingCompletion.insertText &&
                         `${existingCompletion.insertText} lang="${lang}"`,
-                    textEdit:
-                        existingCompletion.textEdit && TextEdit.is(existingCompletion.textEdit)
-                            ? {
-                                  range: existingCompletion.textEdit.range,
-                                  newText: `${existingCompletion.textEdit.newText} lang="${lang}"`
-                              }
-                            : undefined
+                    textEdit: existingCompletion.textEdit &&
+                            TextEdit.is(existingCompletion.textEdit)
+                        ? {
+                            range: existingCompletion.textEdit.range,
+                            newText: `${existingCompletion.textEdit.newText} lang="${lang}"`
+                        }
+                        : undefined
                 })
             );
         }
@@ -308,7 +321,11 @@ export class HTMLPlugin
         return this.lang.doTagComplete(document, position, html);
     }
 
-    private isInsideMoustacheTag(html: HTMLDocument, document: Document, position: Position) {
+    private isInsideMoustacheTag(
+        html: HTMLDocument,
+        document: Document,
+        position: Position
+    ) {
         const offset = document.offsetAt(position);
         const node = html.findNodeAt(offset);
         return isInsideMoustacheTag(document.getText(), node.start, offset);
@@ -327,7 +344,11 @@ export class HTMLPlugin
         return this.lang.findDocumentSymbols(document, html);
     }
 
-    rename(document: Document, position: Position, newName: string): WorkspaceEdit | null {
+    rename(
+        document: Document,
+        position: Position,
+        newName: string
+    ): WorkspaceEdit | null {
         const html = this.documents.get(document);
         if (!html) {
             return null;
@@ -349,7 +370,10 @@ export class HTMLPlugin
 
         const offset = document.offsetAt(position);
         const node = html.findNodeAt(offset);
-        if (!node || possiblyComponent(node) || !node.tag || !this.isRenameAtTag(node, offset)) {
+        if (
+            !node || possiblyComponent(node) || !node.tag ||
+            !this.isRenameAtTag(node, offset)
+        ) {
             return null;
         }
         const tagNameStart = node.start + '<'.length;
@@ -357,7 +381,10 @@ export class HTMLPlugin
         return toRange(document, tagNameStart, tagNameStart + node.tag.length);
     }
 
-    getLinkedEditingRanges(document: Document, position: Position): LinkedEditingRanges | null {
+    getLinkedEditingRanges(
+        document: Document,
+        position: Position
+    ): LinkedEditingRanges | null {
         if (!this.featureEnabled('linkedEditing')) {
             return null;
         }
@@ -407,8 +434,7 @@ export class HTMLPlugin
                 break;
             }
             const position = document.positionAt(index);
-            const isInStyleOrScript =
-                isInTag(position, document.styleInfo) ||
+            const isInStyleOrScript = isInTag(position, document.styleInfo) ||
                 isInTag(position, document.scriptInfo) ||
                 isInTag(position, document.moduleScriptInfo);
 
@@ -448,7 +474,10 @@ export class HTMLPlugin
         return result.concat(templateRange);
     }
 
-    findDocumentHighlight(document: Document, position: Position): DocumentHighlight[] | null {
+    findDocumentHighlight(
+        document: Document,
+        position: Position
+    ): DocumentHighlight[] | null {
         const html = this.documents.get(document);
         if (!html) {
             return null;
@@ -488,24 +517,23 @@ export class HTMLPlugin
 
         const startTagNameEnd = node.start + `<${node.tag}`.length;
         const isAtStartTag = offset > node.start && offset <= startTagNameEnd;
-        const isAtEndTag =
-            node.endTagStart !== undefined && offset >= node.endTagStart && offset < node.end;
+        const isAtEndTag = node.endTagStart !== undefined &&
+            offset >= node.endTagStart && offset < node.end;
         return isAtStartTag || isAtEndTag;
     }
 
     private getCustomDataProviders() {
-        const providers =
-            this.configManager
-                .getHTMLConfig()
-                ?.customData?.map((customDataPath) => {
-                    try {
-                        const jsonPath = path.resolve(customDataPath);
-                        return newHTMLDataProvider(customDataPath, require(jsonPath));
-                    } catch (error) {
-                        Logger.error(error);
-                    }
-                })
-                .filter(isNotNullOrUndefined) ?? [];
+        const providers = this.configManager
+            .getHTMLConfig()
+            ?.customData?.map((customDataPath) => {
+                try {
+                    const jsonPath = path.resolve(customDataPath);
+                    return newHTMLDataProvider(customDataPath, require(jsonPath));
+                } catch (error) {
+                    Logger.error(error);
+                }
+            })
+            .filter(isNotNullOrUndefined) ?? [];
 
         return [svelteHtmlDataProvider].concat(providers);
     }

@@ -1,19 +1,19 @@
 import * as assert from 'assert';
 import {
-    Range,
-    Position,
-    Hover,
+    CompletionContext,
     CompletionItem,
     CompletionItemKind,
-    TextEdit,
-    CompletionContext,
-    SelectionRange,
     CompletionTriggerKind,
-    FoldingRangeKind,
     DocumentHighlight,
-    DocumentHighlightKind
+    DocumentHighlightKind,
+    FoldingRangeKind,
+    Hover,
+    Position,
+    Range,
+    SelectionRange,
+    TextEdit
 } from 'vscode-languageserver';
-import { DocumentManager, Document } from '../../../src/lib/documents';
+import { Document, DocumentManager } from '../../../src/lib/documents';
 import { CSSPlugin } from '../../../src/plugins';
 import { LSConfigManager } from '../../../src/ls-config';
 import { createLanguageServices } from '../../../src/plugins/css/service';
@@ -36,7 +36,7 @@ describe('CSS Plugin', () => {
             ],
             createLanguageServices(lsOptions)
         );
-        docManager.openClientDocument(<any>'some doc');
+        docManager.openClientDocument(<any> 'some doc');
         return { plugin, document };
     }
 
@@ -44,45 +44,63 @@ describe('CSS Plugin', () => {
         it('for normal css', () => {
             const { plugin, document } = setup('<style>h1 {}</style>');
 
-            assert.deepStrictEqual(plugin.doHover(document, Position.create(0, 8)), <Hover>{
-                contents: [
-                    { language: 'html', value: '<h1>' },
-                    '[Selector Specificity](https://developer.mozilla.org/docs/Web/CSS/Specificity): (0, 0, 1)'
-                ],
-                range: Range.create(0, 7, 0, 9)
-            });
+            assert.deepStrictEqual(
+                plugin.doHover(document, Position.create(0, 8)),
+                <Hover> {
+                    contents: [
+                        { language: 'html', value: '<h1>' },
+                        '[Selector Specificity](https://developer.mozilla.org/docs/Web/CSS/Specificity): (0, 0, 1)'
+                    ],
+                    range: Range.create(0, 7, 0, 9)
+                }
+            );
 
-            assert.strictEqual(plugin.doHover(document, Position.create(0, 10)), null);
+            assert.strictEqual(
+                plugin.doHover(document, Position.create(0, 10)),
+                null
+            );
         });
 
         it('not for SASS', () => {
             const { plugin, document } = setup('<style lang="sass">h1 {}</style>');
-            assert.deepStrictEqual(plugin.doHover(document, Position.create(0, 20)), null);
+            assert.deepStrictEqual(
+                plugin.doHover(document, Position.create(0, 20)),
+                null
+            );
         });
 
         it('not for stylus', () => {
             const { plugin, document } = setup('<style lang="stylus">h1 {}</style>');
-            assert.deepStrictEqual(plugin.doHover(document, Position.create(0, 22)), null);
+            assert.deepStrictEqual(
+                plugin.doHover(document, Position.create(0, 22)),
+                null
+            );
         });
 
         it('for style attribute', () => {
             const { plugin, document } = setup('<div style="height: auto;"></div>');
-            assert.deepStrictEqual(plugin.doHover(document, Position.create(0, 13)), <Hover>{
-                contents: {
-                    kind: 'markdown',
-                    value:
-                        "Specifies the height of the content area, padding area or border area \\(depending on 'box\\-sizing'\\) of certain boxes\\.\n\n" +
-                        '![Baseline icon](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCA1NDAgMzAwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxzdHlsZT4KICAgIC5ncmVlbi1zaGFwZSB7CiAgICAgIGZpbGw6ICNDNEVFRDA7IC8qIExpZ2h0IG1vZGUgKi8KICAgIH0KCiAgICBAbWVkaWEgKHByZWZlcnMtY29sb3Itc2NoZW1lOiBkYXJrKSB7CiAgICAgIC5ncmVlbi1zaGFwZSB7CiAgICAgICAgZmlsbDogIzEyNTIyNTsgLyogRGFyayBtb2RlICovCiAgICAgIH0KICAgIH0KICA8L3N0eWxlPgogIDxwYXRoIGQ9Ik00MjAgMzBMMzkwIDYwTDQ4MCAxNTBMMzkwIDI0MEwzMzAgMTgwTDMwMCAyMTBMMzkwIDMwMEw1NDAgMTUwTDQyMCAzMFoiIGNsYXNzPSJncmVlbi1zaGFwZSIvPgogIDxwYXRoIGQ9Ik0xNTAgMEwzMCAxMjBMNjAgMTUwTDE1MCA2MEwyMTAgMTIwTDI0MCA5MEwxNTAgMFoiIGNsYXNzPSJncmVlbi1zaGFwZSIvPgogIDxwYXRoIGQ9Ik0zOTAgMEw0MjAgMzBMMTUwIDMwMEwwIDE1MEwzMCAxMjBMMTUwIDI0MEwzOTAgMFoiIGZpbGw9IiMxRUE0NDYiLz4KPC9zdmc+) _Widely available across major browsers (Baseline since 2015)_\n\n' +
-                        'Syntax: auto | &lt;length\\-percentage \\[0,∞\\]&gt; | min\\-content | max\\-content | fit\\-content | fit\\-content\\(&lt;length\\-percentage \\[0,∞\\]&gt;\\) | &lt;calc\\-size\\(\\)&gt; | &lt;anchor\\-size\\(\\)&gt;\n\n' +
-                        '[MDN Reference](https://developer.mozilla.org/docs/Web/CSS/height)'
-                },
-                range: Range.create(0, 12, 0, 24)
-            });
+            assert.deepStrictEqual(
+                plugin.doHover(document, Position.create(0, 13)),
+                <Hover> {
+                    contents: {
+                        kind: 'markdown',
+                        value:
+                            "Specifies the height of the content area, padding area or border area \\(depending on 'box\\-sizing'\\) of certain boxes\\.\n\n" +
+                            '![Baseline icon](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCA1NDAgMzAwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxzdHlsZT4KICAgIC5ncmVlbi1zaGFwZSB7CiAgICAgIGZpbGw6ICNDNEVFRDA7IC8qIExpZ2h0IG1vZGUgKi8KICAgIH0KCiAgICBAbWVkaWEgKHByZWZlcnMtY29sb3Itc2NoZW1lOiBkYXJrKSB7CiAgICAgIC5ncmVlbi1zaGFwZSB7CiAgICAgICAgZmlsbDogIzEyNTIyNTsgLyogRGFyayBtb2RlICovCiAgICAgIH0KICAgIH0KICA8L3N0eWxlPgogIDxwYXRoIGQ9Ik00MjAgMzBMMzkwIDYwTDQ4MCAxNTBMMzkwIDI0MEwzMzAgMTgwTDMwMCAyMTBMMzkwIDMwMEw1NDAgMTUwTDQyMCAzMFoiIGNsYXNzPSJncmVlbi1zaGFwZSIvPgogIDxwYXRoIGQ9Ik0xNTAgMEwzMCAxMjBMNjAgMTUwTDE1MCA2MEwyMTAgMTIwTDI0MCA5MEwxNTAgMFoiIGNsYXNzPSJncmVlbi1zaGFwZSIvPgogIDxwYXRoIGQ9Ik0zOTAgMEw0MjAgMzBMMTUwIDMwMEwwIDE1MEwzMCAxMjBMMTUwIDI0MEwzOTAgMFoiIGZpbGw9IiMxRUE0NDYiLz4KPC9zdmc+) _Widely available across major browsers (Baseline since 2015)_\n\n' +
+                            'Syntax: auto | &lt;length\\-percentage \\[0,∞\\]&gt; | min\\-content | max\\-content | fit\\-content | fit\\-content\\(&lt;length\\-percentage \\[0,∞\\]&gt;\\) | &lt;calc\\-size\\(\\)&gt; | &lt;anchor\\-size\\(\\)&gt;\n\n' +
+                            '[MDN Reference](https://developer.mozilla.org/docs/Web/CSS/height)'
+                    },
+                    range: Range.create(0, 12, 0, 24)
+                }
+            );
         });
 
         it('not for style attribute with interpolation', () => {
             const { plugin, document } = setup('<div style="height: {}"></div>');
-            assert.deepStrictEqual(plugin.doHover(document, Position.create(0, 13)), null);
+            assert.deepStrictEqual(
+                plugin.doHover(document, Position.create(0, 13)),
+                null
+            );
         });
     });
 
@@ -90,56 +108,77 @@ describe('CSS Plugin', () => {
         it('for normal css', async () => {
             const { plugin, document } = setup('<style></style>');
 
-            const completions = await plugin.getCompletions(document, Position.create(0, 7), {
-                triggerCharacter: '.'
-            } as CompletionContext);
+            const completions = await plugin.getCompletions(
+                document,
+                Position.create(0, 7),
+                {
+                    triggerCharacter: '.'
+                } as CompletionContext
+            );
             assert.ok(
                 Array.isArray(completions && completions.items),
                 'Expected completion items to be an array'
             );
-            assert.ok(completions!.items.length > 0, 'Expected completions to have length');
+            assert.ok(
+                completions!.items.length > 0,
+                'Expected completions to have length'
+            );
 
-            assert.deepStrictEqual(completions!.items[0], <CompletionItem>{
-                label: '@charset',
-                kind: CompletionItemKind.Keyword,
-                documentation: {
-                    kind: 'markdown',
-                    value:
-                        'Defines character set of the document\\.\n\n' +
-                        '![Baseline icon](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCA1NDAgMzAwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxzdHlsZT4KICAgIC5ncmVlbi1zaGFwZSB7CiAgICAgIGZpbGw6ICNDNEVFRDA7IC8qIExpZ2h0IG1vZGUgKi8KICAgIH0KCiAgICBAbWVkaWEgKHByZWZlcnMtY29sb3Itc2NoZW1lOiBkYXJrKSB7CiAgICAgIC5ncmVlbi1zaGFwZSB7CiAgICAgICAgZmlsbDogIzEyNTIyNTsgLyogRGFyayBtb2RlICovCiAgICAgIH0KICAgIH0KICA8L3N0eWxlPgogIDxwYXRoIGQ9Ik00MjAgMzBMMzkwIDYwTDQ4MCAxNTBMMzkwIDI0MEwzMzAgMTgwTDMwMCAyMTBMMzkwIDMwMEw1NDAgMTUwTDQyMCAzMFoiIGNsYXNzPSJncmVlbi1zaGFwZSIvPgogIDxwYXRoIGQ9Ik0xNTAgMEwzMCAxMjBMNjAgMTUwTDE1MCA2MEwyMTAgMTIwTDI0MCA5MEwxNTAgMFoiIGNsYXNzPSJncmVlbi1zaGFwZSIvPgogIDxwYXRoIGQ9Ik0zOTAgMEw0MjAgMzBMMTUwIDMwMEwwIDE1MEwzMCAxMjBMMTUwIDI0MEwzOTAgMFoiIGZpbGw9IiMxRUE0NDYiLz4KPC9zdmc+) _Widely available across major browsers (Baseline since 2015)_\n\n' +
-                        '[MDN Reference](https://developer.mozilla.org/docs/Web/CSS/@charset)'
-                },
-                textEdit: TextEdit.insert(Position.create(0, 7), '@charset'),
-                tags: []
-            });
+            assert.deepStrictEqual(
+                completions!.items[0],
+                <CompletionItem> {
+                    label: '@charset',
+                    kind: CompletionItemKind.Keyword,
+                    documentation: {
+                        kind: 'markdown',
+                        value: 'Defines character set of the document\\.\n\n' +
+                            '![Baseline icon](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCA1NDAgMzAwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxzdHlsZT4KICAgIC5ncmVlbi1zaGFwZSB7CiAgICAgIGZpbGw6ICNDNEVFRDA7IC8qIExpZ2h0IG1vZGUgKi8KICAgIH0KCiAgICBAbWVkaWEgKHByZWZlcnMtY29sb3Itc2NoZW1lOiBkYXJrKSB7CiAgICAgIC5ncmVlbi1zaGFwZSB7CiAgICAgICAgZmlsbDogIzEyNTIyNTsgLyogRGFyayBtb2RlICovCiAgICAgIH0KICAgIH0KICA8L3N0eWxlPgogIDxwYXRoIGQ9Ik00MjAgMzBMMzkwIDYwTDQ4MCAxNTBMMzkwIDI0MEwzMzAgMTgwTDMwMCAyMTBMMzkwIDMwMEw1NDAgMTUwTDQyMCAzMFoiIGNsYXNzPSJncmVlbi1zaGFwZSIvPgogIDxwYXRoIGQ9Ik0xNTAgMEwzMCAxMjBMNjAgMTUwTDE1MCA2MEwyMTAgMTIwTDI0MCA5MEwxNTAgMFoiIGNsYXNzPSJncmVlbi1zaGFwZSIvPgogIDxwYXRoIGQ9Ik0zOTAgMEw0MjAgMzBMMTUwIDMwMEwwIDE1MEwzMCAxMjBMMTUwIDI0MEwzOTAgMFoiIGZpbGw9IiMxRUE0NDYiLz4KPC9zdmc+) _Widely available across major browsers (Baseline since 2015)_\n\n' +
+                            '[MDN Reference](https://developer.mozilla.org/docs/Web/CSS/@charset)'
+                    },
+                    textEdit: TextEdit.insert(Position.create(0, 7), '@charset'),
+                    tags: []
+                }
+            );
         });
 
         it('for :global modifier', async () => {
             const { plugin, document } = setup('<style>:g</style>');
 
-            const completions = await plugin.getCompletions(document, Position.create(0, 9), {
-                triggerCharacter: ':'
-            } as CompletionContext);
+            const completions = await plugin.getCompletions(
+                document,
+                Position.create(0, 9),
+                {
+                    triggerCharacter: ':'
+                } as CompletionContext
+            );
             const globalCompletion = completions?.items.find((item) => item.label === ':global()');
             assert.ok(globalCompletion);
         });
 
         it('not for stylus', async () => {
             const { plugin, document } = setup('<style lang="stylus"></style>');
-            const completions = await plugin.getCompletions(document, Position.create(0, 21), {
-                triggerCharacter: '.'
-            } as CompletionContext);
+            const completions = await plugin.getCompletions(
+                document,
+                Position.create(0, 21),
+                {
+                    triggerCharacter: '.'
+                } as CompletionContext
+            );
             assert.deepStrictEqual(completions, null);
         });
 
         it('for style attribute', async () => {
             const { plugin, document } = setup('<div style="display: n"></div>');
-            const completions = await plugin.getCompletions(document, Position.create(0, 22), {
-                triggerKind: CompletionTriggerKind.Invoked
-            } as CompletionContext);
+            const completions = await plugin.getCompletions(
+                document,
+                Position.create(0, 22),
+                {
+                    triggerKind: CompletionTriggerKind.Invoked
+                } as CompletionContext
+            );
             assert.deepStrictEqual(
                 completions?.items.find((item) => item.label === 'none'),
-                <CompletionItem>{
+                <CompletionItem> {
                     insertTextFormat: undefined,
                     kind: 12,
                     label: 'none',
@@ -187,10 +226,13 @@ describe('CSS Plugin', () => {
                     readDirectory: () => Promise.resolve([['foo.css', FileType.File]])
                 }
             });
-            const completions = await plugin.getCompletions(document, Position.create(0, 16));
+            const completions = await plugin.getCompletions(
+                document,
+                Position.create(0, 16)
+            );
             assert.deepStrictEqual(
                 completions?.items.find((item) => item.label === 'foo.css'),
-                <CompletionItem>{
+                <CompletionItem> {
                     label: 'foo.css',
                     kind: 17,
                     textEdit: {
@@ -221,7 +263,9 @@ describe('CSS Plugin', () => {
         });
 
         it('- has error', () => {
-            const { plugin, document } = setup('<style>h1 {iDunnoDisProperty:blue;}</style>');
+            const { plugin, document } = setup(
+                '<style>h1 {iDunnoDisProperty:blue;}</style>'
+            );
 
             const diagnostics = plugin.getDiagnostics(document);
 
@@ -483,12 +527,16 @@ describe('CSS Plugin', () => {
         });
 
         it('not for SASS', () => {
-            const { plugin, document } = setup('<style lang="sass">h1 {color:blue;}</style>');
+            const { plugin, document } = setup(
+                '<style lang="sass">h1 {color:blue;}</style>'
+            );
             assert.deepStrictEqual(plugin.getDocumentSymbols(document), []);
         });
 
         it('not for stylus', () => {
-            const { plugin, document } = setup('<style lang="stylus">h1 {color:blue;}</style>');
+            const { plugin, document } = setup(
+                '<style lang="stylus">h1 {color:blue;}</style>'
+            );
             assert.deepStrictEqual(plugin.getDocumentSymbols(document), []);
         });
     });
@@ -496,62 +544,77 @@ describe('CSS Plugin', () => {
     it('provides selection range', () => {
         const { plugin, document } = setup('<style>h1 {}</style>');
 
-        const selectionRange = plugin.getSelectionRange(document, Position.create(0, 11));
+        const selectionRange = plugin.getSelectionRange(
+            document,
+            Position.create(0, 11)
+        );
 
-        assert.deepStrictEqual(selectionRange, <SelectionRange>{
-            parent: {
+        assert.deepStrictEqual(
+            selectionRange,
+            <SelectionRange> {
                 parent: {
-                    parent: undefined,
+                    parent: {
+                        parent: undefined,
+                        range: {
+                            end: {
+                                character: 12,
+                                line: 0
+                            },
+                            start: {
+                                character: 7,
+                                line: 0
+                            }
+                        }
+                    },
                     range: {
                         end: {
                             character: 12,
                             line: 0
                         },
                         start: {
-                            character: 7,
+                            character: 10,
                             line: 0
                         }
                     }
                 },
                 range: {
                     end: {
-                        character: 12,
+                        character: 11,
                         line: 0
                     },
                     start: {
-                        character: 10,
+                        character: 11,
                         line: 0
                     }
                 }
-            },
-            range: {
-                end: {
-                    character: 11,
-                    line: 0
-                },
-                start: {
-                    character: 11,
-                    line: 0
-                }
             }
-        });
+        );
     });
 
     it('return null for selection range when not in style', () => {
         const { plugin, document } = setup('<script></script>');
 
-        const selectionRange = plugin.getSelectionRange(document, Position.create(0, 10));
+        const selectionRange = plugin.getSelectionRange(
+            document,
+            Position.create(0, 10)
+        );
 
         assert.equal(selectionRange, null);
     });
 
     describe('folding ranges', () => {
         it('provides folding ranges', () => {
-            const { plugin, document } = setup('<style>\n.hi {\ndisplay:none;\n}\n</style>');
+            const { plugin, document } = setup(
+                '<style>\n.hi {\ndisplay:none;\n}\n</style>'
+            );
 
             const foldingRanges = plugin.getFoldingRanges(document);
 
-            assert.deepStrictEqual(foldingRanges, [{ startLine: 1, endLine: 2, kind: undefined }]);
+            assert.deepStrictEqual(foldingRanges, [{
+                startLine: 1,
+                endLine: 2,
+                kind: undefined
+            }]);
         });
 
         it('provides folding ranges for known indent style', () => {
@@ -573,80 +636,102 @@ describe('CSS Plugin', () => {
         it('provide document highlight', () => {
             const { plugin, document } = setup('<style>.hi {} button.hi {}</style>');
 
-            const highlight = plugin.findDocumentHighlight(document, Position.create(0, 9));
+            const highlight = plugin.findDocumentHighlight(
+                document,
+                Position.create(0, 9)
+            );
 
-            assert.deepStrictEqual(highlight, <DocumentHighlight[]>[
-                {
-                    range: {
-                        start: {
-                            line: 0,
-                            character: 7
+            assert.deepStrictEqual(
+                highlight,
+                <DocumentHighlight[]> [
+                    {
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 7
+                            },
+                            end: {
+                                line: 0,
+                                character: 10
+                            }
                         },
-                        end: {
-                            line: 0,
-                            character: 10
-                        }
+                        kind: DocumentHighlightKind.Write
                     },
-                    kind: DocumentHighlightKind.Write
-                },
-                {
-                    range: {
-                        start: {
-                            line: 0,
-                            character: 20
+                    {
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 20
+                            },
+                            end: {
+                                line: 0,
+                                character: 23
+                            }
                         },
-                        end: {
-                            line: 0,
-                            character: 23
-                        }
-                    },
-                    kind: DocumentHighlightKind.Read
-                }
-            ]);
+                        kind: DocumentHighlightKind.Read
+                    }
+                ]
+            );
         });
 
         it('provide document highlight for style attribute', () => {
-            const { plugin, document } = setup('<div style="position: relative"></div>');
+            const { plugin, document } = setup(
+                '<div style="position: relative"></div>'
+            );
 
-            const highlight = plugin.findDocumentHighlight(document, Position.create(0, 13));
+            const highlight = plugin.findDocumentHighlight(
+                document,
+                Position.create(0, 13)
+            );
 
-            assert.deepStrictEqual(highlight, <DocumentHighlight[]>[
-                {
-                    range: {
-                        start: {
-                            line: 0,
-                            character: 12
+            assert.deepStrictEqual(
+                highlight,
+                <DocumentHighlight[]> [
+                    {
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 12
+                            },
+                            end: {
+                                line: 0,
+                                character: 20
+                            }
                         },
-                        end: {
-                            line: 0,
-                            character: 20
-                        }
-                    },
-                    kind: DocumentHighlightKind.Read
-                }
-            ]);
+                        kind: DocumentHighlightKind.Read
+                    }
+                ]
+            );
         });
 
         it('provide word highlight for unsupported languages', () => {
-            const { plugin, document } = setup('<style lang="postcss">.hi {}</style>');
+            const { plugin, document } = setup(
+                '<style lang="postcss">.hi {}</style>'
+            );
 
-            const highlight = plugin.findDocumentHighlight(document, Position.create(0, 25));
+            const highlight = plugin.findDocumentHighlight(
+                document,
+                Position.create(0, 25)
+            );
 
-            assert.deepStrictEqual(highlight, <DocumentHighlight[]>[
-                {
-                    range: {
-                        start: {
-                            line: 0,
-                            character: 22
+            assert.deepStrictEqual(
+                highlight,
+                <DocumentHighlight[]> [
+                    {
+                        range: {
+                            start: {
+                                line: 0,
+                                character: 22
+                            },
+                            end: {
+                                line: 0,
+                                character: 25
+                            }
                         },
-                        end: {
-                            line: 0,
-                            character: 25
-                        }
-                    },
-                    kind: DocumentHighlightKind.Text
-                }
-            ]);
+                        kind: DocumentHighlightKind.Text
+                    }
+                ]
+            );
         });
     });
 });

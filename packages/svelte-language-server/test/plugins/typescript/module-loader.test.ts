@@ -13,12 +13,14 @@ describe('createSvelteModuleLoader', () => {
     function setup(resolvedModule: ts.ResolvedModuleFull) {
         const getSvelteSnapshotStub = sinon
             .stub()
-            .returns(<Partial<DocumentSnapshot>>{ scriptKind: ts.ScriptKind.JSX });
+            .returns(<Partial<DocumentSnapshot>> { scriptKind: ts.ScriptKind.JSX });
 
-        const resolveStub = sinon.stub().returns(<ts.ResolvedModuleWithFailedLookupLocations>{
-            resolvedModule
-        });
-        const moduleCacheMock = <ts.ModuleResolutionCache>{
+        const resolveStub = sinon.stub().returns(
+            <ts.ResolvedModuleWithFailedLookupLocations> {
+                resolvedModule
+            }
+        );
+        const moduleCacheMock = <ts.ModuleResolutionCache> {
             getPackageJsonInfoCache: () => ({})
         };
         const moduleResolutionHost = { ...ts.sys };
@@ -28,7 +30,10 @@ describe('createSvelteModuleLoader', () => {
         };
         sinon.stub(svS, 'createSvelteSys').returns(svelteSys);
 
-        const compilerOptions: ts.CompilerOptions = { strict: true, paths: { '/@/*': [] } };
+        const compilerOptions: ts.CompilerOptions = {
+            strict: true,
+            paths: { '/@/*': [] }
+        };
         const moduleResolver = createSvelteModuleLoader(
             getSvelteSnapshotStub,
             compilerOptions,
@@ -61,7 +66,9 @@ describe('createSvelteModuleLoader', () => {
             extension: ts.Extension.Ts,
             resolvedFileName: 'filename.d.svelte.ts'
         };
-        const { getSvelteSnapshotStub, moduleResolver, svelteSys } = setup(resolvedModule);
+        const { getSvelteSnapshotStub, moduleResolver, svelteSys } = setup(
+            resolvedModule
+        );
 
         svelteSys.getRealSveltePathIfExists = (filename: string) =>
             filename === 'filename.d.svelte.ts' ? 'filename.svelte' : filename;
@@ -75,13 +82,15 @@ describe('createSvelteModuleLoader', () => {
         );
 
         assert.deepStrictEqual(result, [
-            <ts.ResolvedModuleFull>{
+            <ts.ResolvedModuleFull> {
                 extension: ts.Extension.Jsx,
                 resolvedFileName: 'filename.svelte',
                 isExternalLibraryImport: undefined
             }
         ]);
-        assert.deepStrictEqual(lastCall(getSvelteSnapshotStub).args, ['filename.svelte']);
+        assert.deepStrictEqual(lastCall(getSvelteSnapshotStub).args, [
+            'filename.svelte'
+        ]);
     });
 
     it('uses cache if module was already resolved before', async () => {

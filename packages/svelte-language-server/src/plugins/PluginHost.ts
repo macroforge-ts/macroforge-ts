@@ -17,9 +17,11 @@ import {
     DefinitionLink,
     Diagnostic,
     DocumentHighlight,
+    DocumentSymbol,
     FoldingRange,
     FormattingOptions,
     Hover,
+    InlayHint,
     LinkedEditingRanges,
     Location,
     Position,
@@ -34,9 +36,7 @@ import {
     TextDocumentIdentifier,
     TextEdit,
     WorkspaceEdit,
-    InlayHint,
-    WorkspaceSymbol,
-    DocumentSymbol
+    WorkspaceSymbol
 } from 'vscode-languageserver';
 import { DocumentManager, getNodeIfIsInHTMLStartTag } from '../lib/documents';
 import { Logger } from '../logger';
@@ -110,7 +110,10 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
         );
     }
 
-    async doHover(textDocument: TextDocumentIdentifier, position: Position): Promise<Hover | null> {
+    async doHover(
+        textDocument: TextDocumentIdentifier,
+        position: Position
+    ): Promise<Hover | null> {
         const document = this.getDocument(textDocument.uri);
 
         return this.execute<Hover>(
@@ -145,10 +148,15 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
 
         const html = completions.find((completion) => completion.plugin === 'html');
         const ts = completions.find((completion) => completion.plugin === 'ts');
-        if (html && ts && getNodeIfIsInHTMLStartTag(document.html, document.offsetAt(position))) {
+        if (
+            html && ts &&
+            getNodeIfIsInHTMLStartTag(document.html, document.offsetAt(position))
+        ) {
             // Completion in a component or html start tag and both html and ts
             // suggest something -> filter out all duplicates from TS completions
-            const htmlCompletions = new Set(html.result.items.map((item) => item.label));
+            const htmlCompletions = new Set(
+                html.result.items.map((item) => item.label)
+            );
             ts.result.items = ts.result.items.filter((item) => {
                 const label = item.label;
                 if (htmlCompletions.has(label)) {
@@ -205,7 +213,10 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
             const offset = document.offsetAt(position);
             // Assumption for performance reasons:
             // Noone types import names longer than 20 characters and still expects perfect autocompletion.
-            const text = document.getText().substring(Math.max(0, offset - 20), offset);
+            const text = document.getText().substring(
+                Math.max(0, offset - 20),
+                offset
+            );
             const start = regexLastIndexOf(text, /[\W\s]/g) + 1;
             const filterValue = text.substring(start).toLowerCase();
             flattenedCompletions = flattenedCompletions.filter((comp) =>
@@ -266,7 +277,9 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
         );
     }
 
-    async getDocumentColors(textDocument: TextDocumentIdentifier): Promise<ColorInformation[]> {
+    async getDocumentColors(
+        textDocument: TextDocumentIdentifier
+    ): Promise<ColorInformation[]> {
         const document = this.getDocument(textDocument.uri);
 
         return flatten(
@@ -360,7 +373,9 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
         const roots: DocumentSymbol[] = [];
 
         for (const node of symbols) {
-            while (stack.length > 0 && !this.rangeContains(stack.at(-1)!.range, node.range)) {
+            while (
+                stack.length > 0 && !this.rangeContains(stack.at(-1)!.range, node.range)
+            ) {
                 stack.pop();
             }
 
@@ -395,7 +410,7 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
             return definitions;
         } else {
             return definitions.map(
-                (def) => <Location>{ range: def.targetSelectionRange, uri: def.targetUri }
+                (def) => <Location> { range: def.targetSelectionRange, uri: def.targetUri }
             );
         }
     }
@@ -512,7 +527,12 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
     }
 
     async fileReferences(uri: string): Promise<Location[] | null> {
-        return await this.execute<any>('fileReferences', [uri], ExecuteMode.FirstNonNull, 'high');
+        return await this.execute<any>(
+            'fileReferences',
+            [uri],
+            ExecuteMode.FirstNonNull,
+            'high'
+        );
     }
 
     async findComponentReferences(uri: string): Promise<Location[] | null> {
@@ -703,7 +723,9 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
         return flatten(result.filter(Boolean));
     }
 
-    async getFoldingRanges(textDocument: TextDocumentIdentifier): Promise<FoldingRange[]> {
+    async getFoldingRanges(
+        textDocument: TextDocumentIdentifier
+    ): Promise<FoldingRange[]> {
         const document = this.getDocument(textDocument.uri);
 
         const result = flatten(
@@ -775,7 +797,10 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
         }
     }
 
-    updateTsOrJsFile(fileName: string, changes: TextDocumentContentChangeEvent[]): void {
+    updateTsOrJsFile(
+        fileName: string,
+        changes: TextDocumentContentChangeEvent[]
+    ): void {
         for (const support of this.plugins) {
             support.updateTsOrJsFile?.(fileName, changes);
         }
@@ -821,8 +846,8 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
             priority === 'smart' &&
             (this.requestTimings[name]?.[0] > 500 ||
                 Object.values(this.requestTimings).filter(
-                    (t) => t[0] > 400 && now - t[1] < 60 * 1000
-                ).length > 2)
+                        (t) => t[0] > 400 && now - t[1] < 60 * 1000
+                    ).length > 2)
         ) {
             Logger.debug(`Executing next invocation of "${name}" with low priority`);
             priority = 'low';
@@ -906,7 +931,12 @@ export class PluginHost implements LSProvider, OnWatchFileChanges {
         }
     }
 
-    private async tryExecutePlugin(plugin: any, fnName: string, args: any[], failValue: any) {
+    private async tryExecutePlugin(
+        plugin: any,
+        fnName: string,
+        args: any[],
+        failValue: any
+    ) {
         try {
             return await plugin[fnName](...args);
         } catch (e) {

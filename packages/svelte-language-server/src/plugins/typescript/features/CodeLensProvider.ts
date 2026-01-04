@@ -30,11 +30,15 @@ export class CodeLensProviderImpl implements CodeLensProvider {
     ) {}
 
     async getCodeLens(document: Document): Promise<CodeLens[] | null> {
-        if (!this.anyCodeLensEnabled('typescript') && !this.anyCodeLensEnabled('javascript')) {
+        if (
+            !this.anyCodeLensEnabled('typescript') &&
+            !this.anyCodeLensEnabled('javascript')
+        ) {
             return null;
         }
 
-        const { lang, tsDoc } = await this.lsAndTsDocResolver.getLsForSyntheticOperations(document);
+        const { lang, tsDoc } = await this.lsAndTsDocResolver
+            .getLsForSyntheticOperations(document);
 
         const results: [CodeLensType, Range][] = [];
 
@@ -71,7 +75,12 @@ export class CodeLensProviderImpl implements CodeLensProvider {
             collectors.push({
                 type: 'implementation',
                 collect: (tsDoc, item, parent) =>
-                    this.extractImplementationLocation(tsDoc, item, clientTsConfig, parent)
+                    this.extractImplementationLocation(
+                        tsDoc,
+                        item,
+                        clientTsConfig,
+                        parent
+                    )
             });
         }
 
@@ -120,7 +129,8 @@ export class CodeLensProviderImpl implements CodeLensProvider {
 
         switch (item.kind) {
             case ts.ScriptElementKind.functionElement: {
-                const showOnAllFunctions = config.referencesCodeLens?.showOnAllFunctions;
+                const showOnAllFunctions = config.referencesCodeLens
+                    ?.showOnAllFunctions;
 
                 if (showOnAllFunctions) {
                     return this.getSymbolRange(tsDoc, item);
@@ -174,8 +184,12 @@ export class CodeLensProviderImpl implements CodeLensProvider {
         return undefined;
     }
 
-    private isExported(item: ts.NavigationTree, tsDoc: SvelteDocumentSnapshot): boolean {
-        return !tsDoc.parserError && item.kindModifiers.match(/\bexport\b/g) !== null;
+    private isExported(
+        item: ts.NavigationTree,
+        tsDoc: SvelteDocumentSnapshot
+    ): boolean {
+        return !tsDoc.parserError &&
+            item.kindModifiers.match(/\bexport\b/g) !== null;
     }
 
     /**
@@ -216,7 +230,10 @@ export class CodeLensProviderImpl implements CodeLensProvider {
         tsDoc: SvelteDocumentSnapshot,
         item: ts.NavigationTree
     ): Range | undefined {
-        if (!item.nameSpan || isTextSpanInGeneratedCode(tsDoc.getFullText(), item.nameSpan)) {
+        if (
+            !item.nameSpan ||
+            isTextSpanInGeneratedCode(tsDoc.getFullText(), item.nameSpan)
+        ) {
             return;
         }
 
@@ -273,13 +290,12 @@ export class CodeLensProviderImpl implements CodeLensProvider {
         codeLensToResolve: CodeLens,
         cancellationToken?: CancellationToken
     ) {
-        const references =
-            (await this.referenceProvider.findReferences(
-                textDocument,
-                codeLensToResolve.range.start,
-                { includeDeclaration: false },
-                cancellationToken
-            )) ?? [];
+        const references = (await this.referenceProvider.findReferences(
+            textDocument,
+            codeLensToResolve.range.start,
+            { includeDeclaration: false },
+            cancellationToken
+        )) ?? [];
 
         codeLensToResolve.command = {
             title: references.length === 1 ? `1 reference` : `${references.length} references`,
@@ -297,20 +313,22 @@ export class CodeLensProviderImpl implements CodeLensProvider {
         codeLensToResolve: CodeLens,
         cancellationToken?: CancellationToken
     ) {
-        const implementations =
-            (await this.implementationProvider.getImplementation(
-                textDocument,
-                codeLensToResolve.range.start,
-                cancellationToken
-            )) ?? [];
+        const implementations = (await this.implementationProvider.getImplementation(
+            textDocument,
+            codeLensToResolve.range.start,
+            cancellationToken
+        )) ?? [];
 
         codeLensToResolve.command = {
-            title:
-                implementations.length === 1
-                    ? `1 implementation`
-                    : `${implementations.length} implementations`,
+            title: implementations.length === 1
+                ? `1 implementation`
+                : `${implementations.length} implementations`,
             command: '',
-            arguments: [textDocument.uri, codeLensToResolve.range.start, implementations]
+            arguments: [
+                textDocument.uri,
+                codeLensToResolve.range.start,
+                implementations
+            ]
         };
 
         return codeLensToResolve;

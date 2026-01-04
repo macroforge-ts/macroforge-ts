@@ -12,7 +12,11 @@ import { serviceWarmup } from '../test-utils';
 const testDir = path.join(__dirname, '..');
 
 describe('DocumentHighlightProvider', function () {
-    const highlightTestDir = path.join(testDir, 'testfiles', 'document-highlight');
+    const highlightTestDir = path.join(
+        testDir,
+        'testfiles',
+        'document-highlight'
+    );
     serviceWarmup(this, highlightTestDir);
 
     function getFullPath(filename: string) {
@@ -45,47 +49,50 @@ describe('DocumentHighlightProvider', function () {
             character: 9
         });
 
-        assert.deepStrictEqual(highlight, <DocumentHighlight[]>[
-            {
-                range: {
-                    start: {
-                        line: 1,
-                        character: 8
+        assert.deepStrictEqual(
+            highlight,
+            <DocumentHighlight[]> [
+                {
+                    range: {
+                        start: {
+                            line: 1,
+                            character: 8
+                        },
+                        end: {
+                            line: 1,
+                            character: 12
+                        }
                     },
-                    end: {
-                        line: 1,
-                        character: 12
-                    }
+                    kind: DocumentHighlightKind.Write
                 },
-                kind: DocumentHighlightKind.Write
-            },
-            {
-                range: {
-                    start: {
-                        line: 3,
-                        character: 8
+                {
+                    range: {
+                        start: {
+                            line: 3,
+                            character: 8
+                        },
+                        end: {
+                            line: 3,
+                            character: 12
+                        }
                     },
-                    end: {
-                        line: 3,
-                        character: 12
-                    }
+                    kind: DocumentHighlightKind.Read
                 },
-                kind: DocumentHighlightKind.Read
-            },
-            {
-                range: {
-                    start: {
-                        line: 8,
-                        character: 1
+                {
+                    range: {
+                        start: {
+                            line: 8,
+                            character: 1
+                        },
+                        end: {
+                            line: 8,
+                            character: 5
+                        }
                     },
-                    end: {
-                        line: 8,
-                        character: 5
-                    }
-                },
-                kind: DocumentHighlightKind.Read
-            }
-        ]);
+                    kind: DocumentHighlightKind.Read
+                }
+            ]
+        );
     });
 
     describe('DocumentHighlightProvider (svelte blocks/tags)', () => {
@@ -111,7 +118,9 @@ describe('DocumentHighlightProvider', function () {
                 new LSConfigManager()
             );
             const provider = new DocumentHighlightProviderImpl(lsAndTsDocResolver);
-            const filePath = getFullPath(`svelte.virtual${Math.random().toFixed(16)}.svelte`);
+            const filePath = getFullPath(
+                `svelte.virtual${Math.random().toFixed(16)}.svelte`
+            );
             const document = docManager.openClientDocument({
                 uri: pathToUrl(filePath),
                 text: content
@@ -201,7 +210,9 @@ describe('DocumentHighlightProvider', function () {
         });
 
         it("doesn't get highlights from another if block nested inside", async () => {
-            const { provider, document } = setup('{#if expression}{:else if hi}{#if hi}{/if}{/if}');
+            const { provider, document } = setup(
+                '{#if expression}{:else if hi}{#if hi}{/if}{/if}'
+            );
             await testOne(document, provider, 2, [
                 [1, 4],
                 [17, 25],
@@ -210,7 +221,9 @@ describe('DocumentHighlightProvider', function () {
         });
 
         it('highlight nested if block', async () => {
-            const { provider, document } = setup('{#if expression}{:else if hi}{#if hi}{/if}{/if}');
+            const { provider, document } = setup(
+                '{#if expression}{:else if hi}{#if hi}{/if}{/if}'
+            );
             await testOne(document, provider, 31, [
                 [30, 33],
                 [38, 41]

@@ -22,7 +22,10 @@
         "tags": [1]
     },
     {
-        "range": { "start": { "line": 32, "character": 8 }, "end": { "line": 32, "character": 9 } },
+        "range": {
+            "start": { "line": 32, "character": 8 },
+            "end": { "line": 32, "character": 9 }
+        },
         "severity": 4,
         "source": "ts",
         "message": "'e' is declared but its value is never read.",

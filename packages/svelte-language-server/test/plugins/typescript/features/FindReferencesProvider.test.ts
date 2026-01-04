@@ -45,10 +45,12 @@ describe('FindReferencesProvider', function () {
 
         function openDoc(filename: string) {
             const filePath = getFullPath(filename);
-            const doc = docManager.openClientDocument(<any>{
-                uri: pathToUrl(filePath),
-                text: ts.sys.readFile(filePath) || ''
-            });
+            const doc = docManager.openClientDocument(
+                <any> {
+                    uri: pathToUrl(filePath),
+                    text: ts.sys.readFile(filePath) || ''
+                }
+            );
             return doc;
         }
     }
@@ -95,13 +97,19 @@ describe('FindReferencesProvider', function () {
     });
 
     it('finds references for $store', async () => {
-        const { provider, document, openDoc } = setup('find-references-$store.svelte');
+        const { provider, document, openDoc } = setup(
+            'find-references-$store.svelte'
+        );
         //Make known all the associated files
         openDoc('find-references-$store-other.svelte');
 
-        const results = await provider.findReferences(document, Position.create(5, 10), {
-            includeDeclaration: true
-        });
+        const results = await provider.findReferences(
+            document,
+            Position.create(5, 10),
+            {
+                includeDeclaration: true
+            }
+        );
         assert.deepStrictEqual(results, [
             {
                 range: {
@@ -211,11 +219,17 @@ describe('FindReferencesProvider', function () {
     });
 
     it('ignores references inside generated code', async () => {
-        const { provider, document } = setup('find-references-ignore-generated.svelte');
+        const { provider, document } = setup(
+            'find-references-ignore-generated.svelte'
+        );
 
-        const results = await provider.findReferences(document, Position.create(1, 8), {
-            includeDeclaration: true
-        });
+        const results = await provider.findReferences(
+            document,
+            Position.create(1, 8),
+            {
+                includeDeclaration: true
+            }
+        );
         assert.deepStrictEqual(results, [
             {
                 range: {
@@ -322,22 +336,25 @@ describe('FindReferencesProvider', function () {
                 includeDeclaration: true
             }
         );
-        assert.deepStrictEqual(references, <Location[]>[
-            {
-                range: {
-                    end: { line: 0, character: 18 },
-                    start: { line: 0, character: 16 }
+        assert.deepStrictEqual(
+            references,
+            <Location[]> [
+                {
+                    range: {
+                        end: { line: 0, character: 18 },
+                        start: { line: 0, character: 16 }
+                    },
+                    uri: getUri('declaration-map/declaration-map-project/index.ts')
                 },
-                uri: getUri('declaration-map/declaration-map-project/index.ts')
-            },
-            {
-                range: {
-                    end: { line: 1, character: 15 },
-                    start: { line: 1, character: 13 }
-                },
-                uri: getUri('declaration-map/importing.svelte')
-            }
-        ]);
+                {
+                    range: {
+                        end: { line: 1, character: 15 },
+                        start: { line: 1, character: 13 }
+                    },
+                    uri: getUri('declaration-map/importing.svelte')
+                }
+            ]
+        );
     });
 
     const componentReferences = [
@@ -411,26 +428,38 @@ describe('FindReferencesProvider', function () {
     }
 
     it('can find component references from script tag', async () => {
-        const { provider, document, openDoc } = setup('find-component-references-child.svelte');
+        const { provider, document, openDoc } = setup(
+            'find-component-references-child.svelte'
+        );
 
         openDoc('find-component-references-parent.svelte');
         openDoc('find-component-references-parent2.svelte');
 
-        const results = await provider.findReferences(document, Position.create(0, 1), {
-            includeDeclaration: true
-        });
+        const results = await provider.findReferences(
+            document,
+            Position.create(0, 1),
+            {
+                includeDeclaration: true
+            }
+        );
 
         assert.deepStrictEqual(results, componentReferences);
     });
 
     it('can find all component references', async () => {
-        const { provider, document, openDoc } = setup('find-component-references-parent.svelte');
+        const { provider, document, openDoc } = setup(
+            'find-component-references-parent.svelte'
+        );
 
         openDoc('find-component-references-parent2.svelte');
 
-        const results = await provider.findReferences(document, Position.create(18, 1), {
-            includeDeclaration: true
-        });
+        const results = await provider.findReferences(
+            document,
+            Position.create(18, 1),
+            {
+                includeDeclaration: true
+            }
+        );
 
         assert.deepStrictEqual(results, componentReferences);
     });

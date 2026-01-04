@@ -1,4 +1,4 @@
-import { Position, Location, CancellationToken } from 'vscode-languageserver-protocol';
+import { CancellationToken, Location, Position } from 'vscode-languageserver-protocol';
 import { Document, mapLocationToOriginal } from '../../../lib/documents';
 import { isNotNullOrUndefined } from '../../../utils';
 import { ImplementationProvider } from '../../interfaces';
@@ -18,14 +18,18 @@ export class ImplementationProviderImpl implements ImplementationProvider {
         position: Position,
         cancellationToken?: CancellationToken
     ): Promise<Location[] | null> {
-        const { tsDoc, lang, lsContainer } = await this.lsAndTsDocResolver.getLSAndTSDoc(document);
+        const { tsDoc, lang, lsContainer } = await this.lsAndTsDocResolver
+            .getLSAndTSDoc(document);
 
         if (cancellationToken?.isCancellationRequested) {
             return null;
         }
 
         const offset = tsDoc.offsetAt(tsDoc.getGeneratedPosition(position));
-        const implementations = lang.getImplementationAtPosition(tsDoc.filePath, offset);
+        const implementations = lang.getImplementationAtPosition(
+            tsDoc.filePath,
+            offset
+        );
 
         const snapshots = new SnapshotMap(this.lsAndTsDocResolver, lsContainer);
         snapshots.set(tsDoc.filePath, tsDoc);
@@ -39,7 +43,12 @@ export class ImplementationProviderImpl implements ImplementationProvider {
                 let snapshot = await snapshots.retrieve(implementation.fileName);
 
                 // Go from generated $store to store if user wants to find implementation for $store
-                if (isTextSpanInGeneratedCode(snapshot.getFullText(), implementation.textSpan)) {
+                if (
+                    isTextSpanInGeneratedCode(
+                        snapshot.getFullText(),
+                        implementation.textSpan
+                    )
+                ) {
                     if (
                         !is$storeVariableIn$storeDeclaration(
                             snapshot.getFullText(),
@@ -51,7 +60,8 @@ export class ImplementationProviderImpl implements ImplementationProvider {
                     // there will be exactly one definition, the store
                     implementation = lang.getImplementationAtPosition(
                         tsDoc.filePath,
-                        tsDoc.getFullText().indexOf(');', implementation.textSpan.start) - 1
+                        tsDoc.getFullText().indexOf(');', implementation.textSpan.start) -
+                            1
                     )![0];
                     snapshot = await snapshots.retrieve(implementation.fileName);
                 }

@@ -14,7 +14,9 @@ export async function getCodeActions(
     range: Range,
     context: CodeActionContext
 ): Promise<CodeAction[]> {
-    const svelteDiagnostics = context.diagnostics.filter(isIgnorableSvelteDiagnostic);
+    const svelteDiagnostics = context.diagnostics.filter(
+        isIgnorableSvelteDiagnostic
+    );
     if (
         svelteDiagnostics.length &&
         (!context.only || context.only.includes(CodeActionKind.QuickFix))

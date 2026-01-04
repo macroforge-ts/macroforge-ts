@@ -49,8 +49,14 @@ describe('ConfigLoader', () => {
     ) {
         filePath = normalizePath(filePath);
         configPath = normalizePath(configPath);
-        assert.deepStrictEqual(configLoader.getConfig(filePath), configFrom(configPath));
-        assert.deepStrictEqual(await configLoader.awaitConfig(filePath), configFrom(configPath));
+        assert.deepStrictEqual(
+            configLoader.getConfig(filePath),
+            configFrom(configPath)
+        );
+        assert.deepStrictEqual(
+            await configLoader.awaitConfig(filePath),
+            configFrom(configPath)
+        );
     }
 
     it('should load all config files below and the one inside/above given directory', async () => {
@@ -89,14 +95,19 @@ describe('ConfigLoader', () => {
             mockFdir([]),
             {
                 existsSync: (p) =>
-                    typeof p === 'string' && p.endsWith(path.join('some', 'svelte.config.js'))
+                    typeof p === 'string' &&
+                    p.endsWith(path.join('some', 'svelte.config.js'))
             },
             path,
             (module: URL) => Promise.resolve({ default: { preprocess: module.toString() } })
         );
         await configLoader.loadConfigs(normalizePath('/some/path'));
 
-        await assertFindsConfig(configLoader, '/some/path/comp.svelte', '/some/svelte.config.js');
+        await assertFindsConfig(
+            configLoader,
+            '/some/path/comp.svelte',
+            '/some/svelte.config.js'
+        );
     });
 
     it('adds fallback if no config found', async () => {
@@ -111,7 +122,8 @@ describe('ConfigLoader', () => {
         assert.deepStrictEqual(
             // Can't do the equal-check directly, instead check if it's the expected object props
             Object.keys(
-                configLoader.getConfig(normalizePath('/some/path/comp.svelte'))?.preprocess || {}
+                configLoader.getConfig(normalizePath('/some/path/comp.svelte'))
+                    ?.preprocess || {}
             ).sort(),
             ['name', 'script'].sort()
         );
@@ -138,7 +150,10 @@ describe('ConfigLoader', () => {
             (module: URL) => {
                 nrImportCalls++;
                 return new Promise((resolve) => {
-                    setTimeout(() => resolve({ default: { preprocess: module.toString() } }), 500);
+                    setTimeout(
+                        () => resolve({ default: { preprocess: module.toString() } }),
+                        500
+                    );
                 });
             }
         );
@@ -162,8 +177,11 @@ describe('ConfigLoader', () => {
     });
 
     it('can deal with missing config', () => {
-        const configLoader = new ConfigLoader(mockFdir([]), { existsSync: () => false }, path, () =>
-            Promise.resolve('unimportant')
+        const configLoader = new ConfigLoader(
+            mockFdir([]),
+            { existsSync: () => false },
+            path,
+            () => Promise.resolve('unimportant')
         );
         assert.deepStrictEqual(
             configLoader.getConfig(normalizePath('/some/file.svelte')),

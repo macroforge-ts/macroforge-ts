@@ -38,16 +38,20 @@ describe('FindFileReferencesProvider', function () {
 
         function openDoc(filename: string) {
             const filePath = getFullPath(filename);
-            const doc = docManager.openClientDocument(<any>{
-                uri: pathToUrl(filePath),
-                text: ts.sys.readFile(filePath) || ''
-            });
+            const doc = docManager.openClientDocument(
+                <any> {
+                    uri: pathToUrl(filePath),
+                    text: ts.sys.readFile(filePath) || ''
+                }
+            );
             return doc;
         }
     }
 
     it('finds file references', async function () {
-        const { provider, document, openDoc } = setup('find-file-references-child.svelte');
+        const { provider, document, openDoc } = setup(
+            'find-file-references-child.svelte'
+        );
         //Make known all the associated files
         openDoc('find-file-references-parent.svelte');
 

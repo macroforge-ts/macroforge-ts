@@ -59,10 +59,17 @@ export function wordHighlightForTag(
     return highlights;
 }
 
-function wordAt(document: Document, position: Position, wordPattern: RegExp): string | null {
+function wordAt(
+    document: Document,
+    position: Position,
+    wordPattern: RegExp
+): string | null {
     const line = document
         .getText(
-            Range.create(Position.create(position.line, 0), Position.create(position.line + 1, 0))
+            Range.create(
+                Position.create(position.line, 0),
+                Position.create(position.line + 1, 0)
+            )
         )
         .trimEnd();
 

@@ -43,8 +43,7 @@ export class SveltePlugin
         CompletionsProvider,
         HoverProvider,
         CodeActionsProvider,
-        SelectionRangeProvider
-{
+        SelectionRangeProvider {
     __name = 'svelte';
     private docManager = new Map<Document, SvelteDocument>();
 
@@ -95,7 +94,9 @@ export class SveltePlugin
         document: Document,
         cancellationToken?: CancellationToken
     ): Promise<Diagnostic[]> {
-        if (!this.featureEnabled('diagnostics') || !this.configManager.getIsTrusted()) {
+        if (
+            !this.featureEnabled('diagnostics') || !this.configManager.getIsTrusted()
+        ) {
             return [];
         }
 
@@ -107,7 +108,9 @@ export class SveltePlugin
         );
     }
 
-    async getCompiledResult(document: Document): Promise<SvelteCompileResult | null> {
+    async getCompiledResult(
+        document: Document
+    ): Promise<SvelteCompileResult | null> {
         try {
             const svelteDoc = await this.getSvelteDoc(document);
             const options: any = { generate: 'dom' }; // 'client' in Svelte 5
@@ -122,7 +125,10 @@ export class SveltePlugin
         }
     }
 
-    async formatDocument(document: Document, options: FormattingOptions): Promise<TextEdit[]> {
+    async formatDocument(
+        document: Document,
+        options: FormattingOptions
+    ): Promise<TextEdit[]> {
         if (!this.featureEnabled('format')) {
             return [];
         }
@@ -152,7 +158,10 @@ export class SveltePlugin
             const prettier1 = importPrettier(filePath);
             const config1 = await getConfig(prettier1);
             const resolvedPlugins1 = resolvePlugins(config1.plugins);
-            const pluginLoaded = await hasSveltePluginLoaded(prettier1, resolvedPlugins1);
+            const pluginLoaded = await hasSveltePluginLoaded(
+                prettier1,
+                resolvedPlugins1
+            );
             if (Number(prettier1.version[0]) >= 3 || pluginLoaded) {
                 // plugin loaded, or referenced in user config as a plugin, or same version as our fallback version -> ok
                 return {
@@ -200,7 +209,8 @@ export class SveltePlugin
         }
         // Take .prettierignore into account
         const fileInfo = await prettier.getFileInfo(filePath, {
-            ignorePath: this.configManager.getPrettierConfig()?.ignorePath ?? '.prettierignore',
+            ignorePath: this.configManager.getPrettierConfig()?.ignorePath ??
+                '.prettierignore',
             // Sapper places stuff within src/node_modules, we want to format that, too
             withNodeModules: true
         });
@@ -209,7 +219,9 @@ export class SveltePlugin
             return [];
         }
 
-        if (isFallback || !(await hasSveltePluginLoaded(prettier, resolvedPlugins))) {
+        if (
+            isFallback || !(await hasSveltePluginLoaded(prettier, resolvedPlugins))
+        ) {
             // If the user uses Svelte 5 but doesn't have prettier installed, we need to provide
             // the compiler path to the plugin so it can use its parser method; else it will crash.
             const svelteCompilerInfo = getPackageInfo('svelte', filePath);
@@ -222,22 +234,23 @@ export class SveltePlugin
         const formattedCode = await prettier.format(document.getText(), {
             ...config,
             plugins: Array.from(
-                new Set([...resolvedPlugins, ...(await getSveltePlugin(resolvedPlugins))])
+                new Set([
+                    ...resolvedPlugins,
+                    ...(await getSveltePlugin(resolvedPlugins))
+                ])
             ),
             parser: 'svelte' as any
         });
 
-        return document.getText() === formattedCode
-            ? []
-            : [
-                  TextEdit.replace(
-                      Range.create(
-                          document.positionAt(0),
-                          document.positionAt(document.getTextLength())
-                      ),
-                      formattedCode
-                  )
-              ];
+        return document.getText() === formattedCode ? [] : [
+            TextEdit.replace(
+                Range.create(
+                    document.positionAt(0),
+                    document.positionAt(document.getTextLength())
+                ),
+                formattedCode
+            )
+        ];
 
         async function getSveltePlugin(plugins: Array<string | Plugin> = []) {
             // Only provide our version of the svelte plugin if the user doesn't have one in
@@ -266,7 +279,10 @@ export class SveltePlugin
 
         function resolvePlugin(plugin: string | Plugin) {
             // https://github.com/prettier/prettier-vscode/blob/160b0e92d88fa19003dce2745d5ab8c67e886a04/src/ModuleResolver.ts#L373
-            if (typeof plugin != 'string' || isAbsolute(plugin) || plugin.startsWith('.')) {
+            if (
+                typeof plugin != 'string' || isAbsolute(plugin) ||
+                plugin.startsWith('.')
+            ) {
                 return plugin;
             }
 

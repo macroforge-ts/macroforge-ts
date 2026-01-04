@@ -6,8 +6,8 @@ import { CSSPlugin } from '../../../../src/plugins';
 import { CSSDocument } from '../../../../src/plugins/css/CSSDocument';
 import {
     collectSelectors,
-    NodeType,
-    CSSNode
+    CSSNode,
+    NodeType
 } from '../../../../src/plugins/css/features/getIdClassCompletion';
 import { createLanguageServices } from '../../../../src/plugins/css/service';
 import { pathToUrl } from '../../../../src/utils';
@@ -55,31 +55,44 @@ describe('getIdClassCompletion', () => {
             [{ name: '', uri: pathToUrl(process.cwd()) }],
             createLanguageServices()
         );
-        docManager.openClientDocument(<any>'some doc');
+        docManager.openClientDocument(<any> 'some doc');
         return { plugin, document };
     }
 
     it('provides css classes completion for class attribute', async () => {
-        const { plugin, document } = setup('<div class=></div><style>.abc{}</style>');
-        assert.deepStrictEqual(await plugin.getCompletions(document, { line: 0, character: 11 }), {
-            isIncomplete: false,
-            items: [{ label: 'abc', kind: CompletionItemKind.Keyword }]
-        } as CompletionList);
+        const { plugin, document } = setup(
+            '<div class=></div><style>.abc{}</style>'
+        );
+        assert.deepStrictEqual(
+            await plugin.getCompletions(document, { line: 0, character: 11 }),
+            {
+                isIncomplete: false,
+                items: [{ label: 'abc', kind: CompletionItemKind.Keyword }]
+            } as CompletionList
+        );
     });
 
     it('provides css classes completion for class directive', async () => {
-        const { plugin, document } = setup('<div class:></div><style>.abc{}</style>');
-        assert.deepStrictEqual(await plugin.getCompletions(document, { line: 0, character: 11 }), {
-            isIncomplete: false,
-            items: [{ label: 'abc', kind: CompletionItemKind.Keyword }]
-        } as CompletionList);
+        const { plugin, document } = setup(
+            '<div class:></div><style>.abc{}</style>'
+        );
+        assert.deepStrictEqual(
+            await plugin.getCompletions(document, { line: 0, character: 11 }),
+            {
+                isIncomplete: false,
+                items: [{ label: 'abc', kind: CompletionItemKind.Keyword }]
+            } as CompletionList
+        );
     });
 
     it('provides css id completion for id attribute', async () => {
         const { plugin, document } = setup('<div id=></div><style>#abc{}</style>');
-        assert.deepStrictEqual(await plugin.getCompletions(document, { line: 0, character: 8 }), {
-            isIncomplete: false,
-            items: [{ label: 'abc', kind: CompletionItemKind.Keyword }]
-        } as CompletionList);
+        assert.deepStrictEqual(
+            await plugin.getCompletions(document, { line: 0, character: 8 }),
+            {
+                isIncomplete: false,
+                items: [{ label: 'abc', kind: CompletionItemKind.Keyword }]
+            } as CompletionList
+        );
     });
 });

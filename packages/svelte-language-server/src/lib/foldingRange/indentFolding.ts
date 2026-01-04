@@ -3,7 +3,6 @@ import { FoldingRange } from 'vscode-languageserver-types';
 import { Document, TagInformation } from '../documents';
 
 /**
- *
  * 1. check tab and space counts for lines
  * 2. if there're mixing space and tab guess the tabSize otherwise we only need to compare the numbers of spaces or tabs between lines.
  */
@@ -22,7 +21,10 @@ export function indentBasedFoldingRangeForTag(
         return [];
     }
 
-    return indentBasedFoldingRange({ document, ranges: [{ startLine, endLine }] });
+    return indentBasedFoldingRange({
+        document,
+        ranges: [{ startLine, endLine }]
+    });
 }
 
 export interface LineRange {
@@ -56,7 +58,10 @@ export function indentBasedFoldingRange({
 
     let currentIndent: number | undefined;
     const result: FoldingRange[] = [];
-    const unfinishedFolds = new Map<number, { startLine: number; endLine: number }>();
+    const unfinishedFolds = new Map<
+        number,
+        { startLine: number; endLine: number }
+    >();
     ranges ??= [{ startLine: 0, endLine: lines.length - 1 }];
     let rangeIndex = 0;
     let range = ranges[rangeIndex++];
@@ -132,7 +137,6 @@ function collectIndents(line: string) {
 }
 
 /**
- *
  * The indentation guessing is based on the indentation difference between lines.
  * And if the count equals, then the one used more often takes priority.
  */
@@ -151,12 +155,16 @@ export function guessTabSize(
 
     for (let index = 0; index < nonEmptyLines.length; index++) {
         const line = nonEmptyLines[index];
-        const previousLine = nonEmptyLines[index - 1] ?? { spaceCount: 0, tabCount: 0 };
+        const previousLine = nonEmptyLines[index - 1] ??
+            { spaceCount: 0, tabCount: 0 };
 
         const spaceDiff = Math.abs(line.spaceCount - previousLine.spaceCount);
         const tabDiff = Math.abs(line.tabCount - previousLine.tabCount);
-        const diff =
-            tabDiff === 0 ? spaceDiff : spaceDiff % tabDiff === 0 ? spaceDiff / tabDiff : 0;
+        const diff = tabDiff === 0
+            ? spaceDiff
+            : spaceDiff % tabDiff === 0
+            ? spaceDiff / tabDiff
+            : 0;
 
         if (diff === 0 || diff > MAX_GUESS) {
             continue;
@@ -180,7 +188,10 @@ export function guessTabSize(
 
     const match4 = matchCounts.get(4);
     const match2 = matchCounts.get(2);
-    if (tabSize === 4 && match4 && match4 > 0 && match2 && match2 > 0 && match2 >= match4 / 2) {
+    if (
+        tabSize === 4 && match4 && match4 > 0 && match2 && match2 > 0 &&
+        match2 >= match4 / 2
+    ) {
         tabSize = 2;
     }
 

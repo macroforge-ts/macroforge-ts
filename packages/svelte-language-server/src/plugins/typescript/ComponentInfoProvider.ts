@@ -2,7 +2,9 @@ import ts from 'typescript';
 import { isNotNullOrUndefined } from '../../utils';
 import { findContainingNode } from './features/utils';
 
-export type ComponentPartInfo = Array<{ name: string; type: string; doc?: string }>;
+export type ComponentPartInfo = Array<
+    { name: string; type: string; doc?: string }
+>;
 
 export interface ComponentInfoProvider {
     getEvents(): ComponentPartInfo;
@@ -29,7 +31,9 @@ export class JsOrTsComponentInfoProvider implements ComponentInfoProvider {
     }
 
     getSlotLets(slot = 'default'): ComponentPartInfo {
-        const slotType = this.getType(this.useSvelte5PlusPropsParameter ? '$$slots' : '$$slot_def');
+        const slotType = this.getType(
+            this.useSvelte5PlusPropsParameter ? '$$slots' : '$$slot_def'
+        );
         if (!slotType) {
             return [];
         }
@@ -68,7 +72,10 @@ export class JsOrTsComponentInfoProvider implements ComponentInfoProvider {
             return null;
         }
 
-        return this.typeChecker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
+        return this.typeChecker.getTypeOfSymbolAtLocation(
+            symbol,
+            symbol.valueDeclaration
+        );
     }
 
     private mapPropertiesOfType(type: ts.Type): ComponentPartInfo {
@@ -76,8 +83,7 @@ export class JsOrTsComponentInfoProvider implements ComponentInfoProvider {
             .getProperties()
             .map((prop) => {
                 // type would still be correct when there're multiple declarations
-                const declaration =
-                    prop.valueDeclaration ??
+                const declaration = prop.valueDeclaration ??
                     prop.declarations?.[0] ??
                     // very complex types are hidden on this thing for some reason
                     (prop as any)?.links?.mappedType?.declaration;
@@ -90,7 +96,9 @@ export class JsOrTsComponentInfoProvider implements ComponentInfoProvider {
                     type: this.typeChecker.typeToString(
                         this.typeChecker.getTypeOfSymbolAtLocation(prop, declaration)
                     ),
-                    doc: ts.displayPartsToString(prop.getDocumentationComment(this.typeChecker))
+                    doc: ts.displayPartsToString(
+                        prop.getDocumentationComment(this.typeChecker)
+                    )
                 };
             })
             .filter(isNotNullOrUndefined);
@@ -112,7 +120,11 @@ export class JsOrTsComponentInfoProvider implements ComponentInfoProvider {
             return null;
         }
 
-        const defIdentifier = findContainingNode(sourceFile, def.textSpan, ts.isIdentifier);
+        const defIdentifier = findContainingNode(
+            sourceFile,
+            def.textSpan,
+            ts.isIdentifier
+        );
 
         if (!defIdentifier) {
             return null;
@@ -126,7 +138,10 @@ export class JsOrTsComponentInfoProvider implements ComponentInfoProvider {
             return null;
         }
 
-        const type = typeChecker.getTypeOfSymbolAtLocation(componentSymbol, defIdentifier);
+        const type = typeChecker.getTypeOfSymbolAtLocation(
+            componentSymbol,
+            defIdentifier
+        );
 
         if (type.isClass()) {
             return new JsOrTsComponentInfoProvider(typeChecker, type);

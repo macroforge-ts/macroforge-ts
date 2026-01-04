@@ -1,6 +1,9 @@
 [
     {
-        "range": { "start": { "line": 9, "character": 6 }, "end": { "line": 9, "character": 13 } },
+        "range": {
+            "start": { "line": 9, "character": 6 },
+            "end": { "line": 9, "character": 13 }
+        },
         "severity": 4,
         "source": "ts",
         "message": "'element' is declared but its value is never read.",

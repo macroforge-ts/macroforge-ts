@@ -2,8 +2,9 @@
 
 > **Warning:** This is a work in progress and probably won't work for you. Use at your own risk!
 
-A language server (implementing the [language server protocol](https://microsoft.github.io/language-server-protocol/))
-for Svelte with macroforge TypeScript plugin support.
+A language server (implementing the
+[language server protocol](https://microsoft.github.io/language-server-protocol/)) for Svelte with
+macroforge TypeScript plugin support.
 
 Requires Node 12 or later.
 
@@ -11,9 +12,11 @@ Requires Node 12 or later.
 
 From https://microsoft.github.io/language-server-protocol/overview
 
-> The idea behind a Language Server is to provide the language-specific smarts inside a server that can communicate with development tooling over a protocol that enables inter-process communication.
+> The idea behind a Language Server is to provide the language-specific smarts inside a server that
+> can communicate with development tooling over a protocol that enables inter-process communication.
 
-In simpler terms, this allows editor and addon devs to add support for svelte specific 'smarts' (e.g. diagnostics, autocomplete, etc) to any editor without reinventing the wheel.
+In simpler terms, this allows editor and addon devs to add support for svelte specific 'smarts'
+(e.g. diagnostics, autocomplete, etc) to any editor without reinventing the wheel.
 
 ## Features
 
@@ -23,13 +26,15 @@ Currently Supported:
 
 - Svelte
   - Diagnostic messages for warnings and errors
-  - Svelte specific formatting (via [prettier-plugin-svelte](https://github.com/UnwrittenFun/prettier-plugin-svelte))
+  - Svelte specific formatting (via
+    [prettier-plugin-svelte](https://github.com/UnwrittenFun/prettier-plugin-svelte))
 - HTML (via [vscode-html-languageservice](https://github.com/Microsoft/vscode-html-languageservice))
   - Hover info
   - Autocompletions
   - [Emmet](https://emmet.io/)
   - Symbols in Outline panel
-- CSS / SCSS / LESS (via [vscode-css-languageservice](https://github.com/Microsoft/vscode-css-languageservice))
+- CSS / SCSS / LESS (via
+  [vscode-css-languageservice](https://github.com/Microsoft/vscode-css-languageservice))
   - Diagnostic messages for syntax and lint errors
   - Hover info
   - Autocompletions
@@ -54,9 +59,21 @@ Install a plugin for your editor:
 
 ## Settings
 
-The language server has quite a few settings to toggle features. They are listed below. When using the VS Code extension, you can set these through the settings UI or in the `settings.json` using the keys mentioned below.
+The language server has quite a few settings to toggle features. They are listed below. When using
+the VS Code extension, you can set these through the settings UI or in the `settings.json` using the
+keys mentioned below.
 
-When using the language server directly, put the settings as JSON inside `initializationOptions.configuration` for the [initialize command](https://microsoft.github.io/language-server-protocol/specification#initialize). When using the [didChangeConfiguration command](https://microsoft.github.io/language-server-protocol/specification#workspace_didChangeConfiguration), pass the JSON directly. The language server also accepts configuration for Emmet (key: `emmet`; [settings reference](https://github.com/microsoft/vscode/blob/main/extensions/emmet/package.json#L26)), Prettier (key: `prettier`), CSS (key: `css` / `less` / `scss`; [settings reference](https://github.com/microsoft/vscode/blob/main/extensions/css-language-features/package.json#L36)) and TypeScript (keys: `javascript` and `typescript` for JS/TS config; [settings reference](https://github.com/microsoft/vscode/blob/main/extensions/typescript-language-features/package.json#L141)).
+When using the language server directly, put the settings as JSON inside
+`initializationOptions.configuration` for the
+[initialize command](https://microsoft.github.io/language-server-protocol/specification#initialize).
+When using the
+[didChangeConfiguration command](https://microsoft.github.io/language-server-protocol/specification#workspace_didChangeConfiguration),
+pass the JSON directly. The language server also accepts configuration for Emmet (key: `emmet`;
+[settings reference](https://github.com/microsoft/vscode/blob/main/extensions/emmet/package.json#L26)),
+Prettier (key: `prettier`), CSS (key: `css` / `less` / `scss`;
+[settings reference](https://github.com/microsoft/vscode/blob/main/extensions/css-language-features/package.json#L36))
+and TypeScript (keys: `javascript` and `typescript` for JS/TS config;
+[settings reference](https://github.com/microsoft/vscode/blob/main/extensions/typescript-language-features/package.json#L141)).
 
 Example:
 
@@ -139,7 +156,8 @@ Enable semantic tokens (semantic highlight) for TypeScript. _Default_: `true`
 
 #### `svelte.plugin.typescript.workspaceSymbols.enable`
 
-Enable workspace symbols for TypeScript. You can disable this if the language server client you're using doesn't deduplicate results from the TSServer. _Default_: `true`.
+Enable workspace symbols for TypeScript. You can disable this if the language server client you're
+using doesn't deduplicate results from the TSServer. _Default_: `true`.
 
 ##### `svelte.plugin.css.enable`
 
@@ -147,7 +165,9 @@ Enable the CSS plugin. _Default_: `true`
 
 ##### `svelte.plugin.css.globals`
 
-Which css files should be checked for global variables (`--global-var: value;`). These variables are added to the css completions. String of comma-separated file paths or globs relative to workspace root.
+Which css files should be checked for global variables (`--global-var: value;`). These variables are
+added to the css completions. String of comma-separated file paths or globs relative to workspace
+root.
 
 ##### `svelte.plugin.css.diagnostics.enable`
 
@@ -163,8 +183,9 @@ Enable auto completions for CSS. _Default_: `true`
 
 ##### `svelte.plugin.css.completions.emmet`
 
-Enable emmet auto completions for CSS. _Default_: `true`
-If you want to disable emmet completely everywhere (not just Svelte), you can also set `"emmet.showExpandedAbbreviation": "never"` in your settings.
+Enable emmet auto completions for CSS. _Default_: `true` If you want to disable emmet completely
+everywhere (not just Svelte), you can also set `"emmet.showExpandedAbbreviation": "never"` in your
+settings.
 
 ##### `svelte.plugin.css.documentColors.enable`
 
@@ -196,8 +217,9 @@ Enable auto completions for HTML. _Default_: `true`
 
 ##### `svelte.plugin.html.completions.emmet`
 
-Enable emmet auto completions for HTML. _Default_: `true`
-If you want to disable emmet completely everywhere (not just Svelte), you can also set `"emmet.showExpandedAbbreviation": "never"` in your settings.
+Enable emmet auto completions for HTML. _Default_: `true` If you want to disable emmet completely
+everywhere (not just Svelte), you can also set `"emmet.showExpandedAbbreviation": "never"` in your
+settings.
 
 ##### `svelte.plugin.html.tagComplete.enable`
 
@@ -221,17 +243,22 @@ Enable diagnostic messages for Svelte. _Default_: `true`
 
 ##### `svelte.plugin.svelte.compilerWarnings`
 
-Svelte compiler warning codes to ignore or to treat as errors. Example: { 'css-unused-selector': 'ignore', 'unused-export-let': 'error'}
+Svelte compiler warning codes to ignore or to treat as errors. Example: { 'css-unused-selector':
+'ignore', 'unused-export-let': 'error'}
 
 ##### `svelte.plugin.svelte.format.enable`
 
-Enable formatting for Svelte (includes css & js) using [prettier-plugin-svelte](https://github.com/sveltejs/prettier-plugin-svelte). _Default_: `true`
+Enable formatting for Svelte (includes css & js) using
+[prettier-plugin-svelte](https://github.com/sveltejs/prettier-plugin-svelte). _Default_: `true`
 
-You can set some formatting options through this extension. They will be ignored if there's any kind of configuration file, for example a `.prettierrc` file. Read more about Prettier's configuration file [here](https://prettier.io/docs/en/configuration.html).
+You can set some formatting options through this extension. They will be ignored if there's any kind
+of configuration file, for example a `.prettierrc` file. Read more about Prettier's configuration
+file [here](https://prettier.io/docs/en/configuration.html).
 
 ##### `svelte.plugin.svelte.format.config.svelteSortOrder`
 
-Format: join the keys `options`, `scripts`, `markup`, `styles` with a `-` in the order you want. _Default_: `options-scripts-markup-styles`
+Format: join the keys `options`, `scripts`, `markup`, `styles` with a `-` in the order you want.
+_Default_: `options-scripts-markup-styles`
 
 This option is ignored if there's any kind of configuration file, for example a `.prettierrc` file.
 
@@ -243,7 +270,8 @@ This option is ignored if there's any kind of configuration file, for example a 
 
 ##### `svelte.plugin.svelte.format.config.svelteAllowShorthand`
 
-Option to enable/disable component attribute shorthand if attribute name and expression are the same. _Default_: `true`
+Option to enable/disable component attribute shorthand if attribute name and expression are the
+same. _Default_: `true`
 
 This option is ignored if there's any kind of configuration file, for example a `.prettierrc` file.
 
@@ -261,11 +289,17 @@ This option is ignored if there's any kind of configuration file, for example a 
 
 ##### `svelte.plugin.svelte.format.config.printWidth`
 
-Maximum line width after which code is tried to be broken up. This is a Prettier core option. If you have the Prettier extension installed, this option is ignored and the corresponding option of that extension is used instead. This option is also ignored if there's any kind of configuration file, for example a `.prettierrc` file. _Default_: `80`
+Maximum line width after which code is tried to be broken up. This is a Prettier core option. If you
+have the Prettier extension installed, this option is ignored and the corresponding option of that
+extension is used instead. This option is also ignored if there's any kind of configuration file,
+for example a `.prettierrc` file. _Default_: `80`
 
 ##### `svelte.plugin.svelte.format.config.singleQuote`
 
-Use single quotes instead of double quotes, where possible. This is a Prettier core option. If you have the Prettier extension installed, this option is ignored and the corresponding option of that extension is used instead. This option is also ignored if there's any kind of configuration file, for example a `.prettierrc` file. _Default_: `false`
+Use single quotes instead of double quotes, where possible. This is a Prettier core option. If you
+have the Prettier extension installed, this option is ignored and the corresponding option of that
+extension is used instead. This option is also ignored if there's any kind of configuration file,
+for example a `.prettierrc` file. _Default_: `false`
 
 ##### `svelte.plugin.svelte.hover.enable`
 
@@ -289,7 +323,8 @@ Enable selection range for Svelte. _Default_: `true`
 
 ##### `svelte.plugin.svelte.runesLegacyModeCodeLens.enable`
 
-Whether or not to show a code lens at the top of Svelte files indicating if they are in runes mode or legacy mode. Only visible in Svelte 5 projects. _Default_: `true`
+Whether or not to show a code lens at the top of Svelte files indicating if they are in runes mode
+or legacy mode. Only visible in Svelte 5 projects. _Default_: `true`
 
 ##### `svelte.plugin.svelte.defaultScriptLanguage`
 
@@ -301,33 +336,31 @@ Enable document highlight support. Requires a restart. _Default_: `true`
 
 ## TS Macros Integration Overview
 
-Some projects rely on the `@macroforge/typescript-plugin` TypeScript plugin to
-inject macro-generated APIs (for example `toJSON()` or `toString()` for classes
-decorated with `@derive`). tsserver plugins are not guaranteed to load when the
-Svelte language server runs inside sandboxed editor runtimes (Zed, WASM, etc.),
-so we mirrored the plugin’s logic in the language server itself.
+Some projects rely on the `@macroforge/typescript-plugin` TypeScript plugin to inject
+macro-generated APIs (for example `toJSON()` or `toString()` for classes decorated with `@derive`).
+tsserver plugins are not guaranteed to load when the Svelte language server runs inside sandboxed
+editor runtimes (Zed, WASM, etc.), so we mirrored the plugin’s logic in the language server itself.
 
 Implementation outline:
 
-1. `src/plugins/typescript/macroforgeAugmenter.ts` contains the decorator scan and
-   interface generation logic extracted from the original plugin. It exposes a
-   small configuration struct (`macroNames`, `mixinModule`, `mixinTypes`) plus an
-   `augmentWithMacroforges` helper that rewrites source text when decorated classes
-   are found.
-2. During TypeScript service boot (`src/plugins/typescript/service.ts`) we read
-   any `@macroforge/typescript-plugin` entry from the workspace tsconfig and build
-   the augmentation config from it. The config travels with the parsed compiler
-   options and is passed to every snapshot factory.
-3. `DocumentSnapshot` applies the augmentation for both Svelte snapshots and
-   plain JS/TS snapshots (`src/plugins/typescript/DocumentSnapshot.ts`). The
-   rewritten text—including the synthetic mixin interfaces—is what the
-   TypeScript language service consumes, so diagnostics/completions in `.svelte`
-   files “see” the macro-generated methods even without tsserver plugin support.
+1. `src/plugins/typescript/macroforgeAugmenter.ts` contains the decorator scan and interface
+   generation logic extracted from the original plugin. It exposes a small configuration struct
+   (`macroNames`, `mixinModule`, `mixinTypes`) plus an `augmentWithMacroforges` helper that rewrites
+   source text when decorated classes are found.
+2. During TypeScript service boot (`src/plugins/typescript/service.ts`) we read any
+   `@macroforge/typescript-plugin` entry from the workspace tsconfig and build the augmentation
+   config from it. The config travels with the parsed compiler options and is passed to every
+   snapshot factory.
+3. `DocumentSnapshot` applies the augmentation for both Svelte snapshots and plain JS/TS snapshots
+   (`src/plugins/typescript/DocumentSnapshot.ts`). The rewritten text—including the synthetic mixin
+   interfaces—is what the TypeScript language service consumes, so diagnostics/completions in
+   `.svelte` files “see” the macro-generated methods even without tsserver plugin support.
 
-This keeps the plugin available for plain TypeScript projects (via VTSLS) while
-ensuring the Svelte LS behaves consistently in sandboxed environments.
+This keeps the plugin available for plain TypeScript projects (via VTSLS) while ensuring the Svelte
+LS behaves consistently in sandboxed environments.
 
 ## Credits
 
-- [James Birtles](https://github.com/jamesbirtles) for creating the foundation which this language server is built on
+- [James Birtles](https://github.com/jamesbirtles) for creating the foundation which this language
+  server is built on
 - Vue's [Vetur](https://github.com/vuejs/vetur) language server which heavily inspires this project

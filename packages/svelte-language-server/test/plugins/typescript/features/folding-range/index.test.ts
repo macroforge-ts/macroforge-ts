@@ -26,11 +26,16 @@ function setup(workspaceDir: string, filePath: string) {
         [pathToUrl(workspaceDir)],
         configManager
     );
-    const plugin = new FoldingRangeProviderImpl(lsAndTsDocResolver, configManager);
-    const document = docManager.openClientDocument(<any>{
-        uri: pathToUrl(filePath),
-        text: ts.sys.readFile(filePath) || ''
-    });
+    const plugin = new FoldingRangeProviderImpl(
+        lsAndTsDocResolver,
+        configManager
+    );
+    const document = docManager.openClientDocument(
+        <any> {
+            uri: pathToUrl(filePath),
+            text: ts.sys.readFile(filePath) || ''
+        }
+    );
     return { plugin, document, docManager, lsAndTsDocResolver };
 }
 
@@ -78,7 +83,9 @@ async function executeTest(
         const lineLength = document
             .getText()
             .split('\n')
-            .map((line) => (line[line.length - 1] === '\r' ? line.length - 1 : line.length));
+            .map((
+                line
+            ) => (line[line.length - 1] === '\r' ? line.length - 1 : line.length));
 
         for (const fold of folding) {
             const startOffset = document.offsetAt({
@@ -90,8 +97,14 @@ async function executeTest(
                 character: lineLength[fold.endLine]
             });
 
-            offsetMap.set(startOffset, (offsetMap.get(startOffset) ?? []).concat(`/*s*/`));
-            offsetMap.set(endOffset, (offsetMap.get(endOffset) ?? []).concat(`/*e*/`));
+            offsetMap.set(
+                startOffset,
+                (offsetMap.get(startOffset) ?? []).concat(`/*s*/`)
+            );
+            offsetMap.set(
+                endOffset,
+                (offsetMap.get(endOffset) ?? []).concat(`/*e*/`)
+            );
         }
 
         const offsets = Array.from(offsetMap.keys()).sort((a, b) => a - b);

@@ -6,7 +6,7 @@ describe('DocumentMapper', () => {
         function setup(content: string, start: number, end: number) {
             return new FragmentMapper(
                 content,
-                <any>{
+                <any> {
                     start,
                     end,
                     endPos: positionAt(end, content),
@@ -19,28 +19,46 @@ describe('DocumentMapper', () => {
         it('isInGenerated works', () => {
             const fragment = setup('Hello, \nworld!', 8, 13);
 
-            assert.strictEqual(fragment.isInGenerated({ line: 0, character: 0 }), false);
-            assert.strictEqual(fragment.isInGenerated({ line: 1, character: 0 }), true);
-            assert.strictEqual(fragment.isInGenerated({ line: 1, character: 5 }), true);
-            assert.strictEqual(fragment.isInGenerated({ line: 1, character: 6 }), false);
+            assert.strictEqual(
+                fragment.isInGenerated({ line: 0, character: 0 }),
+                false
+            );
+            assert.strictEqual(
+                fragment.isInGenerated({ line: 1, character: 0 }),
+                true
+            );
+            assert.strictEqual(
+                fragment.isInGenerated({ line: 1, character: 5 }),
+                true
+            );
+            assert.strictEqual(
+                fragment.isInGenerated({ line: 1, character: 6 }),
+                false
+            );
         });
 
         it('calculates the position in parent', () => {
             const fragment = setup('Hello, \nworld!', 8, 13);
 
-            assert.deepStrictEqual(fragment.getOriginalPosition({ line: 0, character: 2 }), {
-                line: 1,
-                character: 2
-            });
+            assert.deepStrictEqual(
+                fragment.getOriginalPosition({ line: 0, character: 2 }),
+                {
+                    line: 1,
+                    character: 2
+                }
+            );
         });
 
         it('calculates the position in fragment', () => {
             const fragment = setup('Hello, \nworld!', 8, 13);
 
-            assert.deepStrictEqual(fragment.getGeneratedPosition({ line: 1, character: 2 }), {
-                line: 0,
-                character: 2
-            });
+            assert.deepStrictEqual(
+                fragment.getGeneratedPosition({ line: 1, character: 2 }),
+                {
+                    line: 0,
+                    character: 2
+                }
+            );
         });
     });
 });

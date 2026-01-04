@@ -31,7 +31,10 @@ describe('TypescriptPlugin', function () {
     }
 
     function harmonizeNewLines(input: string) {
-        return input.replace(/\r\n/g, '~:~').replace(/\n/g, '~:~').replace(/~:~/g, '\n');
+        return input.replace(/\r\n/g, '~:~').replace(/\n/g, '~:~').replace(
+            /~:~/g,
+            '\n'
+        );
     }
 
     function setup(filename: string) {
@@ -41,7 +44,10 @@ describe('TypescriptPlugin', function () {
                 : document
         );
         const filePath = path.join(testDir, filename);
-        const document = new Document(pathToUrl(filePath), ts.sys.readFile(filePath) || '');
+        const document = new Document(
+            pathToUrl(filePath),
+            ts.sys.readFile(filePath) || ''
+        );
         const lsConfigManager = new LSConfigManager();
         const workspaceUris = [pathToUrl(testDir)];
         const lsAndTsDocResolver = new LSAndTSDocResolver(
@@ -58,7 +64,7 @@ describe('TypescriptPlugin', function () {
             workspaceUris,
             docManager
         );
-        docManager.openClientDocument(<any>'some doc');
+        docManager.openClientDocument(<any> 'some doc');
         return { plugin, document, lsAndTsDocResolver, docManager };
     }
 
@@ -71,7 +77,8 @@ describe('TypescriptPlugin', function () {
                 (s1, s2) =>
                     s1.location.range.start.line * 100 +
                     s1.location.range.start.character -
-                    (s2.location.range.start.line * 100 + s2.location.range.start.character)
+                    (s2.location.range.start.line * 100 +
+                        s2.location.range.start.character)
             );
 
         assert.deepStrictEqual(symbols, [
@@ -315,7 +322,10 @@ describe('TypescriptPlugin', function () {
     it('can cancel document symbols before promise resolved', async () => {
         const { plugin, document } = setup('documentsymbols.svelte');
         const cancellationTokenSource = new CancellationTokenSource();
-        const symbolsPromise = plugin.getDocumentSymbols(document, cancellationTokenSource.token);
+        const symbolsPromise = plugin.getDocumentSymbols(
+            document,
+            cancellationTokenSource.token
+        );
 
         cancellationTokenSource.cancel();
         assert.deepStrictEqual(await symbolsPromise, []);
@@ -324,7 +334,10 @@ describe('TypescriptPlugin', function () {
     it('provides definitions within svelte doc', async () => {
         const { plugin, document } = setup('definitions.svelte');
 
-        const definitions = await plugin.getDefinitions(document, Position.create(4, 1));
+        const definitions = await plugin.getDefinitions(
+            document,
+            Position.create(4, 1)
+        );
 
         assert.deepStrictEqual(definitions, [
             {
@@ -366,7 +379,10 @@ describe('TypescriptPlugin', function () {
     it('provides definitions from svelte to ts doc', async () => {
         const { plugin, document } = setup('definitions.svelte');
 
-        const definitions = await plugin.getDefinitions(document, Position.create(5, 1));
+        const definitions = await plugin.getDefinitions(
+            document,
+            Position.create(5, 1)
+        );
 
         assert.deepStrictEqual(definitions, [
             {
@@ -408,7 +424,10 @@ describe('TypescriptPlugin', function () {
     it('provides definitions from svelte to svelte doc', async () => {
         const { plugin, document } = setup('definitions.svelte');
 
-        const definitions = await plugin.getDefinitions(document, Position.create(12, 3));
+        const definitions = await plugin.getDefinitions(
+            document,
+            Position.create(12, 3)
+        );
 
         assert.deepStrictEqual(definitions, [
             {
@@ -576,9 +595,12 @@ describe('TypescriptPlugin', function () {
     it('map definition of dts with declarationMap to source ', async () => {
         const { plugin, document } = setup('declaration-map/importing.svelte');
 
-        const definition = await plugin.getDefinitions(document, { line: 1, character: 13 });
+        const definition = await plugin.getDefinitions(document, {
+            line: 1,
+            character: 13
+        });
         assert.deepStrictEqual(definition, [
-            <LocationLink>{
+            <LocationLink> {
                 targetRange: {
                     end: { line: 0, character: 18 },
                     start: { line: 0, character: 16 }
@@ -597,11 +619,16 @@ describe('TypescriptPlugin', function () {
     });
 
     it('map definition of dts with declarationMap (base64 data url) to source ', async () => {
-        const { plugin, document } = setup('declaration-map/import-from-base64-sourcemap.svelte');
+        const { plugin, document } = setup(
+            'declaration-map/import-from-base64-sourcemap.svelte'
+        );
 
-        const definition = await plugin.getDefinitions(document, { line: 1, character: 13 });
+        const definition = await plugin.getDefinitions(document, {
+            line: 1,
+            character: 13
+        });
         assert.deepStrictEqual(definition, [
-            <LocationLink>{
+            <LocationLink> {
                 targetRange: {
                     end: { line: 0, character: 18 },
                     start: { line: 0, character: 16 }
@@ -620,7 +647,9 @@ describe('TypescriptPlugin', function () {
     });
 
     const setupForOnWatchedFileChanges = async () => {
-        const { plugin, document, lsAndTsDocResolver, docManager } = setup('empty.svelte');
+        const { plugin, document, lsAndTsDocResolver, docManager } = setup(
+            'empty.svelte'
+        );
         const targetSvelteFile = document.getFilePath()!;
         const snapshotManager = (await lsAndTsDocResolver.getTSService(targetSvelteFile))
             .snapshotManager;
@@ -637,7 +666,10 @@ describe('TypescriptPlugin', function () {
     const setupForOnWatchedFileUpdateOrDelete = async () => {
         const { plugin, snapshotManager, targetSvelteFile } = await setupForOnWatchedFileChanges();
 
-        const projectJsFile = path.join(path.dirname(targetSvelteFile), 'documentation.ts');
+        const projectJsFile = path.join(
+            path.dirname(targetSvelteFile),
+            'documentation.ts'
+        );
         await plugin.onWatchFileChanges([
             {
                 fileName: projectJsFile,
@@ -690,7 +722,10 @@ describe('TypescriptPlugin', function () {
         assert.equal(secondSnapshot, undefined);
     });
 
-    const testForOnWatchedFileAdd = async (filePath: string, shouldExist: boolean) => {
+    const testForOnWatchedFileAdd = async (
+        filePath: string,
+        shouldExist: boolean
+    ) => {
         const { snapshotManager, plugin, targetSvelteFile, lsAndTsDocResolver } =
             await setupForOnWatchedFileChanges();
         const addFile = path.join(path.dirname(targetSvelteFile), filePath);
@@ -744,7 +779,10 @@ describe('TypescriptPlugin', function () {
     });
 
     it('should add declaration file snapshot when added to known build directory', async () => {
-        await testForOnWatchedFileAdd(path.join('.svelte-kit', 'ambient.d.ts'), true);
+        await testForOnWatchedFileAdd(
+            path.join('.svelte-kit', 'ambient.d.ts'),
+            true
+        );
     });
 
     it('should update ts/js file after document change', async () => {
@@ -759,7 +797,10 @@ describe('TypescriptPlugin', function () {
 
         await plugin.updateTsOrJsFile(projectJsFile, [
             {
-                range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: 0, character: 0 }
+                },
                 text: 'const = "hello world";'
             }
         ]);
@@ -780,7 +821,8 @@ describe('TypescriptPlugin', function () {
         });
 
         const basename = path.basename(targetSvelteFile);
-        const newFileName = basename.replace('.svelte', '').toUpperCase() + '.svelte';
+        const newFileName = basename.replace('.svelte', '').toUpperCase() +
+            '.svelte';
         const newFilePath = path.join(path.dirname(targetSvelteFile), newFileName);
         await plugin.onWatchFileChanges([
             {
@@ -828,7 +870,10 @@ describe('TypescriptPlugin', function () {
     it('provides definitions from svelte to rune-mode svelte doc', async () => {
         const { plugin, document } = setup('definition/definition-rune.svelte');
 
-        const definitions = await plugin.getDefinitions(document, Position.create(4, 3));
+        const definitions = await plugin.getDefinitions(
+            document,
+            Position.create(4, 3)
+        );
 
         assert.deepStrictEqual(definitions, [
             {

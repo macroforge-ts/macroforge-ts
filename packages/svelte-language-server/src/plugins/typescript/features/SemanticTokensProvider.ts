@@ -24,7 +24,9 @@ export class SemanticTokensProviderImpl implements SemanticTokensProvider {
         range?: Range,
         cancellationToken?: CancellationToken
     ): Promise<SemanticTokens | null> {
-        const { lang, tsDoc } = await this.lsAndTsDocResolver.getLSAndTSDoc(textDocument);
+        const { lang, tsDoc } = await this.lsAndTsDocResolver.getLSAndTSDoc(
+            textDocument
+        );
 
         // for better performance, don't do full-file semantic tokens when the file is too big
         if (
@@ -39,15 +41,14 @@ export class SemanticTokensProviderImpl implements SemanticTokensProvider {
             return null;
         }
 
-        const textSpan = range
-            ? convertToTextSpan(range, tsDoc)
-            : {
-                  start: 0,
-                  length: tsDoc.parserError
-                      ? tsDoc.getLength()
-                      : // This is appended by svelte2tsx, there's nothing mappable afterwards
-                        tsDoc.getFullText().lastIndexOf('return { props:') || tsDoc.getLength()
-              };
+        const textSpan = range ? convertToTextSpan(range, tsDoc) : {
+            start: 0,
+            length: tsDoc.parserError
+                ? tsDoc.getLength()
+                // This is appended by svelte2tsx, there's nothing mappable afterwards
+                : tsDoc.getFullText().lastIndexOf('return { props:') ||
+                    tsDoc.getLength()
+        };
 
         const { spans } = lang.getEncodedSemanticClassifications(
             tsDoc.filePath,
@@ -63,7 +64,9 @@ export class SemanticTokensProviderImpl implements SemanticTokensProvider {
             const generatedOffset = spans[index++];
             const generatedLength = spans[index++];
             const encodedClassification = spans[index++];
-            const classificationType = this.getTokenTypeFromClassification(encodedClassification);
+            const classificationType = this.getTokenTypeFromClassification(
+                encodedClassification
+            );
             if (classificationType < 0) {
                 continue;
             }
@@ -107,11 +110,21 @@ export class SemanticTokensProviderImpl implements SemanticTokensProvider {
         encodedClassification: number,
         classificationType: number
     ):
-        | [line: number, character: number, length: number, token: number, modifier: number]
+        | [
+            line: number,
+            character: number,
+            length: number,
+            token: number,
+            modifier: number
+        ]
         | undefined {
         const text = snapshot.getFullText();
         if (
-            isInGeneratedCode(text, generatedOffset, generatedOffset + generatedLength) ||
+            isInGeneratedCode(
+                text,
+                generatedOffset,
+                generatedOffset + generatedLength
+            ) ||
             (encodedClassification === 2817 /* top level function */ &&
                 text.substring(generatedOffset, generatedOffset + generatedLength) ===
                     internalHelpers.renderName)
@@ -123,7 +136,10 @@ export class SemanticTokensProviderImpl implements SemanticTokensProvider {
             start: snapshot.positionAt(generatedOffset),
             end: snapshot.positionAt(generatedOffset + generatedLength)
         };
-        const { start: startPosition, end: endPosition } = mapRangeToOriginal(snapshot, range);
+        const { start: startPosition, end: endPosition } = mapRangeToOriginal(
+            snapshot,
+            range
+        );
 
         if (startPosition.line < 0 || endPosition.line < 0) {
             return;

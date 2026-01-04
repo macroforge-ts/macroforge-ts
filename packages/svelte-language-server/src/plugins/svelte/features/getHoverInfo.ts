@@ -1,6 +1,6 @@
 import { Hover, Position } from 'vscode-languageserver';
 import { SvelteDocument } from '../SvelteDocument';
-import { documentation, SvelteTag, getLatestOpeningTag } from './SvelteTags';
+import { documentation, getLatestOpeningTag, SvelteTag } from './SvelteTags';
 import { flatten } from '../../../utils';
 import { Document } from '../../../lib/documents';
 import { AttributeContext, getAttributeContextAtPosition } from '../../../lib/documents/parseHtml';
@@ -29,7 +29,12 @@ export function getHoverInfo(
     }
 
     if (isSvelteTag) {
-        return getTagHoverInfoAtOffset(svelteDoc, offsetStart, charactersAroundOffset, offset);
+        return getTagHoverInfoAtOffset(
+            svelteDoc,
+            offsetStart,
+            charactersAroundOffset,
+            offset
+        );
     }
 
     const attributeContext = getAttributeContextAtPosition(document, position);
@@ -38,7 +43,10 @@ export function getHoverInfo(
         return null;
     }
 
-    const attributeOffset = svelteDoc.getText().lastIndexOf(attributeContext.name, offset);
+    const attributeOffset = svelteDoc.getText().lastIndexOf(
+        attributeContext.name,
+        offset
+    );
 
     return getEventModifierHoverInfo(attributeContext, attributeOffset, offset);
 }
@@ -49,7 +57,12 @@ function getTagHoverInfoAtOffset(
     charactersAroundOffset: string,
     offset: number
 ): Hover | null {
-    const tag = getTagAtOffset(svelteDoc, charactersOffset, charactersAroundOffset, offset);
+    const tag = getTagAtOffset(
+        svelteDoc,
+        charactersOffset,
+        charactersAroundOffset,
+        offset
+    );
     if (!tag) {
         return null;
     }

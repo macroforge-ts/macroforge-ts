@@ -13,7 +13,10 @@ type OffsetRange = {
     end: number;
 };
 
-export async function getSelectionRange(svelteDoc: SvelteDocument, position: Position) {
+export async function getSelectionRange(
+    svelteDoc: SvelteDocument,
+    position: Position
+) {
     if (inStyleOrScript(svelteDoc, position)) {
         return null;
     }

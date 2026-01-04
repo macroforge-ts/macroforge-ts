@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { readFileSync, existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import ts from 'typescript';
 import { Document, DocumentManager } from '../../../../../src/lib/documents';
@@ -26,10 +26,12 @@ function setup(workspaceDir: string, filePath: string) {
         configManager
     );
     const plugin = new DiagnosticsProviderImpl(lsAndTsDocResolver, configManager);
-    const document = docManager.openClientDocument(<any>{
-        uri: pathToUrl(filePath),
-        text: ts.sys.readFile(filePath) || ''
-    });
+    const document = docManager.openClientDocument(
+        <any> {
+            uri: pathToUrl(filePath),
+            text: ts.sys.readFile(filePath) || ''
+        }
+    );
     return { plugin, document, docManager, lsAndTsDocResolver };
 }
 
@@ -61,7 +63,10 @@ async function executeTest(
 
     await updateSnapshotIfFailedOrEmpty({
         assertion() {
-            assert.deepStrictEqual(diagnostics, JSON.parse(readFileSync(expectedFile, 'utf-8')));
+            assert.deepStrictEqual(
+                diagnostics,
+                JSON.parse(readFileSync(expectedFile, 'utf-8'))
+            );
         },
         expectedFile,
         getFileContent() {

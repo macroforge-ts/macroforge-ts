@@ -35,10 +35,12 @@ describe('SemanticTokensProvider', function () {
             new LSConfigManager()
         );
         const provider = new SemanticTokensProviderImpl(lsAndTsDocResolver);
-        const document = docManager.openClientDocument(<any>{
-            uri: pathToUrl(filePath),
-            text: ts.sys.readFile(filePath)
-        });
+        const document = docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(filePath),
+                text: ts.sys.readFile(filePath)
+            }
+        );
         return { provider, document };
     }
 
@@ -172,7 +174,11 @@ describe('SemanticTokensProvider', function () {
                 character: 19,
                 length: 'blurHandler'.length,
                 type: TokenType.function,
-                modifiers: [TokenModifier.async, TokenModifier.declaration, TokenModifier.local]
+                modifiers: [
+                    TokenModifier.async,
+                    TokenModifier.declaration,
+                    TokenModifier.local
+                ]
             }
         ];
         const tokenDataAll = [
@@ -189,7 +195,11 @@ describe('SemanticTokensProvider', function () {
                 character: 25,
                 length: 'text'.length,
                 type: TokenType.variable,
-                modifiers: [TokenModifier.declaration, TokenModifier.local, TokenModifier.readonly]
+                modifiers: [
+                    TokenModifier.declaration,
+                    TokenModifier.local,
+                    TokenModifier.readonly
+                ]
             },
             {
                 line: 12,
@@ -246,7 +256,7 @@ describe('SemanticTokensProvider', function () {
 
         let index = 0;
         while (index < tokens.length) {
-            result.push(tokens.slice(index, (index += 5)));
+            result.push(tokens.slice(index, index += 5));
         }
 
         return result;

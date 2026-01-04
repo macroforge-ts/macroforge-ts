@@ -32,9 +32,10 @@ export class CSSDocument extends ReadableDocument implements DocumentMapper {
         }
 
         this.languageId = this.language;
-        this.stylesheet = getLanguageService(languageServices, this.languageId).parseStylesheet(
-            this
-        );
+        this.stylesheet = getLanguageService(languageServices, this.languageId)
+            .parseStylesheet(
+                this
+            );
     }
 
     /**
@@ -68,7 +69,10 @@ export class CSSDocument extends ReadableDocument implements DocumentMapper {
      * Get the fragment text from the parent
      */
     getText(): string {
-        return this.parent.getText().slice(this.styleInfo.start, this.styleInfo.end);
+        return this.parent.getText().slice(
+            this.styleInfo.start,
+            this.styleInfo.end
+        );
     }
 
     /**

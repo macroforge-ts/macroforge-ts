@@ -18,7 +18,10 @@ import {
 import { isInGeneratedCode, SnapshotMap } from './utils';
 
 export class WorkspaceSymbolsProviderImpl implements WorkspaceSymbolsProvider {
-    constructor(lsAndTsDocResolver: LSAndTSDocResolver, configManager: LSConfigManager) {
+    constructor(
+        lsAndTsDocResolver: LSAndTSDocResolver,
+        configManager: LSConfigManager
+    ) {
         this.configManager = configManager;
         this.lsAndTsDocResolver = lsAndTsDocResolver;
     }
@@ -35,10 +38,16 @@ export class WorkspaceSymbolsProviderImpl implements WorkspaceSymbolsProvider {
             allServices.push(service);
         });
 
-        const symbols = new Map<string, Array<[ts.NavigateToItem, WorkspaceSymbol | undefined]>>();
+        const symbols = new Map<
+            string,
+            Array<[ts.NavigateToItem, WorkspaceSymbol | undefined]>
+        >();
 
         // The config only exists for typescript. No javascript counterpart.
-        const preference = this.configManager.getTsUserPreferences('typescript', null);
+        const preference = this.configManager.getTsUserPreferences(
+            'typescript',
+            null
+        );
 
         for (const ls of allServices) {
             if (cancellationToken?.isCancellationRequested) {
@@ -66,7 +75,10 @@ export class WorkspaceSymbolsProviderImpl implements WorkspaceSymbolsProvider {
                     symbols.set(item.name, [
                         [
                             item,
-                            this.mapWorkspaceSymbol(item, await snapshots.retrieve(item.fileName))
+                            this.mapWorkspaceSymbol(
+                                item,
+                                await snapshots.retrieve(item.fileName)
+                            )
                         ]
                     ]);
                     continue;
@@ -92,7 +104,10 @@ export class WorkspaceSymbolsProviderImpl implements WorkspaceSymbolsProvider {
                 }
                 seen.push([
                     item,
-                    this.mapWorkspaceSymbol(item, await snapshots.retrieve(item.fileName))
+                    this.mapWorkspaceSymbol(
+                        item,
+                        await snapshots.retrieve(item.fileName)
+                    )
                 ]);
             }
         }
@@ -118,7 +133,10 @@ export class WorkspaceSymbolsProviderImpl implements WorkspaceSymbolsProvider {
         item: ts.NavigateToItem,
         snapshot: DocumentSnapshot
     ): WorkspaceSymbol | undefined {
-        let location = mapLocationToOriginal(snapshot, convertRange(snapshot, item.textSpan));
+        let location = mapLocationToOriginal(
+            snapshot,
+            convertRange(snapshot, item.textSpan)
+        );
         if (location.range.start.line < 0) {
             if (isGeneratedSvelteComponentName(item.name)) {
                 location = {
@@ -136,23 +154,23 @@ export class WorkspaceSymbolsProviderImpl implements WorkspaceSymbolsProvider {
         return {
             kind: this.convertSymbolKindForWorkspaceSymbol(item.kind),
             name: this.getLabel(item),
-            containerName:
-                snapshot instanceof SvelteDocumentSnapshot &&
-                (item.containerName === internalHelpers.renderName || !item.containerName)
-                    ? isInScript(location.range.start, snapshot)
-                        ? 'script'
-                        : undefined
-                    : item.containerName,
+            containerName: snapshot instanceof SvelteDocumentSnapshot &&
+                    (item.containerName === internalHelpers.renderName ||
+                        !item.containerName)
+                ? isInScript(location.range.start, snapshot) ? 'script' : undefined
+                : item.containerName,
             location,
             tags: item.kindModifiers?.includes('deprecated') ? [SymbolTag.Deprecated] : undefined
         };
     }
 
     /**
-     *
      * https://github.com/microsoft/TypeScript/blob/81c951894e93bdc37c6916f18adcd80de76679bc/src/server/session.ts#L2878
      */
-    private navigateToItemIsEqualTo(a: ts.NavigateToItem, b: ts.NavigateToItem): boolean {
+    private navigateToItemIsEqualTo(
+        a: ts.NavigateToItem,
+        b: ts.NavigateToItem
+    ): boolean {
         if (a === b) {
             return true;
         }

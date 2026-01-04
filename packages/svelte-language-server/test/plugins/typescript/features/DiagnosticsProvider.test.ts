@@ -24,17 +24,24 @@ describe('DiagnosticsProvider', function () {
             [pathToUrl(testDir)],
             new LSConfigManager()
         );
-        const plugin = new DiagnosticsProviderImpl(lsAndTsDocResolver, new LSConfigManager());
+        const plugin = new DiagnosticsProviderImpl(
+            lsAndTsDocResolver,
+            new LSConfigManager()
+        );
         const filePath = path.join(testDir, filename);
-        const document = docManager.openClientDocument(<any>{
-            uri: pathToUrl(filePath),
-            text: ts.sys.readFile(filePath) || ''
-        });
+        const document = docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(filePath),
+                text: ts.sys.readFile(filePath) || ''
+            }
+        );
         return { plugin, document, docManager, lsAndTsDocResolver };
     }
 
     it('notices creation and deletion of imported module', async () => {
-        const { plugin, document, lsAndTsDocResolver } = setup('unresolvedimport.svelte');
+        const { plugin, document, lsAndTsDocResolver } = setup(
+            'unresolvedimport.svelte'
+        );
 
         const diagnostics1 = await plugin.getDiagnostics(document);
         assert.deepStrictEqual(diagnostics1.length, 1);
@@ -58,7 +65,9 @@ describe('DiagnosticsProvider', function () {
     }).timeout(this.timeout() * 2.5);
 
     it('notices changes of module resolution because of new file', async () => {
-        const { plugin, document, lsAndTsDocResolver } = setup('unresolvedimport.svelte');
+        const { plugin, document, lsAndTsDocResolver } = setup(
+            'unresolvedimport.svelte'
+        );
 
         const diagnostics1 = await plugin.getDiagnostics(document);
         assert.deepStrictEqual(diagnostics1.length, 1);
@@ -93,7 +102,9 @@ describe('DiagnosticsProvider', function () {
     }).timeout(this.timeout() * 2.5);
 
     it('notices changes of module resolution because of new svelte file', async () => {
-        const { plugin, document, lsAndTsDocResolver } = setup('unresolvedimport2.svelte');
+        const { plugin, document, lsAndTsDocResolver } = setup(
+            'unresolvedimport2.svelte'
+        );
 
         const diagnostics1 = await plugin.getDiagnostics(document);
         assert.deepStrictEqual(diagnostics1.length, 1);
@@ -119,7 +130,8 @@ describe('DiagnosticsProvider', function () {
             'diagnostics-imported-js-update.svelte'
         );
 
-        const newFilePath = normalizePath(path.join(testDir, 'empty-export.ts')) || '';
+        const newFilePath = normalizePath(path.join(testDir, 'empty-export.ts')) ||
+            '';
         await lsAndTsDocResolver.getOrCreateSnapshot(newFilePath);
 
         const diagnostics1 = await plugin.getDiagnostics(document);
@@ -130,7 +142,10 @@ describe('DiagnosticsProvider', function () {
 
         await lsAndTsDocResolver.updateExistingTsOrJsFile(newFilePath, [
             {
-                range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: 0, character: 0 }
+                },
                 text: 'export function foo() {}'
             }
         ]);
@@ -152,17 +167,21 @@ describe('DiagnosticsProvider', function () {
             'different-ts-service',
             'different-ts-service.svelte'
         );
-        const otherDocument = docManager.openClientDocument(<any>{
-            uri: pathToUrl(otherFilePath),
-            text: ts.sys.readFile(otherFilePath) || ''
-        });
+        const otherDocument = docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(otherFilePath),
+                text: ts.sys.readFile(otherFilePath) || ''
+            }
+        );
         // needed because tests have nasty dependencies between them. The ts service
         // is cached and knows the docs already
         const sharedFilePath = path.join(testDir, 'shared-comp.svelte');
-        docManager.openClientDocument(<any>{
-            uri: pathToUrl(sharedFilePath),
-            text: ts.sys.readFile(sharedFilePath) || ''
-        });
+        docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(sharedFilePath),
+                text: ts.sys.readFile(sharedFilePath) || ''
+            }
+        );
 
         const diagnostics1 = await plugin.getDiagnostics(document);
         assert.deepStrictEqual(diagnostics1.length, 2);
@@ -173,17 +192,26 @@ describe('DiagnosticsProvider', function () {
             { uri: pathToUrl(path.join(testDir, 'shared-comp.svelte')), version: 2 },
             [
                 {
-                    range: { start: { line: 1, character: 19 }, end: { line: 1, character: 19 } },
+                    range: {
+                        start: { line: 1, character: 19 },
+                        end: { line: 1, character: 19 }
+                    },
                     text: 'o'
                 }
             ]
         );
-        await lsAndTsDocResolver.updateExistingTsOrJsFile(path.join(testDir, 'shared-ts-file.ts'), [
-            {
-                range: { start: { line: 0, character: 18 }, end: { line: 0, character: 18 } },
-                text: 'r'
-            }
-        ]);
+        await lsAndTsDocResolver.updateExistingTsOrJsFile(
+            path.join(testDir, 'shared-ts-file.ts'),
+            [
+                {
+                    range: {
+                        start: { line: 0, character: 18 },
+                        end: { line: 0, character: 18 }
+                    },
+                    text: 'r'
+                }
+            ]
+        );
         // Wait until the LsAndTsDocResolver notifies the services of the document update
         await new Promise((resolve) => setTimeout(resolve, 1000));
 

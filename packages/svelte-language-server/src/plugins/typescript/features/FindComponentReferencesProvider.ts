@@ -79,7 +79,10 @@ export class FindComponentReferencesProviderImpl implements FindComponentReferen
         }
 
         const testEndTagRange = Range.create(
-            Position.create(element.range.start.line, element.range.start.character - 1),
+            Position.create(
+                element.range.start.line,
+                element.range.start.character - 1
+            ),
             element.range.end
         );
 

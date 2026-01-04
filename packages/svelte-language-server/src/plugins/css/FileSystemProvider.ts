@@ -1,4 +1,4 @@
-import { stat, readdir, Stats } from 'fs';
+import { readdir, stat, Stats } from 'fs';
 import { promisify } from 'util';
 import {
     FileStat,
@@ -72,10 +72,10 @@ export class FileSystemProvider implements CSSFileSystemProvider {
         return stat.isDirectory()
             ? FileType.Directory
             : stat.isFile()
-              ? FileType.File
-              : stat.isSymbolicLink()
-                ? FileType.SymbolicLink
-                : FileType.Unknown;
+            ? FileType.File
+            : stat.isSymbolicLink()
+            ? FileType.SymbolicLink
+            : FileType.Unknown;
     }
 
     async readDirectory(uri: string): Promise<Array<[string, FileType]>> {

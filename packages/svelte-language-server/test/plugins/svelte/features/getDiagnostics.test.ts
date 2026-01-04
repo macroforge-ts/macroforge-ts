@@ -31,7 +31,7 @@ describe('SveltePlugin#getDiagnostics', () => {
         docText?: string;
     }) {
         const document = new Document('', docText);
-        const svelteDoc: SvelteDocument = <any>{
+        const svelteDoc: SvelteDocument = <any> {
             getTranspiled,
             getCompiled,
             config,
@@ -46,7 +46,10 @@ describe('SveltePlugin#getDiagnostics', () => {
     function setupFromFile(filename: string) {
         const testDir = path.join(__dirname, '..');
         const filePath = path.join(testDir, 'testfiles', filename);
-        const document = new Document(pathToUrl(filePath), fs.readFileSync(filePath, 'utf-8'));
+        const document = new Document(
+            pathToUrl(filePath),
+            fs.readFileSync(filePath, 'utf-8')
+        );
         const pluginManager = new LSConfigManager();
         const plugin = new SveltePlugin(pluginManager);
         return { plugin, document };
@@ -224,8 +227,7 @@ describe('SveltePlugin#getDiagnostics', () => {
         ).toEqual([
             {
                 code: 123,
-                message:
-                    'expected x to not be here' +
+                message: 'expected x to not be here' +
                     '\n\nIf you expect this syntax to work, here are some suggestions: ' +
                     '\nIf you use typescript with `svelte-preprocess`, did you add `lang="ts"` to your `script` tag? ' +
                     '\nDid you setup a `svelte.config.js`? ' +
@@ -469,7 +471,10 @@ describe('SveltePlugin#getDiagnostics', () => {
 
         assert.deepStrictEqual(diagnostics, [
             {
-                range: { start: { line: 1, character: 15 }, end: { line: 1, character: 27 } },
+                range: {
+                    start: { line: 1, character: 15 },
+                    end: { line: 1, character: 27 }
+                },
                 message:
                     "Component has unused export property 'name'. If it is for external reference only, please consider using `export const name`" +
                     (isSvelte5Plus ? '\nhttps://svelte.dev/e/export_let_unused' : ''),
@@ -488,7 +493,10 @@ describe('SveltePlugin#getDiagnostics', () => {
             diagnostics.filter((d) => d.code !== 'script_context_deprecated'),
             [
                 {
-                    range: { start: { line: 1, character: 4 }, end: { line: 1, character: 26 } },
+                    range: {
+                        start: { line: 1, character: 4 },
+                        end: { line: 1, character: 26 }
+                    },
                     message: isSvelte5Plus
                         ? 'Reactive declarations only exist at the top level of the instance script\nhttps://svelte.dev/e/reactive_declaration_invalid_placement'
                         : '$: has no effect in a module script',
@@ -503,7 +511,9 @@ describe('SveltePlugin#getDiagnostics', () => {
     });
 
     it('should correctly determine diagnostic position for script when theres also context="module"', async () => {
-        const { plugin, document } = setupFromFile('diagnostics-module-and-instance.svelte');
+        const { plugin, document } = setupFromFile(
+            'diagnostics-module-and-instance.svelte'
+        );
         const diagnostics = await plugin.getDiagnostics(document);
 
         assert.deepStrictEqual(

@@ -21,7 +21,12 @@ export class HoverProviderImpl implements HoverProvider {
 
         const { lang, tsDoc, userPreferences } = await this.getLSAndTSDoc(document);
 
-        const eventHoverInfo = this.getEventHoverInfo(lang, document, tsDoc, position);
+        const eventHoverInfo = this.getEventHoverInfo(
+            lang,
+            document,
+            tsDoc,
+            position
+        );
         if (eventHoverInfo) {
             return eventHoverInfo;
         }
@@ -46,7 +51,10 @@ export class HoverProviderImpl implements HoverProvider {
             declaration = declaration.substring(declaration.lastIndexOf('import'));
         }
 
-        const documentation = getMarkdownDocumentation(info.documentation, info.tags);
+        const documentation = getMarkdownDocumentation(
+            info.documentation,
+            info.tags
+        );
 
         // https://microsoft.github.io/language-server-protocol/specification#textDocument_hover
         const contents = ['```typescript', declaration, '```']
@@ -65,15 +73,24 @@ export class HoverProviderImpl implements HoverProvider {
         tsDoc: SvelteDocumentSnapshot,
         originalPosition: Position
     ): Hover | null {
-        const possibleEventName = getWordAt(doc.getText(), doc.offsetAt(originalPosition), {
-            left: /\S+$/,
-            right: /[\s=]/
-        });
+        const possibleEventName = getWordAt(
+            doc.getText(),
+            doc.offsetAt(originalPosition),
+            {
+                left: /\S+$/,
+                right: /[\s=]/
+            }
+        );
         if (!possibleEventName.startsWith('on:')) {
             return null;
         }
 
-        const component = getComponentAtPosition(lang, doc, tsDoc, originalPosition);
+        const component = getComponentAtPosition(
+            lang,
+            doc,
+            tsDoc,
+            originalPosition
+        );
         if (!component) {
             return null;
         }
@@ -117,7 +134,9 @@ export class HoverProviderImpl implements HoverProvider {
                 return {
                     contents: {
                         kind: 'markdown',
-                        value: `**@derive(${macroInfo.name})**\n\n${macroInfo.description || 'No description available.'}`
+                        value: `**@derive(${macroInfo.name})**\n\n${
+                            macroInfo.description || 'No description available.'
+                        }`
                     }
                 };
             }
@@ -132,7 +151,9 @@ export class HoverProviderImpl implements HoverProvider {
                 return {
                     contents: {
                         kind: 'markdown',
-                        value: `**@${macroInfo.name}**\n\n${macroInfo.description || 'No description available.'}`
+                        value: `**@${macroInfo.name}**\n\n${
+                            macroInfo.description || 'No description available.'
+                        }`
                     }
                 };
             }

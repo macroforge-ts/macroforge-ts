@@ -161,11 +161,20 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
             context.diagnostics.length &&
             (!context.only || context.only.includes(CodeActionKind.QuickFix))
         ) {
-            return await this.applyQuickfix(document, range, context, cancellationToken);
+            return await this.applyQuickfix(
+                document,
+                range,
+                context,
+                cancellationToken
+            );
         }
 
         if (!context.only || context.only.includes(CodeActionKind.Refactor)) {
-            return await this.getApplicableRefactors(document, range, cancellationToken);
+            return await this.getApplicableRefactors(
+                document,
+                range,
+                cancellationToken
+            );
         }
 
         return [];
@@ -180,16 +189,17 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
             return codeAction;
         }
 
-        const { lang, tsDoc, userPreferences, lsContainer } =
-            await this.lsAndTsDocResolver.getLSAndTSDoc(document);
+        const { lang, tsDoc, userPreferences, lsContainer } = await this
+            .lsAndTsDocResolver.getLSAndTSDoc(document);
         if (cancellationToken?.isCancellationRequested) {
             return codeAction;
         }
 
-        const formatCodeSettings = await this.configManager.getFormatCodeSettingsForFile(
-            document,
-            tsDoc.scriptKind
-        );
+        const formatCodeSettings = await this.configManager
+            .getFormatCodeSettingsForFile(
+                document,
+                tsDoc.scriptKind
+            );
         const formatCodeBasis = getFormatCodeBasis(formatCodeSettings);
 
         const getDiagnostics = memoize(() =>
@@ -205,12 +215,12 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         const isImportFix = codeAction.data.fixName === FIX_IMPORT_FIX_NAME;
         const virtualDocInfo = isImportFix
             ? this.createVirtualDocumentForCombinedImportCodeFix(
-                  document,
-                  getDiagnostics(),
-                  tsDoc,
-                  lsContainer,
-                  lang
-              )
+                document,
+                getDiagnostics(),
+                tsDoc,
+                lsContainer,
+                lang
+            )
             : undefined;
 
         const fix = lang.getCombinedCodeFix(
@@ -233,10 +243,16 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
             );
 
             for (const change of fix.changes) {
-                if (getCanonicalFileName(normalizePath(change.fileName)) === virtualDocPath) {
+                if (
+                    getCanonicalFileName(normalizePath(change.fileName)) ===
+                        virtualDocPath
+                ) {
                     change.fileName = tsDoc.filePath;
 
-                    this.removeDuplicatedComponentImport(virtualDocInfo.insertedNames, change);
+                    this.removeDuplicatedComponentImport(
+                        virtualDocInfo.insertedNames,
+                        change
+                    );
                 }
             }
 
@@ -270,7 +286,11 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         }
 
         if (isImportFix) {
-            this.fixCombinedImportQuickFix(documentChanges, document, formatCodeBasis);
+            this.fixCombinedImportQuickFix(
+                documentChanges,
+                document,
+                formatCodeBasis
+            );
         }
 
         codeAction.edit = {
@@ -307,7 +327,11 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
             ) {
                 continue;
             }
-            const identifier = this.findIdentifierForDiagnostic(tsDoc, diagnostic, sourceFile);
+            const identifier = this.findIdentifierForDiagnostic(
+                tsDoc,
+                diagnostic,
+                sourceFile
+            );
             const name = identifier?.text;
             if (!name || names.has(name)) {
                 continue;
@@ -334,7 +358,8 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         // so these appends won't change the position of the edits
         const text = document.getText();
         const newText = document.scriptInfo
-            ? text.slice(0, document.scriptInfo.end) + inserts + text.slice(document.scriptInfo.end)
+            ? text.slice(0, document.scriptInfo.end) + inserts +
+                text.slice(document.scriptInfo.end)
             : `${document.getText()}<script>${inserts}</script>`;
 
         const virtualDoc = new Document(virtualUri, newText);
@@ -359,7 +384,8 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
     ) {
         for (const name of insertedNames) {
             const unSuffixedNames = changeSvelteComponentName(name);
-            const matchRegex = unSuffixedNames != name && this.toImportMemberRegex(unSuffixedNames);
+            const matchRegex = unSuffixedNames != name &&
+                this.toImportMemberRegex(unSuffixedNames);
             if (
                 !matchRegex ||
                 !change.textChanges.some((textChange) => textChange.newText.match(matchRegex))
@@ -367,7 +393,9 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                 continue;
             }
 
-            const importRegex = new RegExp(`\\s+import ${name} from ('|")(.*)('|");?\r?\n?`);
+            const importRegex = new RegExp(
+                `\\s+import ${name} from ('|")(.*)('|");?\r?\n?`
+            );
             change.textChanges = change.textChanges
                 .map((textChange) => ({
                     ...textChange,
@@ -389,7 +417,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         document: Document,
         formatCodeBasis: FormatCodeBasis
     ) {
-        if (!documentChanges.length || document.scriptInfo || document.moduleScriptInfo) {
+        if (
+            !documentChanges.length || document.scriptInfo ||
+            document.moduleScriptInfo
+        ) {
             return;
         }
 
@@ -399,8 +430,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 
         if (editForThisFile?.edits.length) {
             const [first] = editForThisFile.edits;
-            first.newText =
-                getNewScriptStartTag(this.configManager.getConfig(), formatCodeBasis.newLine) +
+            first.newText = getNewScriptStartTag(
+                this.configManager.getConfig(),
+                formatCodeBasis.newLine
+            ) +
                 formatCodeBasis.baseIndent +
                 first.newText.trimStart();
 
@@ -413,7 +446,9 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         return new RegExp(`${name}($| |,)`);
     }
 
-    private isQuickFixAllResolveInfo(data: LSPAny): data is QuickFixAllResolveInfo {
+    private isQuickFixAllResolveInfo(
+        data: LSPAny
+    ): data is QuickFixAllResolveInfo {
         const asserted = data as QuickFixAllResolveInfo | undefined;
         return asserted?.fixId != undefined && typeof asserted.fixName === 'string';
     }
@@ -512,7 +547,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         return [CodeAction.create(title, { documentChanges }, kind)];
     }
 
-    private fixIndentationOfImports(edit: TextEdit, document: Document): TextEdit {
+    private fixIndentationOfImports(
+        edit: TextEdit,
+        document: Document
+    ): TextEdit {
         // "Organize Imports" will have edits that delete a group of imports by return empty edits
         // and one edit which contains all the organized imports of the group. Fix indentation
         // of that one by prepending all lines with the indentation of the first line.
@@ -527,8 +565,9 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
             return edit;
         }
 
-        const fixedNewText = modifyLines(edit.newText, (line, idx) =>
-            idx === 0 || !line ? line : leadingChars + line
+        const fixedNewText = modifyLines(
+            edit.newText,
+            (line, idx) => idx === 0 || !line ? line : leadingChars + line
         );
 
         if (range.end.character > 0) {
@@ -635,11 +674,14 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                 start: range.end,
                 end: { line: range.end.line, character: Number.MAX_VALUE }
             });
-            const emptyAfterRemove =
-                !lineContentAfterRemove.trim() || lineContentAfterRemove.startsWith('</script>');
+            const emptyAfterRemove = !lineContentAfterRemove.trim() ||
+                lineContentAfterRemove.startsWith('</script>');
             if (emptyAfterRemove) {
                 change.edits.push({
-                    range: { start: { line: range.start.line, character: 0 }, end: range.start },
+                    range: {
+                        start: { line: range.start.line, character: 0 },
+                        end: range.start
+                    },
                     newText: ''
                 });
             }
@@ -652,7 +694,8 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         context: CodeActionContext,
         cancellationToken: CancellationToken | undefined
     ) {
-        const { lang, tsDoc, userPreferences, lsContainer } = await this.getLSAndTSDoc(document);
+        const { lang, tsDoc, userPreferences, lsContainer } = await this
+            .getLSAndTSDoc(document);
 
         if (cancellationToken?.isCancellationRequested) {
             return [];
@@ -667,22 +710,24 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                 diagnostic.code === DiagnosticCode.CANNOT_FIND_NAME_X_DID_YOU_MEAN_Y
         );
 
-        const formatCodeSettings = await this.configManager.getFormatCodeSettingsForFile(
-            document,
-            tsDoc.scriptKind
-        );
+        const formatCodeSettings = await this.configManager
+            .getFormatCodeSettingsForFile(
+                document,
+                tsDoc.scriptKind
+            );
         const formatCodeBasis = getFormatCodeBasis(formatCodeSettings);
 
-        let codeFixes: Array<CustomFixCannotFindNameInfo | ts.CodeFixAction> | undefined =
-            cannotFindNameDiagnostic.length
+        let codeFixes:
+            | Array<CustomFixCannotFindNameInfo | ts.CodeFixAction>
+            | undefined = cannotFindNameDiagnostic.length
                 ? this.getComponentImportQuickFix(
-                      document,
-                      lang,
-                      tsDoc,
-                      userPreferences,
-                      cannotFindNameDiagnostic,
-                      formatCodeSettings
-                  )
+                    document,
+                    lang,
+                    tsDoc,
+                    userPreferences,
+                    cannotFindNameDiagnostic,
+                    formatCodeSettings
+                )
                 : undefined;
 
         // either-or situation when it's not a "did you mean" fix
@@ -748,7 +793,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 
         const codeActionsNotFilteredOut = codeActions.filter(({ codeAction }) =>
             codeAction.edit?.documentChanges?.every(
-                (change) => (<TextDocumentEdit>change).edits.length > 0
+                (change) => (<TextDocumentEdit> change).edits.length > 0
             )
         );
 
@@ -785,7 +830,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         const documentChangesPromises = fix.changes.map(async (change) => {
             const snapshot = await snapshots.retrieve(change.fileName);
             return TextDocumentEdit.create(
-                OptionalVersionedTextDocumentIdentifier.create(pathToUrl(change.fileName), null),
+                OptionalVersionedTextDocumentIdentifier.create(
+                    pathToUrl(change.fileName),
+                    null
+                ),
                 change.textChanges
                     .map((edit) => {
                         if (
@@ -793,9 +841,12 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                             snapshot instanceof SvelteDocumentSnapshot
                         ) {
                             const namePosition = 'position' in fix ? fix.position : undefined;
-                            const startPos =
-                                namePosition ??
-                                this.findDiagnosticForImportFix(document, edit, getDiagnostics())
+                            const startPos = namePosition ??
+                                this.findDiagnosticForImportFix(
+                                    document,
+                                    edit,
+                                    getDiagnostics()
+                                )
                                     ?.range?.start ??
                                 Position.create(0, 0);
 
@@ -828,7 +879,9 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                             );
                         }
 
-                        if (fix.fixName === 'fixAwaitInSyncFunction' && document.scriptInfo) {
+                        if (
+                            fix.fixName === 'fixAwaitInSyncFunction' && document.scriptInfo
+                        ) {
                             const scriptStartTagStart = document.scriptInfo.container.start;
                             const scriptStartTagEnd = document.scriptInfo.start;
                             const withinStartTag =
@@ -845,15 +898,15 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                             const checkRange = position
                                 ? Range.create(position, position)
                                 : this.findDiagnosticForQuickFix(
-                                      document,
-                                      DiagnosticCode.CANNOT_FIND_NAME,
-                                      getDiagnostics(),
-                                      (possiblyIdentifier) => {
-                                          return edit.newText.includes(
-                                              'function ' + possiblyIdentifier + '('
-                                          );
-                                      }
-                                  )?.range;
+                                    document,
+                                    DiagnosticCode.CANNOT_FIND_NAME,
+                                    getDiagnostics(),
+                                    (possiblyIdentifier) => {
+                                        return edit.newText.includes(
+                                            'function ' + possiblyIdentifier + '('
+                                        );
+                                    }
+                                )?.range;
 
                             originalRange = this.checkEndOfFileCodeInsert(
                                 originalRange,
@@ -864,8 +917,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                             // ts doesn't add base indent to the first line
                             if (formatCodeSettings.baseIndentSize) {
                                 const emptyLine = formatCodeBasis.newLine.repeat(2);
-                                edit.newText =
-                                    emptyLine +
+                                edit.newText = emptyLine +
                                     formatCodeBasis.baseIndent +
                                     edit.newText.trimLeft();
                             }
@@ -969,7 +1021,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         const fixAll: CodeAction[] = [];
 
         for (const codeFix of codeFixes) {
-            if (!codeFix.fixId || !codeFix.fixAllDescription || checkedFixIds.has(codeFix.fixId)) {
+            if (
+                !codeFix.fixId || !codeFix.fixAllDescription ||
+                checkedFixIds.has(codeFix.fixId)
+            ) {
                 continue;
             }
 
@@ -981,7 +1036,8 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                     .filter(
                         (diagnostic) =>
                             diagnostic.code === DiagnosticCode.CANNOT_FIND_NAME ||
-                            diagnostic.code === DiagnosticCode.CANNOT_FIND_NAME_X_DID_YOU_MEAN_Y
+                            diagnostic.code ===
+                                DiagnosticCode.CANNOT_FIND_NAME_X_DID_YOU_MEAN_Y
                     );
 
                 if (allCannotFindNameDiagnostics.length < 2) {
@@ -1043,7 +1099,11 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                 continue;
             }
 
-            const node = this.findIdentifierForDiagnostic(tsDoc, diagnostic, sourceFile);
+            const node = this.findIdentifierForDiagnostic(
+                tsDoc,
+                diagnostic,
+                sourceFile
+            );
             if (!node || !this.isComponentStartTag(node)) {
                 return;
             }
@@ -1062,8 +1122,8 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 
         const result: CustomFixCannotFindNameInfo[] = [];
         for (const [name, position] of nameToPosition) {
-            const errorPreventingUserPreferences =
-                this.completionProvider.fixUserPreferencesForSvelteComponentImport(userPreferences);
+            const errorPreventingUserPreferences = this.completionProvider
+                .fixUserPreferencesForSvelteComponentImport(userPreferences);
 
             const resolvedCompletion = (c: ts.CompletionEntry) =>
                 lang.getCompletionEntryDetails(
@@ -1113,7 +1173,9 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                 continue;
             }
 
-            const originalPosition = tsDoc.getOriginalPosition(tsDoc.positionAt(position));
+            const originalPosition = tsDoc.getOriginalPosition(
+                tsDoc.positionAt(position)
+            );
             const resultForName = entries.flatMap(toFix);
 
             result.push(...resultForName);
@@ -1150,17 +1212,27 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 
         const results: CustomFixCannotFindNameInfo[] = [];
         const getGlobalCompletion = memoize(() =>
-            lang.getCompletionsAtPosition(tsDoc.filePath, 0, userPreferences, formatCodeSettings)
+            lang.getCompletionsAtPosition(
+                tsDoc.filePath,
+                0,
+                userPreferences,
+                formatCodeSettings
+            )
         );
 
         for (const diagnostic of cannotFindNameDiagnostics) {
-            const identifier = this.findIdentifierForDiagnostic(tsDoc, diagnostic, sourceFile);
+            const identifier = this.findIdentifierForDiagnostic(
+                tsDoc,
+                diagnostic,
+                sourceFile
+            );
 
             if (!identifier) {
                 continue;
             }
 
-            const isQuickFixTargetTargetStore = identifier?.escapedText.toString().startsWith('$');
+            const isQuickFixTargetTargetStore = identifier?.escapedText.toString()
+                .startsWith('$');
 
             const fixes: ts.CodeFixAction[] = [];
             if (isQuickFixTargetTargetStore) {
@@ -1180,7 +1252,9 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                 continue;
             }
 
-            const originalPosition = tsDoc.getOriginalPosition(tsDoc.positionAt(identifier.pos));
+            const originalPosition = tsDoc.getOriginalPosition(
+                tsDoc.positionAt(identifier.pos)
+            );
             results.push(
                 ...fixes.map((fix) => ({
                     name: identifier.getText(),
@@ -1198,8 +1272,12 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         diagnostic: Diagnostic,
         sourceFile: ts.SourceFile
     ) {
-        const start = tsDoc.offsetAt(tsDoc.getGeneratedPosition(diagnostic.range.start));
-        const end = tsDoc.offsetAt(tsDoc.getGeneratedPosition(diagnostic.range.end));
+        const start = tsDoc.offsetAt(
+            tsDoc.getGeneratedPosition(diagnostic.range.start)
+        );
+        const end = tsDoc.offsetAt(
+            tsDoc.getGeneratedPosition(diagnostic.range.end)
+        );
 
         const identifier = findClosestContainingNode(
             sourceFile,
@@ -1255,7 +1333,9 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                     fixAllDescription: FIX_IMPORT_FIX_DESCRIPTION
                 })) ?? [];
 
-        return flatten(completion.entries.filter((c) => c.name === storeIdentifier).map(toFix));
+        return flatten(
+            completion.entries.filter((c) => c.name === storeIdentifier).map(toFix)
+        );
     }
 
     private getAddLangTSCodeAction(
@@ -1305,7 +1385,8 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                                         Position.create(0, 0),
                                         Position.create(0, 0)
                                     ),
-                                    newText: '<script lang="ts"></script>' + formatCodeBasis.newLine
+                                    newText: '<script lang="ts"></script>' +
+                                        formatCodeBasis.newLine
                                 }
                             ]
                         }
@@ -1415,7 +1496,12 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         );
 
         return (
-            this.applicableRefactorsToCodeActions(applicableRefactors, document, range, textRange)
+            this.applicableRefactorsToCodeActions(
+                applicableRefactors,
+                document,
+                range,
+                textRange
+            )
                 // Only allow refactorings from which we know they work
                 .filter(
                     (refactor) =>
@@ -1458,7 +1544,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                             command: applicableRefactor.name,
                             arguments: [
                                 document.uri,
-                                <RefactorArgs>{
+                                <RefactorArgs> {
                                     type: 'refactor',
                                     textRange,
                                     originalRange,
@@ -1475,7 +1561,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
                         command: action.name,
                         arguments: [
                             document.uri,
-                            <RefactorArgs>{
+                            <RefactorArgs> {
                                 type: 'refactor',
                                 textRange,
                                 originalRange,
@@ -1499,7 +1585,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 
         const { lang, tsDoc, userPreferences } = await this.getLSAndTSDoc(document);
         const path = document.getFilePath() || '';
-        const { refactorName, originalRange, textRange } = <RefactorArgs>args[1];
+        const { refactorName, originalRange, textRange } = <RefactorArgs> args[1];
 
         const edits = lang.getEditsForRefactor(
             path,
@@ -1517,7 +1603,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
             TextDocumentEdit.create(
                 OptionalVersionedTextDocumentIdentifier.create(document.uri, null),
                 edit.textChanges.map((edit) => {
-                    const range = mapRangeToOriginal(tsDoc, convertRange(tsDoc, edit.span));
+                    const range = mapRangeToOriginal(
+                        tsDoc,
+                        convertRange(tsDoc, edit.span)
+                    );
 
                     return TextEdit.replace(
                         this.checkEndOfFileCodeInsert(range, originalRange, document),
@@ -1551,7 +1640,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
             }
 
             if (document.scriptInfo) {
-                return Range.create(document.scriptInfo.endPos, document.scriptInfo.endPos);
+                return Range.create(
+                    document.scriptInfo.endPos,
+                    document.scriptInfo.endPos
+                );
             }
         }
 
@@ -1580,14 +1672,18 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
         document: Document,
         edit: ts.TextChange
     ): TextEdit | null {
-        const inModuleScript = isInTag(originalRange.start, document.moduleScriptInfo);
+        const inModuleScript = isInTag(
+            originalRange.start,
+            document.moduleScriptInfo
+        );
         if (!isInTag(originalRange.start, document.scriptInfo) && !inModuleScript) {
             return null;
         }
 
         const position = inModuleScript
             ? originalRange.start
-            : (this.fixPropsCodeActionRange(originalRange.start, document) ?? originalRange.start);
+            : (this.fixPropsCodeActionRange(originalRange.start, document) ??
+                originalRange.start);
 
         // fix the length of trailing indent
         const linesOfNewText = edit.newText.split('\n');
@@ -1603,7 +1699,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
     /**
      * svelte2tsx removes export in instance script
      */
-    private fixPropsCodeActionRange(start: Position, document: Document): Position | undefined {
+    private fixPropsCodeActionRange(
+        start: Position,
+        document: Document
+    ): Position | undefined {
         const documentText = document.getText();
         const offset = document.offsetAt(start);
         const exportKeywordOffset = documentText.lastIndexOf('export', offset);
@@ -1638,7 +1737,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
             return originalRange;
         }
 
-        const position = this.fixPropsCodeActionRange(originalRange.start, document);
+        const position = this.fixPropsCodeActionRange(
+            originalRange.start,
+            document
+        );
 
         if (position) {
             return {

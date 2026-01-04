@@ -7,7 +7,7 @@
 
 import { DocumentContext } from 'vscode-css-languageservice';
 import { WorkspaceFolder } from 'vscode-languageserver';
-import { Utils, URI } from 'vscode-uri';
+import { URI, Utils } from 'vscode-uri';
 
 export function getDocumentContext(
     documentUri: string,

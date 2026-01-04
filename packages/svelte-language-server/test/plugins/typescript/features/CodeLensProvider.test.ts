@@ -14,7 +14,11 @@ import { serviceWarmup } from '../test-utils';
 const testDir = path.join(__dirname, '..');
 
 describe('CodeLensProvider', function () {
-    serviceWarmup(this, path.join(testDir, 'testfiles', 'codelens'), pathToUrl(testDir));
+    serviceWarmup(
+        this,
+        path.join(testDir, 'testfiles', 'codelens'),
+        pathToUrl(testDir)
+    );
 
     function getFullPath(filename: string) {
         return path.join(testDir, 'testfiles', 'codelens', filename);
@@ -41,7 +45,9 @@ describe('CodeLensProvider', function () {
             lsAndTsDocResolver,
             componentReferencesProvider
         );
-        const implementationProvider = new ImplementationProviderImpl(lsAndTsDocResolver);
+        const implementationProvider = new ImplementationProviderImpl(
+            lsAndTsDocResolver
+        );
         const provider = new CodeLensProviderImpl(
             lsAndTsDocResolver,
             referenceProvider,
@@ -49,10 +55,12 @@ describe('CodeLensProvider', function () {
             lsConfigManager
         );
         const filePath = getFullPath(filename);
-        const document = docManager.openClientDocument(<any>{
-            uri: pathToUrl(filePath),
-            text: ts.sys.readFile(filePath) || ''
-        });
+        const document = docManager.openClientDocument(
+            <any> {
+                uri: pathToUrl(filePath),
+                text: ts.sys.readFile(filePath) || ''
+            }
+        );
         return { provider, document, lsConfigManager };
     }
 
@@ -148,7 +156,10 @@ describe('CodeLensProvider', function () {
                     },
                     {
                         uri: getUri('importing.svelte'),
-                        range: { start: { line: 4, character: 1 }, end: { line: 4, character: 11 } }
+                        range: {
+                            start: { line: 4, character: 1 },
+                            end: { line: 4, character: 11 }
+                        }
                     }
                 ]
             ]

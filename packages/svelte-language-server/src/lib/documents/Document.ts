@@ -2,7 +2,7 @@ import { urlToPath } from '../../utils';
 import { WritableDocument } from './DocumentBase';
 import { extractScriptTags, extractStyleTag, extractTemplateTag, TagInformation } from './utils';
 import { parseHtml } from './parseHtml';
-import { SvelteConfig, configLoader } from './configLoader';
+import { configLoader, SvelteConfig } from './configLoader';
 import { HTMLDocument } from 'vscode-html-languageservice';
 import { Range } from 'vscode-languageserver';
 import { importSvelte } from '../../importPackage';
@@ -57,7 +57,11 @@ export class Document extends WritableDocument {
         const update = (config: SvelteConfig | undefined) => {
             const scriptTags = extractScriptTags(this.content, this.html);
             this.config = config;
-            this.scriptInfo = this.addDefaultLanguage(config, scriptTags?.script || null, 'script');
+            this.scriptInfo = this.addDefaultLanguage(
+                config,
+                scriptTags?.script || null,
+                'script'
+            );
             this.moduleScriptInfo = this.addDefaultLanguage(
                 config,
                 scriptTags?.moduleScript || null,
@@ -97,7 +101,10 @@ export class Document extends WritableDocument {
      */
     getText(range?: Range): string {
         if (range) {
-            return this.content.substring(this.offsetAt(range.start), this.offsetAt(range.end));
+            return this.content.substring(
+                this.offsetAt(range.start),
+                this.offsetAt(range.end)
+            );
         }
         return this.content;
     }
@@ -135,8 +142,8 @@ export class Document extends WritableDocument {
             (tag === 'style'
                 ? this.styleInfo?.attributes
                 : tag === 'script'
-                  ? this.scriptInfo?.attributes || this.moduleScriptInfo?.attributes
-                  : this.templateInfo?.attributes) || {};
+                ? this.scriptInfo?.attributes || this.moduleScriptInfo?.attributes
+                : this.templateInfo?.attributes) || {};
         const lang = attrs.lang || attrs.type || '';
         return lang.replace(/^text\//, '');
     }
@@ -165,9 +172,10 @@ export class Document extends WritableDocument {
         }
 
         const defaultLang = Array.isArray(config.preprocess)
-            ? config.preprocess.find((group) => group.defaultLanguages?.[tag])?.defaultLanguages?.[
-                  tag
-              ]
+            ? config.preprocess.find((group) => group.defaultLanguages?.[tag])
+                ?.defaultLanguages?.[
+                    tag
+                ]
             : config.preprocess?.defaultLanguages?.[tag];
 
         if (!tagInfo.attributes.lang && !tagInfo.attributes.type && defaultLang) {

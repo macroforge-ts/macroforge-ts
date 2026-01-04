@@ -13,7 +13,10 @@ describe('SveltePlugin#getHoverInfo', () => {
         const hover = getHoverInfo(document, svelteDoc, position);
         return {
             toEqual: (tag: SvelteTag | null) =>
-                assert.deepStrictEqual(hover, tag ? { contents: documentation[tag] } : null)
+                assert.deepStrictEqual(
+                    hover,
+                    tag ? { contents: documentation[tag] } : null
+                )
         };
     }
 
@@ -51,7 +54,9 @@ describe('SveltePlugin#getHoverInfo', () => {
         });
 
         it(' when only completed tag before that', () => {
-            expectHoverInfoFor('{#if}{/if}{:else}', Position.create(0, 15)).toEqual(null);
+            expectHoverInfoFor('{#if}{/if}{:else}', Position.create(0, 15)).toEqual(
+                null
+            );
         });
     });
 
@@ -94,13 +99,20 @@ describe('SveltePlugin#getHoverInfo', () => {
             ] as const
         ).forEach((tag) => {
             it(`(:${tag[1]})`, () => {
-                expectHoverInfoFor(`{:${tag[1]}}`, Position.create(0, 3)).toEqual(tag[0]);
-                expectHoverInfoFor(`{:${tag[1]} `, Position.create(0, 3)).toEqual(tag[0]);
+                expectHoverInfoFor(`{:${tag[1]}}`, Position.create(0, 3)).toEqual(
+                    tag[0]
+                );
+                expectHoverInfoFor(`{:${tag[1]} `, Position.create(0, 3)).toEqual(
+                    tag[0]
+                );
             });
         });
     });
 
-    function expectHoverInfoForEventModifier(content: string, position: Position) {
+    function expectHoverInfoForEventModifier(
+        content: string,
+        position: Position
+    ) {
         const document = new Document('url', content);
         const svelteDoc = new SvelteDocument(document);
         const hover = getHoverInfo(document, svelteDoc, position);

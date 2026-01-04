@@ -4,8 +4,8 @@ import { Position } from 'vscode-languageserver';
 import { Document } from '../../../src/lib/documents';
 import * as importPackage from '../../../src/importPackage';
 import {
-    SvelteDocument,
-    ITranspiledSvelteDocument
+    ITranspiledSvelteDocument,
+    SvelteDocument
 } from '../../../src/plugins/svelte/SvelteDocument';
 import { configLoader, SvelteConfig } from '../../../src/lib/documents/configLoader';
 // @ts-ignore
@@ -97,31 +97,38 @@ describe('Svelte Document', () => {
             // to fake a source mapping process with the fallback version
             sinon
                 .stub(importPackage, 'getPackageInfo')
-                .returns({ path: '', version: { full: '', major: 3, minor: 31, patch: 0 } });
+                .returns({
+                    path: '',
+                    version: { full: '', major: 3, minor: 31, patch: 0 }
+                });
             // @ts-ignore
             sinon.stub(importPackage, 'importSvelte').returns({
                 preprocess: (text, preprocessor) => {
                     preprocessor = Array.isArray(preprocessor) ? preprocessor : [preprocessor];
-                    preprocessor.forEach((p) => p.script?.(<any>{}));
+                    preprocessor.forEach((p) => p.script?.(<any> {}));
                     return Promise.resolve({
                         code: getSourceCode(true),
                         dependencies: [],
                         toString: () => getSourceCode(true),
-                        map: <any>null
+                        map: <any> null
                     });
                 },
-                VERSION: <any>'',
-                compile: <any>null,
-                parse: <any>null
+                VERSION: <any> '',
+                compile: <any> null,
+                parse: <any> null
             });
             const transpiled = await svelteDoc.getTranspiled();
-            const scriptSourceMapper = (<any>transpiled).scriptMapper.sourceMapper;
+            const scriptSourceMapper = (<any> transpiled).scriptMapper.sourceMapper;
             // hacky reset of method because mocking the SourceMap constructor is an impossible task
-            scriptSourceMapper.getOriginalPosition = ({ line, character }: Position) => ({
+            scriptSourceMapper.getOriginalPosition = (
+                { line, character }: Position
+            ) => ({
                 line: line - 1,
                 character
             });
-            scriptSourceMapper.getGeneratedPosition = ({ line, character }: Position) => ({
+            scriptSourceMapper.getGeneratedPosition = (
+                { line, character }: Position
+            ) => ({
                 line: line + 1,
                 character
             });
@@ -151,37 +158,61 @@ describe('Svelte Document', () => {
         it('should map correctly within string valued sourcemapped script', async () => {
             const { transpiled } = await setupTranspiledWithStringSourceMap();
 
-            assertCanMapBackAndForth(transpiled, Position.create(3, 2), Position.create(2, 18));
+            assertCanMapBackAndForth(
+                transpiled,
+                Position.create(3, 2),
+                Position.create(2, 18)
+            );
         });
 
         it('should map correctly within object valued sourcemapped script', async () => {
             const { transpiled } = await setupTranspiledWithObjectSourceMap();
 
-            assertCanMapBackAndForth(transpiled, Position.create(3, 2), Position.create(2, 18));
+            assertCanMapBackAndForth(
+                transpiled,
+                Position.create(3, 2),
+                Position.create(2, 18)
+            );
         });
 
         it('should map correctly within class valued sourcemapped script', async () => {
             const { transpiled } = await setupTranspiledWithClassSourceMap();
 
-            assertCanMapBackAndForth(transpiled, Position.create(3, 2), Position.create(2, 18));
+            assertCanMapBackAndForth(
+                transpiled,
+                Position.create(3, 2),
+                Position.create(2, 18)
+            );
         });
 
         it('should map correctly in template before script', async () => {
             const { transpiled } = await setupTranspiledWithStringSourceMap();
 
-            assertCanMapBackAndForth(transpiled, Position.create(1, 1), Position.create(1, 1));
+            assertCanMapBackAndForth(
+                transpiled,
+                Position.create(1, 1),
+                Position.create(1, 1)
+            );
         });
 
         it('should map correctly in template after script', async () => {
             const { transpiled } = await setupTranspiledWithStringSourceMap();
 
-            assertCanMapBackAndForth(transpiled, Position.create(4, 1), Position.create(3, 1));
+            assertCanMapBackAndForth(
+                transpiled,
+                Position.create(4, 1),
+                Position.create(3, 1)
+            );
         });
 
         it('should map correctly in style', async () => {
             const { transpiled } = await setupTranspiledWithStringSourceMap();
 
-            assertCanMapBackAndForth(transpiled, Position.create(5, 18), Position.create(4, 18));
+            assertCanMapBackAndForth(
+                transpiled,
+                Position.create(5, 18),
+                Position.create(4, 18)
+            );
         });
     });
 });

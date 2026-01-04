@@ -1,10 +1,10 @@
 import * as assert from 'assert';
 import {
-    getLineAtPosition,
-    extractStyleTag,
     extractScriptTags,
-    updateRelativeImport,
-    getWordAt
+    extractStyleTag,
+    getLineAtPosition,
+    getWordAt,
+    updateRelativeImport
 } from '../../../src/lib/documents/utils';
 import { Position } from 'vscode-languageserver';
 
@@ -93,7 +93,9 @@ describe('document/utils', () => {
         });
 
         it('can extract with unclosed component after it', () => {
-            const extracted = extractStyleTag('<style></style><C {#if asd}<p>asd</p>{/if}');
+            const extracted = extractStyleTag(
+                '<style></style><C {#if asd}<p>asd</p>{/if}'
+            );
             assert.deepStrictEqual(extracted, {
                 start: 7,
                 end: 7,
@@ -362,7 +364,10 @@ describe('document/utils', () => {
 
     describe('#getLineAtPosition', () => {
         it('should return line at position (only one line)', () => {
-            assert.deepStrictEqual(getLineAtPosition(Position.create(0, 1), 'ABC'), 'ABC');
+            assert.deepStrictEqual(
+                getLineAtPosition(Position.create(0, 1), 'ABC'),
+                'ABC'
+            );
         });
 
         it('should return line at position (multiple lines)', () => {
@@ -421,13 +426,19 @@ describe('document/utils', () => {
 
         it('returns word with custom delimiters', () => {
             assert.equal(
-                getWordAt('asd on:asd-qwd="asd" ', 10, { left: /\S+$/, right: /[\s=]/ }),
+                getWordAt('asd on:asd-qwd="asd" ', 10, {
+                    left: /\S+$/,
+                    right: /[\s=]/
+                }),
                 'on:asd-qwd'
             );
         });
 
         function testEvent(str: string, pos: number, expected: string) {
-            assert.equal(getWordAt(str, pos, { left: /\S+$/, right: /[^\w$:]/ }), expected);
+            assert.equal(
+                getWordAt(str, pos, { left: /\S+$/, right: /[^\w$:]/ }),
+                expected
+            );
         }
 
         it('returns event #1', () => {

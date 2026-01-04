@@ -270,13 +270,15 @@ export interface TsInlayHintsConfig {
     functionLikeReturnTypes: { enabled: boolean } | undefined;
     parameterNames:
         | {
-              enabled: ts.UserPreferences['includeInlayParameterNameHints'];
-              suppressWhenArgumentMatchesName: boolean;
-          }
+            enabled: ts.UserPreferences['includeInlayParameterNameHints'];
+            suppressWhenArgumentMatchesName: boolean;
+        }
         | undefined;
     parameterTypes: { enabled: boolean } | undefined;
     propertyDeclarationTypes: { enabled: boolean } | undefined;
-    variableTypes: { enabled: boolean; suppressWhenTypeMatchesName: boolean } | undefined;
+    variableTypes:
+        | { enabled: boolean; suppressWhenTypeMatchesName: boolean }
+        | undefined;
 }
 
 export interface TsReferenceCodeLensConfig {
@@ -318,11 +320,10 @@ export interface HTMLConfig {
     customData?: string[];
 }
 
-type DeepPartial<T> = T extends CompilerWarningsSettings
-    ? T
+type DeepPartial<T> = T extends CompilerWarningsSettings ? T
     : {
-          [P in keyof T]?: DeepPartial<T[P]>;
-      };
+        [P in keyof T]?: DeepPartial<T[P]>;
+    };
 
 export class LSConfigManager {
     private config: LSConfig = defaultLSConfig;
@@ -478,9 +479,12 @@ export class LSConfigManager {
 
         this.tsUserPreferences[lang] = {
             ...this.tsUserPreferences[lang],
-            importModuleSpecifierPreference: config.preferences?.importModuleSpecifier,
-            importModuleSpecifierEnding: config.preferences?.importModuleSpecifierEnding,
-            includePackageJsonAutoImports: config.preferences?.includePackageJsonAutoImports,
+            importModuleSpecifierPreference: config.preferences
+                ?.importModuleSpecifier,
+            importModuleSpecifierEnding: config.preferences
+                ?.importModuleSpecifierEnding,
+            includePackageJsonAutoImports: config.preferences
+                ?.includePackageJsonAutoImports,
             quotePreference: config.preferences?.quoteStyle,
             includeCompletionsForModuleExports: config.suggest?.autoImports ?? true,
             includeCompletionsForImportStatements:
@@ -488,10 +492,11 @@ export class LSConfigManager {
             includeAutomaticOptionalChainCompletions:
                 config.suggest?.includeAutomaticOptionalChainCompletions ?? true,
             includeCompletionsWithInsertText: true,
-            autoImportFileExcludePatterns: config.preferences?.autoImportFileExcludePatterns,
+            autoImportFileExcludePatterns: config.preferences
+                ?.autoImportFileExcludePatterns,
             useLabelDetailsInCompletionEntries: true,
-            includeCompletionsWithSnippetText:
-                config.suggest?.includeCompletionsWithSnippetText ?? true,
+            includeCompletionsWithSnippetText: config.suggest?.includeCompletionsWithSnippetText ??
+                true,
             includeCompletionsWithClassMemberSnippets:
                 config.suggest?.classMemberSnippets?.enabled ?? true,
             includeCompletionsWithObjectLiteralMethodSnippets:
@@ -505,21 +510,25 @@ export class LSConfigManager {
             allowIncompleteCompletions: true,
 
             includeInlayEnumMemberValueHints: inlayHints?.enumMemberValues?.enabled,
-            includeInlayFunctionLikeReturnTypeHints: inlayHints?.functionLikeReturnTypes?.enabled,
+            includeInlayFunctionLikeReturnTypeHints: inlayHints
+                ?.functionLikeReturnTypes?.enabled,
             includeInlayParameterNameHints: inlayHints?.parameterNames?.enabled,
             includeInlayParameterNameHintsWhenArgumentMatchesName:
                 inlayHints?.parameterNames?.suppressWhenArgumentMatchesName === false,
-            includeInlayFunctionParameterTypeHints: inlayHints?.parameterTypes?.enabled,
+            includeInlayFunctionParameterTypeHints: inlayHints?.parameterTypes
+                ?.enabled,
             includeInlayVariableTypeHints: inlayHints?.variableTypes?.enabled,
-            includeInlayPropertyDeclarationTypeHints: inlayHints?.propertyDeclarationTypes?.enabled,
+            includeInlayPropertyDeclarationTypeHints: inlayHints
+                ?.propertyDeclarationTypes?.enabled,
             includeInlayVariableTypeHintsWhenTypeMatchesName:
                 inlayHints?.variableTypes?.suppressWhenTypeMatchesName === false,
             interactiveInlayHints: true,
 
-            autoImportSpecifierExcludeRegexes:
-                config.preferences?.autoImportSpecifierExcludeRegexes,
+            autoImportSpecifierExcludeRegexes: config.preferences
+                ?.autoImportSpecifierExcludeRegexes,
 
-            organizeImportsAccentCollation: config.preferences?.organizeImports?.accentCollation,
+            organizeImportsAccentCollation: config.preferences?.organizeImports
+                ?.accentCollation,
             organizeImportsCollation: config.preferences?.organizeImports?.collation,
             organizeImportsCaseFirst: this.withDefaultAsUndefined(
                 config.preferences?.organizeImports?.caseFirst,
@@ -530,7 +539,8 @@ export class LSConfigManager {
                 'auto'
             ),
             organizeImportsLocale: config.preferences?.organizeImports?.locale,
-            organizeImportsNumericCollation: config.preferences?.organizeImports?.numericCollation,
+            organizeImportsNumericCollation: config.preferences?.organizeImports
+                ?.numericCollation,
             organizeImportsTypeOrder: this.withDefaultAsUndefined(
                 config.preferences?.organizeImports?.typeOrder,
                 'auto'
@@ -540,7 +550,10 @@ export class LSConfigManager {
         };
     }
 
-    private withDefaultAsUndefined<T, O extends T>(value: T, def: O): Exclude<T, O> | undefined {
+    private withDefaultAsUndefined<T, O extends T>(
+        value: T,
+        def: O
+    ): Exclude<T, O> | undefined {
         return value === def ? undefined : (value as Exclude<T, O>);
     }
 
@@ -550,12 +563,15 @@ export class LSConfigManager {
     ): ts.UserPreferences {
         const userPreferences = this.tsUserPreferences[lang];
 
-        if (!normalizedWorkspacePath || !userPreferences.autoImportFileExcludePatterns) {
+        if (
+            !normalizedWorkspacePath || !userPreferences.autoImportFileExcludePatterns
+        ) {
             return userPreferences;
         }
 
-        let autoImportFileExcludePatterns =
-            this.resolvedAutoImportExcludeCache.get(normalizedWorkspacePath);
+        let autoImportFileExcludePatterns = this.resolvedAutoImportExcludeCache.get(
+            normalizedWorkspacePath
+        );
 
         if (!autoImportFileExcludePatterns) {
             const version = ts.version.split('.');
@@ -563,25 +579,28 @@ export class LSConfigManager {
             const minor = parseInt(version[1]);
 
             const gte5_4 = major > 5 || (major === 5 && minor >= 4);
-            autoImportFileExcludePatterns = userPreferences.autoImportFileExcludePatterns.map(
-                (p) => {
-                    // Normalization rules: https://github.com/microsoft/TypeScript/pull/49578
-                    const slashNormalized = p.replace(/\\/g, '/');
-                    const isRelative = /^\.\.?($|\/)/.test(slashNormalized);
-                    if (path.isAbsolute(p)) {
-                        return p;
-                    }
+            autoImportFileExcludePatterns = userPreferences
+                .autoImportFileExcludePatterns.map(
+                    (p) => {
+                        // Normalization rules: https://github.com/microsoft/TypeScript/pull/49578
+                        const slashNormalized = p.replace(/\\/g, '/');
+                        const isRelative = /^\.\.?($|\/)/.test(slashNormalized);
+                        if (path.isAbsolute(p)) {
+                            return p;
+                        }
 
-                    // https://github.com/microsoft/vscode/pull/202762
-                    // ts 5.4+ supports leading wildcards
-                    const wildcardPrefix = gte5_4 ? '' : path.parse(normalizedWorkspacePath).root;
-                    return p.startsWith('*')
-                        ? wildcardPrefix + slashNormalized
-                        : isRelative
-                          ? path.join(normalizedWorkspacePath, p)
-                          : wildcardPrefix + '**/' + slashNormalized;
-                }
-            );
+                        // https://github.com/microsoft/vscode/pull/202762
+                        // ts 5.4+ supports leading wildcards
+                        const wildcardPrefix = gte5_4
+                            ? ''
+                            : path.parse(normalizedWorkspacePath).root;
+                        return p.startsWith('*')
+                            ? wildcardPrefix + slashNormalized
+                            : isRelative
+                            ? path.join(normalizedWorkspacePath, p)
+                            : wildcardPrefix + '**/' + slashNormalized;
+                    }
+                );
             this.resolvedAutoImportExcludeCache.set(
                 normalizedWorkspacePath,
                 autoImportFileExcludePatterns
@@ -684,10 +703,9 @@ export class LSConfigManager {
         scriptKind: ts.ScriptKind
     ): Promise<ts.FormatCodeSettings> {
         const filePath = document.getFilePath();
-        const configLang =
-            scriptKind === ts.ScriptKind.TS || scriptKind === ts.ScriptKind.TSX
-                ? 'typescript'
-                : 'javascript';
+        const configLang = scriptKind === ts.ScriptKind.TS || scriptKind === ts.ScriptKind.TSX
+            ? 'typescript'
+            : 'javascript';
 
         const tsFormatCodeOptions = this.tsFormatCodeOptions[configLang];
 
@@ -701,12 +719,12 @@ export class LSConfigManager {
             })
         );
         const useSemicolons = prettierConfig.semi ?? true;
-        const documentUseLf =
-            document.getText().includes('\n') && !document.getText().includes('\r\n');
+        const documentUseLf = document.getText().includes('\n') &&
+            !document.getText().includes('\r\n');
 
         const indentSize =
             (typeof prettierConfig.tabWidth === 'number' ? prettierConfig.tabWidth : null) ??
-            tsFormatCodeOptions.tabSize;
+                tsFormatCodeOptions.tabSize;
 
         return {
             ...tsFormatCodeOptions,

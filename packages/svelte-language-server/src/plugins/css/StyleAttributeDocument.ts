@@ -20,7 +20,9 @@ export class StyleAttributeDocument extends ReadableDocument implements Document
     ) {
         super();
 
-        this.stylesheet = getLanguageService(languageServices).parseStylesheet(this);
+        this.stylesheet = getLanguageService(languageServices).parseStylesheet(
+            this
+        );
     }
 
     /**
@@ -37,7 +39,8 @@ export class StyleAttributeDocument extends ReadableDocument implements Document
      * @param pos Position in parent
      */
     getGeneratedPosition(pos: Position): Position {
-        const fragmentOffset = this.parent.offsetAt(pos) - this.attrStart + PREFIX.length;
+        const fragmentOffset = this.parent.offsetAt(pos) - this.attrStart +
+            PREFIX.length;
         return this.positionAt(fragmentOffset);
     }
 
@@ -54,7 +57,8 @@ export class StyleAttributeDocument extends ReadableDocument implements Document
      * Get the fragment text from the parent
      */
     getText(): string {
-        return PREFIX + this.parent.getText().slice(this.attrStart, this.attrEnd) + SUFFIX;
+        return PREFIX + this.parent.getText().slice(this.attrStart, this.attrEnd) +
+            SUFFIX;
     }
 
     /**
