@@ -4,7 +4,7 @@ members = ["tests"]
 [package]
 name = "macroforge_ts_quote"
 description = "Quote macro for generating TypeScript code at compile time"
-version = "0.1.65"
+version = "0.1.66"
 edition = "2024"
 authors = ["macroforge contributors"]
 license = "MIT"
