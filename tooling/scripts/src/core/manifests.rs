@@ -3,7 +3,7 @@
 //! Handles reading/writing versions to package.json and Cargo.toml,
 //! managing versions.json cache, and swapping dependency paths.
 
-use crate::core::config::{self, Config, INTERNAL_CRATES, PLATFORMS};
+use crate::core::config::{self, Config, PLATFORMS};
 use crate::core::versions::VersionsCache;
 use crate::utils::format;
 use anyhow::{Context, Result};
@@ -11,26 +11,43 @@ use serde_json::{Value, json};
 use std::fs;
 use std::path::Path;
 
+/// Cargo.toml files that need dependency swapping: (repo_name, dependencies)
+/// Each dependency is (crate_name, target_repo_name) - paths are computed from config
+const CARGO_SWAP_CONFIGS: &[(&str, &[(&str, &str)])] = &[(
+    "core",
+    &[
+        ("macroforge_ts_syn", "syn"),
+        ("macroforge_ts_quote", "template"),
+        ("macroforge_ts_macros", "macros"),
+    ],
+)];
+
 /// Check if Cargo dependencies are currently using local paths
-pub fn is_using_local_paths(root: &Path) -> bool {
-    let path = root.join("crates/macroforge_ts/Cargo.toml");
-    if !path.exists() {
-        return false;
-    }
+pub fn is_using_local_paths(config: &Config) -> bool {
+    for (repo_name, deps) in CARGO_SWAP_CONFIGS {
+        let Some(repo) = config.repos.get(*repo_name) else {
+            continue;
+        };
+        let Some(cargo_path) = &repo.cargo_toml else {
+            continue;
+        };
+        if !cargo_path.exists() {
+            continue;
+        }
 
-    let Ok(content) = fs::read_to_string(&path) else {
-        return false;
-    };
+        let Ok(content) = fs::read_to_string(cargo_path) else {
+            continue;
+        };
 
-    // Check if any internal crate is using path = syntax
-    for (crate_name, _, _) in INTERNAL_CRATES {
-        for line in content.lines() {
-            let trimmed = line.trim();
-            if (trimmed.starts_with(&format!("{} = {{", crate_name))
-                || trimmed.starts_with(&format!("{} = {{ ", crate_name)))
-                && (trimmed.contains("path =") || trimmed.contains("path="))
-            {
-                return true;
+        for (crate_name, _) in *deps {
+            for line in content.lines() {
+                let trimmed = line.trim();
+                if (trimmed.starts_with(&format!("{} = {{", crate_name))
+                    || trimmed.starts_with(&format!("{} = {{ ", crate_name)))
+                    && (trimmed.contains("path =") || trimmed.contains("path="))
+                {
+                    return true;
+                }
             }
         }
     }
@@ -39,58 +56,77 @@ pub fn is_using_local_paths(root: &Path) -> bool {
 }
 
 /// Swap internal crate dependencies to local paths
-pub fn swap_local(root: &Path) -> Result<()> {
-    let path = root.join("crates/macroforge_ts/Cargo.toml");
-    if !path.exists() {
-        return Ok(());
-    }
+pub fn swap_local(config: &Config) -> Result<()> {
+    for (repo_name, deps) in CARGO_SWAP_CONFIGS {
+        let Some(repo) = config.repos.get(*repo_name) else {
+            continue;
+        };
+        let Some(cargo_path) = &repo.cargo_toml else {
+            continue;
+        };
+        if !cargo_path.exists() {
+            continue;
+        }
 
-    let content = fs::read_to_string(&path)?;
-    let lines: Vec<String> = content
-        .lines()
-        .map(|line| {
-            for (crate_name, _, local_path) in INTERNAL_CRATES {
-                if line.trim().starts_with(&format!("{} = \"", crate_name)) {
-                    // Use compact format without space after { for consistency
-                    return format!("{} = {{path = \"{}\"}}", crate_name, local_path);
+        let content = fs::read_to_string(cargo_path)?;
+        let lines: Vec<String> = content
+            .lines()
+            .map(|line| {
+                for (crate_name, target_repo) in *deps {
+                    if line.trim().starts_with(&format!("{} = \"", crate_name)) {
+                        // Use absolute path from config (supports env vars)
+                        if let Some(target) = config.repos.get(*target_repo) {
+                            let abs_path = target.abs_path.display();
+                            return format!("{} = {{path = \"{}\"}}", crate_name, abs_path);
+                        }
+                    }
                 }
-            }
-            line.to_string()
-        })
-        .collect();
+                line.to_string()
+            })
+            .collect();
 
-    fs::write(&path, lines.join("\n") + "\n")?;
+        fs::write(cargo_path, lines.join("\n") + "\n")?;
+    }
     Ok(())
 }
 
 /// Swap internal crate dependencies back to registry versions
-pub fn swap_registry(root: &Path, versions: &VersionsCache) -> Result<()> {
-    let path = root.join("crates/macroforge_ts/Cargo.toml");
-    if !path.exists() {
-        return Ok(());
-    }
+pub fn swap_registry(config: &Config, versions: &VersionsCache) -> Result<()> {
+    for (repo_name, deps) in CARGO_SWAP_CONFIGS {
+        let Some(repo) = config.repos.get(*repo_name) else {
+            continue;
+        };
+        let Some(cargo_path) = &repo.cargo_toml else {
+            continue;
+        };
+        if !cargo_path.exists() {
+            continue;
+        }
 
-    let content = fs::read_to_string(&path)?;
-    let lines: Vec<String> = content
-        .lines()
-        .map(|line| {
-            for (crate_name, repo_name, local_path) in INTERNAL_CRATES {
-                // Handle both formats: `{ path = "..."` and `{path = "..."`
-                let with_space = format!("{} = {{ path = \"{}\"", crate_name, local_path);
-                let no_space = format!("{} = {{path = \"{}\"", crate_name, local_path);
-                if line.trim().starts_with(&with_space) || line.trim().starts_with(&no_space) {
-                    let v = versions
-                        .get_local(repo_name)
-                        .map(|s| s.to_string())
-                        .unwrap_or_else(|| "0.1.0".to_string());
-                    return format!("{} = \"{}\"", crate_name, v);
+        let content = fs::read_to_string(cargo_path)?;
+        let lines: Vec<String> = content
+            .lines()
+            .map(|line| {
+                for (crate_name, version_repo) in *deps {
+                    let trimmed = line.trim();
+                    // Match any path dependency for this crate
+                    if (trimmed.starts_with(&format!("{} = {{", crate_name))
+                        || trimmed.starts_with(&format!("{} = {{ ", crate_name)))
+                        && trimmed.contains("path")
+                    {
+                        let v = versions
+                            .get_local(version_repo)
+                            .map(|s| s.to_string())
+                            .unwrap_or_else(|| "0.1.0".to_string());
+                        return format!("{} = \"{}\"", crate_name, v);
+                    }
                 }
-            }
-            line.to_string()
-        })
-        .collect();
+                line.to_string()
+            })
+            .collect();
 
-    fs::write(&path, lines.join("\n") + "\n")?;
+        fs::write(cargo_path, lines.join("\n") + "\n")?;
+    }
     Ok(())
 }
 

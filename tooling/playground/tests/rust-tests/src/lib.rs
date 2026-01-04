@@ -1,3 +1,6 @@
+// IR Variant Coverage Tests (from macroforge_ts_quote/tests)
+mod ir_declarations;
+
 #[cfg(test)]
 mod tests {
     use macroforge_ts_quote::ts_template;

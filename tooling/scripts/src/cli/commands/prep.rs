@@ -130,7 +130,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
     let verbose = std::env::var("VERBOSE").is_ok() || std::env::var("DEBUG").is_ok();
 
     // Capture initial manifest state (local vs registry) for rollback
-    let was_using_local_paths = manifests::is_using_local_paths(&config.root);
+    let was_using_local_paths = manifests::is_using_local_paths(&config);
 
     // Set up Ctrl+C handler with full rollback capability
     let interrupted = Arc::new(AtomicBool::new(false));
@@ -153,9 +153,9 @@ pub fn run(args: PrepArgs) -> Result<()> {
         }
         // Restore to original dependency state (local or registry)
         if was_using_local_paths {
-            let _ = manifests::swap_local(&config_clone.root);
+            let _ = manifests::swap_local(&config_clone);
         } else {
-            let _ = manifests::swap_registry(&config_clone.root, &original_versions_for_handler);
+            let _ = manifests::swap_registry(&config_clone, &original_versions_for_handler);
             let _ = manifests::swap_npm_registry(&config_clone, &original_versions_for_handler);
         }
         eprintln!("{} Rollback complete. Exiting.", "✓".green());
@@ -277,9 +277,9 @@ pub fn run(args: PrepArgs) -> Result<()> {
         }
         // Restore to original dependency state (local or registry)
         if was_using_local_paths {
-            let _ = manifests::swap_local(&config.root);
+            let _ = manifests::swap_local(config);
         } else {
-            let _ = manifests::swap_registry(&config.root, original);
+            let _ = manifests::swap_registry(config, original);
             let _ = manifests::swap_npm_registry(config, original);
         }
         eprintln!("{} Rollback complete", "✓".green());
@@ -384,7 +384,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
 
         // Swap to local path dependencies
         println!("  {} Swapping to local path dependencies...", "→".blue());
-        manifests::swap_local(&config.root)?;
+        manifests::swap_local(&config)?;
         let repo_names_slice: Vec<&str> = repos.iter().map(|r| r.name.as_str()).collect();
         manifests::swap_npm_local(&config, &repo_names_slice)?;
 
@@ -648,7 +648,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
             // Already using local paths, nothing to do
         } else {
             println!("  {} Restoring registry dependencies...", "→".blue());
-            manifests::swap_registry(&config.root, &versions_cache)?;
+            manifests::swap_registry(&config, &versions_cache)?;
             manifests::swap_npm_registry(&config, &versions_cache)?;
         }
     }

@@ -112,13 +112,6 @@ pub fn crate_package_names() -> HashMap<&'static str, &'static str> {
     .collect()
 }
 
-/// Internal crate dependencies for swap-local/swap-registry
-pub const INTERNAL_CRATES: &[(&str, &str, &str)] = &[
-    ("macroforge_ts_syn", "syn", "../macroforge_ts_syn"),
-    ("macroforge_ts_quote", "template", "../macroforge_ts_quote"),
-    ("macroforge_ts_macros", "macros", "../macroforge_ts_macros"),
-];
-
 /// Platform-specific binary package names
 pub const PLATFORMS: &[&str] = &[
     "darwin-x64",
