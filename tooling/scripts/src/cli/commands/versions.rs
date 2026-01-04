@@ -131,15 +131,6 @@ pub fn run(args: VersionsArgs) -> Result<()> {
         for (repo, version) in &updated {
             println!("  {} → {}", repo.cyan(), version.green());
         }
-
-        if !args.check_only {
-            // Save versions
-            versions.save(&config.root)?;
-            format::success("versions.json updated");
-
-            // Update zed extension version constants
-            manifests::update_zed_extensions(&config.root, &versions)?;
-        }
     }
 
     if !unchanged.is_empty() {
@@ -148,6 +139,18 @@ pub fn run(args: VersionsArgs) -> Result<()> {
 
     if !failed.is_empty() {
         println!("\n{}: {}", "Failed".red(), failed.join(", "));
+    }
+
+    // Always sync manifest files to match versions.json
+    if !args.check_only {
+        versions.save(&config.root)?;
+        format::success("versions.json updated");
+
+        // Update all manifest files (package.json, Cargo.toml)
+        manifests::apply_versions(&config, &versions)?;
+
+        // Update zed extension version constants
+        manifests::update_zed_extensions(&config.root, &versions)?;
     }
 
     Ok(())
