@@ -168,31 +168,34 @@ pub fn analyze_tag(g: &Group) -> TagType {
     // Check for {$ ...} tags (directives: let, do, typescript)
     if let TokenTree::Punct(p) = &tokens[0]
         && p.as_char() == '$'
+        && let Some(TokenTree::Ident(i)) = tokens.get(1)
     {
-        if let Some(TokenTree::Ident(i)) = tokens.get(1) {
-            if i == "let" {
-                // Check for {$let mut ...} - mutable binding
-                if let Some(TokenTree::Ident(mut_kw)) = tokens.get(2)
-                    && mut_kw == "mut"
-                {
-                    // Format: {$let mut name = expr}
-                    let body: TokenStream2 = tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
-                    return TagType::LetMut(body);
-                }
-                // Format: {$let name = expr}
-                let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-                return TagType::Let(body);
+        if i == "let" {
+            // Check for {$let mut ...} - mutable binding
+            if let Some(TokenTree::Ident(mut_kw)) = tokens.get(2)
+                && mut_kw == "mut"
+            {
+                // Format: {$let mut name = expr}
+                let body: TokenStream2 =
+                    tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
+                return TagType::LetMut(body);
             }
-            if i == "do" {
-                // Format: {$do expr}
-                let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-                return TagType::Do(body);
-            }
-            if i == "typescript" {
-                // Format: {$typescript expr} - inject TsStream
-                let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-                return TagType::TypeScript(body);
-            }
+            // Format: {$let name = expr}
+            let body: TokenStream2 =
+                tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Let(body);
+        }
+        if i == "do" {
+            // Format: {$do expr}
+            let body: TokenStream2 =
+                tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Do(body);
+        }
+        if i == "typescript" {
+            // Format: {$typescript expr} - inject TsStream
+            let body: TokenStream2 =
+                tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::TypeScript(body);
         }
     }
 

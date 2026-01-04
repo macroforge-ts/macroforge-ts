@@ -486,9 +486,9 @@ mod tests {
     #[test]
     fn test_parse_invalid_expr() {
         let ty: Type = syn::parse_quote!(Expr);
-        let result = parse_input_type("{ invalid syntax }", &ty);
         // Object literals parse as expressions, but malformed ones fail
-        // This depends on what the parser accepts
+        // This depends on what the parser accepts - just ensure it doesn't panic
+        let _ = parse_input_type("{ invalid syntax }", &ty);
     }
 
     #[test]

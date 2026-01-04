@@ -183,8 +183,8 @@ mod tests {
         let cx = empty_ctx();
         let num_lit = Number {
             span: swc_core::common::Span::default(),
-            value: 3.14159,
-            raw: Some(Atom::from("3.14159")),
+            value: 1.23456,
+            raw: Some(Atom::from("1.23456")),
         };
         let code = num_lit.to_code(&cx);
         let code_str = code.to_token_stream().to_string();
@@ -271,11 +271,11 @@ mod tests {
     #[test]
     fn test_f64_to_code_decimal() {
         let cx = empty_ctx();
-        let val: f64 = 3.14159;
+        let val: f64 = 1.23456;
         let code = val.to_code(&cx);
         let code_str = code.to_token_stream().to_string();
         assert!(code_str.contains("f64"));
-        assert!(code_str.contains("3.14159"));
+        assert!(code_str.contains("1.23456"));
     }
 
     #[test]

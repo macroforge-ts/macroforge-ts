@@ -116,7 +116,7 @@ pub fn parse_fragment_with_ctx(
 
             // Case 2: Groups { ... } - Could be Tag or Block
             TokenTree::Group(g) if g.delimiter() == Delimiter::Brace => {
-                let tag = analyze_tag(&g);
+                let tag = analyze_tag(g);
                 let span = g.span();
 
                 match tag {
@@ -358,23 +358,23 @@ pub fn parse_fragment_with_ctx(
             }
 
             // Case 4a: Backtick template literals "'^...^'" -> `...`
-            TokenTree::Literal(lit) if is_backtick_template(&lit) => {
+            TokenTree::Literal(lit) if is_backtick_template(lit) => {
                 let span = lit.span();
                 iter.next(); // Consume
 
                 output.extend(ctx.emit_spacing_to(span));
-                let processed = process_backtick_template(&lit);
+                let processed = process_backtick_template(lit);
                 output.extend(processed);
                 ctx.advance_past(span);
             }
 
             // Case 4b: String literals with interpolation
-            TokenTree::Literal(lit) if is_string_literal(&lit) => {
+            TokenTree::Literal(lit) if is_string_literal(lit) => {
                 let span = lit.span();
                 iter.next(); // Consume
 
                 output.extend(ctx.emit_spacing_to(span));
-                let interpolated = interpolate_string_literal(&lit);
+                let interpolated = interpolate_string_literal(lit);
                 output.extend(interpolated);
                 ctx.advance_past(span);
             }

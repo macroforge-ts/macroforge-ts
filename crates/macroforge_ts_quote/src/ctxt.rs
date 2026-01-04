@@ -210,7 +210,7 @@ mod tests {
     #[test]
     fn test_var_pos_ordering() {
         // VarPos should be orderable for use in BTreeMap etc.
-        let mut positions = vec![VarPos::TsType, VarPos::Ident, VarPos::Expr];
+        let mut positions = [VarPos::TsType, VarPos::Ident, VarPos::Expr];
         positions.sort();
         // Should not panic - ordering is defined
     }
@@ -426,7 +426,7 @@ mod tests {
     fn test_empty_vars_map() {
         let vars: Vars = FxHashMap::default();
         assert!(vars.is_empty());
-        assert!(vars.get("anything").is_none());
+        assert!(!vars.contains_key("anything"));
     }
 
     #[test]
@@ -452,8 +452,8 @@ mod tests {
         );
 
         assert_eq!(vars.len(), 2);
-        assert!(vars.get("a").is_some());
-        assert!(vars.get("b").is_some());
-        assert!(vars.get("c").is_none());
+        assert!(vars.contains_key("a"));
+        assert!(vars.contains_key("b"));
+        assert!(!vars.contains_key("c"));
     }
 }
