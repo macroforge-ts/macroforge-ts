@@ -51,9 +51,9 @@
 import type ts from "typescript/lib/tsserverlibrary";
 import type { ExpandResult, MacroManifestEntry, DecoratorManifestEntry } from "macroforge";
 import { NativePlugin, PositionMapper, __macroforgeGetManifest, loadConfig as nativeLoadConfig } from "macroforge";
-import { createRequire } from "module";
-import path from "path";
-import fs from "fs";
+import { createRequire } from "node:module";
+import path from "node:path";
+import fs from "node:fs";
 import {
   parseMacroImportComments,
   getExternalManifest,
