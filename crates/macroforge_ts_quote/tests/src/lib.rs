@@ -980,7 +980,7 @@ mod tests {
     /// Test that interface members in a for loop don't leak class __MF_DUMMY__ wrapper
     #[test]
     fn test_interface_member_in_loop() {
-        let fields = vec![("username", "string"), ("age", "number")];
+        let fields = [("username", "string"), ("age", "number")];
         let stream = ts_template! {
             export interface FieldControllers {
                 {#for (name, ts_type) in fields.iter().map(|(n, t)| (ident!(*n), *t))}

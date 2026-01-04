@@ -4,23 +4,25 @@
 //! DefaultImport, NamespaceImport, ExportDecl, NamedExport, ExportSpecifier,
 //! ExportDefaultExpr, ExportAll
 
-use macroforge_ts_quote::ts_template;
-
 #[test]
 fn test_enum_decl_simple() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         enum Status {
             Active,
             Inactive
         }
     };
     let source = stream.source();
-    assert!(source.contains("enum Status"), "Expected 'enum Status'. Got:\n{}", source);
+    assert!(
+        source.contains("enum Status"),
+        "Expected 'enum Status'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
 fn test_enum_decl_with_numeric_values() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         enum Priority {
             Low = 0,
             Medium = 1,
@@ -28,30 +30,42 @@ fn test_enum_decl_with_numeric_values() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("enum Priority"), "Expected 'enum Priority'. Got:\n{}", source);
+    assert!(
+        source.contains("enum Priority"),
+        "Expected 'enum Priority'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
 fn test_import_named() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         import { Component, Injectable } from "@angular/core";
     };
     let source = stream.source();
-    assert!(source.contains("import"), "Expected 'import'. Got:\n{}", source);
+    assert!(
+        source.contains("import"),
+        "Expected 'import'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
 fn test_import_default() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         import React from "react";
     };
     let source = stream.source();
-    assert!(source.contains("React"), "Expected 'React'. Got:\n{}", source);
+    assert!(
+        source.contains("React"),
+        "Expected 'React'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
 fn test_import_namespace() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         import * as fs from "fs";
     };
     let source = stream.source();
@@ -60,50 +74,66 @@ fn test_import_namespace() {
 
 #[test]
 fn test_export_named() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         const x = 1;
         const y = 2;
         export { x, y };
     };
     let source = stream.source();
-    assert!(source.contains("export"), "Expected 'export'. Got:\n{}", source);
+    assert!(
+        source.contains("export"),
+        "Expected 'export'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
 fn test_export_all() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         export * from "./module";
     };
     let source = stream.source();
-    assert!(source.contains("export"), "Expected 'export'. Got:\n{}", source);
+    assert!(
+        source.contains("export"),
+        "Expected 'export'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
 fn test_export_default_function() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         export default function handler() {
             return "handled";
         }
     };
     let source = stream.source();
-    assert!(source.contains("export default"), "Expected 'export default'. Got:\n{}", source);
+    assert!(
+        source.contains("export default"),
+        "Expected 'export default'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
 fn test_decorator_simple() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         @observable
         class Store {
             value: number;
         }
     };
     let source = stream.source();
-    assert!(source.contains("class Store"), "Expected 'class Store'. Got:\n{}", source);
+    assert!(
+        source.contains("class Store"),
+        "Expected 'class Store'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
 fn test_decorator_with_call() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         @Component({
             selector: "app-root",
             template: "<div>Hello</div>"
@@ -111,13 +141,17 @@ fn test_decorator_with_call() {
         class AppComponent {}
     };
     let source = stream.source();
-    assert!(source.contains("selector"), "Expected 'selector'. Got:\n{}", source);
+    assert!(
+        source.contains("selector"),
+        "Expected 'selector'. Got:\n{}",
+        source
+    );
 }
 
 // Previously caused hang - testing if fix works
 #[test]
 fn test_decorator_on_method() {
-    let stream = ts_template! {
+    let stream = macroforge_ts_quote::ts_template! {
         class Controller {
             @Get("/users")
             getUsers(): User[] {
@@ -126,5 +160,9 @@ fn test_decorator_on_method() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("getUsers"), "Expected 'getUsers'. Got:\n{}", source);
+    assert!(
+        source.contains("getUsers"),
+        "Expected 'getUsers'. Got:\n{}",
+        source
+    );
 }
