@@ -76,7 +76,14 @@ export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
                 noExternal: ['effect', '@playground/macro']
             },
             resolve: {
-                dedupe: ['effect']
+                dedupe: ['effect'],
+                alias: {
+                    'macroforge/serde': path.resolve(repoRoot, 'crates/macroforge_ts/js/serde/index.mjs'),
+                    'macroforge/traits': path.resolve(repoRoot, 'crates/macroforge_ts/js/traits/index.mjs'),
+                    'macroforge/reexports': path.resolve(repoRoot, 'crates/macroforge_ts/js/reexports/index.mjs'),
+                    'macroforge/reexports/effect': path.resolve(repoRoot, 'crates/macroforge_ts/js/reexports/effect.mjs'),
+                    'macroforge': path.resolve(repoRoot, 'crates/macroforge_ts')
+                }
             }
         };
 
