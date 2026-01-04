@@ -2,8 +2,8 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Metadata {
-    createdAt: string;
-    lastLogin: string | null;
-    isActive: boolean;
-    roles: Array<string>;
+  createdAt: string;
+  lastLogin: string | null;
+  isActive: boolean;
+  roles: Array<string>;
 }

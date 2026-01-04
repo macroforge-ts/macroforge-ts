@@ -1,8 +1,8 @@
 //! Diagnostics module - multi-tool diagnostic aggregation
 
 pub mod aggregator;
-pub mod biome;
 pub mod clippy;
+pub mod deno_lint;
 pub mod runner;
 pub mod svelte;
 pub mod tsc;

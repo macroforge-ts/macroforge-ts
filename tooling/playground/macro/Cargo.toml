@@ -14,7 +14,8 @@ crate-type = ["rlib", "cdylib"]
 
 [dependencies]
 # Core macro framework - re-exports macroforge_ts_syn, macroforge_ts_quote, macroforge_ts_macros, inventory, serde_json
-macroforge_ts = { path = "../../../crates/macroforge_ts" }
+# Uses vendor symlink - run `deno task setup-vendor` to create symlinks from env vars
+macroforge_ts = { path = "vendor/macroforge_ts" }
 # NAPI deps required directly (napi_derive generates ::napi references)
 napi = { version = "3.5.2", features = ["napi8", "compat-mode"] }
 napi-derive = "3.3.3"
@@ -27,4 +28,4 @@ convert_case = "0.10.0"
 
 [build-dependencies]
 napi-build = "2.3.1"
-macroforge_ts = { path = "../../../crates/macroforge_ts", features = ["build"] }
+macroforge_ts = { path = "vendor/macroforge_ts", features = ["build"] }

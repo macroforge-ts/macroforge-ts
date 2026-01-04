@@ -11,14 +11,8 @@
         "test:e2e:svelte": "node ./node_modules/.bin/playwright test --config=playwright.svelte.config.ts",
         "playwright:install": "playwright install chromium"
     },
-    "dependencies": {
-        "@playground/macro": "file:../macro",
-        "macroforge": "file:../../../crates/macroforge_ts"
-    },
+    "dependencies": {},
     "devDependencies": {
-        "@macroforge/typescript-plugin": "file:../../../packages/typescript-plugin",
-        "@macroforge/vite-plugin": "file:../../../packages/vite-plugin",
-        "@macroforge/shared": "file:../../../packages/shared",
         "@vtsls/language-server": "^0.2.9",
         "@playwright/test": "^1.49.0",
         "typescript": "^5",

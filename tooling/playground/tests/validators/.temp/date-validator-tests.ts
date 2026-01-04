@@ -9,15 +9,15 @@ import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 // ValidDate validator
 
 export class ValidDateValidator {
-    
-    date: Date;
+  
+  date: Date;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.date = props.date;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: ValidDateValidator;
 } | {
@@ -71,7 +71,7 @@ export class ValidDateValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): ValidDateValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): ValidDateValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -121,7 +121,7 @@ export class ValidDateValidator {
     return instance;
 }
 
-    static validateField<K extends keyof ValidDateValidator>(_field: K, _value: ValidDateValidator[K]): Array<{
+  static validateField<K extends keyof ValidDateValidator>(_field: K, _value: ValidDateValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -141,7 +141,7 @@ export class ValidDateValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<ValidDateValidator>): Array<{
+  static validateFields(_partial: Partial<ValidDateValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -161,7 +161,7 @@ export class ValidDateValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -169,7 +169,7 @@ export class ValidDateValidator {
     return "date" in o;
 }
 
-    static is(obj: unknown): obj is ValidDateValidator {
+  static is(obj: unknown): obj is ValidDateValidator {
     if (obj instanceof ValidDateValidator) {
         return true;
     }
@@ -199,15 +199,15 @@ export class ValidDateValidator {
 // GreaterThanDate validator
 
 export class GreaterThanDateValidator {
-    
-    date: Date;
+  
+  date: Date;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.date = props.date;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: GreaterThanDateValidator;
 } | {
@@ -261,7 +261,7 @@ export class GreaterThanDateValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanDateValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanDateValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -311,7 +311,7 @@ export class GreaterThanDateValidator {
     return instance;
 }
 
-    static validateField<K extends keyof GreaterThanDateValidator>(_field: K, _value: GreaterThanDateValidator[K]): Array<{
+  static validateField<K extends keyof GreaterThanDateValidator>(_field: K, _value: GreaterThanDateValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -331,7 +331,7 @@ export class GreaterThanDateValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<GreaterThanDateValidator>): Array<{
+  static validateFields(_partial: Partial<GreaterThanDateValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -351,7 +351,7 @@ export class GreaterThanDateValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -359,7 +359,7 @@ export class GreaterThanDateValidator {
     return "date" in o;
 }
 
-    static is(obj: unknown): obj is GreaterThanDateValidator {
+  static is(obj: unknown): obj is GreaterThanDateValidator {
     if (obj instanceof GreaterThanDateValidator) {
         return true;
     }
@@ -389,15 +389,15 @@ export class GreaterThanDateValidator {
 // GreaterThanOrEqualToDate validator
 
 export class GreaterThanOrEqualToDateValidator {
-    
-    date: Date;
+  
+  date: Date;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.date = props.date;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: GreaterThanOrEqualToDateValidator;
 } | {
@@ -451,7 +451,7 @@ export class GreaterThanOrEqualToDateValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -501,7 +501,7 @@ export class GreaterThanOrEqualToDateValidator {
     return instance;
 }
 
-    static validateField<K extends keyof GreaterThanOrEqualToDateValidator>(_field: K, _value: GreaterThanOrEqualToDateValidator[K]): Array<{
+  static validateField<K extends keyof GreaterThanOrEqualToDateValidator>(_field: K, _value: GreaterThanOrEqualToDateValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -521,7 +521,7 @@ export class GreaterThanOrEqualToDateValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<GreaterThanOrEqualToDateValidator>): Array<{
+  static validateFields(_partial: Partial<GreaterThanOrEqualToDateValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -541,7 +541,7 @@ export class GreaterThanOrEqualToDateValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -549,7 +549,7 @@ export class GreaterThanOrEqualToDateValidator {
     return "date" in o;
 }
 
-    static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator {
+  static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator {
     if (obj instanceof GreaterThanOrEqualToDateValidator) {
         return true;
     }
@@ -579,15 +579,15 @@ export class GreaterThanOrEqualToDateValidator {
 // LessThanDate validator
 
 export class LessThanDateValidator {
-    
-    date: Date;
+  
+  date: Date;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.date = props.date;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: LessThanDateValidator;
 } | {
@@ -641,7 +641,7 @@ export class LessThanDateValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanDateValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanDateValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -691,7 +691,7 @@ export class LessThanDateValidator {
     return instance;
 }
 
-    static validateField<K extends keyof LessThanDateValidator>(_field: K, _value: LessThanDateValidator[K]): Array<{
+  static validateField<K extends keyof LessThanDateValidator>(_field: K, _value: LessThanDateValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -711,7 +711,7 @@ export class LessThanDateValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<LessThanDateValidator>): Array<{
+  static validateFields(_partial: Partial<LessThanDateValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -731,7 +731,7 @@ export class LessThanDateValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -739,7 +739,7 @@ export class LessThanDateValidator {
     return "date" in o;
 }
 
-    static is(obj: unknown): obj is LessThanDateValidator {
+  static is(obj: unknown): obj is LessThanDateValidator {
     if (obj instanceof LessThanDateValidator) {
         return true;
     }
@@ -769,15 +769,15 @@ export class LessThanDateValidator {
 // LessThanOrEqualToDate validator
 
 export class LessThanOrEqualToDateValidator {
-    
-    date: Date;
+  
+  date: Date;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.date = props.date;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: LessThanOrEqualToDateValidator;
 } | {
@@ -831,7 +831,7 @@ export class LessThanOrEqualToDateValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -881,7 +881,7 @@ export class LessThanOrEqualToDateValidator {
     return instance;
 }
 
-    static validateField<K extends keyof LessThanOrEqualToDateValidator>(_field: K, _value: LessThanOrEqualToDateValidator[K]): Array<{
+  static validateField<K extends keyof LessThanOrEqualToDateValidator>(_field: K, _value: LessThanOrEqualToDateValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -901,7 +901,7 @@ export class LessThanOrEqualToDateValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<LessThanOrEqualToDateValidator>): Array<{
+  static validateFields(_partial: Partial<LessThanOrEqualToDateValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -921,7 +921,7 @@ export class LessThanOrEqualToDateValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -929,7 +929,7 @@ export class LessThanOrEqualToDateValidator {
     return "date" in o;
 }
 
-    static is(obj: unknown): obj is LessThanOrEqualToDateValidator {
+  static is(obj: unknown): obj is LessThanOrEqualToDateValidator {
     if (obj instanceof LessThanOrEqualToDateValidator) {
         return true;
     }
@@ -959,15 +959,15 @@ export class LessThanOrEqualToDateValidator {
 // BetweenDate validator
 
 export class BetweenDateValidator {
-    
-    date: Date;
+  
+  date: Date;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.date = props.date;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: BetweenDateValidator;
 } | {
@@ -1021,7 +1021,7 @@ export class BetweenDateValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenDateValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenDateValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -1071,7 +1071,7 @@ export class BetweenDateValidator {
     return instance;
 }
 
-    static validateField<K extends keyof BetweenDateValidator>(_field: K, _value: BetweenDateValidator[K]): Array<{
+  static validateField<K extends keyof BetweenDateValidator>(_field: K, _value: BetweenDateValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -1091,7 +1091,7 @@ export class BetweenDateValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<BetweenDateValidator>): Array<{
+  static validateFields(_partial: Partial<BetweenDateValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -1111,7 +1111,7 @@ export class BetweenDateValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -1119,7 +1119,7 @@ export class BetweenDateValidator {
     return "date" in o;
 }
 
-    static is(obj: unknown): obj is BetweenDateValidator {
+  static is(obj: unknown): obj is BetweenDateValidator {
     if (obj instanceof BetweenDateValidator) {
         return true;
     }

@@ -129,6 +129,9 @@ pub fn run(args: PrepArgs) -> Result<()> {
     let config = Config::load()?;
     let verbose = std::env::var("VERBOSE").is_ok() || std::env::var("DEBUG").is_ok();
 
+    // Capture initial manifest state (local vs registry) for rollback
+    let was_using_local_paths = manifests::is_using_local_paths(&config.root);
+
     // Set up Ctrl+C handler with full rollback capability
     let interrupted = Arc::new(AtomicBool::new(false));
     let interrupted_clone = interrupted.clone();
@@ -148,9 +151,13 @@ pub fn run(args: PrepArgs) -> Result<()> {
         if let Err(e) = manifests::apply_versions(&config_clone, &original_versions_for_handler) {
             eprintln!("  {} Failed to restore manifest files: {}", "✗".red(), e);
         }
-        // Swap back to registry deps
-        let _ = manifests::swap_registry(&config_clone.root, &original_versions_for_handler);
-        let _ = manifests::swap_npm_registry(&config_clone, &original_versions_for_handler);
+        // Restore to original dependency state (local or registry)
+        if was_using_local_paths {
+            let _ = manifests::swap_local(&config_clone.root);
+        } else {
+            let _ = manifests::swap_registry(&config_clone.root, &original_versions_for_handler);
+            let _ = manifests::swap_npm_registry(&config_clone, &original_versions_for_handler);
+        }
         eprintln!("{} Rollback complete. Exiting.", "✓".green());
         std::process::exit(130);
     })
@@ -263,9 +270,13 @@ pub fn run(args: PrepArgs) -> Result<()> {
         if let Err(e) = manifests::apply_versions(config, original) {
             eprintln!("  {} Failed to restore manifest files: {}", "✗".red(), e);
         }
-        // Swap back to registry deps
-        let _ = manifests::swap_registry(&config.root, original);
-        let _ = manifests::swap_npm_registry(config, original);
+        // Restore to original dependency state (local or registry)
+        if was_using_local_paths {
+            let _ = manifests::swap_local(&config.root);
+        } else {
+            let _ = manifests::swap_registry(&config.root, original);
+            let _ = manifests::swap_npm_registry(config, original);
+        }
         eprintln!("{} Rollback complete", "✓".green());
     };
 
@@ -506,14 +517,14 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // Biome check for tooling
-        print!("  {} biome check... ", "→".blue());
+        // Format with deno fmt
+        print!("  {} deno fmt... ", "→".blue());
         io::stdout().flush()?;
-        match shell::deno::biome_check(&tooling_path) {
+        match shell::deno::deno_fmt(&tooling_path) {
             Ok(_) => println!("{}", "ok".green()),
             Err(e) => {
                 println!("{}", "failed".red());
-                format::error(&format!("Biome check failed: {}", e));
+                format::error(&format!("deno fmt failed: {}", e));
                 rollback(&config, &original_versions_cache);
                 return Err(e);
             }
@@ -630,10 +641,15 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // Restore registry dependencies
-        println!("  {} Restoring registry dependencies...", "→".blue());
-        manifests::swap_registry(&config.root, &versions_cache)?;
-        manifests::swap_npm_registry(&config, &versions_cache)?;
+        // Restore to original dependency state
+        if was_using_local_paths {
+            println!("  {} Keeping local path dependencies...", "→".blue());
+            // Already using local paths, nothing to do
+        } else {
+            println!("  {} Restoring registry dependencies...", "→".blue());
+            manifests::swap_registry(&config.root, &versions_cache)?;
+            manifests::swap_npm_registry(&config, &versions_cache)?;
+        }
     }
 
     // [8/10] Rebuild docs book

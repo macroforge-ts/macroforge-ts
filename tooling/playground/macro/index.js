@@ -536,13 +536,17 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
       wasiBindingError = err
     }
   }
-  if (!nativeBinding) {
+  if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
     try {
       wasiBinding = require('@playground/macro-wasm32-wasi')
       nativeBinding = wasiBinding
     } catch (err) {
       if (process.env.NAPI_RS_FORCE_WASI) {
-        wasiBindingError.cause = err
+        if (!wasiBindingError) {
+          wasiBindingError = err
+        } else {
+          wasiBindingError.cause = err
+        }
         loadErrors.push(err)
       }
     }
@@ -572,32 +576,57 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
-module.exports.__macroforgeRunGigaform = nativeBinding.__macroforgeRunGigaform
-module.exports.__macroforgeRunInspect = nativeBinding.__macroforgeRunInspect
-module.exports.__macroforgeRunJSON = nativeBinding.__macroforgeRunJSON
 module.exports.NativeMapper = nativeBinding.NativeMapper
+module.exports.NativeMapper = nativeBinding.NativeMapper
+module.exports.NativePlugin = nativeBinding.NativePlugin
 module.exports.NativePlugin = nativeBinding.NativePlugin
 module.exports.PositionMapper = nativeBinding.PositionMapper
 module.exports.NativePositionMapper = nativeBinding.NativePositionMapper
+module.exports.PositionMapper = nativeBinding.PositionMapper
+module.exports.NativePositionMapper = nativeBinding.NativePositionMapper
+module.exports.__macroforgeDebugDescriptors = nativeBinding.__macroforgeDebugDescriptors
 module.exports.__macroforgeDebugDescriptors = nativeBinding.__macroforgeDebugDescriptors
 module.exports.__macroforgeDebugGetModules = nativeBinding.__macroforgeDebugGetModules
+module.exports.__macroforgeDebugGetModules = nativeBinding.__macroforgeDebugGetModules
+module.exports.__macroforgeDebugLookup = nativeBinding.__macroforgeDebugLookup
 module.exports.__macroforgeDebugLookup = nativeBinding.__macroforgeDebugLookup
 module.exports.__macroforgeGetMacroNames = nativeBinding.__macroforgeGetMacroNames
+module.exports.__macroforgeGetMacroNames = nativeBinding.__macroforgeGetMacroNames
 module.exports.__macroforgeGetManifest = nativeBinding.__macroforgeGetManifest
+module.exports.__macroforgeGetManifest = nativeBinding.__macroforgeGetManifest
+module.exports.__macroforgeIsMacroPackage = nativeBinding.__macroforgeIsMacroPackage
 module.exports.__macroforgeIsMacroPackage = nativeBinding.__macroforgeIsMacroPackage
 module.exports.__macroforgeRunClone = nativeBinding.__macroforgeRunClone
 module.exports.__macroforgeRunDebug = nativeBinding.__macroforgeRunDebug
+module.exports.__macroforgeRunDebug = nativeBinding.__macroforgeRunDebug
+module.exports.__macroforgeRunDefault = nativeBinding.__macroforgeRunDefault
 module.exports.__macroforgeRunDefault = nativeBinding.__macroforgeRunDefault
 module.exports.__macroforgeRunDeserialize = nativeBinding.__macroforgeRunDeserialize
+module.exports.__macroforgeRunDeserialize = nativeBinding.__macroforgeRunDeserialize
+module.exports.__macroforgeRunHash = nativeBinding.__macroforgeRunHash
 module.exports.__macroforgeRunHash = nativeBinding.__macroforgeRunHash
 module.exports.__macroforgeRunOrd = nativeBinding.__macroforgeRunOrd
+module.exports.__macroforgeRunOrd = nativeBinding.__macroforgeRunOrd
+module.exports.__macroforgeRunPartialEq = nativeBinding.__macroforgeRunPartialEq
 module.exports.__macroforgeRunPartialEq = nativeBinding.__macroforgeRunPartialEq
 module.exports.__macroforgeRunPartialOrd = nativeBinding.__macroforgeRunPartialOrd
+module.exports.__macroforgeRunPartialOrd = nativeBinding.__macroforgeRunPartialOrd
+module.exports.__macroforgeRunSerialize = nativeBinding.__macroforgeRunSerialize
 module.exports.__macroforgeRunSerialize = nativeBinding.__macroforgeRunSerialize
 module.exports.checkSyntax = nativeBinding.checkSyntax
+module.exports.checkSyntax = nativeBinding.checkSyntax
+module.exports.clearConfigCache = nativeBinding.clearConfigCache
 module.exports.clearConfigCache = nativeBinding.clearConfigCache
 module.exports.Derive = nativeBinding.Derive
+module.exports.Derive = nativeBinding.Derive
+module.exports.expandSync = nativeBinding.expandSync
 module.exports.expandSync = nativeBinding.expandSync
 module.exports.loadConfig = nativeBinding.loadConfig
+module.exports.loadConfig = nativeBinding.loadConfig
+module.exports.parseImportSources = nativeBinding.parseImportSources
 module.exports.parseImportSources = nativeBinding.parseImportSources
 module.exports.transformSync = nativeBinding.transformSync
+module.exports.transformSync = nativeBinding.transformSync
+module.exports.__macroforgeRunGigaform = nativeBinding.__macroforgeRunGigaform
+module.exports.__macroforgeRunInspect = nativeBinding.__macroforgeRunInspect
+module.exports.__macroforgeRunJSON = nativeBinding.__macroforgeRunJSON

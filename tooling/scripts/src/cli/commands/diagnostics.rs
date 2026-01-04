@@ -78,7 +78,7 @@ pub fn run(args: DiagnosticsArgs) -> Result<()> {
             };
 
             let tool_str = match diag.tool {
-                DiagnosticTool::Biome => "biome",
+                DiagnosticTool::DenoLint => "deno-lint",
                 DiagnosticTool::Clippy => "clippy",
                 DiagnosticTool::Tsc => "tsc",
                 DiagnosticTool::TsPlugin => "ts-plugin",

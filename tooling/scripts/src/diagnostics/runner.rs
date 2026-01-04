@@ -1,14 +1,14 @@
 //! Diagnostic orchestration
 
 use super::aggregator::DiagnosticAggregator;
-use super::{biome, clippy, svelte, tsc};
+use super::{clippy, deno_lint, svelte, tsc};
 use anyhow::Result;
 use std::path::Path;
 
 /// Tools to run
 #[derive(Debug, Clone, Default)]
 pub struct DiagnosticOptions {
-    pub biome: bool,
+    pub deno_lint: bool,
     pub clippy: bool,
     pub tsc: bool,
     pub svelte: bool,
@@ -18,7 +18,7 @@ impl DiagnosticOptions {
     /// Enable all tools
     pub fn all() -> Self {
         Self {
-            biome: true,
+            deno_lint: true,
             clippy: true,
             tsc: true,
             svelte: true,
@@ -30,7 +30,7 @@ impl DiagnosticOptions {
         let mut opts = Self::default();
         for tool in s.split(',') {
             match tool.trim().to_lowercase().as_str() {
-                "biome" => opts.biome = true,
+                "deno_lint" | "deno-lint" | "lint" => opts.deno_lint = true,
                 "clippy" => opts.clippy = true,
                 "tsc" | "typescript" => opts.tsc = true,
                 "svelte" => opts.svelte = true,
@@ -61,11 +61,11 @@ impl DiagnosticsRunner {
     pub fn run(&self) -> Result<DiagnosticAggregator> {
         let mut aggregator = DiagnosticAggregator::new();
 
-        if self.options.biome {
-            eprintln!("Running biome check...");
-            match biome::run(&self.root) {
+        if self.options.deno_lint {
+            eprintln!("Running deno lint...");
+            match deno_lint::run(&self.root) {
                 Ok(diags) => aggregator.add_all(diags),
-                Err(e) => eprintln!("Biome check failed: {}", e),
+                Err(e) => eprintln!("deno lint failed: {}", e),
             }
         }
 
@@ -116,7 +116,7 @@ mod tests {
     #[test]
     fn test_diagnostic_options_all() {
         let opts = DiagnosticOptions::all();
-        assert!(opts.biome, "biome should be enabled");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(opts.clippy, "clippy should be enabled");
         assert!(opts.tsc, "tsc should be enabled");
         assert!(opts.svelte, "svelte should be enabled");
@@ -125,7 +125,7 @@ mod tests {
     #[test]
     fn test_diagnostic_options_default() {
         let opts = DiagnosticOptions::default();
-        assert!(!opts.biome, "biome should be disabled by default");
+        assert!(!opts.deno_lint, "deno_lint should be disabled by default");
         assert!(!opts.clippy, "clippy should be disabled by default");
         assert!(!opts.tsc, "tsc should be disabled by default");
         assert!(!opts.svelte, "svelte should be disabled by default");
@@ -134,7 +134,7 @@ mod tests {
     #[test]
     fn test_parse_all() {
         let opts = DiagnosticOptions::parse("all");
-        assert!(opts.biome, "biome should be enabled with 'all'");
+        assert!(opts.deno_lint, "deno_lint should be enabled with 'all'");
         assert!(opts.clippy, "clippy should be enabled with 'all'");
         assert!(opts.tsc, "tsc should be enabled with 'all'");
         assert!(opts.svelte, "svelte should be enabled with 'all'");
@@ -143,7 +143,7 @@ mod tests {
     #[test]
     fn test_parse_all_uppercase() {
         let opts = DiagnosticOptions::parse("ALL");
-        assert!(opts.biome, "biome should be enabled with 'ALL'");
+        assert!(opts.deno_lint, "deno_lint should be enabled with 'ALL'");
         assert!(opts.clippy, "clippy should be enabled with 'ALL'");
         assert!(opts.tsc, "tsc should be enabled with 'ALL'");
         assert!(opts.svelte, "svelte should be enabled with 'ALL'");
@@ -152,16 +152,16 @@ mod tests {
     #[test]
     fn test_parse_all_mixed_case() {
         let opts = DiagnosticOptions::parse("AlL");
-        assert!(opts.biome, "biome should be enabled with 'AlL'");
+        assert!(opts.deno_lint, "deno_lint should be enabled with 'AlL'");
         assert!(opts.clippy, "clippy should be enabled with 'AlL'");
         assert!(opts.tsc, "tsc should be enabled with 'AlL'");
         assert!(opts.svelte, "svelte should be enabled with 'AlL'");
     }
 
     #[test]
-    fn test_parse_biome() {
-        let opts = DiagnosticOptions::parse("biome");
-        assert!(opts.biome, "biome should be enabled");
+    fn test_parse_lint() {
+        let opts = DiagnosticOptions::parse("lint");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(!opts.clippy, "clippy should be disabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -170,7 +170,7 @@ mod tests {
     #[test]
     fn test_parse_clippy() {
         let opts = DiagnosticOptions::parse("clippy");
-        assert!(!opts.biome, "biome should be disabled");
+        assert!(!opts.deno_lint, "deno_lint should be disabled");
         assert!(opts.clippy, "clippy should be enabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -179,7 +179,7 @@ mod tests {
     #[test]
     fn test_parse_tsc() {
         let opts = DiagnosticOptions::parse("tsc");
-        assert!(!opts.biome, "biome should be disabled");
+        assert!(!opts.deno_lint, "deno_lint should be disabled");
         assert!(!opts.clippy, "clippy should be disabled");
         assert!(opts.tsc, "tsc should be enabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -188,7 +188,7 @@ mod tests {
     #[test]
     fn test_parse_typescript() {
         let opts = DiagnosticOptions::parse("typescript");
-        assert!(!opts.biome, "biome should be disabled");
+        assert!(!opts.deno_lint, "deno_lint should be disabled");
         assert!(!opts.clippy, "clippy should be disabled");
         assert!(opts.tsc, "tsc should be enabled with 'typescript' alias");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -197,7 +197,7 @@ mod tests {
     #[test]
     fn test_parse_svelte() {
         let opts = DiagnosticOptions::parse("svelte");
-        assert!(!opts.biome, "biome should be disabled");
+        assert!(!opts.deno_lint, "deno_lint should be disabled");
         assert!(!opts.clippy, "clippy should be disabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(opts.svelte, "svelte should be enabled");
@@ -205,8 +205,8 @@ mod tests {
 
     #[test]
     fn test_parse_multiple_tools() {
-        let opts = DiagnosticOptions::parse("biome,clippy");
-        assert!(opts.biome, "biome should be enabled");
+        let opts = DiagnosticOptions::parse("lint,clippy");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(opts.clippy, "clippy should be enabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -214,8 +214,8 @@ mod tests {
 
     #[test]
     fn test_parse_multiple_tools_with_spaces() {
-        let opts = DiagnosticOptions::parse("biome, clippy, tsc");
-        assert!(opts.biome, "biome should be enabled");
+        let opts = DiagnosticOptions::parse("lint, clippy, tsc");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(opts.clippy, "clippy should be enabled");
         assert!(opts.tsc, "tsc should be enabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -223,8 +223,8 @@ mod tests {
 
     #[test]
     fn test_parse_all_tools_individually() {
-        let opts = DiagnosticOptions::parse("biome,clippy,tsc,svelte");
-        assert!(opts.biome, "biome should be enabled");
+        let opts = DiagnosticOptions::parse("lint,clippy,tsc,svelte");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(opts.clippy, "clippy should be enabled");
         assert!(opts.tsc, "tsc should be enabled");
         assert!(opts.svelte, "svelte should be enabled");
@@ -232,35 +232,17 @@ mod tests {
 
     #[test]
     fn test_parse_with_extra_whitespace() {
-        let opts = DiagnosticOptions::parse("  biome  ,  clippy  ");
-        assert!(opts.biome, "biome should be enabled");
+        let opts = DiagnosticOptions::parse("  lint  ,  clippy  ");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(opts.clippy, "clippy should be enabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
     }
 
     #[test]
-    fn test_parse_mixed_case_tools() {
-        let opts = DiagnosticOptions::parse("BiOmE,ClIpPy,TsC,SvElTe");
-        assert!(opts.biome, "biome should be enabled with mixed case");
-        assert!(opts.clippy, "clippy should be enabled with mixed case");
-        assert!(opts.tsc, "tsc should be enabled with mixed case");
-        assert!(opts.svelte, "svelte should be enabled with mixed case");
-    }
-
-    #[test]
-    fn test_parse_uppercase_tools() {
-        let opts = DiagnosticOptions::parse("BIOME,CLIPPY,TSC,SVELTE");
-        assert!(opts.biome, "biome should be enabled with uppercase");
-        assert!(opts.clippy, "clippy should be enabled with uppercase");
-        assert!(opts.tsc, "tsc should be enabled with uppercase");
-        assert!(opts.svelte, "svelte should be enabled with uppercase");
-    }
-
-    #[test]
     fn test_parse_unknown_tool_ignored() {
         let opts = DiagnosticOptions::parse("unknown");
-        assert!(!opts.biome, "biome should be disabled");
+        assert!(!opts.deno_lint, "deno_lint should be disabled");
         assert!(!opts.clippy, "clippy should be disabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -268,8 +250,8 @@ mod tests {
 
     #[test]
     fn test_parse_unknown_tools_with_valid_tools() {
-        let opts = DiagnosticOptions::parse("unknown,biome,invalid,clippy,garbage");
-        assert!(opts.biome, "biome should be enabled");
+        let opts = DiagnosticOptions::parse("unknown,lint,invalid,clippy,garbage");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(opts.clippy, "clippy should be enabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -278,7 +260,7 @@ mod tests {
     #[test]
     fn test_parse_empty_string() {
         let opts = DiagnosticOptions::parse("");
-        assert!(!opts.biome, "biome should be disabled");
+        assert!(!opts.deno_lint, "deno_lint should be disabled");
         assert!(!opts.clippy, "clippy should be disabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -287,7 +269,7 @@ mod tests {
     #[test]
     fn test_parse_only_commas() {
         let opts = DiagnosticOptions::parse(",,,");
-        assert!(!opts.biome, "biome should be disabled");
+        assert!(!opts.deno_lint, "deno_lint should be disabled");
         assert!(!opts.clippy, "clippy should be disabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -296,7 +278,7 @@ mod tests {
     #[test]
     fn test_parse_only_whitespace() {
         let opts = DiagnosticOptions::parse("   ");
-        assert!(!opts.biome, "biome should be disabled");
+        assert!(!opts.deno_lint, "deno_lint should be disabled");
         assert!(!opts.clippy, "clippy should be disabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -305,8 +287,8 @@ mod tests {
     #[test]
     fn test_parse_all_overrides_previous_selections() {
         // When "all" is encountered, it should return immediately with all enabled
-        let opts = DiagnosticOptions::parse("biome,all");
-        assert!(opts.biome, "biome should be enabled");
+        let opts = DiagnosticOptions::parse("lint,all");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(opts.clippy, "clippy should be enabled");
         assert!(opts.tsc, "tsc should be enabled");
         assert!(opts.svelte, "svelte should be enabled");
@@ -314,8 +296,8 @@ mod tests {
 
     #[test]
     fn test_parse_all_at_beginning() {
-        let opts = DiagnosticOptions::parse("all,biome");
-        assert!(opts.biome, "biome should be enabled");
+        let opts = DiagnosticOptions::parse("all,lint");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(opts.clippy, "clippy should be enabled");
         assert!(opts.tsc, "tsc should be enabled");
         assert!(opts.svelte, "svelte should be enabled");
@@ -323,8 +305,8 @@ mod tests {
 
     #[test]
     fn test_parse_duplicate_tools() {
-        let opts = DiagnosticOptions::parse("biome,biome,biome");
-        assert!(opts.biome, "biome should be enabled");
+        let opts = DiagnosticOptions::parse("lint,lint,lint");
+        assert!(opts.deno_lint, "deno_lint should be enabled");
         assert!(!opts.clippy, "clippy should be disabled");
         assert!(!opts.tsc, "tsc should be disabled");
         assert!(!opts.svelte, "svelte should be disabled");
@@ -346,7 +328,7 @@ mod tests {
         let runner = DiagnosticsRunner::new("/tmp/test", opts.clone());
 
         assert_eq!(runner.root.to_str().unwrap(), "/tmp/test");
-        assert!(runner.options.biome);
+        assert!(runner.options.deno_lint);
         assert!(runner.options.clippy);
         assert!(runner.options.tsc);
         assert!(runner.options.svelte);

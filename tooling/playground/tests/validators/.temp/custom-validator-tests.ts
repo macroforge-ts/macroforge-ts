@@ -8,26 +8,26 @@ import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 
 // Custom validator function for even numbers
 export function isEven(value: number): boolean {
-    return value % 2 === 0;
+  return value % 2 === 0;
 }
 
 // Custom validator function for valid usernames
 export function isValidUsername(value: string): boolean {
-    return /^[a-z][a-z0-9_]{2,15}$/.test(value);
+  return /^[a-z][a-z0-9_]{2,15}$/.test(value);
 }
 
 // Custom number validator
 
 export class CustomNumberValidator {
-    
-    evenNumber: number;
+  
+  evenNumber: number;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.evenNumber = props.evenNumber;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: CustomNumberValidator;
 } | {
@@ -81,7 +81,7 @@ export class CustomNumberValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomNumberValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomNumberValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -128,7 +128,7 @@ export class CustomNumberValidator {
     return instance;
 }
 
-    static validateField<K extends keyof CustomNumberValidator>(_field: K, _value: CustomNumberValidator[K]): Array<{
+  static validateField<K extends keyof CustomNumberValidator>(_field: K, _value: CustomNumberValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -148,7 +148,7 @@ export class CustomNumberValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<CustomNumberValidator>): Array<{
+  static validateFields(_partial: Partial<CustomNumberValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -168,7 +168,7 @@ export class CustomNumberValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -176,7 +176,7 @@ export class CustomNumberValidator {
     return "evenNumber" in o;
 }
 
-    static is(obj: unknown): obj is CustomNumberValidator {
+  static is(obj: unknown): obj is CustomNumberValidator {
     if (obj instanceof CustomNumberValidator) {
         return true;
     }
@@ -206,15 +206,15 @@ export class CustomNumberValidator {
 // Custom string validator
 
 export class CustomStringValidator {
-    
-    username: string;
+  
+  username: string;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.username = props.username;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: CustomStringValidator;
 } | {
@@ -268,7 +268,7 @@ export class CustomStringValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomStringValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomStringValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -315,7 +315,7 @@ export class CustomStringValidator {
     return instance;
 }
 
-    static validateField<K extends keyof CustomStringValidator>(_field: K, _value: CustomStringValidator[K]): Array<{
+  static validateField<K extends keyof CustomStringValidator>(_field: K, _value: CustomStringValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -335,7 +335,7 @@ export class CustomStringValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<CustomStringValidator>): Array<{
+  static validateFields(_partial: Partial<CustomStringValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -355,7 +355,7 @@ export class CustomStringValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -363,7 +363,7 @@ export class CustomStringValidator {
     return "username" in o;
 }
 
-    static is(obj: unknown): obj is CustomStringValidator {
+  static is(obj: unknown): obj is CustomStringValidator {
     if (obj instanceof CustomStringValidator) {
         return true;
     }
@@ -393,15 +393,15 @@ export class CustomStringValidator {
 // Custom validator with custom message
 
 export class CustomWithMessageValidator {
-    
-    evenNumber: number;
+  
+  evenNumber: number;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.evenNumber = props.evenNumber;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: CustomWithMessageValidator;
 } | {
@@ -455,7 +455,7 @@ export class CustomWithMessageValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomWithMessageValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomWithMessageValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -502,7 +502,7 @@ export class CustomWithMessageValidator {
     return instance;
 }
 
-    static validateField<K extends keyof CustomWithMessageValidator>(_field: K, _value: CustomWithMessageValidator[K]): Array<{
+  static validateField<K extends keyof CustomWithMessageValidator>(_field: K, _value: CustomWithMessageValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -522,7 +522,7 @@ export class CustomWithMessageValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<CustomWithMessageValidator>): Array<{
+  static validateFields(_partial: Partial<CustomWithMessageValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -542,7 +542,7 @@ export class CustomWithMessageValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -550,7 +550,7 @@ export class CustomWithMessageValidator {
     return "evenNumber" in o;
 }
 
-    static is(obj: unknown): obj is CustomWithMessageValidator {
+  static is(obj: unknown): obj is CustomWithMessageValidator {
     if (obj instanceof CustomWithMessageValidator) {
         return true;
     }

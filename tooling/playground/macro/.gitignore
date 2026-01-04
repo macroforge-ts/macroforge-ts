@@ -17,4 +17,7 @@ pkg/
 # Environment
 .env
 
+# Vendor symlinks (created by deno task setup-vendor)
+vendor/
+
 *.zip
