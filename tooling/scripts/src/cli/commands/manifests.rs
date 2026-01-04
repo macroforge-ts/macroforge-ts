@@ -66,12 +66,12 @@ pub fn run(args: ManifestArgs) -> Result<()> {
         }
 
         crate::cli::ManifestCommands::SwapLocal => {
-            manifests::swap_local(&config.root)?;
+            manifests::swap_local(&config)?;
             format::success("Swapped to local dependencies");
         }
 
         crate::cli::ManifestCommands::SwapRegistry => {
-            manifests::swap_registry(&config.root, &versions)?;
+            manifests::swap_registry(&config, &versions)?;
             format::success("Swapped to registry dependencies");
         }
 
