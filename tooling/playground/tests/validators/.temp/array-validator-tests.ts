@@ -9,15 +9,15 @@ import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 // MaxItems validator
 
 export class MaxItemsValidator {
-    
-    items: Array<string>;
+  
+  items: Array<string>;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.items = props.items;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: MaxItemsValidator;
 } | {
@@ -71,7 +71,7 @@ export class MaxItemsValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MaxItemsValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MaxItemsValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -120,7 +120,7 @@ export class MaxItemsValidator {
     return instance;
 }
 
-    static validateField<K extends keyof MaxItemsValidator>(_field: K, _value: MaxItemsValidator[K]): Array<{
+  static validateField<K extends keyof MaxItemsValidator>(_field: K, _value: MaxItemsValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -140,7 +140,7 @@ export class MaxItemsValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<MaxItemsValidator>): Array<{
+  static validateFields(_partial: Partial<MaxItemsValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -160,7 +160,7 @@ export class MaxItemsValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -168,7 +168,7 @@ export class MaxItemsValidator {
     return "items" in o;
 }
 
-    static is(obj: unknown): obj is MaxItemsValidator {
+  static is(obj: unknown): obj is MaxItemsValidator {
     if (obj instanceof MaxItemsValidator) {
         return true;
     }
@@ -198,15 +198,15 @@ export class MaxItemsValidator {
 // MinItems validator
 
 export class MinItemsValidator {
-    
-    items: Array<string>;
+  
+  items: Array<string>;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.items = props.items;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: MinItemsValidator;
 } | {
@@ -260,7 +260,7 @@ export class MinItemsValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MinItemsValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MinItemsValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -309,7 +309,7 @@ export class MinItemsValidator {
     return instance;
 }
 
-    static validateField<K extends keyof MinItemsValidator>(_field: K, _value: MinItemsValidator[K]): Array<{
+  static validateField<K extends keyof MinItemsValidator>(_field: K, _value: MinItemsValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -329,7 +329,7 @@ export class MinItemsValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<MinItemsValidator>): Array<{
+  static validateFields(_partial: Partial<MinItemsValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -349,7 +349,7 @@ export class MinItemsValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -357,7 +357,7 @@ export class MinItemsValidator {
     return "items" in o;
 }
 
-    static is(obj: unknown): obj is MinItemsValidator {
+  static is(obj: unknown): obj is MinItemsValidator {
     if (obj instanceof MinItemsValidator) {
         return true;
     }
@@ -387,15 +387,15 @@ export class MinItemsValidator {
 // ItemsCount validator
 
 export class ItemsCountValidator {
-    
-    items: Array<string>;
+  
+  items: Array<string>;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.items = props.items;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: ItemsCountValidator;
 } | {
@@ -449,7 +449,7 @@ export class ItemsCountValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): ItemsCountValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): ItemsCountValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -498,7 +498,7 @@ export class ItemsCountValidator {
     return instance;
 }
 
-    static validateField<K extends keyof ItemsCountValidator>(_field: K, _value: ItemsCountValidator[K]): Array<{
+  static validateField<K extends keyof ItemsCountValidator>(_field: K, _value: ItemsCountValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -518,7 +518,7 @@ export class ItemsCountValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<ItemsCountValidator>): Array<{
+  static validateFields(_partial: Partial<ItemsCountValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -538,7 +538,7 @@ export class ItemsCountValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -546,7 +546,7 @@ export class ItemsCountValidator {
     return "items" in o;
 }
 
-    static is(obj: unknown): obj is ItemsCountValidator {
+  static is(obj: unknown): obj is ItemsCountValidator {
     if (obj instanceof ItemsCountValidator) {
         return true;
     }

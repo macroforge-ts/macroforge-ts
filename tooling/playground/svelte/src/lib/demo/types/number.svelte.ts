@@ -2,10 +2,10 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Number {
-    /** @serde({ validate: ["nonEmpty"] }) */
-    countryCode: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
-    areaCode: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
-    localNumber: string;
+  /** @serde({ validate: ["nonEmpty"] }) */
+  countryCode: string;
+  /** @serde({ validate: ["nonEmpty"] }) */
+  areaCode: string;
+  /** @serde({ validate: ["nonEmpty"] }) */
+  localNumber: string;
 }

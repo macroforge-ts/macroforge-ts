@@ -9,15 +9,15 @@ import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 // GreaterThanBigInt validator
 
 export class GreaterThanBigIntValidator {
-    
-    value: bigint;
+  
+  value: bigint;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.value = props.value;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: GreaterThanBigIntValidator;
 } | {
@@ -71,7 +71,7 @@ export class GreaterThanBigIntValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanBigIntValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanBigIntValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -118,7 +118,7 @@ export class GreaterThanBigIntValidator {
     return instance;
 }
 
-    static validateField<K extends keyof GreaterThanBigIntValidator>(_field: K, _value: GreaterThanBigIntValidator[K]): Array<{
+  static validateField<K extends keyof GreaterThanBigIntValidator>(_field: K, _value: GreaterThanBigIntValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -138,7 +138,7 @@ export class GreaterThanBigIntValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<GreaterThanBigIntValidator>): Array<{
+  static validateFields(_partial: Partial<GreaterThanBigIntValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -158,7 +158,7 @@ export class GreaterThanBigIntValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -166,7 +166,7 @@ export class GreaterThanBigIntValidator {
     return "value" in o;
 }
 
-    static is(obj: unknown): obj is GreaterThanBigIntValidator {
+  static is(obj: unknown): obj is GreaterThanBigIntValidator {
     if (obj instanceof GreaterThanBigIntValidator) {
         return true;
     }
@@ -196,15 +196,15 @@ export class GreaterThanBigIntValidator {
 // GreaterThanOrEqualToBigInt validator
 
 export class GreaterThanOrEqualToBigIntValidator {
-    
-    value: bigint;
+  
+  value: bigint;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.value = props.value;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: GreaterThanOrEqualToBigIntValidator;
 } | {
@@ -258,7 +258,7 @@ export class GreaterThanOrEqualToBigIntValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToBigIntValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToBigIntValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -305,7 +305,7 @@ export class GreaterThanOrEqualToBigIntValidator {
     return instance;
 }
 
-    static validateField<K extends keyof GreaterThanOrEqualToBigIntValidator>(_field: K, _value: GreaterThanOrEqualToBigIntValidator[K]): Array<{
+  static validateField<K extends keyof GreaterThanOrEqualToBigIntValidator>(_field: K, _value: GreaterThanOrEqualToBigIntValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -325,7 +325,7 @@ export class GreaterThanOrEqualToBigIntValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<GreaterThanOrEqualToBigIntValidator>): Array<{
+  static validateFields(_partial: Partial<GreaterThanOrEqualToBigIntValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -345,7 +345,7 @@ export class GreaterThanOrEqualToBigIntValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -353,7 +353,7 @@ export class GreaterThanOrEqualToBigIntValidator {
     return "value" in o;
 }
 
-    static is(obj: unknown): obj is GreaterThanOrEqualToBigIntValidator {
+  static is(obj: unknown): obj is GreaterThanOrEqualToBigIntValidator {
     if (obj instanceof GreaterThanOrEqualToBigIntValidator) {
         return true;
     }
@@ -383,15 +383,15 @@ export class GreaterThanOrEqualToBigIntValidator {
 // LessThanBigInt validator
 
 export class LessThanBigIntValidator {
-    
-    value: bigint;
+  
+  value: bigint;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.value = props.value;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: LessThanBigIntValidator;
 } | {
@@ -445,7 +445,7 @@ export class LessThanBigIntValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanBigIntValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanBigIntValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -492,7 +492,7 @@ export class LessThanBigIntValidator {
     return instance;
 }
 
-    static validateField<K extends keyof LessThanBigIntValidator>(_field: K, _value: LessThanBigIntValidator[K]): Array<{
+  static validateField<K extends keyof LessThanBigIntValidator>(_field: K, _value: LessThanBigIntValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -512,7 +512,7 @@ export class LessThanBigIntValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<LessThanBigIntValidator>): Array<{
+  static validateFields(_partial: Partial<LessThanBigIntValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -532,7 +532,7 @@ export class LessThanBigIntValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -540,7 +540,7 @@ export class LessThanBigIntValidator {
     return "value" in o;
 }
 
-    static is(obj: unknown): obj is LessThanBigIntValidator {
+  static is(obj: unknown): obj is LessThanBigIntValidator {
     if (obj instanceof LessThanBigIntValidator) {
         return true;
     }
@@ -570,15 +570,15 @@ export class LessThanBigIntValidator {
 // LessThanOrEqualToBigInt validator
 
 export class LessThanOrEqualToBigIntValidator {
-    
-    value: bigint;
+  
+  value: bigint;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.value = props.value;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: LessThanOrEqualToBigIntValidator;
 } | {
@@ -632,7 +632,7 @@ export class LessThanOrEqualToBigIntValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToBigIntValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToBigIntValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -679,7 +679,7 @@ export class LessThanOrEqualToBigIntValidator {
     return instance;
 }
 
-    static validateField<K extends keyof LessThanOrEqualToBigIntValidator>(_field: K, _value: LessThanOrEqualToBigIntValidator[K]): Array<{
+  static validateField<K extends keyof LessThanOrEqualToBigIntValidator>(_field: K, _value: LessThanOrEqualToBigIntValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -699,7 +699,7 @@ export class LessThanOrEqualToBigIntValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<LessThanOrEqualToBigIntValidator>): Array<{
+  static validateFields(_partial: Partial<LessThanOrEqualToBigIntValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -719,7 +719,7 @@ export class LessThanOrEqualToBigIntValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -727,7 +727,7 @@ export class LessThanOrEqualToBigIntValidator {
     return "value" in o;
 }
 
-    static is(obj: unknown): obj is LessThanOrEqualToBigIntValidator {
+  static is(obj: unknown): obj is LessThanOrEqualToBigIntValidator {
     if (obj instanceof LessThanOrEqualToBigIntValidator) {
         return true;
     }
@@ -757,15 +757,15 @@ export class LessThanOrEqualToBigIntValidator {
 // BetweenBigInt validator
 
 export class BetweenBigIntValidator {
-    
-    value: bigint;
+  
+  value: bigint;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.value = props.value;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: BetweenBigIntValidator;
 } | {
@@ -819,7 +819,7 @@ export class BetweenBigIntValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenBigIntValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenBigIntValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -866,7 +866,7 @@ export class BetweenBigIntValidator {
     return instance;
 }
 
-    static validateField<K extends keyof BetweenBigIntValidator>(_field: K, _value: BetweenBigIntValidator[K]): Array<{
+  static validateField<K extends keyof BetweenBigIntValidator>(_field: K, _value: BetweenBigIntValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -886,7 +886,7 @@ export class BetweenBigIntValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<BetweenBigIntValidator>): Array<{
+  static validateFields(_partial: Partial<BetweenBigIntValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -906,7 +906,7 @@ export class BetweenBigIntValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -914,7 +914,7 @@ export class BetweenBigIntValidator {
     return "value" in o;
 }
 
-    static is(obj: unknown): obj is BetweenBigIntValidator {
+  static is(obj: unknown): obj is BetweenBigIntValidator {
     if (obj instanceof BetweenBigIntValidator) {
         return true;
     }
@@ -944,15 +944,15 @@ export class BetweenBigIntValidator {
 // PositiveBigInt validator
 
 export class PositiveBigIntValidator {
-    
-    value: bigint;
+  
+  value: bigint;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.value = props.value;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: PositiveBigIntValidator;
 } | {
@@ -1006,7 +1006,7 @@ export class PositiveBigIntValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): PositiveBigIntValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): PositiveBigIntValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -1053,7 +1053,7 @@ export class PositiveBigIntValidator {
     return instance;
 }
 
-    static validateField<K extends keyof PositiveBigIntValidator>(_field: K, _value: PositiveBigIntValidator[K]): Array<{
+  static validateField<K extends keyof PositiveBigIntValidator>(_field: K, _value: PositiveBigIntValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -1073,7 +1073,7 @@ export class PositiveBigIntValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<PositiveBigIntValidator>): Array<{
+  static validateFields(_partial: Partial<PositiveBigIntValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -1093,7 +1093,7 @@ export class PositiveBigIntValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -1101,7 +1101,7 @@ export class PositiveBigIntValidator {
     return "value" in o;
 }
 
-    static is(obj: unknown): obj is PositiveBigIntValidator {
+  static is(obj: unknown): obj is PositiveBigIntValidator {
     if (obj instanceof PositiveBigIntValidator) {
         return true;
     }
@@ -1131,15 +1131,15 @@ export class PositiveBigIntValidator {
 // NonNegativeBigInt validator
 
 export class NonNegativeBigIntValidator {
-    
-    value: bigint;
+  
+  value: bigint;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.value = props.value;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: NonNegativeBigIntValidator;
 } | {
@@ -1193,7 +1193,7 @@ export class NonNegativeBigIntValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonNegativeBigIntValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonNegativeBigIntValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -1240,7 +1240,7 @@ export class NonNegativeBigIntValidator {
     return instance;
 }
 
-    static validateField<K extends keyof NonNegativeBigIntValidator>(_field: K, _value: NonNegativeBigIntValidator[K]): Array<{
+  static validateField<K extends keyof NonNegativeBigIntValidator>(_field: K, _value: NonNegativeBigIntValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -1260,7 +1260,7 @@ export class NonNegativeBigIntValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<NonNegativeBigIntValidator>): Array<{
+  static validateFields(_partial: Partial<NonNegativeBigIntValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -1280,7 +1280,7 @@ export class NonNegativeBigIntValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -1288,7 +1288,7 @@ export class NonNegativeBigIntValidator {
     return "value" in o;
 }
 
-    static is(obj: unknown): obj is NonNegativeBigIntValidator {
+  static is(obj: unknown): obj is NonNegativeBigIntValidator {
     if (obj instanceof NonNegativeBigIntValidator) {
         return true;
     }
@@ -1318,15 +1318,15 @@ export class NonNegativeBigIntValidator {
 // NegativeBigInt validator
 
 export class NegativeBigIntValidator {
-    
-    value: bigint;
+  
+  value: bigint;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.value = props.value;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: NegativeBigIntValidator;
 } | {
@@ -1380,7 +1380,7 @@ export class NegativeBigIntValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NegativeBigIntValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NegativeBigIntValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -1427,7 +1427,7 @@ export class NegativeBigIntValidator {
     return instance;
 }
 
-    static validateField<K extends keyof NegativeBigIntValidator>(_field: K, _value: NegativeBigIntValidator[K]): Array<{
+  static validateField<K extends keyof NegativeBigIntValidator>(_field: K, _value: NegativeBigIntValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -1447,7 +1447,7 @@ export class NegativeBigIntValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<NegativeBigIntValidator>): Array<{
+  static validateFields(_partial: Partial<NegativeBigIntValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -1467,7 +1467,7 @@ export class NegativeBigIntValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -1475,7 +1475,7 @@ export class NegativeBigIntValidator {
     return "value" in o;
 }
 
-    static is(obj: unknown): obj is NegativeBigIntValidator {
+  static is(obj: unknown): obj is NegativeBigIntValidator {
     if (obj instanceof NegativeBigIntValidator) {
         return true;
     }
@@ -1505,15 +1505,15 @@ export class NegativeBigIntValidator {
 // NonPositiveBigInt validator
 
 export class NonPositiveBigIntValidator {
-    
-    value: bigint;
+  
+  value: bigint;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.value = props.value;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: NonPositiveBigIntValidator;
 } | {
@@ -1567,7 +1567,7 @@ export class NonPositiveBigIntValidator {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonPositiveBigIntValidator | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonPositiveBigIntValidator | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -1614,7 +1614,7 @@ export class NonPositiveBigIntValidator {
     return instance;
 }
 
-    static validateField<K extends keyof NonPositiveBigIntValidator>(_field: K, _value: NonPositiveBigIntValidator[K]): Array<{
+  static validateField<K extends keyof NonPositiveBigIntValidator>(_field: K, _value: NonPositiveBigIntValidator[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -1634,7 +1634,7 @@ export class NonPositiveBigIntValidator {
     return errors;
 }
 
-    static validateFields(_partial: Partial<NonPositiveBigIntValidator>): Array<{
+  static validateFields(_partial: Partial<NonPositiveBigIntValidator>): Array<{
     field: string;
     message: string;
 }> {
@@ -1654,7 +1654,7 @@ export class NonPositiveBigIntValidator {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -1662,7 +1662,7 @@ export class NonPositiveBigIntValidator {
     return "value" in o;
 }
 
-    static is(obj: unknown): obj is NonPositiveBigIntValidator {
+  static is(obj: unknown): obj is NonPositiveBigIntValidator {
     if (obj instanceof NonPositiveBigIntValidator) {
         return true;
     }

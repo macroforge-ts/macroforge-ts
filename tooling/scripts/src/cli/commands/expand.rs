@@ -138,7 +138,7 @@ pub fn run(args: ExpandArgs) -> Result<()> {
         }
     }
 
-    // Format expanded files with biome
+    // Format expanded files with deno fmt
     for playground_root in &playground_roots {
         if !playground_root.exists() {
             continue;
@@ -149,7 +149,7 @@ pub fn run(args: ExpandArgs) -> Result<()> {
             .unwrap_or("unknown");
 
         let result = Command::new("deno")
-            .args(["run", "-A", "npm:@biomejs/biome", "format", "--write", "src"])
+            .args(["fmt", "src"])
             .current_dir(playground_root)
             .output();
 

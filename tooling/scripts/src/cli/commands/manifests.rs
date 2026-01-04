@@ -42,9 +42,9 @@ pub fn run(args: ManifestArgs) -> Result<()> {
                 manifests::set_version(&config, &mut versions, &repo, &version)?;
             }
             versions.save(&config.root)?;
-            // Format versions.json with biome
+            // Format versions.json with deno fmt
             let _ = Command::new("deno")
-                .args(["run", "-A", "npm:@biomejs/biome", "format", "--write", "tooling/versions.json"])
+                .args(["fmt", "tooling/versions.json"])
                 .current_dir(&config.root)
                 .output();
         }

@@ -11,6 +11,34 @@ use serde_json::{json, Value};
 use std::fs;
 use std::path::Path;
 
+/// Check if Cargo dependencies are currently using local paths
+pub fn is_using_local_paths(root: &Path) -> bool {
+    let path = root.join("crates/macroforge_ts/Cargo.toml");
+    if !path.exists() {
+        return false;
+    }
+
+    let Ok(content) = fs::read_to_string(&path) else {
+        return false;
+    };
+
+    // Check if any internal crate is using path = syntax
+    for (crate_name, _, _) in INTERNAL_CRATES {
+        for line in content.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with(&format!("{} = {{", crate_name))
+                || trimmed.starts_with(&format!("{} = {{ ", crate_name))
+            {
+                if trimmed.contains("path =") || trimmed.contains("path=") {
+                    return true;
+                }
+            }
+        }
+    }
+
+    false
+}
+
 /// Swap internal crate dependencies to local paths
 pub fn swap_local(root: &Path) -> Result<()> {
     let path = root.join("crates/macroforge_ts/Cargo.toml");

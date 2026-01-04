@@ -7,7 +7,7 @@ use std::collections::{HashMap, HashSet};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DiagnosticTool {
-    Biome,
+    DenoLint,
     Clippy,
     Tsc,
     TsPlugin,
@@ -147,7 +147,7 @@ mod tests {
 
     // Helper function to create a test warning diagnostic
     fn create_warning(file: &str, line: u32, column: u32, code: &str, message: &str) -> UnifiedDiagnostic {
-        create_diagnostic(file, line, column, code, message, DiagnosticTool::Biome, DiagnosticLevel::Warning)
+        create_diagnostic(file, line, column, code, message, DiagnosticTool::DenoLint, DiagnosticLevel::Warning)
     }
 
     // Helper function to create a test info diagnostic
@@ -505,7 +505,7 @@ mod tests {
     fn test_all_diagnostic_tools() {
         let mut aggregator = DiagnosticAggregator::new();
 
-        aggregator.add(create_diagnostic("src/a.rs", 1, 1, "C1", "msg", DiagnosticTool::Biome, DiagnosticLevel::Error));
+        aggregator.add(create_diagnostic("src/a.rs", 1, 1, "C1", "msg", DiagnosticTool::DenoLint, DiagnosticLevel::Error));
         aggregator.add(create_diagnostic("src/b.rs", 2, 2, "C2", "msg", DiagnosticTool::Clippy, DiagnosticLevel::Error));
         aggregator.add(create_diagnostic("src/c.rs", 3, 3, "C3", "msg", DiagnosticTool::Tsc, DiagnosticLevel::Error));
         aggregator.add(create_diagnostic("src/d.rs", 4, 4, "C4", "msg", DiagnosticTool::TsPlugin, DiagnosticLevel::Error));
@@ -513,7 +513,7 @@ mod tests {
         aggregator.add(create_diagnostic("src/f.rs", 6, 6, "C6", "msg", DiagnosticTool::Macroforge, DiagnosticLevel::Error));
 
         assert_eq!(aggregator.diagnostics().len(), 6);
-        assert_eq!(aggregator.diagnostics()[0].tool, DiagnosticTool::Biome);
+        assert_eq!(aggregator.diagnostics()[0].tool, DiagnosticTool::DenoLint);
         assert_eq!(aggregator.diagnostics()[1].tool, DiagnosticTool::Clippy);
         assert_eq!(aggregator.diagnostics()[2].tool, DiagnosticTool::Tsc);
         assert_eq!(aggregator.diagnostics()[3].tool, DiagnosticTool::TsPlugin);

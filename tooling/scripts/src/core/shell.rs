@@ -209,10 +209,10 @@ pub mod deno {
             .run_checked()
     }
 
-    /// Run biome check with auto-fix (including unsafe fixes)
-    pub fn biome_check(cwd: &Path) -> Result<CommandResult> {
+    /// Run deno fmt to format code
+    pub fn deno_fmt(cwd: &Path) -> Result<CommandResult> {
         Shell::new("deno")
-            .args(&["run", "-A", "npm:@biomejs/biome", "check", "--write", "--unsafe", "."])
+            .args(&["fmt", "."])
             .dir(cwd)
             .run_checked()
     }

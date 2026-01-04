@@ -9,15 +9,15 @@ import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 // Multiple validators on single field
 
 export class MultipleValidatorsTest {
-    
-    text: string;
+  
+  text: string;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.text = props.text;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: MultipleValidatorsTest;
 } | {
@@ -71,7 +71,7 @@ export class MultipleValidatorsTest {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MultipleValidatorsTest | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MultipleValidatorsTest | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -130,7 +130,7 @@ export class MultipleValidatorsTest {
     return instance;
 }
 
-    static validateField<K extends keyof MultipleValidatorsTest>(_field: K, _value: MultipleValidatorsTest[K]): Array<{
+  static validateField<K extends keyof MultipleValidatorsTest>(_field: K, _value: MultipleValidatorsTest[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -162,7 +162,7 @@ export class MultipleValidatorsTest {
     return errors;
 }
 
-    static validateFields(_partial: Partial<MultipleValidatorsTest>): Array<{
+  static validateFields(_partial: Partial<MultipleValidatorsTest>): Array<{
     field: string;
     message: string;
 }> {
@@ -194,7 +194,7 @@ export class MultipleValidatorsTest {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -202,7 +202,7 @@ export class MultipleValidatorsTest {
     return "text" in o;
 }
 
-    static is(obj: unknown): obj is MultipleValidatorsTest {
+  static is(obj: unknown): obj is MultipleValidatorsTest {
     if (obj instanceof MultipleValidatorsTest) {
         return true;
     }
@@ -232,15 +232,15 @@ export class MultipleValidatorsTest {
 // Custom error message
 
 export class CustomMessageTest {
-    
-    email: string;
+  
+  email: string;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.email = props.email;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: CustomMessageTest;
 } | {
@@ -294,7 +294,7 @@ export class CustomMessageTest {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomMessageTest | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomMessageTest | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -341,7 +341,7 @@ export class CustomMessageTest {
     return instance;
 }
 
-    static validateField<K extends keyof CustomMessageTest>(_field: K, _value: CustomMessageTest[K]): Array<{
+  static validateField<K extends keyof CustomMessageTest>(_field: K, _value: CustomMessageTest[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -361,7 +361,7 @@ export class CustomMessageTest {
     return errors;
 }
 
-    static validateFields(_partial: Partial<CustomMessageTest>): Array<{
+  static validateFields(_partial: Partial<CustomMessageTest>): Array<{
     field: string;
     message: string;
 }> {
@@ -381,7 +381,7 @@ export class CustomMessageTest {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -389,7 +389,7 @@ export class CustomMessageTest {
     return "email" in o;
 }
 
-    static is(obj: unknown): obj is CustomMessageTest {
+  static is(obj: unknown): obj is CustomMessageTest {
     if (obj instanceof CustomMessageTest) {
         return true;
     }
@@ -419,15 +419,15 @@ export class CustomMessageTest {
 // Mixed validators with custom message
 
 export class MixedValidatorsTest {
-    
-    email: string;
+  
+  email: string;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.email = props.email;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: MixedValidatorsTest;
 } | {
@@ -481,7 +481,7 @@ export class MixedValidatorsTest {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MixedValidatorsTest | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MixedValidatorsTest | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -534,7 +534,7 @@ export class MixedValidatorsTest {
     return instance;
 }
 
-    static validateField<K extends keyof MixedValidatorsTest>(_field: K, _value: MixedValidatorsTest[K]): Array<{
+  static validateField<K extends keyof MixedValidatorsTest>(_field: K, _value: MixedValidatorsTest[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -560,7 +560,7 @@ export class MixedValidatorsTest {
     return errors;
 }
 
-    static validateFields(_partial: Partial<MixedValidatorsTest>): Array<{
+  static validateFields(_partial: Partial<MixedValidatorsTest>): Array<{
     field: string;
     message: string;
 }> {
@@ -586,7 +586,7 @@ export class MixedValidatorsTest {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -594,7 +594,7 @@ export class MixedValidatorsTest {
     return "email" in o;
 }
 
-    static is(obj: unknown): obj is MixedValidatorsTest {
+  static is(obj: unknown): obj is MixedValidatorsTest {
     if (obj instanceof MixedValidatorsTest) {
         return true;
     }
@@ -624,15 +624,15 @@ export class MixedValidatorsTest {
 // Combined string validators
 
 export class CombinedStringValidatorsTest {
-    
-    username: string;
+  
+  username: string;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.username = props.username;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: CombinedStringValidatorsTest;
 } | {
@@ -686,7 +686,7 @@ export class CombinedStringValidatorsTest {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedStringValidatorsTest | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedStringValidatorsTest | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -745,7 +745,7 @@ export class CombinedStringValidatorsTest {
     return instance;
 }
 
-    static validateField<K extends keyof CombinedStringValidatorsTest>(_field: K, _value: CombinedStringValidatorsTest[K]): Array<{
+  static validateField<K extends keyof CombinedStringValidatorsTest>(_field: K, _value: CombinedStringValidatorsTest[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -777,7 +777,7 @@ export class CombinedStringValidatorsTest {
     return errors;
 }
 
-    static validateFields(_partial: Partial<CombinedStringValidatorsTest>): Array<{
+  static validateFields(_partial: Partial<CombinedStringValidatorsTest>): Array<{
     field: string;
     message: string;
 }> {
@@ -809,7 +809,7 @@ export class CombinedStringValidatorsTest {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -817,7 +817,7 @@ export class CombinedStringValidatorsTest {
     return "username" in o;
 }
 
-    static is(obj: unknown): obj is CombinedStringValidatorsTest {
+  static is(obj: unknown): obj is CombinedStringValidatorsTest {
     if (obj instanceof CombinedStringValidatorsTest) {
         return true;
     }
@@ -847,15 +847,15 @@ export class CombinedStringValidatorsTest {
 // Combined number validators
 
 export class CombinedNumberValidatorsTest {
-    
-    score: number;
+  
+  score: number;
 
-    constructor(props: Record<string, unknown>){
+  constructor(props: Record<string, unknown>){
     this.score = props.score;
 }
 /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
+  static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
     success: true;
     value: CombinedNumberValidatorsTest;
 } | {
@@ -909,7 +909,7 @@ export class CombinedNumberValidatorsTest {
 }
 /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
+  static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -968,7 +968,7 @@ export class CombinedNumberValidatorsTest {
     return instance;
 }
 
-    static validateField<K extends keyof CombinedNumberValidatorsTest>(_field: K, _value: CombinedNumberValidatorsTest[K]): Array<{
+  static validateField<K extends keyof CombinedNumberValidatorsTest>(_field: K, _value: CombinedNumberValidatorsTest[K]): Array<{
     field: string;
     message: string;
 }> {
@@ -1000,7 +1000,7 @@ export class CombinedNumberValidatorsTest {
     return errors;
 }
 
-    static validateFields(_partial: Partial<CombinedNumberValidatorsTest>): Array<{
+  static validateFields(_partial: Partial<CombinedNumberValidatorsTest>): Array<{
     field: string;
     message: string;
 }> {
@@ -1032,7 +1032,7 @@ export class CombinedNumberValidatorsTest {
     return errors;
 }
 
-    static hasShape(obj: unknown): boolean {
+  static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -1040,7 +1040,7 @@ export class CombinedNumberValidatorsTest {
     return "score" in o;
 }
 
-    static is(obj: unknown): obj is CombinedNumberValidatorsTest {
+  static is(obj: unknown): obj is CombinedNumberValidatorsTest {
     if (obj instanceof CombinedNumberValidatorsTest) {
         return true;
     }
