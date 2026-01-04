@@ -319,8 +319,8 @@ use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, TsSynError, ts_ident,
-    parse_ts_expr, parse_ts_macro_input,
+    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, TsSynError, parse_ts_expr,
+    parse_ts_macro_input, ts_ident,
 };
 
 use convert_case::{Case, Casing};
@@ -2506,12 +2506,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let has_generic_params = !generic_type_params.is_empty();
 
                 let is_literal_only = !literals.is_empty() && type_refs.is_empty();
-                let _is_primitive_only = has_primitives
+                let is_primitive_only = has_primitives
                     && !has_serializables
                     && !has_dates
                     && !has_generic_params
                     && literals.is_empty();
-                let _is_serializable_only = !has_primitives
+                let is_serializable_only = !has_primitives
                     && !has_dates
                     && !has_generic_params
                     && has_serializables
@@ -2519,7 +2519,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let has_literals = !literals.is_empty();
 
                 // Pre-compute the expected types string for error messages
-                let _expected_types_str = if has_serializables {
+                let expected_types_str = if has_serializables {
                     serializable_types
                         .iter()
                         .map(|t| t.full_type.as_str())
@@ -2529,7 +2529,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     type_refs.join(", ")
                 };
 
-                let _primitive_check_condition: String = if primitive_types.is_empty() {
+                let primitive_check_condition: String = if primitive_types.is_empty() {
                     "false".to_string()
                 } else {
                     primitive_types
