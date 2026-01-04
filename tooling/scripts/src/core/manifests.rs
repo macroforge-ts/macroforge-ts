@@ -312,7 +312,7 @@ pub fn restore_repo(config: &Config, versions: &VersionsCache, repo: &str) -> Re
             .get_local(repo)
             .map(|s| s.to_string())
             .unwrap_or_else(|| "0.1.0".to_string());
-        update_package_json(&config.root, pkg_path, &ver, versions)?;
+        update_package_json(pkg_path, &ver, versions)?;
     }
     Ok(())
 }
@@ -326,10 +326,10 @@ pub fn set_version(
 ) -> Result<()> {
     if let Some(r) = config.repos.get(repo) {
         if let Some(pkg_path) = &r.package_json {
-            update_package_json(&config.root, pkg_path, version, versions)?;
+            update_package_json(pkg_path, version, versions)?;
         }
         if let Some(cargo_path) = &r.cargo_toml {
-            update_cargo_toml(&config.root, cargo_path, version, versions)?;
+            update_cargo_toml(cargo_path, version, versions)?;
         }
         if repo == "core" {
             update_core_platform_packages(&config.root, version)?;
@@ -372,18 +372,12 @@ pub fn update_zed_extensions(root: &Path, versions: &VersionsCache) -> Result<()
 }
 
 /// Update a package.json with new version and dependency versions
-fn update_package_json(
-    root: &Path,
-    pkg_path: &Path,
-    version: &str,
-    versions: &VersionsCache,
-) -> Result<()> {
-    let full_path = root.join(pkg_path);
-    if !full_path.exists() {
+fn update_package_json(path: &Path, version: &str, versions: &VersionsCache) -> Result<()> {
+    if !path.exists() {
         return Ok(());
     }
 
-    let content = fs::read_to_string(&full_path).context("Failed to read package.json")?;
+    let content = fs::read_to_string(path).context("Failed to read package.json")?;
     let mut pkg: Value = serde_json::from_str(&content).context("Failed to parse package.json")?;
 
     pkg["version"] = json!(version);
@@ -423,25 +417,19 @@ fn update_package_json(
         }
     }
 
-    fs::write(&full_path, serde_json::to_string_pretty(&pkg)? + "\n")?;
-    format::success(&format!("Updated {}", pkg_path.display()));
+    fs::write(path, serde_json::to_string_pretty(&pkg)? + "\n")?;
+    format::success(&format!("Updated {}", path.display()));
 
     Ok(())
 }
 
 /// Update a Cargo.toml with new version and dependency versions
-fn update_cargo_toml(
-    root: &Path,
-    cargo_path: &Path,
-    version: &str,
-    versions: &VersionsCache,
-) -> Result<()> {
-    let full_path = root.join(cargo_path);
-    if !full_path.exists() {
+fn update_cargo_toml(path: &Path, version: &str, versions: &VersionsCache) -> Result<()> {
+    if !path.exists() {
         return Ok(());
     }
 
-    let content = fs::read_to_string(&full_path).context("Failed to read Cargo.toml")?;
+    let content = fs::read_to_string(path).context("Failed to read Cargo.toml")?;
 
     // Update version line
     let mut lines: Vec<String> = content
@@ -477,8 +465,8 @@ fn update_cargo_toml(
         }
     }
 
-    fs::write(&full_path, lines.join("\n"))?;
-    format::success(&format!("Updated {}", cargo_path.display()));
+    fs::write(path, lines.join("\n"))?;
+    format::success(&format!("Updated {}", path.display()));
 
     Ok(())
 }
@@ -524,17 +512,27 @@ pub fn apply_versions(config: &Config, versions: &VersionsCache) -> Result<()> {
     for repo in config.repos.values() {
         if let Some(ver) = versions.get_local(&repo.name) {
             if let Some(pkg_path) = &repo.package_json {
-                let _ = update_package_json(&config.root, pkg_path, ver, versions);
+                update_package_json(pkg_path, ver, versions).unwrap_or_else(|e| {
+                    eprintln!("  Warning: Failed to update {}: {}", pkg_path.display(), e);
+                });
             }
             if let Some(cargo_path) = &repo.cargo_toml {
-                let _ = update_cargo_toml(&config.root, cargo_path, ver, versions);
+                update_cargo_toml(cargo_path, ver, versions).unwrap_or_else(|e| {
+                    eprintln!(
+                        "  Warning: Failed to update {}: {}",
+                        cargo_path.display(),
+                        e
+                    );
+                });
             }
             if repo.name == "core" {
-                let _ = update_core_platform_packages(&config.root, ver);
+                update_core_platform_packages(&config.root, ver).unwrap_or_else(|e| {
+                    eprintln!("  Warning: Failed to update platform packages: {}", e);
+                });
             }
         }
     }
-    let _ = update_zed_extensions(&config.root, versions);
+    update_zed_extensions(&config.root, versions)?;
     Ok(())
 }
 
