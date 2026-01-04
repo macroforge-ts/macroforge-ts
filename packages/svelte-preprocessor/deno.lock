@@ -1,7 +1,6 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:macroforge@~0.1.65": "0.1.65",
     "npm:svelte@^5.43.8": "5.46.1_acorn@8.15.0",
     "npm:typescript@^5.9.3": "5.9.3"
   },
@@ -106,17 +105,6 @@
     "locate-character@3.0.0": {
       "integrity": "sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA=="
     },
-    "macroforge@0.1.65": {
-      "integrity": "sha512-glsFLuIZR1QMVkV8bwdseuwQ/3THwwZaNY73qfXpDlx52ddXb16VEkOK6/K7P+NikI8JDSoLgBk1YB6s40xfaw==",
-      "optionalDependencies": [
-        "@macroforge/bin-darwin-arm64",
-        "@macroforge/bin-darwin-x64",
-        "@macroforge/bin-linux-arm64-gnu",
-        "@macroforge/bin-linux-x64-gnu",
-        "@macroforge/bin-win32-arm64-msvc",
-        "@macroforge/bin-win32-x64-msvc"
-      ]
-    },
     "magic-string@0.30.21": {
       "integrity": "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==",
       "dependencies": [
@@ -154,7 +142,6 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:macroforge@~0.1.65",
         "npm:svelte@^5.43.8",
         "npm:typescript@^5.9.3"
       ]

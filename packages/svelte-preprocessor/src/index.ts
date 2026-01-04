@@ -26,7 +26,7 @@
  * @packageDocumentation
  */
 
-import type { PreprocessorGroup, Preprocessor } from "svelte/compiler";
+import type { Preprocessor, PreprocessorGroup } from "svelte/compiler";
 
 /**
  * Options passed to the native macro expansion engine.
@@ -112,14 +112,16 @@ interface ExpandResult {
  *
  * @internal
  */
-let expandSync: ((
-  /** TypeScript/JavaScript source code to process */
-  code: string,
-  /** File path for error reporting and context */
-  filepath: string,
-  /** Optional expansion configuration */
-  options?: ExpandOptions | null
-) => ExpandResult) | null = null;
+let expandSync:
+  | ((
+    /** TypeScript/JavaScript source code to process */
+    code: string,
+    /** File path for error reporting and context */
+    filepath: string,
+    /** Optional expansion configuration */
+    options?: ExpandOptions | null,
+  ) => ExpandResult)
+  | null = null;
 
 /**
  * Lazily loads and caches the native `expandSync` function.
@@ -153,7 +155,7 @@ async function ensureExpandSync(): Promise<typeof expandSync> {
       // Log warning but don't throw - allows graceful degradation
       console.warn(
         "[@macroforge/svelte-preprocessor] Failed to load macroforge native bindings:",
-        error
+        error,
       );
       expandSync = null;
     }
@@ -274,7 +276,7 @@ export interface MacroforgePreprocessorOptions {
  * ```
  */
 export function macroforgePreprocess(
-  options: MacroforgePreprocessorOptions = {}
+  options: MacroforgePreprocessorOptions = {},
 ): PreprocessorGroup {
   // Destructure options with defaults
   const { keepDecorators = false, processJavaScript = false } = options;
@@ -309,8 +311,8 @@ export function macroforgePreprocess(
      */
     const lang = attributes.lang || attributes.type;
     const isTypeScript = lang === "ts" || lang === "typescript";
-    const isJavaScript =
-      !lang || lang === "js" || lang === "javascript" || lang === "module";
+    const isJavaScript = !lang || lang === "js" || lang === "javascript" ||
+      lang === "module";
 
     // Skip non-TypeScript blocks unless processJavaScript is enabled
     if (!isTypeScript && !(processJavaScript && isJavaScript)) {
@@ -362,11 +364,11 @@ export function macroforgePreprocess(
       for (const diag of result.diagnostics) {
         if (diag.level === "error") {
           console.error(
-            `[@macroforge/svelte-preprocessor] Error in ${filename}: ${diag.message}`
+            `[@macroforge/svelte-preprocessor] Error in ${filename}: ${diag.message}`,
           );
         } else if (diag.level === "warning") {
           console.warn(
-            `[@macroforge/svelte-preprocessor] Warning in ${filename}: ${diag.message}`
+            `[@macroforge/svelte-preprocessor] Warning in ${filename}: ${diag.message}`,
           );
         }
       }
@@ -401,7 +403,7 @@ export function macroforgePreprocess(
        */
       console.warn(
         `[@macroforge/svelte-preprocessor] Failed to expand macros in ${filename}:`,
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       );
     }
 
