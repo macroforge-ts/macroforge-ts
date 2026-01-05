@@ -214,5 +214,4 @@ if (Result.isOk(result)) {
 ## Required Imports
 
 The generated code automatically imports:
-
 - `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
