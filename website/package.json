@@ -31,11 +31,11 @@
   "private": true,
   "scripts": {
     "build": "vite build",
-    "lint": "deno lint",
     "build:clean": "rm -rf node_modules && rm -rf .svelte-kit build && deno install --node-modules-dir && vite build",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "dev": "vite dev",
+    "lint": "deno lint",
     "prepare": "svelte-kit sync || echo ''",
     "preview": "vite preview"
   },
