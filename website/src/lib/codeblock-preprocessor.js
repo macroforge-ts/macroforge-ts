@@ -8,13 +8,26 @@ let highlighterPromise = null;
  * @returns {Promise<import('shiki').Highlighter>}
  */
 async function getHighlighter() {
-	if (!highlighterPromise) {
-		highlighterPromise = createShikiHighlighter({
-			themes: ['github-dark', 'github-light'],
-			langs: ['typescript', 'javascript', 'rust', 'bash', 'shell', 'json', 'toml', 'html', 'css', 'svelte', 'markdown', 'text']
-		});
-	}
-	return highlighterPromise;
+    if (!highlighterPromise) {
+        highlighterPromise = createShikiHighlighter({
+            themes: ['github-dark', 'github-light'],
+            langs: [
+                'typescript',
+                'javascript',
+                'rust',
+                'bash',
+                'shell',
+                'json',
+                'toml',
+                'html',
+                'css',
+                'svelte',
+                'markdown',
+                'text'
+            ]
+        });
+    }
+    return highlighterPromise;
 }
 
 /**
@@ -25,11 +38,14 @@ async function getHighlighter() {
  * @returns {string} - Escaped HTML safe for Svelte
  */
 function escapeCurlyBracesForSvelte(html) {
-	return html
-		.replace(/\{/g, '&#123;')
-		.replace(/\}/g, '&#125;')
-		// Replace spaces only in text content (between > and <), not in attributes
-		.replace(/>([^<]+)</g, (match, text) => '>' + text.replace(/ /g, '&nbsp;') + '<');
+    return html
+        .replace(/\{/g, '&#123;')
+        .replace(/\}/g, '&#125;')
+        // Replace spaces only in text content (between > and <), not in attributes
+        .replace(
+            />([^<]+)</g,
+            (_match, text) => '>' + text.replace(/ /g, '&nbsp;') + '<'
+        );
 }
 
 /**
@@ -39,14 +55,14 @@ function escapeCurlyBracesForSvelte(html) {
  * @returns {string} - Decoded string
  */
 function decodeHtmlEntities(str) {
-	return str
-		.replace(/&#123;/g, '{')
-		.replace(/&#125;/g, '}')
-		.replace(/&lt;/g, '<')
-		.replace(/&gt;/g, '>')
-		.replace(/&nbsp;/g, '\u00A0')  // Non-breaking space character
-		.replace(/&#160;/g, '\u00A0')
-		.replace(/&amp;/g, '&');
+    return str
+        .replace(/&#123;/g, '{')
+        .replace(/&#125;/g, '}')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&nbsp;/g, '\u00A0') // Non-breaking space character
+        .replace(/&#160;/g, '\u00A0')
+        .replace(/&amp;/g, '&');
 }
 
 /**
@@ -56,21 +72,21 @@ function decodeHtmlEntities(str) {
  * @returns {Promise<string>} - Highlighted HTML
  */
 async function highlightCode(code, lang) {
-	const highlighter = await getHighlighter();
-	const loadedLangs = highlighter.getLoadedLanguages();
-	const effectiveLang = loadedLangs.includes(lang) ? lang : 'text';
+    const highlighter = await getHighlighter();
+    const loadedLangs = highlighter.getLoadedLanguages();
+    const effectiveLang = loadedLangs.includes(lang) ? lang : 'text';
 
-	let html = highlighter.codeToHtml(code.trim(), {
-		lang: effectiveLang,
-		themes: {
-			dark: 'github-dark',
-			light: 'github-light'
-		},
-		defaultColor: false,
-		tabindex: false // Disable tabindex to avoid a11y warnings
-	});
+    const html = highlighter.codeToHtml(code.trim(), {
+        lang: effectiveLang,
+        themes: {
+            dark: 'github-dark',
+            light: 'github-light'
+        },
+        defaultColor: false,
+        tabindex: false // Disable tabindex to avoid a11y warnings
+    });
 
-	return escapeCurlyBracesForSvelte(html);
+    return escapeCurlyBracesForSvelte(html);
 }
 
 /**
@@ -79,29 +95,33 @@ async function highlightCode(code, lang) {
  * @returns {string} - Detected language
  */
 function detectInlineLanguage(code) {
-	// TypeScript patterns - decorators, method signatures, generics
-	if (/^@\w+/.test(code)) return 'typescript'; // @derive, @serde
-	if (/[():]|=>|<[A-Z]/.test(code)) return 'typescript'; // Function signatures, generics
-	if (/\b(string|number|boolean|void|any|null|undefined)\b/.test(code)) return 'typescript';
+    // TypeScript patterns - decorators, method signatures, generics
+    if (/^@\w+/.test(code)) return 'typescript'; // @derive, @serde
+    if (/[():]|=>|<[A-Z]/.test(code)) return 'typescript'; // Function signatures, generics
+    if (/\b(string|number|boolean|void|any|null|undefined)\b/.test(code)) {
+        return 'typescript';
+    }
 
-	// File extensions
-	if (/\.(ts|tsx)$/.test(code)) return 'typescript';
-	if (/\.(js|jsx)$/.test(code)) return 'javascript';
-	if (/\.json$/.test(code)) return 'json';
-	if (/\.toml$/.test(code)) return 'toml';
-	if (/\.svelte$/.test(code)) return 'svelte';
-	if (/\.rs$/.test(code)) return 'rust';
-	if (/\.(sh|bash)$/.test(code)) return 'bash';
+    // File extensions
+    if (/\.(ts|tsx)$/.test(code)) return 'typescript';
+    if (/\.(js|jsx)$/.test(code)) return 'javascript';
+    if (/\.json$/.test(code)) return 'json';
+    if (/\.toml$/.test(code)) return 'toml';
+    if (/\.svelte$/.test(code)) return 'svelte';
+    if (/\.rs$/.test(code)) return 'rust';
+    if (/\.(sh|bash)$/.test(code)) return 'bash';
 
-	// CLI commands
-	if (/^(npm|pnpm|yarn|cargo|npx|macroforge)\s/.test(code)) return 'bash';
+    // CLI commands
+    if (/^(npm|pnpm|yarn|cargo|npx|macroforge)\s/.test(code)) return 'bash';
 
-	// Rust patterns
-	if (/^(impl|fn|struct|enum|trait|pub|use|mod|let|mut)\b/.test(code)) return 'rust';
-	if (/!$/.test(code) && /^[a-z_]+!$/.test(code)) return 'rust'; // macro!
+    // Rust patterns
+    if (/^(impl|fn|struct|enum|trait|pub|use|mod|let|mut)\b/.test(code)) {
+        return 'rust';
+    }
+    if (/!$/.test(code) && /^[a-z_]+!$/.test(code)) return 'rust'; // macro!
 
-	// Default to typescript for most code-like content
-	return 'typescript';
+    // Default to typescript for most code-like content
+    return 'typescript';
 }
 
 /**
@@ -112,28 +132,28 @@ function detectInlineLanguage(code) {
  * @returns {Promise<string>} - Highlighted HTML wrapped in <code class="shiki-inline">
  */
 async function highlightInlineCode(code, lang) {
-	const highlighter = await getHighlighter();
-	const loadedLangs = highlighter.getLoadedLanguages();
-	const effectiveLang = loadedLangs.includes(lang) ? lang : 'text';
+    const highlighter = await getHighlighter();
+    const loadedLangs = highlighter.getLoadedLanguages();
+    const effectiveLang = loadedLangs.includes(lang) ? lang : 'text';
 
-	let html = highlighter.codeToHtml(code.trim(), {
-		lang: effectiveLang,
-		themes: {
-			dark: 'github-dark',
-			light: 'github-light'
-		},
-		defaultColor: false
-	});
+    const html = highlighter.codeToHtml(code.trim(), {
+        lang: effectiveLang,
+        themes: {
+            dark: 'github-dark',
+            light: 'github-light'
+        },
+        defaultColor: false
+    });
 
-	// Extract just the inner content from <pre...><code>...</code></pre>
-	// Shiki outputs: <pre class="shiki" style="..."><code><span>...</span></code></pre>
-	const codeMatch = html.match(/<code[^>]*>([\s\S]*?)<\/code>/);
-	const innerHtml = codeMatch ? codeMatch[1] : html;
+    // Extract just the inner content from <pre...><code>...</code></pre>
+    // Shiki outputs: <pre class="shiki" style="..."><code><span>...</span></code></pre>
+    const codeMatch = html.match(/<code[^>]*>([\s\S]*?)<\/code>/);
+    const innerHtml = codeMatch ? codeMatch[1] : html;
 
-	// Wrap in inline code element with shiki-inline class
-	const result = `<code class="shiki-inline">${innerHtml}</code>`;
+    // Wrap in inline code element with shiki-inline class
+    const result = `<code class="shiki-inline">${innerHtml}</code>`;
 
-	return escapeCurlyBracesForSvelte(result);
+    return escapeCurlyBracesForSvelte(result);
 }
 
 /**
@@ -143,43 +163,51 @@ async function highlightInlineCode(code, lang) {
  * @returns {{ content: string | null, isExpression: boolean }}
  */
 function extractStringContent(propValue) {
-	if (!propValue) return { content: null, isExpression: false };
+    if (!propValue) return { content: null, isExpression: false };
 
-	// Handle code="..." (plain string attribute)
-	if (propValue.startsWith('"') && propValue.endsWith('"')) {
-		return {
-			content: propValue.slice(1, -1).replace(/\\"/g, '"').replace(/\\n/g, '\n'),
-			isExpression: false
-		};
-	}
+    // Handle code="..." (plain string attribute)
+    if (propValue.startsWith('"') && propValue.endsWith('"')) {
+        return {
+            content: propValue.slice(1, -1).replace(/\\"/g, '"').replace(
+                /\\n/g,
+                '\n'
+            ),
+            isExpression: false
+        };
+    }
 
-	// Handle code={`...`} (template literal expression)
-	if (propValue.startsWith('{`') && propValue.endsWith('`}')) {
-		const inner = propValue.slice(2, -2);
-		// Check for interpolations - if present, we can't statically extract
-		if (inner.includes('${')) {
-			return { content: null, isExpression: true };
-		}
-		return { content: inner, isExpression: false };
-	}
+    // Handle code={`...`} (template literal expression)
+    if (propValue.startsWith('{`') && propValue.endsWith('`}')) {
+        const inner = propValue.slice(2, -2);
+        // Check for interpolations - if present, we can't statically extract
+        if (inner.includes('${')) {
+            return { content: null, isExpression: true };
+        }
+        return { content: inner, isExpression: false };
+    }
 
-	// Handle code={"..."} or code={'...'} (string expression)
-	if ((propValue.startsWith('{"') && propValue.endsWith('"}')) ||
-		(propValue.startsWith("{\'") && propValue.endsWith("\'}"))) {
-		const quote = propValue[1];
-		const inner = propValue.slice(2, -2);
-		return {
-			content: inner.replace(new RegExp(`\\\\${quote}`, 'g'), quote).replace(/\\n/g, '\n'),
-			isExpression: false
-		};
-	}
+    // Handle code={"..."} or code={'...'} (string expression)
+    if (
+        (propValue.startsWith('{"') && propValue.endsWith('"}')) ||
+        (propValue.startsWith("{'") && propValue.endsWith("'}"))
+    ) {
+        const quote = propValue[1];
+        const inner = propValue.slice(2, -2);
+        return {
+            content: inner.replace(new RegExp(`\\\\${quote}`, 'g'), quote).replace(
+                /\\n/g,
+                '\n'
+            ),
+            isExpression: false
+        };
+    }
 
-	// Handle code={...} (other expressions - cannot extract statically)
-	if (propValue.startsWith('{') && propValue.endsWith('}')) {
-		return { content: null, isExpression: true };
-	}
+    // Handle code={...} (other expressions - cannot extract statically)
+    if (propValue.startsWith('{') && propValue.endsWith('}')) {
+        return { content: null, isExpression: true };
+    }
 
-	return { content: null, isExpression: false };
+    return { content: null, isExpression: false };
 }
 
 /**
@@ -188,45 +216,51 @@ function extractStringContent(propValue) {
  * @returns {{ code: string | null, lang: string, fullMatch: string, hasHtmlProp: boolean }}
  */
 function parseCodeBlockComponent(componentStr) {
-	// Check if html prop already exists
-	const hasHtmlProp = /\bhtml\s*=/.test(componentStr);
+    // Check if html prop already exists
+    const hasHtmlProp = /\bhtml\s*=/.test(componentStr);
 
-	// Extract lang prop
-	const langMatch = componentStr.match(/\blang\s*=\s*(?:"([^"]+)"|{["'`]([^"'`]+)["'`]})/);
-	const lang = langMatch ? (langMatch[1] || langMatch[2]) : 'typescript';
+    // Extract lang prop
+    const langMatch = componentStr.match(
+        /\blang\s*=\s*(?:"([^"]+)"|{["'`]([^"'`]+)["'`]})/
+    );
+    const lang = langMatch ? (langMatch[1] || langMatch[2]) : 'typescript';
 
-	// Extract code prop - this is more complex due to template literals
-	// Match code= followed by either "..." or {...}
-	let code = null;
+    // Extract code prop - this is more complex due to template literals
+    // Match code= followed by either "..." or {...}
+    let code = null;
 
-	// Try to match code="..."
-	const simpleCodeMatch = componentStr.match(/\bcode\s*=\s*"((?:[^"\\]|\\.)*)"/);
-	if (simpleCodeMatch) {
-		const extracted = extractStringContent(`"${simpleCodeMatch[1]}"`);
-		code = extracted.content;
-	}
+    // Try to match code="..."
+    const simpleCodeMatch = componentStr.match(
+        /\bcode\s*=\s*"((?:[^"\\]|\\.)*)"/
+    );
+    if (simpleCodeMatch) {
+        const extracted = extractStringContent(`"${simpleCodeMatch[1]}"`);
+        code = extracted.content;
+    }
 
-	// Try to match code={`...`} (template literal without interpolation)
-	if (!code) {
-		const templateMatch = componentStr.match(/\bcode\s*=\s*\{`([\s\S]*?)`\}/);
-		if (templateMatch) {
-			const inner = templateMatch[1];
-			// Only use if no interpolation
-			if (!inner.includes('${')) {
-				code = inner;
-			}
-		}
-	}
+    // Try to match code={`...`} (template literal without interpolation)
+    if (!code) {
+        const templateMatch = componentStr.match(/\bcode\s*=\s*\{`([\s\S]*?)`\}/);
+        if (templateMatch) {
+            const inner = templateMatch[1];
+            // Only use if no interpolation
+            if (!inner.includes('${')) {
+                code = inner;
+            }
+        }
+    }
 
-	// Try to match code={"..."} or code={'...'}
-	if (!code) {
-		const stringExprMatch = componentStr.match(/\bcode\s*=\s*\{(["'])((?:[^\\]|\\.)*?)\1\}/);
-		if (stringExprMatch) {
-			code = stringExprMatch[2].replace(/\\n/g, '\n');
-		}
-	}
+    // Try to match code={"..."} or code={'...'}
+    if (!code) {
+        const stringExprMatch = componentStr.match(
+            /\bcode\s*=\s*\{(["'])((?:[^\\]|\\.)*?)\1\}/
+        );
+        if (stringExprMatch) {
+            code = stringExprMatch[2].replace(/\\n/g, '\n');
+        }
+    }
 
-	return { code, lang, fullMatch: componentStr, hasHtmlProp };
+    return { code, lang, fullMatch: componentStr, hasHtmlProp };
 }
 
 /**
@@ -235,23 +269,27 @@ function parseCodeBlockComponent(componentStr) {
  * @returns {{ content: string | null, lang: string, fullMatch: string, hasHtmlProp: boolean }}
  */
 function parseInlineCodeComponent(componentStr) {
-	// Check if html prop already exists
-	const hasHtmlProp = /\bhtml\s*=/.test(componentStr);
+    // Check if html prop already exists
+    const hasHtmlProp = /\bhtml\s*=/.test(componentStr);
 
-	// Extract lang prop
-	const langMatch = componentStr.match(/\blang\s*=\s*(?:"([^"]+)"|{["'`]([^"'`]+)["'`]})/);
-	const lang = langMatch ? (langMatch[1] || langMatch[2]) : 'typescript';
+    // Extract lang prop
+    const langMatch = componentStr.match(
+        /\blang\s*=\s*(?:"([^"]+)"|{["'`]([^"'`]+)["'`]})/
+    );
+    const lang = langMatch ? (langMatch[1] || langMatch[2]) : 'typescript';
 
-	// Extract content between <InlineCode ...> and </InlineCode>
-	let content = null;
+    // Extract content between <InlineCode ...> and </InlineCode>
+    let content = null;
 
-	// Match content between opening and closing tag
-	const contentMatch = componentStr.match(/<InlineCode[^>]*>([^<]*)<\/InlineCode>/);
-	if (contentMatch) {
-		content = contentMatch[1];
-	}
+    // Match content between opening and closing tag
+    const contentMatch = componentStr.match(
+        /<InlineCode[^>]*>([^<]*)<\/InlineCode>/
+    );
+    if (contentMatch) {
+        content = contentMatch[1];
+    }
 
-	return { content, lang, fullMatch: componentStr, hasHtmlProp };
+    return { content, lang, fullMatch: componentStr, hasHtmlProp };
 }
 
 /**
@@ -259,205 +297,235 @@ function parseInlineCodeComponent(componentStr) {
  * @returns {import('svelte/compiler').PreprocessorGroup}
  */
 export function codeBlockPreprocess() {
-	return {
-		name: 'codeblock-highlighter',
-		/**
-		 * @param {{ content: string, filename?: string }} params
-		 */
-		async markup({ content, filename }) {
-			// Skip non-Svelte/mdsvex files and files in node_modules
-			const isSvelteFile = filename?.endsWith('.svelte');
-			const isMdsvexFile = filename?.endsWith('.svx');
-			if (!filename || (!isSvelteFile && !isMdsvexFile) || filename.includes('node_modules')) {
-				return;
-			}
+    return {
+        name: 'codeblock-highlighter',
+        /**
+         * @param {{ content: string, filename?: string }} params
+         */
+        async markup({ content, filename }) {
+            // Skip non-Svelte/mdsvex files and files in node_modules
+            const isSvelteFile = filename?.endsWith('.svelte');
+            const isMdsvexFile = filename?.endsWith('.svx');
+            if (
+                !filename || (!isSvelteFile && !isMdsvexFile) ||
+                filename.includes('node_modules')
+            ) {
+                return;
+            }
 
-			// Skip the CodeBlock and InlineCode components themselves
-			if (filename.endsWith('CodeBlock.svelte') || filename.endsWith('InlineCode.svelte')) {
-				return;
-			}
+            // Skip the CodeBlock and InlineCode components themselves
+            if (
+                filename.endsWith('CodeBlock.svelte') ||
+                filename.endsWith('InlineCode.svelte')
+            ) {
+                return;
+            }
 
-			const replacements = [];
-			let match;
+            const replacements = [];
+            let match;
 
-			// Find all MacroExample usages with data.X.before/after pattern
-			// Transform: <MacroExample before={data.X.before} after={data.X.after} />
-			// To: <MacroExample before={data.X.before} after={data.X.after} beforeHtml={data.X.beforeHtml} afterHtml={data.X.afterHtml} />
-			// Uses [\s\S] to match across newlines
-			const macroExampleRegex = /<MacroExample[\s\S]*?before\s*=\s*\{([^}]+)\}[\s\S]*?after\s*=\s*\{([^}]+)\}[\s\S]*?\/>/g;
+            // Find all MacroExample usages with data.X.before/after pattern
+            // Transform: <MacroExample before={data.X.before} after={data.X.after} />
+            // To: <MacroExample before={data.X.before} after={data.X.after} beforeHtml={data.X.beforeHtml} afterHtml={data.X.afterHtml} />
+            // Uses [\s\S] to match across newlines
+            const macroExampleRegex =
+                /<MacroExample[\s\S]*?before\s*=\s*\{([^}]+)\}[\s\S]*?after\s*=\s*\{([^}]+)\}[\s\S]*?\/>/g;
 
-			while ((match = macroExampleRegex.exec(content)) !== null) {
-				const componentStr = match[0];
-				const beforeExpr = match[1].trim(); // e.g., "data.heroExample.before"
-				const afterExpr = match[2].trim();  // e.g., "data.heroExample.after"
+            while ((match = macroExampleRegex.exec(content)) !== null) {
+                const componentStr = match[0];
+                const beforeExpr = match[1].trim(); // e.g., "data.heroExample.before"
+                const afterExpr = match[2].trim(); // e.g., "data.heroExample.after"
 
-				// Skip if already has beforeHtml/afterHtml props
-				if (componentStr.includes('beforeHtml') || componentStr.includes('afterHtml')) {
-					continue;
-				}
+                // Skip if already has beforeHtml/afterHtml props
+                if (
+                    componentStr.includes('beforeHtml') ||
+                    componentStr.includes('afterHtml')
+                ) {
+                    continue;
+                }
 
-				// Check if these are data.X.before/after patterns we can transform
-				const beforeMatch = beforeExpr.match(/^(data\.[a-zA-Z0-9_.]+)\.before$/);
-				const afterMatch = afterExpr.match(/^(data\.[a-zA-Z0-9_.]+)\.after$/);
+                // Check if these are data.X.before/after patterns we can transform
+                const beforeMatch = beforeExpr.match(
+                    /^(data\.[a-zA-Z0-9_.]+)\.before$/
+                );
+                const afterMatch = afterExpr.match(/^(data\.[a-zA-Z0-9_.]+)\.after$/);
 
-				if (beforeMatch && afterMatch) {
-					const beforeBase = beforeMatch[1]; // e.g., "data.heroExample"
-					const afterBase = afterMatch[1];   // e.g., "data.heroExample"
+                if (beforeMatch && afterMatch) {
+                    const beforeBase = beforeMatch[1]; // e.g., "data.heroExample"
+                    const afterBase = afterMatch[1]; // e.g., "data.heroExample"
 
-					// Insert beforeHtml and afterHtml props before the closing />
-					const newComponent = componentStr.slice(0, -2) +
-						`\n                beforeHtml={${beforeBase}.beforeHtml}\n                afterHtml={${afterBase}.afterHtml}\n            />`;
+                    // Insert beforeHtml and afterHtml props before the closing />
+                    const newComponent = componentStr.slice(0, -2) +
+                        `\n                beforeHtml={${beforeBase}.beforeHtml}\n                afterHtml={${afterBase}.afterHtml}\n            />`;
 
-					replacements.push({
-						start: match.index,
-						end: match.index + componentStr.length,
-						replacement: newComponent
-					});
-				}
-			}
+                    replacements.push({
+                        start: match.index,
+                        end: match.index + componentStr.length,
+                        replacement: newComponent
+                    });
+                }
+            }
 
-			// Find all CodeBlock usages
-			// This regex matches <CodeBlock ... /> or <CodeBlock ...>...</CodeBlock>
-			const codeBlockRegex = /<CodeBlock\s+[^>]*?\bcode\s*=[\s\S]*?(?:\/>|<\/CodeBlock>)/g;
+            // Find all CodeBlock usages
+            // This regex matches <CodeBlock ... /> or <CodeBlock ...>...</CodeBlock>
+            const codeBlockRegex = /<CodeBlock\s+[^>]*?\bcode\s*=[\s\S]*?(?:\/>|<\/CodeBlock>)/g;
 
-			while ((match = codeBlockRegex.exec(content)) !== null) {
-				const componentStr = match[0];
-				const { code, lang, hasHtmlProp } = parseCodeBlockComponent(componentStr);
+            while ((match = codeBlockRegex.exec(content)) !== null) {
+                const componentStr = match[0];
+                const { code, lang, hasHtmlProp } = parseCodeBlockComponent(
+                    componentStr
+                );
 
-				// Skip if already has html prop or code couldn't be extracted
-				if (hasHtmlProp || !code) {
-					continue;
-				}
+                // Skip if already has html prop or code couldn't be extracted
+                if (hasHtmlProp || !code) {
+                    continue;
+                }
 
-				try {
-					const highlightedHtml = await highlightCode(code, lang);
+                try {
+                    const highlightedHtml = await highlightCode(code, lang);
 
-					// Escape the HTML for use in a Svelte template literal expression
-					// We use html={`...`} syntax which requires escaping backticks and ${
-					const escapedHtml = highlightedHtml
-						.replace(/\\/g, '\\\\')
-						.replace(/`/g, '\\`')
-						.replace(/\$\{/g, '\\${');
+                    // Escape the HTML for use in a Svelte template literal expression
+                    // We use html={`...`} syntax which requires escaping backticks and ${
+                    const escapedHtml = highlightedHtml
+                        .replace(/\\/g, '\\\\')
+                        .replace(/`/g, '\\`')
+                        .replace(/\$\{/g, '\\${');
 
-					// Insert html prop before the closing /> or >
-					let newComponent;
-					if (componentStr.endsWith('/>')) {
-						newComponent = componentStr.slice(0, -2) + ` html={\`${escapedHtml}\`} />`;
-					} else {
-						// Has closing tag
-						const closingIndex = componentStr.indexOf('>');
-						newComponent = componentStr.slice(0, closingIndex) + ` html={\`${escapedHtml}\`}` + componentStr.slice(closingIndex);
-					}
+                    // Insert html prop before the closing /> or >
+                    let newComponent;
+                    if (componentStr.endsWith('/>')) {
+                        newComponent = componentStr.slice(0, -2) +
+                            ` html={\`${escapedHtml}\`} />`;
+                    } else {
+                        // Has closing tag
+                        const closingIndex = componentStr.indexOf('>');
+                        newComponent = componentStr.slice(0, closingIndex) +
+                            ` html={\`${escapedHtml}\`}` + componentStr.slice(closingIndex);
+                    }
 
-					replacements.push({
-						start: match.index,
-						end: match.index + componentStr.length,
-						replacement: newComponent
-					});
-				} catch (err) {
-					console.warn(`[codeblock-preprocessor] Failed to highlight CodeBlock in ${filename}:`, err);
-				}
-			}
+                    replacements.push({
+                        start: match.index,
+                        end: match.index + componentStr.length,
+                        replacement: newComponent
+                    });
+                } catch (err) {
+                    console.warn(
+                        `[codeblock-preprocessor] Failed to highlight CodeBlock in ${filename}:`,
+                        err
+                    );
+                }
+            }
 
-			// Find all InlineCode usages with lang prop
-			// This regex matches <InlineCode lang="...">content</InlineCode>
-			const inlineCodeRegex = /<InlineCode\s+[^>]*?\blang\s*=[^>]*>([^<]*)<\/InlineCode>/g;
+            // Find all InlineCode usages with lang prop
+            // This regex matches <InlineCode lang="...">content</InlineCode>
+            const inlineCodeRegex = /<InlineCode\s+[^>]*?\blang\s*=[^>]*>([^<]*)<\/InlineCode>/g;
 
-			while ((match = inlineCodeRegex.exec(content)) !== null) {
-				const componentStr = match[0];
-				const { content: codeContent, lang, hasHtmlProp } = parseInlineCodeComponent(componentStr);
+            while ((match = inlineCodeRegex.exec(content)) !== null) {
+                const componentStr = match[0];
+                const { content: codeContent, lang, hasHtmlProp } = parseInlineCodeComponent(
+                    componentStr
+                );
 
-				// Skip if already has html prop or content couldn't be extracted
-				if (hasHtmlProp || !codeContent) {
-					continue;
-				}
+                // Skip if already has html prop or content couldn't be extracted
+                if (hasHtmlProp || !codeContent) {
+                    continue;
+                }
 
-				try {
-					const highlightedHtml = await highlightInlineCode(codeContent, lang);
+                try {
+                    const highlightedHtml = await highlightInlineCode(codeContent, lang);
 
-					// Escape the HTML for use in a Svelte template literal expression
-					const escapedHtml = highlightedHtml
-						.replace(/\\/g, '\\\\')
-						.replace(/`/g, '\\`')
-						.replace(/\$\{/g, '\\${');
+                    // Escape the HTML for use in a Svelte template literal expression
+                    const escapedHtml = highlightedHtml
+                        .replace(/\\/g, '\\\\')
+                        .replace(/`/g, '\\`')
+                        .replace(/\$\{/g, '\\${');
 
-					// Replace with self-closing tag that has html prop
-					// Extract just the opening tag attributes
-					const openingMatch = componentStr.match(/<InlineCode([^>]*)>/);
-					const attrs = openingMatch ? openingMatch[1] : '';
-					const newComponent = `<InlineCode${attrs} html={\`${escapedHtml}\`} />`;
+                    // Replace with self-closing tag that has html prop
+                    // Extract just the opening tag attributes
+                    const openingMatch = componentStr.match(/<InlineCode([^>]*)>/);
+                    const attrs = openingMatch ? openingMatch[1] : '';
+                    const newComponent = `<InlineCode${attrs} html={\`${escapedHtml}\`} />`;
 
-					replacements.push({
-						start: match.index,
-						end: match.index + componentStr.length,
-						replacement: newComponent
-					});
-				} catch (err) {
-					console.warn(`[codeblock-preprocessor] Failed to highlight InlineCode in ${filename}:`, err);
-				}
-			}
+                    replacements.push({
+                        start: match.index,
+                        end: match.index + componentStr.length,
+                        replacement: newComponent
+                    });
+                } catch (err) {
+                    console.warn(
+                        `[codeblock-preprocessor] Failed to highlight InlineCode in ${filename}:`,
+                        err
+                    );
+                }
+            }
 
-			// Find all plain <code> tags that are NOT inside <pre> tags
-			// This handles inline code from markdown backticks and manually written <code> tags
-			const plainCodeRegex = /<code>([^<]+)<\/code>/g;
+            // Find all plain <code> tags that are NOT inside <pre> tags
+            // This handles inline code from markdown backticks and manually written <code> tags
+            const plainCodeRegex = /<code>([^<]+)<\/code>/g;
 
-			while ((match = plainCodeRegex.exec(content)) !== null) {
-				const fullMatch = match[0];
-				const codeContent = match[1];
+            while ((match = plainCodeRegex.exec(content)) !== null) {
+                const fullMatch = match[0];
+                const codeContent = match[1];
 
-				// Skip if this <code> is inside a <pre> block
-				// Look backwards from match position to find if we're inside <pre>
-				const beforeMatch = content.slice(0, match.index);
-				const lastPreOpen = beforeMatch.lastIndexOf('<pre');
-				const lastPreClose = beforeMatch.lastIndexOf('</pre>');
+                // Skip if this <code> is inside a <pre> block
+                // Look backwards from match position to find if we're inside <pre>
+                const beforeMatch = content.slice(0, match.index);
+                const lastPreOpen = beforeMatch.lastIndexOf('<pre');
+                const lastPreClose = beforeMatch.lastIndexOf('</pre>');
 
-				// If last <pre> open is after last </pre> close, we're inside a pre block
-				if (lastPreOpen > lastPreClose) {
-					continue;
-				}
+                // If last <pre> open is after last </pre> close, we're inside a pre block
+                if (lastPreOpen > lastPreClose) {
+                    continue;
+                }
 
-				// Skip if already has shiki-inline class
-				if (fullMatch.includes('shiki-inline')) {
-					continue;
-				}
+                // Skip if already has shiki-inline class
+                if (fullMatch.includes('shiki-inline')) {
+                    continue;
+                }
 
-				// Skip empty or whitespace-only content
-				if (!codeContent.trim()) {
-					continue;
-				}
+                // Skip empty or whitespace-only content
+                if (!codeContent.trim()) {
+                    continue;
+                }
 
-				try {
-					// Decode HTML entities before highlighting to prevent double-encoding
-					const decodedContent = decodeHtmlEntities(codeContent);
-					const lang = detectInlineLanguage(decodedContent);
-					const highlightedHtml = await highlightInlineCode(decodedContent, lang);
+                try {
+                    // Decode HTML entities before highlighting to prevent double-encoding
+                    const decodedContent = decodeHtmlEntities(codeContent);
+                    const lang = detectInlineLanguage(decodedContent);
+                    const highlightedHtml = await highlightInlineCode(
+                        decodedContent,
+                        lang
+                    );
 
-					replacements.push({
-						start: match.index,
-						end: match.index + fullMatch.length,
-						replacement: highlightedHtml
-					});
-				} catch (err) {
-					console.warn(`[codeblock-preprocessor] Failed to highlight inline code in ${filename}:`, err);
-				}
-			}
+                    replacements.push({
+                        start: match.index,
+                        end: match.index + fullMatch.length,
+                        replacement: highlightedHtml
+                    });
+                } catch (err) {
+                    console.warn(
+                        `[codeblock-preprocessor] Failed to highlight inline code in ${filename}:`,
+                        err
+                    );
+                }
+            }
 
-			// Apply replacements in reverse order to preserve indices
-			if (replacements.length === 0) {
-				return;
-			}
+            // Apply replacements in reverse order to preserve indices
+            if (replacements.length === 0) {
+                return;
+            }
 
-			// Sort by start position descending
-			replacements.sort((a, b) => b.start - a.start);
+            // Sort by start position descending
+            replacements.sort((a, b) => b.start - a.start);
 
-			let result = content;
-			for (const { start, end, replacement } of replacements) {
-				result = result.slice(0, start) + replacement + result.slice(end);
-			}
+            let result = content;
+            for (const { start, end, replacement } of replacements) {
+                result = result.slice(0, start) + replacement + result.slice(end);
+            }
 
-			return { code: result };
-		}
-	};
+            return { code: result };
+        }
+    };
 }
 
 export default codeBlockPreprocess;

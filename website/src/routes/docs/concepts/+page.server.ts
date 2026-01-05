@@ -1,15 +1,15 @@
-import type { PageServerLoad } from "./$types";
-import { expandExample } from "$lib/server/macroforge";
+import type { PageServerLoad } from './$types';
+import { expandExample } from '$lib/server/macroforge';
 
 export const load: PageServerLoad = async () => {
-  return {
-    examples: {
-      basic: await expandExample(`
+    return {
+        examples: {
+            basic: await expandExample(`
 
 /** @derive(Debug) */
 class User {
   name: string;
-}`),
-    },
-  };
+}`)
+        }
+    };
 };

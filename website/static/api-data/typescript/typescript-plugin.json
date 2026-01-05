@@ -1,243 +1,243 @@
 {
-  "name": "@macroforge/typescript-plugin",
-  "kind": "typescript_package",
-  "version": "0.1.62",
-  "description": "TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.",
-  "overview": "",
-  "items": [
-    {
-      "name": "getMacroManifest",
-      "kind": "function",
-      "signature": "function getMacroManifest()",
-      "description": "Retrieves the cached macro manifest, loading it if necessary.\n\nThe manifest contains metadata about all available macros and decorators,\nincluding their names, descriptions, and documentation. This information\nis used to provide hover tooltips in the IDE.",
-      "returns": {
-        "type": "",
-        "description": "The macro manifest with Maps for quick lookup by name, or `null` if\nthe manifest could not be loaded (e.g., native plugin not available)"
-      },
-      "examples": [
-        "```typescript\nconst manifest = getMacroManifest();\nif (manifest) {\nconst debugMacro = manifest.macros.get('debug');\nconst serdeDecorator = manifest.decorators.get('serde');\n}\n```"
-      ],
-      "remarks": "The manifest is cached after first load. Macro names and decorator exports\nare stored in lowercase for case-insensitive lookups."
-    },
-    {
-      "name": "findDeriveAtPosition",
-      "kind": "function",
-      "signature": "function findDeriveAtPosition(text: string, position: number): object | null",
-      "description": "Finds a macro name within `@derive(...)` decorators at a given cursor position.\n\nThis function parses JSDoc comments looking for `@derive` directives and determines\nif the cursor position falls within a specific macro name in the argument list.",
-      "params": [
+    "name": "@macroforge/typescript-plugin",
+    "kind": "typescript_package",
+    "version": "0.1.62",
+    "description": "TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.",
+    "overview": "",
+    "items": [
         {
-          "name": "text",
-          "type": "",
-          "description": "The source text to search"
+            "name": "getMacroManifest",
+            "kind": "function",
+            "signature": "function getMacroManifest()",
+            "description": "Retrieves the cached macro manifest, loading it if necessary.\n\nThe manifest contains metadata about all available macros and decorators,\nincluding their names, descriptions, and documentation. This information\nis used to provide hover tooltips in the IDE.",
+            "returns": {
+                "type": "",
+                "description": "The macro manifest with Maps for quick lookup by name, or `null` if\nthe manifest could not be loaded (e.g., native plugin not available)"
+            },
+            "examples": [
+                "```typescript\nconst manifest = getMacroManifest();\nif (manifest) {\nconst debugMacro = manifest.macros.get('debug');\nconst serdeDecorator = manifest.decorators.get('serde');\n}\n```"
+            ],
+            "remarks": "The manifest is cached after first load. Macro names and decorator exports\nare stored in lowercase for case-insensitive lookups."
         },
         {
-          "name": "position",
-          "type": "",
-          "description": "The cursor position as a 0-indexed character offset from the start of the file"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "An object containing the macro name and its character span, or `null` if the\nposition is not within a macro name"
-      },
-      "examples": [
-        "```typescript\n// Given text: \"/** @derive(Debug, Clone) * /\"\n// Position 14 (on \"Debug\") returns:\nfindDeriveAtPosition(text, 14);\n// => { macroName: \"Debug\", start: 12, end: 17 }\n\n// Position 20 (on \"Clone\") returns:\nfindDeriveAtPosition(text, 20);\n// => { macroName: \"Clone\", start: 19, end: 24 }\n\n// Position 5 (before @derive) returns:\nfindDeriveAtPosition(text, 5);\n// => null\n```"
-      ],
-      "remarks": "The function uses the regex `/@derive\\s*\\(\\s*([^)]+)\\s*\\)/gi` to find all `@derive`\ndecorators, then parses the comma-separated macro names within the parentheses.\n\nPosition calculation accounts for:\n- Whitespace between `@derive` and the opening parenthesis\n- Whitespace around macro names in the argument list\n- Multiple macros separated by commas"
-    },
-    {
-      "name": "findDeriveKeywordAtPosition",
-      "kind": "function",
-      "signature": "function findDeriveKeywordAtPosition(text: string, position: number): object | null",
-      "description": "Finds the `@derive` keyword at a given cursor position.\nThis matches the literal \"@derive\" text before the opening parenthesis,\nallowing hover documentation on the directive keyword itself.",
-      "params": [
-        {
-          "name": "text",
-          "type": "",
-          "description": "The source text to search"
+            "name": "findDeriveAtPosition",
+            "kind": "function",
+            "signature": "function findDeriveAtPosition(text: string, position: number): object | null",
+            "description": "Finds a macro name within `@derive(...)` decorators at a given cursor position.\n\nThis function parses JSDoc comments looking for `@derive` directives and determines\nif the cursor position falls within a specific macro name in the argument list.",
+            "params": [
+                {
+                    "name": "text",
+                    "type": "",
+                    "description": "The source text to search"
+                },
+                {
+                    "name": "position",
+                    "type": "",
+                    "description": "The cursor position as a 0-indexed character offset from the start of the file"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "An object containing the macro name and its character span, or `null` if the\nposition is not within a macro name"
+            },
+            "examples": [
+                "```typescript\n// Given text: \"/** @derive(Debug, Clone) * /\"\n// Position 14 (on \"Debug\") returns:\nfindDeriveAtPosition(text, 14);\n// => { macroName: \"Debug\", start: 12, end: 17 }\n\n// Position 20 (on \"Clone\") returns:\nfindDeriveAtPosition(text, 20);\n// => { macroName: \"Clone\", start: 19, end: 24 }\n\n// Position 5 (before @derive) returns:\nfindDeriveAtPosition(text, 5);\n// => null\n```"
+            ],
+            "remarks": "The function uses the regex `/@derive\\s*\\(\\s*([^)]+)\\s*\\)/gi` to find all `@derive`\ndecorators, then parses the comma-separated macro names within the parentheses.\n\nPosition calculation accounts for:\n- Whitespace between `@derive` and the opening parenthesis\n- Whitespace around macro names in the argument list\n- Multiple macros separated by commas"
         },
         {
-          "name": "position",
-          "type": "",
-          "description": "The cursor position as a 0-indexed character offset"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "An object with start/end positions, or `null` if not on @derive keyword"
-      },
-      "examples": [
-        "```typescript\n// Given text: \"/** @derive(Debug) *​/\"\nfindDeriveKeywordAtPosition(text, 5);\n// => { start: 4, end: 11 }  // covers \"@derive\"\n\n// Position on \"Debug\" (inside parens) returns null\nfindDeriveKeywordAtPosition(text, 12);\n// => null\n```"
-      ],
-      "see": [
-        "{@link findDeriveAtPosition} - For macro names inside @derive()"
-      ]
-    },
-    {
-      "name": "findDecoratorAtPosition",
-      "kind": "function",
-      "signature": "function findDecoratorAtPosition(text: string, position: number): object | null",
-      "description": "Finds a field decorator (like `@serde` or `@debug`) at a given cursor position.\n\nThis function searches for decorator patterns (`@name`) in the source text and\ndetermines if the cursor falls within one. It's used to provide hover information\nfor Macroforge field decorators.",
-      "params": [
-        {
-          "name": "text",
-          "type": "",
-          "description": "The source text to search"
+            "name": "findDeriveKeywordAtPosition",
+            "kind": "function",
+            "signature": "function findDeriveKeywordAtPosition(text: string, position: number): object | null",
+            "description": "Finds the `@derive` keyword at a given cursor position.\nThis matches the literal \"@derive\" text before the opening parenthesis,\nallowing hover documentation on the directive keyword itself.",
+            "params": [
+                {
+                    "name": "text",
+                    "type": "",
+                    "description": "The source text to search"
+                },
+                {
+                    "name": "position",
+                    "type": "",
+                    "description": "The cursor position as a 0-indexed character offset"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "An object with start/end positions, or `null` if not on @derive keyword"
+            },
+            "examples": [
+                "```typescript\n// Given text: \"/** @derive(Debug) *​/\"\nfindDeriveKeywordAtPosition(text, 5);\n// => { start: 4, end: 11 }  // covers \"@derive\"\n\n// Position on \"Debug\" (inside parens) returns null\nfindDeriveKeywordAtPosition(text, 12);\n// => null\n```"
+            ],
+            "see": [
+                "{@link findDeriveAtPosition} - For macro names inside @derive()"
+            ]
         },
         {
-          "name": "position",
-          "type": "",
-          "description": "The cursor position as a 0-indexed character offset"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "An object containing the decorator name (without `@`) and its span\n(including the `@` symbol), or `null` if not found"
-      },
-      "examples": [
-        "```typescript\n// Given text: \"class User { @serde name: string; }\"\nfindDecoratorAtPosition(text, 14);\n// => { name: \"serde\", start: 13, end: 19 }\n\n// @derive in JSDoc is skipped (handled by findDeriveAtPosition)\n// Given text: \"/** @derive(Debug) * /\"\nfindDecoratorAtPosition(text, 5);\n// => null\n```"
-      ],
-      "remarks": "This function explicitly skips `@derive` decorators that appear within JSDoc comments,\nas those are handled by {@link findDeriveAtPosition} instead. The detection works by\nchecking if the match is between an unclosed JSDoc start and end markers.\n\nThe span returned includes the `@` symbol, so for `@serde`:\n- `start` points to the `@` character\n- `end` points to the character after the last letter of the name",
-      "see": [
-        "{@link findDeriveAtPosition} - For `@derive` decorators in JSDoc comments"
-      ]
-    },
-    {
-      "name": "findEnclosingDeriveContext",
-      "kind": "function",
-      "signature": "function findEnclosingDeriveContext(text: string, position: number): string[] | null",
-      "description": "Finds what `@derive` macros apply to code at a given position.\n\nThis function uses a heuristic: it finds the nearest `@derive(...)` decorator\nthat appears before the given position. This is useful for determining which\nmacros might be responsible for a particular field decorator.",
-      "params": [
-        {
-          "name": "text",
-          "type": "",
-          "description": "The source text to search"
+            "name": "findDecoratorAtPosition",
+            "kind": "function",
+            "signature": "function findDecoratorAtPosition(text: string, position: number): object | null",
+            "description": "Finds a field decorator (like `@serde` or `@debug`) at a given cursor position.\n\nThis function searches for decorator patterns (`@name`) in the source text and\ndetermines if the cursor falls within one. It's used to provide hover information\nfor Macroforge field decorators.",
+            "params": [
+                {
+                    "name": "text",
+                    "type": "",
+                    "description": "The source text to search"
+                },
+                {
+                    "name": "position",
+                    "type": "",
+                    "description": "The cursor position as a 0-indexed character offset"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "An object containing the decorator name (without `@`) and its span\n(including the `@` symbol), or `null` if not found"
+            },
+            "examples": [
+                "```typescript\n// Given text: \"class User { @serde name: string; }\"\nfindDecoratorAtPosition(text, 14);\n// => { name: \"serde\", start: 13, end: 19 }\n\n// @derive in JSDoc is skipped (handled by findDeriveAtPosition)\n// Given text: \"/** @derive(Debug) * /\"\nfindDecoratorAtPosition(text, 5);\n// => null\n```"
+            ],
+            "remarks": "This function explicitly skips `@derive` decorators that appear within JSDoc comments,\nas those are handled by {@link findDeriveAtPosition} instead. The detection works by\nchecking if the match is between an unclosed JSDoc start and end markers.\n\nThe span returned includes the `@` symbol, so for `@serde`:\n- `start` points to the `@` character\n- `end` points to the character after the last letter of the name",
+            "see": [
+                "{@link findDeriveAtPosition} - For `@derive` decorators in JSDoc comments"
+            ]
         },
         {
-          "name": "position",
-          "type": "",
-          "description": "The cursor position as a 0-indexed character offset"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "An array of macro names from the enclosing @derive, or `null` if not found"
-      },
-      "examples": [
-        "```typescript\nconst text = `/** @derive(Debug, Serialize) *​/\nclass User {"
-      ]
-    },
-    {
-      "name": "getMacroHoverInfo",
-      "kind": "function",
-      "signature": "function getMacroHoverInfo(text: string, position: number, tsModule: unknown): unknown | null",
-      "description": "Generates hover information (QuickInfo) for macros and decorators at a cursor position.\n\nThis function provides IDE hover tooltips for Macroforge-specific syntax:\n- The `@derive` keyword itself\n- Macro names within `@derive(...)` JSDoc decorators (both built-in and external)\n- Field decorators like `@serde`, `@debug`, and custom decorators from external macros",
-      "params": [
-        {
-          "name": "text",
-          "type": "",
-          "description": "The source text to analyze"
+            "name": "findEnclosingDeriveContext",
+            "kind": "function",
+            "signature": "function findEnclosingDeriveContext(text: string, position: number): string[] | null",
+            "description": "Finds what `@derive` macros apply to code at a given position.\n\nThis function uses a heuristic: it finds the nearest `@derive(...)` decorator\nthat appears before the given position. This is useful for determining which\nmacros might be responsible for a particular field decorator.",
+            "params": [
+                {
+                    "name": "text",
+                    "type": "",
+                    "description": "The source text to search"
+                },
+                {
+                    "name": "position",
+                    "type": "",
+                    "description": "The cursor position as a 0-indexed character offset"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "An array of macro names from the enclosing @derive, or `null` if not found"
+            },
+            "examples": [
+                "```typescript\nconst text = `/** @derive(Debug, Serialize) *​/\nclass User {"
+            ]
         },
         {
-          "name": "position",
-          "type": "",
-          "description": "The cursor position as a 0-indexed character offset"
+            "name": "getMacroHoverInfo",
+            "kind": "function",
+            "signature": "function getMacroHoverInfo(text: string, position: number, tsModule: unknown): unknown | null",
+            "description": "Generates hover information (QuickInfo) for macros and decorators at a cursor position.\n\nThis function provides IDE hover tooltips for Macroforge-specific syntax:\n- The `@derive` keyword itself\n- Macro names within `@derive(...)` JSDoc decorators (both built-in and external)\n- Field decorators like `@serde`, `@debug`, and custom decorators from external macros",
+            "params": [
+                {
+                    "name": "text",
+                    "type": "",
+                    "description": "The source text to analyze"
+                },
+                {
+                    "name": "position",
+                    "type": "",
+                    "description": "The cursor position as a 0-indexed character offset"
+                },
+                {
+                    "name": "tsModule",
+                    "type": "",
+                    "description": "The TypeScript module reference (for creating QuickInfo structures)"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "A TypeScript QuickInfo object suitable for hover display, or `null` if the\nposition is not on a recognized macro or decorator"
+            },
+            "examples": [
+                "```typescript\n// Hovering over \"@derive\" keyword\nconst info = getMacroHoverInfo(text, 4, ts);\n// Returns QuickInfo with documentation about the derive directive\n\n// Hovering over \"Debug\" in \"@derive(Debug, Clone)\"\nconst info = getMacroHoverInfo(text, 14, ts);\n// Returns QuickInfo with:\n// - displayParts: \"@derive(Debug)\"\n// - documentation: \"Generates a fmt_debug() method for debugging output\"\n\n// Hovering over external macro \"Gigaform\" in \"@derive(Gigaform)\"\nconst info = getMacroHoverInfo(text, 14, ts);\n// Returns QuickInfo with description loaded from @playground/macro package\n\n// Hovering over \"@serde\" field decorator\nconst info = getMacroHoverInfo(text, 5, ts);\n// Returns QuickInfo with:\n// - displayParts: \"@serde\"\n// - documentation: \"Serialization/deserialization field options\"\n\n// Hovering over \"@hiddenController\" from external Gigaform macro\nconst info = getMacroHoverInfo(text, 5, ts);\n// Returns QuickInfo with docs loaded from external package manifest\n```"
+            ],
+            "remarks": "The function checks positions in the following order:\n1. Check if cursor is on the `@derive` keyword via {@link findDeriveKeywordAtPosition}\n2. Check if cursor is on a macro name within `@derive(...)` via {@link findDeriveAtPosition}\n- First checks built-in manifest via {@link getMacroManifest}\n- Then checks external macro imports via {@link parseMacroImportComments}\n- Falls back to generic hover for unknown macros\n3. Check if cursor is on a field decorator via {@link findDecoratorAtPosition}\n- First checks built-in manifest (macros and decorators)\n- Then checks external package manifests via {@link getExternalDecoratorInfo}\n- Falls back to generic hover showing enclosing derive context\n\nFor external macros (imported via `/** import macro {Name} from \"package\"; * /`),\nthe function attempts to load the external package's manifest to retrieve\ndescriptions and documentation. See {@link getExternalMacroInfo}.\n\nThe returned QuickInfo includes:\n- `kind`: `keyword` for @derive, `functionElement` for macros/decorators\n- `textSpan`: The highlighted range in the editor\n- `displayParts`: The formatted display text (e.g., \"@derive(Debug)\")\n- `documentation`: The macro/decorator description from the manifest",
+            "see": [
+                "{@link findDeriveKeywordAtPosition} - Locates the @derive keyword",
+                "{@link findDeriveAtPosition} - Locates macro names in @derive decorators",
+                "{@link findDecoratorAtPosition} - Locates field decorators",
+                "{@link findEnclosingDeriveContext} - Finds macros that apply to a position",
+                "{@link getMacroManifest} - Provides built-in macro/decorator metadata",
+                "{@link getExternalMacroInfo} - Provides external macro metadata",
+                "{@link getExternalDecoratorInfo} - Provides external decorator metadata"
+            ]
         },
         {
-          "name": "tsModule",
-          "type": "",
-          "description": "The TypeScript module reference (for creating QuickInfo structures)"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "A TypeScript QuickInfo object suitable for hover display, or `null` if the\nposition is not on a recognized macro or decorator"
-      },
-      "examples": [
-        "```typescript\n// Hovering over \"@derive\" keyword\nconst info = getMacroHoverInfo(text, 4, ts);\n// Returns QuickInfo with documentation about the derive directive\n\n// Hovering over \"Debug\" in \"@derive(Debug, Clone)\"\nconst info = getMacroHoverInfo(text, 14, ts);\n// Returns QuickInfo with:\n// - displayParts: \"@derive(Debug)\"\n// - documentation: \"Generates a fmt_debug() method for debugging output\"\n\n// Hovering over external macro \"Gigaform\" in \"@derive(Gigaform)\"\nconst info = getMacroHoverInfo(text, 14, ts);\n// Returns QuickInfo with description loaded from @playground/macro package\n\n// Hovering over \"@serde\" field decorator\nconst info = getMacroHoverInfo(text, 5, ts);\n// Returns QuickInfo with:\n// - displayParts: \"@serde\"\n// - documentation: \"Serialization/deserialization field options\"\n\n// Hovering over \"@hiddenController\" from external Gigaform macro\nconst info = getMacroHoverInfo(text, 5, ts);\n// Returns QuickInfo with docs loaded from external package manifest\n```"
-      ],
-      "remarks": "The function checks positions in the following order:\n1. Check if cursor is on the `@derive` keyword via {@link findDeriveKeywordAtPosition}\n2. Check if cursor is on a macro name within `@derive(...)` via {@link findDeriveAtPosition}\n- First checks built-in manifest via {@link getMacroManifest}\n- Then checks external macro imports via {@link parseMacroImportComments}\n- Falls back to generic hover for unknown macros\n3. Check if cursor is on a field decorator via {@link findDecoratorAtPosition}\n- First checks built-in manifest (macros and decorators)\n- Then checks external package manifests via {@link getExternalDecoratorInfo}\n- Falls back to generic hover showing enclosing derive context\n\nFor external macros (imported via `/** import macro {Name} from \"package\"; * /`),\nthe function attempts to load the external package's manifest to retrieve\ndescriptions and documentation. See {@link getExternalMacroInfo}.\n\nThe returned QuickInfo includes:\n- `kind`: `keyword` for @derive, `functionElement` for macros/decorators\n- `textSpan`: The highlighted range in the editor\n- `displayParts`: The formatted display text (e.g., \"@derive(Debug)\")\n- `documentation`: The macro/decorator description from the manifest",
-      "see": [
-        "{@link findDeriveKeywordAtPosition} - Locates the @derive keyword",
-        "{@link findDeriveAtPosition} - Locates macro names in @derive decorators",
-        "{@link findDecoratorAtPosition} - Locates field decorators",
-        "{@link findEnclosingDeriveContext} - Finds macros that apply to a position",
-        "{@link getMacroManifest} - Provides built-in macro/decorator metadata",
-        "{@link getExternalMacroInfo} - Provides external macro metadata",
-        "{@link getExternalDecoratorInfo} - Provides external decorator metadata"
-      ]
-    },
-    {
-      "name": "shouldProcess",
-      "kind": "function",
-      "signature": "function shouldProcess(fileName: string)",
-      "description": "Determines whether a file should be processed for macro expansion.\n\nThis is a gatekeeper function that filters out files that should not\ngo through macro expansion, either because they're in excluded directories\nor have unsupported file types.",
-      "params": [
-        {
-          "name": "fileName",
-          "type": "",
-          "description": "The absolute path to the file"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "`true` if the file should be processed, `false` otherwise"
-      },
-      "examples": [
-        "```typescript\nshouldProcess('/project/src/User.ts');        // => true\nshouldProcess('/project/src/App.svelte');     // => true\nshouldProcess('/project/node_modules/...');   // => false\nshouldProcess('/project/User.macroforge.d.ts'); // => false\n```"
-      ],
-      "remarks": "Files are excluded if they:\n- Are in `node_modules` (dependencies should not be processed)\n- Are in the `.macroforge` cache directory\n- End with `.macroforge.d.ts` (generated type declaration files)\n- Don't have a supported extension (`.ts`, `.tsx`, `.svelte`)"
-    },
-    {
-      "name": "hasMacroDirectives",
-      "kind": "function",
-      "signature": "function hasMacroDirectives(text: string)",
-      "description": "Performs a quick check to determine if a file contains any macro-related directives.\n\nThis is a fast pre-filter to avoid expensive macro expansion on files that\ndon't contain any macros. It uses simple string/regex checks rather than\nfull parsing for performance.",
-      "params": [
-        {
-          "name": "text",
-          "type": "",
-          "description": "The source text to check"
-        }
-      ],
-      "returns": {
-        "type": "",
-        "description": "`true` if the file likely contains macro directives, `false` otherwise"
-      },
-      "examples": [
-        "```typescript\nhasMacroDirectives('/** @derive(Debug) * /');  // => true\nhasMacroDirectives('@Debug class User {}');    // => true (contains @derive substring? no, but @Debug yes)\nhasMacroDirectives('class User {}');           // => false\n```"
-      ],
-      "remarks": "The function checks for the following patterns:\n- `@derive` anywhere in the text (catches both JSDoc and decorator usage)\n- `/** @derive(` pattern (JSDoc macro declaration)\n- `/** import macro` pattern (inline macro import syntax)\n\nThis is intentionally permissive - it's better to have false positives\n(which just result in unnecessary expansion attempts) than false negatives\n(which would break macro functionality)."
-    },
-    {
-      "name": "init",
-      "kind": "function",
-      "signature": "function init(modules: object)",
-      "description": "Main plugin factory function conforming to the TypeScript Language Service Plugin API.\n\nThis function is called by TypeScript when the plugin is loaded. It receives the\nTypeScript module reference and returns an object with a `create` function that\nTypeScript will call to instantiate the plugin for each project.",
-      "params": [
-        {
-          "name": "modules",
-          "type": "",
-          "description": "Object containing the TypeScript module reference"
+            "name": "shouldProcess",
+            "kind": "function",
+            "signature": "function shouldProcess(fileName: string)",
+            "description": "Determines whether a file should be processed for macro expansion.\n\nThis is a gatekeeper function that filters out files that should not\ngo through macro expansion, either because they're in excluded directories\nor have unsupported file types.",
+            "params": [
+                {
+                    "name": "fileName",
+                    "type": "",
+                    "description": "The absolute path to the file"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "`true` if the file should be processed, `false` otherwise"
+            },
+            "examples": [
+                "```typescript\nshouldProcess('/project/src/User.ts');        // => true\nshouldProcess('/project/src/App.svelte');     // => true\nshouldProcess('/project/node_modules/...');   // => false\nshouldProcess('/project/User.macroforge.d.ts'); // => false\n```"
+            ],
+            "remarks": "Files are excluded if they:\n- Are in `node_modules` (dependencies should not be processed)\n- Are in the `.macroforge` cache directory\n- End with `.macroforge.d.ts` (generated type declaration files)\n- Don't have a supported extension (`.ts`, `.tsx`, `.svelte`)"
         },
         {
-          "name": "modules",
-          "type": "",
-          "description": ".typescript - The TypeScript module (`typescript/lib/tsserverlibrary`)"
+            "name": "hasMacroDirectives",
+            "kind": "function",
+            "signature": "function hasMacroDirectives(text: string)",
+            "description": "Performs a quick check to determine if a file contains any macro-related directives.\n\nThis is a fast pre-filter to avoid expensive macro expansion on files that\ndon't contain any macros. It uses simple string/regex checks rather than\nfull parsing for performance.",
+            "params": [
+                {
+                    "name": "text",
+                    "type": "",
+                    "description": "The source text to check"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "`true` if the file likely contains macro directives, `false` otherwise"
+            },
+            "examples": [
+                "```typescript\nhasMacroDirectives('/** @derive(Debug) * /');  // => true\nhasMacroDirectives('@Debug class User {}');    // => true (contains @derive substring? no, but @Debug yes)\nhasMacroDirectives('class User {}');           // => false\n```"
+            ],
+            "remarks": "The function checks for the following patterns:\n- `@derive` anywhere in the text (catches both JSDoc and decorator usage)\n- `/** @derive(` pattern (JSDoc macro declaration)\n- `/** import macro` pattern (inline macro import syntax)\n\nThis is intentionally permissive - it's better to have false positives\n(which just result in unnecessary expansion attempts) than false negatives\n(which would break macro functionality)."
+        },
+        {
+            "name": "init",
+            "kind": "function",
+            "signature": "function init(modules: object)",
+            "description": "Main plugin factory function conforming to the TypeScript Language Service Plugin API.\n\nThis function is called by TypeScript when the plugin is loaded. It receives the\nTypeScript module reference and returns an object with a `create` function that\nTypeScript will call to instantiate the plugin for each project.",
+            "params": [
+                {
+                    "name": "modules",
+                    "type": "",
+                    "description": "Object containing the TypeScript module reference"
+                },
+                {
+                    "name": "modules",
+                    "type": "",
+                    "description": ".typescript - The TypeScript module (`typescript/lib/tsserverlibrary`)"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "An object with a `create` method that TypeScript calls to instantiate the plugin"
+            },
+            "examples": [
+                "```typescript\n// This is how TypeScript loads the plugin (internal to TS)\nconst plugin = require('@macroforge/typescript-plugin');\nconst { create } = plugin(modules);\nconst languageService = create(pluginCreateInfo);\n```"
+            ],
+            "remarks": "The plugin follows the standard TypeScript Language Service Plugin pattern:\n1. `init()` is called once when the plugin is loaded\n2. `create()` is called for each TypeScript project that uses the plugin\n3. The returned LanguageService has hooked methods that intercept TypeScript operations\n\n## Plugin Architecture\n\nThe plugin maintains several internal data structures:\n- **virtualDtsFiles**: Stores generated `.macroforge.d.ts` type declaration files\n- **snapshotCache**: Caches expanded file snapshots for stable identity across TS requests\n- **processingFiles**: Guards against reentrancy during macro expansion\n- **nativePlugin**: Rust-backed expansion engine (handles actual macro processing)\n\n## Hooked Methods\n\nThe plugin hooks into ~22 TypeScript Language Service methods to provide seamless\nIDE support. These fall into three categories:\n\n1. **Host-level hooks** (what TS \"sees\"):\n- `getScriptSnapshot` - Returns expanded code instead of original\n- `getScriptVersion` - Provides versions for virtual .d.ts files\n- `getScriptFileNames` - Includes virtual .d.ts in project file list\n- `fileExists` - Resolves virtual .d.ts files\n\n2. **Diagnostic hooks** (error reporting):\n- `getSemanticDiagnostics` - Maps error positions, adds macro errors\n- `getSyntacticDiagnostics` - Maps syntax error positions\n\n3. **Navigation hooks** (IDE features):\n- `getQuickInfoAtPosition` - Hover information\n- `getCompletionsAtPosition` - IntelliSense completions\n- `getDefinitionAtPosition` - Go to definition\n- `findReferences` - Find all references\n- ... and many more",
+            "see": [
+                "{@link shouldProcess} - File filtering logic",
+                "{@link processFile} - Main macro expansion entry point"
+            ]
         }
-      ],
-      "returns": {
-        "type": "",
-        "description": "An object with a `create` method that TypeScript calls to instantiate the plugin"
-      },
-      "examples": [
-        "```typescript\n// This is how TypeScript loads the plugin (internal to TS)\nconst plugin = require('@macroforge/typescript-plugin');\nconst { create } = plugin(modules);\nconst languageService = create(pluginCreateInfo);\n```"
-      ],
-      "remarks": "The plugin follows the standard TypeScript Language Service Plugin pattern:\n1. `init()` is called once when the plugin is loaded\n2. `create()` is called for each TypeScript project that uses the plugin\n3. The returned LanguageService has hooked methods that intercept TypeScript operations\n\n## Plugin Architecture\n\nThe plugin maintains several internal data structures:\n- **virtualDtsFiles**: Stores generated `.macroforge.d.ts` type declaration files\n- **snapshotCache**: Caches expanded file snapshots for stable identity across TS requests\n- **processingFiles**: Guards against reentrancy during macro expansion\n- **nativePlugin**: Rust-backed expansion engine (handles actual macro processing)\n\n## Hooked Methods\n\nThe plugin hooks into ~22 TypeScript Language Service methods to provide seamless\nIDE support. These fall into three categories:\n\n1. **Host-level hooks** (what TS \"sees\"):\n- `getScriptSnapshot` - Returns expanded code instead of original\n- `getScriptVersion` - Provides versions for virtual .d.ts files\n- `getScriptFileNames` - Includes virtual .d.ts in project file list\n- `fileExists` - Resolves virtual .d.ts files\n\n2. **Diagnostic hooks** (error reporting):\n- `getSemanticDiagnostics` - Maps error positions, adds macro errors\n- `getSyntacticDiagnostics` - Maps syntax error positions\n\n3. **Navigation hooks** (IDE features):\n- `getQuickInfoAtPosition` - Hover information\n- `getCompletionsAtPosition` - IntelliSense completions\n- `getDefinitionAtPosition` - Go to definition\n- `findReferences` - Find all references\n- ... and many more",
-      "see": [
-        "{@link shouldProcess} - File filtering logic",
-        "{@link processFile} - Main macro expansion entry point"
-      ]
-    }
-  ]
+    ]
 }

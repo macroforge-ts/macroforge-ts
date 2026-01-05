@@ -1,29 +1,29 @@
 {
-  "generated": "1766239285Z",
-  "packages": [
-    {
-      "name": "@macroforge/shared",
-      "version": "0.1.61",
-      "itemCount": 1,
-      "hasOverview": false
-    },
-    {
-      "name": "@macroforge/typescript-plugin",
-      "version": "0.1.62",
-      "itemCount": 9,
-      "hasOverview": false
-    },
-    {
-      "name": "@macroforge/svelte-preprocessor",
-      "version": "0.1.61",
-      "itemCount": 2,
-      "hasOverview": false
-    },
-    {
-      "name": "@macroforge/mcp-server",
-      "version": "0.1.61",
-      "itemCount": 1,
-      "hasOverview": false
-    }
-  ]
+    "generated": "1766239285Z",
+    "packages": [
+        {
+            "name": "@macroforge/shared",
+            "version": "0.1.61",
+            "itemCount": 1,
+            "hasOverview": false
+        },
+        {
+            "name": "@macroforge/typescript-plugin",
+            "version": "0.1.62",
+            "itemCount": 9,
+            "hasOverview": false
+        },
+        {
+            "name": "@macroforge/svelte-preprocessor",
+            "version": "0.1.61",
+            "itemCount": 2,
+            "hasOverview": false
+        },
+        {
+            "name": "@macroforge/mcp-server",
+            "version": "0.1.61",
+            "itemCount": 1,
+            "hasOverview": false
+        }
+    ]
 }

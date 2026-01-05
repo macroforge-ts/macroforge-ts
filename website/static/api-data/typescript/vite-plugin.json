@@ -1,40 +1,40 @@
 {
-  "name": "@macroforge/vite-plugin",
-  "kind": "typescript_package",
-  "version": "0.1.43",
-  "description": "",
-  "overview": "",
-  "items": [
-    {
-      "name": "NapiMacrosPluginOptions",
-      "kind": "interface",
-      "signature": "interface NapiMacrosPluginOptions",
-      "description": "Configuration options for the Macroforge Vite plugin.",
-      "examples": [
-        "```typescript\nconst options: NapiMacrosPluginOptions = {\ninclude: ['src/**\\/*.ts'],\nexclude: ['**\\/*.test.ts'],\ngenerateTypes: true,\ntypesOutputDir: '.macroforge/types',\nemitMetadata: true,\nmetadataOutputDir: '.macroforge/meta',\n};\n```"
-      ]
-    },
-    {
-      "name": "napiMacrosPlugin",
-      "kind": "function",
-      "signature": "function napiMacrosPlugin(options: NapiMacrosPluginOptions): Plugin",
-      "description": "Creates a Vite plugin for Macroforge compile-time macro expansion.",
-      "params": [
+    "name": "@macroforge/vite-plugin",
+    "kind": "typescript_package",
+    "version": "0.1.43",
+    "description": "",
+    "overview": "",
+    "items": [
         {
-          "name": "options",
-          "type": "",
-          "description": "Plugin configuration options"
+            "name": "NapiMacrosPluginOptions",
+            "kind": "interface",
+            "signature": "interface NapiMacrosPluginOptions",
+            "description": "Configuration options for the Macroforge Vite plugin.",
+            "examples": [
+                "```typescript\nconst options: NapiMacrosPluginOptions = {\ninclude: ['src/**\\/*.ts'],\nexclude: ['**\\/*.test.ts'],\ngenerateTypes: true,\ntypesOutputDir: '.macroforge/types',\nemitMetadata: true,\nmetadataOutputDir: '.macroforge/meta',\n};\n```"
+            ]
+        },
+        {
+            "name": "napiMacrosPlugin",
+            "kind": "function",
+            "signature": "function napiMacrosPlugin(options: NapiMacrosPluginOptions): Plugin",
+            "description": "Creates a Vite plugin for Macroforge compile-time macro expansion.",
+            "params": [
+                {
+                    "name": "options",
+                    "type": "",
+                    "description": "Plugin configuration options"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "A Vite plugin instance"
+            },
+            "examples": [
+                "```typescript\n// Basic usage\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [macroforgePlugin()],\n});\n```",
+                "```typescript\n// With custom options\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: '.macroforge/types',\nemitMetadata: false,\n}),\n],\n});\n```"
+            ],
+            "remarks": "This is the main entry point for integrating Macroforge into a Vite build pipeline.\nThe plugin:\n\n1. **Runs early** (`enforce: \"pre\"`) to transform code before other plugins\n2. **Processes TypeScript files** (`.ts` and `.tsx`) excluding `node_modules`\n3. **Expands macros** using the Macroforge Rust binary via `expandSync()`\n4. **Generates type definitions** for transformed code (optional, default: enabled)\n5. **Emits metadata** about macro transformations (optional, default: enabled)\n\n**Plugin Lifecycle:**\n- `configResolved`: Initializes project root, loads config, and attempts to load Rust binary\n- `transform`: Processes each TypeScript file through the macro expander\n\n**Error Handling:**\n- If the Rust binary is not available, files pass through unchanged\n- Macro expansion errors are reported via Vite's `this.error()` mechanism\n- TypeScript emission errors are logged as warnings"
         }
-      ],
-      "returns": {
-        "type": "",
-        "description": "A Vite plugin instance"
-      },
-      "examples": [
-        "```typescript\n// Basic usage\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [macroforgePlugin()],\n});\n```",
-        "```typescript\n// With custom options\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: '.macroforge/types',\nemitMetadata: false,\n}),\n],\n});\n```"
-      ],
-      "remarks": "This is the main entry point for integrating Macroforge into a Vite build pipeline.\nThe plugin:\n\n1. **Runs early** (`enforce: \"pre\"`) to transform code before other plugins\n2. **Processes TypeScript files** (`.ts` and `.tsx`) excluding `node_modules`\n3. **Expands macros** using the Macroforge Rust binary via `expandSync()`\n4. **Generates type definitions** for transformed code (optional, default: enabled)\n5. **Emits metadata** about macro transformations (optional, default: enabled)\n\n**Plugin Lifecycle:**\n- `configResolved`: Initializes project root, loads config, and attempts to load Rust binary\n- `transform`: Processes each TypeScript file through the macro expander\n\n**Error Handling:**\n- If the Rust binary is not available, files pass through unchanged\n- Macro expansion errors are reported via Vite's `this.error()` mechanism\n- TypeScript emission errors are logged as warnings"
-    }
-  ]
+    ]
 }

@@ -1,34 +1,34 @@
 {
-  "name": "@macroforge/shared",
-  "kind": "typescript_package",
-  "version": "0.1.61",
-  "description": "Shared utilities for Macroforge plugins",
-  "overview": "",
-  "items": [
-    {
-      "name": "collectExternalDecoratorModules",
-      "kind": "function",
-      "signature": "function collectExternalDecoratorModules(code: string, requireFn: RequireFunction): string[]",
-      "description": "Collects decorator modules from external macro packages referenced in the code.\n\nThis function parses macro import comments in the code to find external packages,\nthen loads their manifests and collects all decorator module names.",
-      "params": [
+    "name": "@macroforge/shared",
+    "kind": "typescript_package",
+    "version": "0.1.61",
+    "description": "Shared utilities for Macroforge plugins",
+    "overview": "",
+    "items": [
         {
-          "name": "code",
-          "type": "",
-          "description": "The TypeScript source code to scan"
-        },
-        {
-          "name": "requireFn",
-          "type": "",
-          "description": "Optional custom require function for loading external packages"
+            "name": "collectExternalDecoratorModules",
+            "kind": "function",
+            "signature": "function collectExternalDecoratorModules(code: string, requireFn: RequireFunction): string[]",
+            "description": "Collects decorator modules from external macro packages referenced in the code.\n\nThis function parses macro import comments in the code to find external packages,\nthen loads their manifests and collects all decorator module names.",
+            "params": [
+                {
+                    "name": "code",
+                    "type": "",
+                    "description": "The TypeScript source code to scan"
+                },
+                {
+                    "name": "requireFn",
+                    "type": "",
+                    "description": "Optional custom require function for loading external packages"
+                }
+            ],
+            "returns": {
+                "type": "",
+                "description": "Array of decorator module names from external packages"
+            },
+            "examples": [
+                "```typescript\nconst code = `/** import macro {Gigaform} from \"@playground/macro\"; *​/\n/** @derive(Gigaform) *​/\nclass MyForm {}`;\n\nconst modules = collectExternalDecoratorModules(code);\n// => [\"hiddenController\", \"fieldController\", ...]\n```"
+            ]
         }
-      ],
-      "returns": {
-        "type": "",
-        "description": "Array of decorator module names from external packages"
-      },
-      "examples": [
-        "```typescript\nconst code = `/** import macro {Gigaform} from \"@playground/macro\"; *​/\n/** @derive(Gigaform) *​/\nclass MyForm {}`;\n\nconst modules = collectExternalDecoratorModules(code);\n// => [\"hiddenController\", \"fieldController\", ...]\n```"
-      ]
-    }
-  ]
+    ]
 }

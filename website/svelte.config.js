@@ -16,33 +16,33 @@ const highlighter = await createHighlighter();
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	extensions: ['.svelte', '.svx'],
+    extensions: ['.svelte', '.svx'],
 
-	preprocess: [
-		codeBlockPreprocess(),
-		vitePreprocess(),
-		mdsvex({
-			extensions: ['.svx'],
-			layout: join(__dirname, 'src/lib/mdsvex-layout.svelte'),
-			remarkPlugins: [remarkGfm, remarkMacroBlocks],
-			highlight: {
-				highlighter
-			}
-		})
-	],
+    preprocess: [
+        codeBlockPreprocess(),
+        vitePreprocess(),
+        mdsvex({
+            extensions: ['.svx'],
+            layout: join(__dirname, 'src/lib/mdsvex-layout.svelte'),
+            remarkPlugins: [remarkGfm, remarkMacroBlocks],
+            highlight: {
+                highlighter
+            }
+        })
+    ],
 
-	kit: {
-		adapter: adapter({
-			pages: 'build',
-			assets: 'build',
-			fallback: undefined,
-			precompress: false,
-			strict: true
-		}),
-		prerender: {
-			entries: ['*']
-		}
-	}
+    kit: {
+        adapter: adapter({
+            pages: 'build',
+            assets: 'build',
+            fallback: undefined,
+            precompress: false,
+            strict: true
+        }),
+        prerender: {
+            entries: ['*']
+        }
+    }
 };
 
 export default config;

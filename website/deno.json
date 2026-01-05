@@ -1,0 +1,31 @@
+{
+    "fmt": {
+        "useTabs": false,
+        "indentWidth": 4,
+        "lineWidth": 100,
+        "singleQuote": true,
+        "semiColons": true,
+        "trailingCommas": "never",
+        "exclude": ["**/dist", "**/build", "**/.svelte-kit", "**/node_modules"]
+    },
+    "lint": {
+        "exclude": [
+            "**/dist",
+            "**/build",
+            "**/.svelte-kit",
+            "**/node_modules",
+            "**/*.svelte"
+        ],
+        "rules": {
+            "tags": ["recommended"],
+            "include": ["eqeqeq"],
+            "exclude": [
+                "no-explicit-any",
+                "require-await",
+                "no-process-global",
+                "no-node-globals",
+                "no-window"
+            ]
+        }
+    }
+}

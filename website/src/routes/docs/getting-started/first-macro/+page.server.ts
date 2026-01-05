@@ -2,9 +2,9 @@ import type { PageServerLoad } from './$types';
 import { expandExample } from '$lib/server/macroforge';
 
 export const load: PageServerLoad = async () => {
-	return {
-		examples: {
-			basic: await expandExample(`/** @derive(Debug, Clone, PartialEq) */
+    return {
+        examples: {
+            basic: await expandExample(`/** @derive(Debug, Clone, PartialEq) */
 export class User {
   name: string;
   age: number;
@@ -16,7 +16,7 @@ export class User {
     this.email = email;
   }
 }`),
-			customizing: await expandExample(`/** @derive(Debug) */
+            customizing: await expandExample(`/** @derive(Debug) */
 export class User {
   /** @debug({ rename: "userId" }) */
   id: number;
@@ -32,6 +32,6 @@ export class User {
     this.password = password;
   }
 }`)
-		}
-	};
+        }
+    };
 };

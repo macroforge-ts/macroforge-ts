@@ -1,19 +1,19 @@
 {
-  "name": "@macroforge/mcp-server",
-  "kind": "typescript_package",
-  "version": "0.1.61",
-  "description": "MCP server for Macroforge documentation and code analysis",
-  "overview": "",
-  "items": [
-    {
-      "name": "main",
-      "kind": "function",
-      "signature": "async function main(): Promise",
-      "description": "Initializes and starts the Macroforge MCP server.\n\nThis function performs the following setup:\n1. Creates an MCP Server instance with name and version from package.json\n2. Registers all Macroforge tools (documentation, validation, expansion)\n3. Sets up error handling for server errors\n4. Configures graceful shutdown on SIGINT (Ctrl+C)\n5. Connects to stdio transport for client communication\n\nThe server runs until terminated and logs status to stderr\n(stdout is reserved for MCP protocol communication).",
-      "returns": {
-        "type": "",
-        "description": "A promise that resolves when the server is connected"
-      }
-    }
-  ]
+    "name": "@macroforge/mcp-server",
+    "kind": "typescript_package",
+    "version": "0.1.61",
+    "description": "MCP server for Macroforge documentation and code analysis",
+    "overview": "",
+    "items": [
+        {
+            "name": "main",
+            "kind": "function",
+            "signature": "async function main(): Promise",
+            "description": "Initializes and starts the Macroforge MCP server.\n\nThis function performs the following setup:\n1. Creates an MCP Server instance with name and version from package.json\n2. Registers all Macroforge tools (documentation, validation, expansion)\n3. Sets up error handling for server errors\n4. Configures graceful shutdown on SIGINT (Ctrl+C)\n5. Connects to stdio transport for client communication\n\nThe server runs until terminated and logs status to stderr\n(stdout is reserved for MCP protocol communication).",
+            "returns": {
+                "type": "",
+                "description": "A promise that resolves when the server is connected"
+            }
+        }
+    ]
 }
