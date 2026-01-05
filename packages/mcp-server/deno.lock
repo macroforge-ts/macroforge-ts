@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@modelcontextprotocol/sdk@^1.11.1": "1.25.1_zod@4.2.1_ajv@8.17.1_express@5.2.1",
+    "npm:@modelcontextprotocol/sdk@^1.11.1": "1.25.1_zod@4.3.5_ajv@8.17.1_express@5.2.1",
     "npm:@types/node@22": "22.19.3",
     "npm:typescript@^5.7.0": "5.9.3"
   },
@@ -12,7 +12,7 @@
         "hono"
       ]
     },
-    "@modelcontextprotocol/sdk@1.25.1_zod@4.2.1_ajv@8.17.1_express@5.2.1": {
+    "@modelcontextprotocol/sdk@1.25.1_zod@4.3.5_ajv@8.17.1_express@5.2.1": {
       "integrity": "sha512-yO28oVFFC7EBoiKdAn+VqRm+plcfv4v0xp6osG/VsCB0NlPZWi87ajbCZZ8f/RvOFLEu7//rSRmuZZ7lMoe3gQ==",
       "dependencies": [
         "@hono/node-server",
@@ -372,8 +372,8 @@
         "ipaddr.js"
       ]
     },
-    "qs@6.14.0": {
-      "integrity": "sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==",
+    "qs@6.14.1": {
+      "integrity": "sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==",
       "dependencies": [
         "side-channel"
       ]
@@ -516,14 +516,14 @@
     "wrappy@1.0.2": {
       "integrity": "sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ=="
     },
-    "zod-to-json-schema@3.25.1_zod@4.2.1": {
+    "zod-to-json-schema@3.25.1_zod@4.3.5": {
       "integrity": "sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==",
       "dependencies": [
         "zod"
       ]
     },
-    "zod@4.2.1": {
-      "integrity": "sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw=="
+    "zod@4.3.5": {
+      "integrity": "sha512-k7Nwx6vuWx1IJ9Bjuf4Zt1PEllcwe7cls3VNzm4CQ1/hgtFUK2bRNG3rvnpPUhFjmqJKAKtjV576KnUkHocg/g=="
     }
   },
   "workspace": {
