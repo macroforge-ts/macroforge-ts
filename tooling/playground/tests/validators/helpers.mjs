@@ -1,4 +1,4 @@
-import { assert as assertTrue, assertEquals, assertStrictEquals } from 'jsr:@std/assert';
+import { assert as assertTrue, assertEquals, assertStrictEquals } from 'jsr:@std/assert@1';
 import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
