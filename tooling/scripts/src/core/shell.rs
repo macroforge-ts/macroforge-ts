@@ -312,10 +312,10 @@ pub mod git {
         Ok(())
     }
 
-    /// Push tags to remote
-    pub fn push_tags(cwd: &Path) -> Result<()> {
+    /// Push a single tag to remote
+    pub fn push_tag(cwd: &Path, tag_name: &str) -> Result<()> {
         Shell::new("git")
-            .args(&["push", "--tags"])
+            .args(&["push", "origin", tag_name])
             .dir(cwd)
             .run_checked()?;
         Ok(())

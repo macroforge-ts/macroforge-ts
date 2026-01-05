@@ -11,6 +11,7 @@ use crate::core::registry;
 use crate::core::repos::{Repo, RepoType};
 use crate::core::shell;
 use crate::core::versions;
+use crate::diagnostics::runner::{DiagnosticOptions, DiagnosticsRunner};
 use crate::utils::format;
 use anyhow::{Context, Result};
 use colored::Colorize;
@@ -285,10 +286,56 @@ pub fn run(args: PrepArgs) -> Result<()> {
         eprintln!("{} Rollback complete", "✓".green());
     };
 
-    // [1/10] Bump versions
+    // [0/11] Run diagnostics (format + lint all projects)
+    let step = Step {
+        number: 0.0,
+        total: 11,
+        label: "Running diagnostics".to_string(),
+    };
+    step.print();
+
+    // Swap to local paths before diagnostics so rust-tests uses local crates
+    manifests::swap_local(&config)?;
+
+    let diag_result = {
+        let mut diag_options = DiagnosticOptions::all();
+        diag_options.format = true;
+        let runner = DiagnosticsRunner::new(&config.root, diag_options);
+        runner.run()
+    };
+
+    // Restore to original dependency state
+    if was_using_local_paths {
+        // Already in local state, nothing to do
+    } else if let Err(e) = manifests::swap_registry(&config, &config.versions) {
+        eprintln!("{} Failed to restore registry versions: {}", "✗".red(), e);
+    }
+
+    let aggregator = diag_result?;
+
+    if !aggregator.diagnostics().is_empty() {
+        eprintln!(
+            "\n{} Found {} diagnostic issues:",
+            "✗".red(),
+            aggregator.diagnostics().len()
+        );
+        for diag in aggregator.diagnostics().iter().take(10) {
+            eprintln!(
+                "  {}:{}:{}: {}",
+                diag.file, diag.line, diag.column, diag.message
+            );
+        }
+        if aggregator.diagnostics().len() > 10 {
+            eprintln!("  ... and {} more", aggregator.diagnostics().len() - 10);
+        }
+        anyhow::bail!("Diagnostics failed - fix issues before prepping");
+    }
+    eprintln!("  {} All diagnostics passed", "✓".green());
+
+    // [1/11] Bump versions
     let step = Step {
         number: 1.0,
-        total: 10,
+        total: 11,
         label: "Bumping versions".to_string(),
     };
     step.print();
@@ -359,7 +406,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
     if !args.skip_docs && !args.bump_only {
         let step = Step {
             number: 2.0,
-            total: 10,
+            total: 11,
             label: "Extracting API documentation".to_string(),
         };
         step.print();
@@ -377,14 +424,35 @@ pub fn run(args: PrepArgs) -> Result<()> {
     } else {
         let step = Step {
             number: 3.0,
-            total: 10,
+            total: 11,
             label: "Clean building packages".to_string(),
         };
         step.print();
 
-        // Swap to local path dependencies
+        // Swap to local path dependencies first
         println!("  {} Swapping to local path dependencies...", "→".blue());
         manifests::swap_local(&config)?;
+        // Also swap rust-tests to use same absolute paths (avoids lockfile collision)
+        manifests::swap_rust_tests_local(&config)?;
+
+        // Clean-build rust-tests
+        let playground_tests = config.root.join("tooling/playground/tests");
+        print!("  {} {}... ", "Building:".bold(), "rust-tests".cyan());
+        io::stdout().flush()?;
+        match shell::deno::task(&playground_tests, "cleanbuild:rust") {
+            Ok(_) => println!("{}", "done".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                format::error(&format!("Build failed: {}", e));
+                // Restore rust-tests before rollback
+                let _ = manifests::swap_rust_tests_vendor(&config);
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
+        // Keep rust-tests using absolute paths until all tests complete
+        // (will be restored to vendor paths with swap_rust_tests_vendor before commit)
         let repo_names_slice: Vec<&str> = repos.iter().map(|r| r.name.as_str()).collect();
         manifests::swap_npm_local(&config, &repo_names_slice)?;
 
@@ -409,7 +477,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // [4/10] Check formatting
+        // [4/11] Check formatting
         let rust_repos: Vec<_> = repos
             .iter()
             .filter(|r| r.repo_type == RepoType::Rust)
@@ -418,7 +486,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         if !rust_repos.is_empty() {
             let step = Step {
                 number: 4.0,
-                total: 10,
+                total: 11,
                 label: "Checking formatting".to_string(),
             };
             step.print();
@@ -441,7 +509,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         if !rust_repos.is_empty() {
             let step = Step {
                 number: 5.0,
-                total: 10,
+                total: 11,
                 label: "Running clippy".to_string(),
             };
             step.print();
@@ -464,7 +532,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         if !rust_repos.is_empty() {
             let step = Step {
                 number: 6.0,
-                total: 10,
+                total: 11,
                 label: "Running tests".to_string(),
             };
             step.print();
@@ -486,7 +554,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         // [6.5/10] Run tooling checks (fmt, clippy, deno lint)
         let step = Step {
             number: 6.5,
-            total: 10,
+            total: 11,
             label: "Running tooling checks".to_string(),
         };
         step.print();
@@ -549,7 +617,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         if !ts_repos_with_tests.is_empty() {
             let step = Step {
                 number: 6.6,
-                total: 10,
+                total: 11,
                 label: "Running deno tests".to_string(),
             };
             step.print();
@@ -557,6 +625,8 @@ pub fn run(args: PrepArgs) -> Result<()> {
             for repo in &ts_repos_with_tests {
                 print!("  {} {}... ", "→".blue(), repo.name);
                 io::stdout().flush()?;
+                // Ensure dependencies are installed before testing
+                let _ = shell::deno::install(&repo.abs_path);
                 match shell::deno::task(&repo.abs_path, "test") {
                     Ok(_) => println!("{}", "passed".green()),
                     Err(e) => {
@@ -571,7 +641,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         // [6.7/10] Run playground e2e tests
         let step = Step {
             number: 6.7,
-            total: 10,
+            total: 11,
             label: "Running playground e2e tests".to_string(),
         };
         step.print();
@@ -648,6 +718,8 @@ pub fn run(args: PrepArgs) -> Result<()> {
             "  {} Swapping to registry dependencies for commit...",
             "→".blue()
         );
+        // Restore rust-tests to vendor paths before commit
+        manifests::swap_rust_tests_vendor(&config)?;
         manifests::swap_registry(&config, &versions_cache)?;
         manifests::swap_npm_registry(&config, &versions_cache)?;
     }
@@ -656,7 +728,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
     if !args.skip_docs && !args.bump_only {
         let step = Step {
             number: 8.0,
-            total: 10,
+            total: 11,
             label: "Rebuilding docs book".to_string(),
         };
         step.print();
@@ -671,7 +743,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
     if !args.skip_docs && !args.bump_only {
         let step = Step {
             number: 9.0,
-            total: 10,
+            total: 11,
             label: "Syncing MCP server docs".to_string(),
         };
         step.print();
@@ -685,7 +757,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
     // [10/10] Done
     let step = Step {
         number: 10.0,
-        total: 10,
+        total: 11,
         label: "Done!".to_string(),
     };
     step.print();

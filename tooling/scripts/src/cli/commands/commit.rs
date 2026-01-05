@@ -137,14 +137,47 @@ pub fn run(args: CommitArgs) -> Result<()> {
             .collect();
     }
 
-    // Filter to only repos that have been prepped (local != registry)
+    // Check for repos with changes that haven't been prepped
+    let unprepped_with_changes: Vec<_> = repos
+        .iter()
+        .filter(|repo| !is_prepped(&versions, &repo.name) && has_pending_changes(repo))
+        .collect();
+
+    if !unprepped_with_changes.is_empty() {
+        println!();
+        format::warning("The following packages have changes but haven't been prepped:");
+        for repo in &unprepped_with_changes {
+            println!("  {} {}", "→".yellow(), repo.name.bold());
+        }
+        println!();
+
+        let names: Vec<_> = unprepped_with_changes
+            .iter()
+            .map(|r| r.name.as_str())
+            .collect();
+        println!(
+            "Run {} to prep these packages first.",
+            format!("mf prep {}", names.join(" ")).cyan()
+        );
+        println!();
+
+        if !Confirm::new()
+            .with_prompt("Continue without these packages?")
+            .default(false)
+            .interact()?
+        {
+            return Ok(());
+        }
+    }
+
+    // Filter to repos that have pending changes (uncommitted or unpushed)
     let prepped_repos: Vec<_> = repos
         .into_iter()
-        .filter(|repo| is_prepped(&versions, &repo.name))
+        .filter(|repo| has_pending_changes(repo))
         .collect();
 
     if prepped_repos.is_empty() && !args.dry_run {
-        format::warning("No repos have been prepped (all local versions match registry)");
+        format::warning("No repos have uncommitted changes or unpushed commits");
         return Ok(());
     }
 
@@ -950,8 +983,9 @@ fn process_item(item: &CommitItem, message: &str, ctx: &WorkerContext) -> Result
                 .context(format!("Failed to delete remote tag {}", tag))?;
         }
         ctx.log(&format!("    {} Pushing tag {}", "🏷".cyan(), tag.cyan()));
+        shell::git::push_tag(&item.path, &tag)
+            .context(format!("Failed to push tag {}", tag))?;
     }
-    shell::git::push_tags(&item.path).context("git push --tags failed")?;
     ctx.log(&format!("    {} Done", "✓".green()));
 
     Ok(())
@@ -1063,7 +1097,8 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
             .context(format!("Failed to delete remote tag {}", tag))?;
     }
     ctx.log(&format!("    {} Pushing tag {}", "🏷".cyan(), tag.cyan()));
-    shell::git::push_tags(&item.path).context("git push --tags failed")?;
+    shell::git::push_tag(&item.path, &tag)
+        .context(format!("Failed to push tag {}", tag))?;
     ctx.log(&format!("    {} Done", "✓".green()));
 
     Ok(())
@@ -1123,8 +1158,9 @@ fn push_only_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
                 .context(format!("Failed to delete remote tag {}", tag))?;
         }
         ctx.log(&format!("    {} Pushing tag {}", "🏷".cyan(), tag.cyan()));
+        shell::git::push_tag(&item.path, &tag)
+            .context(format!("Failed to push tag {}", tag))?;
     }
-    shell::git::push_tags(&item.path).context("git push --tags failed")?;
     ctx.log(&format!("    {} Done", "✓".green()));
 
     Ok(())
@@ -1137,6 +1173,16 @@ fn is_prepped(versions: &crate::core::versions::VersionsCache, name: &str) -> bo
         Some(v) => v.local != v.registry,
         None => true, // No version tracking = always include (e.g., zed-extensions)
     }
+}
+
+/// Check if a repo has uncommitted changes or unpushed commits
+fn has_pending_changes(repo: &crate::core::repos::Repo) -> bool {
+    if let Ok(status) = shell::git::status(&repo.abs_path)
+        && !status.trim().is_empty()
+    {
+        return true;
+    }
+    shell::git::unpushed_count(&repo.abs_path) > 0
 }
 
 /// Check if a repo has a publishable package

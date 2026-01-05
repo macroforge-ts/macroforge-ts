@@ -1,51 +1,51 @@
 {
-  "svelte-preprocessor": {
-    "local": "0.1.66",
-    "registry": "0.1.65"
-  },
-  "shared": {
-    "local": "0.1.66",
-    "registry": "0.1.65"
-  },
-  "svelte-language-server": {
-    "local": "0.1.53",
-    "registry": "0.1.53"
-  },
-  "core": {
-    "local": "0.1.66",
-    "registry": "0.1.66"
-  },
-  "mcp-server": {
-    "local": "0.1.66",
-    "registry": "0.1.65"
-  },
-  "template": {
-    "local": "0.1.66",
-    "registry": "0.1.65"
-  },
-  "website": {
-    "local": "0.1.71",
-    "registry": ""
-  },
-  "tooling": {
-    "local": "0.1.71",
-    "registry": ""
-  },
-  "typescript-plugin": {
-    "local": "0.1.67",
-    "registry": "0.1.67"
-  },
-  "vite-plugin": {
-    "local": "0.1.48",
-    "registry": "0.1.47"
-  },
-  "syn": {
-    "local": "0.1.68",
-    "registry": "0.1.67"
-  },
-  "macros": {
-    "local": "0.1.68",
-    "registry": "0.1.67"
-  },
-  "zed-extensions": null
+    "svelte-language-server": {
+        "local": "0.1.72",
+        "registry": "0.1.72"
+    },
+    "macros": {
+        "local": "0.1.72",
+        "registry": "0.1.68"
+    },
+    "svelte-preprocessor": {
+        "local": "0.1.72",
+        "registry": "0.1.66"
+    },
+    "syn": {
+        "local": "0.1.72",
+        "registry": "0.1.68"
+    },
+    "vite-plugin": {
+        "local": "0.1.72",
+        "registry": "0.1.48"
+    },
+    "shared": {
+        "local": "0.1.72",
+        "registry": "0.1.66"
+    },
+    "zed-extensions": null,
+    "website": {
+        "local": "0.1.72",
+        "registry": ""
+    },
+    "mcp-server": {
+        "local": "0.1.72",
+        "registry": "0.1.66"
+    },
+    "typescript-plugin": {
+        "local": "0.1.72",
+        "registry": "0.1.72"
+    },
+    "core": {
+        "local": "0.1.72",
+        "registry": "0.1.72"
+    },
+    "tooling": {
+        "local": "0.1.72",
+        "registry": ""
+    },
+    "template": {
+        "local": "0.1.72",
+        "registry": "0.1.66"
+    }
 }

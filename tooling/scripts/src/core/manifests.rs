@@ -22,6 +22,72 @@ const CARGO_SWAP_CONFIGS: &[(&str, &[(&str, &str)])] = &[(
     ],
 )];
 
+/// Swap rust-tests vendor paths to absolute paths (avoids lockfile collisions)
+pub fn swap_rust_tests_local(config: &Config) -> Result<()> {
+    let rust_tests_cargo = config
+        .root
+        .join("tooling/playground/tests/rust-tests/Cargo.toml");
+    if !rust_tests_cargo.exists() {
+        return Ok(());
+    }
+
+    let content = fs::read_to_string(&rust_tests_cargo)?;
+    let mut lines: Vec<String> = content.lines().map(|l| l.to_string()).collect();
+
+    let swaps = [
+        ("macroforge_ts", "core"),
+        ("macroforge_ts_quote", "template"),
+        ("macroforge_ts_syn", "syn"),
+    ];
+
+    for line in &mut lines {
+        for (crate_name, repo_name) in &swaps {
+            if line.trim().starts_with(&format!("{} = ", crate_name))
+                && let Some(repo) = config.repos.get(*repo_name)
+            {
+                *line = format!(
+                    "{} = {{ path = \"{}\" }}",
+                    crate_name,
+                    repo.abs_path.display()
+                );
+            }
+        }
+    }
+
+    fs::write(&rust_tests_cargo, lines.join("\n") + "\n")?;
+    Ok(())
+}
+
+/// Restore rust-tests to use vendor symlinks
+pub fn swap_rust_tests_vendor(config: &Config) -> Result<()> {
+    let rust_tests_cargo = config
+        .root
+        .join("tooling/playground/tests/rust-tests/Cargo.toml");
+    if !rust_tests_cargo.exists() {
+        return Ok(());
+    }
+
+    let content = fs::read_to_string(&rust_tests_cargo)?;
+    let mut lines: Vec<String> = content.lines().map(|l| l.to_string()).collect();
+
+    let swaps = [
+        ("macroforge_ts", "vendor/macroforge_ts"),
+        ("macroforge_ts_quote", "vendor/macroforge_ts_quote"),
+        ("macroforge_ts_syn", "vendor/macroforge_ts_syn"),
+    ];
+
+    for line in &mut lines {
+        for (crate_name, vendor_path) in &swaps {
+            if line.trim().starts_with(&format!("{} = ", crate_name)) {
+                *line = format!("{} = {{ path = \"{}\" }}", crate_name, vendor_path);
+            }
+        }
+    }
+
+    fs::write(&rust_tests_cargo, lines.join("\n") + "\n")?;
+    Ok(())
+}
+
 /// Check if Cargo dependencies are currently using local paths
 pub fn is_using_local_paths(config: &Config) -> bool {
     for (repo_name, deps) in CARGO_SWAP_CONFIGS {
