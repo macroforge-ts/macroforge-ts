@@ -28,7 +28,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
-    "cleanbuild": "deno task clean && deno task build"
+    "cleanbuild": "deno task clean && deno task build",
+    "test": "deno test --allow-read --allow-write tests/"
   },
   "type": "module",
   "types": "./dist/index.d.ts",
