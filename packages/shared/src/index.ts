@@ -11,7 +11,7 @@
  */
 
 // Re-export all utilities
-export { parseMacroImportComments } from './macro-imports.js';
+export { parseMacroImportComments } from './macro-imports.ts';
 
 export {
     clearExternalManifestCache,
@@ -22,7 +22,7 @@ export {
     type MacroManifest,
     type MacroManifestEntry,
     type RequireFunction
-} from './external-manifest.js';
+} from './external-manifest.ts';
 
 export {
     CONFIG_FILES,
@@ -32,11 +32,11 @@ export {
     loadMacroConfig,
     type MacroConfig,
     type VitePluginConfig
-} from './config.js';
+} from './config.ts';
 
 // Import for composite functions
-import { parseMacroImportComments } from './macro-imports.js';
-import { getExternalManifest, type RequireFunction } from './external-manifest.js';
+import { parseMacroImportComments } from './macro-imports.ts';
+import { getExternalManifest, type RequireFunction } from './external-manifest.ts';
 
 /**
  * Collects decorator modules from external macro packages referenced in the code.

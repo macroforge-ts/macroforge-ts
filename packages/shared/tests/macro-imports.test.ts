@@ -1,4 +1,4 @@
-import { assertEquals } from 'jsr:@std/assert';
+import { assertEquals } from 'jsr:@std/assert@1';
 import { parseMacroImportComments } from '../src/macro-imports.ts';
 
 Deno.test('parseMacroImportComments - parses single macro import', () => {

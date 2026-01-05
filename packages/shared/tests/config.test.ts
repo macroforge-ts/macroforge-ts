@@ -1,4 +1,4 @@
-import { assertEquals, assertExists } from 'jsr:@std/assert';
+import { assertEquals, assertExists } from 'jsr:@std/assert@1';
 import { CONFIG_FILES, findConfigFile, loadMacroConfig } from '../src/config.ts';
 
 Deno.test('CONFIG_FILES - contains expected config file names', () => {
