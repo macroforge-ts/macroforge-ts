@@ -58,7 +58,10 @@ pub fn run(args: DiagnosticsArgs) -> Result<()> {
             // Write to log file
             let log_file =
                 logs_dir.join(format!("{}.log", code.replace("::", "_").replace("/", "_")));
-            let content: Vec<String> = diags.iter().map(|d| d.raw.clone()).collect();
+            let content: Vec<String> = diags
+                .iter()
+                .map(|d| format!("{}:{}:{}: {}", d.file, d.line, d.column, d.raw))
+                .collect();
             fs::write(&log_file, content.join("\n") + "\n")?;
             println!(
                 "  {}: {} errors -> {}",
