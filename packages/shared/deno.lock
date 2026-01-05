@@ -2,37 +2,37 @@
   "version": "5",
   "specifiers": {
     "npm:@types/node@^22.10.2": "22.19.3",
-    "npm:macroforge@~0.1.66": "0.1.66",
+    "npm:macroforge@~0.1.72": "0.1.72",
     "npm:typescript@^5.9.3": "5.9.3"
   },
   "npm": {
-    "@macroforge/bin-darwin-arm64@0.1.66": {
-      "integrity": "sha512-IbAo0B+dY7ByZj0J5//yFBGjB/fRoqE0rJ8P2+NqJ4597GIMRjgJlnQfXwMTWYvHgujX7NMevo7WAegH/RHFJQ==",
+    "@macroforge/bin-darwin-arm64@0.1.72": {
+      "integrity": "sha512-hQOV2iT3qNnEJ36vEpdJ0YP6c97xI4KxrzCFquW+qLfdsr2psZbkFzYYAAjomtKpUFaI3UIVYedHPDmY6ewsZw==",
       "os": ["darwin"],
       "cpu": ["arm64"]
     },
-    "@macroforge/bin-darwin-x64@0.1.66": {
-      "integrity": "sha512-H6lr+vcUi2GhRYhUKJcTU0nqDlVvxNWPElD6v+e2WckzUWVmLuj+sM/fWYyvmv1o2kS9fjvckYeGG1MbvPznLw==",
+    "@macroforge/bin-darwin-x64@0.1.72": {
+      "integrity": "sha512-kMNYXBF342D7fpP4vlIZB+LMqxMNOjLuK0+izJWKSNjCAUY31ZqE+kZcbMJ5YwZ2KnhcYIWAn97kUR8y8vmp1A==",
       "os": ["darwin"],
       "cpu": ["x64"]
     },
-    "@macroforge/bin-linux-arm64-gnu@0.1.66": {
-      "integrity": "sha512-BkAynZMnschk+A+Lh53O6JsAXqGwNzeEe7NhTFh3LhJQgLSX9nBnNToL+dSKpU6ol2/tg7QmzLXl6BMtDUFIlA==",
+    "@macroforge/bin-linux-arm64-gnu@0.1.72": {
+      "integrity": "sha512-GgVaPTndyT9aeGar2fjRAmK8PcODT6R4OMszH2qc03vdf8610wzNhLCgyj/MB63di+HTSFUR3UmNzjz8esXS2Q==",
       "os": ["linux"],
       "cpu": ["arm64"]
     },
-    "@macroforge/bin-linux-x64-gnu@0.1.66": {
-      "integrity": "sha512-0K/v2DsZ4ZynNhosPZ17ZXMKXVNlbQgocbn5dqEq/KR7AzWmV0+VhHtdI8ImJN/sODoN7ygs5hxJcXqRtYb5oA==",
+    "@macroforge/bin-linux-x64-gnu@0.1.72": {
+      "integrity": "sha512-CrIk2/myBxHXNK/ztH3S5xBmIe8+RO9pJIQuya2PKcPt15JNWxINfYDKi15lbe4CWEn020ggnW1RLZ8rvHC61w==",
       "os": ["linux"],
       "cpu": ["x64"]
     },
-    "@macroforge/bin-win32-arm64-msvc@0.1.66": {
-      "integrity": "sha512-tTEJLLsh4btWOc70C0vEDc0Rug0zANxBkdV0k4nvw6tD3Rxxdu4BLNEJxpejAnRbBzlDu2CrwtzQ9I2BV6brwQ==",
+    "@macroforge/bin-win32-arm64-msvc@0.1.72": {
+      "integrity": "sha512-IEjMHdKgodtnRULd8+f7s80LR2UaHd1gFHoGwbtc7zKH9Xiy47nCwsVNN9n5qzMDjmx4dXnKnBFbBGLVCWBumw==",
       "os": ["win32"],
       "cpu": ["arm64"]
     },
-    "@macroforge/bin-win32-x64-msvc@0.1.66": {
-      "integrity": "sha512-kuP36KOCKqUE8BPMEpxW+zxxyM8lmdDkaZvnqYStGub88ZPyUaPQcP/oe6utsa+tMo5Pld+SacIyb4SG0PR69A==",
+    "@macroforge/bin-win32-x64-msvc@0.1.72": {
+      "integrity": "sha512-CYSkBgDBIdS5TsOnaBpjgvvuVAkQp4nr4rYdVdgEA9n5feX8tLt4rz4Ya8KLRWcadFmCKcoKrCTXtim9ws8e3w==",
       "os": ["win32"],
       "cpu": ["x64"]
     },
@@ -42,8 +42,8 @@
         "undici-types"
       ]
     },
-    "macroforge@0.1.66": {
-      "integrity": "sha512-S9YIAl6Z5Z8ySP3XbcVqH5G3sJ92LyYfXCkAwRKTce+hp1sX/sVDmIcfd9X3S9WVTjxG1P1U3JcSClLSrUq/MA==",
+    "macroforge@0.1.72": {
+      "integrity": "sha512-zFWOyNG1X9aqi3re0BNd9nnQeW3vjg9YyXYfWCs/tiy1UmL83lZWxNU06ptw7izr8F/m5kzJ7CZtlIUHozfbQw==",
       "optionalDependencies": [
         "@macroforge/bin-darwin-arm64",
         "@macroforge/bin-darwin-x64",
@@ -65,7 +65,7 @@
     "packageJson": {
       "dependencies": [
         "npm:@types/node@^22.10.2",
-        "npm:macroforge@~0.1.66",
+        "npm:macroforge@~0.1.72",
         "npm:typescript@^5.9.3"
       ]
     }
