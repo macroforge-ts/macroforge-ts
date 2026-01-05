@@ -53,9 +53,9 @@ const isMuslFromReport = () => {
 
 const isMuslFromChildProcess = () => {
     try {
-        return require('child_process').execSync('ldd --version', {
-            encoding: 'utf8'
-        }).includes('musl');
+        return require('child_process').execSync('ldd --version', { encoding: 'utf8' }).includes(
+            'musl'
+        );
     } catch (e) {
         // If we reach this case, we don't know if the system is musl or not, so is better to just fallback to false
         return false;
@@ -117,9 +117,7 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(
-                new Error(`Unsupported architecture on Android ${process.arch}`)
-            );
+            loadErrors.push(new Error(`Unsupported architecture on Android ${process.arch}`));
         }
     } else if (process.platform === 'win32') {
         if (process.arch === 'x64') {
@@ -220,9 +218,7 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(
-                new Error(`Unsupported architecture on Windows: ${process.arch}`)
-            );
+            loadErrors.push(new Error(`Unsupported architecture on Windows: ${process.arch}`));
         }
     } else if (process.platform === 'darwin') {
         try {
@@ -235,8 +231,7 @@ function requireNative() {
             const bindingPackageVersion =
                 require('@macroforge/bin-darwin-universal/package.json').version;
             if (
-                bindingPackageVersion !== '0.1.66' &&
-                process.env.NAPI_RS_ENFORCE_VERSION_CHECK &&
+                bindingPackageVersion !== '0.1.66' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK &&
                 process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0'
             ) {
                 throw new Error(
@@ -294,9 +289,7 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(
-                new Error(`Unsupported architecture on macOS: ${process.arch}`)
-            );
+            loadErrors.push(new Error(`Unsupported architecture on macOS: ${process.arch}`));
         }
     } else if (process.platform === 'freebsd') {
         if (process.arch === 'x64') {
@@ -346,9 +339,7 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(
-                new Error(`Unsupported architecture on FreeBSD: ${process.arch}`)
-            );
+            loadErrors.push(new Error(`Unsupported architecture on FreeBSD: ${process.arch}`));
         }
     } else if (process.platform === 'linux') {
         if (process.arch === 'x64') {
@@ -457,8 +448,7 @@ function requireNative() {
                 try {
                     const binding = require('@macroforge/bin-linux-arm-musleabihf');
                     const bindingPackageVersion =
-                        require('@macroforge/bin-linux-arm-musleabihf/package.json')
-                            .version;
+                        require('@macroforge/bin-linux-arm-musleabihf/package.json').version;
                     if (
                         bindingPackageVersion !== '0.1.66' &&
                         process.env.NAPI_RS_ENFORCE_VERSION_CHECK &&
@@ -639,9 +629,7 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(
-                new Error(`Unsupported architecture on Linux: ${process.arch}`)
-            );
+            loadErrors.push(new Error(`Unsupported architecture on Linux: ${process.arch}`));
         }
     } else if (process.platform === 'openharmony') {
         if (process.arch === 'arm64') {
@@ -714,15 +702,11 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(
-                new Error(`Unsupported architecture on OpenHarmony: ${process.arch}`)
-            );
+            loadErrors.push(new Error(`Unsupported architecture on OpenHarmony: ${process.arch}`));
         }
     } else {
         loadErrors.push(
-            new Error(
-                `Unsupported OS: ${process.platform}, architecture: ${process.arch}`
-            )
+            new Error(`Unsupported OS: ${process.platform}, architecture: ${process.arch}`)
         );
     }
 }
@@ -752,9 +736,7 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
         }
     }
     if (process.env.NAPI_RS_FORCE_WASI === 'error' && !wasiBinding) {
-        const error = new Error(
-            'WASI binding not found and NAPI_RS_FORCE_WASI is set to error'
-        );
+        const error = new Error('WASI binding not found and NAPI_RS_FORCE_WASI is set to error');
         error.cause = wasiBindingError;
         throw error;
     }

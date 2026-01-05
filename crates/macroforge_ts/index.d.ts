@@ -195,10 +195,7 @@ export declare class NativePlugin {
      * Diagnostics with positions mapped back to the original source.
      * If no mapper is available for the file, returns diagnostics unchanged.
      */
-    mapDiagnostics(
-        filepath: string,
-        diags: Array<JsDiagnostic>
-    ): Array<JsDiagnostic>;
+    mapDiagnostics(filepath: string, diags: Array<JsDiagnostic>): Array<JsDiagnostic>;
 }
 
 /**
@@ -387,10 +384,7 @@ export declare function __macroforgeDebugGetModules(): Array<string>;
  *
  * A string describing whether the macro was found or not.
  */
-export declare function __macroforgeDebugLookup(
-    module: string,
-    name: string
-): string;
+export declare function __macroforgeDebugLookup(module: string, name: string): string;
 
 /**
  * Returns the names of all registered macros.
@@ -708,10 +702,7 @@ export declare function __macroforgeRunSerialize(contextJson: string): string;
  * }
  * ```
  */
-export declare function checkSyntax(
-    code: string,
-    filepath: string
-): SyntaxCheckResult;
+export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult;
 
 /**
  * Clears the configuration cache.
@@ -989,10 +980,7 @@ export interface JsDiagnostic {
  * const expanded = expandSync(code, filepath, { configPath });
  * ```
  */
-export declare function loadConfig(
-    content: string,
-    filepath: string
-): LoadConfigResult;
+export declare function loadConfig(content: string, filepath: string): LoadConfigResult;
 
 /**
  * Result of loading a macroforge configuration file.
@@ -1289,7 +1277,4 @@ export interface TransformResult {
  *
  * Uses a 32MB thread stack to prevent stack overflow during deep AST recursion.
  */
-export declare function transformSync(
-    code: string,
-    filepath: string
-): TransformResult;
+export declare function transformSync(code: string, filepath: string): TransformResult;
