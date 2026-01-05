@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "macroforge": "^0.1.65"
+    "macroforge": "^0.1.66"
   },
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
   "devDependencies": {
@@ -37,5 +37,5 @@
   },
   "type": "module",
   "types": "dist/index.d.ts",
-  "version": "0.1.65"
+  "version": "0.1.66"
 }
