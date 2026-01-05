@@ -372,7 +372,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
     }
 
     // [3/10] Clean building packages
-    if args.skip_build || args.bump_only || args.dry_run {
+    if args.skip_build || args.bump_only {
         println!("\n{} Skipping build/fmt/clippy/test...", "[3/10]".dimmed());
     } else {
         let step = Step {
@@ -642,15 +642,14 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // Restore to original dependency state
-        if was_using_local_paths {
-            println!("  {} Keeping local path dependencies...", "→".blue());
-            // Already using local paths, nothing to do
-        } else {
-            println!("  {} Restoring registry dependencies...", "→".blue());
-            manifests::swap_registry(&config, &versions_cache)?;
-            manifests::swap_npm_registry(&config, &versions_cache)?;
-        }
+        // ALWAYS swap to registry dependencies for commit/CI
+        // (CI can't use local paths - it needs to pull from registries)
+        println!(
+            "  {} Swapping to registry dependencies for commit...",
+            "→".blue()
+        );
+        manifests::swap_registry(&config, &versions_cache)?;
+        manifests::swap_npm_registry(&config, &versions_cache)?;
     }
 
     // [8/10] Rebuild docs book

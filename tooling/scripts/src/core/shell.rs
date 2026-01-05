@@ -321,15 +321,6 @@ pub mod git {
         Ok(())
     }
 
-    /// Push a single tag to remote (with force to overwrite)
-    pub fn push_tag_force(cwd: &Path, tag_name: &str) -> Result<()> {
-        Shell::new("git")
-            .args(&["push", "origin", "--force", tag_name])
-            .dir(cwd)
-            .run_checked()?;
-        Ok(())
-    }
-
     /// Delete a remote tag (used to force GitHub to re-trigger CI on retag)
     pub fn delete_remote_tag(cwd: &Path, tag_name: &str) -> Result<()> {
         Shell::new("git")

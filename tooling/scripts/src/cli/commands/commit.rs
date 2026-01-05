@@ -14,7 +14,7 @@ use crate::core::registry;
 use crate::core::repos::RepoType;
 use crate::core::shell;
 use crate::utils::format;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use colored::Colorize;
 use dialoguer::{Confirm, Input};
 use std::collections::HashMap;
@@ -564,7 +564,25 @@ pub fn run(args: CommitArgs) -> Result<()> {
             }
             Ok(WorkerStatus::Failed(idx, err)) => {
                 let item = &queue[idx];
-                println!("  {} {} failed: {}", "✗".red(), item.name.bold(), err);
+                println!();
+                println!("{}", "═".repeat(70).red());
+                println!(
+                    "{} {} {}",
+                    "✗".red().bold(),
+                    item.name.bold().red(),
+                    "FAILED".red().bold()
+                );
+                println!("{}", "═".repeat(70).red());
+                println!("{}: {}", "Repository".yellow(), item.path.display());
+                println!("{}: {}", "Version".yellow(), item.version);
+                println!();
+                println!("{}", "Error details:".yellow().bold());
+                println!("{}", "─".repeat(70).dimmed());
+                for line in err.lines() {
+                    println!("  {}", line);
+                }
+                println!("{}", "─".repeat(70).dimmed());
+                println!();
                 failed_count += 1;
             }
             Ok(WorkerStatus::Log(msg)) => {
@@ -772,14 +790,16 @@ fn worker_thread(
                     processed[i] = true;
                     pending_items.remove(&i);
                     failed_names.insert(item.name.clone());
+                    // Format full error chain for debugging
+                    let full_error = format!("{:?}", e);
                     // Track failed packages for live status display
                     {
                         let mut failed = ctx.failed_packages.lock().unwrap();
-                        failed.insert(item.name.clone(), e.to_string());
+                        failed.insert(item.name.clone(), full_error.clone());
                     }
                     // Only send Failed status when messages are done
                     if ctx.messages_done.load(Ordering::SeqCst) {
-                        let _ = tx.send(WorkerStatus::Failed(i, e.to_string()));
+                        let _ = tx.send(WorkerStatus::Failed(i, full_error));
                     }
                 }
             }
@@ -882,29 +902,45 @@ fn process_item(item: &CommitItem, message: &str, ctx: &WorkerContext) -> Result
             "📝".cyan(),
             message.dimmed()
         ));
-        shell::git::add_all(&item.path)?;
-        shell::git::commit(&item.path, message)?;
+        shell::git::add_all(&item.path).context("git add -A failed")?;
+        shell::git::commit(&item.path, message).context("git commit failed")?;
     } else {
         ctx.log(&format!("    {} No changes to commit", "─".dimmed()));
     }
 
     // Create tag if needed (force to overwrite local tag if it exists)
-    if should_create_tag(item, &ctx.interrupted)? {
-        let tag = format!("v{}", item.version);
+    let tag = format!("v{}", item.version);
+    let needs_tag = should_create_tag(item, &ctx.interrupted)?;
+    if needs_tag {
         ctx.log(&format!("    {} Creating tag {}", "🏷".cyan(), tag.cyan()));
-        shell::git::tag_force(&item.path, &tag)?;
+        shell::git::tag_force(&item.path, &tag).context(format!("Failed to create tag {}", tag))?;
     }
 
-    // Push
+    // Push commits first
     ctx.log(&format!("    {} Pushing to remote...", "🚀".cyan()));
     if shell::git::has_upstream(&item.path) {
-        shell::git::push(&item.path)?;
+        shell::git::push(&item.path).context("git push failed")?;
     } else if let Some(branch) = shell::git::current_branch(&item.path) {
-        shell::git::push_with_upstream(&item.path, &branch)?;
+        shell::git::push_with_upstream(&item.path, &branch)
+            .context(format!("git push -u origin {} failed", branch))?;
     } else {
-        shell::git::push(&item.path)?;
+        shell::git::push(&item.path).context("git push failed")?;
     }
-    shell::git::push_tags(&item.path)?;
+
+    // Now delete remote tag and push new tag (after commits are on remote)
+    if needs_tag {
+        if shell::git::tag_exists_remote(&item.path, &tag) {
+            ctx.log(&format!(
+                "    {} Deleting remote tag {}",
+                "🗑".cyan(),
+                tag.cyan()
+            ));
+            shell::git::delete_remote_tag(&item.path, &tag)
+                .context(format!("Failed to delete remote tag {}", tag))?;
+        }
+        ctx.log(&format!("    {} Pushing tag {}", "🏷".cyan(), tag.cyan()));
+    }
+    shell::git::push_tags(&item.path).context("git push --tags failed")?;
     ctx.log(&format!("    {} Done", "✓".green()));
 
     Ok(())
@@ -959,11 +995,12 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
         item.name.bold()
     ));
 
-    // Wait for deps and sync lockfiles
-    wait_and_sync(item, ctx)?;
+    // Note: For retag, we skip waiting for dependencies since we're just retrying CI.
+    // Dependencies should already be on registries from the previous attempt.
+    // We still sync lockfiles in case they're stale.
 
     // Check if lockfile sync created changes - if so, commit them
-    let status = shell::git::status(&item.path)?;
+    let status = shell::git::status(&item.path).context("git status failed")?;
     ctx.log(&format!(
         "    {} Git status: {}",
         "📋".dimmed(),
@@ -979,11 +1016,12 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
         for line in status.lines().take(5) {
             ctx.log(&format!("      {}", line.dimmed()));
         }
-        shell::git::add_all(&item.path)?;
+        shell::git::add_all(&item.path).context("git add -A failed")?;
         shell::git::commit(
             &item.path,
             &format!("Update lockfile for v{}", item.version),
-        )?;
+        )
+        .context("git commit failed")?;
         ctx.log(&format!("    {} Committed", "✓".green()));
     }
 
@@ -991,25 +1029,30 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
 
     // Create/overwrite local tag
     ctx.log(&format!("    {} Creating tag {}", "🏷".cyan(), tag.cyan()));
-    shell::git::tag_force(&item.path, &tag)?;
+    shell::git::tag_force(&item.path, &tag).context(format!("Failed to create tag {}", tag))?;
 
     // Push commits if any were made
     ctx.log(&format!("    {} Pushing to remote...", "🚀".cyan()));
     if shell::git::has_upstream(&item.path) {
-        shell::git::push(&item.path)?;
+        shell::git::push(&item.path).context("git push failed")?;
     } else if let Some(branch) = shell::git::current_branch(&item.path) {
-        shell::git::push_with_upstream(&item.path, &branch)?;
+        shell::git::push_with_upstream(&item.path, &branch)
+            .context(format!("git push -u origin {} failed", branch))?;
     } else {
-        shell::git::push(&item.path)?;
+        shell::git::push(&item.path).context("git push failed")?;
     }
 
     // Delete remote tag first, then push - this ensures GitHub sees it as new and re-triggers CI
-    ctx.log(&format!(
-        "    {} Deleting remote tag to force re-trigger...",
-        "🗑".cyan()
-    ));
-    let _ = shell::git::delete_remote_tag(&item.path, &tag); // Ignore error if tag doesn't exist
-    shell::git::push_tag_force(&item.path, &tag)?;
+    if shell::git::tag_exists_remote(&item.path, &tag) {
+        ctx.log(&format!(
+            "    {} Deleting remote tag to force re-trigger...",
+            "🗑".cyan()
+        ));
+        shell::git::delete_remote_tag(&item.path, &tag)
+            .context(format!("Failed to delete remote tag {}", tag))?;
+    }
+    ctx.log(&format!("    {} Pushing tag {}", "🏷".cyan(), tag.cyan()));
+    shell::git::push_tags(&item.path).context("git push --tags failed")?;
     ctx.log(&format!("    {} Done", "✓".green()));
 
     Ok(())
@@ -1027,33 +1070,50 @@ fn push_only_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
     wait_and_sync(item, ctx)?;
 
     // Check if lockfile sync created changes - if so, commit them
-    let status = shell::git::status(&item.path)?;
+    let status = shell::git::status(&item.path).context("git status failed")?;
     if !status.trim().is_empty() {
         ctx.log(&format!("    {} Committing lockfile changes", "📝".cyan()));
-        shell::git::add_all(&item.path)?;
+        shell::git::add_all(&item.path).context("git add -A failed")?;
         shell::git::commit(
             &item.path,
             &format!("Update lockfile for v{}", item.version),
-        )?;
+        )
+        .context("git commit failed")?;
     }
 
     // Create tag if needed
-    if should_create_tag(item, &ctx.interrupted)? {
-        let tag = format!("v{}", item.version);
+    let tag = format!("v{}", item.version);
+    let needs_tag = should_create_tag(item, &ctx.interrupted)?;
+    if needs_tag {
         ctx.log(&format!("    {} Creating tag {}", "🏷".cyan(), tag.cyan()));
-        shell::git::tag_force(&item.path, &tag)?;
+        shell::git::tag_force(&item.path, &tag).context(format!("Failed to create tag {}", tag))?;
     }
 
-    // Push
+    // Push commits first
     ctx.log(&format!("    {} Pushing to remote...", "🚀".cyan()));
     if shell::git::has_upstream(&item.path) {
-        shell::git::push(&item.path)?;
+        shell::git::push(&item.path).context("git push failed")?;
     } else if let Some(branch) = shell::git::current_branch(&item.path) {
-        shell::git::push_with_upstream(&item.path, &branch)?;
+        shell::git::push_with_upstream(&item.path, &branch)
+            .context(format!("git push -u origin {} failed", branch))?;
     } else {
-        shell::git::push(&item.path)?;
+        shell::git::push(&item.path).context("git push failed")?;
     }
-    shell::git::push_tags(&item.path)?;
+
+    // Now delete remote tag and push new tag (after commits are on remote)
+    if needs_tag {
+        if shell::git::tag_exists_remote(&item.path, &tag) {
+            ctx.log(&format!(
+                "    {} Deleting remote tag {}",
+                "🗑".cyan(),
+                tag.cyan()
+            ));
+            shell::git::delete_remote_tag(&item.path, &tag)
+                .context(format!("Failed to delete remote tag {}", tag))?;
+        }
+        ctx.log(&format!("    {} Pushing tag {}", "🏷".cyan(), tag.cyan()));
+    }
+    shell::git::push_tags(&item.path).context("git push --tags failed")?;
     ctx.log(&format!("    {} Done", "✓".green()));
 
     Ok(())
@@ -1316,6 +1376,22 @@ where
 
 /// Sync deno lockfile with retry logic for CDN propagation delay
 fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
+    // Check if package.json has dependencies that require a lockfile
+    let pkg_json = item.path.join("package.json");
+    if let Ok(content) = std::fs::read_to_string(&pkg_json)
+        && let Ok(pkg) = serde_json::from_str::<serde_json::Value>(&content)
+    {
+        let has_deps = pkg.get("dependencies").is_some_and(|d| d.as_object().is_some_and(|o| !o.is_empty()));
+        let has_dev_deps = pkg.get("devDependencies").is_some_and(|d| d.as_object().is_some_and(|o| !o.is_empty()));
+        if !has_deps && !has_dev_deps {
+            ctx.log(&format!(
+                "      {} No npm dependencies, deno.lock not required",
+                "─".dimmed()
+            ));
+            return Ok(());
+        }
+    }
+
     // Delete node_modules and deno.lock to force fresh resolution
     let node_modules = item.path.join("node_modules");
     let deno_lock = item.path.join("deno.lock");

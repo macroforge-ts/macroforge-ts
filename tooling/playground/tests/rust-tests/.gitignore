@@ -17,6 +17,9 @@ pkg/
 # Environment
 .env
 
+# Vendor symlinks (created by setup-vendor)
+vendor/
+
 *.zip
 
 # Expanded macro output files

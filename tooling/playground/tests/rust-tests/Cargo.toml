@@ -5,9 +5,10 @@ edition = "2024"
 publish = false
 
 [dependencies]
-macroforge_ts = { path = "../../../../crates/macroforge_ts" }
-macroforge_ts_quote = { path = "../../../../crates/macroforge_ts_quote" }
-macroforge_ts_syn = { path = "../../../../crates/macroforge_ts_syn" }
+# Uses vendor symlinks - run `deno task setup-vendor` to create symlinks from env vars
+macroforge_ts = { path = "vendor/macroforge_ts" }
+macroforge_ts_quote = { path = "vendor/macroforge_ts_quote" }
+macroforge_ts_syn = { path = "vendor/macroforge_ts_syn" }
 proc-macro2 = "1"
 swc_core = { version = "54.0.0", features = [
   "common",
@@ -20,3 +21,11 @@ swc_core = { version = "54.0.0", features = [
 
 [dev-dependencies]
 trybuild = "1.0"
+
+# Patch crates.io dependencies to use local vendor symlinks
+# This ensures all crates use the same local versions
+[patch.crates-io]
+macroforge_ts = { path = "vendor/macroforge_ts" }
+macroforge_ts_syn = { path = "vendor/macroforge_ts_syn" }
+macroforge_ts_quote = { path = "vendor/macroforge_ts_quote" }
+macroforge_ts_macros = { path = "vendor/macroforge_ts_macros" }

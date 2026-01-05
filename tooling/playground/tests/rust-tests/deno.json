@@ -1,0 +1,7 @@
+{
+    "tasks": {
+        "setup-vendor": "bash -c 'source ../../../.env && mkdir -p vendor && ln -sf \"$MACROFORGE_TS_CRATE\" vendor/macroforge_ts && ln -sf \"$MACROFORGE_TS_QUOTE_CRATE\" vendor/macroforge_ts_quote && ln -sf \"$MACROFORGE_TS_SYN_CRATE\" vendor/macroforge_ts_syn && ln -sf \"$MACROFORGE_TS_MACROS_CRATE\" vendor/macroforge_ts_macros'",
+        "test": "deno task setup-vendor && cargo test",
+        "clean": "rm -rf target vendor"
+    }
+}
