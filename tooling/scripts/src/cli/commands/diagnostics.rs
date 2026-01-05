@@ -28,7 +28,7 @@ pub fn run(args: DiagnosticsArgs) -> Result<()> {
     } else {
         DiagnosticOptions::all()
     };
-    options.format = args.format;
+    options.format = !args.no_format;
 
     // Run diagnostics
     let runner = DiagnosticsRunner::new(&config.root, options);

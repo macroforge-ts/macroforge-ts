@@ -4,6 +4,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "cleanbuild:rust": "cd rust-tests && rm -rf target Cargo.lock vendor && deno task setup-vendor && cargo build",
         "test": "deno test --allow-all --no-check --unstable-detect-cjs --node-modules-dir=manual --env-file=../../.env *.test.mjs",
         "test:validators": "deno test --allow-all --no-check --unstable-detect-cjs --node-modules-dir=manual validators/*.test.mjs",
         "test:e2e": "node ./node_modules/.bin/playwright test",

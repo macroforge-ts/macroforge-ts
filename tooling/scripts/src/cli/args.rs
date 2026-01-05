@@ -190,9 +190,9 @@ pub struct DiagnosticsArgs {
     #[arg(long)]
     pub json: bool,
 
-    /// Also format each project (deno fmt for JS/TS, cargo fmt for Rust)
+    /// Skip formatting (deno fmt for JS/TS, cargo fmt for Rust)
     #[arg(long)]
-    pub format: bool,
+    pub no_format: bool,
 }
 
 #[derive(clap::Args)]
