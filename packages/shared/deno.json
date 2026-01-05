@@ -25,7 +25,8 @@
                 "require-await",
                 "no-process-global",
                 "no-node-globals",
-                "no-irregular-whitespace"
+                "no-irregular-whitespace",
+                "no-sloppy-imports"
             ]
         }
     }

@@ -26,7 +26,7 @@
     "url": "git+https://github.com/macroforge-ts/shared.git"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "deno install --node-modules-dir --quiet && deno run -A npm:typescript@5/tsc -p tsconfig.json",
     "clean": "rm -rf dist",
     "cleanbuild": "deno task clean && deno task build",
     "test": "deno test --allow-read --allow-write tests/"
