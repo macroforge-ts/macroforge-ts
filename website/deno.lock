@@ -11,7 +11,7 @@
     "npm:autoprefixer@^10.4.22": "10.4.23_postcss@8.5.6",
     "npm:clsx@^2.1.1": "2.1.1",
     "npm:lucide-svelte@0.556": "0.556.0_svelte@5.46.1__acorn@8.15.0",
-    "npm:macroforge@~0.1.64": "0.1.65",
+    "npm:macroforge@~0.1.64": "0.1.66",
     "npm:mdsvex@~0.12.6": "0.12.6_svelte@5.46.1__acorn@8.15.0",
     "npm:mode-watcher@^1.1.0": "1.1.0_svelte@5.46.1__acorn@8.15.0",
     "npm:postcss@^8.5.6": "8.5.6",
@@ -257,33 +257,33 @@
         "@jridgewell/sourcemap-codec"
       ]
     },
-    "@macroforge/bin-darwin-arm64@0.1.65": {
-      "integrity": "sha512-xLcPjRVvvomGcXS2jpqhKf6RRvzmAu+VNxrMoOCKKr4mrsvVlFExfXKVqcSHrt9pFZlZk1qNi2rJDf1EWT0SRg==",
+    "@macroforge/bin-darwin-arm64@0.1.66": {
+      "integrity": "sha512-IbAo0B+dY7ByZj0J5//yFBGjB/fRoqE0rJ8P2+NqJ4597GIMRjgJlnQfXwMTWYvHgujX7NMevo7WAegH/RHFJQ==",
       "os": ["darwin"],
       "cpu": ["arm64"]
     },
-    "@macroforge/bin-darwin-x64@0.1.65": {
-      "integrity": "sha512-y6IF2FM/Q/Fro9E6/xqXbH1sNAA61PhKPSRV4VdP6zCZc/06THAwfL4ie0EIT2xy7FpdKoklLolfGs5PA2HAnQ==",
+    "@macroforge/bin-darwin-x64@0.1.66": {
+      "integrity": "sha512-H6lr+vcUi2GhRYhUKJcTU0nqDlVvxNWPElD6v+e2WckzUWVmLuj+sM/fWYyvmv1o2kS9fjvckYeGG1MbvPznLw==",
       "os": ["darwin"],
       "cpu": ["x64"]
     },
-    "@macroforge/bin-linux-arm64-gnu@0.1.65": {
-      "integrity": "sha512-CEJFQRd4j6e1KHp1AQn1pNyxqW8rZEmer/4NfZIJv8n84pFsMsuLHkOxBBSEmsXixDsriRpRjp/5uisvkhviEw==",
+    "@macroforge/bin-linux-arm64-gnu@0.1.66": {
+      "integrity": "sha512-BkAynZMnschk+A+Lh53O6JsAXqGwNzeEe7NhTFh3LhJQgLSX9nBnNToL+dSKpU6ol2/tg7QmzLXl6BMtDUFIlA==",
       "os": ["linux"],
       "cpu": ["arm64"]
     },
-    "@macroforge/bin-linux-x64-gnu@0.1.65": {
-      "integrity": "sha512-S3mSE8h33n8uKKTYowhZEwL92M7p6r1srQBOQPzY155WcgtV5ors9eCNietUJAuzC7kM/zRNPajD/CdberpEWQ==",
+    "@macroforge/bin-linux-x64-gnu@0.1.66": {
+      "integrity": "sha512-0K/v2DsZ4ZynNhosPZ17ZXMKXVNlbQgocbn5dqEq/KR7AzWmV0+VhHtdI8ImJN/sODoN7ygs5hxJcXqRtYb5oA==",
       "os": ["linux"],
       "cpu": ["x64"]
     },
-    "@macroforge/bin-win32-arm64-msvc@0.1.65": {
-      "integrity": "sha512-Iri3RwNJD3t02jGx0z/jTYmJ20TEMXGyyFX3HbM5Ug03+rhD8XhQOJQYq5hHn1jxWBbWztE78sZ7W7rwJd15Tw==",
+    "@macroforge/bin-win32-arm64-msvc@0.1.66": {
+      "integrity": "sha512-tTEJLLsh4btWOc70C0vEDc0Rug0zANxBkdV0k4nvw6tD3Rxxdu4BLNEJxpejAnRbBzlDu2CrwtzQ9I2BV6brwQ==",
       "os": ["win32"],
       "cpu": ["arm64"]
     },
-    "@macroforge/bin-win32-x64-msvc@0.1.65": {
-      "integrity": "sha512-xaptynlKiku3ba+q9hKdxPr5RzqcvY+HnXVqecoQIezblnA4y1T8QWjk9uGyxacGph/3Jnxi9SOg7rrQb5CZ0w==",
+    "@macroforge/bin-win32-x64-msvc@0.1.66": {
+      "integrity": "sha512-kuP36KOCKqUE8BPMEpxW+zxxyM8lmdDkaZvnqYStGub88ZPyUaPQcP/oe6utsa+tMo5Pld+SacIyb4SG0PR69A==",
       "os": ["win32"],
       "cpu": ["x64"]
     },
@@ -987,8 +987,8 @@
         "svelte"
       ]
     },
-    "macroforge@0.1.65": {
-      "integrity": "sha512-glsFLuIZR1QMVkV8bwdseuwQ/3THwwZaNY73qfXpDlx52ddXb16VEkOK6/K7P+NikI8JDSoLgBk1YB6s40xfaw==",
+    "macroforge@0.1.66": {
+      "integrity": "sha512-S9YIAl6Z5Z8ySP3XbcVqH5G3sJ92LyYfXCkAwRKTce+hp1sX/sVDmIcfd9X3S9WVTjxG1P1U3JcSClLSrUq/MA==",
       "optionalDependencies": [
         "@macroforge/bin-darwin-arm64",
         "@macroforge/bin-darwin-x64",
