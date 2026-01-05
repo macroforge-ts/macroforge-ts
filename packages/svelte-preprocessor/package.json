@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "macroforge": "^0.1.66"
+    "macroforge": "^0.1.72"
   },
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
   "devDependencies": {
@@ -30,12 +30,12 @@
     "url": "git+https://github.com/macroforge-ts/svelte-preprocessor.git"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "deno install --node-modules-dir --quiet && deno run -A npm:typescript@5/tsc -p tsconfig.json",
     "clean": "rm -rf dist",
     "cleanbuild": "deno task clean && deno task build",
     "test": "deno task build && node --test tests/**/*.test.js"
   },
   "type": "module",
   "types": "dist/index.d.ts",
-  "version": "0.1.66"
+  "version": "0.1.72"
 }
