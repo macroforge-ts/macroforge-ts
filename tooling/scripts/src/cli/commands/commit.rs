@@ -706,7 +706,14 @@ fn worker_thread(
                 .dependencies
                 .iter()
                 .find(|dep| failed_names.contains(*dep));
+
             if let Some(dep) = failed_dep {
+                ctx.log(&format!(
+                    "    {} {} skipped (dependency '{}' failed)",
+                    "⊘".yellow(),
+                    item.name.bold(),
+                    dep
+                ));
                 processed[i] = true;
                 pending_items.remove(&i);
                 failed_names.insert(item.name.clone());
@@ -792,15 +799,19 @@ fn worker_thread(
                     failed_names.insert(item.name.clone());
                     // Format full error chain for debugging
                     let full_error = format!("{:?}", e);
+                    ctx.log(&format!(
+                        "    {} {} failed: {}",
+                        "✗".red(),
+                        item.name.bold(),
+                        full_error
+                    ));
                     // Track failed packages for live status display
                     {
                         let mut failed = ctx.failed_packages.lock().unwrap();
                         failed.insert(item.name.clone(), full_error.clone());
                     }
-                    // Only send Failed status when messages are done
-                    if ctx.messages_done.load(Ordering::SeqCst) {
-                        let _ = tx.send(WorkerStatus::Failed(i, full_error));
-                    }
+                    // Always send Failed status - failures should never be silent
+                    let _ = tx.send(WorkerStatus::Failed(i, full_error));
                 }
             }
 
@@ -1381,8 +1392,12 @@ fn sync_lockfile(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
     if let Ok(content) = std::fs::read_to_string(&pkg_json)
         && let Ok(pkg) = serde_json::from_str::<serde_json::Value>(&content)
     {
-        let has_deps = pkg.get("dependencies").is_some_and(|d| d.as_object().is_some_and(|o| !o.is_empty()));
-        let has_dev_deps = pkg.get("devDependencies").is_some_and(|d| d.as_object().is_some_and(|o| !o.is_empty()));
+        let has_deps = pkg
+            .get("dependencies")
+            .is_some_and(|d| d.as_object().is_some_and(|o| !o.is_empty()));
+        let has_dev_deps = pkg
+            .get("devDependencies")
+            .is_some_and(|d| d.as_object().is_some_and(|o| !o.is_empty()));
         if !has_deps && !has_dev_deps {
             ctx.log(&format!(
                 "      {} No npm dependencies, deno.lock not required",

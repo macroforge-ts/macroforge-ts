@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/assert@*": "1.0.16",
+    "jsr:@std/assert@1": "1.0.16",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "npm:@playwright/test@^1.49.0": "1.57.0",
     "npm:@vtsls/language-server@~0.2.9": "0.2.9",
