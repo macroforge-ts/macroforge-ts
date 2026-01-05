@@ -873,7 +873,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.65"
+version = "0.1.66"
 dependencies = [
  "anyhow",
  "clap",
@@ -896,7 +896,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.65"
+version = "0.1.68"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd2e643fd00795cfe411a4cff18b524af264fd8af7d1f3dc24f9b24da2a63d12"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -906,7 +908,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.65"
+version = "0.1.66"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b99d5b3db3e237050f6a5c2b10e1a9502d573fc54382f7142178edead23ef475"
 dependencies = [
  "anyhow",
  "convert_case",
@@ -922,7 +926,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.65"
+version = "0.1.68"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "526b24af4292d18418f7c84a92dac3102b3c5f250e3212e5e5fb9d855b304510"
 dependencies = [
  "serde",
  "swc_core",
@@ -1478,9 +1484,9 @@ dependencies = [
 
 [[package]]
 name = "swc_core"
-version = "52.0.0"
+version = "54.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33540bdcbf752611f66dcd5576272ce25141356c2d6e7b7ae63a801633a21f02"
+checksum = "0f361c932ffe029754a10512ee217f550109ee80dda1fe6ec90772440bfc0a68"
 dependencies = [
  "swc_allocator",
  "swc_atoms",
@@ -1551,9 +1557,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "30.0.0"
+version = "32.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fb84a1b1b605c85c38a982f8f6dac4908ca73721aee9f9924d6a60e27339290"
+checksum = "e1d0c36843109fff178bbedc439b4190daa865d78e553134243a4df220329fdd"
 dependencies = [
  "bitflags",
  "either",
@@ -1571,9 +1577,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_quote_macros"
-version = "30.0.0"
+version = "32.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59e70950089780630e25b644b0a69c25fb2bd0ffda3f6856f1afa7fa18611ffe"
+checksum = "d70a7f12dd07015e00bf30770497de4ab45db2cf34ca9e870aece9e456166032"
 dependencies = [
  "anyhow",
  "proc-macro2",
@@ -1589,9 +1595,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_transforms_base"
-version = "33.0.1"
+version = "35.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00691748cc689f93316bb699051eadf058852b6326930c0355fe375110318ab5"
+checksum = "83f9f0dee4466e6eeb7042f2a0fc6c84298dfa914baff5bcfb44beb9f24b215f"
 dependencies = [
  "better_scoped_tls",
  "indexmap",

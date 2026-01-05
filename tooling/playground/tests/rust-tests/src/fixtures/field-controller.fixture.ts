@@ -9,16 +9,12 @@ export interface FormModel {
   description: string;
 }
 
-export namespace FormModel {
-  export function make(
-    memo: string | null,
-    username: string,
-    description: string,
-  ) {
+export const FormModel = {
+  make: (memo: string | null, username: string, description: string) => {
     return {
       memo,
       username,
       description,
     };
-  }
-}
+  },
+};

@@ -1,113 +1,116 @@
-import { AllMacrosTestClass, testInstance } from './all-macros-test';
-import { User } from './user';
+import { AllMacrosTestClass, testInstance } from "./all-macros-test";
+import { User } from "./user";
 
 // Global results object for Playwright assertions
 declare global {
-    interface Window {
-        macroTestResults: {
-            debug?: string;
-            clone?: object;
-            equals?: boolean;
-            hashCode?: number;
-            serialize?: string;
-            deserialize?: object;
-        };
-    }
+  interface Window {
+    macroTestResults: {
+      debug?: string;
+      clone?: object;
+      equals?: boolean;
+      hashCode?: number;
+      serialize?: string;
+      deserialize?: object;
+    };
+  }
 }
 
 window.macroTestResults = {};
 
 function runAllMacroTests() {
-    const results = window.macroTestResults;
+  const results = window.macroTestResults;
 
-    // Test Debug macro -> static toString()
-    const debugResult = AllMacrosTestClass.toString(testInstance);
-    results.debug = debugResult;
-    document.getElementById('result-debug')!.innerHTML =
-        `<strong>Debug (toString):</strong> <code>${debugResult}</code>`;
+  // Test Debug macro -> static toString()
+  const debugResult = AllMacrosTestClass.toString(testInstance);
+  results.debug = debugResult;
+  document.getElementById("result-debug")!.innerHTML =
+    `<strong>Debug (toString):</strong> <code>${debugResult}</code>`;
 
-    // Test Clone macro -> static clone()
-    if (typeof AllMacrosTestClass.clone === 'function') {
-        const cloned = AllMacrosTestClass.clone(testInstance);
-        results.clone = cloned;
-        document.getElementById('result-clone')!.innerHTML = `<strong>Clone:</strong> <pre>${
-            JSON.stringify(cloned, null, 2)
+  // Test Clone macro -> static clone()
+  if (typeof AllMacrosTestClass.clone === "function") {
+    const cloned = AllMacrosTestClass.clone(testInstance);
+    results.clone = cloned;
+    document.getElementById("result-clone")!.innerHTML =
+      `<strong>Clone:</strong> <pre>${JSON.stringify(cloned, null, 2)}</pre>`;
+  } else {
+    document.getElementById("result-clone")!.innerHTML =
+      `<strong>Clone:</strong> <em>Not available</em>`;
+  }
+
+  // Test PartialEq macro -> static equals()
+  if (typeof AllMacrosTestClass.equals === "function") {
+    const equalsSelf = AllMacrosTestClass.equals(testInstance, testInstance);
+    results.equals = equalsSelf;
+    document.getElementById("result-equals")!.innerHTML =
+      `<strong>Equals (self):</strong> <code>${equalsSelf}</code>`;
+  } else {
+    document.getElementById("result-equals")!.innerHTML =
+      `<strong>Equals:</strong> <em>Not available</em>`;
+  }
+
+  // Test Hash macro -> static hashCode()
+  if (typeof AllMacrosTestClass.hashCode === "function") {
+    const hashCode = AllMacrosTestClass.hashCode(testInstance);
+    results.hashCode = hashCode;
+    document.getElementById("result-hashcode")!.innerHTML =
+      `<strong>HashCode:</strong> <code>${hashCode}</code>`;
+  } else {
+    document.getElementById("result-hashcode")!.innerHTML =
+      `<strong>HashCode:</strong> <em>Not available</em>`;
+  }
+
+  // Test Serialize macro -> static serialize()
+  const serialized = AllMacrosTestClass.serialize(testInstance);
+  results.serialize = serialized;
+  document.getElementById("result-serialize")!.innerHTML =
+    `<strong>Serialize:</strong> <pre>${serialized}</pre>`;
+
+  // Test Deserialize macro -> deserialize()
+  if (typeof AllMacrosTestClass.deserialize === "function") {
+    const testData = {
+      id: 99,
+      name: "Deserialized User",
+      email: "deser@test.com",
+      secretToken: "token",
+      isActive: false,
+      score: 50,
+    };
+    // deserialize returns a vanilla result { success: boolean, value/errors }
+    const result = AllMacrosTestClass.deserialize(testData);
+    if (result.success) {
+      const deserialized = result.value;
+      results.deserialize = deserialized;
+      document.getElementById("result-deserialize")!.innerHTML =
+        `<strong>Deserialize:</strong> <pre>${
+          JSON.stringify(deserialized, null, 2)
         }</pre>`;
     } else {
-        document.getElementById('result-clone')!.innerHTML =
-            `<strong>Clone:</strong> <em>Not available</em>`;
+      const errors = result.errors;
+      document.getElementById("result-deserialize")!.innerHTML =
+        `<strong>Deserialize Error:</strong> <pre>${
+          JSON.stringify(errors, null, 2)
+        }</pre>`;
     }
+  } else {
+    document.getElementById("result-deserialize")!.innerHTML =
+      `<strong>Deserialize:</strong> <em>Not available</em>`;
+  }
 
-    // Test PartialEq macro -> static equals()
-    if (typeof AllMacrosTestClass.equals === 'function') {
-        const equalsSelf = AllMacrosTestClass.equals(testInstance, testInstance);
-        results.equals = equalsSelf;
-        document.getElementById('result-equals')!.innerHTML =
-            `<strong>Equals (self):</strong> <code>${equalsSelf}</code>`;
-    } else {
-        document.getElementById('result-equals')!.innerHTML =
-            `<strong>Equals:</strong> <em>Not available</em>`;
-    }
-
-    // Test Hash macro -> static hashCode()
-    if (typeof AllMacrosTestClass.hashCode === 'function') {
-        const hashCode = AllMacrosTestClass.hashCode(testInstance);
-        results.hashCode = hashCode;
-        document.getElementById('result-hashcode')!.innerHTML =
-            `<strong>HashCode:</strong> <code>${hashCode}</code>`;
-    } else {
-        document.getElementById('result-hashcode')!.innerHTML =
-            `<strong>HashCode:</strong> <em>Not available</em>`;
-    }
-
-    // Test Serialize macro -> static serialize()
-    const serialized = AllMacrosTestClass.serialize(testInstance);
-    results.serialize = serialized;
-    document.getElementById('result-serialize')!.innerHTML =
-        `<strong>Serialize:</strong> <pre>${serialized}</pre>`;
-
-    // Test Deserialize macro -> deserialize()
-    if (typeof AllMacrosTestClass.deserialize === 'function') {
-        const testData = {
-            id: 99,
-            name: 'Deserialized User',
-            email: 'deser@test.com',
-            secretToken: 'token',
-            isActive: false,
-            score: 50
-        };
-        // deserialize returns a vanilla result { success: boolean, value/errors }
-        const result = AllMacrosTestClass.deserialize(testData);
-        if (result.success) {
-            const deserialized = result.value;
-            results.deserialize = deserialized;
-            document.getElementById('result-deserialize')!.innerHTML =
-                `<strong>Deserialize:</strong> <pre>${JSON.stringify(deserialized, null, 2)}</pre>`;
-        } else {
-            const errors = result.errors;
-            document.getElementById('result-deserialize')!.innerHTML =
-                `<strong>Deserialize Error:</strong> <pre>${JSON.stringify(errors, null, 2)}</pre>`;
-        }
-    } else {
-        document.getElementById('result-deserialize')!.innerHTML =
-            `<strong>Deserialize:</strong> <em>Not available</em>`;
-    }
-
-    // Mark tests as complete
-    document.getElementById('test-results')?.setAttribute(
-        'data-tests-complete',
-        'true'
-    );
+  // Mark tests as complete
+  document.getElementById("test-results")?.setAttribute(
+    "data-tests-complete",
+    "true",
+  );
 }
 
 function testMacros() {
-    const user = new User(1, 'John Doe', 'john@example.com', 'tok_live_secret');
-    const derivedSummary = User.toString(user);
-    const derivedJson = user.toJSON();
+  const user = new User(1, "John Doe", "john@example.com", "tok_live_secret");
+  const derivedSummary = User.toString(user);
+  const derivedJson = user.toJSON();
 
-    const app = document.getElementById('app');
-    if (app) {
-        app.innerHTML = `
+  const app = document.getElementById("app");
+  if (app) {
+    app.innerHTML = `
       <h1>TS Macros Playground</h1>
       <p>This playground demonstrates Rust-powered macros for TypeScript.</p>
 
@@ -148,20 +151,20 @@ function testMacros() {
       <p>Check the console for more examples!</p>
     `;
 
-        // Attach test button handler
-        document.getElementById('btn-test-all')?.addEventListener(
-            'click',
-            runAllMacroTests
-        );
-    }
+    // Attach test button handler
+    document.getElementById("btn-test-all")?.addEventListener(
+      "click",
+      runAllMacroTests,
+    );
+  }
 
-    console.log('User object:', user);
-    console.log('Macros playground loaded successfully!');
+  console.log("User object:", user);
+  console.log("Macros playground loaded successfully!");
 }
 
 // Run tests when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', testMacros);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", testMacros);
 } else {
-    testMacros();
+  testMacros();
 }
