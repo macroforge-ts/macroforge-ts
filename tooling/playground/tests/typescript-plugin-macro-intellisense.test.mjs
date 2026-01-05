@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { repoRoot } from './test-utils.mjs';
 
 // Use dynamic import for TypeScript to work in both Node and Deno
-const ts = await import('npm:typescript').then((m) => m.default ?? m);
+const ts = await import('npm:typescript@5').then((m) => m.default ?? m);
 
 function createMockLanguageService(tsModule, fileName, fileText) {
     const sourceFile = tsModule.createSourceFile(
