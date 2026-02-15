@@ -60,7 +60,31 @@ export function getExternalManifest(
     try {
         // Use provided require function or create one
         const req = requireFn ?? createRequire(import.meta.url);
-        const pkg = req(modulePath);
+        // If the require function supports .resolve(), create a scoped require
+        // from the package's own directory. This ensures that native NAPI-RS
+        // bindings using relative paths (e.g. require('./macros.darwin-x64.node'))
+        // resolve from the package directory, not from the project root.
+        // We temporarily set globalThis.require to the scoped version so that
+        // Deno's CJS compat layer picks it up when loading the module.
+        let pkg: Record<string, unknown>;
+        if ('resolve' in req && typeof req.resolve === 'function') {
+            const resolvedPath = (req as NodeRequire).resolve(modulePath);
+            const scopedReq = createRequire(resolvedPath);
+            const prevRequire = (globalThis as Record<string, unknown>).require;
+            (globalThis as Record<string, unknown>).require = scopedReq;
+            try {
+                pkg = scopedReq(resolvedPath) as Record<string, unknown>;
+            } finally {
+                // Restore previous globalThis.require
+                if (prevRequire === undefined) {
+                    delete (globalThis as Record<string, unknown>).require;
+                } else {
+                    (globalThis as Record<string, unknown>).require = prevRequire;
+                }
+            }
+        } else {
+            pkg = req(modulePath) as Record<string, unknown>;
+        }
         if (typeof pkg.__macroforgeGetManifest === 'function') {
             const manifest: MacroManifest = pkg.__macroforgeGetManifest();
             externalManifestCache.set(modulePath, manifest);
