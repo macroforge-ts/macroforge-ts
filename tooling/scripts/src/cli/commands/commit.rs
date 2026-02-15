@@ -983,8 +983,7 @@ fn process_item(item: &CommitItem, message: &str, ctx: &WorkerContext) -> Result
                 .context(format!("Failed to delete remote tag {}", tag))?;
         }
         ctx.log(&format!("    {} Pushing tag {}", "🏷".cyan(), tag.cyan()));
-        shell::git::push_tag(&item.path, &tag)
-            .context(format!("Failed to push tag {}", tag))?;
+        shell::git::push_tag(&item.path, &tag).context(format!("Failed to push tag {}", tag))?;
     }
     ctx.log(&format!("    {} Done", "✓".green()));
 
@@ -1097,8 +1096,7 @@ fn retag_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
             .context(format!("Failed to delete remote tag {}", tag))?;
     }
     ctx.log(&format!("    {} Pushing tag {}", "🏷".cyan(), tag.cyan()));
-    shell::git::push_tag(&item.path, &tag)
-        .context(format!("Failed to push tag {}", tag))?;
+    shell::git::push_tag(&item.path, &tag).context(format!("Failed to push tag {}", tag))?;
     ctx.log(&format!("    {} Done", "✓".green()));
 
     Ok(())
@@ -1158,8 +1156,7 @@ fn push_only_item(item: &CommitItem, ctx: &WorkerContext) -> Result<()> {
                 .context(format!("Failed to delete remote tag {}", tag))?;
         }
         ctx.log(&format!("    {} Pushing tag {}", "🏷".cyan(), tag.cyan()));
-        shell::git::push_tag(&item.path, &tag)
-            .context(format!("Failed to push tag {}", tag))?;
+        shell::git::push_tag(&item.path, &tag).context(format!("Failed to push tag {}", tag))?;
     }
     ctx.log(&format!("    {} Done", "✓".green()));
 
