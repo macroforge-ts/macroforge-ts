@@ -46,17 +46,38 @@ import {
   loadMacroConfig,
 } from "@macroforge/shared";
 
-const moduleRequire = createRequire(import.meta.url);
-
 /** @type {typeof import('typescript') | undefined} */
 let tsModule;
-try {
-  tsModule = moduleRequire("typescript");
-} catch (error) {
+let tsModuleResolved = false;
+
+/**
+ * Lazily resolves TypeScript, trying the project root first (so the consuming
+ * project's copy is found) and falling back to the plugin's own location.
+ */
+function ensureTypeScript() {
+  if (tsModuleResolved) return tsModule;
+  tsModuleResolved = true;
+
+  // Try resolving from the project root (cwd) first, then from the plugin
+  const roots = [
+    process.cwd() + "/",
+    import.meta.url,
+  ];
+  for (const root of roots) {
+    try {
+      const req = createRequire(root);
+      tsModule = req("typescript");
+      return tsModule;
+    } catch {
+      // continue to next root
+    }
+  }
+
   tsModule = undefined;
   console.warn(
     "[@macroforge/vite-plugin] TypeScript not found. Generated .d.ts files will be skipped.",
   );
+  return tsModule;
 }
 
 /** @type {Map<string, import('typescript').CompilerOptions>} */
@@ -79,7 +100,7 @@ async function ensureRequire() {
     const { createRequire } = await import("node:module");
     cachedRequire =
       /** @type {NodeJS.Require} */ (createRequire(process.cwd() + "/"));
-    // @ts-ignore - Expose on globalThis so native runtime loaders can use it
+    // @ts-ignore - Expose on globalThis so Deno's CJS compat layer can use it
     globalThis.require = cachedRequire;
   }
 
@@ -93,6 +114,7 @@ async function ensureRequire() {
  * @internal
  */
 function getCompilerOptions(projectRoot) {
+  ensureTypeScript();
   if (!tsModule) {
     return undefined;
   }
@@ -179,6 +201,7 @@ function getCompilerOptions(projectRoot) {
  * @internal
  */
 function emitDeclarationsFromCode(code, fileName, projectRoot) {
+  ensureTypeScript();
   if (!tsModule) {
     return undefined;
   }
@@ -312,7 +335,8 @@ export async function macroforge() {
 
   // Load the Rust binary first
   try {
-    rustTransformer = moduleRequire("macroforge");
+    const projectRequire = createRequire(process.cwd() + "/");
+    rustTransformer = projectRequire("macroforge");
   } catch (error) {
     console.warn(
       "[@macroforge/vite-plugin] Rust binary not found. Please run `npm run build:rust` first.",
@@ -544,6 +568,15 @@ export async function macroforge() {
             /\/\*\*\s*import\s+macro[\s\S]*?\*\/\s*/gi,
             "",
           );
+
+          // For .svelte.ts modules, strip @derive JSDoc comments to prevent
+          // the Svelte preprocessor from re-expanding macros
+          if (id.endsWith(".svelte.ts") || id.endsWith(".svelte.js")) {
+            result.code = result.code.replace(
+              /\/\*\*\s*@derive\b[^*]*\*\//g,
+              "",
+            );
+          }
 
           // Generate type definitions if enabled
           if (generateTypes) {
