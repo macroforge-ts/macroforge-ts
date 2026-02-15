@@ -1095,108 +1095,107 @@ fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<De
 /// Returns a Vec of (name, args) tuples for each @directive or @directive(...) found.
 /// Supports multiple directives on the same line: `@derive(X) @default(Y)`
 /// Also supports directives without parens: `@default` (treated as empty args)
+/// Supports multiline decorator arguments: `@overview({ ... \n ... })`
 #[cfg(feature = "swc")]
 fn parse_all_macro_directives(comment_body: &str) -> Vec<(String, String)> {
     let mut results = Vec::new();
 
-    // Process line by line to handle multiple directives
-    for line in comment_body.lines() {
-        let line = line.trim().trim_start_matches('*').trim();
+    // Normalize the comment body into a single string by stripping JSDoc `*` prefixes
+    // and joining lines. This allows decorator arguments to span multiple lines.
+    let normalized: String = comment_body
+        .lines()
+        .map(|line| line.trim().trim_start_matches('*').trim())
+        .filter(|line| !line.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ");
 
-        // Skip empty lines
-        if line.is_empty() {
+    let mut remaining = normalized.as_str();
+    while let Some(at_idx) = remaining.find('@') {
+        let after_at = &remaining[at_idx + 1..];
+
+        // Extract the directive name (alphanumeric chars until space, paren, or end)
+        let name_end = after_at
+            .find(|c: char| !c.is_alphanumeric() && c != '_')
+            .unwrap_or(after_at.len());
+
+        if name_end == 0 {
+            // No valid name found, skip
+            remaining = &remaining[at_idx + 1..];
             continue;
         }
 
-        // Parse all directives on this line
-        let mut remaining = line;
-        while let Some(at_idx) = remaining.find('@') {
-            let after_at = &remaining[at_idx + 1..];
+        let name = &after_at[..name_end];
+        let after_name = &after_at[name_end..];
 
-            // Extract the directive name (alphanumeric chars until space, paren, or end)
-            let name_end = after_at
-                .find(|c: char| !c.is_alphanumeric() && c != '_')
-                .unwrap_or(after_at.len());
+        // Check if there's an opening paren
+        let trimmed_after_name = after_name.trim_start();
+        if trimmed_after_name.starts_with('(') {
+            // Has arguments - parse balanced parens
+            let paren_start = after_name.len() - trimmed_after_name.len();
+            let args_start = paren_start + 1;
 
-            if name_end == 0 {
-                // No valid name found, skip
-                remaining = &remaining[at_idx + 1..];
-                continue;
+            // Parse balanced parentheses to find the closing one
+            let mut depth: i32 = 1;
+            let mut brace_depth: i32 = 0;
+            let mut bracket_depth: i32 = 0;
+            let mut close_idx = None;
+
+            for (i, c) in after_name[args_start..].char_indices() {
+                match c {
+                    '(' => depth += 1,
+                    ')' => {
+                        depth -= 1;
+                        if depth == 0 && brace_depth == 0 && bracket_depth == 0 {
+                            close_idx = Some(args_start + i);
+                            break;
+                        }
+                    }
+                    '{' => brace_depth += 1,
+                    '}' => brace_depth = brace_depth.saturating_sub(1),
+                    '[' => bracket_depth += 1,
+                    ']' => bracket_depth = bracket_depth.saturating_sub(1),
+                    _ => {}
+                }
             }
 
-            let name = &after_at[..name_end];
-            let after_name = &after_at[name_end..];
+            if let Some(close) = close_idx {
+                let args = after_name[args_start..close].trim();
 
-            // Check if there's an opening paren
-            let trimmed_after_name = after_name.trim_start();
-            if trimmed_after_name.starts_with('(') {
-                // Has arguments - parse balanced parens
-                let paren_start = after_name.len() - trimmed_after_name.len();
-                let args_start = paren_start + 1;
-
-                // Parse balanced parentheses to find the closing one
-                let mut depth: i32 = 1;
-                let mut brace_depth: i32 = 0;
-                let mut bracket_depth: i32 = 0;
-                let mut close_idx = None;
-
-                for (i, c) in after_name[args_start..].char_indices() {
-                    match c {
-                        '(' => depth += 1,
-                        ')' => {
-                            depth -= 1;
-                            if depth == 0 && brace_depth == 0 && bracket_depth == 0 {
-                                close_idx = Some(args_start + i);
-                                break;
-                            }
-                        }
-                        '{' => brace_depth += 1,
-                        '}' => brace_depth = brace_depth.saturating_sub(1),
-                        '[' => bracket_depth += 1,
-                        ']' => bracket_depth = bracket_depth.saturating_sub(1),
-                        _ => {}
-                    }
-                }
-
-                if let Some(close) = close_idx {
-                    let args = after_name[args_start..close].trim();
-
-                    let normalized_name = if name.eq_ignore_ascii_case("derive") {
-                        "Derive".to_string()
-                    } else {
-                        name.to_string()
-                    };
-
-                    results.push((normalized_name, args.to_string()));
-
-                    // Continue searching after this directive's closing paren
-                    let end_of_directive = at_idx + 1 + name_end + close + 1;
-                    if end_of_directive < remaining.len() {
-                        remaining = &remaining[end_of_directive..];
-                    } else {
-                        break;
-                    }
-                } else {
-                    // No matching close paren, skip to next @ symbol
-                    remaining = &remaining[at_idx + 1..];
-                }
-            } else {
-                // No parens - directive without arguments (like @default)
                 let normalized_name = if name.eq_ignore_ascii_case("derive") {
                     "Derive".to_string()
                 } else {
                     name.to_string()
                 };
 
-                results.push((normalized_name, String::new()));
+                results.push((normalized_name, args.to_string()));
 
-                // Continue after the directive name
-                let end_of_directive = at_idx + 1 + name_end;
+                // Continue searching after this directive's closing paren
+                let end_of_directive = at_idx + 1 + name_end + close + 1;
                 if end_of_directive < remaining.len() {
                     remaining = &remaining[end_of_directive..];
                 } else {
                     break;
                 }
+            } else {
+                // No matching close paren, skip to next @ symbol
+                remaining = &remaining[at_idx + 1..];
+            }
+        } else {
+            // No parens - directive without arguments (like @default)
+            let normalized_name = if name.eq_ignore_ascii_case("derive") {
+                "Derive".to_string()
+            } else {
+                name.to_string()
+            };
+
+            results.push((normalized_name, String::new()));
+
+            // Continue after the directive name
+            let end_of_directive = at_idx + 1 + name_end;
+            if end_of_directive < remaining.len() {
+                remaining = &remaining[end_of_directive..];
+            } else {
+                break;
             }
         }
     }
