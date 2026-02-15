@@ -296,6 +296,15 @@ export function macroforgePreprocess(
     filename,
     attributes,
   }) => {
+    if (filename?.includes("macroforge.svelte")) {
+      console.log(
+        `[PREPROC DEBUG] file=${filename}, lang=${attributes.lang}, type=${attributes.type}, has @derive=${
+          content.includes("@derive")
+        }, has serviceDeserialize=${
+          content.includes("function serviceDeserialize")
+        }`,
+      );
+    }
     /*
      * STEP 1: Language Detection
      *
