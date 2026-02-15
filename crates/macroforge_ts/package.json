@@ -1,89 +1,89 @@
 {
-    "author": "macroforge contributors",
-    "bugs": {
-        "url": "https://github.com/macroforge-ts/core/issues"
+  "author": "macroforge contributors",
+  "bugs": {
+    "url": "https://github.com/macroforge-ts/core/issues"
+  },
+  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "engines": {
+    "node": ">= 18"
+  },
+  "exports": {
+    ".": {
+      "default": "./index.js",
+      "require": "./index.js",
+      "types": "./index.d.ts"
     },
-    "description": "TypeScript macro expansion engine powered by Rust and SWC",
-    "engines": {
-        "node": ">= 18"
+    "./reexports": {
+      "default": "./js/reexports/index.mjs",
+      "import": "./js/reexports/index.mjs",
+      "types": "./js/reexports/index.d.ts"
     },
-    "exports": {
-        ".": {
-            "default": "./index.js",
-            "require": "./index.js",
-            "types": "./index.d.ts"
-        },
-        "./reexports": {
-            "default": "./js/reexports/index.mjs",
-            "import": "./js/reexports/index.mjs",
-            "types": "./js/reexports/index.d.ts"
-        },
-        "./reexports/effect": {
-            "default": "./js/reexports/effect.mjs",
-            "import": "./js/reexports/effect.mjs",
-            "types": "./js/reexports/effect.d.ts"
-        },
-        "./serde": {
-            "default": "./js/serde/index.mjs",
-            "import": "./js/serde/index.mjs",
-            "types": "./js/serde/index.d.ts"
-        },
-        "./traits": {
-            "default": "./js/traits/index.mjs",
-            "import": "./js/traits/index.mjs",
-            "types": "./js/traits/index.d.ts"
-        }
+    "./reexports/effect": {
+      "default": "./js/reexports/effect.mjs",
+      "import": "./js/reexports/effect.mjs",
+      "types": "./js/reexports/effect.d.ts"
     },
-    "files": [
-        "index.d.ts",
-        "index.js",
-        "js"
-    ],
-    "homepage": "https://github.com/macroforge-ts/core#readme",
-    "keywords": [
-        "typescript",
-        "macros",
-        "derive",
-        "codegen",
-        "swc"
-    ],
-    "license": "MIT",
-    "main": "index.js",
-    "name": "macroforge",
-    "napi": {
-        "binaryName": "macroforge",
-        "packageName": "@macroforge/bin",
-        "targets": [
-            "x86_64-apple-darwin",
-            "aarch64-apple-darwin",
-            "x86_64-unknown-linux-gnu",
-            "aarch64-unknown-linux-gnu",
-            "x86_64-pc-windows-msvc",
-            "aarch64-pc-windows-msvc"
-        ]
+    "./serde": {
+      "default": "./js/serde/index.mjs",
+      "import": "./js/serde/index.mjs",
+      "types": "./js/serde/index.d.ts"
     },
-    "optionalDependencies": {
-        "@macroforge/bin-darwin-arm64": "0.1.72",
-        "@macroforge/bin-darwin-x64": "0.1.72",
-        "@macroforge/bin-linux-arm64-gnu": "0.1.72",
-        "@macroforge/bin-linux-x64-gnu": "0.1.72",
-        "@macroforge/bin-win32-arm64-msvc": "0.1.72",
-        "@macroforge/bin-win32-x64-msvc": "0.1.72"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/macroforge-ts/core.git"
-    },
-    "scripts": {
-        "artifacts": "napi artifacts --npm-dir npm",
-        "build": "deno install --node-modules-dir && deno task build:js && deno run -A npm:@napi-rs/cli/napi build --platform --release",
-        "build:js": "deno task build:serde && deno task build:traits",
-        "build:serde": "deno run -A npm:esbuild js/serde/index.ts --bundle --outfile=js/serde/index.mjs --format=esm && deno run -A npm:typescript/tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
-        "build:traits": "deno run -A npm:esbuild js/traits/index.ts --bundle --outfile=js/traits/index.mjs --format=esm && deno run -A npm:typescript/tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
-        "clean": "rm -f macroforge.*.node || true; rm -f pkg/*.node || true; rm -rf node_modules",
-        "cleanbuild": "deno task clean && deno task build"
-    },
-    "type": "commonjs",
-    "types": "index.d.ts",
-    "version": "0.1.72"
+    "./traits": {
+      "default": "./js/traits/index.mjs",
+      "import": "./js/traits/index.mjs",
+      "types": "./js/traits/index.d.ts"
+    }
+  },
+  "files": [
+    "index.d.ts",
+    "index.js",
+    "js"
+  ],
+  "homepage": "https://github.com/macroforge-ts/core#readme",
+  "keywords": [
+    "typescript",
+    "macros",
+    "derive",
+    "codegen",
+    "swc"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "macroforge",
+  "napi": {
+    "binaryName": "macroforge",
+    "packageName": "@macroforge/bin",
+    "targets": [
+      "x86_64-apple-darwin",
+      "aarch64-apple-darwin",
+      "x86_64-unknown-linux-gnu",
+      "aarch64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc",
+      "aarch64-pc-windows-msvc"
+    ]
+  },
+  "optionalDependencies": {
+    "@macroforge/bin-darwin-arm64": "0.1.73",
+    "@macroforge/bin-darwin-x64": "0.1.73",
+    "@macroforge/bin-linux-arm64-gnu": "0.1.73",
+    "@macroforge/bin-linux-x64-gnu": "0.1.73",
+    "@macroforge/bin-win32-arm64-msvc": "0.1.73",
+    "@macroforge/bin-win32-x64-msvc": "0.1.73"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macroforge-ts/core.git"
+  },
+  "scripts": {
+    "artifacts": "napi artifacts --npm-dir npm",
+    "build": "deno install --node-modules-dir && deno task build:js && deno run -A npm:@napi-rs/cli/napi build --platform --release",
+    "build:js": "deno task build:serde && deno task build:traits",
+    "build:serde": "deno run -A npm:esbuild js/serde/index.ts --bundle --outfile=js/serde/index.mjs --format=esm && deno run -A npm:typescript/tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
+    "build:traits": "deno run -A npm:esbuild js/traits/index.ts --bundle --outfile=js/traits/index.mjs --format=esm && deno run -A npm:typescript/tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
+    "clean": "rm -f macroforge.*.node || true; rm -f pkg/*.node || true; rm -rf node_modules",
+    "cleanbuild": "deno task clean && deno task build"
+  },
+  "type": "commonjs",
+  "types": "index.d.ts",
+  "version": "0.1.73"
 }
