@@ -2,9 +2,10 @@
   "version": "5",
   "specifiers": {
     "npm:@jridgewell/trace-mapping@~0.3.25": "0.3.31",
+    "npm:@macroforge/typescript-plugin@~0.1.73": "0.1.73_typescript@5.9.3",
     "npm:@types/estree@^0.0.42": "0.0.42",
     "npm:@types/globrex@~0.1.4": "0.1.4",
-    "npm:@types/lodash@^4.14.116": "4.17.21",
+    "npm:@types/lodash@^4.14.116": "4.17.23",
     "npm:@types/mocha@^9.1.0": "9.1.1",
     "npm:@types/node@18": "18.19.130",
     "npm:@types/sinon@^7.5.2": "7.5.2",
@@ -14,12 +15,13 @@
     "npm:estree-walker@^2.0.1": "2.0.2",
     "npm:fdir@^6.2.0": "6.5.0",
     "npm:globrex@~0.1.2": "0.1.2",
-    "npm:lodash@^4.17.21": "4.17.21",
+    "npm:lodash@^4.17.21": "4.17.23",
+    "npm:macroforge@~0.1.73": "0.1.73",
     "npm:mocha@^9.2.0": "9.2.2",
     "npm:prettier-plugin-svelte@^3.4.0": "3.4.1_prettier@3.3.3_svelte@4.2.20",
     "npm:prettier@~3.3.3": "3.3.3",
     "npm:sinon@11": "11.1.2",
-    "npm:svelte2tsx@~0.7.45": "0.7.46_svelte@4.2.20_typescript@5.9.3",
+    "npm:svelte2tsx@~0.7.45": "0.7.48_svelte@4.2.20_typescript@5.9.3",
     "npm:svelte@^4.2.19": "4.2.20",
     "npm:ts-node@10": "10.9.2_@types+node@18.19.130_typescript@5.9.3",
     "npm:typescript-auto-import-cache@~0.3.6": "0.3.6",
@@ -87,6 +89,51 @@
         "@jridgewell/sourcemap-codec"
       ]
     },
+    "@macroforge/bin-darwin-arm64@0.1.73": {
+      "integrity": "sha512-UVGyoccPQ/pcqQkx7ED3Rh9uHb+drDvSHDntD4UVrnyMEKGJb7tGw+fqwQqBTWxBlk8PpGA1he/+VpTqf2HtBQ==",
+      "os": ["darwin"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-darwin-x64@0.1.73": {
+      "integrity": "sha512-h39/Rp+kY7kjxX0wuZ95x33jsgroafPEPuiMgUcmw5iLpTOKmu1MnN4uV7WqAJaKO2cuhBEVqBY3RCMViuffrQ==",
+      "os": ["darwin"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/bin-linux-arm64-gnu@0.1.73": {
+      "integrity": "sha512-8UIOj/YGgaPAqNe6k7rnCu/hexRd5Iv2UAcIoFecaZdc9GFQFSoUaZ8ZIxJzXD5sK4ePCcS8s1sQi0vGPxb8ow==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-linux-x64-gnu@0.1.73": {
+      "integrity": "sha512-uxEqb02yy89RLW9L2mMeh7qohRVemPu631TA24flqMadBjU/Yfr4HP3eQqjBpcn4KDnMPEJvL4aEKUZU9sc4OQ==",
+      "os": ["linux"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/bin-win32-arm64-msvc@0.1.73": {
+      "integrity": "sha512-pKOFEtNtsiTrlMEemoFJ6ZZ4T6I0fvA/8W+CQmjby8iE8aQZzn/z6Li+GNp21Gp3Alt1pn0A4oymzKRDRvL9WA==",
+      "os": ["win32"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-win32-x64-msvc@0.1.73": {
+      "integrity": "sha512-uMDe/dx27wwjbg2Jq3I7vltPj7uByw7jOdCVNuJ+qaPLDkowQIyQijf/Bz0N56JseaIbAEW9Sso/IUoPg+Gkug==",
+      "os": ["win32"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/shared@0.1.73_typescript@5.9.3": {
+      "integrity": "sha512-cUNzoJSl9x28oOFgTAYDL9i2ay7koxZzYRRxOkMqFJE4PhMtmB7B+tt+2hkPyI2ztGfXx+96KMZvWE30exZhbA==",
+      "dependencies": [
+        "macroforge",
+        "typescript"
+      ]
+    },
+    "@macroforge/typescript-plugin@0.1.73_typescript@5.9.3": {
+      "integrity": "sha512-jcukiff9TtPFxtO4u07AF7PbdvyAEVe5KISwcs2HK+2NPfvbL56HCE3AZ0zQ4HgRHcK/3zL/jg1TX+ahpSW1xQ==",
+      "dependencies": [
+        "@macroforge/shared",
+        "macroforge",
+        "typescript"
+      ]
+    },
     "@sinonjs/commons@1.8.6": {
       "integrity": "sha512-Ky+XkAkqPZSm3NLBeUng77EBQl3cmeJhITaGHdYH8kjVB+aun3S4XBRti2zt17mtt0mIUDiNxYeoJm6drVvBJQ==",
       "dependencies": [
@@ -143,8 +190,8 @@
     "@types/globrex@0.1.4": {
       "integrity": "sha512-qm82zaOxfn8Us/GGjNrQQ1XfCBUDV86DxQgIQq/p1zGHlt0xnbUiabNjN9rZUhMNvvIE2gg8iTW+GMfw0TnnLg=="
     },
-    "@types/lodash@4.17.21": {
-      "integrity": "sha512-FOvQ0YPD5NOfPgMzJihoT+Za5pdkDJWcbpuj1DjaKZIr/gxodQjY/uWEFlTNqW2ugXHUiL8lRQgw63dzKHZdeQ=="
+    "@types/lodash@4.17.23": {
+      "integrity": "sha512-RDvF6wTulMPjrNdCoYRC8gNR880JNGT8uB+REUpC2Ns4pRqQJhGz90wh7rgdXDPpCczF3VGktDuFGVnz8zP7HA=="
     },
     "@types/mocha@9.1.1": {
       "integrity": "sha512-Z61JK7DKDtdKTWwLeElSEBcWGRLY8g95ic5FoQqI9CMx0ns/Ghep3B4DfcEimiKMvtamNVULVNKEsiwV3aQmXw=="
@@ -336,8 +383,8 @@
     "dedent-js@1.0.1": {
       "integrity": "sha512-OUepMozQULMLUmhxS95Vudo0jb0UchLimi3+pQ2plj61Fcy8axbP9hbiD4Sz6DPqn6XG3kfmziVfQ1rSys5AJQ=="
     },
-    "diff@4.0.2": {
-      "integrity": "sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A=="
+    "diff@4.0.4": {
+      "integrity": "sha512-X07nttJQkwkfKfvTPG/KSnE2OMdcUCao6+eXF3wmnIQRn2aPAHH3VxDbDOdegkd6JbPsXqShpvEOHfAT+nCNwQ=="
     },
     "diff@5.0.0": {
       "integrity": "sha512-/VTCrvm5Z0JGty/BWHljh+BAiw3IK+2j87NGMu8Nwc/f48WoDAC395uomO9ZD117ZOBaHmkX1oyLvkVM/aIT3w=="
@@ -502,14 +549,25 @@
       "integrity": "sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==",
       "deprecated": true
     },
-    "lodash@4.17.21": {
-      "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
+    "lodash@4.17.23": {
+      "integrity": "sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w=="
     },
     "log-symbols@4.1.0": {
       "integrity": "sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==",
       "dependencies": [
         "chalk",
         "is-unicode-supported"
+      ]
+    },
+    "macroforge@0.1.73": {
+      "integrity": "sha512-qpY/UuPFdxILxs43kJrQEvn6mEByRX2IJEejWN9bgTNjkQfOrtHVXM4e7qt4iw3JaIyzTVpS7pS7t4/Z91NErg==",
+      "optionalDependencies": [
+        "@macroforge/bin-darwin-arm64",
+        "@macroforge/bin-darwin-x64",
+        "@macroforge/bin-linux-arm64-gnu",
+        "@macroforge/bin-linux-x64-gnu",
+        "@macroforge/bin-win32-arm64-msvc",
+        "@macroforge/bin-win32-x64-msvc"
       ]
     },
     "magic-string@0.30.21": {
@@ -665,8 +723,8 @@
     "scule@1.3.0": {
       "integrity": "sha512-6FtHJEvt+pVMIB9IBY+IcCJ6Z5f1iQnytgyfKMhDKgmzYG+TeH/wx1y3l27rshSbLiSanrR9ffZDrEsmjlQF2g=="
     },
-    "semver@7.7.3": {
-      "integrity": "sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==",
+    "semver@7.7.4": {
+      "integrity": "sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==",
       "bin": true
     },
     "serialize-javascript@6.0.0": {
@@ -728,8 +786,8 @@
         "has-flag"
       ]
     },
-    "svelte2tsx@0.7.46_svelte@4.2.20_typescript@5.9.3": {
-      "integrity": "sha512-S++Vw3w47a8rBuhbz4JK0fcGea8tOoX1boT53Aib8+oUO2EKeOG+geXprJVTDfBlvR+IJdf3jIpR2RGwT6paQA==",
+    "svelte2tsx@0.7.48_svelte@4.2.20_typescript@5.9.3": {
+      "integrity": "sha512-B15C8dtOY6C9MbnQJDCkzbK3yByInzKtXrr23QCoF8APHMh6JaDhjCMcRl6ay4qaeKYqkX4X3tNaJrsZL45Zlg==",
       "dependencies": [
         "dedent-js",
         "scule",
@@ -775,7 +833,7 @@
         "acorn-walk",
         "arg",
         "create-require",
-        "diff@4.0.2",
+        "diff@4.0.4",
         "make-error",
         "typescript",
         "v8-compile-cache-lib",
@@ -911,6 +969,7 @@
     "packageJson": {
       "dependencies": [
         "npm:@jridgewell/trace-mapping@~0.3.25",
+        "npm:@macroforge/typescript-plugin@~0.1.73",
         "npm:@types/estree@^0.0.42",
         "npm:@types/globrex@~0.1.4",
         "npm:@types/lodash@^4.14.116",
@@ -924,6 +983,7 @@
         "npm:fdir@^6.2.0",
         "npm:globrex@~0.1.2",
         "npm:lodash@^4.17.21",
+        "npm:macroforge@~0.1.73",
         "npm:mocha@^9.2.0",
         "npm:prettier-plugin-svelte@^3.4.0",
         "npm:prettier@~3.3.3",
