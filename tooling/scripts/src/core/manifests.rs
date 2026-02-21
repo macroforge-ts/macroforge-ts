@@ -557,7 +557,8 @@ fn update_core_platform_packages(root: &Path, version: &str) -> Result<()> {
 
 /// Helper to replace a const value in Rust source
 fn replace_const(content: &str, name: &str, val: &str) -> String {
-    content
+    let had_trailing_newline = content.ends_with('\n');
+    let mut result = content
         .lines()
         .map(|line| {
             if line.trim().starts_with(&format!("const {}: &str =", name)) {
@@ -569,7 +570,11 @@ fn replace_const(content: &str, name: &str, val: &str) -> String {
             }
         })
         .collect::<Vec<_>>()
-        .join("\n")
+        .join("\n");
+    if had_trailing_newline {
+        result.push('\n');
+    }
+    result
 }
 
 /// Apply all versions from a VersionsCache to all manifest files

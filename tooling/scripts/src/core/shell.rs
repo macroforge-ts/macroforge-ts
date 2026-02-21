@@ -158,15 +158,49 @@ impl<'a> Shell<'a> {
 pub mod cargo {
     use super::*;
 
-    /// Run cargo fmt to fix formatting
+    /// Run cargo fmt --check (fails if unformatted)
     pub fn fmt_check(cwd: &Path) -> Result<CommandResult> {
-        Shell::new("cargo").args(&["fmt"]).dir(cwd).run_checked()
+        Shell::new("cargo")
+            .args(&["fmt", "--all", "--", "--check"])
+            .dir(cwd)
+            .run_checked()
     }
 
     /// Run cargo clippy with warnings as errors
     pub fn clippy(cwd: &Path) -> Result<CommandResult> {
         Shell::new("cargo")
             .args(&["clippy", "--", "-D", "warnings"])
+            .dir(cwd)
+            .run_checked()
+    }
+
+    /// Run cargo clippy with --all-targets --all-features and warnings as errors
+    pub fn clippy_all(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("cargo")
+            .args(&[
+                "clippy",
+                "--all-targets",
+                "--all-features",
+                "--",
+                "-D",
+                "warnings",
+            ])
+            .dir(cwd)
+            .run_checked()
+    }
+
+    /// Run cargo clippy with a specific target
+    pub fn clippy_target(cwd: &Path, target: &str) -> Result<CommandResult> {
+        Shell::new("cargo")
+            .args(&["clippy", "--target", target, "--", "-D", "warnings"])
+            .dir(cwd)
+            .run_checked()
+    }
+
+    /// Run cargo build with a specific target
+    pub fn build_target(cwd: &Path, target: &str) -> Result<CommandResult> {
+        Shell::new("cargo")
+            .args(&["build", "--target", target, "--release"])
             .dir(cwd)
             .run_checked()
     }
@@ -231,6 +265,11 @@ pub mod deno {
             .args(&["fmt", "."])
             .dir(cwd)
             .run_checked()
+    }
+
+    /// Run deno lint
+    pub fn lint(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("deno").args(&["lint"]).dir(cwd).run_checked()
     }
 
     /// Run deno lint with JSON output
