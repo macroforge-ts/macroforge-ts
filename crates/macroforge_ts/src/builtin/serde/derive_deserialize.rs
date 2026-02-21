@@ -570,7 +570,7 @@ pub fn generate_validation_condition(validator: &Validator, value_var: &str) -> 
             let escaped = regex.replace('\\', "\\\\");
             format!("!/{escaped}/.test({value_var})")
         }
-        Validator::NonEmpty => format!("{value_var}.length === 0"),
+        Validator::NonEmpty => format!("{value_var} != null && {value_var}.length === 0"),
         Validator::Trimmed => format!("{value_var} !== {value_var}.trim()"),
         Validator::Lowercase => format!("{value_var} !== {value_var}.toLowerCase()"),
         Validator::Uppercase => format!("{value_var} !== {value_var}.toUpperCase()"),
@@ -2893,7 +2893,9 @@ fn generate_field_validations(
                 let escaped = pattern.replace('\\', "\\\\").replace('"', "\\\"");
                 format!("!/{escaped}/.test({value_var})")
             }
-            Validator::NonEmpty => format!("{value_var}.trim().length === 0"),
+            Validator::NonEmpty => {
+                format!("{value_var} !== null && {value_var}.trim().length === 0")
+            }
             Validator::Trimmed => format!("{value_var} !== {value_var}.trim()"),
             Validator::Lowercase => format!("{value_var} !== {value_var}.toLowerCase()"),
             Validator::Uppercase => format!("{value_var} !== {value_var}.toUpperCase()"),

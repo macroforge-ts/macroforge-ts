@@ -981,22 +981,26 @@ fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, import_module: &str)
     for ns in &ft.expression_namespaces {
         // Check if this namespace is imported in the source file
         let has_import = import_sources.contains_key(ns);
+        // Check if the config file imports this namespace (runtime dependency)
+        let has_config_import = config_imports.contains_key(ns);
 
-        // If the namespace is not imported at all, assume it's either:
+        // If the namespace is not imported in either the source file or the config,
+        // assume it's either:
         // - A global (like JSON, Math, Date, console)
         // - A local variable defined in the expression
         // In either case, we don't need to generate an import for it
-        if !has_import {
+        if !has_import && !has_config_import {
             continue;
         }
 
         // Check if the import is type-only (won't be available at runtime)
         let is_type_only = type_only_imports.get(ns).copied().unwrap_or(false);
 
-        // Only need to generate an import if:
-        // 1. The namespace IS imported (it's a known external dependency), AND
-        // 2. The namespace is imported as type-only (won't be available at runtime)
-        if is_type_only {
+        // Need to generate an import if:
+        // 1a. The namespace IS imported in source but as type-only (won't be available at runtime), OR
+        // 1b. The namespace is NOT imported in source but IS imported in config (the config's
+        //     expressions reference it, so it must be available at runtime)
+        if is_type_only || (!has_import && has_config_import) {
             // Determine the module to import from
             // Priority:
             // 1. Config file imports (where the config actually imports from)
