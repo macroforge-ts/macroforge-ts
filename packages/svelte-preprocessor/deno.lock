@@ -1,7 +1,8 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:svelte@^5.43.8": "5.51.2_acorn@8.15.0",
+    "npm:macroforge@~0.1.74": "0.1.74",
+    "npm:svelte@^5.43.8": "5.53.0_acorn@8.16.0",
     "npm:typescript@^5.9.3": "5.9.3"
   },
   "npm": {
@@ -32,7 +33,37 @@
         "@jridgewell/sourcemap-codec"
       ]
     },
-    "@sveltejs/acorn-typescript@1.0.9_acorn@8.15.0": {
+    "@macroforge/bin-darwin-arm64@0.1.74": {
+      "integrity": "sha512-TsifOim4DpYrHedb4p4O3rWapGt0tR5lNYM7Iea4VXIOtaIg83vsWMKQiYLCkeW6bO7V4L7kh7S4MEnHN5QDuQ==",
+      "os": ["darwin"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-darwin-x64@0.1.74": {
+      "integrity": "sha512-WhhI6FJWNiL/BRJAUIWLgXi0UaWhN5otbgnXuCZ5yZ3/IdHJk7oyaFimTmguGr4gBo5nNRi5jGQMZ6ED3aubOA==",
+      "os": ["darwin"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/bin-linux-arm64-gnu@0.1.74": {
+      "integrity": "sha512-E3rSdrNraZejUBV33xwot+YpV0E6YWdgG6w8h7S2zYYmSy1+Px4CLGKxov1kGorm8qI2mXr1OEXHknBj44BOAw==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-linux-x64-gnu@0.1.74": {
+      "integrity": "sha512-s2SdanFPEZkMGOUupZQ5WX8OCWCI0wh3ypewrSbgWbqPZadaMZJ0aT8Z7GTOm3gTF8B637SnZPOiEFc7rjTEyA==",
+      "os": ["linux"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/bin-win32-arm64-msvc@0.1.74": {
+      "integrity": "sha512-w8sm4hrmC76C8/rpS0QqlzRniNTQF9+rLzeUjAXIubjxVYTdhMAH6ufd98yy8KGFLwRKPSZ7Agj1sOUH0fxocA==",
+      "os": ["win32"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-win32-x64-msvc@0.1.74": {
+      "integrity": "sha512-ynZLg7KoI7QnCRNCmxE/5Z3Q/mXqJ4fTE2han63GJIAkQ9llItiXD2djuVrYoxpxxlnJVCeqjYsgNk4kQr+XtQ==",
+      "os": ["win32"],
+      "cpu": ["x64"]
+    },
+    "@sveltejs/acorn-typescript@1.0.9_acorn@8.16.0": {
       "integrity": "sha512-lVJX6qEgs/4DOcRTpo56tmKzVPtoWAaVbL4hfO7t7NVwl9AAXzQR6cihesW1BmNMPl+bK6dreu2sOKBP2Q9CIA==",
       "dependencies": [
         "acorn"
@@ -44,8 +75,8 @@
     "@types/trusted-types@2.0.7": {
       "integrity": "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="
     },
-    "acorn@8.15.0": {
-      "integrity": "sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==",
+    "acorn@8.16.0": {
+      "integrity": "sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==",
       "bin": true
     },
     "aria-query@5.3.2": {
@@ -57,8 +88,8 @@
     "clsx@2.1.1": {
       "integrity": "sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA=="
     },
-    "devalue@5.6.2": {
-      "integrity": "sha512-nPRkjWzzDQlsejL1WVifk5rvcFi/y1onBRxjaFMjZeR9mFpqu2gmAZ9xUB9/IEanEP/vBtGeGganC/GO1fmufg=="
+    "devalue@5.6.3": {
+      "integrity": "sha512-nc7XjUU/2Lb+SvEFVGcWLiKkzfw8+qHI7zn8WYXKkLMgfGSHbgCEaR6bJpev8Cm6Rmrb19Gfd/tZvGqx9is3wg=="
     },
     "esm-env@1.2.2": {
       "integrity": "sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA=="
@@ -78,14 +109,25 @@
     "locate-character@3.0.0": {
       "integrity": "sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA=="
     },
+    "macroforge@0.1.74": {
+      "integrity": "sha512-uPWNtctMZuZO66NSbHpZ+NKS28kGXiWMq+ufOU5GuEZMhtrtJUwLFwyRfSckOvSPRNIscbm4KEDcxPcFp3XPJQ==",
+      "optionalDependencies": [
+        "@macroforge/bin-darwin-arm64",
+        "@macroforge/bin-darwin-x64",
+        "@macroforge/bin-linux-arm64-gnu",
+        "@macroforge/bin-linux-x64-gnu",
+        "@macroforge/bin-win32-arm64-msvc",
+        "@macroforge/bin-win32-x64-msvc"
+      ]
+    },
     "magic-string@0.30.21": {
       "integrity": "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==",
       "dependencies": [
         "@jridgewell/sourcemap-codec"
       ]
     },
-    "svelte@5.51.2_acorn@8.15.0": {
-      "integrity": "sha512-AqApqNOxVS97V4Ko9UHTHeSuDJrwauJhZpLDs1gYD8Jk48ntCSWD7NxKje+fnGn5Ja1O3u2FzQZHPdifQjXe3w==",
+    "svelte@5.53.0_acorn@8.16.0": {
+      "integrity": "sha512-7dhHkSamGS2vtoBmIW2hRab+gl5Z60alEHZB4910ePqqJNxAWnDAxsofVmlZ2tREmWyHNE+A1nCKwICAquoD2A==",
       "dependencies": [
         "@jridgewell/remapping",
         "@jridgewell/sourcemap-codec",
@@ -116,6 +158,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:macroforge@~0.1.74",
         "npm:svelte@^5.43.8",
         "npm:typescript@^5.9.3"
       ]
