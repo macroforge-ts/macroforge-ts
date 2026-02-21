@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "npm:@jridgewell/trace-mapping@~0.3.25": "0.3.31",
+    "npm:@macroforge/typescript-plugin@~0.1.74": "0.1.74_typescript@5.9.3",
     "npm:@types/estree@^0.0.42": "0.0.42",
     "npm:@types/globrex@~0.1.4": "0.1.4",
     "npm:@types/lodash@^4.14.116": "4.17.23",
@@ -15,11 +16,12 @@
     "npm:fdir@^6.2.0": "6.5.0",
     "npm:globrex@~0.1.2": "0.1.2",
     "npm:lodash@^4.17.21": "4.17.23",
+    "npm:macroforge@~0.1.74": "0.1.74",
     "npm:mocha@^9.2.0": "9.2.2",
-    "npm:prettier-plugin-svelte@^3.4.0": "3.4.1_prettier@3.3.3_svelte@4.2.20",
+    "npm:prettier-plugin-svelte@^3.4.0": "3.5.0_prettier@3.3.3_svelte@4.2.20",
     "npm:prettier@~3.3.3": "3.3.3",
     "npm:sinon@11": "11.1.2",
-    "npm:svelte2tsx@~0.7.45": "0.7.48_svelte@4.2.20_typescript@5.9.3",
+    "npm:svelte2tsx@~0.7.45": "0.7.51_svelte@4.2.20_typescript@5.9.3",
     "npm:svelte@^4.2.19": "4.2.20",
     "npm:ts-node@10": "10.9.2_@types+node@18.19.130_typescript@5.9.3",
     "npm:typescript-auto-import-cache@~0.3.6": "0.3.6",
@@ -85,6 +87,51 @@
       "dependencies": [
         "@jridgewell/resolve-uri",
         "@jridgewell/sourcemap-codec"
+      ]
+    },
+    "@macroforge/bin-darwin-arm64@0.1.74": {
+      "integrity": "sha512-TsifOim4DpYrHedb4p4O3rWapGt0tR5lNYM7Iea4VXIOtaIg83vsWMKQiYLCkeW6bO7V4L7kh7S4MEnHN5QDuQ==",
+      "os": ["darwin"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-darwin-x64@0.1.74": {
+      "integrity": "sha512-WhhI6FJWNiL/BRJAUIWLgXi0UaWhN5otbgnXuCZ5yZ3/IdHJk7oyaFimTmguGr4gBo5nNRi5jGQMZ6ED3aubOA==",
+      "os": ["darwin"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/bin-linux-arm64-gnu@0.1.74": {
+      "integrity": "sha512-E3rSdrNraZejUBV33xwot+YpV0E6YWdgG6w8h7S2zYYmSy1+Px4CLGKxov1kGorm8qI2mXr1OEXHknBj44BOAw==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-linux-x64-gnu@0.1.74": {
+      "integrity": "sha512-s2SdanFPEZkMGOUupZQ5WX8OCWCI0wh3ypewrSbgWbqPZadaMZJ0aT8Z7GTOm3gTF8B637SnZPOiEFc7rjTEyA==",
+      "os": ["linux"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/bin-win32-arm64-msvc@0.1.74": {
+      "integrity": "sha512-w8sm4hrmC76C8/rpS0QqlzRniNTQF9+rLzeUjAXIubjxVYTdhMAH6ufd98yy8KGFLwRKPSZ7Agj1sOUH0fxocA==",
+      "os": ["win32"],
+      "cpu": ["arm64"]
+    },
+    "@macroforge/bin-win32-x64-msvc@0.1.74": {
+      "integrity": "sha512-ynZLg7KoI7QnCRNCmxE/5Z3Q/mXqJ4fTE2han63GJIAkQ9llItiXD2djuVrYoxpxxlnJVCeqjYsgNk4kQr+XtQ==",
+      "os": ["win32"],
+      "cpu": ["x64"]
+    },
+    "@macroforge/shared@0.1.74_typescript@5.9.3": {
+      "integrity": "sha512-PxVeA0pW/j8iFdD0bpdEBX6O8/bGb/siiCDgZzWGDaBL6O/zrwnX+S4l6d61BJrXbHNm8gWZL2ROAOQzjfeKYQ==",
+      "dependencies": [
+        "macroforge",
+        "typescript"
+      ]
+    },
+    "@macroforge/typescript-plugin@0.1.74_typescript@5.9.3": {
+      "integrity": "sha512-RbuDr78sCvVwRzoqxW60ZRdEGiJWxsvk+fKvt8ezzGZErZA9wSDWTbkSWVMdGdf71VOZFTnjIrD+ZoAQcXPJrA==",
+      "dependencies": [
+        "@macroforge/shared",
+        "macroforge",
+        "typescript"
       ]
     },
     "@sinonjs/commons@1.8.6": {
@@ -175,14 +222,14 @@
     "@vscode/l10n@0.0.18": {
       "integrity": "sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ=="
     },
-    "acorn-walk@8.3.4": {
-      "integrity": "sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==",
+    "acorn-walk@8.3.5": {
+      "integrity": "sha512-HEHNfbars9v4pgpW6SO1KSPkfoS0xVOM/9UzkJltjlsHZmJasxg8aXkuZa7SMf8vKGIBhpUsPluQSqhJFCqebw==",
       "dependencies": [
         "acorn"
       ]
     },
-    "acorn@8.15.0": {
-      "integrity": "sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==",
+    "acorn@8.16.0": {
+      "integrity": "sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==",
       "bin": true
     },
     "ansi-colors@4.1.1": {
@@ -512,6 +559,17 @@
         "is-unicode-supported"
       ]
     },
+    "macroforge@0.1.74": {
+      "integrity": "sha512-uPWNtctMZuZO66NSbHpZ+NKS28kGXiWMq+ufOU5GuEZMhtrtJUwLFwyRfSckOvSPRNIscbm4KEDcxPcFp3XPJQ==",
+      "optionalDependencies": [
+        "@macroforge/bin-darwin-arm64",
+        "@macroforge/bin-darwin-x64",
+        "@macroforge/bin-linux-arm64-gnu",
+        "@macroforge/bin-linux-x64-gnu",
+        "@macroforge/bin-win32-arm64-msvc",
+        "@macroforge/bin-win32-x64-msvc"
+      ]
+    },
     "magic-string@0.30.21": {
       "integrity": "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==",
       "dependencies": [
@@ -630,8 +688,8 @@
     "picomatch@2.3.1": {
       "integrity": "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="
     },
-    "prettier-plugin-svelte@3.4.1_prettier@3.3.3_svelte@4.2.20": {
-      "integrity": "sha512-xL49LCloMoZRvSwa6IEdN2GV6cq2IqpYGstYtMT+5wmml1/dClEoI0MZR78MiVPpu6BdQFfN0/y73yO6+br5Pg==",
+    "prettier-plugin-svelte@3.5.0_prettier@3.3.3_svelte@4.2.20": {
+      "integrity": "sha512-2lLO/7EupnjO/95t+XZesXs8Bf3nYLIDfCo270h5QWbj/vjLqmrQ1LiRk9LPggxSDsnVYfehamZNf+rgQYApZg==",
       "dependencies": [
         "prettier",
         "svelte"
@@ -728,8 +786,8 @@
         "has-flag"
       ]
     },
-    "svelte2tsx@0.7.48_svelte@4.2.20_typescript@5.9.3": {
-      "integrity": "sha512-B15C8dtOY6C9MbnQJDCkzbK3yByInzKtXrr23QCoF8APHMh6JaDhjCMcRl6ay4qaeKYqkX4X3tNaJrsZL45Zlg==",
+    "svelte2tsx@0.7.51_svelte@4.2.20_typescript@5.9.3": {
+      "integrity": "sha512-YbVMQi5LtQkVGOMdATTY8v3SMtkNjzYtrVDGaN3Bv+0LQ47tGXu/Oc8ryTkcYuEJWTZFJ8G2+2I8ORcQVGt9Ag==",
       "dependencies": [
         "dedent-js",
         "scule",
@@ -911,6 +969,7 @@
     "packageJson": {
       "dependencies": [
         "npm:@jridgewell/trace-mapping@~0.3.25",
+        "npm:@macroforge/typescript-plugin@~0.1.74",
         "npm:@types/estree@^0.0.42",
         "npm:@types/globrex@~0.1.4",
         "npm:@types/lodash@^4.14.116",
@@ -924,6 +983,7 @@
         "npm:fdir@^6.2.0",
         "npm:globrex@~0.1.2",
         "npm:lodash@^4.17.21",
+        "npm:macroforge@~0.1.74",
         "npm:mocha@^9.2.0",
         "npm:prettier-plugin-svelte@^3.4.0",
         "npm:prettier@~3.3.3",
