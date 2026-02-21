@@ -517,7 +517,13 @@ pub fn run(args: PrepArgs) -> Result<()> {
             for repo in &rust_repos {
                 print!("  {} {}... ", "→".blue(), repo.name);
                 io::stdout().flush()?;
-                match shell::cargo::clippy(&repo.abs_path) {
+                // Use --all-targets --all-features for core (matches CI)
+                let result = if repo.name == "core" {
+                    shell::cargo::clippy_all(&repo.abs_path)
+                } else {
+                    shell::cargo::clippy(&repo.abs_path)
+                };
+                match result {
                     Ok(_) => println!("{}", "ok".green()),
                     Err(e) => {
                         println!("{}", "failed".red());
@@ -586,7 +592,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // Format with deno fmt
+        // Format with deno fmt (auto-fix; CI will --check)
         print!("  {} deno fmt... ", "→".blue());
         io::stdout().flush()?;
         match shell::deno::deno_fmt(&tooling_path) {
@@ -594,6 +600,19 @@ pub fn run(args: PrepArgs) -> Result<()> {
             Err(e) => {
                 println!("{}", "failed".red());
                 format::error(&format!("deno fmt failed: {}", e));
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
+        // Lint with deno lint
+        print!("  {} deno lint... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::deno::lint(&tooling_path) {
+            Ok(_) => println!("{}", "ok".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                format::error(&format!("deno lint failed: {}", e));
                 rollback(&config, &original_versions_cache);
                 return Err(e);
             }
@@ -709,6 +728,62 @@ pub fn run(args: PrepArgs) -> Result<()> {
                 println!("{}", "failed".red());
                 rollback(&config, &original_versions_cache);
                 return Err(e);
+            }
+        }
+
+        // [6.8/10] Run extension checks (wasm32-wasip1 build, clippy, fmt)
+        let extensions_path = config.root.join("crates/extensions");
+        let extension_crates = ["svelte-macroforge", "vtsls-macroforge"];
+
+        if extensions_path.exists() {
+            let step = Step {
+                number: 6.8,
+                total: 11,
+                label: "Running extension checks (wasm32-wasip1)".to_string(),
+            };
+            step.print();
+
+            for ext in &extension_crates {
+                let ext_path = extensions_path.join(ext);
+                if !ext_path.exists() {
+                    continue;
+                }
+
+                // Build
+                print!("  {} {} build... ", "→".blue(), ext);
+                io::stdout().flush()?;
+                match shell::cargo::build_target(&ext_path, "wasm32-wasip1") {
+                    Ok(_) => println!("{}", "ok".green()),
+                    Err(e) => {
+                        println!("{}", "failed".red());
+                        rollback(&config, &original_versions_cache);
+                        return Err(e);
+                    }
+                }
+
+                // Clippy
+                print!("  {} {} clippy... ", "→".blue(), ext);
+                io::stdout().flush()?;
+                match shell::cargo::clippy_target(&ext_path, "wasm32-wasip1") {
+                    Ok(_) => println!("{}", "ok".green()),
+                    Err(e) => {
+                        println!("{}", "failed".red());
+                        rollback(&config, &original_versions_cache);
+                        return Err(e);
+                    }
+                }
+
+                // Fmt
+                print!("  {} {} fmt... ", "→".blue(), ext);
+                io::stdout().flush()?;
+                match shell::cargo::fmt_check(&ext_path) {
+                    Ok(_) => println!("{}", "ok".green()),
+                    Err(e) => {
+                        println!("{}", "failed".red());
+                        rollback(&config, &original_versions_cache);
+                        return Err(e);
+                    }
+                }
             }
         }
 
