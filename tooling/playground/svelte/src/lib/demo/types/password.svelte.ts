@@ -2,6 +2,6 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Password {
-  /** @serde({ validate: ["nonEmpty"] }) */
-  password: string;
+    /** @serde({ validate: ["nonEmpty"] }) */
+    password: string;
 }

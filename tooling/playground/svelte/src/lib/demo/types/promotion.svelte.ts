@@ -2,6 +2,6 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Promotion {
-  id: string;
-  date: string;
+    id: string;
+    date: string;
 }

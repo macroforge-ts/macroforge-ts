@@ -267,6 +267,14 @@ pub mod deno {
             .run_checked()
     }
 
+    /// Run deno fmt --check (fails if unformatted)
+    pub fn deno_fmt_check(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("deno")
+            .args(&["fmt", "--check"])
+            .dir(cwd)
+            .run_checked()
+    }
+
     /// Run deno lint
     pub fn lint(cwd: &Path) -> Result<CommandResult> {
         Shell::new("deno").args(&["lint"]).dir(cwd).run_checked()
