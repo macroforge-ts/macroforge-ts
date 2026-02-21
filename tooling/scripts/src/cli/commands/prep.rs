@@ -287,50 +287,54 @@ pub fn run(args: PrepArgs) -> Result<()> {
     };
 
     // [0/11] Run diagnostics (format + lint all projects)
-    let step = Step {
-        number: 0.0,
-        total: 11,
-        label: "Running diagnostics".to_string(),
-    };
-    step.print();
+    if !args.bump_only {
+        let step = Step {
+            number: 0.0,
+            total: 11,
+            label: "Running diagnostics".to_string(),
+        };
+        step.print();
 
-    // Swap to local paths before diagnostics so rust-tests uses local crates
-    manifests::swap_local(&config)?;
+        // Swap to local paths before diagnostics so rust-tests uses local crates
+        manifests::swap_local(&config)?;
 
-    let diag_result = {
-        let mut diag_options = DiagnosticOptions::all();
-        diag_options.format = true;
-        let runner = DiagnosticsRunner::new(&config.root, diag_options);
-        runner.run()
-    };
+        let diag_result = {
+            let mut diag_options = DiagnosticOptions::all();
+            diag_options.format = true;
+            let runner = DiagnosticsRunner::new(&config.root, diag_options);
+            runner.run()
+        };
 
-    // Restore to original dependency state
-    if was_using_local_paths {
-        // Already in local state, nothing to do
-    } else if let Err(e) = manifests::swap_registry(&config, &config.versions) {
-        eprintln!("{} Failed to restore registry versions: {}", "✗".red(), e);
-    }
+        // Restore to original dependency state
+        if was_using_local_paths {
+            // Already in local state, nothing to do
+        } else if let Err(e) = manifests::swap_registry(&config, &config.versions) {
+            eprintln!("{} Failed to restore registry versions: {}", "✗".red(), e);
+        }
 
-    let aggregator = diag_result?;
+        let aggregator = diag_result?;
 
-    if !aggregator.diagnostics().is_empty() {
-        eprintln!(
-            "\n{} Found {} diagnostic issues:",
-            "✗".red(),
-            aggregator.diagnostics().len()
-        );
-        for diag in aggregator.diagnostics().iter().take(10) {
+        if !aggregator.diagnostics().is_empty() {
             eprintln!(
-                "  {}:{}:{}: {}",
-                diag.file, diag.line, diag.column, diag.message
+                "\n{} Found {} diagnostic issues:",
+                "✗".red(),
+                aggregator.diagnostics().len()
             );
+            for diag in aggregator.diagnostics().iter().take(10) {
+                eprintln!(
+                    "  {}:{}:{}: {}",
+                    diag.file, diag.line, diag.column, diag.message
+                );
+            }
+            if aggregator.diagnostics().len() > 10 {
+                eprintln!("  ... and {} more", aggregator.diagnostics().len() - 10);
+            }
+            anyhow::bail!("Diagnostics failed - fix issues before prepping");
         }
-        if aggregator.diagnostics().len() > 10 {
-            eprintln!("  ... and {} more", aggregator.diagnostics().len() - 10);
-        }
-        anyhow::bail!("Diagnostics failed - fix issues before prepping");
+        eprintln!("  {} All diagnostics passed", "✓".green());
+    } else {
+        println!("\n{} Skipping diagnostics", "[0/11]".dimmed());
     }
-    eprintln!("  {} All diagnostics passed", "✓".green());
 
     // [1/11] Bump versions
     let step = Step {
@@ -592,7 +596,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // Format with deno fmt (auto-fix; CI will --check)
+        // Format with deno fmt (auto-fix)
         print!("  {} deno fmt... ", "→".blue());
         io::stdout().flush()?;
         match shell::deno::deno_fmt(&tooling_path) {
@@ -784,6 +788,40 @@ pub fn run(args: PrepArgs) -> Result<()> {
                         return Err(e);
                     }
                 }
+            }
+        }
+
+        // [6.9/11] Re-format generated files and verify (matches tooling CI)
+        // Macro expansion and tests in steps 6.7+ may generate unformatted files
+        let step = Step {
+            number: 6.9,
+            total: 11,
+            label: "Formatting and verifying generated files".to_string(),
+        };
+        step.print();
+
+        print!("  {} deno fmt tooling/... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::deno::deno_fmt(&tooling_path) {
+            Ok(_) => println!("{}", "ok".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                format::error(&format!("deno fmt failed: {}", e));
+                rollback(&config, &original_versions_cache);
+                return Err(e);
+            }
+        }
+
+        // Verify with --check to ensure everything is clean (matches CI)
+        print!("  {} deno fmt --check tooling/... ", "→".blue());
+        io::stdout().flush()?;
+        match shell::deno::deno_fmt_check(&tooling_path) {
+            Ok(_) => println!("{}", "ok".green()),
+            Err(e) => {
+                println!("{}", "failed".red());
+                format::error(&format!("deno fmt --check failed after formatting: {}", e));
+                rollback(&config, &original_versions_cache);
+                return Err(e);
             }
         }
 
