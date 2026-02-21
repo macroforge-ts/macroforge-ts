@@ -222,6 +222,10 @@ pub struct TsStream {
     /// Where this stream's code should be inserted relative to the target.
     /// Defaults to `Below` (after the target declaration).
     pub insert_pos: crate::abi::InsertPos,
+    /// Cross-module function suffixes for auto-import resolution.
+    /// External macros register suffixes here so the framework can resolve
+    /// cross-module references following the `{camelCaseTypeName}{Suffix}` pattern.
+    pub cross_module_suffixes: Vec<String>,
 }
 
 /// Formats TypeScript source code using SWC's emitter.
@@ -341,6 +345,7 @@ impl TsStream {
             ctx: None,
             runtime_patches: vec![],
             insert_pos: crate::abi::InsertPos::default(),
+            cross_module_suffixes: vec![],
         })
     }
 
@@ -353,6 +358,7 @@ impl TsStream {
             ctx: None,
             runtime_patches: vec![],
             insert_pos: crate::abi::InsertPos::default(),
+            cross_module_suffixes: vec![],
         }
     }
 
@@ -365,6 +371,7 @@ impl TsStream {
             ctx: None,
             runtime_patches: vec![],
             insert_pos,
+            cross_module_suffixes: vec![],
         }
     }
 
@@ -382,6 +389,7 @@ impl TsStream {
             ctx: None,
             runtime_patches,
             insert_pos,
+            cross_module_suffixes: vec![],
         }
     }
 
@@ -404,6 +412,7 @@ impl TsStream {
             ctx: Some(ctx),
             runtime_patches: vec![],
             insert_pos: crate::abi::InsertPos::default(),
+            cross_module_suffixes: vec![],
         })
     }
 
@@ -421,6 +430,7 @@ impl TsStream {
             tokens: Some(self.source),
             insert_pos: self.insert_pos,
             debug: None,
+            cross_module_suffixes: self.cross_module_suffixes,
         }
     }
 
@@ -525,6 +535,26 @@ impl TsStream {
         }
     }
 
+    /// Register a cross-module function suffix for auto-import resolution.
+    ///
+    /// When the generated code references a function like `companyNameGetFields()`,
+    /// the framework needs to know that `GetFields` is a valid suffix to resolve
+    /// against imported types. Built-in macros (Default, Serialize, etc.) have
+    /// their suffixes hardcoded; external macros use this method to register theirs.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // In your macro's generate function:
+    /// output.add_cross_module_suffix("GetFields");
+    /// // Now if the file imports `CompanyName` from `./account.svelte`,
+    /// // and the generated code references `companyNameGetFields()`,
+    /// // the framework will auto-add: import { companyNameGetFields } from "./account.svelte";
+    /// ```
+    pub fn add_cross_module_suffix(&mut self, suffix: &str) {
+        self.cross_module_suffixes.push(suffix.to_string());
+    }
+
     /// Merge another TsStream into this one.
     ///
     /// Combines the source code and runtime patches from both streams.
@@ -562,6 +592,10 @@ impl TsStream {
 
         // Merge runtime patches
         self.runtime_patches.extend(other.runtime_patches);
+
+        // Merge cross-module suffixes
+        self.cross_module_suffixes
+            .extend(other.cross_module_suffixes);
 
         self
     }
@@ -804,5 +838,57 @@ mod tests {
     fn test_parse_stmt() {
         let result = parse_ts_stmt("const x = 5;");
         assert!(result.is_ok(), "parse_ts_stmt failed: {:?}", result.err());
+    }
+
+    #[test]
+    fn test_add_cross_module_suffix() {
+        let mut stream = TsStream::from_string("export function foo() {}".to_string());
+        assert!(stream.cross_module_suffixes.is_empty());
+
+        stream.add_cross_module_suffix("GetFields");
+        assert_eq!(stream.cross_module_suffixes, vec!["GetFields"]);
+
+        stream.add_cross_module_suffix("CustomSuffix");
+        assert_eq!(
+            stream.cross_module_suffixes,
+            vec!["GetFields", "CustomSuffix"]
+        );
+    }
+
+    #[test]
+    fn test_cross_module_suffixes_propagate_to_result() {
+        let mut stream = TsStream::from_string("export function foo() {}".to_string());
+        stream.add_cross_module_suffix("GetFields");
+        stream.add_cross_module_suffix("OtherSuffix");
+
+        let result = stream.into_result();
+        assert_eq!(
+            result.cross_module_suffixes,
+            vec!["GetFields", "OtherSuffix"]
+        );
+    }
+
+    #[test]
+    fn test_merge_combines_cross_module_suffixes() {
+        let mut a = TsStream::from_string("export function a() {}".to_string());
+        a.add_cross_module_suffix("GetFields");
+
+        let mut b = TsStream::from_string("export function b() {}".to_string());
+        b.add_cross_module_suffix("CustomSuffix");
+
+        let merged = a.merge(b);
+        assert_eq!(
+            merged.cross_module_suffixes,
+            vec!["GetFields", "CustomSuffix"]
+        );
+    }
+
+    #[test]
+    fn test_empty_cross_module_suffixes_by_default() {
+        let stream = TsStream::from_string("const x = 1;".to_string());
+        assert!(stream.cross_module_suffixes.is_empty());
+
+        let result = stream.into_result();
+        assert!(result.cross_module_suffixes.is_empty());
     }
 }

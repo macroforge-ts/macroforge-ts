@@ -435,6 +435,7 @@ impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
 ///         tokens: None,
 ///         insert_pos: InsertPos::Below,
 ///         debug: Some("Generated 2 methods".to_string()),
+///         ..Default::default()
 ///     }
 /// }
 ///
@@ -477,6 +478,12 @@ pub struct MacroResult {
     /// Optional debug information for development.
     /// Can be displayed in verbose mode or logged for debugging.
     pub debug: Option<String>,
+
+    /// Cross-module function suffixes registered by external macros for auto-import resolution.
+    /// The framework combines these with its built-in suffixes when resolving cross-module
+    /// references following the `{camelCaseTypeName}{Suffix}` naming convention.
+    #[serde(default)]
+    pub cross_module_suffixes: Vec<String>,
 }
 
 /// A diagnostic message from macro expansion.
