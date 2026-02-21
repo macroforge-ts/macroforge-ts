@@ -1,17 +1,17 @@
 # PartialOrd
 
-The `PartialOrd` macro generates a `compareTo()` method for **partial ordering**
-comparison. This is analogous to Rust's `PartialOrd` trait, enabling comparison
-between values where some pairs may be incomparable.
+The `PartialOrd` macro generates a `compareTo()` method for **partial ordering** comparison. This is
+analogous to Rust's `PartialOrd` trait, enabling comparison between values where some pairs may be
+incomparable.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `classNamePartialCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
-| Enum | `enumNamePartialCompare(a: EnumName, b: EnumName): Option<number>` | Standalone function returning Option |
-| Interface | `interfaceNamePartialCompare(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option |
-| Type Alias | `typeNamePartialCompare(a: TypeName, b: TypeName): Option<number>` | Standalone function with Option |
+| Type       | Generated Code                                                                    | Description                                 |
+| ---------- | --------------------------------------------------------------------------------- | ------------------------------------------- |
+| Class      | `classNamePartialCompare(a, b)` + `static compareTo(a, b)`                        | Standalone function + static wrapper method |
+| Enum       | `enumNamePartialCompare(a: EnumName, b: EnumName): Option<number>`                | Standalone function returning Option        |
+| Interface  | `interfaceNamePartialCompare(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option             |
+| Type Alias | `typeNamePartialCompare(a: TypeName, b: TypeName): Option<number>`                | Standalone function with Option             |
 
 ## Return Values
 
@@ -43,15 +43,15 @@ Fields are compared **lexicographically** in declaration order:
 
 ## Type-Specific Comparisons
 
-| Type | Comparison Method |
-|------|-------------------|
-| `number`/`bigint` | Direct comparison, returns some() |
-| `string` | `localeCompare()` wrapped in some() |
-| `boolean` | false &lt; true, wrapped in some() |
-| null/undefined | Returns none() for mismatched nullability |
-| Arrays | Lexicographic, propagates none() on incomparable elements |
-| `Date` | Timestamp comparison, none() if invalid |
-| Objects | Unwraps nested Option from compareTo() |
+| Type              | Comparison Method                                         |
+| ----------------- | --------------------------------------------------------- |
+| `number`/`bigint` | Direct comparison, returns some()                         |
+| `string`          | `localeCompare()` wrapped in some()                       |
+| `boolean`         | false &lt; true, wrapped in some()                        |
+| null/undefined    | Returns none() for mismatched nullability                 |
+| Arrays            | Lexicographic, propagates none() on incomparable elements |
+| `Date`            | Timestamp comparison, none() if invalid                   |
+| Objects           | Unwraps nested Option from compareTo()                    |
 
 ## Field-Level Options
 

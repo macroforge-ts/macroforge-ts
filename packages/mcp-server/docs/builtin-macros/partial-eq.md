@@ -1,17 +1,17 @@
 # PartialEq
 
-The `PartialEq` macro generates an `equals()` method for field-by-field
-structural equality comparison. This is analogous to Rust's `PartialEq` trait,
-enabling value-based equality semantics instead of reference equality.
+The `PartialEq` macro generates an `equals()` method for field-by-field structural equality
+comparison. This is analogous to Rust's `PartialEq` trait, enabling value-based equality semantics
+instead of reference equality.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `classNameEquals(a, b)` + `static equals(a, b)` | Standalone function + static wrapper method |
-| Enum | `enumNameEquals(a: EnumName, b: EnumName): boolean` | Standalone function using strict equality |
-| Interface | `interfaceNameEquals(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields |
-| Type Alias | `typeNameEquals(a: TypeName, b: TypeName): boolean` | Standalone function with type-appropriate comparison |
+| Type       | Generated Code                                                     | Description                                          |
+| ---------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
+| Class      | `classNameEquals(a, b)` + `static equals(a, b)`                    | Standalone function + static wrapper method          |
+| Enum       | `enumNameEquals(a: EnumName, b: EnumName): boolean`                | Standalone function using strict equality            |
+| Interface  | `interfaceNameEquals(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields                 |
+| Type Alias | `typeNameEquals(a: TypeName, b: TypeName): boolean`                | Standalone function with type-appropriate comparison |
 
 ## Comparison Strategy
 
@@ -22,14 +22,14 @@ The generated equality check:
 
 ## Type-Specific Comparisons
 
-| Type | Comparison Method |
-|------|-------------------|
-| Primitives | Strict equality (`===`) |
-| Arrays | Length + element-by-element (recursive) |
-| `Date` | `getTime()` comparison |
-| `Map` | Size + entry-by-entry comparison |
-| `Set` | Size + membership check |
-| Objects | Calls `equals()` if available, else `===` |
+| Type       | Comparison Method                         |
+| ---------- | ----------------------------------------- |
+| Primitives | Strict equality (`===`)                   |
+| Arrays     | Length + element-by-element (recursive)   |
+| `Date`     | `getTime()` comparison                    |
+| `Map`      | Size + entry-by-entry comparison          |
+| `Set`      | Size + membership check                   |
+| Objects    | Calls `equals()` if available, else `===` |
 
 ## Field-Level Options
 
@@ -73,18 +73,14 @@ export function userEquals(a: User, b: User): boolean {
 
 export function userHashCode(value: User): number {
     let hash = 17;
-    hash =
-        (hash * 31 +
-            (Number.isInteger(value.id)
-                ? value.id | 0
-                : value.id
-                      .toString()
-                      .split('')
-                      .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+    hash = (hash * 31 +
+        (Number.isInteger(value.id) ? value.id | 0 : value.id
+            .toString()
+            .split('')
+            .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
         0;
-    hash =
-        (hash * 31 +
-            (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+    hash = (hash * 31 +
+        (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
         0;
     return hash;
 }
@@ -134,18 +130,14 @@ export function userEquals(a: User, b: User): boolean {
 
 export function userHashCode(value: User): number {
     let hash = 17;
-    hash =
-        (hash * 31 +
-            (Number.isInteger(value.id)
-                ? value.id | 0
-                : value.id
-                      .toString()
-                      .split('')
-                      .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+    hash = (hash * 31 +
+        (Number.isInteger(value.id) ? value.id | 0 : value.id
+            .toString()
+            .split('')
+            .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
         0;
-    hash =
-        (hash * 31 +
-            (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+    hash = (hash * 31 +
+        (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
         0;
     return hash;
 }

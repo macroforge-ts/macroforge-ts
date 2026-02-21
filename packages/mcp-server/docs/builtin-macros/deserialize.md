@@ -1,17 +1,17 @@
 # Deserialize
 
-The `Deserialize` macro generates JSON deserialization methods with **cycle and
-forward-reference support**, plus comprehensive runtime validation. This enables
-safe parsing of complex JSON structures including circular references.
+The `Deserialize` macro generates JSON deserialization methods with **cycle and forward-reference
+support**, plus comprehensive runtime validation. This enables safe parsing of complex JSON
+structures including circular references.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `classNameDeserialize(input)` + `static deserialize(input)` | Standalone function + static factory method |
-| Enum | `enumNameDeserialize(input)`, `enumNameDeserializeWithContext(data)`, `enumNameIs(value)` | Standalone functions |
-| Interface | `interfaceNameDeserialize(input)`, etc. | Standalone functions |
-| Type Alias | `typeNameDeserialize(input)`, etc. | Standalone functions |
+| Type       | Generated Code                                                                            | Description                                 |
+| ---------- | ----------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Class      | `classNameDeserialize(input)` + `static deserialize(input)`                               | Standalone function + static factory method |
+| Enum       | `enumNameDeserialize(input)`, `enumNameDeserializeWithContext(data)`, `enumNameIs(value)` | Standalone functions                        |
+| Interface  | `interfaceNameDeserialize(input)`, etc.                                                   | Standalone functions                        |
+| Type Alias | `typeNameDeserialize(input)`, etc.                                                        | Standalone functions                        |
 
 ## Return Type
 
@@ -29,27 +29,32 @@ Uses deferred patching to handle references:
 3. After all objects are created, `ctx.applyPatches()` resolves all pending references
 
 References only apply to object-shaped, serializable values. The generator avoids probing for
-`__ref` on primitive-like fields (including literal unions and `T | null` where `T` is primitive-like),
-and it parses `Date` / `Date | null` from ISO strings without treating them as references.
+`__ref` on primitive-like fields (including literal unions and `T | null` where `T` is
+primitive-like), and it parses `Date` / `Date | null` from ISO strings without treating them as
+references.
 
 ## Validation
 
 The macro supports 30+ validators via `@serde(validate(...))`:
 
 ### String Validators
+
 - `email`, `url`, `uuid` - Format validation
 - `minLength(n)`, `maxLength(n)`, `length(n)` - Length constraints
 - `pattern("regex")` - Regular expression matching
 - `nonEmpty`, `trimmed`, `lowercase`, `uppercase` - String properties
 
 ### Number Validators
+
 - `gt(n)`, `gte(n)`, `lt(n)`, `lte(n)`, `between(min, max)` - Range checks
 - `int`, `positive`, `nonNegative`, `finite` - Number properties
 
 ### Array Validators
+
 - `minItems(n)`, `maxItems(n)`, `itemsCount(n)` - Collection size
 
 ### Date Validators
+
 - `validDate`, `afterDate("ISO")`, `beforeDate("ISO")` - Date validation
 
 ## Field-Level Options
@@ -72,23 +77,29 @@ The `@serde` decorator supports:
 Union types are deserialized based on their member types:
 
 ### Literal Unions
-For unions of literal values (`"A" | "B" | 123`), the value is validated against
-the allowed literals directly.
+
+For unions of literal values (`"A" | "B" | 123`), the value is validated against the allowed
+literals directly.
 
 ### Primitive Unions
-For unions containing primitive types (`string | number`), the deserializer uses
-`typeof` checks to validate the value type. No `__type` discriminator is needed.
+
+For unions containing primitive types (`string | number`), the deserializer uses `typeof` checks to
+validate the value type. No `__type` discriminator is needed.
 
 ### Class/Interface Unions
-For unions of serializable types (`User | Admin`), the deserializer requires a
-`__type` field in the JSON to dispatch to the correct type's `deserializeWithContext` method.
+
+For unions of serializable types (`User | Admin`), the deserializer requires a `__type` field in the
+JSON to dispatch to the correct type's `deserializeWithContext` method.
 
 ### Generic Type Parameters
-For generic unions like `type Result<T> = T | Error`, the generic type parameter `T`
-is passed through as-is since its concrete type is only known at the call site.
+
+For generic unions like `type Result<T> = T | Error`, the generic type parameter `T` is passed
+through as-is since its concrete type is only known at the call site.
 
 ### Mixed Unions
+
 Mixed unions (e.g., `string | Date | User`) check in order:
+
 1. Literal values
 2. Primitives (via `typeof`)
 3. Date (via `instanceof` or ISO string parsing)
@@ -311,4 +322,5 @@ if (Result.isOk(result)) {
 ## Required Imports
 
 The generated code automatically imports:
+
 - `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
