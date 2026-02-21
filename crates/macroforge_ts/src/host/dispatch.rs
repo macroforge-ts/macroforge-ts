@@ -165,8 +165,6 @@ impl MacroDispatcher {
                 let impl_abi = macro_impl.abi_version();
                 if impl_abi != ctx.abi_version {
                     return MacroResult {
-                        runtime_patches: vec![],
-                        type_patches: vec![],
                         diagnostics: vec![Diagnostic {
                             level: DiagnosticLevel::Error,
                             message: format!(
@@ -180,9 +178,7 @@ impl MacroDispatcher {
                                     .to_string(),
                             ),
                         }],
-                        tokens: None,
-                        insert_pos: Default::default(),
-                        debug: None,
+                        ..Default::default()
                     };
                 }
 
@@ -194,8 +190,6 @@ impl MacroDispatcher {
                         Ok(stream) => stream,
                         Err(err) => {
                             return MacroResult {
-                                runtime_patches: vec![],
-                                type_patches: vec![],
                                 diagnostics: vec![Diagnostic {
                                     level: DiagnosticLevel::Error,
                                     message: format!("Failed to create TsStream: {:?}", err),
@@ -203,9 +197,7 @@ impl MacroDispatcher {
                                     notes: vec![],
                                     help: None,
                                 }],
-                                tokens: None,
-                                insert_pos: Default::default(),
-                                debug: None,
+                                ..Default::default()
                             };
                         }
                     };
@@ -227,8 +219,6 @@ impl MacroDispatcher {
                         };
 
                         MacroResult {
-                            runtime_patches: vec![],
-                            type_patches: vec![],
                             diagnostics: vec![Diagnostic {
                                 level: DiagnosticLevel::Error,
                                 message: format!("Macro execution panicked: {}", panic_msg),
@@ -236,9 +226,7 @@ impl MacroDispatcher {
                                 notes: vec![],
                                 help: None,
                             }],
-                            tokens: None,
-                            insert_pos: Default::default(),
-                            debug: None,
+                            ..Default::default()
                         }
                     }
                 }
@@ -246,8 +234,6 @@ impl MacroDispatcher {
             Err(_err) => {
                 // Macro not found - provide a helpful error message
                 MacroResult {
-                    runtime_patches: vec![],
-                    type_patches: vec![],
                     diagnostics: vec![Diagnostic {
                         level: DiagnosticLevel::Error,
                         message: format!(
@@ -258,9 +244,7 @@ impl MacroDispatcher {
                         notes: vec![],
                         help: None,
                     }],
-                    tokens: None,
-                    insert_pos: Default::default(),
-                    debug: None,
+                    ..Default::default()
                 }
             }
         }

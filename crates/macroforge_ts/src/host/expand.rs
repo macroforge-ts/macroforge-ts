@@ -752,8 +752,11 @@ impl MacroExpander {
                     let mut type_def = type_def;
 
                     if let Some(tokens) = &result.tokens {
-                        let external_imports =
-                            external_type_function_import_patches(tokens, &import_sources);
+                        let external_imports = external_type_function_import_patches(
+                            tokens,
+                            &import_sources,
+                            &result.cross_module_suffixes,
+                        );
                         runtime.extend(external_imports.clone());
                         type_def.extend(external_imports);
                     }
@@ -1487,6 +1490,7 @@ const tryImport = async (id) => {
             tokens: host_result.tokens,
             insert_pos: host_result.insert_pos,
             debug: host_result.debug,
+            cross_module_suffixes: host_result.cross_module_suffixes,
         })
     }
 }
@@ -1861,6 +1865,7 @@ fn contains_identifier(haystack: &str, ident: &str) -> bool {
 fn external_type_function_import_patches(
     tokens: &str,
     import_sources: &HashMap<String, String>,
+    extra_suffixes: &[String],
 ) -> Vec<Patch> {
     let mut needed: std::collections::BTreeMap<(String, String), ()> = Default::default();
 
@@ -1880,7 +1885,9 @@ fn external_type_function_import_patches(
         }
 
         let camel = type_name.to_case(Case::Camel);
-        let candidates = vec![
+
+        // Built-in suffixes from core macros (Default, Serialize, Deserialize, etc.)
+        let mut candidates = vec![
             format!("{camel}SerializeWithContext"),
             format!("{camel}DeserializeWithContext"),
             format!("{camel}DefaultValue"),
@@ -1889,6 +1896,11 @@ fn external_type_function_import_patches(
             format!("{camel}ValidateField"),
             format!("{camel}ValidateFields"),
         ];
+
+        // Append suffixes registered by external macros via add_cross_module_suffix()
+        for suffix in extra_suffixes {
+            candidates.push(format!("{camel}{suffix}"));
+        }
 
         for ident in candidates {
             if import_sources.contains_key(&ident) {
@@ -2931,5 +2943,135 @@ class Comparable {
         assert!(warnings.iter().any(|w| w.message.contains("Ord")));
         assert!(warnings.iter().any(|w| w.message.contains("PartialOrd")));
         assert!(warnings.iter().any(|w| w.message.contains("PartialEq")));
+    }
+}
+
+#[cfg(test)]
+mod external_type_function_import_tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    fn make_import_sources(entries: &[(&str, &str)]) -> HashMap<String, String> {
+        entries
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect()
+    }
+
+    #[test]
+    fn generates_builtin_suffix_imports() {
+        // Tokens reference `companyNameDefaultValue` which should be auto-imported
+        let tokens = "const val = companyNameDefaultValue();";
+        let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
+
+        let patches = external_type_function_import_patches(tokens, &import_sources, &[]);
+
+        assert_eq!(patches.len(), 1);
+        match &patches[0] {
+            Patch::InsertRaw { code, .. } => {
+                assert!(code.contains("companyNameDefaultValue"));
+                assert!(code.contains("./account.svelte"));
+            }
+            _ => panic!("Expected InsertRaw patch"),
+        }
+    }
+
+    #[test]
+    fn generates_extra_suffix_imports() {
+        // Tokens reference `companyNameGetFields` — a custom suffix registered via add_cross_module_suffix
+        let tokens = "const fields = companyNameGetFields();";
+        let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
+        let extra = vec!["GetFields".to_string()];
+
+        let patches = external_type_function_import_patches(tokens, &import_sources, &extra);
+
+        assert_eq!(patches.len(), 1);
+        match &patches[0] {
+            Patch::InsertRaw { code, .. } => {
+                assert!(code.contains("companyNameGetFields"));
+                assert!(code.contains("./account.svelte"));
+            }
+            _ => panic!("Expected InsertRaw patch"),
+        }
+    }
+
+    #[test]
+    fn no_import_when_suffix_not_registered() {
+        // Tokens reference `companyNameGetFields` but no extra suffix registered
+        let tokens = "const fields = companyNameGetFields();";
+        let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
+
+        let patches = external_type_function_import_patches(tokens, &import_sources, &[]);
+
+        // Should NOT generate an import since GetFields is not a builtin suffix
+        assert!(patches.is_empty());
+    }
+
+    #[test]
+    fn skips_already_imported_identifiers() {
+        let tokens = "const val = companyNameDefaultValue();";
+        // companyNameDefaultValue is already in the import sources
+        let import_sources = make_import_sources(&[
+            ("CompanyName", "./account.svelte"),
+            ("companyNameDefaultValue", "./account.svelte"),
+        ]);
+
+        let patches = external_type_function_import_patches(tokens, &import_sources, &[]);
+
+        assert!(patches.is_empty());
+    }
+
+    #[test]
+    fn skips_non_relative_module_specifiers() {
+        let tokens = "const val = companyNameDefaultValue();";
+        // Non-relative module source (e.g., npm package)
+        let import_sources = make_import_sources(&[("CompanyName", "some-package")]);
+
+        let patches = external_type_function_import_patches(tokens, &import_sources, &[]);
+
+        assert!(patches.is_empty());
+    }
+
+    #[test]
+    fn multiple_extra_suffixes_all_resolve() {
+        let tokens = r#"
+            const a = companyNameGetFields();
+            const b = companyNameCustomSuffix();
+        "#;
+        let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
+        let extra = vec!["GetFields".to_string(), "CustomSuffix".to_string()];
+
+        let patches = external_type_function_import_patches(tokens, &import_sources, &extra);
+
+        assert_eq!(patches.len(), 2);
+        let codes: Vec<String> = patches
+            .iter()
+            .map(|p| match p {
+                Patch::InsertRaw { code, .. } => code.clone(),
+                _ => panic!("Expected InsertRaw patch"),
+            })
+            .collect();
+        assert!(codes.iter().any(|c| c.contains("companyNameGetFields")));
+        assert!(codes.iter().any(|c| c.contains("companyNameCustomSuffix")));
+    }
+
+    #[test]
+    fn extra_suffix_only_matches_when_referenced_in_tokens() {
+        // Tokens do NOT reference companyNameGetFields
+        let tokens = "const val = companyNameDefaultValue();";
+        let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
+        let extra = vec!["GetFields".to_string()];
+
+        let patches = external_type_function_import_patches(tokens, &import_sources, &extra);
+
+        // Only DefaultValue should be imported, not GetFields
+        assert_eq!(patches.len(), 1);
+        match &patches[0] {
+            Patch::InsertRaw { code, .. } => {
+                assert!(code.contains("companyNameDefaultValue"));
+                assert!(!code.contains("companyNameGetFields"));
+            }
+            _ => panic!("Expected InsertRaw patch"),
+        }
     }
 }
