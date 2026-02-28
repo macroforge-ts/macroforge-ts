@@ -953,6 +953,7 @@ dependencies = [
  "convert_case 0.10.0",
  "dashmap",
  "ignore",
+ "indexmap",
  "inventory",
  "libc",
  "macroforge_ts_macros",
