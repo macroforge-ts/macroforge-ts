@@ -189,186 +189,23 @@ pub mod derive_deserialize;
 pub mod derive_serialize;
 
 use crate::host::ForeignTypeConfig;
+use crate::host::import_registry::{with_registry, with_registry_mut};
 use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector, SpanIR};
-use std::cell::RefCell;
-use std::collections::HashMap;
+
+// Re-export the registry type and thread-local accessors from their canonical location.
+pub use crate::host::import_registry::{
+    ImportRegistry, clear_registry, install_registry, take_registry,
+};
 
 // ============================================================================
-// Thread-local storage for current expansion's foreign types and import sources
+// Compat wrappers — thin delegates to with_registry / with_registry_mut.
+// These keep existing serde macro code working without changes.
+// They can be deprecated and inlined later.
 // ============================================================================
 
-thread_local! {
-    /// Thread-local storage for foreign type configurations during expansion.
-    ///
-    /// This is set by the expander before running macros and cleared after.
-    /// Macros can query this to check if a field's type matches a foreign type.
-    static FOREIGN_TYPES: RefCell<Vec<ForeignTypeConfig>> = const{ RefCell::new(Vec::new()) };
-
-    /// Thread-local storage for import sources during expansion.
-    ///
-    /// Maps type/identifier names to their import module sources.
-    /// Used to validate that foreign types are imported from the correct modules.
-    static IMPORT_SOURCES: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
-
-    /// Thread-local storage for import aliases during expansion.
-    ///
-    /// Maps local alias names to their original imported names.
-    /// For `import { Option as EffectOption } from "effect/Option"`,
-    /// this would contain `"EffectOption" -> "Option"`.
-    static IMPORT_ALIASES: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
-
-    /// Thread-local storage for type-only import tracking during expansion.
-    ///
-    /// Maps identifier names to whether they are type-only imports.
-    /// For `import type { DateTime } from "effect"`, this contains `"DateTime" -> true`.
-    /// For `import { DateTime } from "effect"`, this contains `"DateTime" -> false`.
-    static TYPE_ONLY_IMPORTS: RefCell<HashMap<String, bool>> = RefCell::new(HashMap::new());
-
-    /// Thread-local storage for required namespace imports during expansion.
-    ///
-    /// Accumulates namespaces that need to be imported for foreign type expressions.
-    /// Maps namespace name -> (module_source, alias_to_use).
-    /// For example, if `DateTime.formatIso` is used and DateTime is type-only imported,
-    /// this would contain `"DateTime" -> ("effect/DateTime", "__mf_DateTime")`.
-    static REQUIRED_NS_IMPORTS: RefCell<HashMap<String, (String, String)>> = RefCell::new(HashMap::new());
-
-    /// Thread-local storage for config file imports during expansion.
-    ///
-    /// Stores the import sources from the config file (e.g., `import { DateTime } from "effect"`).
-    /// Maps identifier names to their module sources.
-    /// Used to determine the correct import source when generating namespace imports.
-    static CONFIG_IMPORTS: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
-}
-
-/// Set the foreign types for the current expansion.
-///
-/// This should be called by the expander before running macros.
-/// The previous value is returned so it can be restored after expansion.
-pub fn set_foreign_types(types: Vec<ForeignTypeConfig>) -> Vec<ForeignTypeConfig> {
-    FOREIGN_TYPES.with(|ft| ft.replace(types))
-}
-
-/// Get a reference to the current foreign types.
-///
-/// Returns a clone of the current foreign types for thread-safety.
+/// Get a clone of the current foreign types.
 pub fn get_foreign_types() -> Vec<ForeignTypeConfig> {
-    FOREIGN_TYPES.with(|ft| ft.borrow().clone())
-}
-
-/// Clear the foreign types after expansion.
-pub fn clear_foreign_types() {
-    FOREIGN_TYPES.with(|ft| ft.borrow_mut().clear());
-}
-
-/// Set the import sources for the current expansion.
-///
-/// This should be called by the expander before running macros.
-/// The previous value is returned so it can be restored after expansion.
-pub fn set_import_sources(sources: HashMap<String, String>) -> HashMap<String, String> {
-    IMPORT_SOURCES.with(|is| is.replace(sources))
-}
-
-/// Get a reference to the current import sources.
-///
-/// Returns a clone of the current import sources for thread-safety.
-pub fn get_import_sources() -> HashMap<String, String> {
-    IMPORT_SOURCES.with(|is| is.borrow().clone())
-}
-
-/// Clear the import sources after expansion.
-pub fn clear_import_sources() {
-    IMPORT_SOURCES.with(|is| is.borrow_mut().clear());
-}
-
-/// Set the import aliases for the current expansion.
-///
-/// Maps local alias names to their original imported names.
-/// For `import { Option as EffectOption }`, stores `"EffectOption" -> "Option"`.
-pub fn set_import_aliases(aliases: HashMap<String, String>) -> HashMap<String, String> {
-    IMPORT_ALIASES.with(|ia| ia.replace(aliases))
-}
-
-/// Get a reference to the current import aliases.
-///
-/// Returns a clone of the current import aliases for thread-safety.
-pub fn get_import_aliases() -> HashMap<String, String> {
-    IMPORT_ALIASES.with(|ia| ia.borrow().clone())
-}
-
-/// Clear the import aliases after expansion.
-pub fn clear_import_aliases() {
-    IMPORT_ALIASES.with(|ia| ia.borrow_mut().clear());
-}
-
-/// Set the type-only import tracking for the current expansion.
-///
-/// Maps identifier names to whether they are type-only imports.
-/// This should be called by the expander before running macros.
-pub fn set_type_only_imports(imports: HashMap<String, bool>) -> HashMap<String, bool> {
-    TYPE_ONLY_IMPORTS.with(|toi| toi.replace(imports))
-}
-
-/// Get a reference to the current type-only import tracking.
-///
-/// Returns a clone of the current tracking for thread-safety.
-pub fn get_type_only_imports() -> HashMap<String, bool> {
-    TYPE_ONLY_IMPORTS.with(|toi| toi.borrow().clone())
-}
-
-/// Clear the type-only import tracking after expansion.
-pub fn clear_type_only_imports() {
-    TYPE_ONLY_IMPORTS.with(|toi| toi.borrow_mut().clear());
-}
-
-/// Register a required namespace import for foreign type expressions.
-///
-/// When a foreign type expression uses a namespace (e.g., `DateTime.formatIso`),
-/// and that namespace is not available as a value import, this registers the
-/// need to generate an import for it.
-///
-/// # Arguments
-/// * `namespace` - The namespace identifier (e.g., "DateTime")
-/// * `module` - The module to import from (e.g., "effect/DateTime")
-/// * `alias` - The alias to use in generated code (e.g., "__mf_DateTime")
-pub fn register_required_namespace(namespace: &str, module: &str, alias: &str) {
-    REQUIRED_NS_IMPORTS.with(|ns| {
-        ns.borrow_mut().insert(
-            namespace.to_string(),
-            (module.to_string(), alias.to_string()),
-        );
-    });
-}
-
-/// Get all required namespace imports accumulated during expansion.
-///
-/// Returns a HashMap where keys are namespace names and values are (module, alias) tuples.
-pub fn get_required_namespace_imports() -> HashMap<String, (String, String)> {
-    REQUIRED_NS_IMPORTS.with(|ns| ns.borrow().clone())
-}
-
-/// Clear the required namespace imports after expansion.
-pub fn clear_required_namespace_imports() {
-    REQUIRED_NS_IMPORTS.with(|ns| ns.borrow_mut().clear());
-}
-
-/// Set the config file imports for the current expansion.
-///
-/// Maps identifier names to their module sources from the config file.
-/// This should be called by the expander before running macros.
-pub fn set_config_imports(imports: HashMap<String, String>) -> HashMap<String, String> {
-    CONFIG_IMPORTS.with(|ci| ci.replace(imports))
-}
-
-/// Get a reference to the current config file imports.
-///
-/// Returns a clone of the current imports for thread-safety.
-pub fn get_config_imports() -> HashMap<String, String> {
-    CONFIG_IMPORTS.with(|ci| ci.borrow().clone())
-}
-
-/// Clear the config file imports after expansion.
-pub fn clear_config_imports() {
-    CONFIG_IMPORTS.with(|ci| ci.borrow_mut().clear());
+    crate::host::import_registry::with_foreign_types(|ft| ft.to_vec())
 }
 
 /// Naming convention for JSON field renaming
@@ -457,6 +294,8 @@ pub struct SerdeFieldOptions {
     pub serialize_with: Option<String>,
     /// Custom deserialization function name (like Rust's `#[serde(deserialize_with)]`)
     pub deserialize_with: Option<String>,
+    /// Format hint for serialization/deserialization (e.g., "decimal" to serialize numbers as strings)
+    pub format: Option<String>,
 }
 
 /// Result of parsing field options, containing both options and any diagnostics
@@ -510,6 +349,10 @@ impl SerdeFieldOptions {
             }
             if let Some(fn_name) = extract_named_string(args, "deserializeWith") {
                 opts.deserialize_with = Some(fn_name);
+            }
+
+            if let Some(format) = extract_named_string(args, "format") {
+                opts.format = Some(format);
             }
 
             // Extract validators with diagnostic collection
@@ -607,8 +450,9 @@ impl TypeCategory {
         }
 
         // Handle union types (T | undefined, T | null)
-        if trimmed.contains('|') {
-            let parts: Vec<&str> = trimmed.split('|').map(|s| s.trim()).collect();
+        // Only split on top-level `|` — pipes inside <>, (), [], or string
+        // literals (e.g. Pick<User, 'a' | 'b'>) are ignored.
+        if let Some(parts) = split_top_level_union(trimmed) {
             if parts.contains(&"undefined") {
                 let non_undefined: Vec<&str> = parts
                     .iter()
@@ -621,6 +465,8 @@ impl TypeCategory {
                 let non_null: Vec<&str> = parts.iter().filter(|p| *p != &"null").copied().collect();
                 return Self::Nullable(non_null.join(" | "));
             }
+            // Remaining unions (e.g., Utc | number) are not a single serializable type
+            return Self::Unknown;
         }
 
         // Check if it looks like a class/interface name (starts with uppercase)
@@ -679,7 +525,22 @@ impl TypeCategory {
                 return Self::Unknown;
             }
 
-            return Self::Serializable(trimmed.to_string());
+            let base = if let Some(idx) = trimmed.find('<') {
+                &trimmed[..idx]
+            } else {
+                trimmed
+            };
+
+            // Dot-qualified types like DateTime.Utc are foreign types handled
+            // via match_foreign_type at the field level. Classifying them as
+            // Serializable would produce garbled function names (e.g.,
+            // "dateTime.utcSerializeWithContext") because to_case(Camel)
+            // doesn't handle dots correctly.
+            if base.contains('.') {
+                return Self::Unknown;
+            }
+
+            return Self::Serializable(base.to_string());
         }
 
         Self::Unknown
@@ -730,8 +591,8 @@ impl TypeCategory {
         foreign_types: &'a [ForeignTypeConfig],
     ) -> ForeignTypeMatch<'a> {
         let trimmed = ts_type.trim();
-        let import_sources = get_import_sources();
-        let import_aliases = get_import_aliases();
+        let import_sources = with_registry(|r| r.source_modules());
+        let import_aliases = with_registry(|r| r.aliases());
 
         // Skip empty types
         if trimmed.is_empty() {
@@ -939,26 +800,29 @@ impl TypeCategory {
 /// # Returns
 /// The rewritten expression string with namespace aliases applied
 pub fn rewrite_expression_namespaces(expr: &str) -> String {
-    let required_imports = get_required_namespace_imports();
+    with_registry(|r| {
+        let mut result = expr.to_string();
+        let mut found_any = false;
 
-    if required_imports.is_empty() {
-        return expr.to_string();
-    }
+        for import in r.generated_imports() {
+            if let Some(ref original) = import.original_name
+                && !import.is_type_only
+            {
+                let pattern = format!("{}.", original);
+                let replacement = format!("{}.", import.local_name);
+                if result.contains(&pattern) {
+                    result = result.replace(&pattern, &replacement);
+                    found_any = true;
+                }
+            }
+        }
 
-    let mut result = expr.to_string();
+        if !found_any {
+            return expr.to_string();
+        }
 
-    for (namespace, (_module, alias)) in &required_imports {
-        // Replace namespace references in member expressions
-        // We need to be careful to only replace the namespace when it's followed by a dot
-        // to avoid replacing unrelated identifiers
-        //
-        // Pattern: namespace. -> alias.
-        let pattern = format!("{}.", namespace);
-        let replacement = format!("{}.", alias);
-        result = result.replace(&pattern, &replacement);
-    }
-
-    result
+        result
+    })
 }
 
 /// Register required namespace imports for a matched foreign type.
@@ -974,54 +838,35 @@ pub fn rewrite_expression_namespaces(expr: &str) -> String {
 /// * `ft` - The matched foreign type configuration
 /// * `import_module` - The module the type is imported from (fallback if not in config)
 fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, import_module: &str) {
-    let type_only_imports = get_type_only_imports();
-    let import_sources = get_import_sources();
-    let config_imports = get_config_imports();
+    with_registry_mut(|r| {
+        for ns in &ft.expression_namespaces {
+            let has_import = r.is_available(ns);
+            let has_config_import = r.config_imports.contains_key(ns);
 
-    for ns in &ft.expression_namespaces {
-        // Check if this namespace is imported in the source file
-        let has_import = import_sources.contains_key(ns);
-        // Check if the config file imports this namespace (runtime dependency)
-        let has_config_import = config_imports.contains_key(ns);
+            if !has_import && !has_config_import {
+                continue;
+            }
 
-        // If the namespace is not imported in either the source file or the config,
-        // assume it's either:
-        // - A global (like JSON, Math, Date, console)
-        // - A local variable defined in the expression
-        // In either case, we don't need to generate an import for it
-        if !has_import && !has_config_import {
-            continue;
+            let is_type_only = r.is_type_only(ns);
+
+            if is_type_only || (!r.source_map().contains_key(ns) && has_config_import) {
+                let module = r.config_imports.get(ns).cloned().unwrap_or_else(|| {
+                    ft.from
+                        .first()
+                        .cloned()
+                        .unwrap_or_else(|| import_module.to_string())
+                });
+
+                let alias = format!("__mf_{}", ns);
+                r.request_namespace_import(ns, &module, &alias);
+            }
         }
 
-        // Check if the import is type-only (won't be available at runtime)
-        let is_type_only = type_only_imports.get(ns).copied().unwrap_or(false);
-
-        // Need to generate an import if:
-        // 1a. The namespace IS imported in source but as type-only (won't be available at runtime), OR
-        // 1b. The namespace is NOT imported in source but IS imported in config (the config's
-        //     expressions reference it, so it must be available at runtime)
-        if is_type_only || (!has_import && has_config_import) {
-            // Determine the module to import from
-            // Priority:
-            // 1. Config file imports (where the config actually imports from)
-            // 2. First configured source in foreign type `from` array
-            // 3. Fall back to where the user imported from
-            let module = if let Some(config_source) = config_imports.get(ns) {
-                // Use the module source from the config file
-                // This is the correct source because the config uses this import
-                // for its expressions (e.g., `import { DateTime } from "effect"`)
-                config_source.clone()
-            } else if !ft.from.is_empty() {
-                // Fall back to the first configured source
-                ft.from[0].clone()
-            } else {
-                import_module.to_string()
-            };
-
-            let alias = format!("__mf_{}", ns);
-            register_required_namespace(ns, &module, &alias);
+        let type_name = ft.get_type_name();
+        if !r.is_available(&ft.name) && !r.is_available(type_name) && !ft.from.is_empty() {
+            r.request_type_import(type_name, &ft.from[0]);
         }
-    }
+    });
 }
 
 /// Result of matching a type against foreign type configurations.
@@ -1393,6 +1238,49 @@ fn find_top_level_comma(s: &str) -> Option<usize> {
     None
 }
 
+/// Split a type string on `|` at the top level only.
+///
+/// Respects `<>`, `()`, `[]` nesting and string literals (`'...'`, `"..."`),
+/// so `Pick<User, 'name' | 'email'>` is **not** split on the `|` inside the
+/// angle brackets.  Returns `None` when no top-level `|` exists.
+pub(crate) fn split_top_level_union(s: &str) -> Option<Vec<&str>> {
+    let mut parts = Vec::new();
+    let mut depth = 0usize;
+    let mut in_string = false;
+    let mut string_char = '"';
+    let mut start = 0;
+    let mut found_pipe = false;
+
+    for (i, c) in s.char_indices() {
+        if in_string {
+            if c == string_char {
+                in_string = false;
+            }
+            continue;
+        }
+        match c {
+            '\'' | '"' => {
+                in_string = true;
+                string_char = c;
+            }
+            '<' | '(' | '[' => depth += 1,
+            '>' | ')' | ']' => depth = depth.saturating_sub(1),
+            '|' if depth == 0 => {
+                parts.push(s[start..i].trim());
+                start = i + 1;
+                found_pipe = true;
+            }
+            _ => {}
+        }
+    }
+
+    if !found_pipe {
+        return None;
+    }
+    parts.push(s[start..].trim());
+    Some(parts)
+}
+
 // ============================================================================
 // Validator parsing functions
 // ============================================================================
@@ -1409,6 +1297,7 @@ const KNOWN_OPTIONS: &[&str] = &[
     "message",
     "serializeWith",
     "deserializeWith",
+    "format",
 ];
 
 /// Extract validators from decorator arguments with diagnostic collection
@@ -2087,6 +1976,30 @@ mod tests {
             TypeCategory::from_ts_type("User"),
             TypeCategory::Serializable("User".into())
         );
+    }
+
+    #[test]
+    fn test_type_category_serializable_strips_generics() {
+        // Generic type parameters must be stripped from the Serializable variant
+        // so they don't leak into generated function names.
+        assert_eq!(
+            TypeCategory::from_ts_type("RecordLink<Employee>"),
+            TypeCategory::Serializable("RecordLink".into())
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("RecordLink<Account>"),
+            TypeCategory::Serializable("RecordLink".into())
+        );
+    }
+
+    #[test]
+    fn test_convert_case_with_angle_brackets() {
+        use convert_case::{Case, Casing};
+        // Generics must be stripped before camelCase conversion since `<>` chars
+        // are not recognized as word boundaries by convert_case.
+        let base = "RecordLink";
+        let fn_name = format!("{}SerializeWithContext", base.to_case(Case::Camel));
+        assert_eq!(fn_name, "recordLinkSerializeWithContext");
     }
 
     #[test]

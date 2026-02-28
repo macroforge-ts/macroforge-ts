@@ -90,6 +90,9 @@ pub mod error;
 /// The main macro expansion engine.
 pub mod expand;
 
+/// Unified import registry for macro expansion.
+pub mod import_registry;
+
 /// Helper macros for macro registration.
 pub mod macros;
 
@@ -107,11 +110,16 @@ pub mod traits;
 
 // Primary exports for convenience
 pub use config::{
-    CONFIG_CACHE, ForeignTypeConfig, ImportInfo, MacroConfig, MacroforgeConfig, clear_config_cache,
+    CONFIG_CACHE, ForeignTypeConfig, ImportInfo, MacroConfig, MacroforgeConfig,
+    MacroforgeConfigLoader, clear_config_cache,
 };
 pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};
 pub use expand::{ImportCollectionResult, MacroExpander, MacroExpansion, collect_import_sources};
+pub use import_registry::{
+    ImportRegistry, clear_foreign_types, clear_registry, install_registry, set_foreign_types,
+    with_foreign_types, with_foreign_types_mut, with_registry, with_registry_mut,
+};
 pub use package_registry::MacroPackageRegistration;
 pub use patch_applicator::{PatchApplicator, PatchCollector};
 pub use registry::MacroRegistry;

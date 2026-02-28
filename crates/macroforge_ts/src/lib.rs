@@ -1310,9 +1310,9 @@ pub struct LoadConfigResult {
 /// ```
 #[napi]
 pub fn load_config(content: String, filepath: String) -> Result<LoadConfigResult> {
-    use crate::host::MacroforgeConfig;
+    use crate::host::MacroforgeConfigLoader;
 
-    let config = MacroforgeConfig::load_and_cache(&content, &filepath).map_err(|e| {
+    let config = MacroforgeConfigLoader::load_and_cache(&content, &filepath).map_err(|e| {
         Error::new(
             Status::GenericFailure,
             format!("Failed to parse config: {}", e),
@@ -1530,19 +1530,20 @@ fn expand_inner(
         }
     }
 
-    // Set up foreign types and config imports from config if available
+    // Set up foreign types and config imports on the registry (from config file).
+    // The registry's source imports will be built from the AST later in prepare_expansion_context.
     let config_path = options.as_ref().and_then(|o| o.config_path.as_ref());
     if let Some(path) = config_path
         && let Some(config) = CONFIG_CACHE.get(path)
     {
-        crate::builtin::serde::set_foreign_types(config.foreign_types.clone());
-        // Convert ImportInfo to just module source strings for the serde module
-        let config_imports: std::collections::HashMap<String, String> = config
-            .config_imports
-            .iter()
-            .map(|(name, info)| (name.clone(), info.source.clone()))
-            .collect();
-        crate::builtin::serde::set_config_imports(config_imports);
+        crate::host::import_registry::set_foreign_types(config.foreign_types.clone());
+        crate::host::import_registry::with_registry_mut(|r| {
+            r.config_imports = config
+                .config_imports
+                .iter()
+                .map(|(name, info)| (name.clone(), info.source.clone()))
+                .collect();
+        });
     }
 
     // Parse the code into an AST.
@@ -1553,14 +1554,10 @@ fn expand_inner(
         Err(e) => {
             let error_msg = e.to_string();
 
-            // Clean up foreign types and config imports before returning
-            crate::builtin::serde::clear_foreign_types();
-            crate::builtin::serde::clear_import_sources();
-            crate::builtin::serde::clear_config_imports();
+            // Clean up registry before returning
+            crate::host::import_registry::clear_registry();
+            crate::host::import_registry::clear_foreign_types();
 
-            // Return a "no-op" expansion result: original code unchanged,
-            // with an informational diagnostic explaining why.
-            // This allows the language server to continue functioning smoothly.
             return Ok(ExpandResult {
                 code: code.to_string(),
                 types: None,
@@ -1576,22 +1573,12 @@ fn expand_inner(
         }
     };
 
-    // Extract import sources, aliases, and type-only status for foreign type validation
-    let (import_sources, import_aliases, type_only_imports) = extract_import_sources(&program);
-    crate::builtin::serde::set_import_sources(import_sources);
-    crate::builtin::serde::set_import_aliases(import_aliases);
-    crate::builtin::serde::set_type_only_imports(type_only_imports);
-
-    // Run macro expansion on the parsed AST
+    // Run macro expansion on the parsed AST.
+    // expand() internally calls prepare_expansion_context which builds the full registry from the AST.
     let expansion_result = macro_host.expand(code, &program, filepath);
 
-    // Clean up all thread-local state after expansion (before error propagation)
-    crate::builtin::serde::clear_foreign_types();
-    crate::builtin::serde::clear_import_sources();
-    crate::builtin::serde::clear_import_aliases();
-    crate::builtin::serde::clear_type_only_imports();
-    crate::builtin::serde::clear_required_namespace_imports();
-    crate::builtin::serde::clear_config_imports();
+    // Single cleanup — replaces 7 separate clear_* calls
+    crate::host::import_registry::clear_registry();
 
     // Now propagate any error
     let expansion = expansion_result.map_err(|err| {
@@ -1840,97 +1827,6 @@ fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Result<()> {
         }
     }
     Ok(())
-}
-
-/// Extracts import sources from a parsed program.
-///
-/// Maps imported identifiers to their module sources, which is used for
-/// foreign type import source validation.
-///
-/// # Arguments
-///
-/// * `program` - The parsed TypeScript/JavaScript program
-///
-/// # Returns
-///
-/// A tuple of three HashMaps:
-/// - `sources`: Maps imported identifier names to their module sources
-/// - `aliases`: Maps local alias names to their original imported names
-/// - `type_only`: Maps identifier names to whether they are type-only imports
-///
-/// # Example
-///
-/// For `import { DateTime } from 'effect'`, this returns:
-/// - sources: `{"DateTime": "effect"}`
-/// - type_only: `{"DateTime": false}`
-///
-/// For `import type { DateTime } from 'effect'`, this returns:
-/// - sources: `{"DateTime": "effect"}`
-/// - type_only: `{"DateTime": true}`
-///
-/// For `import { Option as EffectOption }`, this returns aliases `{"EffectOption": "Option"}`.
-fn extract_import_sources(
-    program: &Program,
-) -> (
-    std::collections::HashMap<String, String>,
-    std::collections::HashMap<String, String>,
-    std::collections::HashMap<String, bool>,
-) {
-    use swc_core::ecma::ast::{ImportSpecifier, ModuleDecl, ModuleExportName, ModuleItem};
-
-    let mut sources = std::collections::HashMap::new();
-    let mut aliases = std::collections::HashMap::new();
-    let mut type_only = std::collections::HashMap::new();
-
-    let module = match program {
-        Program::Module(m) => m,
-        Program::Script(_) => return (sources, aliases, type_only),
-    };
-
-    for item in &module.body {
-        if let ModuleItem::ModuleDecl(ModuleDecl::Import(import)) = item {
-            let source = String::from_utf8_lossy(import.src.value.as_bytes()).to_string();
-            // Check if the entire import statement is type-only: `import type { X } from "..."`
-            let is_import_type_only = import.type_only;
-
-            for specifier in &import.specifiers {
-                match specifier {
-                    ImportSpecifier::Named(named) => {
-                        let local = named.local.sym.to_string();
-                        sources.insert(local.clone(), source.clone());
-                        // An import is type-only if either the import statement or the specifier is type-only
-                        // e.g., `import type { X }` or `import { type X }`
-                        type_only.insert(local.clone(), is_import_type_only || named.is_type_only);
-
-                        // Track aliases: if there's an imported name different from local
-                        if let Some(imported) = &named.imported {
-                            let original_name = match imported {
-                                ModuleExportName::Ident(ident) => ident.sym.to_string(),
-                                ModuleExportName::Str(s) => {
-                                    String::from_utf8_lossy(s.value.as_bytes()).to_string()
-                                }
-                            };
-                            if original_name != local {
-                                aliases.insert(local, original_name);
-                            }
-                        }
-                    }
-                    ImportSpecifier::Default(default) => {
-                        let local = default.local.sym.to_string();
-                        sources.insert(local.clone(), source.clone());
-                        type_only.insert(local, is_import_type_only);
-                    }
-                    ImportSpecifier::Namespace(ns) => {
-                        let local = ns.local.sym.to_string();
-                        sources.insert(local.clone(), source.clone());
-                        type_only.insert(local, is_import_type_only);
-                    }
-                }
-            }
-        }
-    }
-
-    (sources, aliases, type_only)
 }
 
 // ============================================================================

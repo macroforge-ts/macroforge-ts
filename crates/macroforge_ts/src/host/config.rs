@@ -104,233 +104,21 @@ const CONFIG_FILES: &[&str] = &[
     "macroforge.config.cjs",
 ];
 
-/// Information about an imported function.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ImportInfo {
-    /// The imported name (or "default" for default imports).
-    pub name: String,
-    /// The module specifier.
-    pub source: String,
-}
+// Re-export config types from macroforge_ts_syn so they're available in MacroContextIR
+// and can be passed to external macro processes.
+pub use macroforge_ts_syn::config::{
+    ForeignTypeAlias, ForeignTypeConfig, ImportInfo, MacroforgeConfig,
+};
 
-/// An alias for a foreign type that allows matching different name-package pairs.
+/// Loader/parser for MacroforgeConfig files.
 ///
-/// This is useful when a type can be imported from different paths or with different names.
-///
-/// ## Example
-///
-/// ```javascript
-/// foreignTypes: {
-///   "DateTime.DateTime": {
-///     from: ["effect"],
-///     aliases: [
-///       { name: "DateTime", from: "effect/DateTime" }
-///     ],
-///     serialize: (v) => DateTime.formatIso(v),
-///     // ...
-///   }
-/// }
-/// ```
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct ForeignTypeAlias {
-    /// The type name to match (e.g., "DateTime" or "DateTime.DateTime").
-    pub name: String,
-    /// The import source to match (e.g., "effect/DateTime").
-    pub from: String,
-}
+/// The [`MacroforgeConfig`] type is defined in `macroforge_ts_syn` so it can be
+/// used in `MacroContextIR` for cross-process transfer. This wrapper struct
+/// provides the SWC-dependent parsing and file-discovery methods that can't
+/// live in the syn crate.
+pub struct MacroforgeConfigLoader;
 
-/// Configuration for a single foreign type.
-///
-/// Foreign types allow global registration of handlers for external types
-/// (like Effect's `DateTime`) so they work like primitives without per-field annotations.
-///
-/// ## Key Format
-///
-/// The key in `foreignTypes` should be the fully qualified type name as used in code:
-/// - Simple type name: `"DateTime"` - matches `DateTime` in code
-/// - Fully qualified: `"DateTime.DateTime"` - matches `DateTime.DateTime` (namespace.type pattern)
-///
-/// ## Import Source Validation
-///
-/// Foreign types are only matched when the type is imported from a source listed in
-/// `from` or one of the `aliases`. Types with the same name from different packages
-/// are ignored (fall back to generic handling).
-///
-/// ## Example
-///
-/// ```javascript
-/// foreignTypes: {
-///   // For Effect's DateTime where you import { DateTime } and use DateTime.DateTime
-///   "DateTime.DateTime": {
-///     from: ["effect"],
-///     aliases: [
-///       { name: "DateTime", from: "effect/DateTime" },
-///       { name: "MyDateTime", from: "my-effect-wrapper" }
-///     ],
-///     serialize: (v) => DateTime.formatIso(v),
-///     deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
-///     default: () => DateTime.unsafeNow()
-///   }
-/// }
-/// ```
-///
-/// This configuration matches:
-/// - `import { DateTime } from 'effect'` with type `DateTime.DateTime`
-/// - `import { DateTime } from 'effect/DateTime'` with type `DateTime`
-/// - `import { MyDateTime } from 'my-effect-wrapper'` with type `MyDateTime`
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct ForeignTypeConfig {
-    /// The full type key as specified in config (e.g., "DateTime" or "DateTime.DateTime").
-    /// This is the key from the foreignTypes object.
-    pub name: String,
-
-    /// Optional namespace for the type (e.g., "DateTime" for DateTime.DateTime).
-    /// If specified, the type is accessed as `namespace.typeName`.
-    /// If not specified, defaults to the first segment of the name if it contains a dot.
-    pub namespace: Option<String>,
-
-    /// Import sources where this type can come from (e.g., ["effect", "effect/DateTime"]).
-    /// Used to validate that the type is imported from the correct module.
-    pub from: Vec<String>,
-
-    /// Serialization function expression (e.g., "(v, ctx) => v.toJSON()").
-    pub serialize_expr: Option<String>,
-
-    /// Import info if serialize is a named function from another module.
-    pub serialize_import: Option<ImportInfo>,
-
-    /// Deserialization function expression.
-    pub deserialize_expr: Option<String>,
-
-    /// Import info if deserialize is a named function from another module.
-    pub deserialize_import: Option<ImportInfo>,
-
-    /// Default value function expression (e.g., "() => DateTime.now()").
-    pub default_expr: Option<String>,
-
-    /// Import info if default is a named function from another module.
-    pub default_import: Option<ImportInfo>,
-
-    /// Aliases for this foreign type, allowing different name-package pairs to use the same config.
-    ///
-    /// Useful when a type can be imported from different paths or with different names.
-    ///
-    /// ## Example
-    ///
-    /// ```javascript
-    /// foreignTypes: {
-    ///   "DateTime.DateTime": {
-    ///     from: ["effect"],
-    ///     aliases: [
-    ///       { name: "DateTime", from: "effect/DateTime" }
-    ///     ],
-    ///     // ...
-    ///   }
-    /// }
-    /// ```
-    #[serde(default)]
-    pub aliases: Vec<ForeignTypeAlias>,
-
-    /// Namespaces referenced in expressions (serialize_expr, deserialize_expr, default_expr).
-    ///
-    /// This is auto-extracted during config parsing by analyzing the expression ASTs.
-    /// For example, if `serialize: (v) => DateTime.formatIso(v)`, this would contain `["DateTime"]`.
-    ///
-    /// Used to determine which namespaces need to be imported for the generated code to work.
-    #[serde(default, skip_serializing)]
-    pub expression_namespaces: Vec<String>,
-}
-
-impl ForeignTypeConfig {
-    /// Returns the namespace for this type.
-    /// If `namespace` is explicitly set, returns that.
-    /// Otherwise, if the name contains a dot (e.g., "Deep.A.B.Type"), returns everything before the last dot.
-    /// Otherwise, returns None.
-    pub fn get_namespace(&self) -> Option<&str> {
-        if let Some(ref ns) = self.namespace {
-            return Some(ns);
-        }
-        // If name contains a dot, extract namespace (everything before the last dot)
-        if let Some(dot_idx) = self.name.rfind('.') {
-            return Some(&self.name[..dot_idx]);
-        }
-        None
-    }
-
-    /// Returns the simple type name (last segment after dots).
-    /// For "DateTime.DateTime", returns "DateTime".
-    /// For "DateTime", returns "DateTime".
-    pub fn get_type_name(&self) -> &str {
-        self.name.rsplit('.').next().unwrap_or(&self.name)
-    }
-
-    /// Returns the full qualified name to match against.
-    /// If namespace is set: "namespace.typeName"
-    /// Otherwise: the name as-is
-    pub fn get_qualified_name(&self) -> String {
-        if let Some(ns) = self.get_namespace() {
-            let type_name = self.get_type_name();
-            if ns != type_name {
-                return format!("{}.{}", ns, type_name);
-            }
-        }
-        self.name.clone()
-    }
-}
-
-/// Configuration for the macro host system.
-///
-/// This struct represents the contents of a `macroforge.config.js` file.
-/// It controls macro loading, execution, and foreign type handling.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct MacroforgeConfig {
-    /// Whether to preserve `@derive` decorators in the output code.
-    ///
-    /// When `false` (default), decorators are stripped after expansion.
-    /// When `true`, decorators remain in the output (useful for debugging).
-    #[serde(default)]
-    pub keep_decorators: bool,
-
-    /// Whether to generate a convenience const for non-class types.
-    ///
-    /// When `true` (default), generates an `export const TypeName = { ... } as const;`
-    /// that groups all generated functions for a type into a single namespace-like object.
-    #[serde(default = "default_generate_convenience_const")]
-    pub generate_convenience_const: bool,
-
-    /// Foreign type configurations.
-    ///
-    /// Maps type names to their handlers for serialization, deserialization, and defaults.
-    #[serde(default)]
-    pub foreign_types: Vec<ForeignTypeConfig>,
-
-    /// Import sources from the config file itself.
-    ///
-    /// Maps imported names (e.g., "DateTime", "Option") to their import info
-    /// (module source). This is used to determine the correct import source
-    /// when generating namespace imports for foreign type expressions.
-    #[serde(default, skip_serializing)]
-    pub config_imports: HashMap<String, ImportInfo>,
-}
-
-/// Returns the default for generate_convenience_const (true).
-fn default_generate_convenience_const() -> bool {
-    true
-}
-
-impl Default for MacroforgeConfig {
-    fn default() -> Self {
-        Self {
-            keep_decorators: false,
-            generate_convenience_const: true, // Default to true
-            foreign_types: Vec::new(),
-            config_imports: HashMap::new(),
-        }
-    }
-}
-
-impl MacroforgeConfig {
+impl MacroforgeConfigLoader {
     /// Parse a macroforge.config.js/ts file and extract configuration.
     ///
     /// Uses SWC to parse the JavaScript/TypeScript config file and extract
@@ -348,7 +136,7 @@ impl MacroforgeConfig {
     /// # Errors
     ///
     /// Returns an error if parsing fails.
-    pub fn from_config_file(content: &str, filepath: &str) -> Result<Self> {
+    pub fn from_config_file(content: &str, filepath: &str) -> Result<MacroforgeConfig> {
         let is_typescript = filepath.ends_with(".ts") || filepath.ends_with(".mts");
 
         let cm: Lrc<SourceMap> = Default::default();
@@ -387,24 +175,11 @@ impl MacroforgeConfig {
     }
 
     /// Load configuration from cache or parse from file content.
-    ///
-    /// Caches the parsed configuration for reuse during macro expansion.
-    ///
-    /// # Arguments
-    ///
-    /// * `content` - The raw file content
-    /// * `filepath` - Path to the config file
-    ///
-    /// # Returns
-    ///
-    /// The parsed configuration.
-    pub fn load_and_cache(content: &str, filepath: &str) -> Result<Self> {
-        // Check cache first
+    pub fn load_and_cache(content: &str, filepath: &str) -> Result<MacroforgeConfig> {
         if let Some(cached) = CONFIG_CACHE.get(filepath) {
             return Ok(cached.clone());
         }
 
-        // Parse and cache
         let config = Self::from_config_file(content, filepath)?;
         CONFIG_CACHE.insert(filepath.to_string(), config.clone());
 
@@ -412,44 +187,23 @@ impl MacroforgeConfig {
     }
 
     /// Get cached configuration by file path.
-    pub fn get_cached(filepath: &str) -> Option<Self> {
+    pub fn get_cached(filepath: &str) -> Option<MacroforgeConfig> {
         CONFIG_CACHE.get(filepath).map(|c| c.clone())
     }
 
     /// Find and load a configuration file from the filesystem.
     ///
-    /// Searches for config files starting from `start_dir` and walking up
-    /// to the nearest `package.json`.
-    ///
-    /// # Returns
-    ///
-    /// - `Ok(Some((config, dir)))` - Found and loaded configuration
-    /// - `Ok(None)` - No configuration file found
-    /// - `Err(_)` - Error reading or parsing configuration
-    pub fn find_with_root() -> Result<Option<(Self, std::path::PathBuf)>> {
+    /// Searches for config files starting from the current directory and
+    /// walking up to the nearest `package.json`.
+    pub fn find_with_root() -> Result<Option<(MacroforgeConfig, std::path::PathBuf)>> {
         let current_dir = std::env::current_dir()?;
         Self::find_config_in_ancestors(&current_dir)
     }
 
     /// Finds configuration starting from a specific path.
-    ///
-    /// This is useful when expanding files in different directories,
-    /// as it allows finding the config relative to each file rather
-    /// than from the current working directory.
-    ///
-    /// # Arguments
-    ///
-    /// * `start_path` - The file or directory to start searching from.
-    ///   If a file is provided, the search starts from its parent directory.
-    ///
-    /// # Returns
-    ///
-    /// - `Ok(Some((config, dir)))` - Found and loaded configuration
-    /// - `Ok(None)` - No configuration file found
-    /// - `Err(_)` - Error reading or parsing configuration
     pub fn find_with_root_from_path(
         start_path: &Path,
-    ) -> Result<Option<(Self, std::path::PathBuf)>> {
+    ) -> Result<Option<(MacroforgeConfig, std::path::PathBuf)>> {
         let start_dir = if start_path.is_file() {
             start_path
                 .parent()
@@ -462,20 +216,17 @@ impl MacroforgeConfig {
     }
 
     /// Convenience wrapper that finds and loads config from a specific path.
-    ///
-    /// # Arguments
-    ///
-    /// * `start_path` - The file or directory to start searching from.
-    pub fn find_from_path(start_path: &Path) -> Result<Option<Self>> {
+    pub fn find_from_path(start_path: &Path) -> Result<Option<MacroforgeConfig>> {
         Ok(Self::find_with_root_from_path(start_path)?.map(|(cfg, _)| cfg))
     }
 
     /// Find configuration in ancestors, returning config and root dir.
-    fn find_config_in_ancestors(start_dir: &Path) -> Result<Option<(Self, std::path::PathBuf)>> {
+    fn find_config_in_ancestors(
+        start_dir: &Path,
+    ) -> Result<Option<(MacroforgeConfig, std::path::PathBuf)>> {
         let mut current = start_dir.to_path_buf();
 
         loop {
-            // Try each config file name in order
             for config_name in CONFIG_FILES {
                 let config_path = current.join(config_name);
                 if config_path.exists() {
@@ -486,12 +237,10 @@ impl MacroforgeConfig {
                 }
             }
 
-            // Check for package.json as a stop condition
             if current.join("package.json").exists() {
                 break;
             }
 
-            // Move to parent directory
             if !current.pop() {
                 break;
             }
@@ -500,9 +249,8 @@ impl MacroforgeConfig {
         Ok(None)
     }
 
-    /// Convenience wrapper around [`find_with_root`](Self::find_with_root)
-    /// for callers that don't need the project root path.
-    pub fn find_and_load() -> Result<Option<Self>> {
+    /// Convenience wrapper for callers that don't need the project root path.
+    pub fn find_and_load() -> Result<Option<MacroforgeConfig>> {
         Ok(Self::find_with_root()?.map(|(cfg, _)| cfg))
     }
 }
@@ -693,6 +441,11 @@ fn parse_single_foreign_type(
                     ft.default_expr = expr;
                     ft.default_import = import;
                 }
+                "hasShape" => {
+                    let (expr, import) = extract_function_expr(&kv.value, imports, cm);
+                    ft.has_shape_expr = expr;
+                    ft.has_shape_import = import;
+                }
                 "aliases" => {
                     ft.aliases = parse_aliases_array(&kv.value);
                 }
@@ -714,6 +467,11 @@ fn parse_single_foreign_type(
         }
     }
     if let Some(ref expr) = ft.default_expr {
+        for ns in extract_expression_namespaces(expr) {
+            all_namespaces.insert(ns);
+        }
+    }
+    if let Some(ref expr) = ft.has_shape_expr {
         for ns in extract_expression_namespaces(expr) {
             all_namespaces.insert(ns);
         }
@@ -1096,7 +854,7 @@ pub struct MacroConfig {
     pub keep_decorators: bool,
 
     /// Whether to generate a convenience const for non-class types.
-    #[serde(default = "default_generate_convenience_const")]
+    #[serde(default = "macroforge_ts_syn::config::default_generate_convenience_const")]
     pub generate_convenience_const: bool,
 }
 
@@ -1108,7 +866,7 @@ impl Default for MacroConfig {
             macro_runtime_overrides: Default::default(),
             limits: Default::default(),
             keep_decorators: false,
-            generate_convenience_const: default_generate_convenience_const(),
+            generate_convenience_const: true,
         }
     }
 }
@@ -1126,7 +884,7 @@ impl From<MacroforgeConfig> for MacroConfig {
 impl MacroConfig {
     /// Finds and loads a configuration file, returning both the config and its directory.
     pub fn find_with_root() -> Result<Option<(Self, std::path::PathBuf)>> {
-        match MacroforgeConfig::find_with_root()? {
+        match MacroforgeConfigLoader::find_with_root()? {
             Some((cfg, path)) => Ok(Some((cfg.into(), path))),
             None => Ok(None),
         }
@@ -1209,7 +967,8 @@ mod tests {
             }
         "#;
 
-        let config = MacroforgeConfig::from_config_file(content, "macroforge.config.js").unwrap();
+        let config =
+            MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
         assert!(config.keep_decorators);
         assert!(!config.generate_convenience_const);
     }
@@ -1228,7 +987,8 @@ mod tests {
             }
         "#;
 
-        let config = MacroforgeConfig::from_config_file(content, "macroforge.config.js").unwrap();
+        let config =
+            MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
         assert_eq!(config.foreign_types.len(), 1);
 
         let dt = &config.foreign_types[0];
@@ -1250,7 +1010,8 @@ mod tests {
             }
         "#;
 
-        let config = MacroforgeConfig::from_config_file(content, "macroforge.config.js").unwrap();
+        let config =
+            MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
         let dt = &config.foreign_types[0];
         assert_eq!(dt.from, vec!["effect", "@effect/schema"]);
     }
@@ -1270,14 +1031,16 @@ mod tests {
             }
         "#;
 
-        let config = MacroforgeConfig::from_config_file(content, "macroforge.config.ts").unwrap();
+        let config =
+            MacroforgeConfigLoader::from_config_file(content, "macroforge.config.ts").unwrap();
         assert_eq!(config.foreign_types.len(), 1);
     }
 
     #[test]
     fn test_default_values() {
         let content = "export default {}";
-        let config = MacroforgeConfig::from_config_file(content, "macroforge.config.js").unwrap();
+        let config =
+            MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
 
         assert!(!config.keep_decorators);
         assert!(config.generate_convenience_const);

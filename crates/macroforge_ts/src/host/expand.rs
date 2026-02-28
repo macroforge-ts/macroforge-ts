@@ -163,6 +163,7 @@ pub(crate) struct LoweredItems {
     pub interfaces: Vec<InterfaceIR>,
     pub enums: Vec<EnumIR>,
     pub type_aliases: Vec<TypeAliasIR>,
+    pub imports: crate::host::import_registry::ImportRegistry,
 }
 
 impl LoweredItems {
@@ -288,11 +289,14 @@ impl MacroExpander {
         let type_aliases = lower_type_aliases(&module, source)
             .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
 
+        let imports = crate::host::import_registry::ImportRegistry::from_module(&module, source);
+
         let items = LoweredItems {
             classes,
             interfaces,
             enums,
             type_aliases,
+            imports,
         };
         if items.is_empty() {
             return Ok(MacroExpansion {
@@ -313,6 +317,7 @@ impl MacroExpander {
             interfaces: items.interfaces.clone(),
             enums: items.enums.clone(),
             type_aliases: items.type_aliases.clone(),
+            imports: crate::host::import_registry::ImportRegistry::new(),
         };
 
         let (mut collector, mut diagnostics) =
@@ -350,6 +355,7 @@ impl MacroExpander {
             interfaces: items.interfaces.clone(),
             enums: items.enums.clone(),
             type_aliases: items.type_aliases.clone(),
+            imports: crate::host::import_registry::ImportRegistry::new(),
         };
 
         let (mut collector, mut diagnostics) =
@@ -391,11 +397,14 @@ impl MacroExpander {
         let type_aliases = lower_type_aliases(&module, source)
             .context("failed to lower type aliases for macro processing")?;
 
+        let imports = crate::host::import_registry::ImportRegistry::from_module(&module, source);
+
         let items = LoweredItems {
             classes,
             interfaces,
             enums,
             type_aliases,
+            imports,
         };
         if items.is_empty() {
             return Ok(None);
@@ -416,16 +425,28 @@ impl MacroExpander {
             interfaces,
             enums,
             type_aliases,
+            imports,
         } = items;
+
+        // Install registry into thread-local (replaces 5 separate set_* calls).
+        // Merge in any config_imports already set by the entry point.
+        // (foreign_types are stored in a separate thread-local in host/import_registry.rs)
+        let existing_config_imports =
+            crate::host::import_registry::with_registry(|r| r.config_imports.clone());
+        let mut registry = imports;
+        if !existing_config_imports.is_empty() {
+            registry.config_imports = existing_config_imports;
+        }
+        crate::host::import_registry::install_registry(registry);
+
+        // Get import sources from the registry (no redundant collect_import_sources call)
+        let import_sources = crate::host::import_registry::with_registry(|r| r.source_modules());
+
         let mut collector = PatchCollector::new();
         let mut diagnostics = Vec::new();
 
         // Check for imports of built-in macros and add warnings
         diagnostics.extend(check_builtin_import_warnings(module, source));
-
-        // Used for external type function imports (e.g. serializeWithContextFoo) based on existing type imports.
-        let import_result = collect_import_sources(module, source);
-        let import_sources = import_result.sources;
 
         let class_map: HashMap<SpanKey, ClassIR> = classes
             .into_iter()
@@ -448,7 +469,6 @@ impl MacroExpander {
             .collect();
 
         let derive_targets = collect_derive_targets(
-            module,
             &class_map,
             &interface_map,
             &enum_map,
@@ -725,6 +745,20 @@ impl MacroExpander {
                     && (is_macro_not_found(&result) || no_output)
                     && let Some(loader) = &self.external_loader
                 {
+                    // Populate source imports so external macros can look up
+                    // where types are imported from via the import registry.
+                    ctx.source_imports =
+                        crate::host::import_registry::with_registry(|r| r.source_import_entries());
+
+                    // Pass the full macroforge config so external macros have
+                    // access to foreign type configs, etc.
+                    ctx.config = Some(crate::host::import_registry::with_foreign_types(|ft| {
+                        crate::ts_syn::config::MacroforgeConfig {
+                            foreign_types: ft.to_vec(),
+                            ..Default::default()
+                        }
+                    }));
+
                     match loader.run_macro(&ctx) {
                         Ok(external_result) => {
                             result = external_result;
@@ -756,6 +790,7 @@ impl MacroExpander {
                             tokens,
                             &import_sources,
                             &result.cross_module_suffixes,
+                            &result.cross_module_type_suffixes,
                         );
                         runtime.extend(external_imports.clone());
                         type_def.extend(external_imports);
@@ -772,6 +807,16 @@ impl MacroExpander {
                         }
                     }
                     diagnostics.extend(result.diagnostics.clone());
+                }
+
+                // Merge imports from the MacroResult back into the registry.
+                // This is essential for external macros that run in a child process —
+                // their TsStream::add_import() calls write to that process's registry,
+                // and into_result() captures them into MacroResult.imports.
+                if !result.imports.is_empty() {
+                    crate::host::import_registry::with_registry_mut(|r| {
+                        r.merge_imports(result.imports);
+                    });
                 }
 
                 collector.add_runtime_patches(result.runtime_patches);
@@ -1099,6 +1144,7 @@ impl MacroExpander {
             interfaces,
             enums,
             type_aliases,
+            ..
         } = items;
         let has_patches = collector.has_patches();
         let runtime_result = collector
@@ -1132,18 +1178,11 @@ impl MacroExpander {
             code = strip_decorators(&code, &external_modules);
         }
 
-        // Generate imports for required namespaces (from foreign type expressions)
-        let required_imports = crate::builtin::serde::get_required_namespace_imports();
-        if !required_imports.is_empty() {
-            let mut import_lines = String::new();
-            for (namespace, (module, alias)) in &required_imports {
-                import_lines.push_str(&format!(
-                    "import {{ {} as {} }} from \"{}\";\n",
-                    namespace, alias, module
-                ));
-            }
-            // Prepend imports to the code
-            code = format!("{}{}", import_lines, code);
+        // Emit all generated imports from the registry (namespace + type-only)
+        let import_block =
+            crate::host::import_registry::with_registry(|r| r.emit_generated_imports());
+        if !import_block.is_empty() {
+            code = format!("{}{}", import_block, code);
         }
 
         let mut expansion = MacroExpansion {
@@ -1425,7 +1464,9 @@ const tryImport = async (id) => {
 
     const out = await fn(ctxJson);
     if (typeof out === 'string') {
-      process.stdout.write(out);
+      await new Promise((resolve, reject) => {
+        process.stdout.write(out, (err) => err ? reject(err) : resolve());
+      });
       process.exit(0);
     }
 
@@ -1491,6 +1532,8 @@ const tryImport = async (id) => {
             insert_pos: host_result.insert_pos,
             debug: host_result.debug,
             cross_module_suffixes: host_result.cross_module_suffixes,
+            cross_module_type_suffixes: host_result.cross_module_type_suffixes,
+            imports: host_result.imports,
         })
     }
 }
@@ -1866,8 +1909,10 @@ fn external_type_function_import_patches(
     tokens: &str,
     import_sources: &HashMap<String, String>,
     extra_suffixes: &[String],
+    extra_type_suffixes: &[String],
 ) -> Vec<Patch> {
-    let mut needed: std::collections::BTreeMap<(String, String), ()> = Default::default();
+    // Track needed imports: (ident, module_src) → is_type_only
+    let mut needed: std::collections::BTreeMap<(String, String), bool> = Default::default();
 
     for (type_name, module_src) in import_sources {
         if !type_name
@@ -1880,45 +1925,64 @@ fn external_type_function_import_patches(
 
         // For now, only add external imports for relative module specifiers.
         // This matches the common `./foo` / `../foo` patterns for sharing types across files.
-        if !module_src.starts_with('.') {
+        if !module_src.starts_with('.') && !module_src.starts_with('$') {
             continue;
         }
 
-        let camel = type_name.to_case(Case::Camel);
+        // Strip generic parameters (e.g., "RecordLink<Employee>" -> "RecordLink")
+        // before converting to camelCase, since `<>` are not valid in identifiers
+        // and would produce broken function names like `recordLink<employee>Serialize`.
+        let base_type = if let Some(idx) = type_name.find('<') {
+            &type_name[..idx]
+        } else {
+            type_name.as_str()
+        };
+        let camel = base_type.to_case(Case::Camel);
 
         // Built-in suffixes from core macros (Default, Serialize, Deserialize, etc.)
-        let mut candidates = vec![
-            format!("{camel}SerializeWithContext"),
-            format!("{camel}DeserializeWithContext"),
-            format!("{camel}DefaultValue"),
-            format!("{camel}Serialize"),
-            format!("{camel}Deserialize"),
-            format!("{camel}ValidateField"),
-            format!("{camel}ValidateFields"),
+        // These are always camelCase value references (function calls).
+        let mut candidates: Vec<(String, bool)> = vec![
+            (format!("{camel}SerializeWithContext"), false),
+            (format!("{camel}DeserializeWithContext"), false),
+            (format!("{camel}DefaultValue"), false),
+            (format!("{camel}Serialize"), false),
+            (format!("{camel}Deserialize"), false),
+            (format!("{camel}ValidateField"), false),
+            (format!("{camel}ValidateFields"), false),
+            (format!("{camel}HasShape"), false),
         ];
 
-        // Append suffixes registered by external macros via add_cross_module_suffix()
+        // Append camelCase suffixes registered by external macros via add_cross_module_suffix()
         for suffix in extra_suffixes {
-            candidates.push(format!("{camel}{suffix}"));
+            candidates.push((format!("{camel}{suffix}"), false));
         }
 
-        for ident in candidates {
+        // Append PascalCase type suffixes registered via add_cross_module_type_suffix()
+        // These resolve {TypeName}{Suffix} references and generate `import type` statements.
+        for suffix in extra_type_suffixes {
+            candidates.push((format!("{base_type}{suffix}"), true));
+        }
+
+        for (ident, is_type) in candidates {
             if import_sources.contains_key(&ident) {
                 continue;
             }
             if contains_identifier(tokens, &ident) {
-                needed.insert((ident, module_src.clone()), ());
+                needed.insert((ident, module_src.clone()), is_type);
             }
         }
     }
 
     needed
-        .into_keys()
-        .map(|(ident, module_src)| Patch::InsertRaw {
-            at: SpanIR::new(1, 1),
-            code: format!("import {{ {ident} }} from \"{module_src}\";\n"),
-            context: Some("import".to_string()),
-            source_macro: None,
+        .into_iter()
+        .map(|((ident, module_src), is_type)| {
+            let keyword = if is_type { "import type" } else { "import" };
+            Patch::InsertRaw {
+                at: SpanIR::new(1, 1),
+                code: format!("{keyword} {{ {ident} }} from \"{module_src}\";\n"),
+                context: Some("import".to_string()),
+                source_macro: None,
+            }
         })
         .collect()
 }
@@ -2055,7 +2119,6 @@ fn extract_quoted_string(input: &str) -> Option<String> {
 }
 
 fn collect_derive_targets(
-    module: &Module,
     class_map: &HashMap<SpanKey, ClassIR>,
     interface_map: &HashMap<SpanKey, InterfaceIR>,
     enum_map: &HashMap<SpanKey, EnumIR>,
@@ -2064,8 +2127,8 @@ fn collect_derive_targets(
 ) -> Vec<DeriveTarget> {
     let mut targets = Vec::new();
 
-    let import_result = collect_import_sources(module, source);
-    let import_sources = import_result.sources;
+    // Read import sources from the registry (already built during lowering)
+    let import_sources = crate::host::import_registry::with_registry(|r| r.source_modules());
 
     for class_ir in class_map.values() {
         collect_from_class(class_ir, source, &import_sources, &mut targets);
@@ -2960,11 +3023,10 @@ mod external_type_function_import_tests {
 
     #[test]
     fn generates_builtin_suffix_imports() {
-        // Tokens reference `companyNameDefaultValue` which should be auto-imported
         let tokens = "const val = companyNameDefaultValue();";
         let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
 
-        let patches = external_type_function_import_patches(tokens, &import_sources, &[]);
+        let patches = external_type_function_import_patches(tokens, &import_sources, &[], &[]);
 
         assert_eq!(patches.len(), 1);
         match &patches[0] {
@@ -2978,12 +3040,11 @@ mod external_type_function_import_tests {
 
     #[test]
     fn generates_extra_suffix_imports() {
-        // Tokens reference `companyNameGetFields` — a custom suffix registered via add_cross_module_suffix
         let tokens = "const fields = companyNameGetFields();";
         let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
         let extra = vec!["GetFields".to_string()];
 
-        let patches = external_type_function_import_patches(tokens, &import_sources, &extra);
+        let patches = external_type_function_import_patches(tokens, &import_sources, &extra, &[]);
 
         assert_eq!(patches.len(), 1);
         match &patches[0] {
@@ -2997,26 +3058,23 @@ mod external_type_function_import_tests {
 
     #[test]
     fn no_import_when_suffix_not_registered() {
-        // Tokens reference `companyNameGetFields` but no extra suffix registered
         let tokens = "const fields = companyNameGetFields();";
         let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
 
-        let patches = external_type_function_import_patches(tokens, &import_sources, &[]);
+        let patches = external_type_function_import_patches(tokens, &import_sources, &[], &[]);
 
-        // Should NOT generate an import since GetFields is not a builtin suffix
         assert!(patches.is_empty());
     }
 
     #[test]
     fn skips_already_imported_identifiers() {
         let tokens = "const val = companyNameDefaultValue();";
-        // companyNameDefaultValue is already in the import sources
         let import_sources = make_import_sources(&[
             ("CompanyName", "./account.svelte"),
             ("companyNameDefaultValue", "./account.svelte"),
         ]);
 
-        let patches = external_type_function_import_patches(tokens, &import_sources, &[]);
+        let patches = external_type_function_import_patches(tokens, &import_sources, &[], &[]);
 
         assert!(patches.is_empty());
     }
@@ -3024,10 +3082,9 @@ mod external_type_function_import_tests {
     #[test]
     fn skips_non_relative_module_specifiers() {
         let tokens = "const val = companyNameDefaultValue();";
-        // Non-relative module source (e.g., npm package)
         let import_sources = make_import_sources(&[("CompanyName", "some-package")]);
 
-        let patches = external_type_function_import_patches(tokens, &import_sources, &[]);
+        let patches = external_type_function_import_patches(tokens, &import_sources, &[], &[]);
 
         assert!(patches.is_empty());
     }
@@ -3041,7 +3098,7 @@ mod external_type_function_import_tests {
         let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
         let extra = vec!["GetFields".to_string(), "CustomSuffix".to_string()];
 
-        let patches = external_type_function_import_patches(tokens, &import_sources, &extra);
+        let patches = external_type_function_import_patches(tokens, &import_sources, &extra, &[]);
 
         assert_eq!(patches.len(), 2);
         let codes: Vec<String> = patches
@@ -3057,14 +3114,12 @@ mod external_type_function_import_tests {
 
     #[test]
     fn extra_suffix_only_matches_when_referenced_in_tokens() {
-        // Tokens do NOT reference companyNameGetFields
         let tokens = "const val = companyNameDefaultValue();";
         let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
         let extra = vec!["GetFields".to_string()];
 
-        let patches = external_type_function_import_patches(tokens, &import_sources, &extra);
+        let patches = external_type_function_import_patches(tokens, &import_sources, &extra, &[]);
 
-        // Only DefaultValue should be imported, not GetFields
         assert_eq!(patches.len(), 1);
         match &patches[0] {
             Patch::InsertRaw { code, .. } => {
@@ -3073,5 +3128,90 @@ mod external_type_function_import_tests {
             }
             _ => panic!("Expected InsertRaw patch"),
         }
+    }
+
+    #[test]
+    fn generates_pascal_case_type_imports() {
+        // Tokens reference PascalCase type names like ColorsErrors, ColorsTainted
+        let tokens = r#"
+            let errors: ColorsErrors = {};
+            let tainted: ColorsTainted = {};
+        "#;
+        let import_sources = make_import_sources(&[("Colors", "./shared.svelte")]);
+        let type_suffixes = vec!["Errors".to_string(), "Tainted".to_string()];
+
+        let patches =
+            external_type_function_import_patches(tokens, &import_sources, &[], &type_suffixes);
+
+        let codes: Vec<String> = patches
+            .iter()
+            .map(|p| match p {
+                Patch::InsertRaw { code, .. } => code.clone(),
+                _ => panic!("Expected InsertRaw patch"),
+            })
+            .collect();
+        assert!(
+            codes
+                .iter()
+                .any(|c| c.contains("import type { ColorsErrors }"))
+        );
+        assert!(
+            codes
+                .iter()
+                .any(|c| c.contains("import type { ColorsTainted }"))
+        );
+    }
+
+    #[test]
+    fn pascal_case_type_imports_skip_already_imported() {
+        let tokens = "let errors: ColorsErrors = {};";
+        let import_sources = make_import_sources(&[
+            ("Colors", "./shared.svelte"),
+            ("ColorsErrors", "./shared.svelte"),
+        ]);
+        let type_suffixes = vec!["Errors".to_string()];
+
+        let patches =
+            external_type_function_import_patches(tokens, &import_sources, &[], &type_suffixes);
+
+        assert!(!patches.iter().any(|p| match p {
+            Patch::InsertRaw { code, .. } => code.contains("ColorsErrors"),
+            _ => false,
+        }));
+    }
+
+    #[test]
+    fn mixed_camel_and_pascal_imports() {
+        // camelCase function from extra_suffixes, PascalCase type from extra_type_suffixes
+        let tokens = r#"
+            const ctrl = colorsGetControllers(data, errors, tainted);
+            let e: ColorsErrors = {};
+        "#;
+        let import_sources = make_import_sources(&[("Colors", "./shared.svelte")]);
+        let extra = vec!["GetControllers".to_string()];
+        let type_suffixes = vec!["Errors".to_string()];
+
+        let patches =
+            external_type_function_import_patches(tokens, &import_sources, &extra, &type_suffixes);
+
+        let codes: Vec<String> = patches
+            .iter()
+            .map(|p| match p {
+                Patch::InsertRaw { code, .. } => code.clone(),
+                _ => panic!("Expected InsertRaw patch"),
+            })
+            .collect();
+        // camelCase function → value import
+        assert!(
+            codes
+                .iter()
+                .any(|c| c.contains("import { colorsGetControllers }"))
+        );
+        // PascalCase type → type import
+        assert!(
+            codes
+                .iter()
+                .any(|c| c.contains("import type { ColorsErrors }"))
+        );
     }
 }
