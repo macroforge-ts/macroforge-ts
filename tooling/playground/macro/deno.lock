@@ -35,8 +35,10 @@
     }
   },
   "workspace": {
-    "dependencies": [
-      "npm:effect@^3.19.4"
-    ]
+    "packageJson": {
+      "dependencies": [
+        "npm:effect@^3.19.4"
+      ]
+    }
   }
 }
