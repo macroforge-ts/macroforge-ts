@@ -157,9 +157,13 @@
 
 use convert_case::{Case, Casing};
 
-use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
+use crate::builtin::derive_common::{
+    CompareFieldOptions, collection_element_type, is_primitive_type, standalone_fn_name,
+    type_has_derive,
+};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_expr, parse_ts_macro_input, ts_ident,
 };
@@ -213,17 +217,66 @@ pub struct EqField {
 /// use macroforge_ts::builtin::derive_partial_eq::{EqField, generate_field_equality_for_interface};
 ///
 /// let field = EqField { name: "name".to_string(), ts_type: "string".to_string() };
-/// let code = generate_field_equality_for_interface(&field, "self", "other");
+/// let code = generate_field_equality_for_interface(&field, "self", "other", None, None);
 /// assert_eq!(code, "self.name === other.name");
 /// ```
 pub fn generate_field_equality_for_interface(
     field: &EqField,
     self_var: &str,
     other_var: &str,
+    resolved: Option<&ResolvedTypeRef>,
+    registry: Option<&TypeRegistry>,
 ) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
 
+    // Type-aware path: direct equality calls when type has @derive(PartialEq)
+    if let (Some(resolved), Some(registry)) = (resolved, registry) {
+        // Direct known PartialEq type → call standalone function
+        if !resolved.is_collection
+            && resolved.registry_key.is_some()
+            && type_has_derive(registry, &resolved.base_type_name, "PartialEq")
+        {
+            let fn_name = standalone_fn_name(&resolved.base_type_name, "Equals");
+            return format!("{fn_name}({self_var}.{field_name}, {other_var}.{field_name})");
+        }
+
+        // Array of known PartialEq type → direct element calls
+        if resolved.is_collection
+            && let Some(elem) = collection_element_type(resolved)
+            && elem.registry_key.is_some()
+            && type_has_derive(registry, &elem.base_type_name, "PartialEq")
+        {
+            let elem_fn = standalone_fn_name(&elem.base_type_name, "Equals");
+            let base = resolved.base_type_name.as_str();
+            match base {
+                "Map" => {
+                    return format!(
+                        "({self_var}.{field_name} instanceof Map && {other_var}.{field_name} instanceof Map && \
+                                 {self_var}.{field_name}.size === {other_var}.{field_name}.size && \
+                                 Array.from({self_var}.{field_name}.entries()).every(([k, v]) => \
+                                    {other_var}.{field_name}.has(k) && \
+                                    {elem_fn}(v, {other_var}.{field_name}.get(k))))"
+                    );
+                }
+                "Set" => {
+                    // Set equality with known type — fall through to default Set comparison
+                    // (Sets use .has() which is identity-based, same logic)
+                }
+                _ => {
+                    // Array types
+                    return format!(
+                        "(Array.isArray({self_var}.{field_name}) && Array.isArray({other_var}.{field_name}) && \
+                                 {self_var}.{field_name}.length === {other_var}.{field_name}.length && \
+                                 {self_var}.{field_name}.every((v, i) => \
+                                    {elem_fn}(v, {other_var}.{field_name}[i])))"
+                    );
+                }
+            }
+        }
+    }
+
+    // Fallback: original duck-typing behavior
     if is_primitive_type(ts_type) {
         format!("{self_var}.{field_name} === {other_var}.{field_name}")
     } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
@@ -273,6 +326,8 @@ pub fn generate_field_equality_for_interface(
 )]
 pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
+    let resolved_fields = input.context.resolved_fields.as_ref();
+    let type_registry = input.context.type_registry.as_ref();
 
     match &input.data {
         Data::Class(class) => {
@@ -304,7 +359,10 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             } else {
                 eq_fields
                     .iter()
-                    .map(|f| generate_field_equality_for_interface(f, "a", "b"))
+                    .map(|f| {
+                        let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                        generate_field_equality_for_interface(f, "a", "b", resolved, type_registry)
+                    })
                     .collect::<Vec<_>>()
                     .join(" && ")
             };
@@ -370,7 +428,10 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             } else {
                 eq_fields
                     .iter()
-                    .map(|f| generate_field_equality_for_interface(f, "a", "b"))
+                    .map(|f| {
+                        let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                        generate_field_equality_for_interface(f, "a", "b", resolved, type_registry)
+                    })
                     .collect::<Vec<_>>()
                     .join(" && ")
             };
@@ -418,7 +479,16 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 } else {
                     eq_fields
                         .iter()
-                        .map(|f| generate_field_equality_for_interface(f, "a", "b"))
+                        .map(|f| {
+                            let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                            generate_field_equality_for_interface(
+                                f,
+                                "a",
+                                "b",
+                                resolved,
+                                type_registry,
+                            )
+                        })
                         .collect::<Vec<_>>()
                         .join(" && ")
                 };
@@ -475,7 +545,7 @@ mod tests {
 
         let comparison = eq_fields
             .iter()
-            .map(|f| generate_field_equality_for_interface(f, "a", "b"))
+            .map(|f| generate_field_equality_for_interface(f, "a", "b", None, None))
             .collect::<Vec<_>>()
             .join(" && ");
         let _comparison_expr = parse_ts_expr(&comparison).expect("comparison expr should parse");
@@ -506,7 +576,7 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         };
-        let result = generate_field_equality_for_interface(&field, "a", "b");
+        let result = generate_field_equality_for_interface(&field, "a", "b", None, None);
         assert!(result.contains("a.id === b.id"));
     }
 
@@ -516,7 +586,7 @@ mod tests {
             name: "user".to_string(),
             ts_type: "User".to_string(),
         };
-        let result = generate_field_equality_for_interface(&field, "a", "b");
+        let result = generate_field_equality_for_interface(&field, "a", "b", None, None);
         assert!(result.contains("equals"));
     }
 
@@ -526,7 +596,7 @@ mod tests {
             name: "items".to_string(),
             ts_type: "string[]".to_string(),
         };
-        let result = generate_field_equality_for_interface(&field, "a", "b");
+        let result = generate_field_equality_for_interface(&field, "a", "b", None, None);
         assert!(result.contains("Array.isArray"));
         assert!(result.contains("every"));
     }
@@ -537,7 +607,7 @@ mod tests {
             name: "createdAt".to_string(),
             ts_type: "Date".to_string(),
         };
-        let result = generate_field_equality_for_interface(&field, "a", "b");
+        let result = generate_field_equality_for_interface(&field, "a", "b", None, None);
         assert!(result.contains("getTime"));
     }
 }

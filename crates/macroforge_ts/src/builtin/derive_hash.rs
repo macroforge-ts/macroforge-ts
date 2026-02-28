@@ -109,9 +109,13 @@
 
 use convert_case::{Case, Casing};
 
-use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
+use crate::builtin::derive_common::{
+    CompareFieldOptions, collection_element_type, is_primitive_type, standalone_fn_name,
+    type_has_derive,
+};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_expr, parse_ts_macro_input, ts_ident,
 };
@@ -166,14 +170,70 @@ pub struct HashField {
 /// use macroforge_ts::builtin::derive_hash::{HashField, generate_field_hash_for_interface};
 ///
 /// let field = HashField { name: "name".to_string(), ts_type: "string".to_string() };
-/// let code = generate_field_hash_for_interface(&field, "self");
+/// let code = generate_field_hash_for_interface(&field, "self", None, None);
 /// assert!(code.contains("self.name"));
 /// assert!(code.contains("reduce"));
 /// ```
-pub fn generate_field_hash_for_interface(field: &HashField, var: &str) -> String {
+pub fn generate_field_hash_for_interface(
+    field: &HashField,
+    var: &str,
+    resolved: Option<&ResolvedTypeRef>,
+    registry: Option<&TypeRegistry>,
+) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
 
+    // Type-aware path: check if the field type has @derive(Hash)
+    if let (Some(resolved), Some(registry)) = (resolved, registry) {
+        // Direct known Hash type → call standalone function
+        if !resolved.is_collection
+            && resolved.registry_key.is_some()
+            && type_has_derive(registry, &resolved.base_type_name, "Hash")
+        {
+            let fn_name = standalone_fn_name(&resolved.base_type_name, "HashCode");
+            return format!("{fn_name}({var}.{field_name})");
+        }
+
+        // Array of known Hash type → direct element calls
+        if resolved.is_collection
+            && let Some(elem) = collection_element_type(resolved)
+            && elem.registry_key.is_some()
+            && type_has_derive(registry, &elem.base_type_name, "Hash")
+        {
+            let elem_fn = standalone_fn_name(&elem.base_type_name, "HashCode");
+            let base = resolved.base_type_name.as_str();
+            match base {
+                "Map" => {
+                    return format!(
+                        "({var}.{field_name} instanceof Map \
+                                    ? Array.from({var}.{field_name}.entries()).reduce((h, [k, v]) => \
+                                        (h * 31 + String(k).split('').reduce((hh, c) => (hh * 31 + c.charCodeAt(0)) | 0, 0) + \
+                                        {elem_fn}(v)) | 0, 0) \
+                                    : 0)"
+                    );
+                }
+                "Set" => {
+                    return format!(
+                        "({var}.{field_name} instanceof Set \
+                                    ? Array.from({var}.{field_name}).reduce((h, v) => \
+                                        (h * 31 + {elem_fn}(v)) | 0, 0) \
+                                    : 0)"
+                    );
+                }
+                _ => {
+                    // Array types
+                    return format!(
+                        "(Array.isArray({var}.{field_name}) \
+                                    ? {var}.{field_name}.reduce((h, v) => \
+                                        (h * 31 + {elem_fn}(v)) | 0, 0) \
+                                    : 0)"
+                    );
+                }
+            }
+        }
+    }
+
+    // Fallback: original duck-typing behavior
     if is_primitive_type(ts_type) {
         match ts_type.as_str() {
             "number" => {
@@ -246,6 +306,8 @@ pub fn generate_field_hash_for_interface(field: &HashField, var: &str) -> String
 )]
 pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
+    let resolved_fields = input.context.resolved_fields.as_ref();
+    let type_registry = input.context.type_registry.as_ref();
 
     match &input.data {
         Data::Class(class) => {
@@ -280,7 +342,9 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             let _hash_exprs: Vec<Expr> = hash_fields
                 .iter()
                 .map(|f| {
-                    let expr_src = generate_field_hash_for_interface(f, "value");
+                    let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                    let expr_src =
+                        generate_field_hash_for_interface(f, "value", resolved, type_registry);
                     let expr = parse_ts_expr(&expr_src).map_err(|err| {
                         MacroforgeError::new(
                             input.decorator_span(),
@@ -374,7 +438,9 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             let _hash_exprs: Vec<Expr> = hash_fields
                 .iter()
                 .map(|f| {
-                    let expr_src = generate_field_hash_for_interface(f, "value");
+                    let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                    let expr_src =
+                        generate_field_hash_for_interface(f, "value", resolved, type_registry);
                     let expr = parse_ts_expr(&expr_src).map_err(|err| {
                         MacroforgeError::new(
                             input.decorator_span(),
@@ -430,7 +496,9 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 let _hash_exprs: Vec<Expr> = hash_fields
                     .iter()
                     .map(|f| {
-                        let expr_src = generate_field_hash_for_interface(f, "value");
+                        let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                        let expr_src =
+                            generate_field_hash_for_interface(f, "value", resolved, type_registry);
                         let expr = parse_ts_expr(&expr_src).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
@@ -491,7 +559,7 @@ mod tests {
         let _hash_exprs: Vec<Expr> = hash_fields
             .iter()
             .map(|f| {
-                let expr_src = generate_field_hash_for_interface(f, "value");
+                let expr_src = generate_field_hash_for_interface(f, "value", None, None);
                 *parse_ts_expr(&expr_src).expect("hash expr should parse")
             })
             .collect();
@@ -530,7 +598,7 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         };
-        let result = generate_field_hash_for_interface(&field, "value");
+        let result = generate_field_hash_for_interface(&field, "value", None, None);
         assert!(result.contains("Number.isInteger"));
     }
 
@@ -540,7 +608,7 @@ mod tests {
             name: "name".to_string(),
             ts_type: "string".to_string(),
         };
-        let result = generate_field_hash_for_interface(&field, "value");
+        let result = generate_field_hash_for_interface(&field, "value", None, None);
         assert!(result.contains("split"));
         assert!(result.contains("charCodeAt"));
     }
@@ -551,7 +619,7 @@ mod tests {
             name: "active".to_string(),
             ts_type: "boolean".to_string(),
         };
-        let result = generate_field_hash_for_interface(&field, "value");
+        let result = generate_field_hash_for_interface(&field, "value", None, None);
         assert!(result.contains("1231")); // Java's Boolean.hashCode() constants
         assert!(result.contains("1237"));
     }
@@ -562,7 +630,7 @@ mod tests {
             name: "createdAt".to_string(),
             ts_type: "Date".to_string(),
         };
-        let result = generate_field_hash_for_interface(&field, "value");
+        let result = generate_field_hash_for_interface(&field, "value", None, None);
         assert!(result.contains("getTime"));
     }
 
@@ -572,7 +640,8 @@ mod tests {
             name: "user".to_string(),
             ts_type: "User".to_string(),
         };
-        let result = generate_field_hash_for_interface(&field, "value");
+        // Without registry — duck-typing fallback
+        let result = generate_field_hash_for_interface(&field, "value", None, None);
         assert!(result.contains("hashCode"));
     }
 }

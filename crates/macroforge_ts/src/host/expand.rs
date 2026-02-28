@@ -153,6 +153,9 @@ pub struct MacroExpander {
     /// Additional decorator module names from external macros
     external_decorator_modules: Vec<String>,
     external_loader: Option<ExternalMacroLoader>,
+    /// Project-wide type registry for compile-time type awareness.
+    /// When set, macros receive type information about all types in the project.
+    type_registry: Option<crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
 }
 
 type ContextFactory = Box<dyn Fn(String, String) -> MacroContextIR>;
@@ -254,6 +257,7 @@ impl MacroExpander {
             keep_decorators,
             external_decorator_modules: Vec::new(),
             external_loader: Some(ExternalMacroLoader::new(root_dir)),
+            type_registry: None,
         })
     }
 
@@ -268,6 +272,17 @@ impl MacroExpander {
     /// decorators that should be removed from the output.
     pub fn set_external_decorator_modules(&mut self, modules: Vec<String>) {
         self.external_decorator_modules = modules;
+    }
+
+    /// Set the project-wide type registry for compile-time type awareness.
+    ///
+    /// When set, each macro invocation receives the full registry and
+    /// resolved field types in its [`MacroContextIR`].
+    pub fn set_type_registry(
+        &mut self,
+        registry: Option<crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    ) {
+        self.type_registry = registry;
     }
 
     /// Expand all macros in the source code (simple API for CLI usage)
@@ -700,6 +715,17 @@ impl MacroExpander {
                     ctx = ctx.with_macro_name_span(macro_name_span);
                 }
 
+                // Enrich context with project-wide type awareness
+                if let Some(ref registry) = self.type_registry {
+                    ctx.type_registry = Some(registry.clone());
+
+                    let resolver = crate::host::type_resolver::TypeResolver::new(registry);
+                    ctx.resolved_fields = Some(crate::host::type_resolver::resolve_target_fields(
+                        &ctx.target,
+                        &resolver,
+                    ));
+                }
+
                 let mut result = self.dispatcher.dispatch(ctx.clone());
 
                 if is_macro_not_found(&result)
@@ -745,10 +771,10 @@ impl MacroExpander {
                     && (is_macro_not_found(&result) || no_output)
                     && let Some(loader) = &self.external_loader
                 {
-                    // Populate source imports so external macros can look up
-                    // where types are imported from via the import registry.
-                    ctx.source_imports =
-                        crate::host::import_registry::with_registry(|r| r.source_import_entries());
+                    // Pass the full import registry so external macros have
+                    // access to source imports, config imports, and generated imports.
+                    ctx.import_registry =
+                        crate::host::import_registry::with_registry(|r| r.clone());
 
                     // Pass the full macroforge config so external macros have
                     // access to foreign type configs, etc.

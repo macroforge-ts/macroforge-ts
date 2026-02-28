@@ -961,14 +961,24 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             // Build known keys array string
             let known_keys_list: Vec<_> = known_keys.iter().map(|k| format!("\"{}\"", k)).collect();
 
+            // Build typed constructor parameter: { field1: type1; field2?: type2; ... }
+            let props_type_parts: Vec<String> = all_fields
+                .iter()
+                .map(|f| {
+                    if f.optional {
+                        format!("{}?: {}", f._field_name, f.ts_type)
+                    } else {
+                        format!("{}: {}", f._field_name, f.ts_type)
+                    }
+                })
+                .collect();
+            let props_type = format!("{{ {} }}", props_type_parts.join("; "));
+            let props_type_ident = ts_ident!(props_type.as_str());
+
             let mut result = ts_template!(Within {
-                constructor(props: Record<string, unknown>) {
+                constructor(props: @{props_type_ident}) {
                     {#for field in &all_fields}
-                        {#if field.optional}
-                            this.@{field._field_ident} = props.@{field._field_ident} as @{field.ts_type};
-                        {:else}
-                            this.@{field._field_ident} = props.@{field._field_ident};
-                        {/if}
+                        this.@{field._field_ident} = props.@{field._field_ident};
                     {/for}
                 }
 

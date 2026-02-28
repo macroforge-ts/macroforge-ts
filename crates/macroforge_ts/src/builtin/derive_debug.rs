@@ -64,8 +64,10 @@
 
 use convert_case::{Case, Casing};
 
+use crate::builtin::derive_common::{collection_element_type, standalone_fn_name, type_has_derive};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
@@ -165,8 +167,44 @@ fn parse_string_literal(input: &str) -> Option<String> {
     None
 }
 
-/// Debug field info: (label, field_name)
-type DebugField = (String, String);
+/// Debug field info: (label, field_name, ts_type)
+type DebugField = (String, String, String);
+
+/// Generate a debug value expression for a field.
+/// When the field type has @derive(Debug), calls the standalone toString function.
+fn debug_value_expr(
+    field_name: &str,
+    _ts_type: &str,
+    var: &str,
+    resolved: Option<&ResolvedTypeRef>,
+    registry: Option<&TypeRegistry>,
+) -> String {
+    let access = format!("{var}.{field_name}");
+
+    if let (Some(resolved), Some(registry)) = (resolved, registry) {
+        // Direct known Debug type → call standalone toString function
+        if !resolved.is_collection
+            && resolved.registry_key.is_some()
+            && type_has_derive(registry, &resolved.base_type_name, "Debug")
+        {
+            let fn_name = standalone_fn_name(&resolved.base_type_name, "ToString");
+            return format!("{fn_name}({access})");
+        }
+
+        // Array of known Debug type → map toString
+        if resolved.is_collection
+            && let Some(elem) = collection_element_type(resolved)
+            && elem.registry_key.is_some()
+            && type_has_derive(registry, &elem.base_type_name, "Debug")
+        {
+            let elem_fn = standalone_fn_name(&elem.base_type_name, "ToString");
+            return format!("'[' + {access}.map(v => {elem_fn}(v)).join(', ') + ']'");
+        }
+    }
+
+    // Fallback: string concatenation (original behavior)
+    access
+}
 
 #[ts_macro_derive(
     Debug,
@@ -175,6 +213,8 @@ type DebugField = (String, String);
 )]
 pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
+    let resolved_fields = input.context.resolved_fields.as_ref();
+    let type_registry = input.context.type_registry.as_ref();
 
     match &input.data {
         Data::Class(class) => {
@@ -182,7 +222,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let class_ident = ts_ident!(class_name);
 
             // Collect fields that should be included in debug output
-            let _debug_fields: Vec<DebugField> = class
+            let debug_fields: Vec<DebugField> = class
                 .fields()
                 .iter()
                 .filter_map(|field| {
@@ -191,7 +231,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                         return None;
                     }
                     let label = opts.rename.unwrap_or_else(|| field.name.clone());
-                    Some((label, field.name.clone()))
+                    Some((label, field.name.clone(), field.ts_type.clone()))
                 })
                 .collect();
 
@@ -199,18 +239,28 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let fn_name_ident = ts_ident!("{}ToString", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
+            // Build push statements with type-aware value expressions
+            let mut push_stmts = String::new();
+            for (label, name, ts_type) in &debug_fields {
+                let resolved = resolved_fields.and_then(|rf| rf.get(name));
+                let val_expr = debug_value_expr(name, ts_type, "value", resolved, type_registry);
+                push_stmts.push_str(&format!("parts.push(\"{label}: \" + {val_expr});\n"));
+            }
+
             // Generate standalone function with value parameter
-            let standalone = ts_template! {
-                export function @{fn_name_ident}(value: @{class_ident.clone()}): string {
-                    {#if !_debug_fields.is_empty()}
-                        const parts: string[] = [];
-                        {#for (label, name) in _debug_fields}
-                            parts.push("@{label}: " + value.@{name});
-                        {/for}
-                        return "@{class_name} { " + parts.join(", ") + " }";
-                    {:else}
+            let standalone = if debug_fields.is_empty() {
+                ts_template! {
+                    export function @{fn_name_ident}(value: @{class_ident.clone()}): string {
                         return "@{class_name} {}";
-                    {/if}
+                    }
+                }
+            } else {
+                ts_template! {
+                    export function @{fn_name_ident}(value: @{class_ident.clone()}): string {
+                        const parts: string[] = [];
+                        {$typescript TsStream::from_string(push_stmts)}
+                        return "@{class_name} { " + parts.join(", ") + " }";
+                    }
                 }
             };
 
@@ -260,7 +310,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let interface_ident = ts_ident!(interface_name);
 
             // Collect fields that should be included in debug output
-            let _debug_fields: Vec<DebugField> = interface
+            let debug_fields: Vec<DebugField> = interface
                 .fields()
                 .iter()
                 .filter_map(|field| {
@@ -269,25 +319,35 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                         return None;
                     }
                     let label = opts.rename.unwrap_or_else(|| field.name.clone());
-                    Some((label, field.name.clone()))
+                    Some((label, field.name.clone(), field.ts_type.clone()))
                 })
                 .collect();
 
             let fn_name_ident = ts_ident!("{}ToString", interface_name.to_case(Case::Camel));
 
-            Ok(ts_template! {
-                export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
-                    {#if !_debug_fields.is_empty()}
-                        const parts: string[] = [];
-                        {#for (label, name) in _debug_fields}
-                            parts.push("@{label}: " + value.@{name});
-                        {/for}
-                        return "@{interface_name} { " + parts.join(", ") + " }";
-                    {:else}
+            if debug_fields.is_empty() {
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
                         return "@{interface_name} {}";
-                    {/if}
+                    }
+                })
+            } else {
+                let mut push_stmts = String::new();
+                for (label, name, ts_type) in &debug_fields {
+                    let resolved = resolved_fields.and_then(|rf| rf.get(name));
+                    let val_expr =
+                        debug_value_expr(name, ts_type, "value", resolved, type_registry);
+                    push_stmts.push_str(&format!("parts.push(\"{label}: \" + {val_expr});\n"));
                 }
-            })
+
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
+                        const parts: string[] = [];
+                        {$typescript TsStream::from_string(push_stmts)}
+                        return "@{interface_name} { " + parts.join(", ") + " }";
+                    }
+                })
+            }
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
@@ -296,7 +356,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             // Generate different output based on type body
             if type_alias.is_object() {
                 // Object type: show fields
-                let _debug_fields: Vec<DebugField> = type_alias
+                let debug_fields: Vec<DebugField> = type_alias
                     .as_object()
                     .unwrap()
                     .iter()
@@ -306,25 +366,35 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                             return None;
                         }
                         let label = opts.rename.unwrap_or_else(|| field.name.clone());
-                        Some((label, field.name.clone()))
+                        Some((label, field.name.clone(), field.ts_type.clone()))
                     })
                     .collect();
 
                 let fn_name_ident = ts_ident!("{}ToString", type_name.to_case(Case::Camel));
 
-                Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
-                        {#if !_debug_fields.is_empty()}
-                            const parts: string[] = [];
-                            {#for (label, name) in _debug_fields}
-                                parts.push("@{label}: " + value.@{name});
-                            {/for}
-                            return "@{type_name} { " + parts.join(", ") + " }";
-                        {:else}
+                if debug_fields.is_empty() {
+                    Ok(ts_template! {
+                        export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
                             return "@{type_name} {}";
-                        {/if}
+                        }
+                    })
+                } else {
+                    let mut push_stmts = String::new();
+                    for (label, name, ts_type) in &debug_fields {
+                        let resolved = resolved_fields.and_then(|rf| rf.get(name));
+                        let val_expr =
+                            debug_value_expr(name, ts_type, "value", resolved, type_registry);
+                        push_stmts.push_str(&format!("parts.push(\"{label}: \" + {val_expr});\n"));
                     }
-                })
+
+                    Ok(ts_template! {
+                        export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
+                            const parts: string[] = [];
+                            {$typescript TsStream::from_string(push_stmts)}
+                            return "@{type_name} { " + parts.join(", ") + " }";
+                        }
+                    })
+                }
             } else {
                 // Union, intersection, tuple, or simple alias: use JSON.stringify
                 let fn_name_ident = ts_ident!("{}ToString", type_name.to_case(Case::Camel));

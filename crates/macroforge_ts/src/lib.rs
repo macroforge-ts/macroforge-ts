@@ -174,6 +174,39 @@ mod test;
 use crate::host::MacroExpander;
 
 // ============================================================================
+// Type Registry Cache
+// ============================================================================
+// Caches deserialized TypeRegistry by hash of the JSON string to avoid
+// re-parsing the registry on every expand_sync call.
+
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+use std::sync::LazyLock;
+
+use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
+
+static REGISTRY_CACHE: LazyLock<dashmap::DashMap<u64, TypeRegistry>> =
+    LazyLock::new(dashmap::DashMap::new);
+
+fn get_or_parse_registry(json: &str) -> Option<TypeRegistry> {
+    let mut hasher = DefaultHasher::new();
+    json.hash(&mut hasher);
+    let key = hasher.finish();
+
+    if let Some(entry) = REGISTRY_CACHE.get(&key) {
+        return Some(entry.clone());
+    }
+
+    match serde_json::from_str::<TypeRegistry>(json) {
+        Ok(registry) => {
+            REGISTRY_CACHE.insert(key, registry.clone());
+            Some(registry)
+        }
+        Err(_) => None,
+    }
+}
+
+// ============================================================================
 // Data Structures
 // ============================================================================
 
@@ -812,6 +845,9 @@ pub struct ProcessFileOptions {
     /// Path to a previously loaded config file (for foreign types lookup).
     /// See [`ExpandOptions::config_path`] for details.
     pub config_path: Option<String>,
+    /// Pre-built type registry JSON from [`scan_project_sync`].
+    /// See [`ExpandOptions::type_registry_json`] for details.
+    pub type_registry_json: Option<String>,
 }
 
 /// Options for macro expansion.
@@ -858,6 +894,19 @@ pub struct ExpandOptions {
     /// expandSync(code, filepath, { configPath });
     /// ```
     pub config_path: Option<String>,
+
+    /// Pre-built type registry JSON from [`scan_project_sync`].
+    ///
+    /// When provided, macros receive project-wide type awareness through
+    /// the `type_registry` and `resolved_fields` fields on `MacroContextIR`.
+    ///
+    /// # Example
+    ///
+    /// ```javascript
+    /// const scan = scanProjectSync(projectRoot);
+    /// expandSync(code, filepath, { typeRegistryJson: scan.registryJson });
+    /// ```
+    pub type_registry_json: Option<String>,
 }
 
 /// The main plugin class for macro expansion with caching support.
@@ -921,6 +970,7 @@ fn option_expand_options(opts: Option<ProcessFileOptions>) -> Option<ExpandOptio
         keep_decorators: o.keep_decorators,
         external_decorator_modules: o.external_decorator_modules,
         config_path: o.config_path,
+        type_registry_json: o.type_registry_json,
     })
 }
 
@@ -1348,6 +1398,129 @@ pub fn clear_config_cache() {
     crate::host::clear_config_cache();
 }
 
+// ============================================================================
+// Project Scanning for Type Awareness
+// ============================================================================
+
+/// Options for scanning a TypeScript project for type information.
+#[napi(object)]
+pub struct ScanOptions {
+    /// File extensions to scan (default: `[".ts", ".tsx"]`).
+    pub extensions: Option<Vec<String>>,
+    /// Whether to only collect exported types (default: `false`).
+    pub exported_only: Option<bool>,
+}
+
+/// Result of scanning a project for type information.
+#[napi(object)]
+#[derive(Clone)]
+pub struct ScanResult {
+    /// JSON-serialized [`TypeRegistry`].
+    /// Pass this to `expand_sync` via `ExpandOptions.type_registry_json`.
+    pub registry_json: String,
+    /// Number of files scanned.
+    pub files_scanned: u32,
+    /// Number of types found.
+    pub types_found: u32,
+    /// Diagnostics from scanning (e.g., files that failed to parse).
+    pub diagnostics: Vec<MacroDiagnostic>,
+}
+
+/// Scan a TypeScript project and build a type registry.
+///
+/// This should be called once at build start (e.g., in Vite's `buildStart` hook)
+/// and the resulting `registry_json` should be passed to [`expand_sync`] via
+/// `ExpandOptions.type_registry_json`.
+///
+/// # Arguments
+///
+/// * `root_dir` - The project root directory to scan
+/// * `options` - Optional scan configuration
+///
+/// # Returns
+///
+/// A [`ScanResult`] with the serialized registry and scan statistics.
+///
+/// # Example
+///
+/// ```javascript
+/// const scan = scanProjectSync(projectRoot);
+/// console.log(`Found ${scan.typesFound} types in ${scan.filesScanned} files`);
+///
+/// // Pass to expand_sync for each file
+/// const result = expandSync(code, filepath, {
+///   typeRegistryJson: scan.registryJson,
+/// });
+/// ```
+#[napi]
+pub fn scan_project_sync(root_dir: String, options: Option<ScanOptions>) -> Result<ScanResult> {
+    let builder = std::thread::Builder::new().stack_size(32 * 1024 * 1024);
+    let handle = builder
+        .spawn(move || scan_project_inner(&root_dir, options))
+        .map_err(|e| {
+            Error::new(
+                Status::GenericFailure,
+                format!("Failed to spawn scan thread: {}", e),
+            )
+        })?;
+
+    handle
+        .join()
+        .map_err(|_| Error::new(Status::GenericFailure, "Scan worker panicked"))?
+}
+
+fn scan_project_inner(root_dir: &str, options: Option<ScanOptions>) -> Result<ScanResult> {
+    use crate::host::scanner::{ProjectScanner, ScanConfig};
+
+    let mut config = ScanConfig {
+        root_dir: std::path::PathBuf::from(root_dir),
+        ..ScanConfig::default()
+    };
+
+    if let Some(opts) = options {
+        if let Some(exts) = opts.extensions {
+            config.extensions = exts;
+        }
+        if let Some(exported) = opts.exported_only {
+            config.exported_only = exported;
+        }
+    }
+
+    let scanner = ProjectScanner::new(config);
+    let output = scanner.scan().map_err(|e| {
+        Error::new(
+            Status::GenericFailure,
+            format!("Project scan failed: {}", e),
+        )
+    })?;
+
+    let types_found = output.registry.len() as u32;
+    let registry_json = serde_json::to_string(&output.registry).map_err(|e| {
+        Error::new(
+            Status::GenericFailure,
+            format!("Failed to serialize registry: {}", e),
+        )
+    })?;
+
+    let diagnostics = output
+        .warnings
+        .into_iter()
+        .map(|msg| MacroDiagnostic {
+            level: "warning".to_string(),
+            message: msg,
+            start: None,
+            end: None,
+        })
+        .collect();
+
+    Ok(ScanResult {
+        registry_json,
+        files_scanned: output.files_scanned,
+        types_found,
+        diagnostics,
+    })
+}
+
 /// Synchronously transforms TypeScript code through the macro expansion system.
 ///
 /// This is similar to [`expand_sync`] but returns a [`TransformResult`] which
@@ -1527,6 +1700,11 @@ fn expand_inner(
         }
         if let Some(ref modules) = opts.external_decorator_modules {
             macro_host.set_external_decorator_modules(modules.clone());
+        }
+        // Deserialize and attach the type registry for type awareness
+        if let Some(ref json) = opts.type_registry_json {
+            let registry = get_or_parse_registry(json);
+            macro_host.set_type_registry(registry);
         }
     }
 

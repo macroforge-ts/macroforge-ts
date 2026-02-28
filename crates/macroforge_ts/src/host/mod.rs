@@ -105,8 +105,14 @@ pub mod patch_applicator;
 /// Thread-safe macro storage.
 pub mod registry;
 
+/// Project-wide TypeScript scanner for type awareness.
+pub mod scanner;
+
 /// Core traits for macro implementations.
 pub mod traits;
+
+/// Type resolution against the project-wide registry.
+pub mod type_resolver;
 
 // Primary exports for convenience
 pub use config::{
