@@ -65,9 +65,167 @@
 
 use convert_case::{Case, Casing};
 
+use crate::builtin::derive_common::{
+    collection_element_type, is_primitive_type, standalone_fn_name, type_has_derive,
+};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
+
+/// Generate a type-aware clone expression for a single field.
+///
+/// When the type registry is available and confirms the field's type has `@derive(Clone)`,
+/// generates a direct function call (e.g., `userClone(value.field)`).
+/// Otherwise falls back to shallow copy.
+fn generate_clone_expr(
+    field_name: &str,
+    ts_type: &str,
+    var: &str,
+    resolved: Option<&ResolvedTypeRef>,
+    registry: Option<&TypeRegistry>,
+) -> String {
+    let access = format!("{var}.{field_name}");
+
+    // If we have resolved type info and a registry, generate optimized clones
+    if let (Some(resolved), Some(registry)) = (resolved, registry) {
+        // Handle optional types: clone inner if present, else pass through
+        if resolved.is_optional {
+            let inner_expr =
+                generate_clone_for_resolved(field_name, ts_type, var, resolved, registry);
+            if inner_expr != access {
+                return format!("{access} != null ? {inner_expr} : {access}");
+            }
+            return access;
+        }
+
+        return generate_clone_for_resolved(field_name, ts_type, var, resolved, registry);
+    }
+
+    // Fallback: no registry available — shallow copy (backward compatible)
+    generate_clone_expr_fallback(field_name, ts_type, var)
+}
+
+/// Generate a clone expression using resolved type information.
+fn generate_clone_for_resolved(
+    field_name: &str,
+    ts_type: &str,
+    var: &str,
+    resolved: &ResolvedTypeRef,
+    registry: &TypeRegistry,
+) -> String {
+    let access = format!("{var}.{field_name}");
+
+    // Direct type with Clone derive → call standalone clone function
+    if !resolved.is_collection
+        && resolved.registry_key.is_some()
+        && type_has_derive(registry, &resolved.base_type_name, "Clone")
+    {
+        let fn_name = standalone_fn_name(&resolved.base_type_name, "Clone");
+        return format!("{fn_name}({access})");
+    }
+
+    // Date → deep copy
+    if resolved.base_type_name == "Date" && !resolved.is_collection {
+        return format!("new Date({access}.getTime())");
+    }
+
+    // Collection types
+    if resolved.is_collection
+        && let Some(elem) = collection_element_type(resolved)
+    {
+        let base = resolved.base_type_name.as_str();
+
+        match base {
+            // Array/User[] — map elements
+            _ if base != "Map" && base != "Set" => {
+                let elem_clone = element_clone_expr(elem, registry, "v");
+                if elem_clone == "v" {
+                    // Primitive or unknown element — spread copy
+                    return format!("[...{access}]");
+                }
+                return format!("{access}.map(v => {elem_clone})");
+            }
+            // Set<T> — always copy, clone elements if they have Clone
+            "Set" => {
+                let elem_clone = element_clone_expr(elem, registry, "v");
+                if elem_clone == "v" {
+                    return format!("new Set({access})");
+                }
+                return format!("new Set(Array.from({access}).map(v => {elem_clone}))");
+            }
+            // Map<K, V> — clone values
+            "Map" => {
+                let value_clone = element_clone_expr(elem, registry, "v");
+                if value_clone == "v" {
+                    return format!("new Map({access})");
+                }
+                return format!(
+                    "new Map(Array.from({access}.entries()).map(([k, v]) => [k, {value_clone}]))"
+                );
+            }
+            _ => {}
+        }
+    }
+
+    // Fallback for non-registry types
+    generate_clone_expr_fallback(field_name, ts_type, var)
+}
+
+/// Generate a clone expression for a collection element value.
+/// Returns `"v"` if no cloning is needed (primitive/unknown).
+fn element_clone_expr(elem: &ResolvedTypeRef, registry: &TypeRegistry, var: &str) -> String {
+    // Known Clone type → direct call
+    if elem.registry_key.is_some() && type_has_derive(registry, &elem.base_type_name, "Clone") {
+        return format!(
+            "{}({var})",
+            standalone_fn_name(&elem.base_type_name, "Clone")
+        );
+    }
+
+    // Date → deep copy
+    if elem.base_type_name == "Date" {
+        return format!("new Date({var}.getTime())");
+    }
+
+    // Primitive → identity
+    if is_primitive_type(&elem.base_type_name) {
+        return var.to_string();
+    }
+
+    // Unknown type → identity (shallow)
+    var.to_string()
+}
+
+/// Fallback clone expression when no type registry is available.
+/// Handles known built-in types; everything else is shallow copy.
+fn generate_clone_expr_fallback(field_name: &str, ts_type: &str, var: &str) -> String {
+    let access = format!("{var}.{field_name}");
+    let t = ts_type.trim();
+
+    if is_primitive_type(t) {
+        return access;
+    }
+
+    if t == "Date" {
+        return format!("new Date({access}.getTime())");
+    }
+
+    if t.ends_with("[]") || t.starts_with("Array<") {
+        return format!("[...{access}]");
+    }
+
+    if t.starts_with("Set<") {
+        return format!("new Set({access})");
+    }
+
+    if t.starts_with("Map<") {
+        return format!("new Map({access})");
+    }
+
+    // Unknown type → shallow copy
+    access
+}
 
 /// Generates a `clone()` method for creating copies of objects.
 ///
@@ -98,6 +256,9 @@ use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro
 pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
+    let resolved_fields = input.context.resolved_fields.as_ref();
+    let type_registry = input.context.type_registry.as_ref();
+
     match &input.data {
         Data::Class(class) => {
             let class_name = class.inner.name.clone();
@@ -107,13 +268,25 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let fn_name_ident = ts_ident!("{}Clone", class_name.to_case(Case::Camel));
             let fn_name_expr: Expr = fn_name_ident.clone().into();
 
+            // Generate type-aware clone assignments
+            let mut clone_body = String::new();
+            for field in class.fields() {
+                let resolved = resolved_fields.and_then(|rf| rf.get(&field.name));
+                let expr = generate_clone_expr(
+                    &field.name,
+                    &field.ts_type,
+                    "value",
+                    resolved,
+                    type_registry,
+                );
+                clone_body.push_str(&format!("cloned.{} = {};\n", field.name, expr));
+            }
+
             // Generate standalone function with value parameter
             let standalone = ts_template! {
                 export function @{fn_name_ident}(value: @{class_ident}): @{class_ident} {
                     const cloned = Object.create(Object.getPrototypeOf(value));
-                    {#for field in class.field_names().map(|f| ts_ident!(f))}
-                        cloned.@{field.clone()} = value.@{field};
-                    {/for}
+                    {$typescript TsStream::from_string(clone_body)}
                     return cloned;
                 }
             };
@@ -149,12 +322,24 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let fn_name_ident =
                 ts_ident!("{}Clone", interface.inner.name.clone().to_case(Case::Camel));
 
+            // Generate type-aware clone assignments
+            let mut clone_body = String::new();
+            for field in interface.fields() {
+                let resolved = resolved_fields.and_then(|rf| rf.get(&field.name));
+                let expr = generate_clone_expr(
+                    &field.name,
+                    &field.ts_type,
+                    "value",
+                    resolved,
+                    type_registry,
+                );
+                clone_body.push_str(&format!("result.{} = {};\n", field.name, expr));
+            }
+
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{interface_ident}): @{interface_ident} {
                     const result = {} as any;
-                    {#for field in interface.field_names().map(|f| ts_ident!(f))}
-                        result.@{field.clone()} = value.@{field};
-                    {/for}
+                    {$typescript TsStream::from_string(clone_body)}
                     return result as @{interface_ident};
                 }
             })
@@ -164,13 +349,24 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let fn_name_ident = ts_ident!("{}Clone", type_name.to_case(Case::Camel));
 
             if type_alias.is_object() {
-                // Object type: spread copy
+                // Object type: type-aware clone
+                let mut clone_body = String::new();
+                for field in type_alias.as_object().unwrap() {
+                    let resolved = resolved_fields.and_then(|rf| rf.get(&field.name));
+                    let expr = generate_clone_expr(
+                        &field.name,
+                        &field.ts_type,
+                        "value",
+                        resolved,
+                        type_registry,
+                    );
+                    clone_body.push_str(&format!("result.{} = {};\n", field.name, expr));
+                }
+
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{ts_ident!(type_name)}): @{ts_ident!(type_name)} {
                         const result = {} as any;
-                        {#for field in type_alias.as_object().unwrap().iter().map(|f| ts_ident!(f.name.as_str()))}
-                            result.@{field.clone()} = value.@{field};
-                        {/for}
+                        {$typescript TsStream::from_string(clone_body)}
                         return result as @{ts_ident!(type_name)};
                     }
                 })

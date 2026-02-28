@@ -807,6 +807,20 @@ export interface ExpandOptions {
    * ```
    */
   configPath?: string
+  /**
+   * Pre-built type registry JSON from [`scan_project_sync`].
+   *
+   * When provided, macros receive project-wide type awareness through
+   * the `type_registry` and `resolved_fields` fields on `MacroContextIR`.
+   *
+   * # Example
+   *
+   * ```javascript
+   * const scan = scanProjectSync(projectRoot);
+   * expandSync(code, filepath, { typeRegistryJson: scan.registryJson });
+   * ```
+   */
+  typeRegistryJson?: string
 }
 
 /**
@@ -1154,6 +1168,64 @@ export interface ProcessFileOptions {
    * See [`ExpandOptions::config_path`] for details.
    */
   configPath?: string
+  /**
+   * Pre-built type registry JSON from [`scan_project_sync`].
+   * See [`ExpandOptions::type_registry_json`] for details.
+   */
+  typeRegistryJson?: string
+}
+
+/** Options for scanning a TypeScript project for type information. */
+export interface ScanOptions {
+  /** File extensions to scan (default: `[".ts", ".tsx"]`). */
+  extensions?: Array<string>
+  /** Whether to only collect exported types (default: `false`). */
+  exportedOnly?: boolean
+}
+
+/**
+ * Scan a TypeScript project and build a type registry.
+ *
+ * This should be called once at build start (e.g., in Vite's `buildStart` hook)
+ * and the resulting `registry_json` should be passed to [`expand_sync`] via
+ * `ExpandOptions.type_registry_json`.
+ *
+ * # Arguments
+ *
+ * * `root_dir` - The project root directory to scan
+ * * `options` - Optional scan configuration
+ *
+ * # Returns
+ *
+ * A [`ScanResult`] with the serialized registry and scan statistics.
+ *
+ * # Example
+ *
+ * ```javascript
+ * const scan = scanProjectSync(projectRoot);
+ * console.log(`Found ${scan.typesFound} types in ${scan.filesScanned} files`);
+ *
+ * // Pass to expand_sync for each file
+ * const result = expandSync(code, filepath, {
+ *   typeRegistryJson: scan.registryJson,
+ * });
+ * ```
+ */
+export declare function scanProjectSync(rootDir: string, options?: ScanOptions | undefined | null): ScanResult
+
+/** Result of scanning a project for type information. */
+export interface ScanResult {
+  /**
+   * JSON-serialized [`TypeRegistry`].
+   * Pass this to `expand_sync` via `ExpandOptions.type_registry_json`.
+   */
+  registryJson: string
+  /** Number of files scanned. */
+  filesScanned: number
+  /** Number of types found. */
+  typesFound: number
+  /** Diagnostics from scanning (e.g., files that failed to parse). */
+  diagnostics: Array<MacroDiagnostic>
 }
 
 /**

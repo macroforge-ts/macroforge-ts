@@ -39,6 +39,24 @@
 //! macroforge tsc -p tsconfig.build.json
 //! ```
 //!
+//! ### `macroforge svelte-check`
+//!
+//! Run svelte-check with macro expansion baked into file reads:
+//!
+//! ```bash
+//! # Type check a SvelteKit project
+//! macroforge svelte-check
+//!
+//! # Explicit tsconfig
+//! macroforge svelte-check --tsconfig tsconfig.json
+//!
+//! # Fail on warnings
+//! macroforge svelte-check --fail-on-warnings
+//!
+//! # Machine-readable output
+//! macroforge svelte-check --output machine
+//! ```
+//!
 //! ## Configuration
 //!
 //! The CLI automatically searches for a configuration file starting from the input file's
@@ -108,9 +126,10 @@ use std::{
 
 /// Command-line interface for Macroforge TypeScript macro utilities.
 ///
-/// Provides two main commands:
+/// Provides three main commands:
 /// - `expand` - Expand macros in TypeScript files
 /// - `tsc` - Run TypeScript type checking with macro expansion
+/// - `svelte-check` - Run svelte-check with macro expansion
 #[derive(Parser)]
 #[command(name = "macroforge", about = "TypeScript macro development utilities")]
 struct Cli {
@@ -156,6 +175,21 @@ enum Command {
         #[arg(long, short = 'p')]
         project: Option<PathBuf>,
     },
+    /// Run svelte-check with macro expansion baked into file reads
+    SvelteCheck {
+        /// Path to the workspace directory (defaults to cwd)
+        #[arg(long)]
+        workspace: Option<PathBuf>,
+        /// Path to tsconfig.json (defaults to tsconfig.json in cwd)
+        #[arg(long)]
+        tsconfig: Option<PathBuf>,
+        /// Output format: human, human-verbose, machine, machine-verbose
+        #[arg(long)]
+        output: Option<String>,
+        /// Fail on warnings in addition to errors
+        #[arg(long)]
+        fail_on_warnings: bool,
+    },
 }
 
 fn main() -> Result<()> {
@@ -189,6 +223,12 @@ fn main() -> Result<()> {
             }
         }
         Command::Tsc { project } => run_tsc_wrapper(project),
+        Command::SvelteCheck {
+            workspace,
+            tsconfig,
+            output,
+            fail_on_warnings,
+        } => run_svelte_check_wrapper(workspace, tsconfig, output, fail_on_warnings),
     }
 }
 
@@ -875,6 +915,163 @@ process.exit(hasError ? 1 : 0);
 
     if !status.success() {
         anyhow::bail!("tsc wrapper exited with status {}", status);
+    }
+
+    Ok(())
+}
+
+/// Runs svelte-check with macro expansion baked into file reads.
+///
+/// This function creates a Node.js script that patches `ts.sys.readFile` before
+/// loading svelte-check. Since svelte-check uses TypeScript as a peer dependency
+/// and Node.js caches modules, the patched `ts.sys.readFile` is shared with
+/// svelte-check's internal TypeScript language service.
+///
+/// Files containing `@derive` are expanded before being passed to svelte-check.
+///
+/// # Arguments
+///
+/// * `workspace` - Optional workspace directory (defaults to cwd)
+/// * `tsconfig` - Optional path to `tsconfig.json`
+/// * `output` - Optional output format (human, human-verbose, machine, machine-verbose)
+/// * `fail_on_warnings` - If true, exit with error on warnings
+///
+/// # Returns
+///
+/// Returns `Ok(())` if svelte-check passes, or an error with diagnostic details.
+fn run_svelte_check_wrapper(
+    workspace: Option<PathBuf>,
+    tsconfig: Option<PathBuf>,
+    output: Option<String>,
+    fail_on_warnings: bool,
+) -> Result<()> {
+    let script = r#"
+const { createRequire } = require('module');
+const fs = require('fs');
+const path = require('path');
+const cwdRequire = createRequire(process.cwd() + '/package.json');
+
+// --- 1. Load TypeScript and macroforge from the project ---
+let ts, macros;
+try {
+  ts = cwdRequire('typescript');
+} catch {
+  console.error('[macroforge] error: typescript is not installed in this project');
+  process.exit(1);
+}
+try {
+  macros = cwdRequire('macroforge');
+} catch {
+  console.error('[macroforge] error: macroforge is not installed in this project');
+  process.exit(1);
+}
+
+// --- 2. Find and load macroforge config ---
+const CONFIG_FILES = [
+  'macroforge.config.ts',
+  'macroforge.config.mts',
+  'macroforge.config.js',
+  'macroforge.config.mjs',
+  'macroforge.config.cjs',
+];
+let macroConfigPath = null;
+let currentDir = process.cwd();
+while (true) {
+  for (const filename of CONFIG_FILES) {
+    const candidate = path.join(currentDir, filename);
+    if (fs.existsSync(candidate)) {
+      macroConfigPath = candidate;
+      break;
+    }
+  }
+  if (macroConfigPath) break;
+  if (fs.existsSync(path.join(currentDir, 'package.json'))) break;
+  const parent = path.dirname(currentDir);
+  if (parent === currentDir) break;
+  currentDir = parent;
+}
+
+if (macroConfigPath) {
+  try {
+    const configContent = fs.readFileSync(macroConfigPath, 'utf8');
+    macros.loadConfig(configContent, macroConfigPath);
+  } catch (e) {
+    // Config load failed, continue without foreign types
+  }
+}
+
+// --- 3. Patch ts.sys.readFile to expand macros ---
+const origReadFile = ts.sys.readFile.bind(ts.sys);
+ts.sys.readFile = (filePath, encoding) => {
+  const content = origReadFile(filePath, encoding);
+  if (content == null) return content;
+  try {
+    if (
+      (filePath.endsWith('.ts') || filePath.endsWith('.tsx')) &&
+      !filePath.endsWith('.d.ts') &&
+      content.includes('@derive')
+    ) {
+      const expandOpts = macroConfigPath ? { configPath: macroConfigPath } : undefined;
+      const expanded = macros.expandSync(content, filePath, expandOpts);
+      return expanded.code || content;
+    }
+  } catch (e) {
+    // Expansion failed, fall through to original content
+  }
+  return content;
+};
+
+// --- 4. Forward to svelte-check ---
+// Rewrite process.argv so sade (svelte-check's CLI parser) sees the right command.
+// argv[0] = node, argv[1] = 'svelte-check', rest = flags
+const args = ['svelte-check'];
+// The Rust side passes extra CLI args starting at process.argv[2]
+for (let i = 2; i < process.argv.length; i++) {
+  args.push(process.argv[i]);
+}
+process.argv = [process.argv[0], ...args];
+
+try {
+  cwdRequire('svelte-check');
+} catch (e) {
+  if (e.code === 'MODULE_NOT_FOUND') {
+    console.error('[macroforge] error: svelte-check is not installed in this project');
+    console.error('[macroforge] install it with: npm install --save-dev svelte-check');
+    process.exit(1);
+  }
+  throw e;
+}
+"#;
+
+    let mut temp_dir = std::env::temp_dir();
+    temp_dir.push("macroforge-cli");
+    fs::create_dir_all(&temp_dir)?;
+    let script_path = temp_dir.join("svelte-check-wrapper.js");
+    fs::write(&script_path, script)?;
+
+    let mut cmd = std::process::Command::new("node");
+    cmd.arg(&script_path);
+
+    // Pass through CLI args for svelte-check to pick up
+    if let Some(ref ws) = workspace {
+        cmd.arg("--workspace").arg(ws);
+    }
+    if let Some(ref ts) = tsconfig {
+        cmd.arg("--tsconfig").arg(ts);
+    }
+    if let Some(ref out) = output {
+        cmd.arg("--output").arg(out);
+    }
+    if fail_on_warnings {
+        cmd.arg("--fail-on-warnings");
+    }
+
+    let status = cmd
+        .status()
+        .context("failed to run node svelte-check wrapper")?;
+
+    if !status.success() {
+        std::process::exit(status.code().unwrap_or(1));
     }
 
     Ok(())

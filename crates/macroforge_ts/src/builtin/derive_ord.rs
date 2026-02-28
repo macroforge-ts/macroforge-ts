@@ -94,9 +94,12 @@
 
 use convert_case::{Case, Casing};
 
-use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
+use crate::builtin::derive_common::{
+    CompareFieldOptions, is_numeric_type, is_primitive_type, standalone_fn_name, type_has_derive,
+};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
+use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_expr, parse_ts_macro_input, ts_ident,
 };
@@ -150,9 +153,21 @@ fn generate_field_compare_for_interface(
     field: &OrdField,
     self_var: &str,
     other_var: &str,
+    resolved: Option<&ResolvedTypeRef>,
+    registry: Option<&TypeRegistry>,
 ) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
+
+    // Type-aware path: direct compare call when type has @derive(Ord)
+    if let (Some(resolved), Some(registry)) = (resolved, registry)
+        && !resolved.is_collection
+        && resolved.registry_key.is_some()
+        && type_has_derive(registry, &resolved.base_type_name, "Ord")
+    {
+        let fn_name = standalone_fn_name(&resolved.base_type_name, "Compare");
+        return format!("{fn_name}({self_var}.{field_name}, {other_var}.{field_name})");
+    }
 
     if is_numeric_type(ts_type) {
         format!(
@@ -209,6 +224,8 @@ fn generate_field_compare_for_interface(
 )]
 pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
+    let resolved_fields = input.context.resolved_fields.as_ref();
+    let type_registry = input.context.type_registry.as_ref();
 
     match &input.data {
         Data::Class(class) => {
@@ -242,7 +259,14 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     .enumerate()
                     .map(|(i, f)| {
                         let cmp_ident = ts_ident!(format!("cmp{}", i));
-                        let expr_src = generate_field_compare_for_interface(f, "a", "b");
+                        let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                        let expr_src = generate_field_compare_for_interface(
+                            f,
+                            "a",
+                            "b",
+                            resolved,
+                            type_registry,
+                        );
                         let expr = parse_ts_expr(&expr_src).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
@@ -334,7 +358,14 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     .enumerate()
                     .map(|(i, f)| {
                         let cmp_ident = ts_ident!(format!("cmp{}", i));
-                        let expr_src = generate_field_compare_for_interface(f, "a", "b");
+                        let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                        let expr_src = generate_field_compare_for_interface(
+                            f,
+                            "a",
+                            "b",
+                            resolved,
+                            type_registry,
+                        );
                         let expr = parse_ts_expr(&expr_src).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
@@ -399,7 +430,10 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         .enumerate()
                         .map(|(i, f)| {
                             let cmp_ident = ts_ident!(format!("cmp{}", i));
-                            let expr_src = generate_field_compare_for_interface(f, "a", "b");
+                            let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                        let expr_src = generate_field_compare_for_interface(
+                            f, "a", "b", resolved, type_registry,
+                        );
                             let expr = parse_ts_expr(&expr_src).map_err(|err| {
                                 MacroforgeError::new(
                                     input.decorator_span(),
@@ -475,7 +509,7 @@ mod tests {
             .enumerate()
             .map(|(i, f)| {
                 let cmp_ident = ts_ident!(format!("cmp{}", i));
-                let expr_src = generate_field_compare_for_interface(f, "a", "b");
+                let expr_src = generate_field_compare_for_interface(f, "a", "b", None, None);
                 let expr = parse_ts_expr(&expr_src).expect("compare expr should parse");
                 (cmp_ident, *expr)
             })
@@ -522,7 +556,7 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         };
-        let result = generate_field_compare_for_interface(&field, "a", "b");
+        let result = generate_field_compare_for_interface(&field, "a", "b", None, None);
         assert!(result.contains("a.id < b.id"));
         assert!(result.contains("a.id > b.id"));
         assert!(!result.contains("null")); // Total ordering - no null
@@ -534,7 +568,7 @@ mod tests {
             name: "name".to_string(),
             ts_type: "string".to_string(),
         };
-        let result = generate_field_compare_for_interface(&field, "a", "b");
+        let result = generate_field_compare_for_interface(&field, "a", "b", None, None);
         assert!(result.contains("localeCompare"));
         // Should clamp localeCompare result to -1, 0, 1
         assert!(result.contains("-1"));
@@ -547,7 +581,7 @@ mod tests {
             name: "user".to_string(),
             ts_type: "User".to_string(),
         };
-        let result = generate_field_compare_for_interface(&field, "a", "b");
+        let result = generate_field_compare_for_interface(&field, "a", "b", None, None);
         assert!(result.contains("compareTo"));
         // Should fallback to 0 instead of null
         assert!(result.contains("?? 0"));

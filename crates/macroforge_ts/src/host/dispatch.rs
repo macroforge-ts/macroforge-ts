@@ -97,8 +97,10 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResul
 ///     file_name: "test.ts".to_string(),
 ///     target: TargetIR::Class(class_ir),
 ///     target_source: "class User {}".to_string(),
-///     source_imports: vec![],
+///     import_registry: macroforge_ts_syn::import_registry::ImportRegistry::new(),
 ///     config: None,
+///     type_registry: None,
+///     resolved_fields: None,
 /// };
 ///
 /// // Dispatch the macro call
@@ -330,8 +332,10 @@ mod tests {
                 members: vec![],
             }),
             target_source: "class Test {}".to_string(),
-            source_imports: vec![],
+            import_registry: crate::ts_syn::import_registry::ImportRegistry::new(),
             config: None,
+            type_registry: None,
+            resolved_fields: None,
         };
 
         let result = dispatcher.dispatch(ctx);

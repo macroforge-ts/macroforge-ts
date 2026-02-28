@@ -105,10 +105,13 @@
 
 use convert_case::{Case, Casing};
 
-use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
+use crate::builtin::derive_common::{
+    CompareFieldOptions, is_numeric_type, is_primitive_type, standalone_fn_name, type_has_derive,
+};
 use crate::builtin::return_types::{is_none_check, partial_ord_return_type, unwrap_option_or_null};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::Expr;
+use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
@@ -160,10 +163,22 @@ fn generate_field_compare_for_interface(
     self_var: &str,
     other_var: &str,
     allow_null: bool,
+    resolved: Option<&ResolvedTypeRef>,
+    registry: Option<&TypeRegistry>,
 ) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
     let null_return = if allow_null { "null" } else { "0" };
+
+    // Type-aware path: direct compare call when type has @derive(PartialOrd)
+    if let (Some(resolved), Some(registry)) = (resolved, registry)
+        && !resolved.is_collection
+        && resolved.registry_key.is_some()
+        && type_has_derive(registry, &resolved.base_type_name, "PartialOrd")
+    {
+        let fn_name = standalone_fn_name(&resolved.base_type_name, "PartialCompare");
+        return format!("{fn_name}({self_var}.{field_name}, {other_var}.{field_name})");
+    }
 
     if is_numeric_type(ts_type) {
         format!(
@@ -236,6 +251,8 @@ fn generate_field_compare_for_interface(
 )]
 pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
+    let resolved_fields = input.context.resolved_fields.as_ref();
+    let type_registry = input.context.type_registry.as_ref();
 
     match &input.data {
         Data::Class(class) => {
@@ -274,7 +291,15 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let mut compare_body = String::new();
                 for (i, f) in ord_fields.iter().enumerate() {
                     let cmp_var = format!("cmp{}", i);
-                    let expr_src = generate_field_compare_for_interface(f, "a", "b", true);
+                    let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                    let expr_src = generate_field_compare_for_interface(
+                        f,
+                        "a",
+                        "b",
+                        true,
+                        resolved,
+                        type_registry,
+                    );
                     compare_body.push_str(&format!(
                         "const {} = {};\nif ({} === null) return null;\nif ({} !== 0) return {};\n",
                         cmp_var, expr_src, cmp_var, cmp_var, cmp_var
@@ -363,7 +388,15 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let mut compare_body = String::new();
                 for (i, f) in ord_fields.iter().enumerate() {
                     let cmp_var = format!("cmp{}", i);
-                    let expr_src = generate_field_compare_for_interface(f, "a", "b", true);
+                    let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                    let expr_src = generate_field_compare_for_interface(
+                        f,
+                        "a",
+                        "b",
+                        true,
+                        resolved,
+                        type_registry,
+                    );
                     compare_body.push_str(&format!(
                         "const {} = {};\nif ({} === null) return null;\nif ({} !== 0) return {};\n",
                         cmp_var, expr_src, cmp_var, cmp_var, cmp_var
@@ -422,7 +455,15 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     let mut compare_body = String::new();
                     for (i, f) in ord_fields.iter().enumerate() {
                         let cmp_var = format!("cmp{}", i);
-                        let expr_src = generate_field_compare_for_interface(f, "a", "b", true);
+                        let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
+                        let expr_src = generate_field_compare_for_interface(
+                            f,
+                            "a",
+                            "b",
+                            true,
+                            resolved,
+                            type_registry,
+                        );
                         compare_body.push_str(&format!(
                             "const {} = {};\nif ({} === null) return null;\nif ({} !== 0) return {};\n",
                             cmp_var, expr_src, cmp_var, cmp_var, cmp_var
@@ -485,7 +526,7 @@ mod tests {
         let mut compare_body_str = String::new();
         for (i, f) in ord_fields.iter().enumerate() {
             let cmp_var = format!("cmp{}", i);
-            let expr_src = generate_field_compare_for_interface(f, "a", "b", true);
+            let expr_src = generate_field_compare_for_interface(f, "a", "b", true, None, None);
             compare_body_str.push_str(&format!(
                 "const {} = {};\nif ({} === null) return null;\nif ({} !== 0) return {};\n",
                 cmp_var, expr_src, cmp_var, cmp_var, cmp_var
@@ -529,7 +570,7 @@ mod tests {
             name: "id".to_string(),
             ts_type: "number".to_string(),
         };
-        let result = generate_field_compare_for_interface(&field, "a", "b", true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
         assert!(result.contains("a.id < b.id"));
         assert!(result.contains("a.id > b.id"));
     }
@@ -540,7 +581,7 @@ mod tests {
             name: "name".to_string(),
             ts_type: "string".to_string(),
         };
-        let result = generate_field_compare_for_interface(&field, "a", "b", true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
         assert!(result.contains("localeCompare"));
     }
 
@@ -550,7 +591,7 @@ mod tests {
             name: "active".to_string(),
             ts_type: "boolean".to_string(),
         };
-        let result = generate_field_compare_for_interface(&field, "a", "b", true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
         // false < true: false returns -1, true returns 1
         assert!(result.contains("-1"));
         assert!(result.contains("1"));
@@ -562,7 +603,7 @@ mod tests {
             name: "createdAt".to_string(),
             ts_type: "Date".to_string(),
         };
-        let result = generate_field_compare_for_interface(&field, "a", "b", true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
         assert!(result.contains("getTime"));
     }
 
@@ -572,7 +613,7 @@ mod tests {
             name: "user".to_string(),
             ts_type: "User".to_string(),
         };
-        let result = generate_field_compare_for_interface(&field, "a", "b", true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
         assert!(result.contains("compareTo"));
         // We check for null directly
         assert!(result.contains("=== null"));
@@ -584,7 +625,7 @@ mod tests {
             name: "items".to_string(),
             ts_type: "Item[]".to_string(),
         };
-        let result = generate_field_compare_for_interface(&field, "a", "b", true);
+        let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
         // optResult is already the value
         assert!(result.contains("cmp = optResult"));
     }

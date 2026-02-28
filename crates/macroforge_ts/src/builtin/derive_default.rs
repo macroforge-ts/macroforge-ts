@@ -119,9 +119,12 @@
 
 use convert_case::{Case, Casing};
 
-use crate::builtin::derive_common::{DefaultFieldOptions, get_type_default, has_known_default};
+use crate::builtin::derive_common::{
+    DefaultFieldOptions, get_type_default, has_known_default, is_primitive_type, type_has_derive,
+};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
+use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, emit_expr, parse_ts_expr, parse_ts_macro_input,
@@ -142,6 +145,43 @@ struct DefaultField {
     value: String,
 }
 
+/// Emit compile-time warnings for fields whose types are in the type registry
+/// but do not derive `Default`. The generated code will still call `typeNameDefaultValue()`,
+/// which may fail at runtime if the type doesn't actually provide that function.
+fn validate_default_fields(
+    fields: &[(String, String)], // (field_name, ts_type)
+    parent_name: &str,
+    registry: Option<&TypeRegistry>,
+) {
+    let registry = match registry {
+        Some(r) => r,
+        None => return,
+    };
+
+    for (field_name, ts_type) in fields {
+        let t = ts_type.trim();
+        // Only check non-primitive, non-collection types
+        if is_primitive_type(t)
+            || t.ends_with("[]")
+            || t.starts_with("Array<")
+            || t.starts_with("Map<")
+            || t.starts_with("Set<")
+            || t == "Date"
+            || t.contains('|')
+        {
+            continue;
+        }
+
+        // Check if the type is in the registry
+        if registry.get(t).is_some() && !type_has_derive(registry, t, "Default") {
+            eprintln!(
+                "[macroforge] warning: field `{field_name}` in `{parent_name}` has type `{t}` \
+                 which does not derive Default — generated code may fail at runtime"
+            );
+        }
+    }
+}
+
 #[ts_macro_derive(
     Default,
     description = "Generates a static defaultValue() factory method",
@@ -149,12 +189,24 @@ struct DefaultField {
 )]
 pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
+    let type_registry = input.context.type_registry.as_ref();
 
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
             let class_ident = ts_ident!(class_name);
             let class_expr: Expr = class_ident.clone().into();
+
+            // Validate fields against type registry (emit warnings for types missing Default)
+            let fields_to_validate: Vec<(String, String)> = class
+                .fields()
+                .iter()
+                .filter(|f| {
+                    !f.optional && !DefaultFieldOptions::from_decorators(&f.decorators).has_default
+                })
+                .map(|f| (f.name.clone(), f.ts_type.clone()))
+                .collect();
+            validate_default_fields(&fields_to_validate, class_name, type_registry);
 
             // Check for required non-primitive fields missing @default (like Rust's derive(Default))
             let missing_defaults: Vec<&str> = class
@@ -275,6 +327,17 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             let interface_name = input.name();
             let interface_ident = ts_ident!(interface_name);
 
+            // Validate fields against type registry (emit warnings for types missing Default)
+            let fields_to_validate: Vec<(String, String)> = interface
+                .fields()
+                .iter()
+                .filter(|f| {
+                    !f.optional && !DefaultFieldOptions::from_decorators(&f.decorators).has_default
+                })
+                .map(|f| (f.name.clone(), f.ts_type.clone()))
+                .collect();
+            validate_default_fields(&fields_to_validate, interface_name, type_registry);
+
             // Check for required non-primitive fields missing @default (like Rust's derive(Default))
             let missing_defaults: Vec<&str> = interface
                 .fields()
@@ -388,6 +451,17 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
             if type_alias.is_object() {
                 let fields = type_alias.as_object().unwrap();
+
+                // Validate fields against type registry (emit warnings for types missing Default)
+                let fields_to_validate: Vec<(String, String)> = fields
+                    .iter()
+                    .filter(|f| {
+                        !f.optional
+                            && !DefaultFieldOptions::from_decorators(&f.decorators).has_default
+                    })
+                    .map(|f| (f.name.clone(), f.ts_type.clone()))
+                    .collect();
+                validate_default_fields(&fields_to_validate, type_name, type_registry);
 
                 // Check for required non-primitive fields missing @default (like Rust's derive(Default))
                 let missing_defaults: Vec<&str> = fields

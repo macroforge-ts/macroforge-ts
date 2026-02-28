@@ -77,7 +77,7 @@
 pub mod derive_clone;
 
 /// Shared utilities for comparison macros.
-mod derive_common;
+pub mod derive_common;
 
 /// Debug macro implementation (toString).
 mod derive_debug;
