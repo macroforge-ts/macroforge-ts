@@ -1,20 +1,21 @@
 # Debug
 
-The `Debug` macro generates a human-readable `toString()` method for TypeScript classes, interfaces,
-enums, and type aliases.
+The `Debug` macro generates a human-readable `toString()` method for
+TypeScript classes, interfaces, enums, and type aliases.
 
 ## Generated Output
 
-**Classes**: Generates a standalone function `classNameToString(value)` and a static wrapper method
-`static toString(value)` returning a string like `"ClassName { field1: value1, field2: value2 }"`.
+**Classes**: Generates a standalone function `classNameToString(value)` and a static wrapper
+method `static toString(value)` returning a string like `"ClassName { field1: value1, field2: value2 }"`.
 
-**Enums**: Generates a standalone function `enumNameToString(value)` that performs reverse lookup on
-numeric enums.
+**Enums**: Generates a standalone function `enumNameToString(value)` that performs
+reverse lookup on numeric enums.
 
 **Interfaces**: Generates a standalone function `interfaceNameToString(value)`.
 
-**Type Aliases**: Generates a standalone function using JSON.stringify for complex types, or field
-enumeration for object types.
+**Type Aliases**: Generates a standalone function using JSON.stringify for
+complex types, or field enumeration for object types.
+
 
 ## Field-Level Options
 

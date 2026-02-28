@@ -75,6 +75,13 @@ Note
 
 The `import macro` comment tells Macroforge which package provides the macro.
 
+## Vite Dev Server
+
+When using a custom macro package as a local `file:` dependency, you may need to configure Vite's
+`server.fs.allow` and add `exports` to your package's `package.json` for dev mode to work. See the
+[Vite Plugin integration guide](../integration/vite-plugin.md#custom-macro-packages-with-file-dependencies)
+for details.
+
 ## Getting Started
 
 Follow these guides to create your own macros:

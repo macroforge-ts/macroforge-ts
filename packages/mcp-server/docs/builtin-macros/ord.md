@@ -1,21 +1,23 @@
 # Ord
 
-The `Ord` macro generates a `compareTo()` method for **total ordering** comparison. This is
-analogous to Rust's `Ord` trait, enabling objects to be sorted and compared with a guaranteed
-ordering relationship.
+The `Ord` macro generates a `compareTo()` method for **total ordering** comparison.
+This is analogous to Rust's `Ord` trait, enabling objects to be sorted and
+compared with a guaranteed ordering relationship.
 
 ## Generated Output
 
-| Type       | Generated Code                                                     | Description                                          |
-| ---------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
-| Class      | `classNameCompare(a, b)` + `static compareTo(a, b)`                | Standalone function + static wrapper method          |
-| Enum       | `enumNameCompare(a: EnumName, b: EnumName): number`                | Standalone function comparing enum values            |
-| Interface  | `interfaceNameCompare(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields                 |
-| Type Alias | `typeNameCompare(a: TypeName, b: TypeName): number`                | Standalone function with type-appropriate comparison |
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `classNameCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
+| Enum | `enumNameCompare(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
+| Interface | `interfaceNameCompare(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
+| Type Alias | `typeNameCompare(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
+
 
 ## Return Values
 
-Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values can be compared:
+Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values
+can be compared:
 
 - **-1**: `a` is less than `b`
 - **0**: `a` is equal to `b`
@@ -34,14 +36,14 @@ Fields are compared **lexicographically** in declaration order:
 
 ## Type-Specific Comparisons
 
-| Type              | Comparison Method                        |
-| ----------------- | ---------------------------------------- |
-| `number`/`bigint` | Direct `<` and `>` comparison            |
-| `string`          | `localeCompare()` (clamped to -1, 0, 1)  |
-| `boolean`         | false &lt; true                          |
-| Arrays            | Lexicographic element-by-element         |
-| `Date`            | `getTime()` timestamp comparison         |
-| Objects           | Calls `compareTo()` if available, else 0 |
+| Type | Comparison Method |
+|------|-------------------|
+| `number`/`bigint` | Direct `<` and `>` comparison |
+| `string` | `localeCompare()` (clamped to -1, 0, 1) |
+| `boolean` | false &lt; true |
+| Arrays | Lexicographic element-by-element |
+| `Date` | `getTime()` timestamp comparison |
+| Objects | Calls `compareTo()` if available, else 0 |
 
 ## Field-Level Options
 
