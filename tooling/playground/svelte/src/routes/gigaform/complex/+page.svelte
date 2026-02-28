@@ -1,4 +1,5 @@
 <script lang="ts">
+import { DateTime, Exit, Option } from 'effect';
 import {
     employeeCreateForm,
     orderCreateForm,
@@ -43,10 +44,10 @@ const orderForm = orderCreateForm({
     leadSource: 'Referral',
     group: 'Services',
     subgroup: 'Development',
-    memo: 'Priority project for Q1',
+    memo: Option.some('Priority project for Q1'),
     actionItem: 'Schedule kickoff meeting',
-    dateCreated: new Date().toISOString(),
-    due: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    dateCreated: DateTime.unsafeMake(new Date()),
+    due: DateTime.unsafeMake(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
     isPosted: false,
     needsReview: true,
     balance: 5000,
@@ -95,24 +96,20 @@ if (typeof window !== 'undefined') {
 }
 
 function submitEmployee() {
-    const result = employeeForm.validate();
-    if (result.isOk()) {
-        employeeResult = { success: true, data: result.unwrap() };
-    } else {
-        employeeResult = { success: false, errors: result.unwrapErr() };
-    }
+    employeeResult = Exit.match(employeeForm.validate(), {
+        onSuccess: (data: Employee) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.employeeValidation = employeeResult;
     }
 }
 
 function submitOrder() {
-    const result = orderForm.validate();
-    if (result.isOk()) {
-        orderResult = { success: true, data: result.unwrap() };
-    } else {
-        orderResult = { success: false, errors: result.unwrapErr() };
-    }
+    orderResult = Exit.match(orderForm.validate(), {
+        onSuccess: (data: Order) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.orderValidation = orderResult;
     }

@@ -1,4 +1,5 @@
 <script lang="ts">
+import { DateTime, Exit, Option } from 'effect';
 import {
     orderCreateForm,
     siteDefaultValue,
@@ -19,10 +20,10 @@ const orderForm = orderCreateForm({
     leadSource: 'Web',
     group: 'Sales',
     subgroup: 'Direct',
-    memo: 'Test order',
+    memo: Option.some('Test order'),
     actionItem: 'Follow up',
-    dateCreated: new Date().toISOString(),
-    due: new Date().toISOString(),
+    dateCreated: DateTime.unsafeMake(new Date()),
+    due: DateTime.unsafeMake(new Date()),
     // Site as embedded object (not string reference)
     site: {
         id: 'site-001',
@@ -58,12 +59,10 @@ if (typeof window !== 'undefined') {
 }
 
 function submitOrder() {
-    const result = orderForm.validate();
-    if (result.isOk()) {
-        orderResult = { success: true, data: result.unwrap() };
-    } else {
-        orderResult = { success: false, errors: result.unwrapErr() };
-    }
+    orderResult = Exit.match(orderForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.orderValidation = orderResult;
     }

@@ -1,7 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { DateTime } from 'effect';
-import type { Option } from 'effect/Option';
+import { type DateTime, Option } from 'effect';
 import type { Colors } from './colors.svelte';
 import type { Employee } from './employee.svelte';
 import type { RecurrenceRule } from './recurrence-rule.svelte';
@@ -36,7 +35,7 @@ export interface Appointment {
     /** @default("") */
     location: string | Site;
     /** @textAreaController({ label: "Description" }) */
-    description: Option<string>;
+    description: Option.Option<string>;
     /** @hiddenController({}) */
     /** @default({ main: "#000000", hover: "#333333", active: "#666666" }) */
     colors: Colors;

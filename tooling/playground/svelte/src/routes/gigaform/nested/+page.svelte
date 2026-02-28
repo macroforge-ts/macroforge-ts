@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Exit, Option } from 'effect';
 import {
     userCreateForm,
     settingsDefaultValue,
@@ -25,12 +26,10 @@ if (typeof window !== 'undefined') {
 }
 
 function submitUser() {
-    const result = userForm.validate();
-    if (result.isOk()) {
-        userResult = { success: true, data: result.unwrap() };
-    } else {
-        userResult = { success: false, errors: result.unwrapErr() };
-    }
+    userResult = Exit.match(userForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.userValidation = userResult;
     }
@@ -111,8 +110,8 @@ const rowHeightOptions = ['ExtraSmall', 'Small', 'Medium', 'Large'] as const;
             type="text"
             id="user-email"
             data-testid="user-email"
-            value={userForm.fields.email.get() ?? ""}
-            oninput={(e) => userForm.fields.email.set(e.currentTarget.value || null)}
+            value={Option.getOrElse(userForm.fields.email.get(), () => "")}
+            oninput={(e) => userForm.fields.email.set(e.currentTarget.value ? Option.some(e.currentTarget.value) : Option.none())}
           />
         </div>
       </div>
@@ -127,9 +126,9 @@ const rowHeightOptions = ['ExtraSmall', 'Small', 'Medium', 'Large'] as const;
             value={userForm.fields.firstName.get()}
             oninput={(e) => userForm.fields.firstName.set(e.currentTarget.value)}
           />
-          {#if userForm.fields.firstName.getError()}
+          {#if Option.isSome(userForm.fields.firstName.getError())}
             <span class="error" data-testid="user-firstName-error">
-              {userForm.fields.firstName.getError()?.join(", ")}
+              {Option.getOrElse(userForm.fields.firstName.getError(), () => [] as Array<string>).join(", ")}
             </span>
           {/if}
         </div>
@@ -142,9 +141,9 @@ const rowHeightOptions = ['ExtraSmall', 'Small', 'Medium', 'Large'] as const;
             value={userForm.fields.lastName.get()}
             oninput={(e) => userForm.fields.lastName.set(e.currentTarget.value)}
           />
-          {#if userForm.fields.lastName.getError()}
+          {#if Option.isSome(userForm.fields.lastName.getError())}
             <span class="error" data-testid="user-lastName-error">
-              {userForm.fields.lastName.getError()?.join(", ")}
+              {Option.getOrElse(userForm.fields.lastName.getError(), () => [] as Array<string>).join(", ")}
             </span>
           {/if}
         </div>

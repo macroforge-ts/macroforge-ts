@@ -20,16 +20,16 @@ pub fn generate(type_name: &str, fields: &[ParsedField]) -> TsStream {
     ts_template! {
         /** Nested error structure matching the data shape */
         export type @{errors_name} = {
-            _errors: __gigaform_reexport_Option<Array<string>>;
+            _errors: Option.Option<Array<string>>;
             {#for field in fields}
-                @{&field.name}: __gigaform_reexport_Option<Array<string>>;
+                @{&field.name}: Option.Option<Array<string>>;
             {/for}
         };
 
         /** Nested boolean structure for tracking touched/dirty fields */
         export type @{tainted_name} = {
             {#for field in fields}
-                @{&field.name}: __gigaform_reexport_Option<boolean>;
+                @{&field.name}: Option.Option<boolean>;
             {/for}
         };
 
@@ -51,7 +51,7 @@ pub fn generate(type_name: &str, fields: &[ParsedField]) -> TsStream {
             readonly errors: @{errors_name};
             readonly tainted: @{tainted_name};
             readonly fields: @{field_controllers_name};
-            validate(): Exit<@{type_name}, Array<{ field: string; message: string }>>;
+            validate(): Exit.Exit<@{type_name}, Array<{ field: string; message: string }>>;
             reset(overrides?: Partial<@{type_name}>): void;
         }
     }
@@ -73,16 +73,16 @@ pub fn generate_with_generics(
     ts_template! {
         /** Nested error structure matching the data shape */
         export interface @{type_name}Errors@{generic_decl}{
-            _errors: __gigaform_reexport_Option<Array<string>>;
+            _errors: Option.Option<Array<string>>;
             {#for field in fields}
-                @{&field.name}: __gigaform_reexport_Option<Array<string>>;
+                @{&field.name}: Option.Option<Array<string>>;
             {/for}
         };
 
         /** Nested boolean structure for tracking touched/dirty fields */
         export interface @{type_name}Tainted@{generic_decl}{
             {#for field in fields}
-                @{&field.name}: __gigaform_reexport_Option<boolean>;
+                @{&field.name}: Option.Option<boolean>;
             {/for}
         };
 
@@ -104,7 +104,7 @@ pub fn generate_with_generics(
             readonly errors: @{type_name}Errors@{generic_args};
             readonly tainted: @{type_name}Tainted@{generic_args};
             readonly fields: @{type_name}FieldControllers@{generic_args};
-            validate(): Exit<@{type_name}@{generic_args}, Array<{ field: string; message: string }>>;
+            validate(): Exit.Exit<@{type_name}@{generic_args}, Array<{ field: string; message: string }>>;
             reset(overrides?: Partial<@{type_name}@{generic_args}>): void;
         }
     }
@@ -166,7 +166,7 @@ pub fn generate_union_with_generics(
             readonly tainted: @{tainted_name}@{generic_args};
             readonly variants: @{variant_fields_name}@{generic_args};
             switchVariant(variant: @{variant_union_literal}): void;
-            validate(): Exit<@{type_name}@{generic_args}, Array<{ field: string; message: string }>>;
+            validate(): Exit.Exit<@{type_name}@{generic_args}, Array<{ field: string; message: string }>>;
             reset(overrides?: Partial<@{type_name}@{generic_args}>): void;
         }
 
@@ -221,7 +221,7 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
             readonly tainted: @{tainted_name};
             readonly variants: @{variant_fields_name};
             switchVariant(variant: @{variant_union_literal}): void;
-            validate(): Exit<@{type_name}, Array<{ field: string; message: string }>>;
+            validate(): Exit.Exit<@{type_name}, Array<{ field: string; message: string }>>;
             reset(overrides?: Partial<@{type_name}>): void;
         }
 
@@ -243,9 +243,9 @@ fn generate_variant_errors(type_name: &str, config: &UnionConfig, generic_decl: 
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
             export type @{type_name}@{variant_name}Errors@{generic_decl} = {
-                _errors: __gigaform_reexport_Option<Array<string>>;
+                _errors: Option.Option<Array<string>>;
                 {#for field in &variant.fields}
-                    @{&field.name}: __gigaform_reexport_Option<Array<string>>;
+                    @{&field.name}: Option.Option<Array<string>>;
                 {/for}
             };
         {/for}
@@ -259,7 +259,7 @@ fn generate_variant_tainted(type_name: &str, config: &UnionConfig, generic_decl:
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
             export type @{type_name}@{variant_name}Tainted@{generic_decl} = {
                 {#for field in &variant.fields}
-                    @{&field.name}: __gigaform_reexport_Option<boolean>;
+                    @{&field.name}: Option.Option<boolean>;
                 {/for}
             };
         {/for}

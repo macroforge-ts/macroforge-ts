@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Exit, Option } from 'effect';
 import {
     leadCreateForm,
     type Lead,
@@ -47,12 +48,10 @@ if (typeof window !== 'undefined') {
 }
 
 function submitLead() {
-    const result = leadForm.validate();
-    if (result.isOk()) {
-        leadResult = { success: true, data: result.unwrap() };
-    } else {
-        leadResult = { success: false, errors: result.unwrapErr() };
-    }
+    leadResult = Exit.match(leadForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.leadValidation = leadResult;
     }
@@ -188,9 +187,9 @@ const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
               value={companyNameValue}
               oninput={(e) => updateCompanyName(e.currentTarget.value)}
             />
-            {#if leadForm.fields.leadName.getError()}
+            {#if Option.isSome(leadForm.fields.leadName.getError())}
               <span class="error" data-testid="lead-name-error">
-                {leadForm.fields.leadName.getError()?.join(", ")}
+                {Option.getOrElse(leadForm.fields.leadName.getError(), () => [] as Array<string>).join(", ")}
               </span>
             {/if}
           </div>
@@ -219,9 +218,9 @@ const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
               />
             </div>
           </div>
-          {#if leadForm.fields.leadName.getError()}
+          {#if Option.isSome(leadForm.fields.leadName.getError())}
             <span class="error" data-testid="lead-name-error">
-              {leadForm.fields.leadName.getError()?.join(", ")}
+              {Option.getOrElse(leadForm.fields.leadName.getError(), () => [] as Array<string>).join(", ")}
             </span>
           {/if}
         </div>

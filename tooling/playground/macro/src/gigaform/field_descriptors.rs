@@ -43,7 +43,7 @@ pub fn generate_factory(
             {$typescript field_controllers_obj}
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Exit<@{interface_name}, Array<{ field: string; message: string }>> {
+            function validate(): Exit.Exit<@{interface_name}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
 
@@ -125,7 +125,7 @@ pub fn generate_factory_with_generics(
             {$typescript field_controllers_obj}
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Exit<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
+            function validate(): Exit.Exit<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
 
@@ -270,7 +270,7 @@ pub fn generate_union_factory_with_generics(
             }
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Exit<@{type_name_with_args}, Array<{ field: string; message: string }>> {
+            function validate(): Exit.Exit<@{type_name_with_args}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
 
@@ -399,7 +399,7 @@ pub fn generate_union_factory(
             }
 
             // Validate the entire form using Deserialize's deserialize
-            function validate(): Exit<@{type_name}, Array<{ field: string; message: string }>> {
+            function validate(): Exit.Exit<@{type_name}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
 
@@ -491,52 +491,50 @@ fn generate_union_variant_controllers_object(
     generic_args: &str,
 ) -> TsStream {
     ts_template! {
-        const variants = {} as @{variant_fields_name}@{generic_args};
-        {#for variant in &config.variants}
-            {$let value = &variant.discriminant_value}
-            {$let variant_name = to_pascal_case(value)}
-            {$let prop_key = if needs_quoting(value) { format!("\"{}\"", value) } else { value.clone() }}
-            {$let fields_type = format!("{}{}FieldControllers{}", type_name, variant_name, generic_args)}
-            {$let field_assignments = generate_variant_field_assignments(&variant.fields, type_name, &prop_key)}
-            variants[@{prop_key}] = { fields: {} as @{fields_type} };
-            {$typescript field_assignments}
-        {/for}
+        const variants = {
+            {#for variant in &config.variants}
+                {$let value = &variant.discriminant_value}
+                {$let variant_name = to_pascal_case(value)}
+                {$let quoted_key = format!("\"{}\"", value)}
+                {$let fields_type = format!("{}{}FieldControllers{}", type_name, variant_name, generic_args)}
+                {$let variant_fields = generate_variant_fields_inline(&variant.fields, type_name)}
+                @{quoted_key}: { fields: { {$typescript variant_fields} } as unknown as @{fields_type} },
+            {/for}
+        } as unknown as @{variant_fields_name}@{generic_args};
     }
 }
 
-/// Generates field assignment statements for a variant.
-fn generate_variant_field_assignments(
+/// Generates field entries for a variant as inline key-value pairs.
+fn generate_variant_fields_inline(
     fields: &[ParsedField],
     type_name: &str,
-    variant_key: &str,
 ) -> TsStream {
     ts_template! {
         {#for field in fields}
-            {$let assignment = generate_field_controller_assignment(field, type_name, variant_key)}
-            {$typescript assignment}
+            {$let entry = generate_variant_field_entry(field, type_name)}
+            {$typescript entry}
         {/for}
     }
 }
 
-/// Generates a single field controller assignment statement.
-fn generate_field_controller_assignment(
+/// Generates a single field controller entry for inline object literal.
+fn generate_variant_field_entry(
     field: &ParsedField,
     interface_name: &str,
-    variant_key: &str,
 ) -> TsStream {
     let name = &field.name;
-    let label = name.as_str(); // Use field name as label
+    let label = name.as_str();
     let optional = field.optional;
     let is_array = field.is_array;
     let controller_type = get_field_controller_type(field, interface_name);
 
     ts_template! {
-        variants[@{variant_key}].fields.@{name} = {
+        @{name}: {
             label: "@{label}",
             type: "@{controller_type}",
             optional: @{optional},
             array: @{is_array}
-        };
+        },
     }
 }
 
@@ -552,13 +550,6 @@ fn get_field_controller_type(field: &ParsedField, _interface_name: &str) -> Stri
         "Date" => "date".to_string(),
         _ => "text".to_string(),
     }
-}
-
-/// Returns true if a string needs to be quoted when used as an object property key.
-fn needs_quoting(s: &str) -> bool {
-    // Needs quoting if it contains special chars or starts with a digit
-    s.chars().any(|c| !c.is_alphanumeric() && c != '_')
-        || s.chars().next().map(|c| c.is_numeric()).unwrap_or(true)
 }
 
 /// Converts a string to a valid PascalCase TypeScript identifier.
@@ -646,13 +637,13 @@ fn generate_data_state(
     if let Some(override_fn) = &options.default_override {
         ts_template! {
             let data = $state({ ...@{default_expr}, ...@{override_fn}(), ...overrides });
-            let errors = $state<@{errors_name}>({ _errors: __gigaform_reexport_Option.none() } as @{errors_name});
+            let errors = $state<@{errors_name}>({ _errors: Option.none() } as @{errors_name});
             let tainted = $state<@{tainted_name}>({} as @{tainted_name});
         }
     } else {
         ts_template! {
             let data = $state({ ...@{default_expr}, ...overrides });
-            let errors = $state<@{errors_name}>({ _errors: __gigaform_reexport_Option.none() } as @{errors_name});
+            let errors = $state<@{errors_name}>({ _errors: Option.none() } as @{errors_name});
             let tainted = $state<@{tainted_name}>({} as @{tainted_name});
         }
     }
@@ -680,9 +671,9 @@ fn generate_data_state_reset(
 fn generate_errors_state_reset(fields: &[ParsedField]) -> TsStream {
     ts_template! {
         errors = {
-            _errors: __gigaform_reexport_Option.none(),
+            _errors: Option.none(),
             {#for field in fields}
-                @{&field.name}: __gigaform_reexport_Option.none(),
+                @{&field.name}: Option.none(),
             {/for}
         };
     }
@@ -693,7 +684,7 @@ fn generate_tainted_state_reset(fields: &[ParsedField]) -> TsStream {
     ts_template! {
         tainted = {
             {#for field in fields}
-                @{&field.name}: __gigaform_reexport_Option.none(),
+                @{&field.name}: Option.none(),
             {/for}
         };
     }
@@ -717,7 +708,7 @@ fn generate_default_init_expr(
 // Field Controllers Generators
 // =============================================================================
 
-/// Generates field controllers as a complete const declaration.
+/// Generates field controllers as a complete const declaration with inline object.
 fn generate_field_controllers_object(
     fields: &[ParsedField],
     _options: &GigaformOptions,
@@ -725,16 +716,17 @@ fn generate_field_controllers_object(
     field_controllers_name: &str,
 ) -> TsStream {
     ts_template! {
-        const fields = {} as @{field_controllers_name};
-        {#for field in fields}
-            {$let assignment = generate_simple_field_assignment(field, interface_name)}
-            {$typescript assignment}
-        {/for}
+        const fields = {
+            {#for field in fields}
+                {$let entry = generate_field_controller_entry(field, interface_name)}
+                {$typescript entry}
+            {/for}
+        } as unknown as @{field_controllers_name};
     }
 }
 
-/// Generates a full field controller assignment with closures.
-fn generate_simple_field_assignment(field: &ParsedField, interface_name: &str) -> TsStream {
+/// Generates a field controller entry for inline object literal (key: value syntax).
+fn generate_field_controller_entry(field: &ParsedField, interface_name: &str) -> TsStream {
     let name = &field.name;
 
     // Get label from controller options if available, otherwise use field name
@@ -797,7 +789,7 @@ fn generate_simple_field_assignment(field: &ParsedField, interface_name: &str) -
                 get: () => data.@{name}[index],
                 set: (value: @{element_type}) => { data.@{name}[index] = value; },
                 getError: () => errors.@{name},
-                setError: (value: __gigaform_reexport_Option<Array<string>>) => { errors.@{name} = value; },
+                setError: (value: Option.Option<Array<string>>) => { errors.@{name} = value; },
             }),
             push: (item: @{element_type}) => { data.@{name}.push(item); },
             remove: (index: number) => { data.@{name}.splice(index, 1); },
@@ -812,7 +804,7 @@ fn generate_simple_field_assignment(field: &ParsedField, interface_name: &str) -
     };
 
     ts_template! {
-        fields.@{name} = {
+        @{name}: {
             name: "@{name}",
             label: "@{label}",
             type: "@{controller_type}",
@@ -822,9 +814,9 @@ fn generate_simple_field_assignment(field: &ParsedField, interface_name: &str) -
             get: () => data.@{name},
             set: (value: @{ts_type}) => { data.@{name} = value; },
             getError: () => errors.@{name},
-            setError: (value: __gigaform_reexport_Option<Array<string>>) => { errors.@{name} = value; },
+            setError: (value: Option.Option<Array<string>>) => { errors.@{name} = value; },
             getTainted: () => tainted.@{name},
-            setTainted: (value: __gigaform_reexport_Option<boolean>) => { tainted.@{name} = value; },
+            setTainted: (value: Option.Option<boolean>) => { tainted.@{name} = value; },
             validate: () => @{validate_fn_name}("@{name}", data.@{name}).map((e: { field: string; message: string }) => e.message),
             {$typescript array_methods}
             {$typescript constraints}
@@ -832,7 +824,7 @@ fn generate_simple_field_assignment(field: &ParsedField, interface_name: &str) -
             {$typescript placeholder_field}
             disabled: @{disabled},
             readonly: @{readonly},
-        };
+        },
     }
 }
 
@@ -889,10 +881,10 @@ fn generate_constraints(field: &ParsedField) -> TsStream {
     }
 
     if constraint_parts.is_empty() {
-        ts_template! { constraints: {} }
+        ts_template! { constraints: {}, }
     } else {
         let constraints_str = constraint_parts.join(", ");
-        ts_template! { constraints: { @{constraints_str} } }
+        ts_template! { constraints: { @{constraints_str} }, }
     }
 }
 

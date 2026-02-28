@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Exit, Option } from 'effect';
 import { userCreateForm, metadataDefaultValue, type User, type Metadata } from '$lib/demo/types';
 
 // Create User form to test nullable fields
@@ -6,13 +7,13 @@ const userForm = userCreateForm({
     id: 'user-001',
     firstName: 'John',
     lastName: 'Doe',
-    email: null, // nullable string
-    metadata: null, // nullable nested object
-    password: null,
-    verificationToken: null,
-    verificationExpires: null,
-    passwordResetToken: null,
-    passwordResetExpires: null
+    email: Option.none(), // nullable string
+    metadata: Option.none(), // nullable nested object
+    password: Option.none(),
+    verificationToken: Option.none(),
+    verificationExpires: Option.none(),
+    passwordResetToken: Option.none(),
+    passwordResetExpires: Option.none()
 });
 
 // Track validation results
@@ -39,12 +40,10 @@ if (typeof window !== 'undefined') {
 }
 
 function submitUser() {
-    const result = userForm.validate();
-    if (result.isOk()) {
-        userResult = { success: true, data: result.unwrap() };
-    } else {
-        userResult = { success: false, errors: result.unwrapErr() };
-    }
+    userResult = Exit.match(userForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.userValidation = userResult;
     }
@@ -55,9 +54,9 @@ function resetUser() {
         id: 'user-001',
         firstName: 'John',
         lastName: 'Doe',
-        email: null,
-        metadata: null,
-        password: null
+        email: Option.none(),
+        metadata: Option.none(),
+        password: Option.none()
     });
     userResult = null;
     hasMetadata = false;
@@ -66,37 +65,38 @@ function resetUser() {
 function toggleMetadata() {
     hasMetadata = !hasMetadata;
     if (hasMetadata) {
-        userForm.fields.metadata.set({
+        userForm.fields.metadata.set(Option.some({
             createdAt: metadataCreatedAt,
             lastLogin: metadataLastLogin,
             isActive: metadataIsActive,
             roles: metadataRoles
-        });
+        }));
     } else {
-        userForm.fields.metadata.set(null);
+        userForm.fields.metadata.set(Option.none());
     }
 }
 
 function updateMetadata() {
     if (hasMetadata) {
-        userForm.fields.metadata.set({
+        userForm.fields.metadata.set(Option.some({
             createdAt: metadataCreatedAt,
             lastLogin: metadataLastLogin,
             isActive: metadataIsActive,
             roles: metadataRoles
-        });
+        }));
     }
 }
 
 // Sync hasMetadata with form state
 $effect(() => {
     const currentMetadata = userForm.fields.metadata.get();
-    hasMetadata = currentMetadata !== null;
-    if (currentMetadata) {
-        metadataCreatedAt = currentMetadata.createdAt;
-        metadataLastLogin = currentMetadata.lastLogin;
-        metadataIsActive = currentMetadata.isActive;
-        metadataRoles = currentMetadata.roles;
+    hasMetadata = Option.isSome(currentMetadata);
+    if (Option.isSome(currentMetadata)) {
+        const meta = currentMetadata.value;
+        metadataCreatedAt = meta.createdAt;
+        metadataLastLogin = meta.lastLogin;
+        metadataIsActive = meta.isActive;
+        metadataRoles = meta.roles;
     }
 });
 </script>
@@ -124,7 +124,7 @@ $effect(() => {
       <p class="hint">Simple nullable primitive field</p>
 
       <div class="nullable-status" data-testid="email-nullable-status">
-        Current: {userForm.fields.email.get() === null ? "null" : `"${userForm.fields.email.get()}"`}
+        Current: {Option.isNone(userForm.fields.email.get()) ? "null" : `"${Option.getOrElse(userForm.fields.email.get(), () => "")}"`}
       </div>
 
       <div class="form-group">
@@ -134,11 +134,11 @@ $effect(() => {
           id="user-email"
           data-testid="user-email"
           placeholder="Enter email or leave empty for null"
-          value={userForm.fields.email.get() ?? ""}
+          value={Option.getOrElse(userForm.fields.email.get(), () => "")}
           oninput={(e) => {
             const value = e.currentTarget.value;
-            userForm.fields.email.set(value === "" ? null : value);
-            userForm.fields.email.setTainted(true);
+            userForm.fields.email.set(value === "" ? Option.none() : Option.some(value));
+            userForm.fields.email.setTainted(Option.some(true));
           }}
         />
       </div>
@@ -147,21 +147,21 @@ $effect(() => {
         <button
           type="button"
           data-testid="set-email-null"
-          onclick={() => userForm.fields.email.set(null)}
+          onclick={() => userForm.fields.email.set(Option.none())}
         >
           Set to null
         </button>
         <button
           type="button"
           data-testid="set-email-value"
-          onclick={() => userForm.fields.email.set("test@example.com")}
+          onclick={() => userForm.fields.email.set(Option.some("test@example.com"))}
         >
           Set to "test@example.com"
         </button>
       </div>
 
       <div class="tainted-status" data-testid="email-tainted">
-        Tainted: {userForm.fields.email.getTainted()}
+        Tainted: {Option.getOrElse(userForm.fields.email.getTainted(), () => false)}
       </div>
     </fieldset>
 
@@ -171,7 +171,7 @@ $effect(() => {
       <p class="hint">Nullable nested object - can be null or full Metadata object</p>
 
       <div class="nullable-status" data-testid="metadata-nullable-status">
-        Current: {userForm.fields.metadata.get() === null ? "null" : "Metadata object"}
+        Current: {Option.isNone(userForm.fields.metadata.get()) ? "null" : "Metadata object"}
       </div>
 
       <div class="toggle-container">
@@ -252,7 +252,7 @@ $effect(() => {
           type="button"
           data-testid="set-metadata-null"
           onclick={() => {
-            userForm.fields.metadata.set(null);
+            userForm.fields.metadata.set(Option.none());
             hasMetadata = false;
           }}
         >
@@ -262,7 +262,7 @@ $effect(() => {
           type="button"
           data-testid="set-metadata-default"
           onclick={() => {
-            userForm.fields.metadata.set(metadataDefaultValue());
+            userForm.fields.metadata.set(Option.some(metadataDefaultValue()));
             hasMetadata = true;
           }}
         >
@@ -272,7 +272,7 @@ $effect(() => {
 
       <div class="raw-value" data-testid="metadata-raw">
         <strong>Raw metadata value:</strong>
-        <pre>{JSON.stringify(userForm.fields.metadata.get(), null, 2)}</pre>
+        <pre>{JSON.stringify(Option.getOrNull(userForm.fields.metadata.get()), null, 2)}</pre>
       </div>
     </fieldset>
 
@@ -288,14 +288,14 @@ $effect(() => {
             id="user-password"
             data-testid="user-password"
             placeholder="null if empty"
-            value={userForm.fields.password.get() ?? ""}
+            value={Option.getOrElse(userForm.fields.password.get(), () => "")}
             oninput={(e) => {
               const value = e.currentTarget.value;
-              userForm.fields.password.set(value === "" ? null : value);
+              userForm.fields.password.set(value === "" ? Option.none() : Option.some(value));
             }}
           />
           <span class="nullable-indicator">
-            {userForm.fields.password.get() === null ? "null" : "has value"}
+            {Option.isNone(userForm.fields.password.get()) ? "null" : "has value"}
           </span>
         </div>
 
@@ -306,14 +306,14 @@ $effect(() => {
             id="user-verificationToken"
             data-testid="user-verificationToken"
             placeholder="null if empty"
-            value={userForm.fields.verificationToken.get() ?? ""}
+            value={Option.getOrElse(userForm.fields.verificationToken.get(), () => "")}
             oninput={(e) => {
               const value = e.currentTarget.value;
-              userForm.fields.verificationToken.set(value === "" ? null : value);
+              userForm.fields.verificationToken.set(value === "" ? Option.none() : Option.some(value));
             }}
           />
           <span class="nullable-indicator">
-            {userForm.fields.verificationToken.get() === null ? "null" : "has value"}
+            {Option.isNone(userForm.fields.verificationToken.get()) ? "null" : "has value"}
           </span>
         </div>
       </div>
