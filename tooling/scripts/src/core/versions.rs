@@ -43,7 +43,14 @@ impl VersionsCache {
     pub fn save(&self, root: &Path) -> Result<()> {
         let versions_path = root.join("tooling/versions.json");
 
-        let content = serde_json::to_string_pretty(self).context("Failed to serialize versions")?;
+        let buf = Vec::new();
+        let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
+        let mut serializer = serde_json::Serializer::with_formatter(buf, formatter);
+        self.serialize(&mut serializer)
+            .context("Failed to serialize versions")?;
+        let mut content =
+            String::from_utf8(serializer.into_inner()).context("Failed to convert to UTF-8")?;
+        content.push('\n');
 
         std::fs::write(&versions_path, content).context("Failed to write versions.json")?;
 
