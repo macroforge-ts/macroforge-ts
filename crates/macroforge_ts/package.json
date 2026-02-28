@@ -3,6 +3,9 @@
   "bugs": {
     "url": "https://github.com/macroforge-ts/core/issues"
   },
+  "dependencies": {
+    "@napi-rs/cli": "^3.5.1"
+  },
   "description": "TypeScript macro expansion engine powered by Rust and SWC",
   "engines": {
     "node": ">= 18"
@@ -63,12 +66,12 @@
     ]
   },
   "optionalDependencies": {
-    "@macroforge/bin-darwin-arm64": "0.1.75",
-    "@macroforge/bin-darwin-x64": "0.1.75",
-    "@macroforge/bin-linux-arm64-gnu": "0.1.75",
-    "@macroforge/bin-linux-x64-gnu": "0.1.75",
-    "@macroforge/bin-win32-arm64-msvc": "0.1.75",
-    "@macroforge/bin-win32-x64-msvc": "0.1.75"
+    "@macroforge/bin-darwin-arm64": "0.1.76",
+    "@macroforge/bin-darwin-x64": "0.1.76",
+    "@macroforge/bin-linux-arm64-gnu": "0.1.76",
+    "@macroforge/bin-linux-x64-gnu": "0.1.76",
+    "@macroforge/bin-win32-arm64-msvc": "0.1.76",
+    "@macroforge/bin-win32-x64-msvc": "0.1.76"
   },
   "repository": {
     "type": "git",
@@ -85,5 +88,5 @@
   },
   "type": "commonjs",
   "types": "index.d.ts",
-  "version": "0.1.75"
+  "version": "0.1.76"
 }
