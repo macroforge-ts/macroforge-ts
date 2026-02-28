@@ -50,7 +50,11 @@
 //! }
 //! ```
 
+use std::collections::HashMap;
+
+use crate::abi::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::abi::{ClassIR, EnumIR, InterfaceIR, SpanIR, TypeAliasIR};
+use crate::import_registry::ImportRegistry;
 use serde::{Deserialize, Serialize};
 
 /// The kind of macro being executed.
@@ -203,19 +207,32 @@ pub struct MacroContextIR {
     /// This enables macros to parse the source themselves using TsStream
     pub target_source: String,
 
-    /// Source imports from the file being processed.
+    /// The full import registry from the file being processed.
     /// Populated by the host before serializing the context for external macros.
-    /// Maps local name → (source_module, original_name, is_type_only).
-    /// External macros use this to populate the import registry so they can
-    /// look up where types are imported from.
+    /// Includes source imports, config imports, and previously generated imports,
+    /// giving external macros full parity with builtins.
     #[serde(default)]
-    pub source_imports: Vec<crate::import_registry::SourceImportEntry>,
+    pub import_registry: ImportRegistry,
 
     /// Macroforge configuration from macroforge.config.ts.
     /// Populated by the host before serializing the context for external macros.
     /// Gives external macros access to foreign type configs, etc.
     #[serde(default)]
     pub config: Option<crate::config::MacroforgeConfig>,
+
+    /// Project-wide type registry, populated during pre-expansion scan.
+    /// Gives macros access to all types defined in the project for
+    /// Zig-style compile-time type awareness.
+    ///
+    /// This is `None` when no pre-scan was performed (backward compatible).
+    #[serde(default)]
+    pub type_registry: Option<TypeRegistry>,
+
+    /// Resolved type references for the target's fields.
+    /// Maps field name -> ResolvedTypeRef for each field in the target.
+    /// Only populated when type_registry is available.
+    #[serde(default)]
+    pub resolved_fields: Option<HashMap<String, ResolvedTypeRef>>,
 }
 
 impl MacroContextIR {
@@ -240,8 +257,10 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::Class(class),
             target_source,
-            source_imports: vec![],
+            import_registry: ImportRegistry::new(),
             config: None,
+            type_registry: None,
+            resolved_fields: None,
         }
     }
 
@@ -309,8 +328,10 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::Interface(interface),
             target_source,
-            source_imports: vec![],
+            import_registry: ImportRegistry::new(),
             config: None,
+            type_registry: None,
+            resolved_fields: None,
         }
     }
 
@@ -335,8 +356,10 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::TypeAlias(type_alias),
             target_source,
-            source_imports: vec![],
+            import_registry: ImportRegistry::new(),
             config: None,
+            type_registry: None,
+            resolved_fields: None,
         }
     }
 
@@ -361,8 +384,10 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::Enum(enum_ir),
             target_source,
-            source_imports: vec![],
+            import_registry: ImportRegistry::new(),
             config: None,
+            type_registry: None,
+            resolved_fields: None,
         }
     }
 }
