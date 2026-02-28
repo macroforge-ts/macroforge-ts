@@ -649,7 +649,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
                 print!("  {} {}... ", "→".blue(), repo.name);
                 io::stdout().flush()?;
                 // Ensure dependencies are installed before testing
-                let _ = shell::deno::install(&repo.abs_path);
+                shell::deno::install(&repo.abs_path)?;
                 match shell::deno::task(&repo.abs_path, "test") {
                     Ok(_) => println!("{}", "passed".green()),
                     Err(e) => {
