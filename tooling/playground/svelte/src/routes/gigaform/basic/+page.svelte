@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Exit, Option } from 'effect';
 import {
     phoneNumberCreateForm,
     gradientCreateForm,
@@ -40,36 +41,30 @@ if (typeof window !== 'undefined') {
 }
 
 function submitPhone() {
-    const result = phoneForm.validate();
-    if (result.isOk()) {
-        phoneResult = { success: true, data: result.unwrap() };
-    } else {
-        phoneResult = { success: false, errors: result.unwrapErr() };
-    }
+    phoneResult = Exit.match(phoneForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.phoneValidation = phoneResult;
     }
 }
 
 function submitGradient() {
-    const result = gradientForm.validate();
-    if (result.isOk()) {
-        gradientResult = { success: true, data: result.unwrap() };
-    } else {
-        gradientResult = { success: false, errors: result.unwrapErr() };
-    }
+    gradientResult = Exit.match(gradientForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.gradientValidation = gradientResult;
     }
 }
 
 function submitCoordinates() {
-    const result = coordinatesForm.validate();
-    if (result.isOk()) {
-        coordinatesResult = { success: true, data: result.unwrap() };
-    } else {
-        coordinatesResult = { success: false, errors: result.unwrapErr() };
-    }
+    coordinatesResult = Exit.match(coordinatesForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.coordinatesValidation = coordinatesResult;
     }
@@ -120,16 +115,16 @@ function resetCoordinates() {
           value={phoneForm.fields.phoneType.get()}
           oninput={(e) => {
             phoneForm.fields.phoneType.set(e.currentTarget.value);
-            phoneForm.fields.phoneType.setTainted(true);
+            phoneForm.fields.phoneType.setTainted(Option.some(true));
           }}
         />
-        {#if phoneForm.fields.phoneType.getError()}
+        {#if Option.isSome(phoneForm.fields.phoneType.getError())}
           <span class="error" data-testid="phone-type-error">
-            {phoneForm.fields.phoneType.getError()?.join(", ")}
+            {Option.getOrElse(phoneForm.fields.phoneType.getError(), () => [] as Array<string>).join(", ")}
           </span>
         {/if}
         <span class="tainted-indicator" data-testid="phone-type-tainted">
-          Tainted: {phoneForm.fields.phoneType.getTainted()}
+          Tainted: {Option.getOrElse(phoneForm.fields.phoneType.getTainted(), () => false)}
         </span>
       </div>
 
@@ -143,12 +138,12 @@ function resetCoordinates() {
           value={phoneForm.fields.number.get()}
           oninput={(e) => {
             phoneForm.fields.number.set(e.currentTarget.value);
-            phoneForm.fields.number.setTainted(true);
+            phoneForm.fields.number.setTainted(Option.some(true));
           }}
         />
-        {#if phoneForm.fields.number.getError()}
+        {#if Option.isSome(phoneForm.fields.number.getError())}
           <span class="error" data-testid="phone-number-error">
-            {phoneForm.fields.number.getError()?.join(", ")}
+            {Option.getOrElse(phoneForm.fields.number.getError(), () => [] as Array<string>).join(", ")}
           </span>
         {/if}
       </div>
@@ -163,7 +158,7 @@ function resetCoordinates() {
             checked={phoneForm.fields.main.get()}
             onchange={(e) => {
               phoneForm.fields.main.set(e.currentTarget.checked);
-              phoneForm.fields.main.setTainted(true);
+              phoneForm.fields.main.setTainted(Option.some(true));
             }}
           />
           Main Phone
@@ -178,7 +173,7 @@ function resetCoordinates() {
             checked={phoneForm.fields.canText.get()}
             onchange={(e) => {
               phoneForm.fields.canText.set(e.currentTarget.checked);
-              phoneForm.fields.canText.setTainted(true);
+              phoneForm.fields.canText.setTainted(Option.some(true));
             }}
           />
           Can Text
@@ -193,7 +188,7 @@ function resetCoordinates() {
             checked={phoneForm.fields.canCall.get()}
             onchange={(e) => {
               phoneForm.fields.canCall.set(e.currentTarget.checked);
-              phoneForm.fields.canCall.setTainted(true);
+              phoneForm.fields.canCall.setTainted(Option.some(true));
             }}
           />
           Can Call
@@ -206,7 +201,7 @@ function resetCoordinates() {
       <button type="button" data-testid="reset-phone" onclick={resetPhone}>Reset</button>
       <button type="button" data-testid="validate-phone-type" onclick={() => {
         const errors = phoneForm.fields.phoneType.validate();
-        phoneForm.fields.phoneType.setError(errors.length > 0 ? errors : undefined);
+        phoneForm.fields.phoneType.setError(errors.length > 0 ? Option.some(errors) : Option.none());
       }}>Validate Phone Type</button>
     </div>
   </form>
@@ -255,12 +250,12 @@ function resetCoordinates() {
         value={gradientForm.fields.startHue.get()}
         oninput={(e) => {
           gradientForm.fields.startHue.set(Number(e.currentTarget.value));
-          gradientForm.fields.startHue.setTainted(true);
+          gradientForm.fields.startHue.setTainted(Option.some(true));
         }}
       />
-      {#if gradientForm.fields.startHue.getError()}
+      {#if Option.isSome(gradientForm.fields.startHue.getError())}
         <span class="error" data-testid="gradient-startHue-error">
-          {gradientForm.fields.startHue.getError()?.join(", ")}
+          {Option.getOrElse(gradientForm.fields.startHue.getError(), () => [] as Array<string>).join(", ")}
         </span>
       {/if}
     </div>
@@ -315,12 +310,12 @@ function resetCoordinates() {
           value={coordinatesForm.fields.lat.get()}
           oninput={(e) => {
             coordinatesForm.fields.lat.set(Number(e.currentTarget.value));
-            coordinatesForm.fields.lat.setTainted(true);
+            coordinatesForm.fields.lat.setTainted(Option.some(true));
           }}
         />
-        {#if coordinatesForm.fields.lat.getError()}
+        {#if Option.isSome(coordinatesForm.fields.lat.getError())}
           <span class="error" data-testid="coordinates-lat-error">
-            {coordinatesForm.fields.lat.getError()?.join(", ")}
+            {Option.getOrElse(coordinatesForm.fields.lat.getError(), () => [] as Array<string>).join(", ")}
           </span>
         {/if}
       </div>
@@ -335,12 +330,12 @@ function resetCoordinates() {
           value={coordinatesForm.fields.lng.get()}
           oninput={(e) => {
             coordinatesForm.fields.lng.set(Number(e.currentTarget.value));
-            coordinatesForm.fields.lng.setTainted(true);
+            coordinatesForm.fields.lng.setTainted(Option.some(true));
           }}
         />
-        {#if coordinatesForm.fields.lng.getError()}
+        {#if Option.isSome(coordinatesForm.fields.lng.getError())}
           <span class="error" data-testid="coordinates-lng-error">
-            {coordinatesForm.fields.lng.getError()?.join(", ")}
+            {Option.getOrElse(coordinatesForm.fields.lng.getError(), () => [] as Array<string>).join(", ")}
           </span>
         {/if}
       </div>

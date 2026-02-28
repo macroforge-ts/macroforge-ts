@@ -61,13 +61,13 @@ export type ValidationResult<T> = {
     errors?: Array<string>;
 };
 
-// Helper to convert Result to ValidationResult
-// The Result type is provided by the macro expansion
-export function toValidationResult<T>(result: any): ValidationResult<T> {
-    if (result.isOk()) {
-        return { success: true, data: result.unwrap() };
+// Helper to convert deserialize result to ValidationResult
+// The deserialize() returns { success: true; value: T } | { success: false; errors: Array<{field, message}> }
+export function toValidationResult<T>(result: { success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }): ValidationResult<T> {
+    if (result.success) {
+        return { success: true, data: result.value };
     } else {
-        return { success: false, errors: result.unwrapErr() };
+        return { success: false, errors: result.errors.map(e => `${e.field}: ${e.message}`) };
     }
 }
 

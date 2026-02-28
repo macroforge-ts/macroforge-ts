@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Exit } from 'effect';
 import { accountCreateForm, type Account, type PhoneNumber, type Sector } from '$lib/demo/types';
 
 // Create Account form with arrays
@@ -42,12 +43,10 @@ if (typeof window !== 'undefined') {
 }
 
 function submitAccount() {
-    const result = accountForm.validate();
-    if (result.isOk()) {
-        accountResult = { success: true, data: result.unwrap() };
-    } else {
-        accountResult = { success: false, errors: result.unwrapErr() };
-    }
+    accountResult = Exit.match(accountForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.accountValidation = accountResult;
     }

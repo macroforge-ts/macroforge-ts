@@ -1,7 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import type { DateTime } from 'effect';
-import type { Option } from 'effect/Option';
+import { type DateTime, Option } from 'effect';
 import type { Account } from './account.svelte';
 import type { Appointment } from './appointment.svelte';
 import type { BilledItem } from './billed-item.svelte';
@@ -76,7 +75,7 @@ export interface Order {
     /** @arrayFieldsetController({ legend: "Billed Items" }) */
     billedItems: Array<BilledItem>;
     /** @textAreaController({ label: "Memo" }) */
-    memo: Option<string>;
+    memo: Option.Option<string>;
     /** @hiddenController({}) */
     discount: number;
     /** @hiddenController({}) */

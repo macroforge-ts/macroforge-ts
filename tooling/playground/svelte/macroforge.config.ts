@@ -12,12 +12,11 @@ export default {
             deserialize: (raw: unknown) => DateTime.unsafeFromDate(new Date(raw as string)),
             default: () => DateTime.unsafeNow()
         },
-        Option: {
-            from: ['effect/Option'],
+        'Option.Option': {
+            from: ['effect'],
+            aliases: [{ name: 'Option', from: 'effect/Option' }],
             serialize: (v: Option.Option<unknown>) => Option.getOrNull(v),
-            deserialize: (
-                raw: unknown
-            ) => (raw === null ? Option.none() : Option.some(raw)),
+            deserialize: (raw: unknown) => Option.fromNullable(raw),
             default: () => Option.none()
         }
     }

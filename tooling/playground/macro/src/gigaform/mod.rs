@@ -111,11 +111,9 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     // Combine into plain, prefixed exports (no namespace merging)
     let mut output = type_defs.merge(factory_fn).merge(form_data_fn);
 
-    // Add required imports from effect
-    output.add_type_import("Exit", "effect");
-    output.add_type_import("Option", "effect");
-    // Import Option helpers
-    output.add_import_as("Option", "__gigaform_reexport_Option", "effect");
+    // Add required imports from effect (value imports — use Option.Option<T> / Exit.Exit<T,E> in type positions)
+    output.add_import("Option", "effect");
+    output.add_import("Exit", "effect");
 
     // Import FieldController and toExit from the macros gigaform module
     output.add_type_import("FieldController", "@playground/macro/gigaform");
@@ -218,11 +216,9 @@ fn generate_union_form(
 
     let mut output = type_defs.merge(factory_fn).merge(form_data_fn);
 
-    // Add required imports from effect
-    output.add_type_import("Exit", "effect");
-    output.add_type_import("Option", "effect");
-    // Import Option helpers
-    output.add_import_as("Option", "__gigaform_reexport_Option", "effect");
+    // Add required imports from effect (value imports — use Option.Option<T> / Exit.Exit<T,E> in type positions)
+    output.add_import("Option", "effect");
+    output.add_import("Exit", "effect");
 
     // Import FieldController and toExit from the macros gigaform module
     output.add_type_import("FieldController", "@playground/macro/gigaform");

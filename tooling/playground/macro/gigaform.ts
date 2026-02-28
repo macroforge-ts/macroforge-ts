@@ -1,27 +1,19 @@
-// Import directly from effect library
+import { Exit } from 'effect';
+import type { Option } from 'effect';
 
-import type { Exit } from 'effect/Exit';
-import { fail as exitFail, isSuccess as exitIsSuccess, succeed as exitSucceed } from 'effect/Exit';
-import type { Option } from 'effect/Option';
-import { isNone as optionIsNone, none as optionNone, some as optionSome } from 'effect/Option';
-
-// Re-export for Gigaform consumers
-export { exitFail, exitIsSuccess, exitSucceed, optionIsNone, optionNone, optionSome };
-export type { Exit, Option };
-
-/** Vanilla result type from builtin macros */
-export type VanillaResult<T, E = Array<{ field: string; message: string }>> =
+/** Deserialize result format from @derive(Deserialize) */
+export type DeserializeResult<T> =
     | { success: true; value: T }
-    | { success: false; errors: E };
+    | { success: false; errors: Array<{ field: string; message: string }> };
 
-/** Convert vanilla result to Exit type */
+/** Converts a deserialize result to an Effect Exit */
 export function toExit<T>(
-    result: VanillaResult<T>
-): Exit<T, Array<{ field: string; message: string }>> {
+    result: DeserializeResult<T>
+): Exit.Exit<T, Array<{ field: string; message: string }>> {
     if (result.success) {
-        return exitSucceed(result.value);
+        return Exit.succeed(result.value);
     } else {
-        return exitFail(result.errors);
+        return Exit.fail(result.errors);
     }
 }
 
@@ -39,10 +31,10 @@ export interface FieldController<T> {
     set(value: T): void;
     /** Transform input value before setting (applies configured format like uppercase, trim, etc.) */
     transform(value: T): T;
-    getError(): Option<Array<string>>;
-    setError(value: Option<Array<string>>): void;
-    getTainted(): Option<boolean>;
-    setTainted(value: Option<boolean>): void;
+    getError(): Option.Option<Array<string>>;
+    setError(value: Option.Option<Array<string>>): void;
+    getTainted(): Option.Option<boolean>;
+    setTainted(value: Option.Option<boolean>): void;
     validate(): Array<string>;
 }
 
@@ -205,9 +197,7 @@ export interface BaseGigaform<TData, TErrors, TTainted, TFields> {
     readonly errors: TErrors;
     readonly tainted: TTainted;
     readonly fields: TFields;
-    validate(): Promise<
-        Exit<TData, ReadonlyArray<{ field: string; message: string }>>
-    >;
+    validate(): Exit.Exit<TData, ReadonlyArray<{ field: string; message: string }>>;
     reset(overrides: Partial<TData> | null): void;
 }
 

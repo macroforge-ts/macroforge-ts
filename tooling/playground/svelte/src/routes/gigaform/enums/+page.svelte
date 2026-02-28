@@ -1,4 +1,5 @@
 <script lang="ts">
+import { DateTime, Exit, Option } from 'effect';
 import {
     appointmentCreateForm,
     type Appointment,
@@ -17,7 +18,7 @@ const appointmentForm = appointmentCreateForm({
     id: 'appt-001',
     title: 'Client Meeting',
     status: 'Scheduled',
-    begins: new Date().toISOString(),
+    begins: DateTime.unsafeMake(new Date()),
     duration: 60,
     timeZone: 'America/New_York',
     offsetMs: -18000000,
@@ -25,7 +26,7 @@ const appointmentForm = appointmentCreateForm({
     multiDay: false,
     employees: [],
     location: 'site-001',
-    description: 'Initial consultation',
+    description: Option.some('Initial consultation'),
     colors: { main: '#4f46e5', hover: '#4338ca', active: '#3730a3' },
     recurrenceRule: null
 });
@@ -45,12 +46,10 @@ if (typeof window !== 'undefined') {
 }
 
 function submitAppointment() {
-    const result = appointmentForm.validate();
-    if (result.isOk()) {
-        appointmentResult = { success: true, data: result.unwrap() };
-    } else {
-        appointmentResult = { success: false, errors: result.unwrapErr() };
-    }
+    appointmentResult = Exit.match(appointmentForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.appointmentValidation = appointmentResult;
     }
@@ -61,7 +60,7 @@ function resetAppointment() {
         id: 'appt-001',
         title: 'Client Meeting',
         status: 'Scheduled',
-        begins: new Date().toISOString(),
+        begins: DateTime.unsafeMake(new Date()),
         duration: 60,
         timeZone: 'America/New_York'
     });
@@ -140,7 +139,7 @@ let selectedWeekdays: Array<Weekday> = $state(['Monday', 'Wednesday', 'Friday'])
             data-testid="status-{status}"
             onclick={() => {
               appointmentForm.fields.status.set(status);
-              appointmentForm.fields.status.setTainted(true);
+              appointmentForm.fields.status.setTainted(Option.some(true));
             }}
           >
             {status}
@@ -156,7 +155,7 @@ let selectedWeekdays: Array<Weekday> = $state(['Monday', 'Wednesday', 'Friday'])
           value={appointmentForm.fields.status.get()}
           onchange={(e) => {
             appointmentForm.fields.status.set(e.currentTarget.value as Status);
-            appointmentForm.fields.status.setTainted(true);
+            appointmentForm.fields.status.setTainted(Option.some(true));
           }}
         >
           {#each statusOptions as status}
@@ -166,7 +165,7 @@ let selectedWeekdays: Array<Weekday> = $state(['Monday', 'Wednesday', 'Friday'])
       </div>
 
       <div class="tainted-status" data-testid="status-tainted">
-        Tainted: {appointmentForm.fields.status.getTainted()}
+        Tainted: {Option.getOrElse(appointmentForm.fields.status.getTainted(), () => false)}
       </div>
     </fieldset>
 

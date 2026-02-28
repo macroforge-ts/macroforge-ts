@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Exit } from 'effect';
 import { taxRateCreateForm, type TaxRate } from '$lib/demo/types';
 
 // Create TaxRate form to test Record/Map types
@@ -38,12 +39,10 @@ if (typeof window !== 'undefined') {
 }
 
 function submitTaxRate() {
-    const result = taxRateForm.validate();
-    if (result.isOk()) {
-        taxRateResult = { success: true, data: result.unwrap() };
-    } else {
-        taxRateResult = { success: false, errors: result.unwrapErr() };
-    }
+    taxRateResult = Exit.match(taxRateForm.validate(), {
+        onSuccess: (data) => ({ success: true as const, data }),
+        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
+    });
     if (typeof window !== 'undefined') {
         (window as any).gigaformResults.taxRateValidation = taxRateResult;
     }
