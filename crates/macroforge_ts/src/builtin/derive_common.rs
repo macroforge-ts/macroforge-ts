@@ -42,7 +42,7 @@
 
 use convert_case::{Case, Casing};
 
-use crate::builtin::serde::{TypeCategory, get_foreign_types};
+use crate::builtin::serde::{TypeCategory, get_foreign_types, split_top_level_union};
 use crate::ts_syn::abi::DecoratorIR;
 
 /// Options parsed from field-level decorators for comparison macros
@@ -198,6 +198,31 @@ pub fn get_type_default(ts_type: &str) -> String {
     // Nullable first (like Rust's Option::default() -> None)
     if is_nullable_type(t) {
         return "null".to_string();
+    }
+
+    // Handle union types (e.g., string | Account, "Estimate" | "Invoice")
+    // Nullable unions (T | null, T | undefined) are already handled above.
+    if let Some(parts) = split_top_level_union(t) {
+        // 1. If any member is a primitive, use that primitive's default
+        for part in &parts {
+            if is_primitive_type(part) {
+                return get_type_default(part);
+            }
+        }
+        // 2. If any member is a literal, use the first literal
+        for part in &parts {
+            let p = part.trim();
+            if (p.starts_with('"') && p.ends_with('"'))
+                || (p.starts_with('\'') && p.ends_with('\''))
+                || (p.starts_with('`') && p.ends_with('`'))
+                || p.parse::<f64>().is_ok()
+                || matches!(p, "true" | "false")
+            {
+                return get_type_default(p);
+            }
+        }
+        // 3. Union of only custom types — default via first member
+        return get_type_default(parts[0]);
     }
 
     match t {
@@ -423,6 +448,50 @@ mod tests {
             get_type_default("Result<User, Error>"),
             "resultDefaultValue<User, Error>()"
         );
+    }
+
+    #[test]
+    fn test_get_type_default_union_with_primitive() {
+        // string | CustomType → default of the primitive member
+        assert_eq!(get_type_default("string | Account"), r#""""#);
+        assert_eq!(get_type_default("string | Employee"), r#""""#);
+        assert_eq!(get_type_default("string | Appointment"), r#""""#);
+        assert_eq!(get_type_default("string | Site"), r#""""#);
+        assert_eq!(get_type_default("number | Custom"), "0");
+        assert_eq!(get_type_default("boolean | Foo"), "false");
+        assert_eq!(get_type_default("bigint | Bar"), "0n");
+        // Primitive not first in union
+        assert_eq!(get_type_default("Account | string"), r#""""#);
+    }
+
+    #[test]
+    fn test_get_type_default_union_with_literal() {
+        // Literal unions → first literal value
+        assert_eq!(
+            get_type_default(r#""Estimate" | "Invoice""#),
+            r#""Estimate""#
+        );
+        assert_eq!(
+            get_type_default(r#""active" | "pending" | "completed""#),
+            r#""active""#
+        );
+    }
+
+    #[test]
+    fn test_get_type_default_union_custom_types() {
+        // Union of only custom types → default of the first member
+        assert_eq!(
+            get_type_default("Account | Employee"),
+            "accountDefaultValue()"
+        );
+    }
+
+    #[test]
+    fn test_get_type_default_nullable_union() {
+        // Nullable unions are still handled by is_nullable_type
+        assert_eq!(get_type_default("string | null"), "null");
+        assert_eq!(get_type_default("Account | undefined"), "null");
+        assert_eq!(get_type_default("string | Account | null"), "null");
     }
 
     #[test]

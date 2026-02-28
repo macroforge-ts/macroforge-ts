@@ -423,6 +423,65 @@ fn get_serializable_type_name(ts_type: &str) -> Option<String> {
     }
 }
 
+/// Tries to generate a composite deserialize expression for types where a foreign
+/// type is nested inside nullable or array wrappers (e.g., `Utc[] | null`, `Utc | null`).
+///
+/// Splits the type by `|`, strips `null`/`undefined`, detects `[]` arrays,
+/// and matches the element type against configured foreign types.
+fn try_composite_foreign_deserialize(ts_type: &str) -> Option<String> {
+    let foreign_types = get_foreign_types();
+
+    // Split by | and classify parts
+    let parts: Vec<&str> = ts_type
+        .split('|')
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    let is_nullable = parts.iter().any(|s| *s == "null" || *s == "undefined");
+    let non_null: Vec<&str> = parts
+        .iter()
+        .filter(|s| **s != "null" && **s != "undefined")
+        .copied()
+        .collect();
+
+    // Only handle single non-null type for now
+    if non_null.len() != 1 {
+        return None;
+    }
+
+    let core = non_null[0];
+
+    // Check for array suffix (Utc[] or Array<Utc>)
+    let (is_array, elem_type) = if let Some(inner) = core.strip_suffix("[]") {
+        (true, inner.trim())
+    } else if let Some(rest) = core.strip_prefix("Array<") {
+        if let Some(inner) = rest.strip_suffix('>') {
+            (true, inner.trim())
+        } else {
+            (false, core)
+        }
+    } else {
+        (false, core)
+    };
+
+    // Try matching the element type against foreign types
+    let ft_match = TypeCategory::match_foreign_type(elem_type, &foreign_types);
+    let deser_expr = ft_match.config.and_then(|ft| ft.deserialize_expr.clone())?;
+    let rewritten = rewrite_expression_namespaces(&deser_expr);
+
+    match (is_nullable, is_array) {
+        (true, true) => Some(format!(
+            "(raw) => raw === null ? null : (raw as any[]).map(item => ({rewritten})(item))"
+        )),
+        (true, false) => Some(format!("(raw) => raw === null ? null : ({rewritten})(raw)")),
+        (false, true) => Some(format!(
+            "(raw) => (raw as any[]).map(item => ({rewritten})(item))"
+        )),
+        (false, false) => None, // Direct match should have been caught already
+    }
+}
+
 /// Extracts the base type name from a potentially generic type.
 /// For example: "User<T>" -> "User", "Map<string, number>" -> "Map"
 fn extract_base_type(ts_type: &str) -> String {
@@ -436,7 +495,24 @@ fn extract_base_type(ts_type: &str) -> String {
 /// Generates the DeserializeWithContext function name for a nested deserializable type.
 /// For example: "User" -> "userDeserializeWithContext"
 fn nested_deserialize_fn_name(type_name: &str) -> String {
-    format!("{}DeserializeWithContext", type_name.to_case(Case::Camel))
+    // Strip generic parameters before camelCase conversion (see nested_serialize_fn_name)
+    let base = if let Some(idx) = type_name.find('<') {
+        &type_name[..idx]
+    } else {
+        type_name
+    };
+    format!("{}DeserializeWithContext", base.to_case(Case::Camel))
+}
+
+/// Generates the HasShape function name for a type.
+/// For example: "DailyRecurrenceRule" -> "dailyRecurrenceRuleHasShape"
+fn nested_has_shape_fn_name(type_name: &str) -> String {
+    let base = if let Some(idx) = type_name.find('<') {
+        &type_name[..idx]
+    } else {
+        type_name
+    };
+    format!("{}HasShape", base.to_case(Case::Camel))
 }
 
 /// Contains field information needed for JSON deserialization code generation.
@@ -497,6 +573,8 @@ struct DeserializeField {
     /// Custom deserialization function expression (from `@serde({deserializeWith: "fn"})`)
     /// When set, this function is called instead of type-based deserialization.
     _deserialize_with: Option<Expr>,
+    /// Whether this field uses decimal format (deserialize string to number).
+    _decimal_format: bool,
 }
 
 impl DeserializeField {
@@ -511,10 +589,22 @@ impl DeserializeField {
 /// For parameterized types like `RecordLink<Product>`, we need both:
 /// - The full type string for `__type` comparison and type casting
 /// - The base type name for runtime namespace access
+///
+/// For foreign types (e.g., `DateTime.Utc`), the inline deserialize expression
+/// is pre-computed so the union template can use it directly instead of generating
+/// a function call to a non-existent `{camelCase}DeserializeWithContext` function.
 #[derive(Clone)]
 struct SerializableTypeRef {
     /// The full type reference string (e.g., "RecordLink<Product>")
     full_type: String,
+    /// Whether this type is a foreign type (configured in macroforge.config.ts)
+    is_foreign: bool,
+    /// For foreign types: the inline deserialize expression, namespace-rewritten.
+    /// e.g., `"(raw: unknown) => __mf_DateTime.unsafeMake(raw as string)"`
+    foreign_deserialize_inline: Option<String>,
+    /// For foreign types: the inline shape-check predicate, namespace-rewritten.
+    /// e.g., `"(v: unknown) => typeof v === \"string\""`
+    foreign_has_shape_inline: Option<String>,
 }
 
 /// Generates a JavaScript boolean expression that evaluates to `true` when validation fails.
@@ -752,6 +842,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             .config
                             .and_then(|ft| ft.deserialize_expr.clone())
                             .map(|expr| rewrite_expression_namespaces(&expr))
+                            // If no direct match, try composite patterns (e.g., Utc[] | null)
+                            .or_else(|| try_composite_foreign_deserialize(&field.ts_type))
                     };
 
                     let deserialize_with = deserialize_with_src.as_ref().and_then(|expr_src| {
@@ -801,6 +893,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         _array_elem_kind: array_elem_kind,
                         _nullable_serializable_type: nullable_serializable_type,
                         _deserialize_with: deserialize_with,
+                        _decimal_format: opts.format.as_deref() == Some("decimal"),
                     })
                 })
                 .collect();
@@ -979,7 +1072,18 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {$typescript validation_code}
 
                                             {/if}
-                                            instance.@{field._field_ident} = @{raw_var_ident};
+                                            {#if field._decimal_format}
+                                                {
+                                                    const __numVal = globalThis.Number(@{raw_var_ident});
+                                                    if (globalThis.Number.isNaN(__numVal)) {
+                                                        errors.push({ field: "@{field.json_key}", message: "expected a numeric string, got " + JSON.stringify(@{raw_var_ident}) });
+                                                    } else {
+                                                        instance.@{field._field_ident} = __numVal;
+                                                    }
+                                                }
+                                            {:else}
+                                                instance.@{field._field_ident} = @{raw_var_ident};
+                                            {/if}
 
                                         {:case TypeCategory::Date}
                                             {
@@ -1114,7 +1218,18 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {$typescript validation_code}
 
                                             {/if}
-                                            instance.@{field._field_ident} = @{raw_var_ident};
+                                            {#if field._decimal_format}
+                                                {
+                                                    const __numVal = globalThis.Number(@{raw_var_ident});
+                                                    if (globalThis.Number.isNaN(__numVal)) {
+                                                        errors.push({ field: "@{field.json_key}", message: "expected a numeric string, got " + JSON.stringify(@{raw_var_ident}) });
+                                                    } else {
+                                                        instance.@{field._field_ident} = __numVal;
+                                                    }
+                                                }
+                                            {:else}
+                                                instance.@{field._field_ident} = @{raw_var_ident};
+                                            {/if}
 
                                         {:case TypeCategory::Date}
                                             {
@@ -1442,6 +1557,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             .config
                             .and_then(|ft| ft.deserialize_expr.clone())
                             .map(|expr| rewrite_expression_namespaces(&expr))
+                            // If no direct match, try composite patterns (e.g., Utc[] | null)
+                            .or_else(|| try_composite_foreign_deserialize(&field.ts_type))
                     };
 
                     let deserialize_with = deserialize_with_src.as_ref().and_then(|expr_src| {
@@ -1491,6 +1608,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         _array_elem_kind: array_elem_kind,
                         _nullable_serializable_type: nullable_serializable_type,
                         _deserialize_with: deserialize_with,
+                        _decimal_format: opts.format.as_deref() == Some("decimal"),
                     })
                 })
                 .collect();
@@ -1673,7 +1791,18 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {$typescript validation_code}
 
                                                 {/if}
-                                                instance.@{field._field_ident} = @{raw_var_ident};
+                                                {#if field._decimal_format}
+                                                    {
+                                                        const __numVal = globalThis.Number(@{raw_var_ident});
+                                                        if (globalThis.Number.isNaN(__numVal)) {
+                                                            errors.push({ field: "@{field.json_key}", message: "expected a numeric string, got " + JSON.stringify(@{raw_var_ident}) });
+                                                        } else {
+                                                            instance.@{field._field_ident} = __numVal;
+                                                        }
+                                                    }
+                                                {:else}
+                                                    instance.@{field._field_ident} = @{raw_var_ident};
+                                                {/if}
 
                                             {:case TypeCategory::Date}
                                                 {
@@ -1760,7 +1889,18 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {$typescript validation_code}
 
                                                 {/if}
-                                                instance.@{field._field_ident} = @{raw_var_ident};
+                                                {#if field._decimal_format}
+                                                    {
+                                                        const __numVal = globalThis.Number(@{raw_var_ident});
+                                                        if (globalThis.Number.isNaN(__numVal)) {
+                                                            errors.push({ field: "@{field.json_key}", message: "expected a numeric string, got " + JSON.stringify(@{raw_var_ident}) });
+                                                        } else {
+                                                            instance.@{field._field_ident} = __numVal;
+                                                        }
+                                                    }
+                                                {:else}
+                                                    instance.@{field._field_ident} = @{raw_var_ident};
+                                                {/if}
 
                                             {:case TypeCategory::Date}
                                                 {
@@ -2025,6 +2165,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             _array_elem_kind: array_elem_kind,
                             _nullable_serializable_type: nullable_serializable_type,
                             _deserialize_with: deserialize_with,
+                            _decimal_format: opts.format.as_deref() == Some("decimal"),
                         })
                     })
                     .collect();
@@ -2087,6 +2228,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     type_name.to_case(Case::Camel),
                     generic_decl
                 ));
+                let fn_has_shape_ident = ts_ident!(format!(
+                    "{}HasShape{}",
+                    type_name.to_case(Case::Camel),
+                    generic_decl
+                ));
+                let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
 
                 // Compute return type and wrappers
                 let return_type = deserialize_return_type(&full_type_name);
@@ -2211,7 +2358,18 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         {$typescript validation_code}
 
                                                     {/if}
-                                                    instance.@{field._field_ident} = @{raw_var_ident};
+                                                    {#if field._decimal_format}
+                                                        {
+                                                            const __numVal = globalThis.Number(@{raw_var_ident});
+                                                            if (globalThis.Number.isNaN(__numVal)) {
+                                                                errors.push({ field: "@{field.json_key}", message: "expected a numeric string, got " + JSON.stringify(@{raw_var_ident}) });
+                                                            } else {
+                                                                instance.@{field._field_ident} = __numVal;
+                                                            }
+                                                        }
+                                                    {:else}
+                                                        instance.@{field._field_ident} = @{raw_var_ident};
+                                                    {/if}
 
                                                 {:case TypeCategory::Date}
                                                     {
@@ -2298,7 +2456,18 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         {$typescript validation_code}
 
                                                     {/if}
-                                                    instance.@{field._field_ident} = @{raw_var_ident};
+                                                    {#if field._decimal_format}
+                                                        {
+                                                            const __numVal = globalThis.Number(@{raw_var_ident});
+                                                            if (globalThis.Number.isNaN(__numVal)) {
+                                                                errors.push({ field: "@{field.json_key}", message: "expected a numeric string, got " + JSON.stringify(@{raw_var_ident}) });
+                                                            } else {
+                                                                instance.@{field._field_ident} = __numVal;
+                                                            }
+                                                        }
+                                                    {:else}
+                                                        instance.@{field._field_ident} = @{raw_var_ident};
+                                                    {/if}
 
                                                 {:case TypeCategory::Date}
                                                     {
@@ -2421,7 +2590,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {/if}
                         }
 
-                        export function @{fn_is_ident}(obj: unknown): obj is @{full_type_ident} {
+                        export function @{fn_has_shape_ident}(obj: unknown): boolean {
                             if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
                                 return false;
                             }
@@ -2431,6 +2600,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {:else}
                                 return true;
                             {/if}
+                        }
+
+                        export function @{fn_is_ident}(obj: unknown): obj is @{full_type_ident} {
+                            return @{fn_has_shape_expr}(obj);
                         }
                     }
                 };
@@ -2480,7 +2653,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     .cloned()
                     .collect();
 
-                // Build SerializableTypeRef with both full type and base type for runtime access
+                // Build SerializableTypeRef with both full type and base type for runtime access.
+                // Foreign types (from macroforge.config.ts) are detected here so the union
+                // template can use their configured expressions instead of generating
+                // broken `{camelCase}DeserializeWithContext()` function calls.
+                let foreign_types_config = get_foreign_types();
                 let serializable_types: Vec<SerializableTypeRef> = type_refs
                     .iter()
                     .filter(|t| {
@@ -2489,8 +2666,22 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             TypeCategory::Primitive | TypeCategory::Date
                         ) && !type_param_set.contains(t.as_str())
                     })
-                    .map(|t| SerializableTypeRef {
-                        full_type: t.clone(),
+                    .map(|t| {
+                        let ft_match = TypeCategory::match_foreign_type(t, &foreign_types_config);
+                        let foreign_deserialize_inline = ft_match
+                            .config
+                            .and_then(|ft| ft.deserialize_expr.clone())
+                            .map(|expr| rewrite_expression_namespaces(&expr));
+                        let foreign_has_shape_inline = ft_match
+                            .config
+                            .and_then(|ft| ft.has_shape_expr.clone())
+                            .map(|expr| rewrite_expression_namespaces(&expr));
+                        SerializableTypeRef {
+                            full_type: t.clone(),
+                            is_foreign: ft_match.config.is_some(),
+                            foreign_deserialize_inline,
+                            foreign_has_shape_inline,
+                        }
                     })
                     .collect();
 
@@ -2504,6 +2695,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let has_serializables = !serializable_types.is_empty();
                 let has_dates = !date_types.is_empty();
                 let has_generic_params = !generic_type_params.is_empty();
+
+                // Separate regular and foreign serializable types for different code generation
+                let regular_serializables: Vec<&SerializableTypeRef> = serializable_types
+                    .iter()
+                    .filter(|t| !t.is_foreign)
+                    .collect();
+                let foreign_serializables: Vec<&SerializableTypeRef> =
+                    serializable_types.iter().filter(|t| t.is_foreign).collect();
 
                 let is_literal_only = !literals.is_empty() && type_refs.is_empty();
                 let is_primitive_only = has_primitives
@@ -2562,6 +2761,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let fn_deserialize_internal_expr: Expr =
                     fn_deserialize_internal_ident.clone().into();
                 let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
+                let fn_has_shape_ident =
+                    ts_ident!("{}HasShape{}", type_name.to_case(Case::Camel), generic_decl);
+                let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
 
                 // Compute return type and wrappers
                 let return_type = deserialize_return_type(&full_type_name);
@@ -2638,6 +2840,18 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             message: "@{type_name}.deserializeWithContext: expected @{expected_types_str}, got " + typeof value
                                         }]);
                                     {:else if is_serializable_only}
+                                        // Foreign types may not be objects — check hasShape first
+                                        {#for type_ref in &foreign_serializables}
+                                            {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
+                                                {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                                {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                    if ((@{foreign_shape_expr})(value)) {
+                                                        return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                    }
+                                                {/if}
+                                            {/if}
+                                        {/for}
                                         if (typeof value !== "object" || value === null) {
                                             throw new @{deserialize_error_expr}([{
                                                 field: "_root",
@@ -2646,23 +2860,68 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         }
 
                                         const __typeName = (value as any).__type;
-                                        if (typeof __typeName !== "string") {
+                                        if (typeof __typeName === "string") {
+                                            {#for type_ref in &regular_serializables}
+                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                if (__typeName === "@{type_ref.full_type}") {
+                                                    return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                }
+                                            {/for}
+                                            {#for type_ref in &foreign_serializables}
+                                                {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                    if (__typeName === "@{type_ref.full_type}") {
+                                                        return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                    }
+                                                {/if}
+                                            {/for}
+
                                             throw new @{deserialize_error_expr}([{
                                                 field: "_root",
-                                                message: "@{type_name}.deserializeWithContext: missing __type field for union dispatch"
+                                                message: "@{type_name}.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
                                             }]);
                                         }
 
-                                        {#for type_ref in &serializable_types}
-                                            {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                            if (__typeName === "@{type_ref.full_type}") {
-                                                return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
-                                            }
+                                        // No __type field — infer variant via structural shape matching
+                                        const __shapeMatches: Array<string> = [];
+                                        {#for type_ref in &regular_serializables}
+                                            {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                            if (@{has_shape_fn}(value)) __shapeMatches.push("@{type_ref.full_type}");
                                         {/for}
+                                        {#for type_ref in &foreign_serializables}
+                                            {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
+                                                {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                                if ((@{foreign_shape_expr})(value)) __shapeMatches.push("@{type_ref.full_type}");
+                                            {/if}
+                                        {/for}
+
+                                        if (__shapeMatches.length === 1) {
+                                            {#for type_ref in &regular_serializables}
+                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                if (__shapeMatches[0] === "@{type_ref.full_type}") {
+                                                    return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                }
+                                            {/for}
+                                            {#for type_ref in &foreign_serializables}
+                                                {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                    if (__shapeMatches[0] === "@{type_ref.full_type}") {
+                                                        return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                    }
+                                                {/if}
+                                            {/for}
+                                        }
+
+                                        if (__shapeMatches.length > 1) {
+                                            throw new @{deserialize_error_expr}([{
+                                                field: "_root",
+                                                message: "@{type_name}.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                            }]);
+                                        }
 
                                         throw new @{deserialize_error_expr}([{
                                             field: "_root",
-                                            message: "@{type_name}.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
+                                            message: "@{type_name}.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: @{expected_types_str}"
                                         }]);
                                     {:else}
                                         {#if has_literals}
@@ -2696,15 +2955,51 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             if (typeof value === "object" && value !== null) {
                                                 const __typeName = (value as any).__type;
                                                 if (typeof __typeName === "string") {
-                                                    {#for type_ref in &serializable_types}
+                                                    {#for type_ref in &regular_serializables}
                                                         {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
                                                         if (__typeName === "@{type_ref.full_type}") {
                                                             return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
                                                         }
                                                     {/for}
+                                                    {#for type_ref in &foreign_serializables}
+                                                        {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                            {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                            if (__typeName === "@{type_ref.full_type}") {
+                                                                return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                            }
+                                                        {/if}
+                                                    {/for}
+                                                } else {
+                                                    // No __type — infer variant via structural shape matching
+                                                    const __shapeMatches: Array<string> = [];
+                                                    {#for type_ref in &regular_serializables}
+                                                        {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                        if (@{has_shape_fn}(value)) __shapeMatches.push("@{type_ref.full_type}");
+                                                    {/for}
+                                                    if (__shapeMatches.length === 1) {
+                                                        {#for type_ref in &regular_serializables}
+                                                            {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                            if (__shapeMatches[0] === "@{type_ref.full_type}") {
+                                                                return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                            }
+                                                        {/for}
+                                                    }
                                                 }
                                             }
                                         {/if}
+
+                                        // Foreign types may not be objects — check hasShape outside the object block
+                                        {#for type_ref in &foreign_serializables}
+                                            {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
+                                                {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                                {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                    if ((@{foreign_shape_expr})(value)) {
+                                                        return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                    }
+                                                {/if}
+                                            {/if}
+                                        {/for}
 
                                         {#if has_generic_params}
                                             return value as @{full_type_ident};
@@ -2717,18 +3012,33 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {/if}
                     }
 
-                    export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
+                    export function @{fn_has_shape_ident}(value: unknown): boolean {
                                     {#if is_literal_only}
                                         const allowedValues = [@{literals.join(", ")}] as const;
                                         return allowedValues.includes(value as any);
                                     {:else if is_primitive_only}
                                         return @{primitive_check_condition};
                                     {:else if is_serializable_only}
+                                        // Foreign types with hasShape may not be objects — check first
+                                        {#for type_ref in &foreign_serializables}
+                                            {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
+                                                {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                                if ((@{foreign_shape_expr})(value)) return true;
+                                            {/if}
+                                        {/for}
                                         if (typeof value !== "object" || value === null) {
                                             return false;
                                         }
                                         const __typeName = (value as any).__type;
-                                        return @{serializable_type_check_condition};
+                                        if (typeof __typeName === "string") {
+                                            return @{serializable_type_check_condition};
+                                        }
+                                        let __matchCount = 0;
+                                        {#for type_ref in &regular_serializables}
+                                            {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                            if (@{has_shape_fn}(value)) __matchCount++;
+                                        {/for}
+                                        return __matchCount === 1;
                                     {:else}
                                         {#if has_literals}
                                             const allowedLiterals = [@{literals.join(", ")}] as const;
@@ -2745,8 +3055,24 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         {#if has_serializables}
                                             if (typeof value === "object" && value !== null) {
                                                 const __typeName = (value as any).__type;
-                                                if (@{serializable_type_check_condition}) return true;
+                                                if (typeof __typeName === "string") {
+                                                    if (@{serializable_type_check_condition}) return true;
+                                                } else {
+                                                    let __matchCount = 0;
+                                                    {#for type_ref in &regular_serializables}
+                                                        {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                        if (@{has_shape_fn}(value)) __matchCount++;
+                                                    {/for}
+                                                    if (__matchCount === 1) return true;
+                                                }
                                             }
+                                            // Foreign types with hasShape may not be objects
+                                            {#for type_ref in &foreign_serializables}
+                                                {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
+                                                    {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                                    if ((@{foreign_shape_expr})(value)) return true;
+                                                {/if}
+                                            {/for}
                                         {/if}
                                         {#if has_generic_params}
                                             return true;
@@ -2754,6 +3080,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             return false;
                                         {/if}
                         {/if}
+                    }
+
+                    export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
+                        return @{fn_has_shape_expr}(value);
                     }
                 };
                 result.add_aliased_import("DeserializeContext", "macroforge/serde");
@@ -2783,6 +3113,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let fn_validate_fields_ident =
                     ts_ident!("{}ValidateFields", type_name.to_case(Case::Camel));
                 let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
+                let fn_has_shape_ident =
+                    ts_ident!("{}HasShape{}", type_name.to_case(Case::Camel), generic_decl);
+                let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
 
                 // Compute return type and wrappers
                 let return_type = deserialize_return_type(&full_type_name);
@@ -2841,8 +3174,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         return [];
                     }
 
-                    export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
+                    export function @{fn_has_shape_ident}(value: unknown): boolean {
                         return value != null;
+                    }
+
+                    export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
+                        return @{fn_has_shape_expr}(value);
                     }
                 };
                 result.add_aliased_import("DeserializeContext", "macroforge/serde");
@@ -3128,6 +3465,7 @@ mod tests {
             _array_elem_kind: None,
             _nullable_serializable_type: None,
             _deserialize_with: None,
+            _decimal_format: false,
         };
         assert!(field.has_validators());
 
