@@ -484,6 +484,20 @@ pub struct MacroResult {
     /// references following the `{camelCaseTypeName}{Suffix}` naming convention.
     #[serde(default)]
     pub cross_module_suffixes: Vec<String>,
+
+    /// Cross-module type suffixes for auto-import resolution of PascalCase type references.
+    /// Unlike `cross_module_suffixes` (which resolve `{camelCase}{Suffix}` function calls),
+    /// these resolve `{PascalCase}{Suffix}` type references and generate `import type` statements.
+    /// Used for types like `ColorsErrors`, `ColorsTainted`, `ColorsFieldControllers`.
+    #[serde(default)]
+    pub cross_module_type_suffixes: Vec<String>,
+
+    /// Imports requested by the macro via `TsStream::add_import()` and related methods.
+    /// These are captured from the thread-local `ImportRegistry` when `into_result()` is called,
+    /// so they survive serialization across process boundaries (important for external macros
+    /// that run in a child Node.js process).
+    #[serde(default)]
+    pub imports: Vec<crate::import_registry::GeneratedImport>,
 }
 
 /// A diagnostic message from macro expansion.
