@@ -152,7 +152,7 @@ impl DiagnosticsRunner {
                 for project in &projects {
                     let rel_path = project.strip_prefix(&self.root).unwrap_or(project);
                     eprintln!("  cargo fmt: {:?}", rel_path);
-                    if let Err(e) = shell::cargo::fmt_check(project) {
+                    if let Err(e) = shell::cargo::fmt(project) {
                         eprintln!("    Failed: {}", e);
                     }
                 }

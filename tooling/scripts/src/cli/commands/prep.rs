@@ -498,7 +498,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
             for repo in &rust_repos {
                 print!("  {} {}... ", "→".blue(), repo.name);
                 io::stdout().flush()?;
-                match shell::cargo::fmt_check(&repo.abs_path) {
+                match shell::cargo::fmt(&repo.abs_path) {
                     Ok(_) => println!("{}", "ok".green()),
                     Err(e) => {
                         println!("{}", "failed".red());
@@ -575,7 +575,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         // Cargo fmt for tooling/scripts
         print!("  {} cargo fmt... ", "→".blue());
         io::stdout().flush()?;
-        match shell::cargo::fmt_check(&tooling_scripts_path) {
+        match shell::cargo::fmt(&tooling_scripts_path) {
             Ok(_) => println!("{}", "ok".green()),
             Err(e) => {
                 println!("{}", "failed".red());
@@ -780,7 +780,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
                 // Fmt
                 print!("  {} {} fmt... ", "→".blue(), ext);
                 io::stdout().flush()?;
-                match shell::cargo::fmt_check(&ext_path) {
+                match shell::cargo::fmt(&ext_path) {
                     Ok(_) => println!("{}", "ok".green()),
                     Err(e) => {
                         println!("{}", "failed".red());

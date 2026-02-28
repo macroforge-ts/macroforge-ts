@@ -159,9 +159,9 @@ pub mod cargo {
     use super::*;
 
     /// Run cargo fmt --check (fails if unformatted)
-    pub fn fmt_check(cwd: &Path) -> Result<CommandResult> {
+    pub fn fmt(cwd: &Path) -> Result<CommandResult> {
         Shell::new("cargo")
-            .args(&["fmt", "--all", "--", "--check"])
+            .args(&["fmt", "--all"])
             .dir(cwd)
             .run_checked()
     }
