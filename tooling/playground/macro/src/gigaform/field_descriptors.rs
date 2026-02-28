@@ -160,10 +160,142 @@ pub fn generate_union_factory_with_generics(
     type_name: &str,
     config: &UnionConfig,
     options: &GigaformOptions,
-    _generics: &GenericInfo,
+    generics: &GenericInfo,
 ) -> TsStream {
-    // Unions typically don't have type parameters
-    generate_union_factory(type_name, config, options)
+    if generics.is_empty() {
+        return generate_union_factory(type_name, config, options);
+    }
+
+    let generic_decl = generics.decl();
+    let generic_args = generics.args();
+
+    let create_fn_name = fn_name("createForm", type_name, &generic_decl);
+    let errors_name = format!(
+        "{}{}",
+        type_name_prefixed(type_name, "Errors"),
+        generic_args
+    );
+    let tainted_name = format!(
+        "{}{}",
+        type_name_prefixed(type_name, "Tainted"),
+        generic_args
+    );
+    let gigaform_name = type_name_prefixed(type_name, "Gigaform");
+    let variant_fields_name = format!(
+        "{}{}",
+        type_name_prefixed(type_name, "VariantFields"),
+        generic_args
+    );
+    let default_for_variant_fn = fn_name("getDefaultForVariant", type_name, "");
+    let type_name_with_args = format!("{type_name}{generic_args}");
+
+    let variant_literals = config
+        .variants
+        .iter()
+        .map(|v| format!("\"{}\"", v.discriminant_value))
+        .collect::<Vec<_>>()
+        .join(" | ");
+
+    let discriminant_field = match &config.mode {
+        UnionMode::Tagged { field } => field.as_str(),
+        UnionMode::Untagged => "_variant",
+    };
+
+    let first_variant = config
+        .variants
+        .first()
+        .map(|v| v.discriminant_value.as_str())
+        .unwrap_or("unknown");
+
+    // Generate per-variant field controllers
+    let variant_controllers_obj = generate_union_variant_controllers_object(
+        config,
+        options,
+        type_name,
+        &variant_fields_name,
+        "",
+    );
+
+    // Generate getDefaultForVariant function (cast target includes generic args)
+    let default_for_variant = generate_default_for_variant(
+        &type_name_with_args,
+        config,
+        discriminant_field,
+        &default_for_variant_fn,
+    );
+
+    // Generate initial variant detection based on union type
+    let initial_variant_expr = if discriminant_field == "_value" {
+        format!(r#"(initial as {variant_literals}) ?? "{first_variant}""#)
+    } else if discriminant_field == "_type" {
+        format!(r#""{first_variant}""#)
+    } else {
+        format!(r#"(initial as any)?.{discriminant_field} ?? "{first_variant}""#)
+    };
+
+    // Generate reset logic based on union type
+    let reset_data_expr = if discriminant_field == "_value" || discriminant_field == "_type" {
+        format!("overrides ? overrides as typeof data : {default_for_variant_fn}(currentVariant)")
+    } else {
+        format!(
+            "overrides ? {{ ...{default_for_variant_fn}(currentVariant), ...overrides }} : {default_for_variant_fn}(currentVariant)"
+        )
+    };
+
+    let validate_call = call_deserialize(type_name, &generic_args, "data");
+
+    ts_template! {
+        /** Gets default value for a specific variant */
+        {$typescript default_for_variant}
+
+        /** Creates a new discriminated union Gigaform with variant switching */
+        export function @{create_fn_name}(initial?: @{type_name_with_args}): @{gigaform_name}@{generic_args} {
+            // Detect initial variant from discriminant
+            const initialVariant: @{variant_literals} = @{initial_variant_expr};
+
+            // Reactive state using Svelte 5 $state
+            let currentVariant = $state<@{variant_literals}>(initialVariant);
+            let data = $state<@{type_name_with_args}>(initial ?? @{default_for_variant_fn}(initialVariant));
+            let errors = $state<@{errors_name}>({} as @{errors_name});
+            let tainted = $state<@{tainted_name}>({} as @{tainted_name});
+
+            {$typescript variant_controllers_obj}
+
+            // Switch to a different variant
+            function switchVariant(variant: @{variant_literals}): void {
+                currentVariant = variant;
+                data = @{default_for_variant_fn}(variant);
+                errors = {} as @{errors_name};
+                tainted = {} as @{tainted_name};
+            }
+
+            // Validate the entire form using Deserialize's deserialize
+            function validate(): Exit<@{type_name_with_args}, Array<{ field: string; message: string }>> {
+                return toExit(@{validate_call});
+            }
+
+            // Reset form
+            function reset(overrides?: Partial<@{type_name_with_args}>): void {
+                data = @{reset_data_expr};
+                errors = {} as @{errors_name};
+                tainted = {} as @{tainted_name};
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+    }
 }
 
 /// Generates the createForm factory for a discriminated union.
@@ -200,8 +332,13 @@ pub fn generate_union_factory(
     let _default_init = generate_default_init_expr(type_name, options, "");
 
     // Generate per-variant field controllers
-    let variant_controllers_obj =
-        generate_union_variant_controllers_object(config, options, type_name, &variant_fields_name);
+    let variant_controllers_obj = generate_union_variant_controllers_object(
+        config,
+        options,
+        type_name,
+        &variant_fields_name,
+        "",
+    );
 
     // Generate getDefaultForVariant function
     let default_for_variant = generate_default_for_variant(
@@ -351,14 +488,15 @@ fn generate_union_variant_controllers_object(
     _options: &GigaformOptions,
     type_name: &str,
     variant_fields_name: &str,
+    generic_args: &str,
 ) -> TsStream {
     ts_template! {
-        const variants = {} as @{variant_fields_name};
+        const variants = {} as @{variant_fields_name}@{generic_args};
         {#for variant in &config.variants}
             {$let value = &variant.discriminant_value}
             {$let variant_name = to_pascal_case(value)}
             {$let prop_key = if needs_quoting(value) { format!("\"{}\"", value) } else { value.clone() }}
-            {$let fields_type = format!("{}{}FieldControllers", type_name, variant_name)}
+            {$let fields_type = format!("{}{}FieldControllers{}", type_name, variant_name, generic_args)}
             {$let field_assignments = generate_variant_field_assignments(&variant.fields, type_name, &prop_key)}
             variants[@{prop_key}] = { fields: {} as @{fields_type} };
             {$typescript field_assignments}

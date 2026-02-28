@@ -37,19 +37,45 @@ function getNextPort() {
  * Handles setup, teardown, and config file copying.
  * Uses unique ports to prevent conflicts between concurrent test servers.
  */
-export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
-    const options = typeof optionsOrRunner === 'function' ? {} : optionsOrRunner;
-    const runner = typeof optionsOrRunner === 'function' ? optionsOrRunner : maybeRunner;
-    const { useProjectCwd = true } = options ?? {};
+/**
+ * Build the shared Vite config used by both withViteServer and withDevServer.
+ */
+function buildMacroforgeViteConfig() {
+    return {
+        plugins: [macroforge()],
+        ssr: {
+            noExternal: ['effect', '@playground/macro']
+        },
+        resolve: {
+            dedupe: ['effect'],
+            alias: {
+                'macroforge/serde': path.resolve(
+                    repoRoot,
+                    'crates/macroforge_ts/js/serde/index.mjs'
+                ),
+                'macroforge/traits': path.resolve(
+                    repoRoot,
+                    'crates/macroforge_ts/js/traits/index.mjs'
+                ),
+                'macroforge/reexports': path.resolve(
+                    repoRoot,
+                    'crates/macroforge_ts/js/reexports/index.mjs'
+                ),
+                'macroforge/reexports/effect': path.resolve(
+                    repoRoot,
+                    'crates/macroforge_ts/js/reexports/effect.mjs'
+                ),
+                'macroforge': path.resolve(repoRoot, 'crates/macroforge_ts')
+            }
+        }
+    };
+}
 
-    // Try .ts first, then fall back to .js
-    const configFileTs = path.join(rootDir, 'vite.config.ts');
-    const configFileJs = path.join(rootDir, 'vite.config.js');
-    const configFile = fs.existsSync(configFileTs)
-        ? configFileTs
-        : fs.existsSync(configFileJs)
-        ? configFileJs
-        : undefined;
+/**
+ * Manage cwd, macroforge.json copying, and cleanup around a server lifecycle.
+ */
+async function withManagedEnv(rootDir, options, serverFactory) {
+    const { useProjectCwd = true } = options ?? {};
     const previousCwd = process.cwd();
     let server;
     let copiedConfig = false;
@@ -66,70 +92,17 @@ export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
             copiedConfig = true;
         }
 
-        const _uniquePort = getNextPort();
-
-        // Use the macroforge plugin directly instead of loading from config file
-        // This avoids Deno's module resolution issues with dynamic imports
-        const userConfig = {
-            plugins: [macroforge()],
-            ssr: {
-                noExternal: ['effect', '@playground/macro']
-            },
-            resolve: {
-                dedupe: ['effect'],
-                alias: {
-                    'macroforge/serde': path.resolve(
-                        repoRoot,
-                        'crates/macroforge_ts/js/serde/index.mjs'
-                    ),
-                    'macroforge/traits': path.resolve(
-                        repoRoot,
-                        'crates/macroforge_ts/js/traits/index.mjs'
-                    ),
-                    'macroforge/reexports': path.resolve(
-                        repoRoot,
-                        'crates/macroforge_ts/js/reexports/index.mjs'
-                    ),
-                    'macroforge/reexports/effect': path.resolve(
-                        repoRoot,
-                        'crates/macroforge_ts/js/reexports/effect.mjs'
-                    ),
-                    'macroforge': path.resolve(repoRoot, 'crates/macroforge_ts')
-                }
-            }
-        };
-
-        server = await createServer({
-            root: rootDir,
-            configFile: false, // Disable Vite's config loading
-            ...userConfig,
-            logLevel: 'error',
-            appType: 'custom',
-            server: {
-                ...userConfig.server,
-                middlewareMode: true,
-                hmr: false,
-                // Disable WebSocket server entirely for SSR-only tests
-                ws: false
-            },
-            optimizeDeps: {
-                // Completely disable dependency optimization to avoid async errors during cleanup
-                noDiscovery: true,
-                include: []
-            }
-        });
-
-        return await runner(server);
+        const result = await serverFactory();
+        server = result.server;
+        return await result.run();
     } finally {
         if (server) {
-            // Give a grace period for pending async operations to settle
             await new Promise((resolve) => setTimeout(resolve, 200));
             try {
                 await server.close();
             } catch {
-                // Ignore errors during server close - may happen if already closed
+                // Ignore errors during server close
             }
-            // Additional grace period after close
             await new Promise((resolve) => setTimeout(resolve, 100));
         }
         if (copiedConfig && fs.existsSync(localConfigPath)) {
@@ -139,4 +112,74 @@ export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
             process.chdir(previousCwd);
         }
     }
+}
+
+export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
+    const options = typeof optionsOrRunner === 'function' ? {} : optionsOrRunner;
+    const runner = typeof optionsOrRunner === 'function' ? optionsOrRunner : maybeRunner;
+
+    return withManagedEnv(rootDir, options, async () => {
+        const _uniquePort = getNextPort();
+        const userConfig = buildMacroforgeViteConfig();
+
+        const server = await createServer({
+            root: rootDir,
+            configFile: false,
+            ...userConfig,
+            logLevel: 'error',
+            appType: 'custom',
+            server: {
+                ...userConfig.server,
+                middlewareMode: true,
+                hmr: false,
+                ws: false
+            },
+            optimizeDeps: {
+                noDiscovery: true,
+                include: []
+            }
+        });
+
+        return { server, run: () => runner(server) };
+    });
+}
+
+/**
+ * Helper to create a real HTTP Vite dev server for testing.
+ * Unlike withViteServer(), this starts a listening HTTP server
+ * that can be hit with fetch() requests.
+ *
+ * The runner receives (server, baseUrl) where baseUrl is e.g. "http://localhost:24703".
+ */
+export async function withDevServer(rootDir, optionsOrRunner, maybeRunner) {
+    const options = typeof optionsOrRunner === 'function' ? {} : optionsOrRunner;
+    const runner = typeof optionsOrRunner === 'function' ? optionsOrRunner : maybeRunner;
+
+    return withManagedEnv(rootDir, options, async () => {
+        const uniquePort = getNextPort();
+        const userConfig = buildMacroforgeViteConfig();
+
+        const server = await createServer({
+            root: rootDir,
+            configFile: false,
+            ...userConfig,
+            logLevel: 'error',
+            appType: 'spa',
+            server: {
+                port: uniquePort,
+                strictPort: true,
+                host: 'localhost',
+                hmr: false
+            },
+            optimizeDeps: {
+                noDiscovery: true,
+                include: []
+            }
+        });
+
+        await server.listen(uniquePort);
+        const baseUrl = `http://localhost:${uniquePort}`;
+
+        return { server, run: () => runner(server, baseUrl) };
+    });
 }

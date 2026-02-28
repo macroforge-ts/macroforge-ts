@@ -1238,3 +1238,223 @@ describe('Type-only import namespace generation', () => {
         );
     });
 });
+
+// ============================================================================
+// Foreign Type in Union Type Alias — Deserialize
+// ============================================================================
+
+describe('Foreign types in union type alias deserialization', () => {
+    const configContent = `
+    export default {
+      foreignTypes: {
+        "DateTime.DateTime": {
+          from: ["effect"],
+          serialize: (v) => DateTime.formatIso(v),
+          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          default: () => DateTime.unsafeNow(),
+          hasShape: (v) => typeof v === "string"
+        },
+        "BigDecimal.BigDecimal": {
+          from: ["effect"],
+          serialize: (v) => BigDecimal.format(v),
+          deserialize: (raw) => BigDecimal.fromString(String(raw)),
+          default: () => BigDecimal.unsafeFromNumber(0),
+          hasShape: (v) => typeof v === "string" || typeof v === "number"
+        }
+      }
+    }
+  `;
+    const configPath = '/test/union-foreign-types/macroforge.config.js';
+
+    test('union with foreign-only types uses hasShape for deserialization', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
+
+        const code = `
+      import type { DateTime, BigDecimal } from 'effect';
+
+      /** @derive(Deserialize) */
+      type FlexibleValue = DateTime.DateTime | BigDecimal.BigDecimal;
+    `;
+
+        const result = expandSync(code, 'test.ts', { configPath });
+
+        // Should use the configured hasShape expressions (not generic object checks)
+        assert.ok(
+            result.code.includes('typeof v === "string"') ||
+                result.code.includes("typeof v === 'string'"),
+            `Should use hasShape expression from config for DateTime. Got: ${result.code}`
+        );
+
+        // Should use the configured deserialize expressions
+        assert.ok(
+            result.code.includes('DateTime.unsafeFromDate') ||
+                result.code.includes('__mf_DateTime.unsafeFromDate'),
+            `Should use foreign type deserialize for DateTime. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('BigDecimal.fromString') ||
+                result.code.includes('__mf_BigDecimal.fromString'),
+            `Should use foreign type deserialize for BigDecimal. Got: ${result.code}`
+        );
+
+        // Should NOT generate broken camelCase helper calls like
+        // dateTime.dateTimeDeserializeWithContext or bigDecimal.bigDecimalDeserializeWithContext
+        assert.ok(
+            !result.code.includes('dateTime.dateTimeDeserializeWithContext'),
+            `Should NOT generate broken dotted deserialize function. Got: ${result.code}`
+        );
+        assert.ok(
+            !result.code.includes('bigDecimal.bigDecimalDeserializeWithContext'),
+            `Should NOT generate broken dotted deserialize function. Got: ${result.code}`
+        );
+    });
+
+    test('union with mixed regular and foreign types deserializes correctly', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
+
+        const code = `
+      import type { DateTime } from 'effect';
+
+      /** @derive(Deserialize) */
+      type EventPayload = SuccessData | FailureData | DateTime.DateTime;
+    `;
+
+        const result = expandSync(code, 'test.ts', { configPath });
+
+        // Should have regular deserialize calls for SuccessData and FailureData
+        assert.ok(
+            result.code.includes('successDataDeserializeWithContext'),
+            `Should generate regular deserialize for SuccessData. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('failureDataDeserializeWithContext'),
+            `Should generate regular deserialize for FailureData. Got: ${result.code}`
+        );
+
+        // Should use foreign type deserialize for DateTime.DateTime
+        assert.ok(
+            result.code.includes('DateTime.unsafeFromDate') ||
+                result.code.includes('__mf_DateTime.unsafeFromDate'),
+            `Should use foreign type deserialize for DateTime in mixed union. Got: ${result.code}`
+        );
+
+        // Should NOT generate broken dateTime.dateTimeDeserializeWithContext
+        assert.ok(
+            !result.code.includes('dateTime.dateTimeDeserializeWithContext'),
+            `Should NOT generate broken dotted identifier. Got: ${result.code}`
+        );
+    });
+
+    test('union with foreign type and primitives deserializes correctly', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
+
+        const code = `
+      import type { DateTime } from 'effect';
+
+      /** @derive(Deserialize) */
+      type MaybeDate = DateTime.DateTime | string | number;
+    `;
+
+        const result = expandSync(code, 'test.ts', { configPath });
+
+        // Should have hasShape check for the foreign type in the mixed branch
+        assert.ok(
+            result.code.includes('DateTime.unsafeFromDate') ||
+                result.code.includes('__mf_DateTime.unsafeFromDate'),
+            `Should use foreign type deserialize for DateTime in mixed union. Got: ${result.code}`
+        );
+
+        // Should have primitive checks
+        assert.ok(
+            result.code.includes('typeof value === "string"'),
+            `Should have primitive string check. Got: ${result.code}`
+        );
+        assert.ok(
+            result.code.includes('typeof value === "number"'),
+            `Should have primitive number check. Got: ${result.code}`
+        );
+    });
+
+    test('union hasShape function uses foreign type hasShape config', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
+
+        const code = `
+      import type { DateTime, BigDecimal } from 'effect';
+
+      /** @derive(Deserialize) */
+      type FlexibleValue = DateTime.DateTime | BigDecimal.BigDecimal;
+    `;
+
+        const result = expandSync(code, 'test.ts', { configPath });
+
+        // Should generate a hasShape function for the union
+        assert.ok(
+            result.code.includes('flexibleValueHasShape'),
+            `Should generate hasShape function for union. Got: ${result.code}`
+        );
+
+        // Should generate an is function for the union
+        assert.ok(
+            result.code.includes('flexibleValueIs'),
+            `Should generate is function for union. Got: ${result.code}`
+        );
+    });
+
+    test('foreign type without hasShape falls back to generic handling', () => {
+        clearConfigCache();
+        const noShapeConfig = `
+      export default {
+        foreignTypes: {
+          "DateTime.DateTime": {
+            from: ["effect"],
+            serialize: (v) => DateTime.formatIso(v),
+            deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+            default: () => DateTime.unsafeNow()
+          }
+        }
+      }
+    `;
+        const noShapeConfigPath = '/test/union-foreign-no-shape/macroforge.config.js';
+        loadConfig(noShapeConfig, noShapeConfigPath);
+
+        const code = `
+      import type { DateTime } from 'effect';
+
+      /** @derive(Deserialize) */
+      type Value = DateTime.DateTime | RegularType;
+    `;
+
+        const result = expandSync(code, 'test.ts', {
+            configPath: noShapeConfigPath
+        });
+
+        // Should still use foreign deserialize for __type-based dispatch
+        assert.ok(
+            result.code.includes('DateTime.unsafeFromDate') ||
+                result.code.includes('__mf_DateTime.unsafeFromDate'),
+            `Should still use foreign type deserialize for __type dispatch. Got: ${result.code}`
+        );
+
+        // Should NOT generate broken dateTime.dateTimeDeserializeWithContext
+        assert.ok(
+            !result.code.includes('dateTime.dateTimeDeserializeWithContext'),
+            `Should NOT generate broken dotted identifier even without hasShape. Got: ${result.code}`
+        );
+    });
+
+    test('loadConfig parses hasShape from config', () => {
+        clearConfigCache();
+        const result = loadConfig(configContent, configPath);
+
+        assert.equal(result.hasForeignTypes, true, 'Should have foreign types');
+        assert.equal(
+            result.foreignTypeCount,
+            2,
+            'Should have 2 foreign types'
+        );
+    });
+});

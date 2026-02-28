@@ -122,46 +122,59 @@ export function assertErrorCount(result, expectedCount) {
 }
 
 // Deno test wrappers
+async function runDescribeBody(t, fn) {
+    const items = [];
+    let beforeFn = null;
+
+    const testFn = (testName, testBody) => {
+        items.push({ name: testName, fn: testBody, type: 'test' });
+    };
+
+    const nestedDescribeFn = (nestedName, nestedFn) => {
+        items.push({ name: nestedName, fn: nestedFn, type: 'describe' });
+    };
+
+    const beforeFnWrapper = (fn) => {
+        beforeFn = fn;
+    };
+
+    const origDescribe = globalThis._describe;
+    const origTest = globalThis._test;
+    const origBefore = globalThis._before;
+
+    globalThis._describe = nestedDescribeFn;
+    globalThis._test = testFn;
+    globalThis._before = beforeFnWrapper;
+
+    await fn();
+
+    globalThis._describe = origDescribe;
+    globalThis._test = origTest;
+    globalThis._before = origBefore;
+
+    if (beforeFn) {
+        await beforeFn();
+    }
+
+    for (const item of items) {
+        if (item.type === 'describe') {
+            await t.step(item.name, async (st) => {
+                await runDescribeBody(st, item.fn);
+            });
+        } else {
+            await t.step(item.name, item.fn);
+        }
+    }
+}
+
 export function describe(name, fn) {
+    if (globalThis._describe) {
+        globalThis._describe(name, fn);
+        return;
+    }
+
     Deno.test(name, async (t) => {
-        // Collect tests and before hooks
-        const tests = [];
-        let beforeFn = null;
-
-        const testFn = (testName, testBody) => {
-            tests.push({ name: testName, fn: testBody });
-        };
-
-        const beforeFnWrapper = (fn) => {
-            beforeFn = fn;
-        };
-
-        // Temporarily override globals for collection
-        const origDescribe = globalThis._describe;
-        const origTest = globalThis._test;
-        const origBefore = globalThis._before;
-
-        globalThis._describe = (n, f) => describe(n, f);
-        globalThis._test = testFn;
-        globalThis._before = beforeFnWrapper;
-
-        // Run the describe body to collect tests
-        await fn();
-
-        // Restore
-        globalThis._describe = origDescribe;
-        globalThis._test = origTest;
-        globalThis._before = origBefore;
-
-        // Run before hook if present
-        if (beforeFn) {
-            await beforeFn();
-        }
-
-        // Run collected tests
-        for (const test of tests) {
-            await t.step(test.name, test.fn);
-        }
+        await runDescribeBody(t, fn);
     });
 }
 

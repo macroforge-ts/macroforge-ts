@@ -115,14 +115,71 @@ pub fn generate_with_generics(
 // =============================================================================
 
 /// Generates types for a discriminated union form with generic support.
-/// Note: Unions typically don't have type parameters, so this delegates to generate_union.
 pub fn generate_union_with_generics(
     type_name: &str,
     config: &UnionConfig,
-    _generics: &GenericInfo,
+    generics: &GenericInfo,
 ) -> TsStream {
-    // Unions are usually concrete types, generics are passed through but not commonly used
-    generate_union(type_name, config)
+    if generics.is_empty() {
+        return generate_union(type_name, config);
+    }
+
+    let generic_decl = generics.decl();
+    let generic_args = generics.args();
+
+    let errors_name = prefixed(type_name, "Errors");
+    let tainted_name = prefixed(type_name, "Tainted");
+    let gigaform_name = prefixed(type_name, "Gigaform");
+    let variant_fields_name = prefixed(type_name, "VariantFields");
+
+    let variant_errors = generate_variant_errors(type_name, config, &generic_decl);
+    let variant_tainted = generate_variant_tainted(type_name, config, &generic_decl);
+    let variant_union_errors =
+        generate_variant_union_type("Errors", type_name, config, &generic_args);
+    let variant_union_tainted =
+        generate_variant_union_type("Tainted", type_name, config, &generic_args);
+    let variant_field_controllers =
+        generate_variant_field_controllers(type_name, config, &generic_decl);
+    let variant_union_literal = generate_variant_literal_union(config);
+
+    ts_template! {
+        /** Per-variant error types */
+        {$typescript variant_errors}
+
+        /** Per-variant tainted types */
+        {$typescript variant_tainted}
+
+        /** Union error type */
+        export type @{errors_name}@{generic_decl} = @{variant_union_errors};
+
+        /** Union tainted type */
+        export type @{tainted_name}@{generic_decl} = @{variant_union_tainted};
+
+        /** Per-variant field controller types */
+        {$typescript variant_field_controllers}
+
+        /** Union Gigaform interface with variant switching */
+        export interface @{gigaform_name}@{generic_decl} {
+            readonly currentVariant: @{variant_union_literal};
+            readonly data: @{type_name}@{generic_args};
+            readonly errors: @{errors_name}@{generic_args};
+            readonly tainted: @{tainted_name}@{generic_args};
+            readonly variants: @{variant_fields_name}@{generic_args};
+            switchVariant(variant: @{variant_union_literal}): void;
+            validate(): Exit<@{type_name}@{generic_args}, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<@{type_name}@{generic_args}>): void;
+        }
+
+        /** Variant fields container */
+        export interface @{variant_fields_name}@{generic_decl} {
+            {#for variant in &config.variants}
+                {$let value = &variant.discriminant_value}
+                {$let variant_name = to_pascal_case(&variant.discriminant_value)}
+                {$let prop_key = if needs_quoting(value) { format!("\"{}\"", value) } else { value.clone() }}
+                readonly @{prop_key}: { readonly fields: @{type_name}@{variant_name}FieldControllers@{generic_args} };
+            {/for}
+        }
+    }
 }
 
 /// Generates types for a discriminated union form.
@@ -133,11 +190,11 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
     let variant_fields_name = prefixed(type_name, "VariantFields");
 
     // Generate per-variant error types
-    let variant_errors = generate_variant_errors(type_name, config);
-    let variant_tainted = generate_variant_tainted(type_name, config);
-    let variant_union_errors = generate_variant_union_type("Errors", type_name, config);
-    let variant_union_tainted = generate_variant_union_type("Tainted", type_name, config);
-    let variant_field_controllers = generate_variant_field_controllers(type_name, config);
+    let variant_errors = generate_variant_errors(type_name, config, "");
+    let variant_tainted = generate_variant_tainted(type_name, config, "");
+    let variant_union_errors = generate_variant_union_type("Errors", type_name, config, "");
+    let variant_union_tainted = generate_variant_union_type("Tainted", type_name, config, "");
+    let variant_field_controllers = generate_variant_field_controllers(type_name, config, "");
     let variant_union_literal = generate_variant_literal_union(config);
 
     ts_template! {
@@ -181,11 +238,11 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
 }
 
 /// Generates per-variant error type definitions.
-fn generate_variant_errors(type_name: &str, config: &UnionConfig) -> TsStream {
+fn generate_variant_errors(type_name: &str, config: &UnionConfig, generic_decl: &str) -> TsStream {
     ts_template! {
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
-            export type @{type_name}@{variant_name}Errors = {
+            export type @{type_name}@{variant_name}Errors@{generic_decl} = {
                 _errors: __gigaform_reexport_Option<Array<string>>;
                 {#for field in &variant.fields}
                     @{&field.name}: __gigaform_reexport_Option<Array<string>>;
@@ -196,11 +253,11 @@ fn generate_variant_errors(type_name: &str, config: &UnionConfig) -> TsStream {
 }
 
 /// Generates per-variant tainted type definitions.
-fn generate_variant_tainted(type_name: &str, config: &UnionConfig) -> TsStream {
+fn generate_variant_tainted(type_name: &str, config: &UnionConfig, generic_decl: &str) -> TsStream {
     ts_template! {
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
-            export type @{type_name}@{variant_name}Tainted = {
+            export type @{type_name}@{variant_name}Tainted@{generic_decl} = {
                 {#for field in &variant.fields}
                     @{&field.name}: __gigaform_reexport_Option<boolean>;
                 {/for}
@@ -210,7 +267,12 @@ fn generate_variant_tainted(type_name: &str, config: &UnionConfig) -> TsStream {
 }
 
 /// Generates the union type for Errors or Tainted.
-fn generate_variant_union_type(type_suffix: &str, type_name: &str, config: &UnionConfig) -> String {
+fn generate_variant_union_type(
+    type_suffix: &str,
+    type_name: &str,
+    config: &UnionConfig,
+    generic_args: &str,
+) -> String {
     let discriminant_field = match &config.mode {
         UnionMode::Tagged { field } => field.as_str(),
         UnionMode::Untagged => "_variant",
@@ -223,7 +285,7 @@ fn generate_variant_union_type(type_suffix: &str, type_name: &str, config: &Unio
             let variant_name = to_pascal_case(&variant.discriminant_value);
             let value = &variant.discriminant_value;
             format!(
-                "({{ {discriminant_field}: \"{value}\" }} & {type_name}{variant_name}{type_suffix})"
+                "({{ {discriminant_field}: \"{value}\" }} & {type_name}{variant_name}{type_suffix}{generic_args})"
             )
         })
         .collect::<Vec<_>>()
@@ -231,11 +293,15 @@ fn generate_variant_union_type(type_suffix: &str, type_name: &str, config: &Unio
 }
 
 /// Generates per-variant field controller interfaces.
-fn generate_variant_field_controllers(type_name: &str, config: &UnionConfig) -> TsStream {
+fn generate_variant_field_controllers(
+    type_name: &str,
+    config: &UnionConfig,
+    generic_decl: &str,
+) -> TsStream {
     ts_template! {
         {#for variant in &config.variants}
             {$let variant_name = to_pascal_case(&variant.discriminant_value)}
-            export interface @{type_name}@{variant_name}FieldControllers {
+            export interface @{type_name}@{variant_name}FieldControllers@{generic_decl} {
                 {#for field in &variant.fields}
                     {#if field.is_array}
                         {$let element_type = field.array_element_type.as_deref().unwrap_or("unknown")}
