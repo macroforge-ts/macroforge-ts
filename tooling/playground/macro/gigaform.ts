@@ -197,7 +197,10 @@ export interface BaseGigaform<TData, TErrors, TTainted, TFields> {
     readonly errors: TErrors;
     readonly tainted: TTainted;
     readonly fields: TFields;
-    validate(): Exit.Exit<TData, ReadonlyArray<{ field: string; message: string }>>;
+    validate(): Exit.Exit<
+        TData,
+        ReadonlyArray<{ field: string; message: string }>
+    >;
     reset(overrides: Partial<TData> | null): void;
 }
 

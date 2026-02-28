@@ -11,7 +11,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 export class MaxItemsValidator {
     items: Array<string>;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        items: Array<string>;
+    }) {
         this.items = props.items;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -100,9 +102,7 @@ export class MaxItemsValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            MaxItemsValidator.prototype
-        ) as MaxItemsValidator;
+        const instance = Object.create(MaxItemsValidator.prototype) as MaxItemsValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -208,9 +208,7 @@ export function maxItemsValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function maxItemsValidatorIs(
-    value: unknown
-): value is MaxItemsValidator {
+export function maxItemsValidatorIs(value: unknown): value is MaxItemsValidator {
     return MaxItemsValidator.is(value);
 }
 
@@ -219,7 +217,9 @@ export function maxItemsValidatorIs(
 export class MinItemsValidator {
     items: Array<string>;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        items: Array<string>;
+    }) {
         this.items = props.items;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -308,9 +308,7 @@ export class MinItemsValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            MinItemsValidator.prototype
-        ) as MinItemsValidator;
+        const instance = Object.create(MinItemsValidator.prototype) as MinItemsValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -416,9 +414,7 @@ export function minItemsValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function minItemsValidatorIs(
-    value: unknown
-): value is MinItemsValidator {
+export function minItemsValidatorIs(value: unknown): value is MinItemsValidator {
     return MinItemsValidator.is(value);
 }
 
@@ -427,7 +423,9 @@ export function minItemsValidatorIs(
 export class ItemsCountValidator {
     items: Array<string>;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        items: Array<string>;
+    }) {
         this.items = props.items;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -516,9 +514,7 @@ export class ItemsCountValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            ItemsCountValidator.prototype
-        ) as ItemsCountValidator;
+        const instance = Object.create(ItemsCountValidator.prototype) as ItemsCountValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -624,8 +620,6 @@ export function itemsCountValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function itemsCountValidatorIs(
-    value: unknown
-): value is ItemsCountValidator {
+export function itemsCountValidatorIs(value: unknown): value is ItemsCountValidator {
     return ItemsCountValidator.is(value);
 }
