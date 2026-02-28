@@ -104,8 +104,10 @@
 //! - `quote!` - SWC's quote macro for AST generation
 
 pub mod abi;
+pub mod config;
 pub mod derive;
 pub mod errors;
+pub mod import_registry;
 pub mod lower;
 pub mod parse;
 pub mod quote_helpers;
@@ -114,6 +116,10 @@ pub mod stream;
 pub use abi::*;
 pub use derive::*;
 pub use errors::*;
+pub use import_registry::{
+    ImportRegistry, clear_registry, install_registry, take_registry, with_registry,
+    with_registry_mut,
+};
 pub use lower::*;
 pub use stream::*;
 #[cfg(feature = "swc")]

@@ -202,6 +202,20 @@ pub struct MacroContextIR {
     /// The source code of the target (class, enum, etc.)
     /// This enables macros to parse the source themselves using TsStream
     pub target_source: String,
+
+    /// Source imports from the file being processed.
+    /// Populated by the host before serializing the context for external macros.
+    /// Maps local name → (source_module, original_name, is_type_only).
+    /// External macros use this to populate the import registry so they can
+    /// look up where types are imported from.
+    #[serde(default)]
+    pub source_imports: Vec<crate::import_registry::SourceImportEntry>,
+
+    /// Macroforge configuration from macroforge.config.ts.
+    /// Populated by the host before serializing the context for external macros.
+    /// Gives external macros access to foreign type configs, etc.
+    #[serde(default)]
+    pub config: Option<crate::config::MacroforgeConfig>,
 }
 
 impl MacroContextIR {
@@ -226,6 +240,8 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::Class(class),
             target_source,
+            source_imports: vec![],
+            config: None,
         }
     }
 
@@ -293,6 +309,8 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::Interface(interface),
             target_source,
+            source_imports: vec![],
+            config: None,
         }
     }
 
@@ -317,6 +335,8 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::TypeAlias(type_alias),
             target_source,
+            source_imports: vec![],
+            config: None,
         }
     }
 
@@ -341,6 +361,8 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::Enum(enum_ir),
             target_source,
+            source_imports: vec![],
+            config: None,
         }
     }
 }

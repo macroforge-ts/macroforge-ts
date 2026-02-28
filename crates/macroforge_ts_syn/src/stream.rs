@@ -226,6 +226,10 @@ pub struct TsStream {
     /// External macros register suffixes here so the framework can resolve
     /// cross-module references following the `{camelCaseTypeName}{Suffix}` pattern.
     pub cross_module_suffixes: Vec<String>,
+    /// Cross-module type suffixes for auto-import resolution.
+    /// These resolve `{PascalCaseTypeName}{Suffix}` type references and generate
+    /// `import type` statements. Used for types like `ColorsErrors`, `ColorsTainted`.
+    pub cross_module_type_suffixes: Vec<String>,
 }
 
 /// Formats TypeScript source code using SWC's emitter.
@@ -346,6 +350,7 @@ impl TsStream {
             runtime_patches: vec![],
             insert_pos: crate::abi::InsertPos::default(),
             cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
         })
     }
 
@@ -359,6 +364,7 @@ impl TsStream {
             runtime_patches: vec![],
             insert_pos: crate::abi::InsertPos::default(),
             cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
         }
     }
 
@@ -372,6 +378,7 @@ impl TsStream {
             runtime_patches: vec![],
             insert_pos,
             cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
         }
     }
 
@@ -390,6 +397,7 @@ impl TsStream {
             runtime_patches,
             insert_pos,
             cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
         }
     }
 
@@ -413,6 +421,7 @@ impl TsStream {
             runtime_patches: vec![],
             insert_pos: crate::abi::InsertPos::default(),
             cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
         })
     }
 
@@ -421,8 +430,11 @@ impl TsStream {
         self.ctx.as_ref()
     }
 
-    /// Convert the stream into a MacroResult
+    /// Convert the stream into a MacroResult.
+    /// Captures any imports registered via `add_import()` etc. from the thread-local
+    /// registry so they survive serialization across process boundaries.
     pub fn into_result(self) -> crate::abi::MacroResult {
+        let imports = crate::import_registry::with_registry_mut(|r| r.take_generated_imports());
         crate::abi::MacroResult {
             runtime_patches: self.runtime_patches,
             type_patches: vec![],
@@ -431,32 +443,26 @@ impl TsStream {
             insert_pos: self.insert_pos,
             debug: None,
             cross_module_suffixes: self.cross_module_suffixes,
+            cross_module_type_suffixes: self.cross_module_type_suffixes,
+            imports,
         }
     }
 
-    /// Add an import statement to be inserted at the top of the file.
-    /// The import will be deduplicated if it already exists.
+    /// Add an import statement. Registers in the [`ImportRegistry`](crate::ImportRegistry)
+    /// for idempotent deduplication — no patches are emitted; the registry emits all
+    /// generated imports at the end of expansion.
     pub fn add_import(&mut self, specifier: &str, module: &str) {
-        use crate::abi::{Patch, SpanIR};
-        let import_code = format!("import {{ {specifier} }} from \"{module}\";\n");
-        self.runtime_patches.push(Patch::InsertRaw {
-            at: SpanIR::new(1, 1), // Position 1 = start of file (1-indexed)
-            code: import_code,
-            context: Some("import".to_string()),
-            source_macro: Some("Deserialize".to_string()),
+        let (original, local) = parse_import_specifier(specifier);
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(&local, original.as_deref(), module, false);
         });
     }
 
-    /// Add a type-only import statement to be inserted at the top of the file.
-    /// Use this for TypeScript types/interfaces that don't exist at runtime.
+    /// Add a type-only import statement. Registers in the [`ImportRegistry`](crate::ImportRegistry).
     pub fn add_type_import(&mut self, specifier: &str, module: &str) {
-        use crate::abi::{Patch, SpanIR};
-        let import_code = format!("import type {{ {specifier} }} from \"{module}\";\n");
-        self.runtime_patches.push(Patch::InsertRaw {
-            at: SpanIR::new(1, 1), // Position 1 = start of file (1-indexed)
-            code: import_code,
-            context: Some("import".to_string()),
-            source_macro: Some("Deserialize".to_string()),
+        let (original, local) = parse_import_specifier(specifier);
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(&local, original.as_deref(), module, true);
         });
     }
 
@@ -468,8 +474,10 @@ impl TsStream {
     /// // Generates: import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
     /// ```
     pub fn add_aliased_import(&mut self, name: &str, module: &str) {
-        let specifier = format!("{name} as __mf_{name}");
-        self.add_import(&specifier, module);
+        let alias = format!("__mf_{name}");
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(&alias, Some(name), module, false);
+        });
     }
 
     /// Add a type-only import with automatic `__mf_` alias.
@@ -480,8 +488,10 @@ impl TsStream {
     /// // Generates: import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
     /// ```
     pub fn add_aliased_type_import(&mut self, name: &str, module: &str) {
-        let specifier = format!("{name} as __mf_{name}");
-        self.add_type_import(&specifier, module);
+        let alias = format!("__mf_{name}");
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(&alias, Some(name), module, true);
+        });
     }
 
     /// Add an import with a custom alias.
@@ -492,8 +502,9 @@ impl TsStream {
     /// // Generates: import { resultOk as __mf_resultOk } from "macroforge/reexports";
     /// ```
     pub fn add_import_as(&mut self, name: &str, alias: &str, module: &str) {
-        let specifier = format!("{name} as {alias}");
-        self.add_import(&specifier, module);
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(alias, Some(name), module, false);
+        });
     }
 
     /// Add a type-only import with a custom alias.
@@ -504,8 +515,9 @@ impl TsStream {
     /// // Generates: import type { Result as __mf_Result } from "macroforge/reexports";
     /// ```
     pub fn add_type_import_as(&mut self, name: &str, alias: &str, module: &str) {
-        let specifier = format!("{name} as {alias}");
-        self.add_type_import(&specifier, module);
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(alias, Some(name), module, true);
+        });
     }
 
     /// Add multiple imports from a slice of [`ImportConfig`].
@@ -526,13 +538,16 @@ impl TsStream {
     /// stream.add_imports(SERDE_IMPORTS);
     /// ```
     pub fn add_imports(&mut self, imports: &[ImportConfig]) {
-        for import in imports {
-            if import.is_type {
-                self.add_type_import_as(import.name, import.alias, import.module);
-            } else {
-                self.add_import_as(import.name, import.alias, import.module);
+        crate::import_registry::with_registry_mut(|r| {
+            for import in imports {
+                r.request_import(
+                    import.alias,
+                    Some(import.name),
+                    import.module,
+                    import.is_type,
+                );
             }
-        }
+        });
     }
 
     /// Register a cross-module function suffix for auto-import resolution.
@@ -553,6 +568,24 @@ impl TsStream {
     /// ```
     pub fn add_cross_module_suffix(&mut self, suffix: &str) {
         self.cross_module_suffixes.push(suffix.to_string());
+    }
+
+    /// Register a cross-module type suffix for PascalCase type reference auto-import.
+    ///
+    /// Unlike `add_cross_module_suffix` (which resolves `{camelCase}{Suffix}` function calls),
+    /// this resolves `{PascalCase}{Suffix}` type references and generates `import type` statements.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // In your macro's generate function:
+    /// output.add_cross_module_type_suffix("Errors");
+    /// // Now if the file imports `Colors` from `./shared.svelte`,
+    /// // and the generated code references `ColorsErrors` (type position),
+    /// // the framework will auto-add: import type { ColorsErrors } from "./shared.svelte";
+    /// ```
+    pub fn add_cross_module_type_suffix(&mut self, suffix: &str) {
+        self.cross_module_type_suffixes.push(suffix.to_string());
     }
 
     /// Merge another TsStream into this one.
@@ -596,6 +629,8 @@ impl TsStream {
         // Merge cross-module suffixes
         self.cross_module_suffixes
             .extend(other.cross_module_suffixes);
+        self.cross_module_type_suffixes
+            .extend(other.cross_module_type_suffixes);
 
         self
     }
@@ -812,6 +847,18 @@ pub fn parse_ts_type(code: &str) -> Result<TsType, TsSynError> {
     }
 
     Err(TsSynError::Parse(format!("Failed to parse type: {}", code)))
+}
+
+/// Parse an import specifier like `"Foo as Bar"` into `(Some("Foo"), "Bar")`,
+/// or `"Foo"` into `(None, "Foo")`.
+fn parse_import_specifier(specifier: &str) -> (Option<String>, String) {
+    if let Some(idx) = specifier.find(" as ") {
+        let original = specifier[..idx].trim().to_string();
+        let local = specifier[idx + 4..].trim().to_string();
+        (Some(original), local)
+    } else {
+        (None, specifier.trim().to_string())
+    }
 }
 
 #[cfg(test)]

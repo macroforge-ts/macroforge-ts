@@ -989,6 +989,8 @@ mod tests {
                 members: vec![],
             }),
             target_source: "class User { id: number; name: string; }".into(),
+            source_imports: vec![],
+            config: None,
         }
     }
 
@@ -1044,6 +1046,8 @@ mod tests {
                 is_const: false,
             }),
             target_source: "enum Status { Active, Inactive }".into(),
+            source_imports: vec![],
+            config: None,
         };
 
         let input = DeriveInput::from_context(ctx).expect("should parse");
