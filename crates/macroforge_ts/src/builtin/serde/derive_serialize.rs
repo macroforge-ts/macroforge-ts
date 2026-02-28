@@ -235,7 +235,88 @@ fn get_serializable_type_name(ts_type: &str) -> Option<String> {
 /// Generates the SerializeWithContext function name for a nested serializable type.
 /// For example: "User" -> "userSerializeWithContext"
 fn nested_serialize_fn_name(type_name: &str) -> String {
-    format!("{}SerializeWithContext", type_name.to_case(Case::Camel))
+    // Strip generic parameters (e.g., "RecordLink<Employee>" -> "RecordLink")
+    // before converting to camelCase, since `<>` are not recognized as word
+    // boundaries by convert_case and would leak into the function name.
+    let base = if let Some(idx) = type_name.find('<') {
+        &type_name[..idx]
+    } else {
+        type_name
+    };
+    format!("{}SerializeWithContext", base.to_case(Case::Camel))
+}
+
+/// Tries to generate a composite serialize expression for types where a foreign
+/// type is nested inside array, set, or nullable wrappers (e.g., `DateTime.Utc[]`,
+/// `DateTime.Utc | null`).
+///
+/// Similar to `try_composite_foreign_deserialize` in the deserialize module.
+fn try_composite_foreign_serialize(ts_type: &str) -> Option<String> {
+    let foreign_types = get_foreign_types();
+
+    // Split by | and classify parts
+    let parts: Vec<&str> = ts_type
+        .split('|')
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    let has_null = parts.contains(&"null");
+    let has_undefined = parts.contains(&"undefined");
+    let non_null: Vec<&str> = parts
+        .iter()
+        .filter(|s| **s != "null" && **s != "undefined")
+        .copied()
+        .collect();
+
+    // Only handle single non-null type for now
+    if non_null.len() != 1 {
+        return None;
+    }
+
+    let core = non_null[0];
+
+    // Check for array/set types
+    let (container, elem_type) = if let Some(inner) = core.strip_suffix("[]") {
+        ("array", inner.trim())
+    } else if let Some(rest) = core.strip_prefix("Array<") {
+        if let Some(inner) = rest.strip_suffix('>') {
+            ("array", inner.trim())
+        } else {
+            ("none", core)
+        }
+    } else if let Some(rest) = core.strip_prefix("Set<") {
+        if let Some(inner) = rest.strip_suffix('>') {
+            ("set", inner.trim())
+        } else {
+            ("none", core)
+        }
+    } else {
+        ("none", core)
+    };
+
+    // Try matching the element type against foreign types
+    let ft_match = TypeCategory::match_foreign_type(elem_type, &foreign_types);
+    let ser_expr = ft_match.config.and_then(|ft| ft.serialize_expr.clone())?;
+    let rewritten = rewrite_expression_namespaces(&ser_expr);
+
+    match (has_null, has_undefined, container) {
+        (_, _, "array") if has_null || has_undefined => Some(format!(
+            "(arr) => arr == null ? null : arr.map(item => ({rewritten})(item))"
+        )),
+        (_, _, "array") => Some(format!("(arr) => arr.map(item => ({rewritten})(item))")),
+        (_, _, "set") if has_null || has_undefined => Some(format!(
+            "(s) => s == null ? null : Array.from(s).map(item => ({rewritten})(item))"
+        )),
+        (_, _, "set") => Some(format!(
+            "(s) => Array.from(s).map(item => ({rewritten})(item))"
+        )),
+        (true, _, "none") => Some(format!("(raw) => raw === null ? null : ({rewritten})(raw)")),
+        (_, true, "none") => Some(format!(
+            "(raw) => raw === undefined ? undefined : ({rewritten})(raw)"
+        )),
+        _ => None, // Direct match should have been caught at field level
+    }
 }
 
 /// Contains field information needed for JSON serialization code generation.
@@ -304,6 +385,9 @@ struct SerializeField {
     /// Custom serialization function expression (from `@serde({serializeWith: "fn"})`)
     /// When set, this function is called instead of type-based serialization.
     _serialize_with: Option<Expr>,
+
+    /// Whether this field uses decimal format (serialize number as string).
+    _decimal_format: bool,
 }
 
 #[ts_macro_derive(
@@ -432,6 +516,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             .config
                             .and_then(|ft| ft.serialize_expr.clone())
                             .map(|expr| rewrite_expression_namespaces(&expr))
+                            // If no direct match, try composite patterns (e.g., DateTime.Utc[])
+                            .or_else(|| try_composite_foreign_serialize(&field.ts_type))
                     };
 
                     let serialize_with = serialize_with_src.as_ref().and_then(|expr_src| {
@@ -473,6 +559,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         _record_value_serializable_type: record_value_serializable_type,
                         _wrapper_serializable_type: wrapper_serializable_type,
                         _serialize_with: serialize_with,
+                        _decimal_format: opts.format.as_deref() == Some("decimal"),
                     })
                 })
                 .collect();
@@ -531,12 +618,22 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             {:else}
                             {#match &field._type_cat}
                                 {:case TypeCategory::Primitive}
-                                    {#if field._optional}
-                                        if (value.@{field._field_ident} !== undefined) {
-                                            result.@{field._json_key_ident} = value.@{field._field_ident};
-                                        }
+                                    {#if field._decimal_format}
+                                        {#if field._optional}
+                                            if (value.@{field._field_ident} !== undefined) {
+                                                result.@{field._json_key_ident} = String(value.@{field._field_ident});
+                                            }
+                                        {:else}
+                                            result.@{field._json_key_ident} = String(value.@{field._field_ident});
+                                        {/if}
                                     {:else}
-                                        result.@{field._json_key_ident} = value.@{field._field_ident};
+                                        {#if field._optional}
+                                            if (value.@{field._field_ident} !== undefined) {
+                                                result.@{field._json_key_ident} = value.@{field._field_ident};
+                                            }
+                                        {:else}
+                                            result.@{field._json_key_ident} = value.@{field._field_ident};
+                                        {/if}
                                     {/if}
 
                                 {:case TypeCategory::Date}
@@ -1074,6 +1171,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             .config
                             .and_then(|ft| ft.serialize_expr.clone())
                             .map(|expr| rewrite_expression_namespaces(&expr))
+                            // If no direct match, try composite patterns (e.g., DateTime.Utc[])
+                            .or_else(|| try_composite_foreign_serialize(&field.ts_type))
                     };
 
                     let serialize_with = serialize_with_src.as_ref().and_then(|expr_src| {
@@ -1115,6 +1214,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         _record_value_serializable_type: record_value_serializable_type,
                         _wrapper_serializable_type: wrapper_serializable_type,
                         _serialize_with: serialize_with,
+                        _decimal_format: opts.format.as_deref() == Some("decimal"),
                     })
                 })
                 .collect();
@@ -1179,12 +1279,22 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             {:else}
                             {#match &field._type_cat}
                                 {:case TypeCategory::Primitive}
-                                    {#if field._optional}
-                                        if (value.@{field._field_ident} !== undefined) {
-                                            result.@{field._json_key_ident} = value.@{field._field_ident};
-                                        }
+                                    {#if field._decimal_format}
+                                        {#if field._optional}
+                                            if (value.@{field._field_ident} !== undefined) {
+                                                result.@{field._json_key_ident} = String(value.@{field._field_ident});
+                                            }
+                                        {:else}
+                                            result.@{field._json_key_ident} = String(value.@{field._field_ident});
+                                        {/if}
                                     {:else}
-                                        result.@{field._json_key_ident} = value.@{field._field_ident};
+                                        {#if field._optional}
+                                            if (value.@{field._field_ident} !== undefined) {
+                                                result.@{field._json_key_ident} = value.@{field._field_ident};
+                                            }
+                                        {:else}
+                                            result.@{field._json_key_ident} = value.@{field._field_ident};
+                                        {/if}
                                     {/if}
 
                                 {:case TypeCategory::Date}
@@ -1738,6 +1848,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             _record_value_serializable_type: record_value_serializable_type,
                             _wrapper_serializable_type: wrapper_serializable_type,
                             _serialize_with: serialize_with,
+                            _decimal_format: opts.format.as_deref() == Some("decimal"),
                         })
                     })
                     .collect();
@@ -1921,6 +2032,7 @@ mod tests {
             _record_value_serializable_type: None,
             _wrapper_serializable_type: None,
             _serialize_with: None,
+            _decimal_format: false,
         };
         assert_eq!(field._json_key, "name");
         assert!(!field._optional);
