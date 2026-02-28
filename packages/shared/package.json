@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "macroforge": "^0.1.75"
+    "macroforge": "^0.1.76"
   },
   "description": "Shared utilities for Macroforge plugins",
   "devDependencies": {
@@ -33,5 +33,5 @@
   },
   "type": "module",
   "types": "./dist/index.d.ts",
-  "version": "0.1.75"
+  "version": "0.1.76"
 }
