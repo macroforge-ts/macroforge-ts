@@ -63,11 +63,19 @@ export type ValidationResult<T> = {
 
 // Helper to convert deserialize result to ValidationResult
 // The deserialize() returns { success: true; value: T } | { success: false; errors: Array<{field, message}> }
-export function toValidationResult<T>(result: { success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }): ValidationResult<T> {
+export function toValidationResult<T>(
+    result: { success: true; value: T } | {
+        success: false;
+        errors: Array<{ field: string; message: string }>;
+    }
+): ValidationResult<T> {
     if (result.success) {
         return { success: true, data: result.value };
     } else {
-        return { success: false, errors: result.errors.map(e => `${e.field}: ${e.message}`) };
+        return {
+            success: false,
+            errors: result.errors.map((e) => `${e.field}: ${e.message}`)
+        };
     }
 }
 

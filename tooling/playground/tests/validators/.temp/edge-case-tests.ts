@@ -11,7 +11,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 export class MultipleValidatorsTest {
     text: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        text: string;
+    }) {
         this.text = props.text;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -29,10 +31,7 @@ export class MultipleValidatorsTest {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = MultipleValidatorsTest.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = MultipleValidatorsTest.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -103,9 +102,7 @@ export class MultipleValidatorsTest {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            MultipleValidatorsTest.prototype
-        ) as MultipleValidatorsTest;
+        const instance = Object.create(MultipleValidatorsTest.prototype) as MultipleValidatorsTest;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -245,9 +242,7 @@ export function multipleValidatorsTestDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function multipleValidatorsTestIs(
-    value: unknown
-): value is MultipleValidatorsTest {
+export function multipleValidatorsTestIs(value: unknown): value is MultipleValidatorsTest {
     return MultipleValidatorsTest.is(value);
 }
 
@@ -256,7 +251,9 @@ export function multipleValidatorsTestIs(
 export class CustomMessageTest {
     email: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        email: string;
+    }) {
         this.email = props.email;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -345,9 +342,7 @@ export class CustomMessageTest {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            CustomMessageTest.prototype
-        ) as CustomMessageTest;
+        const instance = Object.create(CustomMessageTest.prototype) as CustomMessageTest;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -451,9 +446,7 @@ export function customMessageTestDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function customMessageTestIs(
-    value: unknown
-): value is CustomMessageTest {
+export function customMessageTestIs(value: unknown): value is CustomMessageTest {
     return CustomMessageTest.is(value);
 }
 
@@ -462,7 +455,9 @@ export function customMessageTestIs(
 export class MixedValidatorsTest {
     email: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        email: string;
+    }) {
         this.email = props.email;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -551,9 +546,7 @@ export class MixedValidatorsTest {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            MixedValidatorsTest.prototype
-        ) as MixedValidatorsTest;
+        const instance = Object.create(MixedValidatorsTest.prototype) as MixedValidatorsTest;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -675,9 +668,7 @@ export function mixedValidatorsTestDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function mixedValidatorsTestIs(
-    value: unknown
-): value is MixedValidatorsTest {
+export function mixedValidatorsTestIs(value: unknown): value is MixedValidatorsTest {
     return MixedValidatorsTest.is(value);
 }
 
@@ -686,7 +677,9 @@ export function mixedValidatorsTestIs(
 export class CombinedStringValidatorsTest {
     username: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        username: string;
+    }) {
         this.username = props.username;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -704,10 +697,7 @@ export class CombinedStringValidatorsTest {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CombinedStringValidatorsTest.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = CombinedStringValidatorsTest.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -849,9 +839,7 @@ export class CombinedStringValidatorsTest {
         return errors;
     }
 
-    static validateFields(
-        _partial: Partial<CombinedStringValidatorsTest>
-    ): Array<{
+    static validateFields(_partial: Partial<CombinedStringValidatorsTest>): Array<{
         field: string;
         message: string;
     }> {
@@ -934,7 +922,9 @@ export function combinedStringValidatorsTestIs(
 export class CombinedNumberValidatorsTest {
     score: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        score: number;
+    }) {
         this.score = props.score;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -952,10 +942,7 @@ export class CombinedNumberValidatorsTest {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CombinedNumberValidatorsTest.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = CombinedNumberValidatorsTest.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -1097,9 +1084,7 @@ export class CombinedNumberValidatorsTest {
         return errors;
     }
 
-    static validateFields(
-        _partial: Partial<CombinedNumberValidatorsTest>
-    ): Array<{
+    static validateFields(_partial: Partial<CombinedNumberValidatorsTest>): Array<{
         field: string;
         message: string;
     }> {

@@ -8,7 +8,11 @@
  * which has svelte-check, macroforge, and .svelte.ts files with @derive.
  */
 
-import { assert, assertEquals, assertStringIncludes } from 'https://deno.land/std@0.224.0/assert/mod.ts';
+import {
+    assert,
+    assertEquals,
+    assertStringIncludes
+} from 'https://deno.land/std@0.224.0/assert/mod.ts';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { repoRoot, svelteRoot } from './test-utils.mjs';
@@ -62,7 +66,7 @@ function runCli(args, options = {}) {
         args,
         cwd: options.cwd || svelteRoot,
         stdout: 'piped',
-        stderr: 'piped',
+        stderr: 'piped'
     });
     const result = command.outputSync();
     const decoder = new TextDecoder();
@@ -70,7 +74,7 @@ function runCli(args, options = {}) {
         stdout: decoder.decode(result.stdout),
         stderr: decoder.decode(result.stderr),
         status: result.code,
-        success: result.success,
+        success: result.success
     };
 }
 
@@ -81,11 +85,27 @@ function runCli(args, options = {}) {
 Deno.test('svelte-check: --help shows usage', () => {
     const result = runCli(['svelte-check', '--help']);
 
-    assertEquals(result.success, true, `Should succeed. stderr: ${result.stderr}`);
-    assertStringIncludes(result.stdout, '--workspace', 'Should show --workspace flag');
-    assertStringIncludes(result.stdout, '--tsconfig', 'Should show --tsconfig flag');
+    assertEquals(
+        result.success,
+        true,
+        `Should succeed. stderr: ${result.stderr}`
+    );
+    assertStringIncludes(
+        result.stdout,
+        '--workspace',
+        'Should show --workspace flag'
+    );
+    assertStringIncludes(
+        result.stdout,
+        '--tsconfig',
+        'Should show --tsconfig flag'
+    );
     assertStringIncludes(result.stdout, '--output', 'Should show --output flag');
-    assertStringIncludes(result.stdout, '--fail-on-warnings', 'Should show --fail-on-warnings flag');
+    assertStringIncludes(
+        result.stdout,
+        '--fail-on-warnings',
+        'Should show --fail-on-warnings flag'
+    );
 });
 
 // ============================================================================
@@ -98,7 +118,7 @@ Deno.test('svelte-check: type-checks the svelte playground project', () => {
         args: ['./node_modules/.bin/svelte-kit', 'sync'],
         cwd: svelteRoot,
         stdout: 'piped',
-        stderr: 'piped',
+        stderr: 'piped'
     }).outputSync();
 
     assert(
@@ -116,7 +136,13 @@ Deno.test('svelte-check: type-checks the svelte playground project', () => {
 });
 
 Deno.test('svelte-check: --output machine produces machine-readable output', () => {
-    const result = runCli(['svelte-check', '--tsconfig', './tsconfig.json', '--output', 'machine']);
+    const result = runCli([
+        'svelte-check',
+        '--tsconfig',
+        './tsconfig.json',
+        '--output',
+        'machine'
+    ]);
 
     assertEquals(
         result.success,
@@ -126,7 +152,13 @@ Deno.test('svelte-check: --output machine produces machine-readable output', () 
 });
 
 Deno.test('svelte-check: --workspace flag is forwarded', () => {
-    const result = runCli(['svelte-check', '--workspace', svelteRoot, '--tsconfig', './tsconfig.json']);
+    const result = runCli([
+        'svelte-check',
+        '--workspace',
+        svelteRoot,
+        '--tsconfig',
+        './tsconfig.json'
+    ]);
 
     assertEquals(
         result.success,
@@ -138,7 +170,12 @@ Deno.test('svelte-check: --workspace flag is forwarded', () => {
 Deno.test('svelte-check: --fail-on-warnings exits non-zero on warnings', () => {
     // This test just verifies the flag is forwarded without crashing.
     // If there are no warnings it should still succeed (exit 0).
-    const result = runCli(['svelte-check', '--tsconfig', './tsconfig.json', '--fail-on-warnings']);
+    const result = runCli([
+        'svelte-check',
+        '--tsconfig',
+        './tsconfig.json',
+        '--fail-on-warnings'
+    ]);
 
     // We don't assert success here because the project might have warnings.
     // We just verify it doesn't crash (status should be 0 or 1, not a node crash).

@@ -505,10 +505,7 @@ fn generate_union_variant_controllers_object(
 }
 
 /// Generates field entries for a variant as inline key-value pairs.
-fn generate_variant_fields_inline(
-    fields: &[ParsedField],
-    type_name: &str,
-) -> TsStream {
+fn generate_variant_fields_inline(fields: &[ParsedField], type_name: &str) -> TsStream {
     ts_template! {
         {#for field in fields}
             {$let entry = generate_variant_field_entry(field, type_name)}
@@ -518,10 +515,7 @@ fn generate_variant_fields_inline(
 }
 
 /// Generates a single field controller entry for inline object literal.
-fn generate_variant_field_entry(
-    field: &ParsedField,
-    interface_name: &str,
-) -> TsStream {
+fn generate_variant_field_entry(field: &ParsedField, interface_name: &str) -> TsStream {
     let name = &field.name;
     let label = name.as_str();
     let optional = field.optional;
@@ -539,7 +533,23 @@ fn generate_variant_field_entry(
 }
 
 /// Determines the controller type for a field.
+///
+/// Uses type-awareness from the TypeRegistry when available:
+/// - Enum types → "select"
+/// - Nested class/interface → "fieldset"
+/// - Primitives → their natural controller types
 fn get_field_controller_type(field: &ParsedField, _interface_name: &str) -> String {
+    // Check type-awareness fields first (populated from TypeRegistry)
+    if field.is_enum {
+        return "select".to_string();
+    }
+    if let Some(ref kind) = field.resolved_kind {
+        match kind.as_str() {
+            "class" | "interface" => return "fieldset".to_string(),
+            _ => {}
+        }
+    }
+
     let ts_type = field.ts_type.trim();
     let base_type = extract_base_type(ts_type);
 

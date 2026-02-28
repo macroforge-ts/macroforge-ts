@@ -28,6 +28,9 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     let type_name = input.name();
     let options = parser::parse_gigaform_options(&input);
 
+    // Extract type registry from context (populated by pre-expansion scan)
+    let type_registry = input.context.type_registry.as_ref();
+
     // Extract type params from the data variant
     let type_params = extract_type_params(&input.data);
     let generics = GenericInfo::from_params(&type_params);
@@ -91,6 +94,12 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
             return generate_enum_form(type_name, &enum_config);
         }
     };
+
+    // Enrich fields with type-awareness from the project TypeRegistry
+    let mut fields = fields;
+    if let Some(registry) = type_registry {
+        parser::enrich_fields_with_registry(&mut fields, registry);
+    }
 
     if fields.is_empty() {
         let msg = match &input.data {

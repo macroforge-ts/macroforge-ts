@@ -11,7 +11,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 export class GreaterThanValidator {
     positive: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        positive: number;
+    }) {
         this.positive = props.positive;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -29,10 +31,7 @@ export class GreaterThanValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = GreaterThanValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -103,9 +102,7 @@ export class GreaterThanValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            GreaterThanValidator.prototype
-        ) as GreaterThanValidator;
+        const instance = Object.create(GreaterThanValidator.prototype) as GreaterThanValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -209,9 +206,7 @@ export function greaterThanValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function greaterThanValidatorIs(
-    value: unknown
-): value is GreaterThanValidator {
+export function greaterThanValidatorIs(value: unknown): value is GreaterThanValidator {
     return GreaterThanValidator.is(value);
 }
 
@@ -220,7 +215,9 @@ export function greaterThanValidatorIs(
 export class GreaterThanOrEqualToValidator {
     nonNegative: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        nonNegative: number;
+    }) {
         this.nonNegative = props.nonNegative;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -238,10 +235,7 @@ export class GreaterThanOrEqualToValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanOrEqualToValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = GreaterThanOrEqualToValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -361,9 +355,7 @@ export class GreaterThanOrEqualToValidator {
         return errors;
     }
 
-    static validateFields(
-        _partial: Partial<GreaterThanOrEqualToValidator>
-    ): Array<{
+    static validateFields(_partial: Partial<GreaterThanOrEqualToValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -435,7 +427,9 @@ export function greaterThanOrEqualToValidatorIs(
 export class LessThanValidator {
     capped: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        capped: number;
+    }) {
         this.capped = props.capped;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -524,9 +518,7 @@ export class LessThanValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            LessThanValidator.prototype
-        ) as LessThanValidator;
+        const instance = Object.create(LessThanValidator.prototype) as LessThanValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -630,9 +622,7 @@ export function lessThanValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lessThanValidatorIs(
-    value: unknown
-): value is LessThanValidator {
+export function lessThanValidatorIs(value: unknown): value is LessThanValidator {
     return LessThanValidator.is(value);
 }
 
@@ -641,7 +631,9 @@ export function lessThanValidatorIs(
 export class LessThanOrEqualToValidator {
     maxed: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        maxed: number;
+    }) {
         this.maxed = props.maxed;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -659,10 +651,7 @@ export class LessThanOrEqualToValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LessThanOrEqualToValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = LessThanOrEqualToValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -839,9 +828,7 @@ export function lessThanOrEqualToValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lessThanOrEqualToValidatorIs(
-    value: unknown
-): value is LessThanOrEqualToValidator {
+export function lessThanOrEqualToValidatorIs(value: unknown): value is LessThanOrEqualToValidator {
     return LessThanOrEqualToValidator.is(value);
 }
 
@@ -850,7 +837,9 @@ export function lessThanOrEqualToValidatorIs(
 export class BetweenValidator {
     ranged: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        ranged: number;
+    }) {
         this.ranged = props.ranged;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -939,9 +928,7 @@ export class BetweenValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            BetweenValidator.prototype
-        ) as BetweenValidator;
+        const instance = Object.create(BetweenValidator.prototype) as BetweenValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1054,7 +1041,9 @@ export function betweenValidatorIs(value: unknown): value is BetweenValidator {
 export class IntValidator {
     integer: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        integer: number;
+    }) {
         this.integer = props.integer;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1163,10 +1152,7 @@ export class IntValidator {
         return instance;
     }
 
-    static validateField<K extends keyof IntValidator>(
-        _field: K,
-        _value: IntValidator[K]
-    ): Array<{
+    static validateField<K extends keyof IntValidator>(_field: K, _value: IntValidator[K]): Array<{
         field: string;
         message: string;
     }> {
@@ -1255,7 +1241,9 @@ export function intValidatorIs(value: unknown): value is IntValidator {
 export class NonNaNValidator {
     valid: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        valid: number;
+    }) {
         this.valid = props.valid;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1344,9 +1332,7 @@ export class NonNaNValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            NonNaNValidator.prototype
-        ) as NonNaNValidator;
+        const instance = Object.create(NonNaNValidator.prototype) as NonNaNValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1459,7 +1445,9 @@ export function nonNaNValidatorIs(value: unknown): value is NonNaNValidator {
 export class FiniteValidator {
     finite: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        finite: number;
+    }) {
         this.finite = props.finite;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1548,9 +1536,7 @@ export class FiniteValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            FiniteValidator.prototype
-        ) as FiniteValidator;
+        const instance = Object.create(FiniteValidator.prototype) as FiniteValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1663,7 +1649,9 @@ export function finiteValidatorIs(value: unknown): value is FiniteValidator {
 export class PositiveValidator {
     positive: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        positive: number;
+    }) {
         this.positive = props.positive;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1752,9 +1740,7 @@ export class PositiveValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            PositiveValidator.prototype
-        ) as PositiveValidator;
+        const instance = Object.create(PositiveValidator.prototype) as PositiveValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1858,9 +1844,7 @@ export function positiveValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function positiveValidatorIs(
-    value: unknown
-): value is PositiveValidator {
+export function positiveValidatorIs(value: unknown): value is PositiveValidator {
     return PositiveValidator.is(value);
 }
 
@@ -1869,7 +1853,9 @@ export function positiveValidatorIs(
 export class NonNegativeValidator {
     nonNegative: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        nonNegative: number;
+    }) {
         this.nonNegative = props.nonNegative;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1887,10 +1873,7 @@ export class NonNegativeValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NonNegativeValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = NonNegativeValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -1961,9 +1944,7 @@ export class NonNegativeValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            NonNegativeValidator.prototype
-        ) as NonNegativeValidator;
+        const instance = Object.create(NonNegativeValidator.prototype) as NonNegativeValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2067,9 +2048,7 @@ export function nonNegativeValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonNegativeValidatorIs(
-    value: unknown
-): value is NonNegativeValidator {
+export function nonNegativeValidatorIs(value: unknown): value is NonNegativeValidator {
     return NonNegativeValidator.is(value);
 }
 
@@ -2078,7 +2057,9 @@ export function nonNegativeValidatorIs(
 export class NegativeValidator {
     negative: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        negative: number;
+    }) {
         this.negative = props.negative;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -2167,9 +2148,7 @@ export class NegativeValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            NegativeValidator.prototype
-        ) as NegativeValidator;
+        const instance = Object.create(NegativeValidator.prototype) as NegativeValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2273,9 +2252,7 @@ export function negativeValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function negativeValidatorIs(
-    value: unknown
-): value is NegativeValidator {
+export function negativeValidatorIs(value: unknown): value is NegativeValidator {
     return NegativeValidator.is(value);
 }
 
@@ -2284,7 +2261,9 @@ export function negativeValidatorIs(
 export class NonPositiveValidator {
     nonPositive: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        nonPositive: number;
+    }) {
         this.nonPositive = props.nonPositive;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -2302,10 +2281,7 @@ export class NonPositiveValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NonPositiveValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = NonPositiveValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -2376,9 +2352,7 @@ export class NonPositiveValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            NonPositiveValidator.prototype
-        ) as NonPositiveValidator;
+        const instance = Object.create(NonPositiveValidator.prototype) as NonPositiveValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2482,9 +2456,7 @@ export function nonPositiveValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonPositiveValidatorIs(
-    value: unknown
-): value is NonPositiveValidator {
+export function nonPositiveValidatorIs(value: unknown): value is NonPositiveValidator {
     return NonPositiveValidator.is(value);
 }
 
@@ -2493,7 +2465,9 @@ export function nonPositiveValidatorIs(
 export class MultipleOfValidator {
     multiple: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        multiple: number;
+    }) {
         this.multiple = props.multiple;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -2582,9 +2556,7 @@ export class MultipleOfValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            MultipleOfValidator.prototype
-        ) as MultipleOfValidator;
+        const instance = Object.create(MultipleOfValidator.prototype) as MultipleOfValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2688,9 +2660,7 @@ export function multipleOfValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function multipleOfValidatorIs(
-    value: unknown
-): value is MultipleOfValidator {
+export function multipleOfValidatorIs(value: unknown): value is MultipleOfValidator {
     return MultipleOfValidator.is(value);
 }
 
@@ -2699,7 +2669,9 @@ export function multipleOfValidatorIs(
 export class Uint8Validator {
     byte: number;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        byte: number;
+    }) {
         this.byte = props.byte;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */

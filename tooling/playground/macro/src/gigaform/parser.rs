@@ -120,6 +120,15 @@ pub struct ParsedField {
     pub controller: Option<ParsedController>,
     /// Field-level gigaform options
     pub field_options: GigaformFieldOptions,
+
+    // --- Type-awareness fields (populated from TypeRegistry) ---
+    /// Whether this field's type is an enum in the registry.
+    pub is_enum: bool,
+    /// Enum variant names (populated if `is_enum` is true).
+    pub enum_variants: Option<Vec<String>>,
+    /// The kind of type this field resolves to in the registry
+    /// (e.g., "class", "interface", "enum", "type_alias"), or None if unresolved/primitive.
+    pub resolved_kind: Option<String>,
 }
 
 impl ParsedField {
@@ -866,6 +875,10 @@ fn parse_field_common(
         async_validators,
         controller,
         field_options,
+        // Type-awareness fields default to empty; enriched later via enrich_fields_with_registry()
+        is_enum: false,
+        enum_variants: None,
+        resolved_kind: None,
     }
 }
 
@@ -1235,6 +1248,122 @@ fn convert_js_object_to_json(js_obj: &str) -> String {
     }
 
     result
+}
+
+// =============================================================================
+// Type-Awareness Enrichment (TypeRegistry)
+// =============================================================================
+
+use macroforge_ts::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry};
+
+/// Enriches parsed fields with type-awareness information from the project's TypeRegistry.
+///
+/// For each field, checks if its type exists in the registry and populates:
+/// - `resolved_kind`: "class", "interface", "enum", or "type_alias"
+/// - `is_enum`: true if the field type resolves to an enum
+/// - `enum_variants`: variant names if the field type is an enum
+/// - Upgrades `is_nested` to use registry-backed detection instead of PascalCase heuristic
+///
+/// Also upgrades the controller inference: if a field's type is an enum and no explicit
+/// controller was specified, auto-assigns a `Select` controller with enum variants as options.
+pub fn enrich_fields_with_registry(fields: &mut [ParsedField], registry: &TypeRegistry) {
+    for field in fields.iter_mut() {
+        // Determine the base type name to look up (strip arrays, optionals)
+        let base_type = get_base_type_for_lookup(&field.ts_type);
+
+        if let Some(entry) = registry.get(&base_type) {
+            // Set resolved_kind based on the definition type
+            field.resolved_kind = Some(match &entry.definition {
+                TypeDefinitionIR::Class(_) => "class".to_string(),
+                TypeDefinitionIR::Interface(_) => "interface".to_string(),
+                TypeDefinitionIR::Enum(_) => "enum".to_string(),
+                TypeDefinitionIR::TypeAlias(_) => "type_alias".to_string(),
+            });
+
+            // Upgrade is_nested: confirm via registry instead of PascalCase heuristic
+            match &entry.definition {
+                TypeDefinitionIR::Class(_) | TypeDefinitionIR::Interface(_) => {
+                    if !field.is_array {
+                        field.is_nested = true;
+                        field.nested_type = Some(base_type.clone());
+                    }
+                }
+                _ => {}
+            }
+
+            // Handle enum types: populate variants and auto-infer controller
+            if let TypeDefinitionIR::Enum(enum_ir) = &entry.definition {
+                field.is_enum = true;
+                let variants: Vec<String> =
+                    enum_ir.variants.iter().map(|v| v.name.clone()).collect();
+                field.enum_variants = Some(variants.clone());
+
+                // Auto-assign select controller if no explicit controller was specified
+                if field.controller.is_none() {
+                    let options_json = serde_json::Value::Array(
+                        variants
+                            .iter()
+                            .map(|v| {
+                                serde_json::json!({
+                                    "label": to_title_case(v),
+                                    "value": format!("{}.{}", base_type, v),
+                                })
+                            })
+                            .collect(),
+                    );
+                    field.controller = Some(ParsedController {
+                        options: ControllerOptions::Select(SelectOptions {
+                            base: BaseControllerOptions::default(),
+                            options: Some(options_json),
+                            rounded_class: None,
+                        }),
+                    });
+                }
+            }
+        }
+    }
+}
+
+/// Extracts the base type name for registry lookup (strips `[]`, `Array<>`, `| undefined`, `| null`).
+fn get_base_type_for_lookup(ts_type: &str) -> String {
+    let trimmed = ts_type.trim();
+
+    // Strip optional suffixes
+    let stripped = if let Some(pos) = trimmed.rfind(" | undefined") {
+        if pos + " | undefined".len() == trimmed.len() {
+            &trimmed[..pos]
+        } else {
+            trimmed
+        }
+    } else if let Some(pos) = trimmed.rfind(" | null") {
+        if pos + " | null".len() == trimmed.len() {
+            &trimmed[..pos]
+        } else {
+            trimmed
+        }
+    } else {
+        trimmed
+    }
+    .trim();
+
+    // Strip array suffix
+    if let Some(inner) = stripped.strip_suffix("[]") {
+        return inner.trim().to_string();
+    }
+    if let Some(inner) = stripped
+        .strip_prefix("Array<")
+        .and_then(|s| s.strip_suffix('>'))
+    {
+        return inner.trim().to_string();
+    }
+    if let Some(inner) = stripped
+        .strip_prefix("ReadonlyArray<")
+        .and_then(|s| s.strip_suffix('>'))
+    {
+        return inner.trim().to_string();
+    }
+
+    stripped.to_string()
 }
 
 // =============================================================================

@@ -12,7 +12,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 export class EmailValidator {
     email: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        email: string;
+    }) {
         this.email = props.email;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -214,7 +216,9 @@ export function emailValidatorIs(value: unknown): value is EmailValidator {
 export class UrlValidator {
     url: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        url: string;
+    }) {
         this.url = props.url;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -323,10 +327,7 @@ export class UrlValidator {
         return instance;
     }
 
-    static validateField<K extends keyof UrlValidator>(
-        _field: K,
-        _value: UrlValidator[K]
-    ): Array<{
+    static validateField<K extends keyof UrlValidator>(_field: K, _value: UrlValidator[K]): Array<{
         field: string;
         message: string;
     }> {
@@ -415,7 +416,9 @@ export function urlValidatorIs(value: unknown): value is UrlValidator {
 export class UuidValidator {
     id: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        id: string;
+    }) {
         this.id = props.id;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -510,11 +513,7 @@ export class UuidValidator {
         ctx.trackForFreeze(instance);
         {
             const __raw_id = obj['id'] as string;
-            if (
-                !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    __raw_id
-                )
-            ) {
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_id)) {
                 errors.push({
                     field: 'id',
                     message: 'UuidValidator.id must be a valid UUID'
@@ -541,11 +540,7 @@ export class UuidValidator {
         }> = [];
         if (_field === 'id') {
             const __val = _value as string;
-            if (
-                !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    __val
-                )
-            ) {
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) {
                 errors.push({
                     field: 'id',
                     message: 'UuidValidator.id must be a valid UUID'
@@ -565,11 +560,7 @@ export class UuidValidator {
         }> = [];
         if ('id' in _partial && _partial.id !== undefined) {
             const __val = _partial.id as string;
-            if (
-                !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    __val
-                )
-            ) {
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) {
                 errors.push({
                     field: 'id',
                     message: 'UuidValidator.id must be a valid UUID'
@@ -628,7 +619,9 @@ export function uuidValidatorIs(value: unknown): value is UuidValidator {
 export class MaxLengthValidator {
     shortText: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        shortText: string;
+    }) {
         this.shortText = props.shortText;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -717,9 +710,7 @@ export class MaxLengthValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            MaxLengthValidator.prototype
-        ) as MaxLengthValidator;
+        const instance = Object.create(MaxLengthValidator.prototype) as MaxLengthValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -823,9 +814,7 @@ export function maxLengthValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function maxLengthValidatorIs(
-    value: unknown
-): value is MaxLengthValidator {
+export function maxLengthValidatorIs(value: unknown): value is MaxLengthValidator {
     return MaxLengthValidator.is(value);
 }
 
@@ -834,7 +823,9 @@ export function maxLengthValidatorIs(
 export class MinLengthValidator {
     longText: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        longText: string;
+    }) {
         this.longText = props.longText;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -923,9 +914,7 @@ export class MinLengthValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            MinLengthValidator.prototype
-        ) as MinLengthValidator;
+        const instance = Object.create(MinLengthValidator.prototype) as MinLengthValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1029,9 +1018,7 @@ export function minLengthValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function minLengthValidatorIs(
-    value: unknown
-): value is MinLengthValidator {
+export function minLengthValidatorIs(value: unknown): value is MinLengthValidator {
     return MinLengthValidator.is(value);
 }
 
@@ -1040,7 +1027,9 @@ export function minLengthValidatorIs(
 export class LengthValidator {
     fixedText: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        fixedText: string;
+    }) {
         this.fixedText = props.fixedText;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1129,9 +1118,7 @@ export class LengthValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            LengthValidator.prototype
-        ) as LengthValidator;
+        const instance = Object.create(LengthValidator.prototype) as LengthValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1244,7 +1231,9 @@ export function lengthValidatorIs(value: unknown): value is LengthValidator {
 export class LengthRangeValidator {
     rangedText: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        rangedText: string;
+    }) {
         this.rangedText = props.rangedText;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1262,10 +1251,7 @@ export class LengthRangeValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LengthRangeValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = LengthRangeValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -1336,9 +1322,7 @@ export class LengthRangeValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            LengthRangeValidator.prototype
-        ) as LengthRangeValidator;
+        const instance = Object.create(LengthRangeValidator.prototype) as LengthRangeValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1442,9 +1426,7 @@ export function lengthRangeValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lengthRangeValidatorIs(
-    value: unknown
-): value is LengthRangeValidator {
+export function lengthRangeValidatorIs(value: unknown): value is LengthRangeValidator {
     return LengthRangeValidator.is(value);
 }
 
@@ -1453,7 +1435,9 @@ export function lengthRangeValidatorIs(
 export class PatternValidator {
     code: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        code: string;
+    }) {
         this.code = props.code;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1542,9 +1526,7 @@ export class PatternValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            PatternValidator.prototype
-        ) as PatternValidator;
+        const instance = Object.create(PatternValidator.prototype) as PatternValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1657,7 +1639,9 @@ export function patternValidatorIs(value: unknown): value is PatternValidator {
 export class NonEmptyValidator {
     required: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        required: string;
+    }) {
         this.required = props.required;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1746,9 +1730,7 @@ export class NonEmptyValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            NonEmptyValidator.prototype
-        ) as NonEmptyValidator;
+        const instance = Object.create(NonEmptyValidator.prototype) as NonEmptyValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1852,9 +1834,7 @@ export function nonEmptyValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonEmptyValidatorIs(
-    value: unknown
-): value is NonEmptyValidator {
+export function nonEmptyValidatorIs(value: unknown): value is NonEmptyValidator {
     return NonEmptyValidator.is(value);
 }
 
@@ -1863,7 +1843,9 @@ export function nonEmptyValidatorIs(
 export class TrimmedValidator {
     trimmed: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        trimmed: string;
+    }) {
         this.trimmed = props.trimmed;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -1952,9 +1934,7 @@ export class TrimmedValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            TrimmedValidator.prototype
-        ) as TrimmedValidator;
+        const instance = Object.create(TrimmedValidator.prototype) as TrimmedValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2067,7 +2047,9 @@ export function trimmedValidatorIs(value: unknown): value is TrimmedValidator {
 export class LowercaseValidator {
     lower: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        lower: string;
+    }) {
         this.lower = props.lower;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -2156,9 +2138,7 @@ export class LowercaseValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            LowercaseValidator.prototype
-        ) as LowercaseValidator;
+        const instance = Object.create(LowercaseValidator.prototype) as LowercaseValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2262,9 +2242,7 @@ export function lowercaseValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lowercaseValidatorIs(
-    value: unknown
-): value is LowercaseValidator {
+export function lowercaseValidatorIs(value: unknown): value is LowercaseValidator {
     return LowercaseValidator.is(value);
 }
 
@@ -2273,7 +2251,9 @@ export function lowercaseValidatorIs(
 export class UppercaseValidator {
     upper: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        upper: string;
+    }) {
         this.upper = props.upper;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -2362,9 +2342,7 @@ export class UppercaseValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            UppercaseValidator.prototype
-        ) as UppercaseValidator;
+        const instance = Object.create(UppercaseValidator.prototype) as UppercaseValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2468,9 +2446,7 @@ export function uppercaseValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function uppercaseValidatorIs(
-    value: unknown
-): value is UppercaseValidator {
+export function uppercaseValidatorIs(value: unknown): value is UppercaseValidator {
     return UppercaseValidator.is(value);
 }
 
@@ -2479,7 +2455,9 @@ export function uppercaseValidatorIs(
 export class CapitalizedValidator {
     cap: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        cap: string;
+    }) {
         this.cap = props.cap;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -2497,10 +2475,7 @@ export class CapitalizedValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CapitalizedValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = CapitalizedValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -2571,9 +2546,7 @@ export class CapitalizedValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            CapitalizedValidator.prototype
-        ) as CapitalizedValidator;
+        const instance = Object.create(CapitalizedValidator.prototype) as CapitalizedValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2686,9 +2659,7 @@ export function capitalizedValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function capitalizedValidatorIs(
-    value: unknown
-): value is CapitalizedValidator {
+export function capitalizedValidatorIs(value: unknown): value is CapitalizedValidator {
     return CapitalizedValidator.is(value);
 }
 
@@ -2697,7 +2668,9 @@ export function capitalizedValidatorIs(
 export class UncapitalizedValidator {
     uncap: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        uncap: string;
+    }) {
         this.uncap = props.uncap;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -2715,10 +2688,7 @@ export class UncapitalizedValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = UncapitalizedValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = UncapitalizedValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -2789,19 +2759,14 @@ export class UncapitalizedValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            UncapitalizedValidator.prototype
-        ) as UncapitalizedValidator;
+        const instance = Object.create(UncapitalizedValidator.prototype) as UncapitalizedValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
         {
             const __raw_uncap = obj['uncap'] as string;
-            if (
-                __raw_uncap.length > 0 &&
-                __raw_uncap[0] !== __raw_uncap[0].toLowerCase()
-            ) {
+            if (__raw_uncap.length > 0 && __raw_uncap[0] !== __raw_uncap[0].toLowerCase()) {
                 errors.push({
                     field: 'uncap',
                     message: 'UncapitalizedValidator.uncap must be uncapitalized'
@@ -2898,9 +2863,7 @@ export function uncapitalizedValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function uncapitalizedValidatorIs(
-    value: unknown
-): value is UncapitalizedValidator {
+export function uncapitalizedValidatorIs(value: unknown): value is UncapitalizedValidator {
     return UncapitalizedValidator.is(value);
 }
 
@@ -2909,7 +2872,9 @@ export function uncapitalizedValidatorIs(
 export class StartsWithValidator {
     secureUrl: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        secureUrl: string;
+    }) {
         this.secureUrl = props.secureUrl;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -2998,9 +2963,7 @@ export class StartsWithValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            StartsWithValidator.prototype
-        ) as StartsWithValidator;
+        const instance = Object.create(StartsWithValidator.prototype) as StartsWithValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -3104,9 +3067,7 @@ export function startsWithValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function startsWithValidatorIs(
-    value: unknown
-): value is StartsWithValidator {
+export function startsWithValidatorIs(value: unknown): value is StartsWithValidator {
     return StartsWithValidator.is(value);
 }
 
@@ -3115,7 +3076,9 @@ export function startsWithValidatorIs(
 export class EndsWithValidator {
     filename: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        filename: string;
+    }) {
         this.filename = props.filename;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -3204,9 +3167,7 @@ export class EndsWithValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            EndsWithValidator.prototype
-        ) as EndsWithValidator;
+        const instance = Object.create(EndsWithValidator.prototype) as EndsWithValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -3310,9 +3271,7 @@ export function endsWithValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function endsWithValidatorIs(
-    value: unknown
-): value is EndsWithValidator {
+export function endsWithValidatorIs(value: unknown): value is EndsWithValidator {
     return EndsWithValidator.is(value);
 }
 
@@ -3321,7 +3280,9 @@ export function endsWithValidatorIs(
 export class IncludesValidator {
     emailLike: string;
 
-    constructor(props: Record<string, unknown>) {
+    constructor(props: {
+        emailLike: string;
+    }) {
         this.emailLike = props.emailLike;
     }
     /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
@@ -3410,9 +3371,7 @@ export class IncludesValidator {
         if (errors.length > 0) {
             throw new __mf_DeserializeError(errors);
         }
-        const instance = Object.create(
-            IncludesValidator.prototype
-        ) as IncludesValidator;
+        const instance = Object.create(IncludesValidator.prototype) as IncludesValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -3516,8 +3475,6 @@ export function includesValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function includesValidatorIs(
-    value: unknown
-): value is IncludesValidator {
+export function includesValidatorIs(value: unknown): value is IncludesValidator {
     return IncludesValidator.is(value);
 }

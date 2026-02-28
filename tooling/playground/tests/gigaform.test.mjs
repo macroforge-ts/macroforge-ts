@@ -48,23 +48,23 @@ describe('Gigaform type generation', () => {
             result.code.includes('export type UserFormErrors'),
             'Should generate UserFormErrors type'
         );
-        // Implementation uses __gigaform_reexport_Option<Array<string>> instead of Array<string> | undefined
+        // Implementation uses Option.Option<Array<string>> from effect
         assert.ok(
             result.code.includes(
-                '_errors: __gigaform_reexport_Option<Array<string>>'
+                '_errors: Option.Option<Array<string>>'
             ),
             'Should have root _errors'
         );
         assert.ok(
-            result.code.includes('name: __gigaform_reexport_Option<Array<string>>'),
+            result.code.includes('name: Option.Option<Array<string>>'),
             'Should have name error array'
         );
         assert.ok(
-            result.code.includes('email: __gigaform_reexport_Option<Array<string>>'),
+            result.code.includes('email: Option.Option<Array<string>>'),
             'Should have email error array'
         );
         assert.ok(
-            result.code.includes('age: __gigaform_reexport_Option<Array<string>>'),
+            result.code.includes('age: Option.Option<Array<string>>'),
             'Should have age error array'
         );
     });
@@ -83,13 +83,13 @@ describe('Gigaform type generation', () => {
             result.code.includes('export type UserFormTainted'),
             'Should generate UserFormTainted type'
         );
-        // Implementation uses __gigaform_reexport_Option<boolean> instead of boolean | undefined
+        // Implementation uses Option.Option<boolean> from effect
         assert.ok(
-            result.code.includes('name: __gigaform_reexport_Option<boolean>'),
+            result.code.includes('name: Option.Option<boolean>'),
             'Should have name tainted flag'
         );
         assert.ok(
-            result.code.includes('email: __gigaform_reexport_Option<boolean>'),
+            result.code.includes('email: Option.Option<boolean>'),
             'Should have email tainted flag'
         );
     });
@@ -258,13 +258,13 @@ describe('Gigaform createForm factory', () => {
     `;
         const result = expandSync(withGigaformImport(code), 'test.ts');
 
-        // Implementation initializes with optionNone() for each field
+        // Implementation initializes with Option.none() for each field
         assert.ok(
             result.code.includes('let errors = $state<StateFormErrors>({'),
             'Should use $state for errors'
         );
         assert.ok(
-            result.code.includes('__gigaform_reexport_Option.none()'),
+            result.code.includes('Option.none()'),
             'Should initialize with Option.none()'
         );
         assert.ok(
@@ -389,7 +389,7 @@ describe('Gigaform field controllers', () => {
         assert.ok(
             includesNormalized(
                 result.code,
-                'setError: (value: __gigaform_reexport_Option<Array<string>>) => { errors.email = value; }'
+                'setError: (value: Option.Option<Array<string>>) => { errors.email = value; }'
             ),
             'Should generate setError closure'
         );
@@ -412,7 +412,7 @@ describe('Gigaform field controllers', () => {
         assert.ok(
             includesNormalized(
                 result.code,
-                'setTainted: (value: __gigaform_reexport_Option<boolean>) => { tainted.field = value; }'
+                'setTainted: (value: Option.Option<boolean>) => { tainted.field = value; }'
             ),
             'Should generate setTainted closure'
         );
@@ -781,15 +781,15 @@ describe('Gigaform imports', () => {
     `;
         const result = expandSync(withGigaformImport(code), 'test.ts');
 
-        // Gigaform uses Effect's Exit type from @playground/macro/gigaform
+        // Gigaform uses Effect's Exit type from "effect"
         assert.ok(
-            result.code.includes('import type { Exit }') ||
-                result.code.includes('import type {Exit}'),
-            'Should add Exit type import'
+            result.code.includes('import { Exit }') ||
+                result.code.includes('import {Exit}'),
+            'Should add Exit import'
         );
         assert.ok(
-            result.code.includes('from "@playground/macro/gigaform"'),
-            'Should import from @playground/macro/gigaform'
+            result.code.includes('from "effect"'),
+            'Should import from effect'
         );
     });
 });
@@ -922,6 +922,339 @@ describe('Gigaform error handling', () => {
             errors.some((e) => e.message.includes('no fields')),
             'Error should mention no fields'
         );
+    });
+});
+
+// ============================================================================
+// Type-Awareness Tests (TypeRegistry integration)
+// ============================================================================
+
+// Helper to build a minimal TypeRegistry JSON with given types.
+// Each type is { name, kind, variants? (for enums), fields? (for interfaces) }
+function buildRegistryJson(types) {
+    const registry = {
+        types: {},
+        qualified_types: {},
+        ambiguous_names: []
+    };
+
+    for (const t of types) {
+        const zeroSpan = { start: 0, end: 0 };
+        let definition;
+
+        if (t.kind === 'enum') {
+            definition = {
+                Enum: {
+                    name: t.name,
+                    span: zeroSpan,
+                    body_span: zeroSpan,
+                    is_const: false,
+                    decorators: [],
+                    variants: (t.variants || []).map((v) => ({
+                        name: v,
+                        span: zeroSpan,
+                        value: 'Auto',
+                        decorators: []
+                    }))
+                }
+            };
+        } else if (t.kind === 'interface') {
+            definition = {
+                Interface: {
+                    name: t.name,
+                    span: zeroSpan,
+                    body_span: zeroSpan,
+                    type_params: [],
+                    heritage: [],
+                    decorators: [],
+                    fields: (t.fields || []).map((f) => ({
+                        name: f.name,
+                        span: zeroSpan,
+                        ts_type: f.ts_type,
+                        optional: false,
+                        readonly: false,
+                        decorators: []
+                    })),
+                    methods: []
+                }
+            };
+        } else if (t.kind === 'class') {
+            definition = {
+                Class: {
+                    name: t.name,
+                    span: zeroSpan,
+                    body_span: zeroSpan,
+                    is_abstract: false,
+                    type_params: [],
+                    heritage: [],
+                    decorators: [],
+                    decorators_ast: [],
+                    fields: [],
+                    methods: [],
+                    members: []
+                }
+            };
+        }
+
+        const entry = {
+            name: t.name,
+            file_path: t.file_path || '/project/src/models.ts',
+            is_exported: true,
+            definition,
+            file_imports: []
+        };
+
+        registry.types[t.name] = entry;
+        const qualKey = `src/models.ts::${t.name}`;
+        registry.qualified_types[qualKey] = entry;
+    }
+
+    return JSON.stringify(registry);
+}
+
+describe('Gigaform type-awareness with TypeRegistry', () => {
+    test('enum field auto-infers select controller type', () => {
+        const typeRegistryJson = buildRegistryJson([
+            {
+                name: 'Status',
+                kind: 'enum',
+                variants: ['Active', 'Inactive', 'Pending']
+            }
+        ]);
+
+        const code = `
+      /** @derive(Default, Deserialize, Gigaform) */
+      interface OrderForm {
+        name: string;
+        status: Status;
+      }
+    `;
+        const result = expandSync(withGigaformImport(code), 'test.ts', {
+            typeRegistryJson
+        });
+
+        const errors = result.diagnostics.filter((d) => d.level === 'error');
+        assert.ok(
+            errors.length === 0,
+            `Should have no errors, got: ${errors.map((e) => e.message).join(', ')}`
+        );
+
+        // The status field controller should have type "select" (auto-inferred from enum)
+        assert.ok(
+            result.code.includes('type: "select"'),
+            'Enum field should auto-infer select controller type'
+        );
+
+        // The name field should still have type "text"
+        assert.ok(
+            result.code.includes('type: "text"'),
+            'String field should keep text controller type'
+        );
+    });
+
+    test('nested interface field gets fieldset controller type', () => {
+        const typeRegistryJson = buildRegistryJson([
+            {
+                name: 'Address',
+                kind: 'interface',
+                fields: [
+                    { name: 'street', ts_type: 'string' },
+                    { name: 'city', ts_type: 'string' }
+                ]
+            }
+        ]);
+
+        const code = `
+      /** @derive(Default, Deserialize, Gigaform) */
+      interface UserForm {
+        name: string;
+        address: Address;
+      }
+    `;
+        const result = expandSync(withGigaformImport(code), 'test.ts', {
+            typeRegistryJson
+        });
+
+        const errors = result.diagnostics.filter((d) => d.level === 'error');
+        assert.ok(
+            errors.length === 0,
+            `Should have no errors, got: ${errors.map((e) => e.message).join(', ')}`
+        );
+
+        // The address field controller should have type "fieldset" (detected from interface)
+        assert.ok(
+            result.code.includes('type: "fieldset"'),
+            'Nested interface field should get fieldset controller type'
+        );
+    });
+
+    test('class field gets fieldset controller type from registry', () => {
+        const typeRegistryJson = buildRegistryJson([
+            { name: 'Profile', kind: 'class' }
+        ]);
+
+        const code = `
+      /** @derive(Default, Deserialize, Gigaform) */
+      interface SettingsForm {
+        name: string;
+        profile: Profile;
+      }
+    `;
+        const result = expandSync(withGigaformImport(code), 'test.ts', {
+            typeRegistryJson
+        });
+
+        const errors = result.diagnostics.filter((d) => d.level === 'error');
+        assert.ok(
+            errors.length === 0,
+            `Should have no errors, got: ${errors.map((e) => e.message).join(', ')}`
+        );
+
+        assert.ok(
+            result.code.includes('type: "fieldset"'),
+            'Nested class field should get fieldset controller type'
+        );
+    });
+
+    test('enum field with explicit controller keeps explicit controller', () => {
+        const typeRegistryJson = buildRegistryJson([
+            {
+                name: 'Priority',
+                kind: 'enum',
+                variants: ['Low', 'Medium', 'High']
+            }
+        ]);
+
+        const code = `
+      /** @derive(Default, Deserialize, Gigaform) */
+      interface TaskForm {
+        name: string;
+        /** @radioGroupController({ label: "Priority Level" }) */
+        priority: Priority;
+      }
+    `;
+        const result = expandSync(withGigaformImport(code), 'test.ts', {
+            typeRegistryJson
+        });
+
+        const errors = result.diagnostics.filter((d) => d.level === 'error');
+        assert.ok(
+            errors.length === 0,
+            `Should have no errors, got: ${errors.map((e) => e.message).join(', ')}`
+        );
+
+        // Should use radioGroup (explicit), not select (auto-inferred)
+        assert.ok(
+            result.code.includes('label: "Priority Level"'),
+            'Explicit controller label should be preserved'
+        );
+    });
+
+    test('array of enum type still works with registry', () => {
+        const typeRegistryJson = buildRegistryJson([
+            {
+                name: 'Tag',
+                kind: 'enum',
+                variants: ['Frontend', 'Backend', 'DevOps']
+            }
+        ]);
+
+        const code = `
+      /** @derive(Default, Deserialize, Gigaform) */
+      interface ProjectForm {
+        name: string;
+        tags: Tag[];
+      }
+    `;
+        const result = expandSync(withGigaformImport(code), 'test.ts', {
+            typeRegistryJson
+        });
+
+        const errors = result.diagnostics.filter((d) => d.level === 'error');
+        assert.ok(
+            errors.length === 0,
+            `Should have no errors, got: ${errors.map((e) => e.message).join(', ')}`
+        );
+
+        // Should generate array methods for the tags field
+        assert.ok(
+            result.code.includes('push: (item: Tag)'),
+            'Array of enum type should have push method'
+        );
+    });
+
+    test('works without registry (backward compatible)', () => {
+        // No typeRegistryJson passed - should work exactly as before
+        const code = `
+      /** @derive(Default, Deserialize, Gigaform) */
+      interface BasicForm {
+        name: string;
+        count: number;
+      }
+    `;
+        const result = expandSync(withGigaformImport(code), 'test.ts');
+
+        const errors = result.diagnostics.filter((d) => d.level === 'error');
+        assert.ok(
+            errors.length === 0,
+            'Should work without registry (backward compatible)'
+        );
+        assert.ok(
+            result.code.includes('basicFormCreateForm'),
+            'Should generate createForm function without registry'
+        );
+    });
+
+    test('multiple registry types in same form', () => {
+        const typeRegistryJson = buildRegistryJson([
+            {
+                name: 'Status',
+                kind: 'enum',
+                variants: ['Active', 'Inactive']
+            },
+            {
+                name: 'Address',
+                kind: 'interface',
+                fields: [
+                    { name: 'street', ts_type: 'string' },
+                    { name: 'zip', ts_type: 'string' }
+                ]
+            }
+        ]);
+
+        const code = `
+      /** @derive(Default, Deserialize, Gigaform) */
+      interface CompleteForm {
+        name: string;
+        status: Status;
+        address: Address;
+        age: number;
+      }
+    `;
+        const result = expandSync(withGigaformImport(code), 'test.ts', {
+            typeRegistryJson
+        });
+
+        const errors = result.diagnostics.filter((d) => d.level === 'error');
+        assert.ok(
+            errors.length === 0,
+            `Should have no errors, got: ${errors.map((e) => e.message).join(', ')}`
+        );
+
+        // Count controller types to verify differentiation
+        const code_ = result.code;
+        const selectCount = (code_.match(/type: "select"/g) || []).length;
+        const fieldsetCount = (code_.match(/type: "fieldset"/g) || []).length;
+        const textCount = (code_.match(/type: "text"/g) || []).length;
+        const numberCount = (code_.match(/type: "number"/g) || []).length;
+
+        assert.ok(selectCount >= 1, 'Should have at least 1 select (Status enum)');
+        assert.ok(
+            fieldsetCount >= 1,
+            'Should have at least 1 fieldset (Address interface)'
+        );
+        assert.ok(textCount >= 1, 'Should have at least 1 text (name string)');
+        assert.ok(numberCount >= 1, 'Should have at least 1 number (age number)');
     });
 });
 
