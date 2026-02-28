@@ -209,6 +209,22 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
             let ctx: macroforge_ts::ts_syn::MacroContextIR = macroforge_ts::serde_json::from_str(&context_json)
                 .map_err(|e| macroforge_ts::napi::Error::new(macroforge_ts::napi::Status::InvalidArg, format!("Invalid context JSON: {}", e)))?;
 
+            // Install source imports into the registry so macros can look up
+            // where types are imported from (e.g., for cross-module variant imports).
+            if !ctx.source_imports.is_empty() {
+                macroforge_ts::ts_syn::import_registry::with_registry_mut(|r| {
+                    r.install_source_imports(ctx.source_imports.clone());
+                });
+            }
+
+            // Install foreign type configs so macros can match foreign types
+            // and use their default/serialize/deserialize expressions.
+            if let Some(ref config) = ctx.config {
+                macroforge_ts::host::import_registry::set_foreign_types(
+                    config.foreign_types.clone(),
+                );
+            }
+
             // Create TsStream from context
             let input = macroforge_ts::ts_syn::TsStream::with_context(&ctx.target_source, &ctx.file_name, ctx.clone())
                 .map_err(|e| macroforge_ts::napi::Error::new(macroforge_ts::napi::Status::GenericFailure, format!("Failed to create TsStream: {:?}", e)))?;
@@ -216,6 +232,10 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
             // Run the macro
             let macro_impl = #struct_ident;
             let result = macro_impl.run(input);
+
+            // Clear the registry and foreign types after the macro has run to avoid leaking state
+            macroforge_ts::ts_syn::import_registry::clear_registry();
+            macroforge_ts::host::import_registry::clear_foreign_types();
 
             // Serialize result to JSON
             macroforge_ts::serde_json::to_string(&result)
