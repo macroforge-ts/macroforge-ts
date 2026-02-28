@@ -381,21 +381,17 @@ fn try_expand_file_builtin(
     types_out: Option<PathBuf>,
     print: bool,
 ) -> Result<bool> {
-    use macroforge_ts::host::MacroforgeConfig;
+    use macroforge_ts::host::MacroforgeConfigLoader;
 
-    // Load config if available (for foreign types support)
-    // Search from the input file's directory to find the correct project config
-    if let Ok(Some(config)) = MacroforgeConfig::find_from_path(&input) {
-        macroforge_ts::builtin::serde::set_foreign_types(config.foreign_types.clone());
+    // Load config if available (for foreign types support).
+    // Foreign types are set on the registry before expansion; source imports
+    // are built from the AST during prepare_expansion_context / expand_source.
+    if let Ok(Some(config)) = MacroforgeConfigLoader::find_from_path(&input) {
+        macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
     }
 
     let source = fs::read_to_string(&input)
         .with_context(|| format!("failed to read {}", input.display()))?;
-
-    // Extract import sources and aliases from the input file for foreign type matching
-    let (import_sources, import_aliases) = extract_import_sources_from_code(&source, &input);
-    macroforge_ts::builtin::serde::set_import_sources(import_sources);
-    macroforge_ts::builtin::serde::set_import_aliases(import_aliases);
 
     let expander = MacroExpander::new().context("failed to initialize macro expander")?;
 
@@ -403,10 +399,9 @@ fn try_expand_file_builtin(
         .expand_source(&source, &input.display().to_string())
         .map_err(|err| anyhow!(format!("{err:?}")))?;
 
-    // Clean up thread-local state
-    macroforge_ts::builtin::serde::clear_foreign_types();
-    macroforge_ts::builtin::serde::clear_import_sources();
-    macroforge_ts::builtin::serde::clear_import_aliases();
+    // Single cleanup
+    macroforge_ts::host::clear_registry();
+    macroforge_ts::host::clear_foreign_types();
 
     if !expansion.changed {
         return Ok(false);
@@ -419,97 +414,7 @@ fn try_expand_file_builtin(
     Ok(true)
 }
 
-/// Extract import sources and aliases from TypeScript/TSX code.
-///
-/// Returns:
-/// - A map of import name -> source module, e.g., `{"DateTime": "effect"}`
-/// - A map of local alias -> original name, e.g., `{"EffectOption": "Option"}`
-fn extract_import_sources_from_code(
-    source: &str,
-    filepath: &Path,
-) -> (
-    std::collections::HashMap<String, String>,
-    std::collections::HashMap<String, String>,
-) {
-    use swc_core::{
-        common::{FileName, SourceMap, sync::Lrc},
-        ecma::{
-            ast::{EsVersion, ImportSpecifier, ModuleDecl, ModuleExportName, ModuleItem, Program},
-            parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer},
-        },
-    };
-
-    let mut sources = std::collections::HashMap::new();
-    let mut aliases = std::collections::HashMap::new();
-
-    let cm: Lrc<SourceMap> = Default::default();
-    let fm = cm.new_source_file(
-        FileName::Custom(filepath.display().to_string()).into(),
-        source.to_string(),
-    );
-
-    let is_tsx = filepath.extension().map(|e| e == "tsx").unwrap_or(false);
-
-    let lexer = Lexer::new(
-        Syntax::Typescript(TsSyntax {
-            tsx: is_tsx,
-            decorators: true,
-            ..Default::default()
-        }),
-        EsVersion::latest(),
-        StringInput::from(&*fm),
-        None,
-    );
-
-    let mut parser = Parser::new_from(lexer);
-    let program = match parser.parse_program() {
-        Ok(p) => p,
-        Err(_) => return (sources, aliases),
-    };
-
-    let module = match &program {
-        Program::Module(m) => m,
-        Program::Script(_) => return (sources, aliases),
-    };
-
-    for item in &module.body {
-        if let ModuleItem::ModuleDecl(ModuleDecl::Import(import)) = item {
-            let source_module = String::from_utf8_lossy(import.src.value.as_bytes()).to_string();
-
-            for specifier in &import.specifiers {
-                match specifier {
-                    ImportSpecifier::Named(named) => {
-                        let local = named.local.sym.to_string();
-                        sources.insert(local.clone(), source_module.clone());
-
-                        // Track aliases: if there's an imported name different from local
-                        if let Some(imported) = &named.imported {
-                            let original_name = match imported {
-                                ModuleExportName::Ident(ident) => ident.sym.to_string(),
-                                ModuleExportName::Str(s) => {
-                                    String::from_utf8_lossy(s.value.as_bytes()).to_string()
-                                }
-                            };
-                            if original_name != local {
-                                aliases.insert(local, original_name);
-                            }
-                        }
-                    }
-                    ImportSpecifier::Default(default) => {
-                        let local = default.local.sym.to_string();
-                        sources.insert(local, source_module.clone());
-                    }
-                    ImportSpecifier::Namespace(ns) => {
-                        let local = ns.local.sym.to_string();
-                        sources.insert(local, source_module.clone());
-                    }
-                }
-            }
-        }
-    }
-
-    (sources, aliases)
-}
+// extract_import_sources_from_code deleted — absorbed into ImportRegistry::from_module
 
 /// Attempts to expand macros by invoking Node.js with the macroforge npm package.
 ///
@@ -1129,24 +1034,29 @@ mod tests {
     }
 
     // =========================================================================
-    // extract_import_sources_from_code tests
+    // ImportRegistry::from_module tests (replaces extract_import_sources_from_code)
     // =========================================================================
+
+    /// Parse code into a Module and build an ImportRegistry.
+    fn registry_from_code(code: &str) -> macroforge_ts_syn::ImportRegistry {
+        use macroforge_ts_syn::parse_ts_module;
+        let module = parse_ts_module(code).expect("failed to parse");
+        macroforge_ts_syn::ImportRegistry::from_module(&module, code)
+    }
 
     #[test]
     fn test_extract_imports_named() {
         let code = r#"import { DateTime } from 'effect';"#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
     }
 
     #[test]
     fn test_extract_imports_multiple_named() {
         let code = r#"import { DateTime, Duration } from 'effect';"#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
         assert_eq!(imports.get("Duration"), Some(&"effect".to_string()));
     }
@@ -1154,45 +1064,40 @@ mod tests {
     #[test]
     fn test_extract_imports_type_import() {
         let code = r#"import type { DateTime } from 'effect';"#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
     }
 
     #[test]
     fn test_extract_imports_default() {
         let code = r#"import React from 'react';"#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("React"), Some(&"react".to_string()));
     }
 
     #[test]
     fn test_extract_imports_namespace() {
         let code = r#"import * as Effect from 'effect';"#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("Effect"), Some(&"effect".to_string()));
     }
 
     #[test]
     fn test_extract_imports_scoped_package() {
         let code = r#"import { Schema } from '@effect/schema';"#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("Schema"), Some(&"@effect/schema".to_string()));
     }
 
     #[test]
     fn test_extract_imports_subpath() {
         let code = r#"import { DateTime } from 'effect/DateTime';"#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(
             imports.get("DateTime"),
             Some(&"effect/DateTime".to_string())
@@ -1206,9 +1111,8 @@ mod tests {
             import { ZonedDateTime } from '@internationalized/date';
             import type { Site } from './site.svelte';
         "#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
         assert_eq!(
             imports.get("ZonedDateTime"),
@@ -1219,27 +1123,22 @@ mod tests {
 
     #[test]
     fn test_extract_imports_tsx_file() {
+        // Note: parse_ts_module uses tsx mode by default in macroforge_ts_syn
         let code = r#"
             import React from 'react';
             import { useState } from 'react';
-
-            export function App() {
-                return <div>Hello</div>;
-            }
         "#;
-        let path = Path::new("test.tsx");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("React"), Some(&"react".to_string()));
         assert_eq!(imports.get("useState"), Some(&"react".to_string()));
     }
 
     #[test]
     fn test_extract_imports_empty_code() {
-        let code = "";
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let code = "export {};";
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert!(imports.is_empty());
     }
 
@@ -1249,15 +1148,13 @@ mod tests {
             const x = 1;
             export function foo() { return x; }
         "#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert!(imports.is_empty());
     }
 
     #[test]
     fn test_extract_imports_with_jsdoc_decorators() {
-        // JSDoc-style decorators (comments) don't affect parsing
         let code = r#"
             import type { DateTime } from 'effect';
 
@@ -1268,15 +1165,13 @@ mod tests {
                 begins: DateTime.DateTime;
             }
         "#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
     }
 
     #[test]
     fn test_extract_imports_with_real_decorators() {
-        // Real TypeScript decorators on classes
         let code = r#"
             import type { DateTime } from 'effect';
             import { Component } from '@angular/core';
@@ -1286,31 +1181,28 @@ mod tests {
                 begins: DateTime.DateTime;
             }
         "#;
-        let path = Path::new("test.ts");
-        let (imports, _aliases) = extract_import_sources_from_code(code, path);
-
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
         assert_eq!(imports.get("DateTime"), Some(&"effect".to_string()));
         assert_eq!(imports.get("Component"), Some(&"@angular/core".to_string()));
     }
 
     #[test]
     fn test_extract_imports_with_alias() {
-        // Test that import aliases are correctly extracted
         let code = r#"
             import type { Option as EffectOption } from 'effect/Option';
             import { DateTime as EffectDateTime } from 'effect';
         "#;
-        let path = Path::new("test.ts");
-        let (imports, aliases) = extract_import_sources_from_code(code, path);
+        let r = registry_from_code(code);
+        let imports = r.source_modules();
+        let aliases = r.aliases();
 
-        // Check sources
         assert_eq!(
             imports.get("EffectOption"),
             Some(&"effect/Option".to_string())
         );
         assert_eq!(imports.get("EffectDateTime"), Some(&"effect".to_string()));
 
-        // Check aliases (local name -> original name)
         assert_eq!(aliases.get("EffectOption"), Some(&"Option".to_string()));
         assert_eq!(aliases.get("EffectDateTime"), Some(&"DateTime".to_string()));
     }
