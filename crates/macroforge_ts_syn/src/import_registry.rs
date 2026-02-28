@@ -21,7 +21,7 @@ use swc_core::ecma::ast::{
 // ============================================================================
 
 /// A single import from the user's source file.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SourceImport {
     /// The module this identifier is imported from (e.g., `"effect"`, `"./types"`)
     pub source_module: String,
@@ -62,7 +62,7 @@ pub struct GeneratedImport {
 /// 1. **Source imports** — pre-populated from the user's AST during lowering. Read-only after creation.
 /// 2. **Config imports** — from `macroforge.config.ts` import statements. Name → module.
 /// 3. **Generated imports** — accumulated during macro expansion via `request_*` methods.
-#[derive(Debug)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ImportRegistry {
     /// Source file imports. Key: local_name → entry.
     /// Pre-populated from AST during lowering. Never modified after initial construction.
