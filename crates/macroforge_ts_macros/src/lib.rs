@@ -209,13 +209,9 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
             let ctx: macroforge_ts::ts_syn::MacroContextIR = macroforge_ts::serde_json::from_str(&context_json)
                 .map_err(|e| macroforge_ts::napi::Error::new(macroforge_ts::napi::Status::InvalidArg, format!("Invalid context JSON: {}", e)))?;
 
-            // Install source imports into the registry so macros can look up
-            // where types are imported from (e.g., for cross-module variant imports).
-            if !ctx.source_imports.is_empty() {
-                macroforge_ts::ts_syn::import_registry::with_registry_mut(|r| {
-                    r.install_source_imports(ctx.source_imports.clone());
-                });
-            }
+            // Install the full import registry so external macros have access to
+            // source imports, config imports, and previously generated imports.
+            macroforge_ts::ts_syn::import_registry::install_registry(ctx.import_registry.clone());
 
             // Install foreign type configs so macros can match foreign types
             // and use their default/serialize/deserialize expressions.
