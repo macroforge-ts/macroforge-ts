@@ -119,9 +119,13 @@ use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
 use ignore::WalkBuilder;
 use macroforge_ts::host::{MacroExpander, MacroExpansion};
+use notify_debouncer_full::{new_debouncer, notify::RecursiveMode};
+use sha2::{Digest, Sha256};
 use std::{
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
+    time::Duration,
 };
 
 /// Command-line interface for Macroforge TypeScript macro utilities.
@@ -190,6 +194,32 @@ enum Command {
         #[arg(long)]
         fail_on_warnings: bool,
     },
+    /// Watch source files and maintain a .macroforge/cache for fast Vite dev mode.
+    ///
+    /// Expands macros in all TypeScript files and writes results to .macroforge/cache/.
+    /// When a file changes, only that file is re-expanded. When the config changes,
+    /// all files are re-expanded. Use with `vite dev` for instant macro expansion.
+    Watch {
+        /// Root directory to watch (defaults to cwd)
+        root: Option<PathBuf>,
+        /// Use only built-in Rust macros (faster, no Node.js)
+        #[arg(long)]
+        builtin_only: bool,
+        /// Debounce interval in milliseconds
+        #[arg(long, default_value = "100")]
+        debounce_ms: u64,
+    },
+    /// Build the .macroforge/cache once and exit.
+    ///
+    /// Same as `watch` but without the file-watching loop — expands all TypeScript
+    /// files, writes the cache, then exits. Useful in CI or as a pre-build step.
+    Cache {
+        /// Root directory to cache (defaults to cwd)
+        root: Option<PathBuf>,
+        /// Use only built-in Rust macros (faster, no Node.js)
+        #[arg(long)]
+        builtin_only: bool,
+    },
 }
 
 fn main() -> Result<()> {
@@ -229,6 +259,12 @@ fn main() -> Result<()> {
             output,
             fail_on_warnings,
         } => run_svelte_check_wrapper(workspace, tsconfig, output, fail_on_warnings),
+        Command::Watch {
+            root,
+            builtin_only,
+            debounce_ms,
+        } => run_watch(root, builtin_only, debounce_ms),
+        Command::Cache { root, builtin_only } => run_cache(root, builtin_only),
     }
 }
 
@@ -1134,6 +1170,545 @@ fn get_expanded_path(input: &Path) -> PathBuf {
     } else {
         dir.join(format!("{}.expanded", basename))
     }
+}
+
+// =============================================================================
+// Watch command — cache structs and implementation
+// =============================================================================
+
+/// Cache manifest stored at `.macroforge/cache/manifest.json`.
+///
+/// Tracks expanded file hashes so the Vite plugin (and subsequent watch runs)
+/// can skip re-expansion for unchanged files.
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CacheManifest {
+    /// Macroforge crate version — full invalidation on upgrade.
+    version: String,
+    /// SHA-256 of the macroforge config file content (or `"none"`).
+    config_hash: String,
+    /// Whether this cache was built with `--builtin-only` (no external macros).
+    #[serde(default)]
+    builtin_only: bool,
+    /// Per-file entries keyed by path relative to project root.
+    entries: HashMap<String, CacheEntry>,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CacheEntry {
+    /// SHA-256 of the source file content.
+    source_hash: String,
+    /// Whether the file contained macros.
+    has_macros: bool,
+}
+
+/// Computes SHA-256 of a byte slice, returned as lowercase hex.
+fn content_hash(content: &[u8]) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(content);
+    format!("{:x}", hasher.finalize())
+}
+
+/// Config file names searched in order of precedence.
+const CONFIG_FILE_NAMES: &[&str] = &[
+    "macroforge.config.ts",
+    "macroforge.config.mts",
+    "macroforge.config.js",
+    "macroforge.config.mjs",
+    "macroforge.config.cjs",
+];
+
+/// Computes a hash of the macroforge config file for cache invalidation.
+fn compute_config_hash(root: &Path) -> String {
+    for name in CONFIG_FILE_NAMES {
+        let path = root.join(name);
+        if let Ok(content) = fs::read(&path) {
+            return content_hash(&content);
+        }
+    }
+    "none".to_string()
+}
+
+impl CacheManifest {
+    fn new(version: String, config_hash: String, builtin_only: bool) -> Self {
+        Self {
+            version,
+            config_hash,
+            builtin_only,
+            entries: HashMap::new(),
+        }
+    }
+
+    fn load(cache_dir: &Path) -> Option<Self> {
+        let manifest_path = cache_dir.join("manifest.json");
+        let content = fs::read_to_string(manifest_path).ok()?;
+        serde_json::from_str(&content).ok()
+    }
+
+    /// Atomically saves the manifest via write-to-tmp + rename.
+    fn save(&self, cache_dir: &Path) -> Result<()> {
+        fs::create_dir_all(cache_dir)?;
+        let manifest_path = cache_dir.join("manifest.json");
+        let json = serde_json::to_string_pretty(self)?;
+
+        // Atomic write: temp file in same directory, then rename
+        let tmp_path = cache_dir.join(".manifest.json.tmp");
+        fs::write(&tmp_path, &json)?;
+        fs::rename(&tmp_path, &manifest_path)?;
+        Ok(())
+    }
+}
+
+/// Writes expanded code to `<cache_dir>/<rel_path>.cache`.
+fn write_cache_file(cache_dir: &Path, rel_path: &str, expanded_code: &str) -> Result<()> {
+    let cache_path = cache_dir.join(format!("{rel_path}.cache"));
+    if let Some(parent) = cache_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    fs::write(&cache_path, expanded_code)?;
+    Ok(())
+}
+
+/// Returns true if `path` is a `.ts` or `.tsx` file that should be processed.
+fn is_watchable_ts_file(path: &Path, root: &Path) -> bool {
+    let ext = path.extension().and_then(|e| e.to_str());
+    if !matches!(ext, Some("ts" | "tsx")) {
+        return false;
+    }
+    let name = path.file_name().unwrap_or_default().to_string_lossy();
+    if name.ends_with(".d.ts") || name.contains(".expanded.") {
+        return false;
+    }
+    let rel = path.strip_prefix(root).unwrap_or(path).to_string_lossy();
+    if rel.contains("node_modules") || rel.contains(".macroforge") {
+        return false;
+    }
+    true
+}
+
+/// Collects all watchable TypeScript files under `root`.
+fn collect_watch_files(root: &Path) -> Vec<PathBuf> {
+    let mut files = Vec::new();
+    let walker = WalkBuilder::new(root)
+        .hidden(false)
+        .git_ignore(true)
+        .git_global(false)
+        .git_exclude(false)
+        .build();
+
+    for entry in walker.flatten() {
+        let path = entry.path();
+        if path.is_file() && is_watchable_ts_file(path, root) {
+            files.push(path.to_path_buf());
+        }
+    }
+    files
+}
+
+/// Expands a single file for caching purposes.
+///
+/// Returns `Ok(Some(expanded_code))` if macros were found and expanded,
+/// `Ok(None)` if no macros present, or `Err` on failure.
+fn expand_for_cache(path: &Path, source: &str, builtin_only: bool) -> Result<Option<String>> {
+    // Quick check: skip files without @derive
+    if !source.contains("@derive") {
+        return Ok(None);
+    }
+
+    if builtin_only {
+        use macroforge_ts::host::MacroforgeConfigLoader;
+
+        if let Ok(Some(config)) = MacroforgeConfigLoader::find_from_path(path) {
+            macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
+        }
+
+        let expander = MacroExpander::new().context("failed to initialize macro expander")?;
+        let expansion = expander
+            .expand_source(source, &path.display().to_string())
+            .map_err(|err| anyhow!(format!("{err:?}")))?;
+
+        macroforge_ts::host::clear_registry();
+        macroforge_ts::host::clear_foreign_types();
+
+        if !expansion.changed {
+            return Ok(None);
+        }
+
+        Ok(Some(expansion.code))
+    } else {
+        expand_for_cache_via_node(path, source)
+    }
+}
+
+/// Expands a file via Node.js for caching, returning the expanded code.
+fn expand_for_cache_via_node(path: &Path, source: &str) -> Result<Option<String>> {
+    let script = r#"
+const { createRequire } = require('module');
+const fs = require('fs');
+const path = require('path');
+const cwdRequire = createRequire(process.cwd() + '/package.json');
+
+let expandSync, loadConfig;
+try {
+  const macroforge = cwdRequire('macroforge');
+  expandSync = macroforge.expandSync;
+  loadConfig = macroforge.loadConfig;
+} catch {
+  console.log(JSON.stringify({ fallback: true }));
+  process.exit(0);
+}
+
+const inputPath = process.argv[2];
+const code = fs.readFileSync(inputPath, 'utf8');
+
+const CONFIG_FILES = [
+  'macroforge.config.ts', 'macroforge.config.mts',
+  'macroforge.config.js', 'macroforge.config.mjs', 'macroforge.config.cjs',
+];
+
+function findConfigFile(startDir) {
+  let dir = startDir;
+  while (dir) {
+    for (const configName of CONFIG_FILES) {
+      const configPath = path.join(dir, configName);
+      if (fs.existsSync(configPath)) return configPath;
+    }
+    if (fs.existsSync(path.join(dir, 'package.json'))) break;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+
+try {
+  const inputDir = path.dirname(path.resolve(inputPath));
+  const configPath = findConfigFile(inputDir);
+  let options = {};
+  if (configPath) {
+    const configContent = fs.readFileSync(configPath, 'utf8');
+    loadConfig(configContent, configPath);
+    options.configPath = configPath;
+  }
+  const result = expandSync(code, inputPath, options);
+  const hasExpansions = result.sourceMapping?.generatedRegions?.length > 0;
+  console.log(JSON.stringify({
+    code: result.code,
+    hasExpansions,
+  }));
+} catch (err) {
+  console.error('Error:', err.message);
+  process.exit(1);
+}
+"#;
+
+    let mut temp_dir = std::env::temp_dir();
+    temp_dir.push("macroforge-cli");
+    fs::create_dir_all(&temp_dir)?;
+    let script_path = temp_dir.join("cache-expand-wrapper.js");
+    fs::write(&script_path, script)?;
+
+    let cwd = std::env::current_dir()?;
+    let output = std::process::Command::new("node")
+        .arg(&script_path)
+        .arg(path)
+        .current_dir(&cwd)
+        .output()
+        .context("failed to run node expand wrapper")?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("node expansion failed: {}", stderr);
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let result: serde_json::Value =
+        serde_json::from_str(&stdout).context("failed to parse expansion result")?;
+
+    // Check for fallback marker
+    if result
+        .get("fallback")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false)
+    {
+        // Fall back to builtin
+        return expand_for_cache(path, source, true);
+    }
+
+    let has_expansions = result["hasExpansions"].as_bool().unwrap_or(false);
+    if !has_expansions {
+        return Ok(None);
+    }
+
+    let code = result["code"]
+        .as_str()
+        .ok_or_else(|| anyhow!("missing 'code' in expansion result"))?;
+
+    Ok(Some(code.to_string()))
+}
+
+/// Warm the cache: expand all files and save the manifest. Returns the manifest for reuse.
+fn warm_cache(
+    label: &str,
+    root: &Path,
+    cache_dir: &Path,
+    manifest: &mut CacheManifest,
+    builtin_only: bool,
+) -> Result<()> {
+    eprintln!("[macroforge {label}] Warming cache for {}", root.display());
+    let start = std::time::Instant::now();
+    let files = collect_watch_files(root);
+    let mut expanded_count = 0u32;
+
+    for file_path in &files {
+        let rel_path = file_path
+            .strip_prefix(root)
+            .unwrap_or(file_path)
+            .to_string_lossy()
+            .to_string();
+
+        let source = match fs::read_to_string(file_path) {
+            Ok(s) => s,
+            Err(_) => continue,
+        };
+        let source_hash = content_hash(source.as_bytes());
+
+        // Skip if already cached with matching hash
+        if let Some(entry) = manifest.entries.get(&rel_path)
+            && entry.source_hash == source_hash
+        {
+            continue;
+        }
+
+        match expand_for_cache(file_path, &source, builtin_only) {
+            Ok(Some(expanded)) => {
+                if let Err(e) = write_cache_file(cache_dir, &rel_path, &expanded) {
+                    eprintln!("  [!] {} — write failed: {}", rel_path, e);
+                    continue;
+                }
+                manifest.entries.insert(
+                    rel_path.clone(),
+                    CacheEntry {
+                        source_hash,
+                        has_macros: true,
+                    },
+                );
+                expanded_count += 1;
+                eprintln!("  [+] {}", rel_path);
+            }
+            Ok(None) => {
+                manifest.entries.insert(
+                    rel_path,
+                    CacheEntry {
+                        source_hash,
+                        has_macros: false,
+                    },
+                );
+            }
+            Err(e) => {
+                eprintln!("  [!] {} — {}", rel_path, e);
+            }
+        }
+    }
+
+    manifest.save(cache_dir)?;
+    let elapsed = start.elapsed();
+    eprintln!(
+        "[macroforge {label}] Cache warm: {} files expanded in {:.1}s ({} total files)",
+        expanded_count,
+        elapsed.as_secs_f64(),
+        files.len()
+    );
+    Ok(())
+}
+
+/// Resolves root path, creates cache dir reference, and loads/creates the manifest.
+fn init_cache(
+    root: Option<PathBuf>,
+    label: &str,
+    builtin_only: bool,
+) -> Result<(PathBuf, PathBuf, CacheManifest)> {
+    let root = root
+        .unwrap_or_else(|| PathBuf::from("."))
+        .canonicalize()
+        .unwrap_or_else(|_| PathBuf::from("."));
+    let cache_dir = root.join(".macroforge").join("cache");
+    let version = env!("CARGO_PKG_VERSION").to_string();
+    let config_hash = compute_config_hash(&root);
+
+    let manifest = CacheManifest::load(&cache_dir)
+        .filter(|m| {
+            m.version == version && m.config_hash == config_hash && m.builtin_only == builtin_only
+        })
+        .unwrap_or_else(|| {
+            eprintln!("[macroforge {label}] Creating fresh cache");
+            CacheManifest::new(version.clone(), config_hash.clone(), builtin_only)
+        });
+
+    Ok((root, cache_dir, manifest))
+}
+
+/// Build the .macroforge/cache once and exit.
+fn run_cache(root: Option<PathBuf>, builtin_only: bool) -> Result<()> {
+    let (root, cache_dir, mut manifest) = init_cache(root, "cache", builtin_only)?;
+    warm_cache("cache", &root, &cache_dir, &mut manifest, builtin_only)?;
+    Ok(())
+}
+
+/// Main watch loop: warm cache then watch for changes.
+fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Result<()> {
+    let (root, cache_dir, mut manifest) = init_cache(root, "watch", builtin_only)?;
+    warm_cache("watch", &root, &cache_dir, &mut manifest, builtin_only)?;
+    eprintln!("[macroforge watch] Watching for changes... (Ctrl+C to stop)");
+
+    // --- Watch loop ---
+    let (tx, rx) = std::sync::mpsc::channel();
+    let mut debouncer = new_debouncer(Duration::from_millis(debounce_ms), None, tx)
+        .context("failed to create file watcher")?;
+
+    debouncer
+        .watch(&root, RecursiveMode::Recursive)
+        .context("failed to start watching")?;
+
+    for result in rx {
+        match result {
+            Ok(events) => {
+                let mut config_changed = false;
+                let mut changed_files: Vec<PathBuf> = Vec::new();
+
+                for event in &events {
+                    for event_path in &event.paths {
+                        // Check for config file changes
+                        if let Some(name) = event_path.file_name() {
+                            let name_str = name.to_string_lossy();
+                            if name_str.starts_with("macroforge.config.") {
+                                config_changed = true;
+                                continue;
+                            }
+                        }
+
+                        if is_watchable_ts_file(event_path, &root) {
+                            changed_files.push(event_path.clone());
+                        }
+                    }
+                }
+
+                changed_files.sort();
+                changed_files.dedup();
+
+                if config_changed {
+                    let new_config_hash = compute_config_hash(&root);
+                    manifest.config_hash = new_config_hash;
+                    manifest.entries.clear();
+                    eprintln!("[macroforge watch] Config changed, re-expanding all files...");
+
+                    let all_files = collect_watch_files(&root);
+                    let mut count = 0u32;
+                    for file_path in &all_files {
+                        let rel_path = file_path
+                            .strip_prefix(&root)
+                            .unwrap_or(file_path)
+                            .to_string_lossy()
+                            .to_string();
+
+                        let source = match fs::read_to_string(file_path) {
+                            Ok(s) => s,
+                            Err(_) => continue,
+                        };
+                        let source_hash = content_hash(source.as_bytes());
+
+                        match expand_for_cache(file_path, &source, builtin_only) {
+                            Ok(Some(expanded)) => {
+                                let _ = write_cache_file(&cache_dir, &rel_path, &expanded);
+                                manifest.entries.insert(
+                                    rel_path.clone(),
+                                    CacheEntry {
+                                        source_hash,
+                                        has_macros: true,
+                                    },
+                                );
+                                count += 1;
+                                eprintln!("  [~] {}", rel_path);
+                            }
+                            Ok(None) => {
+                                manifest.entries.insert(
+                                    rel_path,
+                                    CacheEntry {
+                                        source_hash,
+                                        has_macros: false,
+                                    },
+                                );
+                            }
+                            Err(e) => eprintln!("  [!] {} — {}", rel_path, e),
+                        }
+                    }
+                    manifest.save(&cache_dir)?;
+                    eprintln!("[macroforge watch] Re-expanded {} files", count);
+                } else if !changed_files.is_empty() {
+                    for file_path in &changed_files {
+                        let rel_path = file_path
+                            .strip_prefix(&root)
+                            .unwrap_or(file_path)
+                            .to_string_lossy()
+                            .to_string();
+
+                        let source = match fs::read_to_string(file_path) {
+                            Ok(s) => s,
+                            Err(_) => {
+                                // File was deleted
+                                manifest.entries.remove(&rel_path);
+                                // Remove cached file too
+                                let cache_path = cache_dir.join(format!("{rel_path}.cache"));
+                                let _ = fs::remove_file(&cache_path);
+                                eprintln!("  [-] {} (removed)", rel_path);
+                                continue;
+                            }
+                        };
+
+                        let source_hash = content_hash(source.as_bytes());
+                        let file_start = std::time::Instant::now();
+
+                        match expand_for_cache(file_path, &source, builtin_only) {
+                            Ok(Some(expanded)) => {
+                                let _ = write_cache_file(&cache_dir, &rel_path, &expanded);
+                                manifest.entries.insert(
+                                    rel_path.clone(),
+                                    CacheEntry {
+                                        source_hash,
+                                        has_macros: true,
+                                    },
+                                );
+                                let elapsed = file_start.elapsed();
+                                eprintln!("  [~] {} ({}ms)", rel_path, elapsed.as_millis());
+                            }
+                            Ok(None) => {
+                                manifest.entries.insert(
+                                    rel_path.clone(),
+                                    CacheEntry {
+                                        source_hash,
+                                        has_macros: false,
+                                    },
+                                );
+                                eprintln!("  [.] {} (no macros)", rel_path);
+                            }
+                            Err(e) => {
+                                eprintln!("  [!] {} — {}", rel_path, e);
+                            }
+                        }
+                    }
+                    manifest.save(&cache_dir)?;
+                }
+            }
+            Err(errors) => {
+                for e in errors {
+                    eprintln!("[macroforge watch] Watch error: {}", e);
+                }
+            }
+        }
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]
