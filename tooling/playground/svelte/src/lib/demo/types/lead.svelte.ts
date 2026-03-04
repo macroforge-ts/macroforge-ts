@@ -45,7 +45,7 @@ export interface Lead {
     favorite: boolean;
     /** @hiddenController({}) */
     dateAdded: string | null;
-    /** @comboboxController({ label: "Tax Rate", allowCustom: false, fetchUrls: ["/api/tax-rates"] }) */
+    /** @comboboxController({ label: "Tax Rate", allowCustom: false, fetchUrls: ["/api/tax_rates"] }) */
     taxRate: (string | TaxRate) | null;
     /** @radioGroupController({ label: "Sector", options: [{ label: "Residential", value: "Residential" }, { label: "Commercial", value: "Commercial" }], orientation: "horizontal" }) */
     /** @default("Residential") */
