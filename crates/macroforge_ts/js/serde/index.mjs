@@ -21,6 +21,7 @@ var DeserializeContext;
     const registry = /* @__PURE__ */ new Map();
     const patches = [];
     const toFreeze = [];
+    const errors = [];
     return {
       register: (id, instance) => {
         registry.set(id, instance);
@@ -57,7 +58,13 @@ var DeserializeContext;
         for (const obj of toFreeze) {
           Object.freeze(obj);
         }
-      }
+      },
+      pushErrors: (errs) => {
+        for (const e of errs) {
+          errors.push(e);
+        }
+      },
+      getErrors: () => errors
     };
   }
   DeserializeContext2.create = create;

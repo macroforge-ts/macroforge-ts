@@ -184,6 +184,20 @@ export interface DeserializeContext {
    * Call this after `applyPatches()` if immutable objects are desired.
    */
   freezeAll(): void;
+
+  /**
+   * Pushes validation errors onto the context.
+   * Called by `deserializeWithContext` instead of throwing.
+   * @param errors - Array of field validation errors to accumulate
+   */
+  pushErrors(errors: FieldError[]): void;
+
+  /**
+   * Returns all accumulated validation errors.
+   * Called by the wrapper `deserialize` function after processing.
+   * @returns Array of all accumulated field errors
+   */
+  getErrors(): FieldError[];
 }
 
 /**
@@ -221,6 +235,7 @@ export namespace DeserializeContext {
       { target: any; prop: string | number; refId: number }
     > = [];
     const toFreeze: object[] = [];
+    const errors: FieldError[] = [];
 
     return {
       register: (id, instance) => {
@@ -265,6 +280,14 @@ export namespace DeserializeContext {
           Object.freeze(obj);
         }
       },
+
+      pushErrors: (errs) => {
+        for (const e of errs) {
+          errors.push(e);
+        }
+      },
+
+      getErrors: () => errors,
     };
   }
 }
