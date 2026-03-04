@@ -48,6 +48,13 @@ export class GreaterThanBigIntValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -99,9 +106,6 @@ export class GreaterThanBigIntValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             GreaterThanBigIntValidator.prototype
         ) as GreaterThanBigIntValidator;
@@ -110,18 +114,16 @@ export class GreaterThanBigIntValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_value = obj['value'] as bigint;
-            if (__raw_value <= 0n) {
+            const __convertedVal = ((v) => BigInt(v as string))(obj['value']);
+            if (__convertedVal <= 0n) {
                 errors.push({
                     field: 'value',
                     message: 'GreaterThanBigIntValidator.value must be greater than 0'
                 });
             }
-            instance.value = __raw_value;
+            instance.value = __convertedVal;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -257,6 +259,13 @@ export class GreaterThanOrEqualToBigIntValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -309,9 +318,6 @@ export class GreaterThanOrEqualToBigIntValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             GreaterThanOrEqualToBigIntValidator.prototype
         ) as GreaterThanOrEqualToBigIntValidator;
@@ -320,19 +326,17 @@ export class GreaterThanOrEqualToBigIntValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_value = obj['value'] as bigint;
-            if (__raw_value < 0n) {
+            const __convertedVal = ((v) => BigInt(v as string))(obj['value']);
+            if (__convertedVal < 0n) {
                 errors.push({
                     field: 'value',
                     message:
                         'GreaterThanOrEqualToBigIntValidator.value must be greater than or equal to 0'
                 });
             }
-            instance.value = __raw_value;
+            instance.value = __convertedVal;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -469,6 +473,13 @@ export class LessThanBigIntValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -520,9 +531,6 @@ export class LessThanBigIntValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             LessThanBigIntValidator.prototype
         ) as LessThanBigIntValidator;
@@ -531,18 +539,16 @@ export class LessThanBigIntValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_value = obj['value'] as bigint;
-            if (__raw_value >= 1000n) {
+            const __convertedVal = ((v) => BigInt(v as string))(obj['value']);
+            if (__convertedVal >= 1000n) {
                 errors.push({
                     field: 'value',
                     message: 'LessThanBigIntValidator.value must be less than 1000'
                 });
             }
-            instance.value = __raw_value;
+            instance.value = __convertedVal;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -675,6 +681,13 @@ export class LessThanOrEqualToBigIntValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -727,9 +740,6 @@ export class LessThanOrEqualToBigIntValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             LessThanOrEqualToBigIntValidator.prototype
         ) as LessThanOrEqualToBigIntValidator;
@@ -738,19 +748,17 @@ export class LessThanOrEqualToBigIntValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_value = obj['value'] as bigint;
-            if (__raw_value > 1000n) {
+            const __convertedVal = ((v) => BigInt(v as string))(obj['value']);
+            if (__convertedVal > 1000n) {
                 errors.push({
                     field: 'value',
                     message:
                         'LessThanOrEqualToBigIntValidator.value must be less than or equal to 1000'
                 });
             }
-            instance.value = __raw_value;
+            instance.value = __convertedVal;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -887,6 +895,13 @@ export class BetweenBigIntValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -938,27 +953,22 @@ export class BetweenBigIntValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(BetweenBigIntValidator.prototype) as BetweenBigIntValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_value = obj['value'] as bigint;
-            if (__raw_value < 0n || __raw_value > 1000n) {
+            const __convertedVal = ((v) => BigInt(v as string))(obj['value']);
+            if (__convertedVal < 0n || __convertedVal > 1000n) {
                 errors.push({
                     field: 'value',
                     message: 'BetweenBigIntValidator.value must be between 0 and 1000'
                 });
             }
-            instance.value = __raw_value;
+            instance.value = __convertedVal;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -1091,6 +1101,13 @@ export class PositiveBigIntValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -1142,9 +1159,6 @@ export class PositiveBigIntValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             PositiveBigIntValidator.prototype
         ) as PositiveBigIntValidator;
@@ -1153,18 +1167,16 @@ export class PositiveBigIntValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_value = obj['value'] as bigint;
-            if (__raw_value <= 0n) {
+            const __convertedVal = ((v) => BigInt(v as string))(obj['value']);
+            if (__convertedVal <= 0n) {
                 errors.push({
                     field: 'value',
                     message: 'PositiveBigIntValidator.value must be positive'
                 });
             }
-            instance.value = __raw_value;
+            instance.value = __convertedVal;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -1297,6 +1309,13 @@ export class NonNegativeBigIntValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -1348,9 +1367,6 @@ export class NonNegativeBigIntValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             NonNegativeBigIntValidator.prototype
         ) as NonNegativeBigIntValidator;
@@ -1359,18 +1375,16 @@ export class NonNegativeBigIntValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_value = obj['value'] as bigint;
-            if (__raw_value < 0n) {
+            const __convertedVal = ((v) => BigInt(v as string))(obj['value']);
+            if (__convertedVal < 0n) {
                 errors.push({
                     field: 'value',
                     message: 'NonNegativeBigIntValidator.value must be non-negative'
                 });
             }
-            instance.value = __raw_value;
+            instance.value = __convertedVal;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -1503,6 +1517,13 @@ export class NegativeBigIntValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -1554,9 +1575,6 @@ export class NegativeBigIntValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             NegativeBigIntValidator.prototype
         ) as NegativeBigIntValidator;
@@ -1565,18 +1583,16 @@ export class NegativeBigIntValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_value = obj['value'] as bigint;
-            if (__raw_value >= 0n) {
+            const __convertedVal = ((v) => BigInt(v as string))(obj['value']);
+            if (__convertedVal >= 0n) {
                 errors.push({
                     field: 'value',
                     message: 'NegativeBigIntValidator.value must be negative'
                 });
             }
-            instance.value = __raw_value;
+            instance.value = __convertedVal;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -1709,6 +1725,13 @@ export class NonPositiveBigIntValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -1760,9 +1783,6 @@ export class NonPositiveBigIntValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             NonPositiveBigIntValidator.prototype
         ) as NonPositiveBigIntValidator;
@@ -1771,18 +1791,16 @@ export class NonPositiveBigIntValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_value = obj['value'] as bigint;
-            if (__raw_value > 0n) {
+            const __convertedVal = ((v) => BigInt(v as string))(obj['value']);
+            if (__convertedVal > 0n) {
                 errors.push({
                     field: 'value',
                     message: 'NonPositiveBigIntValidator.value must be non-positive'
                 });
             }
-            instance.value = __raw_value;
+            instance.value = __convertedVal;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 

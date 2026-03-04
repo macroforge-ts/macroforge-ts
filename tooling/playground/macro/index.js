@@ -53,9 +53,9 @@ const isMuslFromReport = () => {
 
 const isMuslFromChildProcess = () => {
     try {
-        return require('child_process').execSync('ldd --version', { encoding: 'utf8' }).includes(
-            'musl'
-        );
+        return require('child_process').execSync('ldd --version', {
+            encoding: 'utf8'
+        }).includes('musl');
     } catch (e) {
         // If we reach this case, we don't know if the system is musl or not, so is better to just fallback to false
         return false;
@@ -117,7 +117,9 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(new Error(`Unsupported architecture on Android ${process.arch}`));
+            loadErrors.push(
+                new Error(`Unsupported architecture on Android ${process.arch}`)
+            );
         }
     } else if (process.platform === 'win32') {
         if (process.arch === 'x64') {
@@ -218,7 +220,9 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(new Error(`Unsupported architecture on Windows: ${process.arch}`));
+            loadErrors.push(
+                new Error(`Unsupported architecture on Windows: ${process.arch}`)
+            );
         }
     } else if (process.platform === 'darwin') {
         try {
@@ -231,7 +235,8 @@ function requireNative() {
             const bindingPackageVersion =
                 require('@playground/macro-darwin-universal/package.json').version;
             if (
-                bindingPackageVersion !== '0.0.1' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK &&
+                bindingPackageVersion !== '0.0.1' &&
+                process.env.NAPI_RS_ENFORCE_VERSION_CHECK &&
                 process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0'
             ) {
                 throw new Error(
@@ -289,7 +294,9 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(new Error(`Unsupported architecture on macOS: ${process.arch}`));
+            loadErrors.push(
+                new Error(`Unsupported architecture on macOS: ${process.arch}`)
+            );
         }
     } else if (process.platform === 'freebsd') {
         if (process.arch === 'x64') {
@@ -339,7 +346,9 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(new Error(`Unsupported architecture on FreeBSD: ${process.arch}`));
+            loadErrors.push(
+                new Error(`Unsupported architecture on FreeBSD: ${process.arch}`)
+            );
         }
     } else if (process.platform === 'linux') {
         if (process.arch === 'x64') {
@@ -448,7 +457,8 @@ function requireNative() {
                 try {
                     const binding = require('@playground/macro-linux-arm-musleabihf');
                     const bindingPackageVersion =
-                        require('@playground/macro-linux-arm-musleabihf/package.json').version;
+                        require('@playground/macro-linux-arm-musleabihf/package.json')
+                            .version;
                     if (
                         bindingPackageVersion !== '0.0.1' &&
                         process.env.NAPI_RS_ENFORCE_VERSION_CHECK &&
@@ -471,7 +481,8 @@ function requireNative() {
                 try {
                     const binding = require('@playground/macro-linux-arm-gnueabihf');
                     const bindingPackageVersion =
-                        require('@playground/macro-linux-arm-gnueabihf/package.json').version;
+                        require('@playground/macro-linux-arm-gnueabihf/package.json')
+                            .version;
                     if (
                         bindingPackageVersion !== '0.0.1' &&
                         process.env.NAPI_RS_ENFORCE_VERSION_CHECK &&
@@ -496,7 +507,8 @@ function requireNative() {
                 try {
                     const binding = require('@playground/macro-linux-loong64-musl');
                     const bindingPackageVersion =
-                        require('@playground/macro-linux-loong64-musl/package.json').version;
+                        require('@playground/macro-linux-loong64-musl/package.json')
+                            .version;
                     if (
                         bindingPackageVersion !== '0.0.1' &&
                         process.env.NAPI_RS_ENFORCE_VERSION_CHECK &&
@@ -544,7 +556,8 @@ function requireNative() {
                 try {
                     const binding = require('@playground/macro-linux-riscv64-musl');
                     const bindingPackageVersion =
-                        require('@playground/macro-linux-riscv64-musl/package.json').version;
+                        require('@playground/macro-linux-riscv64-musl/package.json')
+                            .version;
                     if (
                         bindingPackageVersion !== '0.0.1' &&
                         process.env.NAPI_RS_ENFORCE_VERSION_CHECK &&
@@ -629,7 +642,9 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(new Error(`Unsupported architecture on Linux: ${process.arch}`));
+            loadErrors.push(
+                new Error(`Unsupported architecture on Linux: ${process.arch}`)
+            );
         }
     } else if (process.platform === 'openharmony') {
         if (process.arch === 'arm64') {
@@ -702,11 +717,15 @@ function requireNative() {
                 loadErrors.push(e);
             }
         } else {
-            loadErrors.push(new Error(`Unsupported architecture on OpenHarmony: ${process.arch}`));
+            loadErrors.push(
+                new Error(`Unsupported architecture on OpenHarmony: ${process.arch}`)
+            );
         }
     } else {
         loadErrors.push(
-            new Error(`Unsupported OS: ${process.platform}, architecture: ${process.arch}`)
+            new Error(
+                `Unsupported OS: ${process.platform}, architecture: ${process.arch}`
+            )
         );
     }
 }
@@ -736,7 +755,9 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
         }
     }
     if (process.env.NAPI_RS_FORCE_WASI === 'error' && !wasiBinding) {
-        const error = new Error('WASI binding not found and NAPI_RS_FORCE_WASI is set to error');
+        const error = new Error(
+            'WASI binding not found and NAPI_RS_FORCE_WASI is set to error'
+        );
         error.cause = wasiBindingError;
         throw error;
     }
@@ -761,31 +782,58 @@ if (!nativeBinding) {
 
 module.exports = nativeBinding;
 module.exports.NativeMapper = nativeBinding.NativeMapper;
+module.exports.NativeMapper = nativeBinding.NativeMapper;
+module.exports.NativePlugin = nativeBinding.NativePlugin;
 module.exports.NativePlugin = nativeBinding.NativePlugin;
 module.exports.PositionMapper = nativeBinding.PositionMapper;
 module.exports.NativePositionMapper = nativeBinding.NativePositionMapper;
+module.exports.PositionMapper = nativeBinding.PositionMapper;
+module.exports.NativePositionMapper = nativeBinding.NativePositionMapper;
+module.exports.__macroforgeDebugDescriptors = nativeBinding.__macroforgeDebugDescriptors;
 module.exports.__macroforgeDebugDescriptors = nativeBinding.__macroforgeDebugDescriptors;
 module.exports.__macroforgeDebugGetModules = nativeBinding.__macroforgeDebugGetModules;
+module.exports.__macroforgeDebugGetModules = nativeBinding.__macroforgeDebugGetModules;
+module.exports.__macroforgeDebugLookup = nativeBinding.__macroforgeDebugLookup;
 module.exports.__macroforgeDebugLookup = nativeBinding.__macroforgeDebugLookup;
 module.exports.__macroforgeGetMacroNames = nativeBinding.__macroforgeGetMacroNames;
+module.exports.__macroforgeGetMacroNames = nativeBinding.__macroforgeGetMacroNames;
+module.exports.__macroforgeGetManifest = nativeBinding.__macroforgeGetManifest;
 module.exports.__macroforgeGetManifest = nativeBinding.__macroforgeGetManifest;
 module.exports.__macroforgeIsMacroPackage = nativeBinding.__macroforgeIsMacroPackage;
+module.exports.__macroforgeIsMacroPackage = nativeBinding.__macroforgeIsMacroPackage;
+module.exports.__macroforgeRunClone = nativeBinding.__macroforgeRunClone;
 module.exports.__macroforgeRunClone = nativeBinding.__macroforgeRunClone;
 module.exports.__macroforgeRunDebug = nativeBinding.__macroforgeRunDebug;
+module.exports.__macroforgeRunDebug = nativeBinding.__macroforgeRunDebug;
+module.exports.__macroforgeRunDefault = nativeBinding.__macroforgeRunDefault;
 module.exports.__macroforgeRunDefault = nativeBinding.__macroforgeRunDefault;
 module.exports.__macroforgeRunDeserialize = nativeBinding.__macroforgeRunDeserialize;
+module.exports.__macroforgeRunDeserialize = nativeBinding.__macroforgeRunDeserialize;
+module.exports.__macroforgeRunHash = nativeBinding.__macroforgeRunHash;
 module.exports.__macroforgeRunHash = nativeBinding.__macroforgeRunHash;
 module.exports.__macroforgeRunOrd = nativeBinding.__macroforgeRunOrd;
+module.exports.__macroforgeRunOrd = nativeBinding.__macroforgeRunOrd;
+module.exports.__macroforgeRunPartialEq = nativeBinding.__macroforgeRunPartialEq;
 module.exports.__macroforgeRunPartialEq = nativeBinding.__macroforgeRunPartialEq;
 module.exports.__macroforgeRunPartialOrd = nativeBinding.__macroforgeRunPartialOrd;
+module.exports.__macroforgeRunPartialOrd = nativeBinding.__macroforgeRunPartialOrd;
+module.exports.__macroforgeRunSerialize = nativeBinding.__macroforgeRunSerialize;
 module.exports.__macroforgeRunSerialize = nativeBinding.__macroforgeRunSerialize;
 module.exports.checkSyntax = nativeBinding.checkSyntax;
+module.exports.checkSyntax = nativeBinding.checkSyntax;
+module.exports.clearConfigCache = nativeBinding.clearConfigCache;
 module.exports.clearConfigCache = nativeBinding.clearConfigCache;
 module.exports.Derive = nativeBinding.Derive;
+module.exports.Derive = nativeBinding.Derive;
+module.exports.expandSync = nativeBinding.expandSync;
 module.exports.expandSync = nativeBinding.expandSync;
 module.exports.loadConfig = nativeBinding.loadConfig;
+module.exports.loadConfig = nativeBinding.loadConfig;
+module.exports.parseImportSources = nativeBinding.parseImportSources;
 module.exports.parseImportSources = nativeBinding.parseImportSources;
 module.exports.scanProjectSync = nativeBinding.scanProjectSync;
+module.exports.scanProjectSync = nativeBinding.scanProjectSync;
+module.exports.transformSync = nativeBinding.transformSync;
 module.exports.transformSync = nativeBinding.transformSync;
 module.exports.__macroforgeRunGigaform = nativeBinding.__macroforgeRunGigaform;
 module.exports.__macroforgeRunInspect = nativeBinding.__macroforgeRunInspect;

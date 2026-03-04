@@ -48,6 +48,13 @@ export class ValidDateValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -99,16 +106,13 @@ export class ValidDateValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(ValidDateValidator.prototype) as ValidDateValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_date = obj['date'] as Date;
+            const __raw_date = obj['date'] as string | Date;
             {
                 const __dateVal = typeof __raw_date === 'string'
                     ? new Date(__raw_date)
@@ -122,9 +126,7 @@ export class ValidDateValidator {
                 instance.date = __dateVal;
             }
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -257,6 +259,13 @@ export class GreaterThanDateValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -308,9 +317,6 @@ export class GreaterThanDateValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             GreaterThanDateValidator.prototype
         ) as GreaterThanDateValidator;
@@ -319,7 +325,7 @@ export class GreaterThanDateValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_date = obj['date'] as Date;
+            const __raw_date = obj['date'] as string | Date;
             {
                 const __dateVal = typeof __raw_date === 'string'
                     ? new Date(__raw_date)
@@ -333,9 +339,7 @@ export class GreaterThanDateValidator {
                 instance.date = __dateVal;
             }
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -468,6 +472,13 @@ export class GreaterThanOrEqualToDateValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -520,9 +531,6 @@ export class GreaterThanOrEqualToDateValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             GreaterThanOrEqualToDateValidator.prototype
         ) as GreaterThanOrEqualToDateValidator;
@@ -531,7 +539,7 @@ export class GreaterThanOrEqualToDateValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_date = obj['date'] as Date;
+            const __raw_date = obj['date'] as string | Date;
             {
                 const __dateVal = typeof __raw_date === 'string'
                     ? new Date(__raw_date)
@@ -546,9 +554,7 @@ export class GreaterThanOrEqualToDateValidator {
                 instance.date = __dateVal;
             }
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -683,6 +689,13 @@ export class LessThanDateValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -734,16 +747,13 @@ export class LessThanDateValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(LessThanDateValidator.prototype) as LessThanDateValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_date = obj['date'] as Date;
+            const __raw_date = obj['date'] as string | Date;
             {
                 const __dateVal = typeof __raw_date === 'string'
                     ? new Date(__raw_date)
@@ -757,9 +767,7 @@ export class LessThanDateValidator {
                 instance.date = __dateVal;
             }
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -892,6 +900,13 @@ export class LessThanOrEqualToDateValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -944,9 +959,6 @@ export class LessThanOrEqualToDateValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             LessThanOrEqualToDateValidator.prototype
         ) as LessThanOrEqualToDateValidator;
@@ -955,7 +967,7 @@ export class LessThanOrEqualToDateValidator {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_date = obj['date'] as Date;
+            const __raw_date = obj['date'] as string | Date;
             {
                 const __dateVal = typeof __raw_date === 'string'
                     ? new Date(__raw_date)
@@ -970,9 +982,7 @@ export class LessThanOrEqualToDateValidator {
                 instance.date = __dateVal;
             }
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -1107,6 +1117,13 @@ export class BetweenDateValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -1158,16 +1175,13 @@ export class BetweenDateValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(BetweenDateValidator.prototype) as BetweenDateValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_date = obj['date'] as Date;
+            const __raw_date = obj['date'] as string | Date;
             {
                 const __dateVal = typeof __raw_date === 'string'
                     ? new Date(__raw_date)
@@ -1185,9 +1199,7 @@ export class BetweenDateValidator {
                 instance.date = __dateVal;
             }
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
