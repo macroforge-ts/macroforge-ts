@@ -12,11 +12,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const playgroundRoot = path.resolve(__dirname, '..');
-// Use MACROFORGE_ROOT env var for repo root
-if (!process.env.MACROFORGE_ROOT) {
-    throw new Error('MACROFORGE_ROOT environment variable must be set');
-}
-export const repoRoot = process.env.MACROFORGE_ROOT;
+// Derive repo root from file location (tests/ -> playground/ -> tooling/ -> repo root)
+export const repoRoot = process.env.MACROFORGE_ROOT ||
+    path.resolve(__dirname, '..', '..', '..');
 export const vanillaRoot = path.join(playgroundRoot, 'vanilla');
 export const svelteRoot = path.join(playgroundRoot, 'svelte');
 export const rootConfigPath = path.join(repoRoot, 'macroforge.json');
