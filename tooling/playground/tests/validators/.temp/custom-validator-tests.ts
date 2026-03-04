@@ -58,6 +58,13 @@ export class CustomNumberValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -109,9 +116,6 @@ export class CustomNumberValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(CustomNumberValidator.prototype) as CustomNumberValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -127,9 +131,7 @@ export class CustomNumberValidator {
             }
             instance.evenNumber = __raw_evenNumber;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -262,6 +264,13 @@ export class CustomStringValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -313,9 +322,6 @@ export class CustomStringValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(CustomStringValidator.prototype) as CustomStringValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -332,9 +338,7 @@ export class CustomStringValidator {
             }
             instance.username = __raw_username;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -469,6 +473,13 @@ export class CustomWithMessageValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -520,9 +531,6 @@ export class CustomWithMessageValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             CustomWithMessageValidator.prototype
         ) as CustomWithMessageValidator;
@@ -540,9 +548,7 @@ export class CustomWithMessageValidator {
             }
             instance.evenNumber = __raw_evenNumber;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 

@@ -48,6 +48,13 @@ export class MaxItemsValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -99,9 +106,6 @@ export class MaxItemsValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(MaxItemsValidator.prototype) as MaxItemsValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -119,9 +123,7 @@ export class MaxItemsValidator {
                 instance.items = __raw_items as string[];
             }
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -254,6 +256,13 @@ export class MinItemsValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -305,9 +314,6 @@ export class MinItemsValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(MinItemsValidator.prototype) as MinItemsValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -325,9 +331,7 @@ export class MinItemsValidator {
                 instance.items = __raw_items as string[];
             }
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -460,6 +464,13 @@ export class ItemsCountValidator {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -511,9 +522,6 @@ export class ItemsCountValidator {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(ItemsCountValidator.prototype) as ItemsCountValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -531,9 +539,7 @@ export class ItemsCountValidator {
                 instance.items = __raw_items as string[];
             }
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 

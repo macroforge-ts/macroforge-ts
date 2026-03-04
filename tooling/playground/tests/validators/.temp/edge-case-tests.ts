@@ -48,6 +48,13 @@ export class MultipleValidatorsTest {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -99,9 +106,6 @@ export class MultipleValidatorsTest {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(MultipleValidatorsTest.prototype) as MultipleValidatorsTest;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -129,9 +133,7 @@ export class MultipleValidatorsTest {
             }
             instance.text = __raw_text;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -288,6 +290,13 @@ export class CustomMessageTest {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -339,9 +348,6 @@ export class CustomMessageTest {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(CustomMessageTest.prototype) as CustomMessageTest;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -357,9 +363,7 @@ export class CustomMessageTest {
             }
             instance.email = __raw_email;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -492,6 +496,13 @@ export class MixedValidatorsTest {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -543,9 +554,6 @@ export class MixedValidatorsTest {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(MixedValidatorsTest.prototype) as MixedValidatorsTest;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -567,9 +575,7 @@ export class MixedValidatorsTest {
             }
             instance.email = __raw_email;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -714,6 +720,13 @@ export class CombinedStringValidatorsTest {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -766,9 +779,6 @@ export class CombinedStringValidatorsTest {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             CombinedStringValidatorsTest.prototype
         ) as CombinedStringValidatorsTest;
@@ -798,9 +808,7 @@ export class CombinedStringValidatorsTest {
             }
             instance.username = __raw_username;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
@@ -959,6 +967,13 @@ export class CombinedNumberValidatorsTest {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return {
+                    success: false,
+                    errors: __errors
+                };
+            }
             return {
                 success: true,
                 value: resultOrRef
@@ -1011,9 +1026,6 @@ export class CombinedNumberValidatorsTest {
                 message: 'missing required field'
             });
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
         const instance = Object.create(
             CombinedNumberValidatorsTest.prototype
         ) as CombinedNumberValidatorsTest;
@@ -1043,9 +1055,7 @@ export class CombinedNumberValidatorsTest {
             }
             instance.score = __raw_score;
         }
-        if (errors.length > 0) {
-            throw new __mf_DeserializeError(errors);
-        }
+        ctx.pushErrors(errors);
         return instance;
     }
 
