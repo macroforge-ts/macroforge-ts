@@ -457,6 +457,13 @@ impl MacroExpander {
         // Get import sources from the registry (no redundant collect_import_sources call)
         let import_sources = crate::host::import_registry::with_registry(|r| r.source_modules());
 
+        if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+            eprintln!(
+                "[DEBUG] import_sources for {file_name}: {:?}",
+                import_sources
+            );
+        }
+
         let mut collector = PatchCollector::new();
         let mut diagnostics = Vec::new();
 
@@ -767,10 +774,28 @@ impl MacroExpander {
                     && result.type_patches.is_empty()
                     && result.tokens.is_none();
 
+                if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                    eprintln!(
+                        "[DEBUG] External loader check for '{}': module_path='{}', no_output={}, is_not_found={}, has_loader={}",
+                        ctx.macro_name,
+                        ctx.module_path,
+                        no_output,
+                        is_macro_not_found(&result),
+                        self.external_loader.is_some(),
+                    );
+                }
+
                 if ctx.module_path != DERIVE_MODULE_PATH
                     && (is_macro_not_found(&result) || no_output)
                     && let Some(loader) = &self.external_loader
                 {
+                    if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                        eprintln!(
+                            "[DEBUG] Invoking external loader for '{}' from '{}'",
+                            ctx.macro_name, ctx.module_path
+                        );
+                    }
+
                     // Pass the full import registry so external macros have
                     // access to source imports, config imports, and generated imports.
                     ctx.import_registry =
@@ -787,9 +812,24 @@ impl MacroExpander {
 
                     match loader.run_macro(&ctx) {
                         Ok(external_result) => {
+                            if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                                eprintln!(
+                                    "[DEBUG] External loader success for '{}': runtime={}, type={}, tokens={:?}",
+                                    ctx.macro_name,
+                                    external_result.runtime_patches.len(),
+                                    external_result.type_patches.len(),
+                                    external_result.tokens.as_ref().map(|t| t.len()),
+                                );
+                            }
                             result = external_result;
                         }
                         Err(err) => {
+                            if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                                eprintln!(
+                                    "[DEBUG] External loader FAILED for '{}': {}",
+                                    ctx.macro_name, err
+                                );
+                            }
                             result.diagnostics.push(Diagnostic {
                                 level: DiagnosticLevel::Error,
                                 message: format!(
@@ -1338,11 +1378,24 @@ impl ExternalMacroLoader {
         let ctx_json =
             serde_json::to_string(ctx).map_err(|e| napi::Error::new(Status::InvalidArg, e))?;
 
+        // Write context JSON to a temp file to avoid OS argument length limits
+        // (E2BIG / "Argument list too long" when the serialized context is large).
+        let ctx_file =
+            std::env::temp_dir().join(format!("macroforge_ctx_{}.json", std::process::id()));
+        std::fs::write(&ctx_file, &ctx_json).map_err(|e| {
+            napi::Error::new(
+                Status::GenericFailure,
+                format!("Failed to write macro context to temp file: {e}"),
+            )
+        })?;
+
         let script = r#"
-const [modulePath, fnName, ctxJson, rootDir] = process.argv.slice(1);
+const [modulePath, fnName, ctxFile, rootDir] = process.argv.slice(1);
 const path = require('path');
 const fs = require('fs');
 const { pathToFileURL } = require('url');
+
+const ctxJson = fs.readFileSync(ctxFile, 'utf8');
 
 const normalizeWorkspaces = (val) =>
   Array.isArray(val) ? val : (val && Array.isArray(val.packages) ? val.packages : []);
@@ -1517,7 +1570,7 @@ const tryImport = async (id) => {
             .arg(script)
             .arg(&ctx.module_path)
             .arg(&fn_name)
-            .arg(&ctx_json)
+            .arg(ctx_file.to_string_lossy().as_ref())
             .arg(self.root_dir.to_string_lossy().as_ref())
             .output()
             .map_err(|e| {
@@ -1526,6 +1579,9 @@ const tryImport = async (id) => {
                     format!("Failed to spawn node for external macro: {e}"),
                 )
             })?;
+
+        // Clean up the temp file
+        let _ = std::fs::remove_file(&ctx_file);
 
         if !child.status.success() {
             let stderr = String::from_utf8_lossy(&child.stderr);

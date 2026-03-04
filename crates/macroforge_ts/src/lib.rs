@@ -80,6 +80,11 @@ pub extern crate napi;
 pub extern crate napi_derive;
 pub extern crate serde_json;
 
+/// Debug logging for external macros.
+/// Writes to `.macroforge/debug.log` relative to the project root.
+/// Use: `macroforge_ts::debug::log("tag", "message")` or `macroforge_ts::debug_log!("tag", "...")`
+pub mod debug;
+
 /// TypeScript syntax types for macro development
 /// Use: `use macroforge_ts::ts_syn::*;`
 pub use macroforge_ts_syn as ts_syn;
