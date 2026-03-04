@@ -291,6 +291,26 @@ fn try_composite_foreign_serialize(ts_type: &str) -> Option<String> {
         } else {
             ("none", core)
         }
+    } else if let Some(rest) = core.strip_prefix("Map<") {
+        if let Some(inner) = rest.strip_suffix('>') {
+            if let Some(comma_pos) = super::find_top_level_comma(inner) {
+                ("map", inner[comma_pos + 1..].trim())
+            } else {
+                ("none", core)
+            }
+        } else {
+            ("none", core)
+        }
+    } else if let Some(rest) = core.strip_prefix("Record<") {
+        if let Some(inner) = rest.strip_suffix('>') {
+            if let Some(comma_pos) = super::find_top_level_comma(inner) {
+                ("record", inner[comma_pos + 1..].trim())
+            } else {
+                ("none", core)
+            }
+        } else {
+            ("none", core)
+        }
     } else {
         ("none", core)
     };
@@ -310,6 +330,18 @@ fn try_composite_foreign_serialize(ts_type: &str) -> Option<String> {
         )),
         (_, _, "set") => Some(format!(
             "(s) => Array.from(s).map(item => ({rewritten})(item))"
+        )),
+        (_, _, "map") if has_null || has_undefined => Some(format!(
+            "(m) => m == null ? null : Object.fromEntries(Array.from(m.entries()).map(([k, v]) => [k, ({rewritten})(v)]))"
+        )),
+        (_, _, "map") => Some(format!(
+            "(m) => Object.fromEntries(Array.from(m.entries()).map(([k, v]) => [k, ({rewritten})(v)]))"
+        )),
+        (_, _, "record") if has_null || has_undefined => Some(format!(
+            "(obj) => obj == null ? null : Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, ({rewritten})(v)]))"
+        )),
+        (_, _, "record") => Some(format!(
+            "(obj) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, ({rewritten})(v)]))"
         )),
         (true, _, "none") => Some(format!("(raw) => raw === null ? null : ({rewritten})(raw)")),
         (_, true, "none") => Some(format!(
