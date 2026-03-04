@@ -615,10 +615,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let fn_serialize_internal_expr_standalone: Expr =
                 fn_serialize_internal_ident.clone().into();
             let mut standalone = ts_template! {
-                /** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
-                export function @{fn_serialize_ident}(value: @{class_ident}): string {
+                /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
+                export function @{fn_serialize_ident}(value: @{class_ident}, keepMetadata?: boolean): string {
                     const ctx = @{serialize_context_expr}.create();
-                    return JSON.stringify(@{fn_serialize_internal_expr_standalone}(value, ctx));
+                    const __raw = @{fn_serialize_internal_expr_standalone}(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "@{tag_field}" || key === "__id" ? undefined : val);
                 }
 
                 /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
@@ -1060,9 +1062,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             // Generate static wrapper methods that delegate to standalone functions
             let fn_serialize_internal_expr_class: Expr = fn_serialize_internal_ident.into();
             let class_body = ts_template!(Within {
-                /** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
-                static serialize(value: @{class_ident}): string {
-                    return @{fn_serialize_expr}(value);
+                /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
+                static serialize(value: @{class_ident}, keepMetadata?: boolean): string {
+                    return @{fn_serialize_expr}(value, keepMetadata);
                 }
 
                 /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
@@ -1277,10 +1279,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let fn_serialize_internal_expr: Expr = fn_serialize_internal_ident.clone().into();
 
             let mut result = ts_template! {
-                /** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
-                export function @{fn_serialize_ident}(value: @{interface_ident}): string {
+                /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
+                export function @{fn_serialize_ident}(value: @{interface_ident}, keepMetadata?: boolean): string {
                     const ctx = @{serialize_context_expr}.create();
-                    return JSON.stringify(@{fn_serialize_internal_expr}(value, ctx));
+                    const __raw = @{fn_serialize_internal_expr}(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "@{tag_field}" || key === "__id" ? undefined : val);
                 }
 
                 /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
@@ -1900,10 +1904,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 let fn_serialize_internal_expr: Expr = fn_serialize_internal_ident.clone().into();
                 let mut result = if let Some(params) = &type_params_ident {
                     ts_template! {
-                        /** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
-                        export function @{fn_serialize_ident}<@{params}>(value: @{full_type_ident}): string {
+                        /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
+                        export function @{fn_serialize_ident}<@{params}>(value: @{full_type_ident}, keepMetadata?: boolean): string {
                             const ctx = @{serialize_context_expr}.create();
-                            return JSON.stringify(@{fn_serialize_internal_expr}(value, ctx));
+                            const __raw = @{fn_serialize_internal_expr}(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "@{tag_field}" || key === "__id" ? undefined : val);
                         }
 
                         /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
@@ -1947,10 +1953,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     }
                 } else {
                     ts_template! {
-                        /** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
-                        export function @{fn_serialize_ident}(value: @{full_type_ident}): string {
+                        /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
+                        export function @{fn_serialize_ident}(value: @{full_type_ident}, keepMetadata?: boolean): string {
                             const ctx = @{serialize_context_expr}.create();
-                            return JSON.stringify(@{fn_serialize_internal_expr}(value, ctx));
+                            const __raw = @{fn_serialize_internal_expr}(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "@{tag_field}" || key === "__id" ? undefined : val);
                         }
 
                         /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
@@ -2000,10 +2008,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 let fn_serialize_internal_expr: Expr = fn_serialize_internal_ident.clone().into();
                 let mut result = if let Some(params) = &type_params_ident {
                     ts_template! {
-                        /** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
-                        export function @{fn_serialize_ident}<@{params}>(value: @{full_type_ident}): string {
+                        /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
+                        export function @{fn_serialize_ident}<@{params}>(value: @{full_type_ident}, keepMetadata?: boolean): string {
                             const ctx = @{serialize_context_expr}.create();
-                            return JSON.stringify(@{fn_serialize_internal_expr}(value, ctx));
+                            const __raw = @{fn_serialize_internal_expr}(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
                         /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
@@ -2016,10 +2026,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     }
                 } else {
                     ts_template! {
-                        /** Serializes a value to a JSON string. @param value - The value to serialize @returns JSON string representation with cycle detection metadata */
-                        export function @{fn_serialize_ident}(value: @{full_type_ident}): string {
+                        /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
+                        export function @{fn_serialize_ident}(value: @{full_type_ident}, keepMetadata?: boolean): string {
                             const ctx = @{serialize_context_expr}.create();
-                            return JSON.stringify(@{fn_serialize_internal_expr}(value, ctx));
+                            const __raw = @{fn_serialize_internal_expr}(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
                         /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */

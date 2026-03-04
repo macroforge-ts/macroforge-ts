@@ -1531,7 +1531,7 @@ class User {
 
         // Check for new serde methods - static methods + standalone functions
         assert!(
-            type_output.contains("static serialize(value: User): string"),
+            type_output.contains("static serialize(value: User, keepMetadata?: boolean): string"),
             "Should have static serialize method"
         );
         assert!(
@@ -1567,7 +1567,7 @@ class Data {
         assert!(
             result
                 .code
-                .contains("static serialize(value: Data): string"),
+                .contains("static serialize(value: Data, keepMetadata?: boolean): string"),
             "Should have static serialize method"
         );
         assert!(
@@ -1848,7 +1848,7 @@ class Config {
         assert!(
             result
                 .code
-                .contains("static serialize(value: Config): string"),
+                .contains("static serialize(value: Config, keepMetadata?: boolean): string"),
             "Should have Serialize's static serialize"
         );
         assert!(
