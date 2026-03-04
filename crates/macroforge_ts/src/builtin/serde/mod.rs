@@ -203,9 +203,84 @@ pub use crate::host::import_registry::{
 // They can be deprecated and inlined later.
 // ============================================================================
 
-/// Get a clone of the current foreign types.
+/// Get a clone of the current foreign types, including built-in global types.
+/// User-configured types are listed first (higher priority), followed by built-ins.
 pub fn get_foreign_types() -> Vec<ForeignTypeConfig> {
-    crate::host::import_registry::with_foreign_types(|ft| ft.to_vec())
+    let mut types = crate::host::import_registry::with_foreign_types(|ft| ft.to_vec());
+    types.extend(get_builtin_foreign_types());
+    types
+}
+
+/// Built-in foreign type registrations for global JS/TS types.
+/// These have empty `from` lists so they skip import validation.
+fn get_builtin_foreign_types() -> Vec<ForeignTypeConfig> {
+    let ft = |name: &str, ser: &str, deser: &str| ForeignTypeConfig {
+        name: name.to_string(),
+        namespace: None,
+        from: vec![],
+        serialize_expr: Some(ser.to_string()),
+        serialize_import: None,
+        deserialize_expr: Some(deser.to_string()),
+        deserialize_import: None,
+        default_expr: None,
+        default_import: None,
+        has_shape_expr: None,
+        has_shape_import: None,
+        aliases: vec![],
+        expression_namespaces: vec![],
+    };
+
+    let typed_array = |name: &str| {
+        ft(
+            name,
+            "(v) => Array.from(v)",
+            &format!("(v) => new {name}(v as number[])"),
+        )
+    };
+
+    let big_typed_array = |name: &str| {
+        ft(
+            name,
+            "(v) => Array.from(v, (n) => String(n))",
+            &format!("(v) => new {name}((v as string[]).map((s) => BigInt(s)))"),
+        )
+    };
+
+    vec![
+        ft("bigint", "(v) => String(v)", "(v) => BigInt(v as string)"),
+        ft("URL", "(v) => v.toString()", "(v) => new URL(v as string)"),
+        ft(
+            "URLSearchParams",
+            "(v) => v.toString()",
+            "(v) => new URLSearchParams(v as string)",
+        ),
+        ft(
+            "RegExp",
+            "(v) => ({ source: v.source, flags: v.flags })",
+            "(v) => new RegExp((v as any).source, (v as any).flags)",
+        ),
+        ft(
+            "Error",
+            "(v) => ({ name: v.name, message: v.message, stack: v.stack })",
+            "(v) => Object.assign(new Error((v as any).message), { name: (v as any).name })",
+        ),
+        typed_array("Int8Array"),
+        typed_array("Uint8Array"),
+        typed_array("Uint8ClampedArray"),
+        typed_array("Int16Array"),
+        typed_array("Uint16Array"),
+        typed_array("Int32Array"),
+        typed_array("Uint32Array"),
+        typed_array("Float32Array"),
+        typed_array("Float64Array"),
+        big_typed_array("BigInt64Array"),
+        big_typed_array("BigUint64Array"),
+        ft(
+            "ArrayBuffer",
+            "(v) => Array.from(new Uint8Array(v))",
+            "(v) => new Uint8Array(v as number[]).buffer",
+        ),
+    ]
 }
 
 /// Naming convention for JSON field renaming
@@ -475,7 +550,35 @@ impl TypeCategory {
             && first_char.is_uppercase()
             && !matches!(
                 trimmed,
-                "String" | "Number" | "Boolean" | "Object" | "Function" | "Symbol"
+                "String"
+                    | "Number"
+                    | "Boolean"
+                    | "Object"
+                    | "Function"
+                    | "Symbol"
+                    | "URL"
+                    | "URLSearchParams"
+                    | "RegExp"
+                    | "Error"
+                    | "EvalError"
+                    | "RangeError"
+                    | "ReferenceError"
+                    | "SyntaxError"
+                    | "TypeError"
+                    | "URIError"
+                    | "Int8Array"
+                    | "Uint8Array"
+                    | "Uint8ClampedArray"
+                    | "Int16Array"
+                    | "Uint16Array"
+                    | "Int32Array"
+                    | "Uint32Array"
+                    | "Float32Array"
+                    | "Float64Array"
+                    | "BigInt64Array"
+                    | "BigUint64Array"
+                    | "ArrayBuffer"
+                    | "DataView"
             )
         {
             // Extract base type name (handle generics like Foo<T>)
@@ -699,6 +802,10 @@ impl TypeCategory {
             };
 
             if name_matches && namespace_matches {
+                // Global types (empty from list) don't need import validation
+                if ft.from.is_empty() {
+                    return ForeignTypeMatch::matched(ft);
+                }
                 // Now validate import source
                 if let Some(actual_source) = import_sources.get(import_name) {
                     // Check if the actual import source matches any configured source
@@ -759,6 +866,10 @@ impl TypeCategory {
                 };
 
                 if alias_name_matches && alias_namespace_matches {
+                    // Global types (empty from list) don't need import validation
+                    if ft.from.is_empty() {
+                        return ForeignTypeMatch::matched(ft);
+                    }
                     // Validate import source against alias's from
                     let import_name = namespace_part.unwrap_or(type_name);
 
@@ -1225,7 +1336,7 @@ fn parse_string_literal(input: &str) -> Option<String> {
 }
 
 /// Find the position of a comma at the top level (not inside <> brackets)
-fn find_top_level_comma(s: &str) -> Option<usize> {
+pub(super) fn find_top_level_comma(s: &str) -> Option<usize> {
     let mut depth = 0;
     for (i, c) in s.char_indices() {
         match c {
