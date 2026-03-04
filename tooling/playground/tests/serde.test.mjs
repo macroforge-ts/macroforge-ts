@@ -30,7 +30,7 @@ describe('Serialize macro expansion', () => {
 
         // New format uses static methods
         assert.ok(
-            result.code.includes('static serialize(value: User)'),
+            result.code.includes('static serialize(value: User, keepMetadata?: boolean)'),
             'Should generate static serialize method'
         );
         assert.ok(
@@ -54,7 +54,7 @@ describe('Serialize macro expansion', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('__type: "Point"'),
+            result.code.includes('"__type": "Point"'),
             'Should include __type marker'
         );
         assert.ok(
@@ -588,7 +588,7 @@ describe('Combined Serialize + Deserialize', () => {
 
         // Serialize methods (now static)
         assert.ok(
-            result.code.includes('static serialize(value: Entity)'),
+            result.code.includes('static serialize(value: Entity, keepMetadata?: boolean)'),
             'Should have static serialize'
         );
         assert.ok(
@@ -785,7 +785,7 @@ describe('Edge cases', () => {
 
         // New format uses static methods
         assert.ok(
-            result.code.includes('static serialize(value: Empty)'),
+            result.code.includes('static serialize(value: Empty, keepMetadata?: boolean)'),
             'Should generate static serialize'
         );
         assert.ok(
@@ -793,7 +793,7 @@ describe('Edge cases', () => {
             'Should generate static deserialize'
         );
         assert.ok(
-            result.code.includes('__type: "Empty"'),
+            result.code.includes('"__type": "Empty"'),
             'Should have type marker'
         );
     });
