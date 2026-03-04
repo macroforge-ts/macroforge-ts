@@ -1,7 +1,7 @@
 [package]
 name = "macroforge_ts"
 description = "TypeScript macro expansion engine - write compile-time macros in Rust"
-version = "0.1.76"
+version = "0.1.77"
 edition = "2024"
 authors = ["macroforge contributors"]
 license = "MIT"
@@ -34,9 +34,9 @@ swc_core = { version = "54.0.0", features = [
 ] }
 
 # Macroforge crates (local development)
-macroforge_ts_syn = "0.1.76"
-macroforge_ts_quote = "0.1.76"
-macroforge_ts_macros = "0.1.76"
+macroforge_ts_syn = "0.1.77"
+macroforge_ts_quote = "0.1.77"
+macroforge_ts_macros = "0.1.77"
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -54,6 +54,11 @@ thiserror = "2.0"
 # CLI
 clap = { version = "4.5", features = ["derive"] }
 ignore = "0.4"
+
+# Watch command
+notify-debouncer-full = "0.4"
+sha2 = "0.10"
+tempfile = "3.13.0"
 
 # Ordered maps
 indexmap = "2.7"
@@ -74,4 +79,3 @@ napi-build = "2.3.1"
 libc = "0.2"
 
 [dev-dependencies]
-tempfile = "3.13.0"
