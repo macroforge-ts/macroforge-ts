@@ -898,3 +898,494 @@ describe('renameAll container option', () => {
         );
     });
 });
+
+// ============================================================================
+// Recursive collection deserialization
+// ============================================================================
+
+describe('Recursive collection deserialization', () => {
+    test('Array<Serializable> recursively deserializes elements in interfaces', () => {
+        const code = `
+      /** @derive(Deserialize) */
+      interface Activity {
+        action: string;
+        timestamp: Date;
+      }
+
+      /** @derive(Deserialize) */
+      interface Account {
+        name: string;
+        activity: Activity[];
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        // Should call activityDeserialize (result-returning) for each array element
+        assert.ok(
+            result.code.includes('activityDeserialize(item)'),
+            'Should recursively deserialize Activity elements via result-returning function'
+        );
+        // Should NOT have a raw `as Activity[]` cast in the Account deserializer
+        // (the Activity[] field should go through .map with deserialization)
+        assert.ok(
+            result.code.includes('__arr'),
+            'Should use __arr intermediate for PendingRef support'
+        );
+        // Activity.timestamp should be parsed as Date
+        assert.ok(
+            result.code.includes(
+                'typeof __raw_timestamp === "string" ? new Date(__raw_timestamp)'
+            ),
+            'Activity.timestamp should be deserialized from ISO string to Date'
+        );
+    });
+
+    test('Array<Serializable> recursively deserializes elements in classes', () => {
+        const code = `
+      /** @derive(Deserialize) */
+      interface Tag {
+        label: string;
+        createdAt: Date;
+      }
+
+      /** @derive(Deserialize) */
+      class Post {
+        title: string;
+        tags: Tag[];
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('tagDeserialize(item)'),
+            'Class template should call tagDeserialize for Tag[] elements'
+        );
+    });
+
+    test('Array<Serializable> recursively deserializes elements in type aliases', () => {
+        const code = `
+      /** @derive(Deserialize) */
+      interface Item {
+        name: string;
+        price: number;
+      }
+
+      /** @derive(Deserialize) */
+      type Cart = {
+        items: Item[];
+      };
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('itemDeserialize(item)'),
+            'Type alias template should call itemDeserialize for Item[] elements'
+        );
+    });
+
+    test('Array<Date> maps ISO strings to Date objects', () => {
+        const code = `
+      /** @derive(Deserialize) */
+      interface Timeline {
+        dates: Date[];
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes(
+                'typeof item === "string" ? new Date(item) : item as Date'
+            ),
+            'Should map Date[] elements from ISO strings'
+        );
+    });
+
+    test('Set<Serializable> recursively deserializes elements', () => {
+        const code = `
+      /** @derive(Deserialize) */
+      interface Permission {
+        resource: string;
+        level: number;
+      }
+
+      /** @derive(Deserialize) */
+      interface Role {
+        permissions: Set<Permission>;
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('permissionDeserialize(item)'),
+            'Should call permissionDeserialize for Set<Permission> elements'
+        );
+        assert.ok(
+            result.code.includes('new Set('),
+            'Should wrap result in new Set()'
+        );
+    });
+
+    test('Map<string, Serializable> recursively deserializes values', () => {
+        const code = `
+      /** @derive(Deserialize) */
+      interface Score {
+        value: number;
+        date: Date;
+      }
+
+      /** @derive(Deserialize) */
+      interface Leaderboard {
+        scores: Map<string, Score>;
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('scoreDeserialize(v)'),
+            'Should call scoreDeserialize for Map values'
+        );
+        assert.ok(
+            result.code.includes('new Map('),
+            'Should wrap result in new Map()'
+        );
+    });
+
+    test('deeply nested: Array<T> where T has Array<U> with Date fields', () => {
+        const code = `
+      /** @derive(Deserialize) */
+      interface Metric {
+        name: string;
+        recordedAt: Date;
+      }
+
+      /** @derive(Deserialize) */
+      interface Report {
+        title: string;
+        metrics: Metric[];
+      }
+
+      /** @derive(Deserialize) */
+      interface Dashboard {
+        reports: Report[];
+        generatedAt: Date;
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        // Dashboard.reports should recursively deserialize Report
+        assert.ok(
+            result.code.includes('reportDeserialize(item)'),
+            'Dashboard should recursively deserialize Report[] elements'
+        );
+        // Report.metrics should recursively deserialize Metric
+        assert.ok(
+            result.code.includes('metricDeserialize(item)'),
+            'Report should recursively deserialize Metric[] elements'
+        );
+        // Metric.recordedAt should parse Date
+        assert.ok(
+            result.code.includes(
+                'typeof __raw_recordedAt === "string" ? new Date(__raw_recordedAt)'
+            ),
+            'Metric.recordedAt should be parsed from ISO string'
+        );
+        // Dashboard.generatedAt should parse Date
+        assert.ok(
+            result.code.includes(
+                'typeof __raw_generatedAt === "string" ? new Date(__raw_generatedAt)'
+            ),
+            'Dashboard.generatedAt should be parsed from ISO string'
+        );
+    });
+
+    test('mixed collection types: Array, Set, Map with serializable values', () => {
+        const code = `
+      /** @derive(Deserialize) */
+      interface Address {
+        street: string;
+        city: string;
+      }
+
+      /** @derive(Deserialize) */
+      interface Company {
+        locations: Address[];
+        branches: Set<Address>;
+        directoryByCity: Map<string, Address>;
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        // Array<Address>
+        assert.ok(
+            result.code.includes('addressDeserialize(item)'),
+            'Array<Address> should recursively deserialize'
+        );
+        // Set<Address>
+        assert.ok(
+            result.code.includes('new Set(') &&
+                result.code.includes('addressDeserialize(item)'),
+            'Set<Address> should recursively deserialize into Set'
+        );
+        // Map<string, Address>
+        assert.ok(
+            result.code.includes('addressDeserialize(v)'),
+            'Map<string, Address> should recursively deserialize values'
+        );
+    });
+
+    test('primitive collections are NOT recursively deserialized', () => {
+        const code = `
+      /** @derive(Deserialize) */
+      interface Simple {
+        names: string[];
+        ids: Set<number>;
+        labels: Map<string, string>;
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        // string[] should be a direct cast, no DeserializeWithContext
+        assert.ok(
+            result.code.includes('as string[]'),
+            'string[] should use direct cast'
+        );
+        assert.ok(
+            !result.code.includes('DeserializeWithContext(item'),
+            'Primitive arrays should NOT call DeserializeWithContext on elements'
+        );
+    });
+});
+
+// ============================================================================
+// Built-in type serde tests (bigint, URL, RegExp, TypedArrays, etc.)
+// ============================================================================
+
+describe('Built-in type serde', () => {
+    test('bigint field uses String/BigInt conversion', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface Counter { count: bigint; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('String(v)'),
+            'Should serialize bigint with String(v)'
+        );
+        assert.ok(
+            result.code.includes('BigInt(v as string)'),
+            'Should deserialize bigint with BigInt()'
+        );
+    });
+
+    test('URL field uses toString/new URL conversion', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface Endpoint { url: URL; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('v.toString()'),
+            'Should serialize URL with toString()'
+        );
+        assert.ok(
+            result.code.includes('new URL(v as string)'),
+            'Should deserialize URL with new URL()'
+        );
+    });
+
+    test('RegExp field uses source/flags serialization', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface Rule { pattern: RegExp; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('v.source') && result.code.includes('v.flags'),
+            'Should serialize RegExp with source and flags'
+        );
+        assert.ok(
+            result.code.includes('new RegExp('),
+            'Should deserialize RegExp with new RegExp()'
+        );
+    });
+
+    test('Uint8Array field uses Array.from/new Uint8Array', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface Buffer { data: Uint8Array; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('Array.from(v)'),
+            'Should serialize Uint8Array with Array.from()'
+        );
+        assert.ok(
+            result.code.includes('new Uint8Array(v as number[])'),
+            'Should deserialize Uint8Array with new Uint8Array()'
+        );
+    });
+
+    test('URL[] composite uses map with toString/new URL', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface Links { urls: URL[]; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('.map(') && result.code.includes('v.toString()'),
+            'Should serialize URL[] by mapping toString()'
+        );
+        assert.ok(
+            result.code.includes('.map(') &&
+                result.code.includes('new URL(v as string)'),
+            'Should deserialize URL[] by mapping new URL()'
+        );
+    });
+
+    test('Set<URL> composite uses Array.from + map / new Set + map', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface BookmarkSet { urls: Set<URL>; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('Array.from(s)') &&
+                result.code.includes('v.toString()'),
+            'Should serialize Set<URL> with Array.from and toString()'
+        );
+        assert.ok(
+            result.code.includes('new Set(') &&
+                result.code.includes('new URL(v as string)'),
+            'Should deserialize Set<URL> with new Set and new URL()'
+        );
+    });
+
+    test('Map<string, URL> composite uses entries + map', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface UrlMap { endpoints: Map<string, URL>; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('m.entries()') &&
+                result.code.includes('v.toString()'),
+            'Should serialize Map<string, URL> by mapping entries'
+        );
+        assert.ok(
+            result.code.includes('new Map(') &&
+                result.code.includes('new URL(v as string)'),
+            'Should deserialize Map<string, URL> with new Map and new URL()'
+        );
+    });
+
+    test('bigint | null nullable uses null check + String/BigInt', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface OptCounter { count: bigint | null; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('=== null ? null') &&
+                result.code.includes('String(v)'),
+            'Should serialize bigint | null with null check and String()'
+        );
+        assert.ok(
+            result.code.includes('=== null ? null') &&
+                result.code.includes('BigInt(v as string)'),
+            'Should deserialize bigint | null with null check and BigInt()'
+        );
+    });
+
+    test('Error field uses name/message/stack serialization', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface ErrorLog { err: Error; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('v.name') && result.code.includes('v.message'),
+            'Should serialize Error with name and message'
+        );
+        assert.ok(
+            result.code.includes('new Error('),
+            'Should deserialize Error with new Error()'
+        );
+    });
+
+    test('URLSearchParams field uses toString/new URLSearchParams', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface QueryConfig { params: URLSearchParams; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('v.toString()'),
+            'Should serialize URLSearchParams with toString()'
+        );
+        assert.ok(
+            result.code.includes('new URLSearchParams(v as string)'),
+            'Should deserialize URLSearchParams with new URLSearchParams()'
+        );
+    });
+
+    test('ArrayBuffer field uses Uint8Array intermediary', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface BinaryData { buf: ArrayBuffer; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('new Uint8Array(v)') &&
+                result.code.includes('Array.from('),
+            'Should serialize ArrayBuffer via Uint8Array + Array.from()'
+        );
+        assert.ok(
+            result.code.includes('new Uint8Array(v as number[])') &&
+                result.code.includes('.buffer'),
+            'Should deserialize ArrayBuffer via new Uint8Array().buffer'
+        );
+    });
+
+    test('built-in types are not misclassified as Serializable', () => {
+        const code = `
+      /** @derive(Serialize) */
+      interface Config { endpoint: URL; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            !result.code.includes('urlSerializeWithContext'),
+            'URL should NOT generate urlSerializeWithContext (was being misclassified as Serializable)'
+        );
+    });
+
+    test('Record<string, URL> composite uses Object.entries + map', () => {
+        const code = `
+      /** @derive(Serialize, Deserialize) */
+      interface UrlDict { links: Record<string, URL>; }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('Object.entries(obj)') &&
+                result.code.includes('v.toString()'),
+            'Should serialize Record<string, URL> by mapping entries'
+        );
+        assert.ok(
+            result.code.includes('Object.entries(raw as Record<string, unknown>)') &&
+                result.code.includes('new URL(v as string)'),
+            'Should deserialize Record<string, URL> with Object.entries and new URL()'
+        );
+    });
+});
