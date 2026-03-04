@@ -31,6 +31,7 @@
  *     typesOutputDir: ".macroforge/types",  // Types output dir (default: ".macroforge/types")
  *     emitMetadata: true,         // Emit metadata JSON (default: true)
  *     metadataOutputDir: ".macroforge/meta", // Metadata output dir (default: ".macroforge/meta")
+ *     devCache: true,             // Disk cache for dev mode (default: true)
  *   },
  * };
  * ```
@@ -39,6 +40,7 @@
  */
 
 import { createRequire } from "node:module";
+import { createHash } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import {
@@ -329,9 +331,16 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
 export async function macroforge() {
   /**
    * Reference to the loaded Macroforge Rust binary module.
-   * @type {{ expandSync: Function, loadConfig?: (content: string, filepath: string) => any } | undefined}
+   * @type {{ expandSync: Function, loadConfig?: (content: string, filepath: string) => any, scanProjectSync?: Function } | undefined}
    */
   let rustTransformer;
+
+  /**
+   * Cached type registry JSON from project scanning.
+   * Built during `buildStart` and passed to every `expandSync` call.
+   * @type {string | undefined}
+   */
+  let typeRegistryJson;
 
   // Load the Rust binary first
   try {
@@ -366,6 +375,8 @@ export async function macroforge() {
   let emitMetadata = true;
   /** @type {string} */
   let metadataOutputDir = ".macroforge/meta";
+  /** @type {boolean} */
+  let devCacheEnabled = true;
 
   // Load vite-specific options from the config file
   if (macroConfig.configPath) {
@@ -387,6 +398,9 @@ export async function macroforge() {
         if (viteConfig.metadataOutputDir !== undefined) {
           metadataOutputDir = viteConfig.metadataOutputDir;
         }
+        if (viteConfig.devCache !== undefined) {
+          devCacheEnabled = viteConfig.devCache;
+        }
       }
     } catch (error) {
       throw new Error(
@@ -398,6 +412,20 @@ export async function macroforge() {
   /** @type {string} */
   let projectRoot;
 
+  // --- Dev cache state ---
+  /** @type {boolean} */
+  let isDevMode = false;
+  /** @type {string | undefined} */
+  let cacheDir;
+  /** @type {{ version: string, configHash: string, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null} */
+  let cacheManifest = null;
+  /** @type {string} */
+  let macroforgeVersion = "unknown";
+  /** @type {boolean} */
+  let cacheManifestDirty = false;
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  let manifestFlushTimer;
+
   /**
    * Ensures a directory exists, creating it recursively if necessary.
    * @param {string} dir
@@ -405,6 +433,185 @@ export async function macroforge() {
   function ensureDir(dir) {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
+    }
+  }
+
+  // --- Dev cache helpers ---
+
+  /**
+   * Computes SHA-256 hash of a string, returned as hex.
+   * @param {string} content
+   * @returns {string}
+   */
+  function contentHash(content) {
+    return createHash("sha256").update(content).digest("hex");
+  }
+
+  /**
+   * Reads the installed macroforge NAPI package version.
+   * Resolves the module's main entry point, then reads package.json
+   * from the same directory (avoids exports-map restrictions).
+   * @returns {string}
+   */
+  function getMacroforgeVersion() {
+    try {
+      const req = createRequire(process.cwd() + "/");
+      const mainPath = req.resolve("macroforge");
+      const pkgDir = path.dirname(mainPath);
+      const pkgJson = JSON.parse(
+        fs.readFileSync(path.join(pkgDir, "package.json"), "utf-8"),
+      );
+      return pkgJson.version;
+    } catch {
+      return "unknown";
+    }
+  }
+
+  /**
+   * Computes a hash of the macroforge config file for cache invalidation.
+   * @returns {string}
+   */
+  function getConfigHash() {
+    if (macroConfig.configPath) {
+      try {
+        return contentHash(fs.readFileSync(macroConfig.configPath, "utf-8"));
+      } catch {
+        // config file disappeared
+      }
+    }
+    return "none";
+  }
+
+  /**
+   * Loads and validates the cache manifest from disk.
+   * Returns null if the cache is stale (version or config mismatch).
+   * @returns {{ version: string, configHash: string, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null}
+   */
+  function loadCacheManifest() {
+    const manifestPath = path.join(cacheDir, "manifest.json");
+    if (!fs.existsSync(manifestPath)) return null;
+
+    try {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+
+      if (manifest.version !== macroforgeVersion) {
+        console.log(
+          "[@macroforge/vite-plugin] Cache invalidated: macroforge version changed",
+        );
+        return null;
+      }
+
+      const currentConfigHash = getConfigHash();
+      if (manifest.configHash !== currentConfigHash) {
+        console.log(
+          "[@macroforge/vite-plugin] Cache invalidated: config changed",
+        );
+        return null;
+      }
+
+      // Reject caches built with --builtin-only since they may lack external macro expansions
+      if (manifest.builtinOnly) {
+        console.log(
+          "[@macroforge/vite-plugin] Cache invalidated: built with --builtin-only (run without --builtin-only for full expansion)",
+        );
+        return null;
+      }
+
+      return manifest;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Reads a cached expansion result for a source file.
+   * @param {string} id - Absolute file path
+   * @param {string} code - Current source code content
+   * @returns {{ code: string } | null}
+   */
+  function readCacheEntry(id, code) {
+    if (!cacheManifest || !cacheDir) return null;
+
+    const relPath = path.relative(projectRoot, id);
+    const entry = cacheManifest.entries[relPath];
+    if (!entry || !entry.hasMacros) return null;
+
+    const currentHash = contentHash(code);
+    if (entry.sourceHash !== currentHash) return null;
+
+    const cachePath = path.join(cacheDir, relPath + ".cache");
+    try {
+      const expandedCode = fs.readFileSync(cachePath, "utf-8");
+      return { code: expandedCode };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Writes a cache entry after macro expansion.
+   * Only caches files that actually had macros expanded.
+   * @param {string} id - Absolute file path
+   * @param {string} sourceCode - Original source code
+   * @param {string} expandedCode - Expanded code from rustTransformer
+   * @param {boolean} hasMacros - Whether the file actually had macros expanded
+   */
+  function writeCacheEntry(id, sourceCode, expandedCode, hasMacros) {
+    if (!cacheDir) return;
+
+    const relPath = path.relative(projectRoot, id);
+
+    try {
+      // Only write .cache files for files that actually have macros
+      if (hasMacros) {
+        const cachePath = path.join(cacheDir, relPath + ".cache");
+        ensureDir(path.dirname(cachePath));
+        fs.writeFileSync(cachePath, expandedCode, "utf-8");
+      }
+
+      if (!cacheManifest) {
+        cacheManifest = {
+          version: macroforgeVersion,
+          configHash: getConfigHash(),
+          entries: {},
+        };
+      }
+
+      cacheManifest.entries[relPath] = {
+        sourceHash: contentHash(sourceCode),
+        hasMacros,
+      };
+
+      // Debounce manifest writes — don't write 59KB JSON on every file
+      cacheManifestDirty = true;
+      if (manifestFlushTimer) clearTimeout(manifestFlushTimer);
+      manifestFlushTimer = setTimeout(flushCacheManifest, 500);
+    } catch (error) {
+      console.warn(
+        `[@macroforge/vite-plugin] Failed to write cache for ${relPath}:`,
+        error.message,
+      );
+    }
+  }
+
+  /**
+   * Flushes the dirty cache manifest to disk.
+   */
+  function flushCacheManifest() {
+    if (!cacheManifestDirty || !cacheManifest || !cacheDir) return;
+    try {
+      ensureDir(cacheDir);
+      fs.writeFileSync(
+        path.join(cacheDir, "manifest.json"),
+        JSON.stringify(cacheManifest, null, 2),
+        "utf-8",
+      );
+      cacheManifestDirty = false;
+    } catch (error) {
+      console.warn(
+        `[@macroforge/vite-plugin] Failed to write cache manifest:`,
+        error.message,
+      );
     }
   }
 
@@ -498,10 +705,63 @@ export async function macroforge() {
     enforce: "pre",
 
     /**
-     * @param {{ root: string }} config
+     * @param {{ root: string, command: string }} config
      */
     configResolved(config) {
       projectRoot = config.root;
+      isDevMode = config.command === "serve";
+
+      if (isDevMode && devCacheEnabled) {
+        cacheDir = path.join(projectRoot, ".macroforge", "cache");
+        macroforgeVersion = getMacroforgeVersion();
+        cacheManifest = loadCacheManifest();
+
+        if (cacheManifest) {
+          const entryCount = Object.keys(cacheManifest.entries).length;
+          console.log(
+            `[@macroforge/vite-plugin] Dev cache loaded: ${entryCount} entries`,
+          );
+        }
+      }
+    },
+
+    /**
+     * Pre-scan the project to build a type registry for compile-time type awareness.
+     * The registry is passed to every expandSync call so macros can introspect
+     * any type in the project (Zig-style type awareness).
+     */
+    buildStart() {
+      if (!rustTransformer || !rustTransformer.scanProjectSync) {
+        return;
+      }
+
+      try {
+        const scanStart = performance.now();
+        const scanResult = rustTransformer.scanProjectSync(projectRoot, {
+          exportedOnly: false,
+        });
+        const scanTime = (performance.now() - scanStart).toFixed(0);
+
+        typeRegistryJson = scanResult.registryJson;
+
+        console.log(
+          `[@macroforge/vite-plugin] Type scan: ${scanResult.typesFound} types from ${scanResult.filesScanned} files (${scanTime}ms)`,
+        );
+
+        for (const diag of scanResult.diagnostics) {
+          if (diag.level === "error") {
+            console.error(
+              `[@macroforge/vite-plugin] Scan error: ${diag.message}`,
+            );
+          }
+        }
+      } catch (error) {
+        console.warn(
+          `[@macroforge/vite-plugin] Type scan failed, macros will run without type awareness:`,
+          error.message || error,
+        );
+        typeRegistryJson = undefined;
+      }
     },
 
     /**
@@ -509,10 +769,6 @@ export async function macroforge() {
      * @param {string} id
      */
     async transform(code, id) {
-      // Ensure require() is available for native module loading
-      // Use the project's CWD-based require for resolving external macro packages
-      const projectRequire = await ensureRequire();
-
       // Only transform TypeScript files
       if (!id.endsWith(".ts") && !id.endsWith(".tsx")) {
         return null;
@@ -533,7 +789,53 @@ export async function macroforge() {
         return null;
       }
 
+      // Quick check: files without @derive can't have macros — skip entirely
+      if (!code.includes("@derive")) {
+        return null;
+      }
+
       try {
+        // --- Dev cache read ---
+        if (isDevMode && devCacheEnabled && cacheManifest) {
+          const cached = readCacheEntry(id, code);
+          if (cached) {
+            let cachedCode = cached.code;
+
+            // Apply same post-processing as the normal path
+            cachedCode = cachedCode.replace(
+              /\/\*\*\s*import\s+macro[\s\S]*?\*\/\s*/gi,
+              "",
+            );
+            if (id.endsWith(".svelte.ts") || id.endsWith(".svelte.js")) {
+              cachedCode = cachedCode.replace(
+                /\/\*\*\s*@derive\b[^*]*\*\//g,
+                "",
+              );
+            }
+
+            // Generate type definitions from cached expanded code
+            if (generateTypes) {
+              const emitted = emitDeclarationsFromCode(
+                cachedCode,
+                id,
+                projectRoot,
+              );
+              if (emitted) {
+                writeTypeDefinitions(id, emitted);
+              }
+            }
+
+            return {
+              code: cachedCode,
+              map: null,
+            };
+          }
+        }
+
+        // Ensure require() is available for native module loading
+        // Use the project's CWD-based require for resolving external macro packages
+        const projectRequire = await ensureRequire();
+
         // Collect external decorator modules from macro imports
         // Use projectRequire to resolve packages from the project's CWD, not the plugin's location
         const externalDecoratorModules = collectExternalDecoratorModules(
@@ -546,6 +848,7 @@ export async function macroforge() {
           keepDecorators: macroConfig.keepDecorators,
           externalDecoratorModules,
           configPath: macroConfig.configPath,
+          typeRegistryJson,
         });
 
         // Report diagnostics from macro expansion
@@ -563,6 +866,14 @@ export async function macroforge() {
         }
 
         if (result && result.code) {
+          // Check if macros were actually expanded
+          const hasMacros = result.sourceMapping?.generatedRegions?.length > 0;
+
+          // --- Dev cache write (self-populating) ---
+          if (isDevMode && devCacheEnabled) {
+            writeCacheEntry(id, code, result.code, hasMacros);
+          }
+
           // Remove macro-only imports so SSR output doesn't load native bindings
           result.code = result.code.replace(
             /\/\*\*\s*import\s+macro[\s\S]*?\*\/\s*/gi,
@@ -611,6 +922,17 @@ export async function macroforge() {
       }
 
       return null;
+    },
+
+    /**
+     * Flush the cache manifest on server close.
+     */
+    buildEnd() {
+      if (manifestFlushTimer) {
+        clearTimeout(manifestFlushTimer);
+        manifestFlushTimer = undefined;
+      }
+      flushCacheManifest();
     },
   };
 
