@@ -24,7 +24,9 @@
     },
     "devDependencies": {
         "@inlang/paraglide-js": "^2.6.0",
-        "@macroforge/svelte-preprocessor": "file:../../../packages/svelte-preprocessor",
+        "@macroforge/shared": "file:../vendor/shared",
+        "@macroforge/svelte-preprocessor": "file:../vendor/svelte-preprocessor",
+        "@macroforge/vite-plugin": "file:../vendor/vite-plugin",
         "@sveltejs/adapter-auto": "^7.0.0",
         "@sveltejs/kit": "^2.49.0",
         "@sveltejs/vite-plugin-svelte": "^6.2.1",

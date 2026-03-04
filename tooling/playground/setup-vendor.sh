@@ -24,6 +24,11 @@ mkdir -p "$VENDOR_DIR"
 # macroforge_ts crate (provides the 'macroforge' npm package)
 ln -sfn "$MACROFORGE_TS_CRATE" "$VENDOR_DIR/macroforge_ts"
 
+# NPM packages
+ln -sfn "$VITE_PLUGIN_PKG" "$VENDOR_DIR/vite-plugin"
+ln -sfn "$SHARED_PKG" "$VENDOR_DIR/shared"
+ln -sfn "$SVELTE_PREPROCESSOR_PKG" "$VENDOR_DIR/svelte-preprocessor"
+
 # Add more shared vendor links here as needed:
 # ln -sfn "$MACROFORGE_TS_MACROS_CRATE" "$VENDOR_DIR/macroforge_ts_macros"
 
