@@ -14,7 +14,7 @@ import type { TaxRate } from './tax-rate.svelte';
 export interface Account {
     /** @hiddenController({}) */
     id: string;
-    /** @comboboxController({ label: "Tax Rate", allowCustom: false, fetchUrls: ["/api/tax-rates"] }) */
+    /** @comboboxController({ label: "Tax Rate", allowCustom: false, fetchUrls: ["/api/tax_rates"] }) */
     /** @default("") */
     taxRate: string | TaxRate;
     /** @siteFieldsetController({ label: "Site" }) */
