@@ -50,6 +50,7 @@
 //! |--------|-------------|
 //! | `renameAll = "camelCase"` | Apply naming convention to all fields |
 //! | `denyUnknownFields` | Reject JSON with extra fields |
+//! | `tag = "fieldName"` | Custom type discriminator field name (default: `"__type"`) |
 //!
 //! ## Naming Conventions
 //!
@@ -329,6 +330,8 @@ impl RenameAll {
 pub struct SerdeContainerOptions {
     pub rename_all: RenameAll,
     pub deny_unknown_fields: bool,
+    /// Custom discriminator field name for type tagging. Defaults to `"__type"`.
+    pub tag: Option<String>,
 }
 
 impl SerdeContainerOptions {
@@ -349,8 +352,18 @@ impl SerdeContainerOptions {
             if has_flag(args, "denyUnknownFields") {
                 opts.deny_unknown_fields = true;
             }
+
+            if let Some(tag) = extract_named_string(args, "tag") {
+                opts.tag = Some(tag);
+            }
         }
         opts
+    }
+
+    /// Returns the discriminator field name: either the user-configured `tag`
+    /// value or the default `"__type"`.
+    pub fn tag_field(&self) -> &str {
+        self.tag.as_deref().unwrap_or("__type")
     }
 }
 
@@ -2014,6 +2027,21 @@ mod tests {
         let decorator = make_decorator("denyUnknownFields");
         let opts = SerdeContainerOptions::from_decorators(&[decorator]);
         assert!(opts.deny_unknown_fields);
+    }
+
+    #[test]
+    fn test_container_tag() {
+        let decorator = make_decorator(r#"{ tag: "type" }"#);
+        let opts = SerdeContainerOptions::from_decorators(&[decorator]);
+        assert_eq!(opts.tag.as_deref(), Some("type"));
+        assert_eq!(opts.tag_field(), "type");
+    }
+
+    #[test]
+    fn test_container_tag_default() {
+        let opts = SerdeContainerOptions::default();
+        assert_eq!(opts.tag, None);
+        assert_eq!(opts.tag_field(), "__type");
     }
 
     #[test]

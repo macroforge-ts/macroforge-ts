@@ -125,7 +125,7 @@
 //!     result['userName'] = value.name;
 //!     {
 //!         const __flattened = userMetadataSerializeWithContext(value.metadata, ctx);
-//!         const { __type: _, __id: __, ...rest } = __flattened as any;
+//!         const { __type: _, __id: __, ...rest } = __flattened as any; // tag field name is configurable via `tag` option
 //!         Object.assign(result, rest);
 //!     }
 //!     return result;
@@ -436,6 +436,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let class_ident = ts_ident!(class_name);
             let serialize_context_ident = ts_ident!(SERIALIZE_CONTEXT);
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
+            let tag_field = container_opts.tag_field();
 
             // Generate function names (always prefix style)
             let fn_serialize_ident = ts_ident!("{}Serialize", class_name.to_case(Case::Camel));
@@ -632,7 +633,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     const __id = ctx.register(value);
 
                     const result: Record<string, unknown> = {
-                        __type: "@{class_name}",
+                        "@{tag_field}": "@{class_name}",
                         __id,
                     };
 
@@ -971,15 +972,15 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {#if field._optional}
                                         if (value.@{field._field_ident} !== undefined) {
                                             const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
-                                            // Remove __type and __id from flattened object
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            // Remove tag field and __id from flattened object
+                                            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {:else}
                                         {
                                             const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
-                                            // Remove __type and __id from flattened object
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            // Remove tag field and __id from flattened object
+                                            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {/if}
@@ -1035,15 +1036,15 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {#if field._optional}
                                         if (value.@{field._field_ident} !== undefined) {
                                             const __flattened = value.@{field._field_ident};
-                                            // Remove __type and __id from flattened object
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            // Remove tag field and __id from flattened object
+                                            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {:else}
                                         {
                                             const __flattened = value.@{field._field_ident};
-                                            // Remove __type and __id from flattened object
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            // Remove tag field and __id from flattened object
+                                            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {/if}
@@ -1100,6 +1101,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let serialize_context_ident = ts_ident!(SERIALIZE_CONTEXT);
             let container_opts =
                 SerdeContainerOptions::from_decorators(&interface.inner.decorators);
+            let tag_field = container_opts.tag_field();
 
             // Collect serializable fields from interface with diagnostic collection
             let mut all_diagnostics = DiagnosticCollector::new();
@@ -1293,7 +1295,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     const __id = ctx.register(value);
 
                     const result: Record<string, unknown> = {
-                        __type: "@{interface_name}",
+                        "@{tag_field}": "@{interface_name}",
                         __id,
                     };
 
@@ -1632,13 +1634,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {#if field._optional}
                                         if (value.@{field._field_ident} !== undefined) {
                                             const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {:else}
                                         {
                                             const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {/if}
@@ -1648,11 +1650,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {#if let Some(inner_type) = &field._optional_serializable_type}
                                                 {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                 const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
-                                                const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                                 Object.assign(result, rest);
                                             {:else}
                                                 const __flattened = value.@{field._field_ident};
-                                                const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                                 Object.assign(result, rest);
                                             {/if}
                                         }
@@ -1661,11 +1663,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {#if let Some(inner_type) = &field._optional_serializable_type}
                                                 {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                 const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
-                                                const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                                 Object.assign(result, rest);
                                             {:else}
                                                 const __flattened = value.@{field._field_ident};
-                                                const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                                 Object.assign(result, rest);
                                             {/if}
                                         }
@@ -1677,11 +1679,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                     {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
-                                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                    const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                                     Object.assign(result, rest);
                                                 {:else}
                                                     const __flattened = value.@{field._field_ident};
-                                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                    const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                                     Object.assign(result, rest);
                                                 {/if}
                                             }
@@ -1692,11 +1694,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                     {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(inner_type)).into()}
                                                     const __flattened = @{serialize_with_context_fn}(value.@{field._field_ident}, ctx);
-                                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                    const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                                     Object.assign(result, rest);
                                                 {:else}
                                                     const __flattened = value.@{field._field_ident};
-                                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                    const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                                     Object.assign(result, rest);
                                                 {/if}
                                             }
@@ -1706,13 +1708,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {#if field._optional}
                                         if (value.@{field._field_ident} !== undefined) {
                                             const __flattened = value.@{field._field_ident};
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {:else}
                                         {
                                             const __flattened = value.@{field._field_ident};
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {/if}
@@ -1756,6 +1758,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 // Object type: serialize fields
                 let container_opts =
                     SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
+                let tag_field = container_opts.tag_field();
 
                 // Collect serializable fields with diagnostic collection
                 let mut all_diagnostics = DiagnosticCollector::new();
@@ -1912,7 +1915,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                             const __id = ctx.register(value);
                             const result: Record<string, unknown> = {
-                                __type: "@{type_name}",
+                                "@{tag_field}": "@{type_name}",
                                 __id,
                             };
 
@@ -1959,7 +1962,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                             const __id = ctx.register(value);
                             const result: Record<string, unknown> = {
-                                __type: "@{type_name}",
+                                "@{tag_field}": "@{type_name}",
                                 __id,
                             };
 

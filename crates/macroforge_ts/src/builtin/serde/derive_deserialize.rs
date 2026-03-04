@@ -964,6 +964,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let pending_ref_expr: Expr = pending_ref_ident.clone().into();
             let deserialize_options_ident = ts_ident!(DESERIALIZE_OPTIONS);
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
+            let tag_field = container_opts.tag_field();
 
             // Generate function names (always prefix style)
             let fn_deserialize_ident = ts_ident!("{}Deserialize", class_name.to_case(Case::Camel));
@@ -1292,7 +1293,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     const errors: Array<{ field: string; message: string }> = [];
 
                     {#if container_opts.deny_unknown_fields}
-                        const knownKeys = new Set(["__type", "__id", "__ref", @{known_keys_list.join(", ")}]);
+                        const knownKeys = new Set(["@{tag_field}", "__id", "__ref", @{known_keys_list.join(", ")}]);
                         for (const key of Object.keys(obj)) {
                             if (!knownKeys.has(key)) {
                                 errors.push({ field: key, message: "unknown field" });
@@ -2059,6 +2060,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let deserialize_options_ident = ts_ident!(DESERIALIZE_OPTIONS);
             let container_opts =
                 SerdeContainerOptions::from_decorators(&interface.inner.decorators);
+            let tag_field = container_opts.tag_field();
 
             // Collect deserializable fields with diagnostic collection
             let mut all_diagnostics = DiagnosticCollector::new();
@@ -2365,7 +2367,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         const errors: Array<{ field: string; message: string }> = [];
 
                         {#if container_opts.deny_unknown_fields}
-                            const knownKeys = new Set(["__type", "__id", "__ref", @{known_keys_list.join(", ")}]);
+                            const knownKeys = new Set(["@{tag_field}", "__id", "__ref", @{known_keys_list.join(", ")}]);
                             for (const key of Object.keys(obj)) {
                                 if (!knownKeys.has(key)) {
                                     errors.push({ field: key, message: "unknown field" });
@@ -2976,6 +2978,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             if type_alias.is_object() {
                 let container_opts =
                     SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
+                let tag_field = container_opts.tag_field();
 
                 // Collect deserializable fields with diagnostic collection
                 let mut all_diagnostics = DiagnosticCollector::new();
@@ -3268,7 +3271,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             const errors: Array<{ field: string; message: string }> = [];
 
                             {#if container_opts.deny_unknown_fields}
-                                const knownKeys = new Set(["__type", "__id", "__ref", @{known_keys_list.join(", ")}]);
+                                const knownKeys = new Set(["@{tag_field}", "__id", "__ref", @{known_keys_list.join(", ")}]);
                                 for (const key of Object.keys(obj)) {
                                     if (!knownKeys.has(key)) {
                                         errors.push({ field: key, message: "unknown field" });
@@ -3740,6 +3743,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 Ok(result)
             } else if let Some(members) = type_alias.as_union() {
                 // Union type - could be literal union, type ref union, or mixed
+                let container_opts =
+                    SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
+                let tag_field = container_opts.tag_field();
 
                 // Build generic type signature if type has type params
                 let type_params = type_alias.type_params();
@@ -4076,7 +4082,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             }]);
                                         }
 
-                                        const __typeName = (value as any).__type;
+                                        const __typeName = (value as any)["@{tag_field}"];
                                         if (typeof __typeName === "string") {
                                             {#for type_ref in &regular_serializables}
                                                 {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
@@ -4099,7 +4105,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             }]);
                                         }
 
-                                        // No __type field — infer variant via structural shape matching
+                                        // No tag field — infer variant via structural shape matching
                                         const __shapeMatches: Array<string> = [];
                                         {#for type_ref in &regular_serializables}
                                             {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
@@ -4132,13 +4138,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         if (__shapeMatches.length > 1) {
                                             throw new @{deserialize_error_expr}([{
                                                 field: "_root",
-                                                message: "@{type_name}.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                                message: "@{type_name}.deserializeWithContext: missing @{tag_field} field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a @{tag_field} field to disambiguate."
                                             }]);
                                         }
 
                                         throw new @{deserialize_error_expr}([{
                                             field: "_root",
-                                            message: "@{type_name}.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: @{expected_types_str}"
+                                            message: "@{type_name}.deserializeWithContext: missing @{tag_field} field and value does not match any variant shape. Expected one of: @{expected_types_str}"
                                         }]);
                                     {:else}
                                         {#if has_literals}
@@ -4170,7 +4176,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                         {#if has_serializables}
                                             if (typeof value === "object" && value !== null) {
-                                                const __typeName = (value as any).__type;
+                                                const __typeName = (value as any)["@{tag_field}"];
                                                 if (typeof __typeName === "string") {
                                                     {#for type_ref in &regular_serializables}
                                                         {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
@@ -4187,7 +4193,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         {/if}
                                                     {/for}
                                                 } else {
-                                                    // No __type — infer variant via structural shape matching
+                                                    // No tag field — infer variant via structural shape matching
                                                     const __shapeMatches: Array<string> = [];
                                                     {#for type_ref in &regular_serializables}
                                                         {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
@@ -4246,7 +4252,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         if (typeof value !== "object" || value === null) {
                                             return false;
                                         }
-                                        const __typeName = (value as any).__type;
+                                        const __typeName = (value as any)["@{tag_field}"];
                                         if (typeof __typeName === "string") {
                                             return @{serializable_type_check_condition};
                                         }
@@ -4271,7 +4277,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         {/if}
                                         {#if has_serializables}
                                             if (typeof value === "object" && value !== null) {
-                                                const __typeName = (value as any).__type;
+                                                const __typeName = (value as any)["@{tag_field}"];
                                                 if (typeof __typeName === "string") {
                                                     if (@{serializable_type_check_condition}) return true;
                                                 } else {
