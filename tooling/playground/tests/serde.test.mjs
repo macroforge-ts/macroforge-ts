@@ -1389,3 +1389,78 @@ describe('Built-in type serde', () => {
         );
     });
 });
+
+// ============================================================================
+// Serialize metadata stripping (keepMetadata parameter)
+// ============================================================================
+
+describe('Serialize metadata stripping', () => {
+    test('serialize function includes keepMetadata parameter', () => {
+        const code = `
+      /** @derive(Serialize) */
+      interface Account {
+        name: string;
+        phones: Array<PhoneNumber>;
+      }
+
+      /** @derive(Serialize) */
+      interface PhoneNumber {
+        main: boolean;
+        number: string;
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('keepMetadata?: boolean'),
+            'Should have keepMetadata optional parameter'
+        );
+        assert.ok(
+            result.code.includes('if (keepMetadata) return JSON.stringify(__raw)'),
+            'Should bypass stripping when keepMetadata is true'
+        );
+        assert.ok(
+            result.code.includes('key === "__type" || key === "__id" ? undefined : val'),
+            'Should have JSON.stringify replacer that strips __type and __id'
+        );
+    });
+
+    test('serializeWithContext still includes __type and __id', () => {
+        const code = `
+      /** @derive(Serialize) */
+      interface Point {
+        x: number;
+        y: number;
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('"__type": "Point"'),
+            'serializeWithContext should still have __type marker'
+        );
+        assert.ok(
+            result.code.includes('const __id = ctx.register(value)'),
+            'serializeWithContext should still register __id'
+        );
+    });
+
+    test('class static serialize passes keepMetadata through', () => {
+        const code = `
+      /** @derive(Serialize) */
+      class User {
+        name: string;
+      }
+    `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('static serialize(value: User, keepMetadata?: boolean)'),
+            'Static method should accept keepMetadata'
+        );
+        assert.ok(
+            result.code.includes('return userSerialize(value, keepMetadata)'),
+            'Static method should pass keepMetadata to standalone function'
+        );
+    });
+});
