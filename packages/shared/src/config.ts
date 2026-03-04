@@ -77,6 +77,17 @@ export interface VitePluginConfig {
      * @default ".macroforge/meta"
      */
     metadataOutputDir?: string;
+
+    /**
+     * Enable disk-based expansion cache in dev mode (`vite dev`).
+     *
+     * When enabled, the plugin reads pre-expanded files from `.macroforge/cache/`
+     * instead of calling `expandSync()` on every transform, and self-populates
+     * the cache on misses. Use `macroforge watch` to keep the cache warm.
+     *
+     * @default true
+     */
+    devCache?: boolean;
 }
 
 /**
