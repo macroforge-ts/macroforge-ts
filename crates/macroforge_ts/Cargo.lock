@@ -712,9 +712,9 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "139ef39800118c7683f2fd3c98c1b23c09ae076556b435f8e9064ae108aaeeec"
+checksum = "0de51e6874e94e7bf76d726fc5d13ba782deca734ff60d5bb2fb2607c7406555"
 dependencies = [
  "cfg-if",
  "libc",
@@ -1090,7 +1090,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.76"
+version = "0.1.77"
 dependencies = [
  "anyhow",
  "clap",
@@ -1117,7 +1117,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.76"
+version = "0.1.77"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d540de77ce2a86a021025507475a75d246c9a89b32b634493a75b9325aa20e2a"
 dependencies = [
  "convert_case 0.10.0",
  "proc-macro2",
@@ -1127,7 +1129,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.76"
+version = "0.1.77"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3be79ac67319fbe8cb9f81f5d9e12f5802707c5f5290de88204b48ff70244776"
 dependencies = [
  "anyhow",
  "convert_case 0.10.0",
@@ -1143,7 +1147,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.76"
+version = "0.1.77"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ab165ea2a1531a0e35e42e7df17302abe4391a0e470b690e92c0ed3668cbd70"
 dependencies = [
  "indexmap",
  "serde",
@@ -1448,18 +1454,18 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.44"
+version = "1.0.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21b2ebcf727b7760c461f091f9f0f539b77b8e87f2fd88131e7f1b433b3cece4"
+checksum = "41f2619966050689382d2b44f664f4bc593e129785a36d6ee376ddf37259b924"
 dependencies = [
  "proc-macro2",
 ]
 
 [[package]]
 name = "r-efi"
-version = "5.3.0"
+version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69cdb34c158ceb288df11e18b4bd39de994f6657d83847bdffdbd7f346754b0f"
+checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 
 [[package]]
 name = "radium"
