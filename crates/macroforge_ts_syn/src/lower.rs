@@ -1049,7 +1049,17 @@ fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<De
 
     loop {
         let comment_body = &search_area[current_start + 3..current_end];
-        let directives = parse_all_macro_directives(comment_body);
+
+        // Skip macro import comments — they contain path-like strings (e.g.
+        // "@playground/macro") whose `@` prefix would be misread as a decorator.
+        let body_lower = comment_body.to_ascii_lowercase();
+        let is_macro_import = body_lower.contains("import") && body_lower.contains("macro");
+
+        let directives = if is_macro_import {
+            Vec::new()
+        } else {
+            parse_all_macro_directives(comment_body)
+        };
 
         for (name, args_src) in directives {
             let final_span_ir = adjust_decorator_span(
@@ -1652,6 +1662,43 @@ mod tests {
         assert_eq!(directives[0].1, "Default");
         assert_eq!(directives[1].0, "default");
         assert_eq!(directives[1].1, "Foo.defaultValue()");
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn import_macro_comment_not_parsed_as_decorator() {
+        GLOBALS.set(&Globals::new(), || {
+            // An import macro comment preceding a @derive comment should not
+            // produce a spurious "playground" decorator from "@playground/macro".
+            let source = r#"/** import macro {Gigaform} from "@playground/macro"; */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export interface PhoneNumber {
+    label: string;
+    number: string;
+}"#;
+            let module = parse_module(source);
+            let interfaces = lower_interfaces(&module, source).expect("lowering to succeed");
+            let iface = interfaces.first().expect("interface");
+
+            // Should have exactly 1 decorator: Derive
+            assert_eq!(
+                iface.decorators.len(),
+                1,
+                "Expected exactly 1 decorator (Derive), got {:?}",
+                iface.decorators
+            );
+            assert_eq!(iface.decorators[0].name, "Derive");
+            assert!(
+                iface.decorators[0].args_src.contains("Gigaform"),
+                "Derive args should contain Gigaform"
+            );
+
+            // Verify no spurious "playground" decorator
+            assert!(
+                !iface.decorators.iter().any(|d| d.name == "playground"),
+                "Should not have a spurious 'playground' decorator from import macro comment"
+            );
+        });
     }
 
     #[cfg(feature = "swc")]

@@ -111,13 +111,47 @@ impl TypeRegistry {
         Self::default()
     }
 
-    /// Look up a type by simple name. Returns `None` if ambiguous or missing.
+    /// Look up a type by simple name. Returns `None` if the name is ambiguous
+    /// (exists in multiple files) — callers must use `resolve()` with import
+    /// context or `get_qualified()` for file-specific resolution.
     pub fn get(&self, name: &str) -> Option<&TypeRegistryEntry> {
         if self.ambiguous_names.iter().any(|n| n == name) {
-            None // Caller should use get_qualified
+            None
         } else {
             self.types.get(name)
         }
+    }
+
+    /// Get all qualified entries matching a simple type name.
+    /// Returns an iterator over entries from different files that share this name.
+    pub fn get_all(&self, name: &str) -> impl Iterator<Item = &TypeRegistryEntry> {
+        self.qualified_types
+            .values()
+            .filter(move |entry| entry.name == name)
+    }
+
+    /// Resolve a type by name using import context for disambiguation.
+    /// If the name is ambiguous (exists in multiple files), uses the caller's
+    /// import entries to find the correct qualified entry.
+    /// Returns `None` if ambiguous and no matching import is found.
+    pub fn resolve(
+        &self,
+        name: &str,
+        file_imports: &[FileImportEntry],
+    ) -> Option<&TypeRegistryEntry> {
+        // Fast path: unambiguous name
+        if !self.ambiguous_names.iter().any(|n| n == name) {
+            return self.types.get(name);
+        }
+        // Find import source for this name and match against qualified entries
+        if let Some(import) = file_imports.iter().find(|i| i.local_name == name) {
+            for (_, entry) in &self.qualified_types {
+                if entry.name == name && entry.file_path.contains(&import.module_specifier) {
+                    return Some(entry);
+                }
+            }
+        }
+        None
     }
 
     /// Look up a type by qualified path (e.g., `"src/models/user.ts::User"`).
@@ -155,6 +189,144 @@ impl TypeRegistry {
     /// Check if the registry is empty.
     pub fn is_empty(&self) -> bool {
         self.qualified_types.is_empty()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::abi::ir::{ClassIR, InterfaceIR};
+    use crate::abi::{DecoratorIR, SpanIR};
+
+    fn make_interface_entry(
+        name: &str,
+        file_path: &str,
+        decorators: Vec<DecoratorIR>,
+    ) -> TypeRegistryEntry {
+        TypeRegistryEntry {
+            name: name.to_string(),
+            file_path: file_path.to_string(),
+            is_exported: true,
+            definition: TypeDefinitionIR::Interface(InterfaceIR {
+                name: name.to_string(),
+                span: SpanIR::new(0, 0),
+                body_span: SpanIR::new(0, 0),
+                type_params: vec![],
+                heritage: vec![],
+                decorators,
+                fields: vec![],
+                methods: vec![],
+            }),
+            file_imports: vec![],
+        }
+    }
+
+    fn derive_decorator(args: &str) -> DecoratorIR {
+        DecoratorIR {
+            name: "Derive".to_string(),
+            args_src: args.to_string(),
+            span: SpanIR::new(0, 0),
+            node: None,
+        }
+    }
+
+    #[test]
+    fn get_returns_none_for_ambiguous_names() {
+        let mut registry = TypeRegistry::new();
+
+        let entry1 = make_interface_entry(
+            "PhoneNumber",
+            "/project/src/types/phone-number.svelte.ts",
+            vec![derive_decorator("Default, Serialize, Deserialize, Gigaform")],
+        );
+        let entry2 = make_interface_entry(
+            "PhoneNumber",
+            "/project/src/types/all-types.svelte.ts",
+            vec![derive_decorator("Default, Serialize, Deserialize, Gigaform")],
+        );
+
+        registry.insert(entry1, "/project");
+        registry.insert(entry2, "/project");
+
+        // Name should be ambiguous
+        assert!(registry.ambiguous_names.contains(&"PhoneNumber".to_string()));
+
+        // get() returns None for ambiguous names — callers must use resolve() or get_all()
+        assert!(registry.get("PhoneNumber").is_none());
+
+        // get_all() returns both entries
+        let all: Vec<_> = registry.get_all("PhoneNumber").collect();
+        assert_eq!(all.len(), 2, "get_all() should return both entries");
+
+        // Both files are represented
+        let paths: Vec<&str> = all.iter().map(|e| e.file_path.as_str()).collect();
+        assert!(paths.contains(&"/project/src/types/phone-number.svelte.ts"));
+        assert!(paths.contains(&"/project/src/types/all-types.svelte.ts"));
+    }
+
+    #[test]
+    fn resolve_picks_correct_entry_via_imports() {
+        let mut registry = TypeRegistry::new();
+
+        let entry1 = make_interface_entry(
+            "PhoneNumber",
+            "/project/src/types/phone-number.svelte.ts",
+            vec![derive_decorator("Default, Gigaform")],
+        );
+        let entry2 = make_interface_entry(
+            "PhoneNumber",
+            "/project/src/types/all-types.svelte.ts",
+            vec![derive_decorator("Default, Gigaform")],
+        );
+
+        registry.insert(entry1, "/project");
+        registry.insert(entry2, "/project");
+
+        // Simulate an import from "all-types"
+        let imports = vec![FileImportEntry {
+            local_name: "PhoneNumber".to_string(),
+            module_specifier: "all-types".to_string(),
+            original_name: None,
+            is_type_only: true,
+        }];
+
+        let resolved = registry.resolve("PhoneNumber", &imports);
+        assert!(resolved.is_some());
+        assert!(
+            resolved.unwrap().file_path.contains("all-types"),
+            "resolve() should pick the entry matching the import source"
+        );
+    }
+
+    #[test]
+    fn resolve_falls_back_for_unambiguous() {
+        let mut registry = TypeRegistry::new();
+        let entry = make_interface_entry(
+            "User",
+            "/project/src/user.ts",
+            vec![derive_decorator("Clone")],
+        );
+        registry.insert(entry, "/project");
+
+        let result = registry.resolve("User", &[]);
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().name, "User");
+    }
+
+    #[test]
+    fn resolve_returns_none_for_ambiguous_without_import() {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_interface_entry("Foo", "/project/src/a.ts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("Foo", "/project/src/b.ts", vec![]),
+            "/project",
+        );
+
+        // No imports provided — ambiguous name cannot be resolved
+        assert!(registry.resolve("Foo", &[]).is_none());
     }
 }
 
