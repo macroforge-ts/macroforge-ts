@@ -1271,7 +1271,10 @@ pub fn enrich_fields_with_registry(fields: &mut [ParsedField], registry: &TypeRe
         // Determine the base type name to look up (strip arrays, optionals)
         let base_type = get_base_type_for_lookup(&field.ts_type);
 
-        if let Some(entry) = registry.get(&base_type) {
+        let entry_opt = registry
+            .get(&base_type)
+            .or_else(|| registry.get_all(&base_type).next());
+        if let Some(entry) = entry_opt {
             // Set resolved_kind based on the definition type
             field.resolved_kind = Some(match &entry.definition {
                 TypeDefinitionIR::Class(_) => "class".to_string(),
