@@ -172,8 +172,10 @@ fn validate_default_fields(
             continue;
         }
 
-        // Check if the type is in the registry
-        if registry.get(t).is_some() && !type_has_derive(registry, t, "Default") {
+        // Check if the type is in the registry (use get or get_all for ambiguous names)
+        let type_known =
+            registry.get(t).is_some() || registry.get_all(t).next().is_some();
+        if type_known && !type_has_derive(registry, t, "Default") {
             eprintln!(
                 "[macroforge] warning: field `{field_name}` in `{parent_name}` has type `{t}` \
                  which does not derive Default — generated code may fail at runtime"

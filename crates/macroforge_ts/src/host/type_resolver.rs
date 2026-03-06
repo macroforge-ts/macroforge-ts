@@ -143,10 +143,13 @@ impl<'a> TypeResolver<'a> {
             return None;
         }
 
-        // Try direct lookup
+        // Try direct lookup (returns None for ambiguous names)
         if let Some(entry) = self.registry.get(name) {
-            // Reconstruct the qualified key from the entry
-            // (This is a simplified approach - the qualified key is in qualified_types)
+            return Some(format!("{}::{}", entry.file_path, entry.name));
+        }
+
+        // For ambiguous names, pick the first qualified entry
+        if let Some(entry) = self.registry.get_all(name).next() {
             return Some(format!("{}::{}", entry.file_path, entry.name));
         }
 

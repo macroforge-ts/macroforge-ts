@@ -34,7 +34,7 @@ swc_core = { version = "54.0.0", features = [
 ] }
 
 # Macroforge crates (local development)
-macroforge_ts_syn = "0.1.77"
+macroforge_ts_syn = { version = "0.1.77", path = "../macroforge_ts_syn" }
 macroforge_ts_quote = "0.1.77"
 macroforge_ts_macros = "0.1.77"
 

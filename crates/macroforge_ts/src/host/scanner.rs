@@ -452,6 +452,61 @@ mod tests {
     }
 
     #[test]
+    fn test_scanner_svelte_ts_interface_with_derive() {
+        use swc_core::common::{GLOBALS, Globals};
+
+        // Simulate scanning a .svelte.ts file with a JSDoc @derive on an interface
+        let source = r#"/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export interface PhoneNumber {
+    label: string;
+    number: string;
+}"#;
+
+        let globals = Globals::default();
+        GLOBALS.set(&globals, || {
+            let module =
+                crate::ts_syn::parse::parse_ts_module(source, "phone-number.svelte.ts")
+                    .expect("parse failed");
+
+            let interfaces =
+                crate::ts_syn::lower_interfaces(&module, source).unwrap_or_default();
+            assert_eq!(interfaces.len(), 1, "Should find one interface");
+
+            let iface = &interfaces[0];
+            assert_eq!(iface.name, "PhoneNumber");
+
+            // Should have the Derive decorator
+            let derive = iface.decorators.iter().find(|d| d.name == "Derive");
+            assert!(
+                derive.is_some(),
+                "Interface should have @derive decorator, got: {:?}",
+                iface.decorators
+            );
+            assert!(derive.unwrap().args_src.contains("Gigaform"));
+
+            // Insert into registry and verify type_has_derive works
+            let mut registry = TypeRegistry::new();
+            let entry = TypeRegistryEntry {
+                name: iface.name.clone(),
+                file_path: "phone-number.svelte.ts".to_string(),
+                is_exported: true,
+                definition: TypeDefinitionIR::Interface(iface.clone()),
+                file_imports: vec![],
+            };
+            registry.insert(entry, "");
+
+            assert!(
+                crate::builtin::derive_common::type_has_derive(&registry, "PhoneNumber", "Gigaform"),
+                "type_has_derive should return true for Gigaform"
+            );
+            assert!(
+                crate::builtin::derive_common::type_has_derive(&registry, "PhoneNumber", "Default"),
+                "type_has_derive should return true for Default"
+            );
+        });
+    }
+
+    #[test]
     fn test_collect_file_imports() {
         use swc_core::common::{GLOBALS, Globals};
 

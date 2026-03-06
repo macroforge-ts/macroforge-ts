@@ -381,7 +381,11 @@ fn type_accepts_string(
     let entry = match registry.get(type_name) {
         Some(e) => e,
         None => {
-            return false;
+            // Try qualified lookup for ambiguous names
+            match registry.get_all(type_name).next() {
+                Some(e) => e,
+                None => return false,
+            }
         }
     };
 
