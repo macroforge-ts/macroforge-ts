@@ -1148,8 +1148,6 @@ dependencies = [
 [[package]]
 name = "macroforge_ts_syn"
 version = "0.1.77"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ab165ea2a1531a0e35e42e7df17302abe4391a0e470b690e92c0ed3668cbd70"
 dependencies = [
  "indexmap",
  "serde",

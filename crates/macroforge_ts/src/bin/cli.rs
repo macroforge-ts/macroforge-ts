@@ -125,8 +125,75 @@ use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
+    sync::Mutex,
     time::Duration,
 };
+
+/// Cached path to the type registry JSON file (built once per process via scanProjectSync).
+static TYPE_REGISTRY_CACHE_PATH: Mutex<Option<String>> = Mutex::new(None);
+
+/// Builds the type registry via a one-shot Node.js scanProjectSync call and
+/// caches the result to a temp file. Subsequent calls are no-ops.
+fn ensure_type_registry_cache() {
+    let mut cached = TYPE_REGISTRY_CACHE_PATH.lock().unwrap();
+    if cached.is_some() {
+        return;
+    }
+
+    let scan_script = r#"
+const { createRequire } = require('module');
+const fs = require('fs');
+const cwdRequire = createRequire(process.cwd() + '/package.json');
+
+try {
+  const macroforge = cwdRequire('macroforge');
+  if (!macroforge.scanProjectSync) {
+    process.exit(0);
+  }
+  const result = macroforge.scanProjectSync(process.cwd(), { exportedOnly: false });
+  const outPath = process.argv[2];
+  fs.writeFileSync(outPath, result.registryJson);
+  console.log(JSON.stringify({ ok: true, types: result.typesFound, files: result.filesScanned }));
+} catch (err) {
+  console.error('Type scan failed:', err.message);
+  process.exit(0);
+}
+"#;
+
+    let mut temp_dir = std::env::temp_dir();
+    temp_dir.push("macroforge-cli");
+    let _ = fs::create_dir_all(&temp_dir);
+    let script_path = temp_dir.join("scan-project-wrapper.js");
+    let registry_path = temp_dir.join("type-registry.json");
+    let _ = fs::write(&script_path, scan_script);
+
+    let cwd = std::env::current_dir().unwrap_or_default();
+    if let Ok(output) = std::process::Command::new("node")
+        .arg(&script_path)
+        .arg(&registry_path)
+        .current_dir(&cwd)
+        .output()
+    {
+        if output.status.success() && registry_path.exists() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            if let Ok(info) = serde_json::from_str::<serde_json::Value>(&stdout) {
+                if info.get("ok").and_then(|v| v.as_bool()).unwrap_or(false) {
+                    let types = info.get("types").and_then(|v| v.as_u64()).unwrap_or(0);
+                    let files = info.get("files").and_then(|v| v.as_u64()).unwrap_or(0);
+                    eprintln!(
+                        "[macroforge] Type scan: {} types from {} files",
+                        types, files
+                    );
+                    *cached = Some(registry_path.to_string_lossy().to_string());
+                    return;
+                }
+            }
+        }
+    }
+
+    // Scan failed or not available — continue without type registry
+    *cached = None;
+}
 
 /// Command-line interface for Macroforge TypeScript macro utilities.
 ///
@@ -1343,6 +1410,9 @@ fn expand_for_cache(path: &Path, source: &str, builtin_only: bool) -> Result<Opt
 
 /// Expands a file via Node.js for caching, returning the expanded code.
 fn expand_for_cache_via_node(path: &Path, source: &str) -> Result<Option<String>> {
+    // Ensure type registry has been built (once per process)
+    ensure_type_registry_cache();
+
     let script = r#"
 const { createRequire } = require('module');
 const fs = require('fs');
@@ -1360,6 +1430,7 @@ try {
 }
 
 const inputPath = process.argv[2];
+const typeRegistryPath = process.argv[3];
 const code = fs.readFileSync(inputPath, 'utf8');
 
 const CONFIG_FILES = [
@@ -1391,6 +1462,14 @@ try {
     loadConfig(configContent, configPath);
     options.configPath = configPath;
   }
+
+  // Load pre-built type registry if available
+  if (typeRegistryPath) {
+    try {
+      options.typeRegistryJson = fs.readFileSync(typeRegistryPath, 'utf8');
+    } catch {}
+  }
+
   const result = expandSync(code, inputPath, options);
   const hasExpansions = result.sourceMapping?.generatedRegions?.length > 0;
   console.log(JSON.stringify({
@@ -1410,9 +1489,13 @@ try {
     fs::write(&script_path, script)?;
 
     let cwd = std::env::current_dir()?;
-    let output = std::process::Command::new("node")
-        .arg(&script_path)
-        .arg(path)
+    let registry_path = TYPE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
+    let mut cmd = std::process::Command::new("node");
+    cmd.arg(&script_path).arg(path);
+    if let Some(ref rp) = registry_path {
+        cmd.arg(rp);
+    }
+    let output = cmd
         .current_dir(&cwd)
         .output()
         .context("failed to run node expand wrapper")?;

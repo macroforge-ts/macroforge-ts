@@ -44,7 +44,9 @@ use convert_case::{Case, Casing};
 
 use crate::builtin::serde::{TypeCategory, get_foreign_types, split_top_level_union};
 use crate::ts_syn::abi::DecoratorIR;
-use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeDefinitionIR, TypeRegistry};
+use crate::ts_syn::abi::ir::type_registry::{
+    ResolvedTypeRef, TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
+};
 
 /// Options parsed from field-level decorators for comparison macros
 /// Supports @partialEq(skip), @hash(skip), @ord(skip)
@@ -340,8 +342,11 @@ fn parse_string_literal(input: &str) -> Option<String> {
 /// Check if a type in the registry has `@derive(MacroName)` applied.
 /// Works for classes, interfaces, enums, and type aliases.
 /// Returns false if the type is not in the registry or has no such derive.
+///
+/// When a name is ambiguous (same type name in multiple files), checks ALL
+/// qualified entries — returns true if ANY entry with that name has the derive.
 pub fn type_has_derive(registry: &TypeRegistry, type_name: &str, derive_name: &str) -> bool {
-    if let Some(entry) = registry.get(type_name) {
+    let has_derive = |entry: &TypeRegistryEntry| {
         let decorators = match &entry.definition {
             TypeDefinitionIR::Class(c) => &c.decorators,
             TypeDefinitionIR::Interface(i) => &i.decorators,
@@ -354,9 +359,24 @@ pub fn type_has_derive(registry: &TypeRegistry, type_name: &str, derive_name: &s
                     .split(',')
                     .any(|arg| arg.trim().eq_ignore_ascii_case(derive_name))
         })
-    } else {
-        false
+    };
+
+    // Check primary entry first (fast path for unambiguous names)
+    if let Some(entry) = registry.get(type_name) {
+        if has_derive(entry) {
+            return true;
+        }
     }
+
+    // If ambiguous, check all qualified entries with this name
+    if registry.ambiguous_names.iter().any(|n| n == type_name) {
+        return registry
+            .qualified_types
+            .values()
+            .any(|entry| entry.name == type_name && has_derive(entry));
+    }
+
+    false
 }
 
 /// Check if a resolved field type (or its inner element type for collections)
@@ -712,6 +732,64 @@ mod tests {
 
         // Unknown type returns false
         assert!(!type_has_derive(&registry, "Unknown", "Clone"));
+    }
+
+    #[test]
+    fn test_type_has_derive_ambiguous_name() {
+        // Simulate a type that exists in both its own file and a barrel file
+        let mut registry = TypeRegistry::new();
+
+        let phone_entry = TypeRegistryEntry {
+            name: "PhoneNumber".to_string(),
+            file_path: "/project/src/types/phone-number.svelte.ts".to_string(),
+            is_exported: true,
+            definition: TypeDefinitionIR::Interface(InterfaceIR {
+                name: "PhoneNumber".to_string(),
+                span: zero_span(),
+                body_span: zero_span(),
+                type_params: vec![],
+                heritage: vec![],
+                decorators: vec![make_decorator(
+                    "derive",
+                    "Default, Serialize, Deserialize, Gigaform",
+                )],
+                fields: vec![],
+                methods: vec![],
+            }),
+            file_imports: vec![],
+        };
+        registry.insert(phone_entry, "/project");
+
+        // Same type in barrel file
+        let barrel_entry = TypeRegistryEntry {
+            name: "PhoneNumber".to_string(),
+            file_path: "/project/src/types/all-types.svelte.ts".to_string(),
+            is_exported: true,
+            definition: TypeDefinitionIR::Interface(InterfaceIR {
+                name: "PhoneNumber".to_string(),
+                span: zero_span(),
+                body_span: zero_span(),
+                type_params: vec![],
+                heritage: vec![],
+                decorators: vec![make_decorator(
+                    "derive",
+                    "Default, Serialize, Deserialize, Gigaform",
+                )],
+                fields: vec![],
+                methods: vec![],
+            }),
+            file_imports: vec![],
+        };
+        registry.insert(barrel_entry, "/project");
+
+        // Must be marked ambiguous
+        assert!(registry.ambiguous_names.contains(&"PhoneNumber".to_string()));
+
+        // type_has_derive should still return true
+        assert!(type_has_derive(&registry, "PhoneNumber", "Gigaform"));
+        assert!(type_has_derive(&registry, "PhoneNumber", "Default"));
+        assert!(type_has_derive(&registry, "PhoneNumber", "Serialize"));
+        assert!(type_has_derive(&registry, "PhoneNumber", "Deserialize"));
     }
 
     #[test]
